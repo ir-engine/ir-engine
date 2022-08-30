@@ -452,21 +452,20 @@ export default async function DebugHelpersSystem(world: World) {
       }
     }
 
-    for (const entity of ikAvatarQuery.enter()) {
-      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
-      const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
-      const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
-      debugHead.visible = debugEnabled
-      debugLeft.visible = debugEnabled
-      debugRight.visible = debugEnabled
-      Engine.instance.currentWorld.scene.add(debugHead)
-      Engine.instance.currentWorld.scene.add(debugLeft)
-      Engine.instance.currentWorld.scene.add(debugRight)
-      helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
-    }
-
-    if (debugEnabled) {
-      for (const entity of ikAvatarQuery()) {
+    for (const entity of ikAvatarQuery()) {
+      if (debugEnabled) {
+        if (!helpersByEntity.ikExtents.has(entity)) {
+          const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
+          const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
+          const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
+          debugHead.visible = debugEnabled
+          debugLeft.visible = debugEnabled
+          debugRight.visible = debugEnabled
+          Engine.instance.currentWorld.scene.add(debugHead)
+          Engine.instance.currentWorld.scene.add(debugLeft)
+          Engine.instance.currentWorld.scene.add(debugRight)
+          helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
+        }
         const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
         const [debugHead, debugLeft, debugRight] = helpersByEntity.ikExtents.get(entity) as Object3D[]
         debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
@@ -475,6 +474,13 @@ export default async function DebugHelpersSystem(world: World) {
         debugLeft.quaternion.copy(xrInputSourceComponent.controllerLeft.getWorldQuaternion(quat))
         debugRight.position.copy(xrInputSourceComponent.controllerRight.getWorldPosition(vector3))
         debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
+      } else {
+        if (helpersByEntity.ikExtents.has(entity)) {
+          ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
+            obj.removeFromParent()
+          })
+          helpersByEntity.ikExtents.delete(entity)
+        }
       }
     }
 
