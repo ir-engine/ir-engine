@@ -474,8 +474,8 @@ class TrailRenderer extends Mesh {
       nodeVertexIDs.set([i], baseIndex)
     }
 
-    // nodeIDs.needsUpdate = true
-    // nodeVertexIDs.needsUpdate = true
+    nodeIDs.needsUpdate = true
+    nodeVertexIDs.needsUpdate = true
 
     nodeIDs.updateRange.offset = nodeIndex * this.VerticesPerNode
     nodeIDs.updateRange.count = this.VerticesPerNode
@@ -497,7 +497,7 @@ class TrailRenderer extends Mesh {
       nodeCenters.setXYZ(baseIndex, nodeCenter.x, nodeCenter.y, nodeCenter.z)
     }
 
-    // nodeCenters.needsUpdate = true
+    nodeCenters.needsUpdate = true
     nodeCenters.updateRange.offset = nodeIndex * this.VerticesPerNode * PositionComponentCount
     nodeCenters.updateRange.count = this.VerticesPerNode * PositionComponentCount
   }
