@@ -1,4 +1,5 @@
 import {
+  CubeTexture,
   Mesh,
   PerspectiveCamera,
   PlaneBufferGeometry,
@@ -19,9 +20,13 @@ export default function createReadableTexture(
   if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
     return options?.url ? map.source.data.src : map
   }
+  let blit: Texture = map
+  if ((map as CubeTexture).isCubeTexture) {
+    blit = new Texture(map.source.data[0])
+  }
   const fullscreenQuadGeometry = new PlaneBufferGeometry(2, 2, 1, 1)
   const fullscreenQuadMaterial = new ShaderMaterial({
-    uniforms: { blitTexture: new Uniform(map) },
+    uniforms: { blitTexture: new Uniform(blit) },
     vertexShader: `
             varying vec2 vUv;
             void main(){
@@ -56,6 +61,9 @@ export default function createReadableTexture(
   }
   temporaryRenderer.clear()
   temporaryRenderer.render(temporaryScene, temporaryCam)
+  if (blit !== map) {
+    blit.dispose()
+  }
   if (!options?.url) return new Texture(temporaryRenderer.domElement)
   else {
     const result = temporaryRenderer.domElement.getContext('webgl2')!.canvas.toDataURL()

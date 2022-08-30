@@ -12,7 +12,12 @@ import {
   materialTypeToDefaultArgs,
   materialTypeToLibraryName
 } from '@xrengine/engine/src/renderer/materials/Utilities'
+import { dispatchAction } from '@xrengine/hyperflux'
 
+import { executeCommandWithHistory } from '../../classes/History'
+import EditorCommands from '../../constants/EditorCommands'
+import { EditorAction } from '../../services/EditorServices'
+import { accessSelectionState } from '../../services/SelectionServices'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
@@ -21,6 +26,7 @@ import Well from '../layout/Well'
 
 export default function MaterialEditor({ material }: { ['material']: Material }) {
   if (material === undefined) return <></>
+
   const createThumbnails = () => {
     const result = new Map<string, string>()
     Object.entries(material).map(([k, field]: [string, Texture]) => {
@@ -31,6 +37,9 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     })
     return result
   }
+
+  const selectionState = accessSelectionState()
+
   const createDefaults = () => {
     const result = materialToDefaultArgs(material)!
     const thumbs = thumbnails.value
@@ -132,11 +141,12 @@ export default function MaterialEditor({ material }: { ['material']: Material })
         entity={material.uuid}
         values={material}
         onChange={(k) => async (val) => {
+          let prop
           if (defaults.value[k].type === 'texture' && typeof val === 'string') {
             if (val) {
-              material[k] = await AssetLoader.loadAsync(val)
+              prop = await AssetLoader.loadAsync(val)
             } else {
-              material[k] = undefined
+              prop = undefined
             }
             URL.revokeObjectURL(defaults.value[k].preview)
             defaults.merge((_defaults) => {
@@ -144,8 +154,16 @@ export default function MaterialEditor({ material }: { ['material']: Material })
               _defaults[k].preview = createReadableTexture(material[k], { url: true }) as string
               return _defaults
             })
+          } else {
+            prop = val
           }
-          material.needsUpdate = true
+          const properties = [Object.fromEntries([[k, prop]])]
+          executeCommandWithHistory({
+            type: EditorCommands.MODIFY_MATERIAL,
+            affectedNodes: selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
+            materialId: material.uuid,
+            properties
+          })
         }}
         defaults={defaults.value}
       />

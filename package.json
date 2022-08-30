@@ -58,7 +58,7 @@
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
     "diff": "lerna diff",
-    "edit": "scripts/open_browser.sh editor && scripts/open_browser.sh admin && scripts/open_browser.sh location",
+    "edit": "node scripts/open-editor.js",
     "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"packages/**/*.scss\" --fix",
     "format-staged": "lint-staged",
