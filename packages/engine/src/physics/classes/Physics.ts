@@ -25,6 +25,7 @@ import {
   Vector3
 } from 'three'
 
+import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -223,13 +224,17 @@ function createRigidBodyForObject(
 ): RigidBody {
   if (!object) return undefined!
   const colliderDescs = [] as ColliderDesc[]
+  const meshes = [] as Mesh[]
   // create collider desc using userdata of each child mesh
   object.traverse((mesh: Mesh) => {
     const colliderDesc = createColliderDesc(
       mesh,
       mesh === object ? { ...colliderDescOptions, ...mesh.userData } : (mesh.userData as ColliderDescOptions)
     )
-    if (colliderDesc) colliderDescs.push(colliderDesc)
+    if (colliderDesc) {
+      meshes.push(mesh)
+      colliderDescs.push(colliderDesc)
+    }
   })
 
   const rigidBodyType =
@@ -257,7 +262,15 @@ function createRigidBodyForObject(
       break
   }
 
-  return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+  const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+
+  if (!Engine.instance.isEditor)
+    for (const mesh of meshes) {
+      mesh.removeFromParent()
+      cleanupAllMeshData(mesh, {})
+    }
+
+  return body
 }
 
 function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
