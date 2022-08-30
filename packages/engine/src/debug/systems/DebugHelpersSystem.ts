@@ -31,19 +31,16 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AudioElementNodes } from '../../audio/systems/AudioSystem'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
-import {
-  accessEngineRendererState,
-  EngineRendererAction,
-  EngineRendererState
-} from '../../renderer/EngineRendererState'
+import { EngineRendererAction, EngineRendererState } from '../../renderer/EngineRendererState'
 import EditorDirectionalLightHelper from '../../scene/classes/EditorDirectionalLightHelper'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import Spline from '../../scene/classes/Spline'
@@ -427,15 +424,20 @@ export default async function DebugHelpersSystem(world: World) {
      * AVATAR HELPERS
      */
     for (const entity of avatarAnimationQuery()) {
-      if (!helpersByEntity.skeletonHelpers.has(entity) && debugEnabled) {
-        const anim = getComponent(entity, AvatarAnimationComponent)
-        if (anim.rig.Hips) {
-          const helper = new SkeletonHelper(anim.rig.Hips)
-          Engine.instance.currentWorld.scene.add(helper)
-          helpersByEntity.skeletonHelpers.set(entity, helper)
-        }
+      const anim = getComponent(entity, AvatarAnimationComponent)
+      if (
+        !helpersByEntity.skeletonHelpers.has(entity) &&
+        debugEnabled &&
+        !hasComponent(entity, AvatarPendingComponent)
+      ) {
+        const helper = new SkeletonHelper(anim.rig.Hips)
+        Engine.instance.currentWorld.scene.add(helper)
+        helpersByEntity.skeletonHelpers.set(entity, helper)
       }
-      if (helpersByEntity.skeletonHelpers.has(entity) && !debugEnabled) {
+      if (
+        helpersByEntity.skeletonHelpers.has(entity) &&
+        (!debugEnabled || hasComponent(entity, AvatarPendingComponent))
+      ) {
         const helper = helpersByEntity.skeletonHelpers.get(entity) as SkeletonHelper
         Engine.instance.currentWorld.scene.remove(helper)
         helpersByEntity.skeletonHelpers.delete(entity)

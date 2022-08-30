@@ -17,11 +17,14 @@ import {
   Vector3
 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/isClient'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -77,9 +80,32 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   return SkeletonUtils.clone(parent)
 }
 
-export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
+export const loadAvatarForUser = async (
+  entity: Entity,
+  avatarURL: string,
+  loadingEffect = getState(EngineState).avatarLoadingEffect.value
+) => {
+  if (loadingEffect) {
+    if (hasComponent(entity, AvatarControllerComponent)) {
+      getComponent(entity, AvatarControllerComponent).movementEnabled = false
+    }
+  }
+
+  addComponent(entity, AvatarPendingComponent, true)
   const parent = await loadAvatarModelAsset(avatarURL)
+  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
+
   setupAvatarForUser(entity, parent)
+
+  if (isClient && loadingEffect) {
+    const avatar = getComponent(entity, AvatarComponent)
+    const avatarMaterials = setupAvatarMaterials(entity, avatar.modelContainer)
+    if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
+    addComponent(entity, AvatarEffectComponent, {
+      opacityMultiplier: 0,
+      originMaterials: avatarMaterials
+    })
+  }
 }
 
 export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
@@ -96,13 +122,6 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
 
   setupAvatarModel(entity)(model)
   setupAvatarHeight(entity, model)
-
-  const avatarMaterials = setupAvatarMaterials(entity, model)
-
-  // Materials only load on the client currently
-  if (isClient) {
-    loadGrowingEffectObject(entity, avatarMaterials)
-  }
 
   model.children.forEach((child) => avatar.modelContainer.add(child))
 }
@@ -219,53 +238,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   box.expandByObject(model).getSize(tempVec3ForHeight)
   box.getCenter(tempVec3ForCenter)
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
-}
-
-export const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<MaterialMap>) => {
-  const textureLight = await AssetLoader.loadAsync('/itemLight.png')
-  const texturePlate = await AssetLoader.loadAsync('/itemPlate.png')
-
-  const lightMesh = new Mesh(
-    new PlaneGeometry(0.04, 3.2),
-    new MeshBasicMaterial({
-      transparent: true,
-      map: textureLight,
-      blending: AdditiveBlending,
-      depthWrite: false,
-      side: DoubleSide
-    })
-  )
-
-  const plateMesh = new Mesh(
-    new PlaneGeometry(1.6, 1.6),
-    new MeshBasicMaterial({
-      transparent: false,
-      map: texturePlate,
-      blending: AdditiveBlending,
-      depthWrite: false
-    })
-  )
-
-  lightMesh.geometry.computeBoundingSphere()
-  plateMesh.geometry.computeBoundingSphere()
-  lightMesh.name = 'light_obj'
-  plateMesh.name = 'plate_obj'
-
-  textureLight.encoding = sRGBEncoding
-  textureLight.needsUpdate = true
-  texturePlate.encoding = sRGBEncoding
-  texturePlate.needsUpdate = true
-
-  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
-  addComponent(entity, AvatarPendingComponent, {
-    light: lightMesh,
-    plate: plateMesh
-  })
-  if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
-  addComponent(entity, AvatarEffectComponent, {
-    opacityMultiplier: 0,
-    originMaterials: originalMatList
-  })
 }
 
 /**
