@@ -10,13 +10,13 @@ import {
   WebGLRenderer
 } from 'three'
 
-export default function createReadableTexture(
+export default async function createReadableTexture(
   map: Texture,
   options?: {
     maxDimensions?: { width: number; height: number }
     url?: boolean
   }
-): Texture | string {
+): Promise<Texture | string> {
   if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
     return options?.url ? map.source.data.src : map
   }
@@ -64,11 +64,14 @@ export default function createReadableTexture(
   if (blit !== map) {
     blit.dispose()
   }
-  if (!options?.url) return new Texture(temporaryRenderer.domElement)
-  else {
-    const result = temporaryRenderer.domElement.getContext('webgl2')!.canvas.toDataURL()
-    temporaryRenderer.domElement.remove()
-    temporaryRenderer.dispose()
-    return result
-  }
+  const result = await new Promise<Blob | null>((resolve) =>
+    temporaryRenderer.domElement.getContext('webgl2')!.canvas.toBlob(resolve)
+  )
+  temporaryRenderer.domElement.remove()
+  temporaryRenderer.dispose()
+  if (!result) throw new Error('Error creating blob')
+  const image = new Image(map.image.width, map.image.height)
+  image.src = URL.createObjectURL(result)
+  if (!options?.url) return new Texture(image)
+  else return image.src
 }

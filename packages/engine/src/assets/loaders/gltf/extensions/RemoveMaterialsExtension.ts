@@ -1,6 +1,6 @@
-import type { GLTFParser } from '../loaders/gltf/GLTFLoader'
+import type { GLTFParser } from '../GLTFLoader'
 
-export class GLTFRemoveMaterialsExtension {
+export class RemoveMaterialsExtension {
   name = 'EXT_remove_materials'
   parser: GLTFParser
   constructor(parser) {
