@@ -236,6 +236,7 @@ const setupLoadingEffect = (entity, obj) => {
   })
   if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
   addComponent(entity, AvatarEffectComponent, {
+    sourceEntity: entity,
     opacityMultiplier: 0,
     originMaterials: materialList
   })
