@@ -17,7 +17,7 @@ import { NavMesh } from '../../classes/NavMesh'
 import { NavMeshComponent, NavMeshComponentType } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
-export const SCENE_COMPONENT_NAV_MESH = 'navMesh'
+export const SCENE_COMPONENT_NAV_MESH = 'nav-mesh'
 export const SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES: Partial<NavMeshComponentType> = {}
 
 export const deserializeNavMesh: ComponentDeserializeFunction = (

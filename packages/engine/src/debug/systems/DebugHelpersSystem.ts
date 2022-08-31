@@ -535,7 +535,6 @@ export default async function DebugHelpersSystem(world: World) {
       helpersByEntity.navmesh.delete(entity)
     }
     for (const entity of navmeshQuery.enter()) {
-      console.log('navMesh debug')
       const navMesh = getComponent(entity, NavMeshComponent).value
       const convexRegionHelper = createConvexRegionHelper(navMesh)
       const graphHelper = createGraphHelper(navMesh.graph, 0.2)

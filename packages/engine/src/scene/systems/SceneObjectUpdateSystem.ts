@@ -61,6 +61,7 @@ import {
   SCENE_COMPONENT_MODEL,
   SCENE_COMPONENT_MODEL_DEFAULT_VALUE
 } from '../components/ModelComponent'
+import { NavMeshComponent } from '../components/NavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import {
   OceanComponent,
@@ -137,8 +138,10 @@ import { deserializeInterior, serializeInterior, updateInterior } from '../funct
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
 import {
+  deserializeNavMesh,
   SCENE_COMPONENT_NAV_MESH,
-  SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES
+  SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES,
+  serializeNavMesh
 } from '../functions/loaders/NavMeshFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePortal, serializePortal, updatePortal } from '../functions/loaders/PortalFunctions'
@@ -456,6 +459,23 @@ export default async function SceneObjectUpdateSystem(world: World) {
     deserialize: deserializeWater
   })
 
+  /*
+   * NAV MESH
+   */
+  world.scenePrefabRegistry.set(ScenePrefabs.navMesh, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
+    { name: SCENE_COMPONENT_NAV_MESH, props: SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES }
+  ])
+
+  world.sceneComponentRegistry.set(NavMeshComponent._name, SCENE_COMPONENT_NAV_MESH)
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_NAV_MESH, {
+    defaultData: SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES,
+    deserialize: deserializeNavMesh,
+    serialize: serializeNavMesh
+  })
+
   world.scenePrefabRegistry.set(ScenePrefabs.interior, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_INTERIOR, props: SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES }
@@ -471,12 +491,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.spline, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_SPLINE, props: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES }
-  ])
-
-  world.scenePrefabRegistry.set(ScenePrefabs.navMesh, [
-    ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
-    { name: SCENE_COMPONENT_NAV_MESH, props: SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES }
   ])
 
   world.sceneComponentRegistry.set(SplineComponent._name, SCENE_COMPONENT_SPLINE)

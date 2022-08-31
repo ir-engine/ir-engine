@@ -10,6 +10,7 @@ import { iterateEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
+import { SCENE_COMPONENT_NAV_MESH } from './loaders/NavMeshFunctions'
 
 export const serializeEntity = (entity: Entity, world = Engine.instance.currentWorld) => {
   const ignoreComponents = getComponent(entity, GLTFLoadedComponent)
