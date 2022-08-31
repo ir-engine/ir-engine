@@ -157,14 +157,15 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   const { rig } = avatarAnimationComponent
   const rootBone = rig.Root || rig.Hips
-  rootBone.updateWorldMatrix(false, true)
+  rootBone.updateWorldMatrix(true, true)
 
+  /**@todo this is broken */
   // Try converting to T pose
-  if (!isSkeletonInTPose(rig)) {
-    makeTPose(rig)
-    const meshes = findSkinnedMeshes(model)
-    meshes.forEach(applySkeletonPose)
-  }
+  // if (!isSkeletonInTPose(rig)) {
+  //   makeTPose(rig)
+  //   const meshes = findSkinnedMeshes(model)
+  //   meshes.forEach(applySkeletonPose)
+  // }
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
