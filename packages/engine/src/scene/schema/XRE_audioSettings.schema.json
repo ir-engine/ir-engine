@@ -6,7 +6,7 @@
   "description": "serialization extension for XREngine audio settings components",
   "allOf": [{ "$ref": "glTFProperty.schema.json" }],
   "properties": {
-    "usePositionalAudio": {
+    "usePositionalMedia": {
       "type": "boolean",
       "default": true
     },

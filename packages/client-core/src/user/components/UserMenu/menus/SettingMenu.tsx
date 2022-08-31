@@ -465,12 +465,12 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                       <span className={styles.materialIconBlock}>
                         <SurroundSoundIcon />
                       </span>
-                      <span className={styles.settingLabel}>{t('user:usermenu.setting.use-positional-audio')}</span>
+                      <span className={styles.settingLabel}>{t('user:usermenu.setting.use-positional-media')}</span>
                       <Checkbox
                         className={styles.checkboxBlock}
-                        checked={audioState.usePositionalAudio.value}
+                        checked={audioState.usePositionalMedia.value}
                         onChange={(_, value: boolean) => {
-                          dispatchAction(AudioSettingAction.setUsePositionalAudio({ value }))
+                          dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
                         }}
                         onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
