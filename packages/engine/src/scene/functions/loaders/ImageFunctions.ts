@@ -22,6 +22,8 @@ import { addError, removeError } from '../ErrorFunctions'
 export const deserializeImage: ComponentDeserializeFunction = (entity: Entity, data: ImageComponentType) => {
   const props = parseImageProperties(data)
   addComponent(entity, ImageComponent, props)
+  const mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
+  addComponent(entity, Object3DComponent, { value: mesh })
 }
 
 export const updateImage: ComponentUpdateFunction = async (entity: Entity) => {

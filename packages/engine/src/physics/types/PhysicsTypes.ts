@@ -67,6 +67,7 @@ export type ColliderDescOptions = {
   bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
   size?: Vec3 // For cases where mesh.scale can't provide the actual size of collider.
   isTrigger?: boolean
+  removeMesh?: boolean
   friction?: number
   restitution?: number
   collisionLayer?: number

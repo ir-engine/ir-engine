@@ -180,6 +180,7 @@ export default async function EditorControlSystem(_: World) {
           ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)!
           : getComponent(lastSelection as Entity, Object3DComponent)?.value
         if (lastSelectedObj3d) {
+          lastSelectedObj3d.updateMatrixWorld(true)
           const isChanged =
             selectionCounter !== selectionState.selectionCounter.value ||
             transformModeChanged ||

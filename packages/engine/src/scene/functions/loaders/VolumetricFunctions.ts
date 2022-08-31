@@ -3,7 +3,6 @@ import { Box3 } from 'three'
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
-import { loadGrowingEffectObject } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 
 import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
@@ -16,7 +15,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { CallbackComponent } from '../../components/CallbackComponent'
@@ -235,7 +234,12 @@ const setupLoadingEffect = (entity, obj) => {
       object.material = DissolveEffect.getDissolveTexture(object)
     }
   })
-  loadGrowingEffectObject(entity, materialList)
+  if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
+  addComponent(entity, AvatarEffectComponent, {
+    sourceEntity: entity,
+    opacityMultiplier: 0,
+    originMaterials: materialList
+  })
 }
 
 const calculateHeight = (obj3d) => {

@@ -12,6 +12,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 
 export function applyTransformToMesh(entity: Entity, mesh: Mesh) {
   const transform = getComponent(entity, TransformComponent)
+  mesh.updateMatrixWorld(true)
   const position = new Vector3()
     .copy(mesh.position)
     .applyQuaternion(transform.rotation)
@@ -37,6 +38,7 @@ export function applyTransformToMesh(entity: Entity, mesh: Mesh) {
 
 export function applyTransformToMeshWorld(entity: Entity, mesh: Mesh) {
   const transform = getComponent(entity, TransformComponent)
+  mesh.updateMatrixWorld(true)
   const [position, quaternion, scale] = getTransform(
     mesh.getWorldPosition(new Vector3()),
     mesh.getWorldQuaternion(new Quaternion()),
@@ -76,23 +78,4 @@ export function getTransform(posM, queM, scaM, posE, queE, scaE): [Vector3, Quat
   scale.y = scaM.y * scaE.y
   scale.z = scaM.z * scaE.z
   return [position, quaternion, scale]
-}
-
-/**
- * Disables rendering for models that have a physics type attached to userData
- * @param asset
- */
-
-export const makeCollidersInvisible = (asset: any) => {
-  const parseColliders = (mesh) => {
-    if (mesh.userData.data === 'physics' || mesh.userData.type || mesh.userData['project.collider.type']) {
-      mesh.visible = false
-      // if (mesh.material) {
-      //   mesh.material.opacity = 0.2
-      //   mesh.material.transparent = true
-      //   // mesh.material.wireframe = true
-      // }
-    }
-  }
-  asset.scene ? asset.scene.traverse(parseColliders) : asset.traverse(parseColliders)
 }
