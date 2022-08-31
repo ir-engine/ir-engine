@@ -18,7 +18,7 @@ Example
 ```ts
 {
   "xrengine.entity": "MyTrigger"
-  "xrengine.box-collider.isTrigger": true
+  "xrengine.collider.isTrigger": true
   "xrengine.CustomComponent.value": 12345
 }
 ```
@@ -29,4 +29,5 @@ NameComponent { name: "MyTrigger" }
 TransformComponent { position, rotation, scale } (from mesh relative to world origin)
 Object3DComponent { value: (the mesh this was loaded from) }
 RigidBodyComponent { body: (a physics trigger box body) }
+ColliderComponent { isTrigger: true, ... }
 CustomComponent: { value: 12345 }

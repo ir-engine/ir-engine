@@ -52,17 +52,13 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
    * Message display logic
    */
 
-  const chatState = useChatState().value
+  const chatState = useChatState()
   const channels = chatState.channels.channels
-  const activeChannelMatch = Object.values(channels).find((channel) => channel.channelType === 'instance')
-  const activeChannel = activeChannelMatch?.messages ? activeChannelMatch.messages : []
-  const sortedMessages = [...activeChannel].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  )
+  const activeChannel = Object.values(channels).find((channel) => channel.channelType.value === 'instance')
 
   useEffect(() => {
-    if (activeChannel?.length > 0 && !chatWindowOpen) setUnreadMessages(true)
-  }, [activeChannel])
+    if (activeChannel?.messages && activeChannel?.messages.length > 0 && !chatWindowOpen) setUnreadMessages(true)
+  }, [activeChannel?.messages])
 
   /**
    * Message composition logic
@@ -177,7 +173,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   return {
     dimensions,
-    sortedMessages,
+    activeChannel,
     handleComposingMessageChange,
     packageMessage,
     composingMessage
@@ -209,11 +205,17 @@ const InstanceChat = ({
   const [messageContainerVisible, setMessageContainerVisible] = useState(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
-  const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { dimensions, activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
     chatWindowOpen,
     setUnreadMessages,
     messageRefInput: messageRefInput as any
   })
+
+  const sortedMessages = activeChannel
+    ? [...activeChannel.messages.value].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+    : []
 
   const user = useAuthState().user
 
@@ -246,8 +248,7 @@ const InstanceChat = ({
 
   useEffect(() => {
     if (
-      sortedMessages &&
-      sortedMessages.length &&
+      sortedMessages?.length &&
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
       chatState.messageCreated.value
     ) {
@@ -260,7 +261,7 @@ const InstanceChat = ({
         clearInterval(messageRefCurrentRenderedInterval)
       }
     }, 5000)
-  }, [chatState.messageCreated, sortedMessages])
+  }, [chatState.messageCreated])
 
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()

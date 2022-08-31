@@ -473,8 +473,8 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
     dispatchAction(
-      EngineRendererAction.setPhysicsDebug({
-        physicsDebugEnable: !accessEngineRendererState().physicsDebugEnable.value
+      EngineRendererAction.setDebug({
+        debugEnable: !accessEngineRendererState().debugEnable.value
       })
     )
   }

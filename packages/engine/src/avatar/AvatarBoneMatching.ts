@@ -557,14 +557,28 @@ function findRootBone(bone: Bone): Bone {
   return node
 }
 
-function findFirstTwistChildBone(parent: Object3D): Bone | Object3D | undefined {
-  if (!parent || !parent.children || !parent.children.length) return
-  return parent.children.find((child) => /twist/i.test(child.name))
+function findFirstTwistChildBone(parent: Object3D, hand: Object3D, left: boolean): Bone {
+  const existingBone = parent?.children?.find((child) => /twist/i.test(child.name)) as Bone
+  // if (!existingBone) {
+  //   const bone = new Bone()
+  //   // const vec3 = hand.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()))
+  //   // bone.position.copy(vec3.multiplyScalar(0.5))
+  //   hand.add(bone)
+  //   bone.position.y += 0.1
+  //   return bone
+  // }
+  return existingBone
 }
 
 export default function avatarBoneMatching(model: Object3D): BoneStructure {
   try {
     let Root = findRootBone(model.getObjectByProperty('type', 'Bone') as Bone)
+    const skinnedMeshes = [] as SkinnedMesh[]
+    model.traverse((obj: SkinnedMesh) => {
+      if (obj.isSkinnedMesh) skinnedMeshes.push(obj)
+    })
+    Root.updateMatrixWorld(true)
+
     const Hips = _findHips(Root)
     const tailBones = _getTailBones(Root)
     const LeftEye = _findEye(tailBones, true)
@@ -577,12 +591,12 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
     const LeftShoulder = _findShoulder(tailBones, true)
     const LeftHand = _findHand(LeftShoulder)
     const LeftForeArm = LeftHand.parent
-    const LeftForeArmTwist = findFirstTwistChildBone(LeftForeArm)
+    const LeftForeArmTwist = findFirstTwistChildBone(LeftForeArm, LeftHand, true)
     const LeftArm = LeftForeArm.parent
     const RightShoulder = _findShoulder(tailBones, false)
     const RightHand = _findHand(RightShoulder)
     const RightForeArm = RightHand.parent
-    const RightForeArmTwist = findFirstTwistChildBone(RightForeArm)
+    const RightForeArmTwist = findFirstTwistChildBone(RightForeArm, RightHand, false)
     const RightArm = RightForeArm.parent
     const Left_ankle = _findFoot(tailBones, true)
     const Left_knee = Left_ankle.parent
@@ -592,6 +606,14 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
     const Right_leg = Right_knee.parent
     const leftHandBones = findHandBones(LeftHand)
     const rightHandBones = findHandBones(RightHand)
+
+    // for (const mesh of skinnedMeshes) {
+    //   if(!mesh.skeleton.bones.includes(LeftForeArmTwist))
+    //     mesh.skeleton.bones.push(LeftForeArmTwist)
+    //   if(!mesh.skeleton.bones.includes(RightForeArmTwist))
+    //     mesh.skeleton.bones.push(RightForeArmTwist)
+    //   mesh.skeleton.calculateInverses()
+    // }
 
     if (Root === Hips) {
       Root = null!

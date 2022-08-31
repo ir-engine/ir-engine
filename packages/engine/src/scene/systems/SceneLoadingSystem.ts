@@ -219,6 +219,7 @@ export const loadComponent = (entity: Entity, component: ComponentJson, world = 
       ([_, prefab]) => prefab === component.name
     )!
     if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
+    if (!ComponentMap.get(Component[0])) return console.warn('[ SceneLoading] could not find component', Component[0])
 
     const isTagComponent = !sceneComponent.defaultData
     addComponent(

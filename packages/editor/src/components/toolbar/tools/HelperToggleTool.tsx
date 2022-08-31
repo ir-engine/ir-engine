@@ -21,11 +21,9 @@ export const HelperToggleTool = () => {
   const forceUpdate = useCallback(() => updateState({}), [])
   const engineRendererState = useEngineRendererState()
 
-  const togglePhysicsDebug = () => {
+  const toggleDebug = () => {
     forceUpdate()
-    dispatchAction(
-      EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: !engineRenderState.physicsDebugEnable.value })
-    )
+    dispatchAction(EngineRendererAction.setDebug({ debugEnable: !engineRenderState.debugEnable.value }))
   }
 
   const toggleNodeHelpers = () => {
@@ -38,10 +36,10 @@ export const HelperToggleTool = () => {
   return (
     <>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip title="Toggle Physics Helpers">
+        <InfoTooltip title="Toggle Helpers">
           <button
-            onClick={togglePhysicsDebug}
-            className={styles.toolButton + ' ' + (engineRendererState.physicsDebugEnable.value ? styles.selected : '')}
+            onClick={toggleDebug}
+            className={styles.toolButton + ' ' + (engineRendererState.debugEnable.value ? styles.selected : '')}
           >
             <SquareFootIcon fontSize="small" />
           </button>
