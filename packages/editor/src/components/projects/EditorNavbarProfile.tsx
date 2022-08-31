@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 import { Person } from '@mui/icons-material'
@@ -13,6 +15,7 @@ export const EditorNavbarProfile = () => {
   const user = authState.user
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
+  const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
@@ -43,7 +46,16 @@ export const EditorNavbarProfile = () => {
             classes={{ paper: styles.profilePaper }}
             onClose={handleClose}
           >
-            <ProfileMenu isPopover onClose={handleClose} />
+            {selectedMenu === Views.Profile && (
+              <ProfileMenu
+                isPopover
+                onClose={handleClose}
+                changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Settings)}
+              />
+            )}
+            {selectedMenu === Views.Settings && (
+              <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+            )}
           </Popover>
         </>
       )}

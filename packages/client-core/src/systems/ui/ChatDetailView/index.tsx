@@ -32,7 +32,7 @@ const ChatDetailView = () => {
   })
 
   const sortedMessages =
-    activeChannel && activeChannel.messages
+    activeChannel && activeChannel.messages.value.length
       ? [...activeChannel.messages.value].sort(
           (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         )
