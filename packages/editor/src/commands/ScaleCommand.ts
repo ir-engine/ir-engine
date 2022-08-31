@@ -99,59 +99,30 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
   const space = undo ? command.undo!.space : command.space
   const overrideScale = undo ? command.undo!.overrideScale : command.overrideScale
 
-  if (!overrideScale) {
-    for (let i = 0; i < command.affectedNodes.length; i++) {
-      const node = command.affectedNodes[i]
-      const scale = scales[i] ?? scales[0]
-
-      if (space === TransformSpace.World && (scale.x !== scale.y || scale.x !== scale.z || scale.y !== scale.z)) {
-        logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
-      }
-      if (typeof node === 'string') {
-        obj3dFromUuid(node).scale.copy(scale)
-      } else {
-        getComponent(node.entity, TransformComponent).scale.copy(scale)
-      }
-    }
-
-    return
-  }
-
-  const tempMatrix = new Matrix4()
-  const tempVector = new Vector3()
-
   for (let i = 0; i < command.affectedNodes.length; i++) {
     const node = command.affectedNodes[i]
-
     const scale = scales[i] ?? scales[0]
-    const obj3d = typeof node === 'string' ? obj3dFromUuid(node) : getComponent(node.entity, Object3DComponent).value
-    /** @todo figure out native local transform support */
-    // const transformComponent = hasComponent(node.entity, LocalTransformComponent) ? getComponent(node.entity, LocalTransformComponent) : getComponent(node.entity, TransformComponent)
-    const transformComponent = typeof node === 'string' ? obj3d : getComponent(node.entity, TransformComponent)
 
-    if (space === TransformSpace.Local) {
-      transformComponent.scale.x = scale.x === 0 ? Number.EPSILON : scale.x
-      transformComponent.scale.y = scale.y === 0 ? Number.EPSILON : scale.y
-      transformComponent.scale.z = scale.z === 0 ? Number.EPSILON : scale.z
-    } else {
-      obj3d?.updateMatrixWorld() // Update parent world matrices
-
-      tempVector.copy(scale)
-
-      let _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
-
-      tempMatrix.copy(_spaceMatrix).invert()
-      tempVector.applyMatrix4(tempMatrix)
-
-      tempVector.set(
-        tempVector.x === 0 ? Number.EPSILON : tempVector.x,
-        tempVector.y === 0 ? Number.EPSILON : tempVector.y,
-        tempVector.z === 0 ? Number.EPSILON : tempVector.z
-      )
-
-      transformComponent.scale.copy(tempVector)
+    if (space === TransformSpace.World && (scale.x !== scale.y || scale.x !== scale.z || scale.y !== scale.z)) {
+      logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
     }
-    obj3d.updateMatrix()
+
+    const transformComponent =
+      typeof node === 'string' ? obj3dFromUuid(node) : getComponent(node.entity, TransformComponent)
+
+    if (overrideScale) {
+      transformComponent.scale.copy(scale)
+    } else {
+      transformComponent.scale.multiply(scale)
+    }
+
+    transformComponent.scale.set(
+      transformComponent.scale.x === 0 ? Number.EPSILON : transformComponent.scale.x,
+      transformComponent.scale.y === 0 ? Number.EPSILON : transformComponent.scale.y,
+      transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
+    )
+
+    // TODO: this seems like a separate concern; should probably be handled elsewhere
     if (typeof node !== 'string' && hasComponent(node.entity, ColliderComponent)) {
       if (hasComponent(node.entity, MeshColliderComponentTag)) {
         updateMeshCollider(node.entity)
