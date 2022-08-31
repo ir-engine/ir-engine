@@ -58,5 +58,5 @@ export const shouldUseImmersiveMedia = () => {
   const immersiveMedia =
     mediaSettingState.immersiveMediaMode.value === 'on' ||
     (mediaSettingState.immersiveMediaMode.value === 'auto' && mediaSettingState.useImmersiveMedia.value)
-  return immersiveMedia || audioState.usePositionalAudio.value || xrSessionActive
+  return immersiveMedia || audioState.usePositionalMedia.value || xrSessionActive
 }
