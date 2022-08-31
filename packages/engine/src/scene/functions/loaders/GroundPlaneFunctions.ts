@@ -59,6 +59,7 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
       bodyType: RigidBodyType.Fixed,
       type: ShapeType.Cuboid,
       size: planeSize,
+      removeMesh: false,
       collisionLayer: CollisionGroups.Ground,
       collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
     } as ColliderDescOptions

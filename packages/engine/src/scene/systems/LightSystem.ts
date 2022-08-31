@@ -102,6 +102,7 @@ export default async function LightSystem(world: World) {
 
   world.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES }
   ])
 
