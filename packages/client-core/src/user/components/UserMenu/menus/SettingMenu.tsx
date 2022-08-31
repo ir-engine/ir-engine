@@ -629,13 +629,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                   onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 />
-              </div>
-              <div className={`${styles.row} ${styles.automatic}`}>
                 <FormControlLabel
                   className={styles.checkboxBlock}
                   control={<Checkbox checked={rendererState.automatic.value} size="small" />}
                   label={t('user:usermenu.setting.lbl-automatic') as string}
-                  labelPlacement="start"
                   onChange={(_, value) => {
                     dispatchAction(EngineRendererAction.setAutomatic({ automatic: value }))
                   }}

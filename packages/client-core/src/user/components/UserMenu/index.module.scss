@@ -2499,6 +2499,7 @@
 
     .checkboxBlock {
       margin: 4px 20px 0 0;
+      flex-grow: 1;
 
       :global(.MuiCheckbox-root) {
         padding: 0;
