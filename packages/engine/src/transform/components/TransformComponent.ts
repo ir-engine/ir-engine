@@ -29,12 +29,17 @@ export const TransformComponent = createMappedComponent<TransformComponentType, 
 
 globalThis.TransformComponent = TransformComponent
 
-export function setTransformComponent(entity: Entity) {
+export function setTransformComponent(
+  entity: Entity,
+  position = new Vector3(),
+  rotation = new Quaternion(),
+  scale = new Vector3(1, 1, 1)
+) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
   return setComponent(entity, TransformComponent, {
-    position: createVector3Proxy(TransformComponent.position, entity, dirtyTransforms),
-    rotation: createQuaternionProxy(TransformComponent.rotation, entity, dirtyTransforms),
-    scale: createVector3Proxy(TransformComponent.scale, entity, dirtyTransforms).setScalar(1)
+    position: createVector3Proxy(TransformComponent.position, entity, dirtyTransforms, position),
+    rotation: createQuaternionProxy(TransformComponent.rotation, entity, dirtyTransforms, rotation),
+    scale: createVector3Proxy(TransformComponent.scale, entity, dirtyTransforms, scale)
   })
 }
 

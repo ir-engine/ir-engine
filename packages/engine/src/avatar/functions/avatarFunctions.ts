@@ -27,6 +27,7 @@ import { isClient } from '../../common/functions/isClient'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -100,8 +101,9 @@ export const loadAvatarForUser = async (
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
     const avatarMaterials = setupAvatarMaterials(entity, avatar.modelContainer)
-    if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
-    addComponent(entity, AvatarEffectComponent, {
+    const effectEntity = createEntity()
+    addComponent(effectEntity, AvatarEffectComponent, {
+      sourceEntity: entity,
       opacityMultiplier: 0,
       originMaterials: avatarMaterials
     })
