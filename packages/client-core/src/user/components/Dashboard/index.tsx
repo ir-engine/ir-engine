@@ -14,6 +14,8 @@ import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../services/AuthService'
+import SettingMenu from '../UserMenu/menus/SettingMenu'
+import { Views } from '../UserMenu/util'
 import DashboardMenuItem from './DashboardMenuItem'
 import styles from './index.module.scss'
 
@@ -34,6 +36,7 @@ const Dashboard = ({ children }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
   const [open, setOpen] = React.useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
   const user = authState.user
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -94,7 +97,19 @@ const Dashboard = ({ children }: Props) => {
                     classes={{ paper: styles.profilePaper }}
                     onClose={handleClose}
                   >
-                    <ProfileMenu isPopover onClose={handleClose} />
+                    {selectedMenu === Views.Profile && (
+                      <ProfileMenu
+                        isPopover
+                        onClose={handleClose}
+                        changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Settings)}
+                      />
+                    )}
+                    {selectedMenu === Views.Settings && (
+                      <SettingMenu
+                        isPopover
+                        changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
+                      />
+                    )}
                   </Popover>
                 </>
               )}

@@ -90,12 +90,10 @@ const enableCSM = () => {
 
 export const initializeCSM = () => {
   if (!Engine.instance.isHMD) {
-    let lights
     let activeCSMLight
     if (EngineRenderer.instance.activeCSMLightEntity) {
       activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, Object3DComponent)
         ?.value as DirectionalLight
-      lights = [activeCSMLight]
 
       if (hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent))
         removeComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)
@@ -109,7 +107,7 @@ export const initializeCSM = () => {
     EngineRenderer.instance.csm = new CSM({
       camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
       parent: Engine.instance.currentWorld.scene,
-      lights
+      light: activeCSMLight
     })
 
     if (activeCSMLight) {

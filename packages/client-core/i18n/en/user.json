@@ -172,6 +172,7 @@
       "audio": "Audio",
       "lbl-volume": "Volume",
       "lbl-microphone": "Microphone",
+      "general": "General",
       "graphics": "Graphics",
       "controls": "Controls",
       "lbl-control-type": "Controller Type",
@@ -183,7 +184,7 @@
       "lbl-automatic": "Automatic",
       "xrusersetting": "XR",
       "other-audio-setting": "Other Audio Settings",
-      "use-positional-audio": "Spatial User Audio",
+      "use-positional-media": "Spatial User Audio and Video Above Avatar",
       "rotation": "Rotation",
       "rotation-smooth-speed": "Rotation Smooth Speed",
       "rotation-angle": "Rotation Angle",
@@ -257,7 +258,7 @@
         "resolution": "Resolution",
         "high": "High",
         "low": "Low",
-        "spatialAudio": "Use Spatial Audio",
+        "spatialMedia": "Use Spatial Media",
         "enterMuted": "Enter Room Muted"
       },
       "delete": {

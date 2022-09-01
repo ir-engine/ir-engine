@@ -7,6 +7,8 @@ import { useClientSettingState } from '@xrengine/client-core/src/admin/services/
 import styles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
 import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 
 import { Button } from '@mui/material'
 
@@ -16,6 +18,7 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
+  const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
@@ -84,7 +87,12 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            <ProfileMenu />
+            {selectedMenu === Views.Profile && (
+              <ProfileMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Settings)} />
+            )}
+            {selectedMenu === Views.Settings && (
+              <SettingMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+            )}
           </div>
         </div>
         <div className="link-container">

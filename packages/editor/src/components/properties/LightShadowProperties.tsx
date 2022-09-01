@@ -91,9 +91,11 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
       <NumericInputGroup
         name="Shadow Bias"
         label={t('editor:properties.directionalLight.lbl-shadowBias')}
-        mediumStep={0.00001}
-        smallStep={0.0001}
-        largeStep={0.001}
+        max={0.001}
+        min={-0.001}
+        mediumStep={0.0000001}
+        smallStep={0.000001}
+        largeStep={0.0001}
         displayPrecision={0.000001}
         value={lightComponent.shadowBias}
         onChange={updateProperty(props.comp, 'shadowBias')}
