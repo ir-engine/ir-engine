@@ -21,8 +21,8 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -59,25 +59,22 @@ export class World {
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
-    // this.scene.autoUpdate = false
-    this.sceneEntity = createEntity()
-    addComponent(this.sceneEntity, NameComponent, { name: 'scene' })
-    addComponent(this.sceneEntity, PersistTagComponent, true)
-    addComponent(this.sceneEntity, VisibleComponent, true)
-    setTransformComponent(this.sceneEntity)
-    if (isMobile) addComponent(this.sceneEntity, SimpleMaterialTagComponent, true)
-
     this.localOriginEntity = createEntity()
     addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
-    addComponent(this.localOriginEntity, PersistTagComponent, true)
     setTransformComponent(this.localOriginEntity)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
-    addComponent(this.cameraEntity, PersistTagComponent, true)
     addComponent(this.cameraEntity, VisibleComponent, true)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
     setTransformComponent(this.cameraEntity)
+
+    // this.scene.autoUpdate = false
+    this.sceneEntity = createEntity()
+    addComponent(this.sceneEntity, NameComponent, { name: 'scene' })
+    addComponent(this.sceneEntity, VisibleComponent, true)
+    setTransformComponent(this.sceneEntity)
+    if (isMobile) addComponent(this.sceneEntity, SimpleMaterialTagComponent, true)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)

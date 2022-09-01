@@ -52,9 +52,9 @@ export const SceneService = {
         loadScene(sceneData.data)
       }
       // for testing
-      // window.addEventListener('keydown', (ev) => {
-      //   if(ev.code === 'KeyN') sceneUpdatedListener()
-      // })
+      window.addEventListener('keydown', (ev) => {
+        if (ev.code === 'KeyN') sceneUpdatedListener()
+      })
 
       API.instance.client.service('scene').on('updated', sceneUpdatedListener)
 

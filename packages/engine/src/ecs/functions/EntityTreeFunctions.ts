@@ -4,6 +4,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
@@ -118,6 +119,7 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
     uuid: uuid || MathUtils.generateUUID(),
     children: []
   }
+  addComponent(entity, SceneObjectComponent, true)
 
   // addComponent(entity, NetworkObjectComponent, {
   //   ownerId: Engine.instance.currentWorld._worldHostId,

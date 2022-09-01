@@ -2,10 +2,10 @@ import { cloneDeep } from 'lodash'
 import { MathUtils, Vector3 } from 'three'
 
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
@@ -122,6 +122,8 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
 /**
  * Loads a scene from scene json
  * @param sceneData
+ * @param sceneSystems an array of system modules to load
+ * @param softReload a boolean to indicate if the unloading should only unload scene entities, rather than network objects
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
   const world = Engine.instance.currentWorld
