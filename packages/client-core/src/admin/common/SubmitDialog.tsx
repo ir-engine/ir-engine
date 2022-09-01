@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
@@ -10,14 +10,18 @@ import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
 
 import ProfileMenu from '../../user/components/UserMenu/menus/ProfileMenu'
+import SettingMenu from '../../user/components/UserMenu/menus/SettingMenu'
+import { Views } from '../../user/components/UserMenu/util'
 import styles from '../styles/admin.module.scss'
 
 const FormDialog = () => {
+  const { t } = useTranslation()
   const [open, setOpen] = React.useState(true)
+  const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
+
   const handleClose = () => {
     setOpen(false)
   }
-  const { t } = useTranslation()
 
   return (
     <div>
@@ -52,13 +56,18 @@ const FormDialog = () => {
                     top: 50%;
                     right: 50%;
                     left: auto;
-                    transform: translate(50%,-50%);
+                    transform: translate(50%,-50%);Profile
                     margin: 0;
                     pointer-events: auto;
-                }
-              `}
+                  }
+                `}
           </style>
-          <ProfileMenu />
+          {selectedMenu === Views.Profile && (
+            <ProfileMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Settings)} />
+          )}
+          {selectedMenu === Views.Settings && (
+            <SettingMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+          )}
         </div>
       )}
     </div>

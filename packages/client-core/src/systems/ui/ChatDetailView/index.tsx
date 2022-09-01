@@ -25,11 +25,18 @@ function createChatDetailState() {
 const ChatDetailView = () => {
   const [unreadMessages, setUnreadMessages] = useState(false)
 
-  const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
     chatWindowOpen: true,
     setUnreadMessages,
     messageRefInput: null!
   })
+
+  const sortedMessages =
+    activeChannel && activeChannel.messages.value.length
+      ? [...activeChannel.messages.value].sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+      : []
 
   const user = useAuthState().user
 

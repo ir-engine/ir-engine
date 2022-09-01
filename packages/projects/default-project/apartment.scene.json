@@ -382,9 +382,9 @@
               512,
               512
             ],
-            "shadowBias": 0,
+            "shadowBias": -0.00001,
             "shadowRadius": 1,
-            "cameraFar": 100,
+            "cameraFar": 2000,
             "useInCSM": true
           }
         }

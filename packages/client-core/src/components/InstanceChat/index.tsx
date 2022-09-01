@@ -205,17 +205,18 @@ const InstanceChat = ({
   const [messageContainerVisible, setMessageContainerVisible] = useState(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
-  const { dimensions, activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
     chatWindowOpen,
     setUnreadMessages,
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages = activeChannel
-    ? [...activeChannel.messages.value].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
-    : []
+  const sortedMessages =
+    activeChannel && activeChannel.messages.value.length
+      ? [...activeChannel.messages.value].sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+      : []
 
   const user = useAuthState().user
 
