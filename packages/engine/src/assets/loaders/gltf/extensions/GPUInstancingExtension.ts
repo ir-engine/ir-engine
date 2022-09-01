@@ -6,9 +6,9 @@
  */
 import { InstancedMesh, Object3D } from 'three'
 
-import type { GLTFParser } from '../loaders/gltf/GLTFLoader'
+import type { GLTFParser } from '../GLTFLoader'
 
-export class GLTFInstancingExtension {
+export class GPUInstancingExtension {
   name = 'EXT_mesh_gpu_instancing'
   parser: GLTFParser
   constructor(parser) {

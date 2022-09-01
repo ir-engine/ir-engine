@@ -1,7 +1,7 @@
 // https://github.com/mozilla/hubs/blob/27eb7f3d9eba3b938f1ca47ed5b161547b6fb3f2/src/components/gltf-model-plus.js
 import { sRGBEncoding } from 'three'
 
-import { GLTFParser } from '../loaders/gltf/GLTFLoader'
+import { GLTFParser } from '../GLTFLoader'
 
 function mapMaterials(object3D, fn) {
   if (!object3D.material) return []
@@ -13,7 +13,7 @@ function mapMaterials(object3D, fn) {
   }
 }
 
-export class GLTFHubsComponentsExtension {
+export class HubsComponentsExtension {
   name = 'MOZ_hubs_components'
 
   parser: GLTFParser
