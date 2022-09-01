@@ -64,6 +64,7 @@ export const ProjectService = {
     const result = await API.instance.client.service('project').update({ url, name, reset })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
+    await API.instance.client.service('project-invalidate').patch({ projectName: name })
     await ProjectService.fetchProjects()
   },
 
