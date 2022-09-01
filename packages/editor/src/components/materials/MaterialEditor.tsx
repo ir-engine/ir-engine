@@ -27,14 +27,17 @@ import Well from '../layout/Well'
 export default function MaterialEditor({ material }: { ['material']: Material }) {
   if (material === undefined) return <></>
 
-  const createThumbnails = () => {
+  const createThumbnails = async () => {
     const result = new Map<string, string>()
-    Object.entries(material).map(([k, field]: [string, Texture]) => {
-      if (field?.isTexture) {
-        const src = createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }) as string
-        result.set(k, src)
-      }
-    })
+    await Promise.all(
+      Object.entries(material).map(([k, field]: [string, Texture]) => {
+        if (field?.isTexture) {
+          return createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }).then((src) => {
+            result.set(k, src as string)
+          })
+        }
+      })
+    )
     return result
   }
 
@@ -54,7 +57,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     })
     return result
   }
-  const thumbnails = useHookstate(createThumbnails())
+  const thumbnails = useHookstate(() => createThumbnails())
   const defaults = useHookstate(createDefaults())
 
   function clearThumbs() {
@@ -149,9 +152,10 @@ export default function MaterialEditor({ material }: { ['material']: Material })
               prop = undefined
             }
             URL.revokeObjectURL(defaults.value[k].preview)
+            const preview = (await createReadableTexture(material[k], { url: true })) as string
             defaults.merge((_defaults) => {
               delete _defaults[k].preview
-              _defaults[k].preview = createReadableTexture(material[k], { url: true }) as string
+              _defaults[k].preview = preview
               return _defaults
             })
           } else {
