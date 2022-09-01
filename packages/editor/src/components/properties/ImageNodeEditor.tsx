@@ -32,7 +32,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
     >
       {!hasComponent(entity, VideoComponent) && (
         <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-          <ImageInput value={imageComponent.imageSource} onChange={updateProperty(ImageComponent, 'imageSource')} />
+          <ImageInput value={imageComponent.source} onChange={updateProperty(ImageComponent, 'source')} />
           {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.image.error-url')}</div>}
         </InputGroup>
       )}

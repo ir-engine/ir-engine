@@ -1,5 +1,5 @@
 import Hls from 'hls.js'
-import { LinearFilter, Mesh, MeshStandardMaterial, sRGBEncoding, VideoTexture } from 'three'
+import { Group, LinearFilter, Mesh, MeshStandardMaterial, sRGBEncoding, VideoTexture } from 'three'
 
 import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
@@ -8,7 +8,6 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -19,11 +18,7 @@ import { ImageComponent } from '../../components/ImageComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import {
-  SCENE_COMPONENT_VIDEO_DEFAULT_VALUES,
-  VideoComponent,
-  VideoComponentType
-} from '../../components/VideoComponent'
+import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 import isHLS from '../isHLS'
@@ -32,16 +27,20 @@ import { resizeImageMesh } from './ImageFunctions'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
 export const deserializeVideo: ComponentDeserializeFunction = (entity: Entity, data: VideoComponentType) => {
-  const props = parseVideoProperties(data) as VideoComponentType
-  addComponent(entity, VideoComponent, props)
+  const video = Object.assign(VideoComponent.init(), data)
+  addComponent(entity, VideoComponent, video)
 }
 
 export const updateVideo: ComponentUpdateFunction = (entity: Entity) => {
-  const mesh = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
+  if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Group() })
+  const group = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
 
   const videoComponent = getComponent(entity, VideoComponent)
   const audioComponent = getComponent(entity, AudioComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
+  const mesh = videoComponent.mesh
+
+  if (mesh.parent !== group) group.add(mesh)
 
   const currentPath = mediaComponent.paths.length ? mediaComponent.paths[mediaComponent.currentSource] : ''
 
@@ -214,24 +213,4 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
   })
 
   return hls
-}
-
-export const toggleVideo = (entity: Entity) => {
-  const data = getComponent(entity, Object3DComponent)?.value.userData
-  if (!data) return
-
-  if (data.videoEl.paused) {
-    data.audioEl.play()
-    data.videoEl.play()
-  } else {
-    data.audioEl.stop()
-    data.videoEl.pause()
-  }
-}
-
-export const parseVideoProperties = (props): Partial<VideoComponentType> => {
-  return {
-    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId,
-    maintainAspectRatio: props.maintainAspectRatio ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.maintainAspectRatio
-  }
 }

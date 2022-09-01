@@ -22,9 +22,12 @@ globalThis.ComponentMap = ComponentMap
 export const defineMappedComponent = (name: string) => {
   return new MappedComponentSetupAPI(name) // class needed for correct chained typing
 }
-export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type = any> {
+export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = {}, _Type = any> {
   constructor(public name: string) {}
-  default?: _Type
+
+  dataInitializer: () => _Type = () => {
+    return {} as any
+  }
   schema?: _Schema
 
   withSchema<Schema extends bitECS.ISchema = {}>(schema: Schema) {
@@ -32,14 +35,9 @@ export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type
     return this as any as MappedComponentSetupAPI<Schema, _Type>
   }
 
-  withType<T extends any>(defaultState?: T) {
-    this.default = defaultState as any
+  withData<T extends any>(dataInitializer?: () => T) {
+    this.dataInitializer = dataInitializer as any
     return this as any as MappedComponentSetupAPI<_Schema, T>
-  }
-
-  withReactiveType<T extends any>(defaultState?: T) {
-    this.default = defaultState as any
-    return this as any as MappedComponentSetupAPI<_Schema, State<T>>
   }
 
   build() {
@@ -48,14 +46,16 @@ export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type
     const componentMapOldValues = new Map<number, _Type & SoAProxy<_Schema>>()
     // const componentMap = []
 
+    Object.defineProperty(component, 'init', {
+      value: this.dataInitializer
+    })
+
     Object.defineProperty(component, '_name', {
       value: this.name
     })
+
     Object.defineProperty(component, '_schema', {
       value: this.schema
-    })
-    Object.defineProperty(component, '_default', {
-      value: this.default
     })
     Object.defineProperty(component, '_map', {
       value: componentMap
@@ -104,11 +104,6 @@ export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type
       }
     })
 
-    Object.defineProperty(component, 'isReactive', {
-      value: true,
-      enumerable: true
-    })
-
     ComponentMap.set(this.name, component)
     return component as MappedComponent<_Type, _Schema>
   }
@@ -116,73 +111,9 @@ export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type
 
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T, S extends bitECS.ISchema = {}>(name: string, schema?: S) => {
-  const component = bitECS.defineComponent(schema, INITIAL_COMPONENT_SIZE)
-  const componentMap = new Map<number, T & SoAProxy<S>>()
-  const componentMapOldValues = new Map<number, T & SoAProxy<S>>()
-  // const componentMap = []
-
-  if (schema) {
-    Object.defineProperty(component, '_schema', {
-      value: schema
-    })
-  }
-  Object.defineProperty(component, '_map', {
-    value: componentMap
-  })
-  Object.defineProperty(component, '_name', {
-    value: name,
-    enumerable: true
-  })
-  Object.defineProperty(component, 'get', {
-    value: function (eid: number) {
-      // return componentMap[eid]
-      return componentMap.get(eid)
-    }
-  })
-  Object.defineProperty(component, '_getPrevious', {
-    value: function (eid: number) {
-      // return componentMap[eid]
-      return componentMapOldValues.get(eid)
-    }
-  })
-  Object.defineProperty(component, '_setPrevious', {
-    value: function (eid: number, value: any) {
-      // return componentMap[eid]
-      return componentMapOldValues.set(eid, value)
-    }
-  })
-  Object.defineProperty(component, 'set', {
-    value: function (eid: number, value: any) {
-      if (schema) {
-        Object.defineProperties(
-          value,
-          Object.keys(schema).reduce((a, k) => {
-            a[k] = {
-              get() {
-                return component[k][eid]
-              },
-              set(val) {
-                component[k][eid] = val
-              }
-            }
-            return a
-          }, {})
-        )
-      }
-      // componentMap[eid] = value
-      return componentMap.set(eid, value)
-    }
-  })
-  Object.defineProperty(component, 'delete', {
-    value: function (eid: number) {
-      // componentMap[eid] = undefined
-      return componentMap.delete(eid)
-    }
-  })
-
-  ComponentMap.set(name, component)
-
-  return component as MappedComponent<T, S>
+  const componentBuilder = defineMappedComponent(name)
+  if (schema) componentBuilder.withSchema(schema)
+  return componentBuilder.build() as MappedComponent<T, S>
 }
 
 export type SoAProxy<S extends bitECS.ISchema> = {
@@ -210,10 +141,10 @@ export type SoAComponentType<T extends ISchema> = {
 }
 
 export type MappedComponent<T, S extends bitECS.ISchema> = SoAComponentType<S> & {
+  init: () => T & SoAProxy<S>
   get: (entity: number) => T & SoAProxy<S>
   set: (entity: number, value: T & SoAProxy<S>) => void
   delete: (entity: number) => void
-  isReactive: boolean
   readonly _name: string
 }
 
@@ -255,17 +186,12 @@ export const setComponent = <T, S extends bitECS.ISchema>(
   world = Engine.instance.currentWorld
 ) => {
   if (typeof entity === 'undefined' || entity === null) {
-    throw new Error('[addComponent]: entity is undefined')
+    throw new Error('[setComponent]: entity is undefined')
   }
   if (typeof world === 'undefined' || world === null) {
-    throw new Error('[addComponent]: world is undefined')
+    throw new Error('[setComponent]: world is undefined')
   }
   bitECS.addComponent(world, component, entity, false) // don't clear data on-add
-  if ((component as any)._schema) {
-    for (const [key] of Object.entries((component as any)._schema as any)) {
-      component[key][entity] = args[key]
-    }
-  }
   component.set(entity, args as T & SoAProxy<S>)
   return component.get(entity)
 }

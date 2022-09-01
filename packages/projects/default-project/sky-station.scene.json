@@ -451,7 +451,7 @@
         {
           "name": "image",
           "props": {
-            "imageSource": "",
+            "source": "",
             "alphaCutoff": 0.5,
             "alphaMode": "Opaque",
             "projection": "Flat",

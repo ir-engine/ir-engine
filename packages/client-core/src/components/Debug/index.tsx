@@ -90,7 +90,7 @@ export const Debug = () => {
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
                       if (C !== NameComponent) {
-                        const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
+                        const component = getComponent(eid, C)
                         components.push([C._name, { ...component }])
                       }
                       return components

@@ -1,4 +1,4 @@
-import { LinearFilter, Mesh, MeshBasicMaterial, PlaneBufferGeometry, SphereBufferGeometry, sRGBEncoding } from 'three'
+import { Group, LinearFilter, LinearMipmapLinearFilter, Mesh, sRGBEncoding, Texture } from 'three'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AssetClass } from '../../../assets/enum/AssetClass'
@@ -9,87 +9,79 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { entityExists } from '../../../ecs/functions/EntityFunctions'
 import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
 import {
   ImageComponent,
   ImageComponentType,
-  SCENE_COMPONENT_IMAGE_DEFAULT_VALUES
+  PLANE_GEO,
+  PLANE_GEO_FLIPPED,
+  SPHERE_GEO,
+  SPHERE_GEO_FLIPPED
 } from '../../components/ImageComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeImage: ComponentDeserializeFunction = (entity: Entity, data: ImageComponentType) => {
-  const props = parseImageProperties(data)
-  addComponent(entity, ImageComponent, props)
-  const mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
-  addComponent(entity, Object3DComponent, { value: mesh })
+  const image = Object.assign(ImageComponent.init(), data)
+  if (data['imageSource']) image.source = data['imageSource'] // backwards-compat
+  addComponent(entity, ImageComponent, image)
 }
 
 export const updateImage: ComponentUpdateFunction = async (entity: Entity) => {
-  const imageComponent = getComponent(entity, ImageComponent)
+  const image = getComponent(entity, ImageComponent)
+  const mesh = image.mesh
 
   if (!hasComponent(entity, Object3DComponent)) {
-    const mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
-    addComponent(entity, Object3DComponent, { value: mesh })
+    addComponent(entity, Object3DComponent, { value: new Group() })
   }
 
-  const mesh = getComponent(entity, Object3DComponent).value as Mesh<
-    PlaneBufferGeometry | SphereBufferGeometry,
-    MeshBasicMaterial
-  >
+  const group = getComponent(entity, Object3DComponent).value
+  if (mesh.parent !== group) group.add(mesh)
 
-  /** @todo replace userData usage with something else */
-  const sourceChanged =
-    imageComponent.imageSource &&
-    (!hasComponent(entity, Object3DComponent) ||
-      getComponent(entity, Object3DComponent).value.userData.src !== imageComponent.imageSource)
-  if (sourceChanged) {
+  if (image.source !== image.currentSource) {
     try {
-      const assetType = AssetLoader.getAssetClass(imageComponent.imageSource)
+      const assetType = AssetLoader.getAssetClass(image.source)
       if (assetType !== AssetClass.Image) {
-        addError(entity, 'error', `Image format ${imageComponent.imageSource.split('.').pop()}not supported`)
+        addError(entity, 'imageError', `Image format ${image.source.split('.').pop()} not supported`)
         return
       }
 
-      const texture = await AssetLoader.loadAsync(imageComponent.imageSource)
-      texture.encoding = sRGBEncoding
-      texture.minFilter = LinearFilter
+      image.currentSource = image.source
+      const texture = (await AssetLoader.loadAsync(image.source)) as Texture
 
-      if (mesh.material.map) mesh.material.map?.dispose()
-      mesh.material.map = texture
-
-      mesh.userData.src = imageComponent.imageSource
-
-      if (imageComponent.projection === ImageProjection.Flat) resizeImageMesh(mesh)
-
-      removeError(entity, 'error')
+      if (entityExists(entity) && image.source === image.currentSource) {
+        if (mesh.material.map) mesh.material.map?.dispose()
+        mesh.material.map = texture
+        texture.encoding = sRGBEncoding
+        texture.minFilter = LinearMipmapLinearFilter
+        updateImage(entity)
+        removeError(entity, 'imageError')
+      }
     } catch (error) {
-      addError(entity, 'error', 'Error Loading image')
+      addError(entity, 'imageError', 'Error Loading image')
       return
     }
   }
 
-  const changeToSphereProjection =
-    !(mesh.geometry instanceof SphereBufferGeometry) && imageComponent.projection === ImageProjection.Equirectangular360
-  const changeToPlaneProjection =
-    !(mesh.geometry instanceof PlaneBufferGeometry) && imageComponent.projection === ImageProjection.Flat
-
-  if (changeToSphereProjection) {
-    mesh.geometry = new SphereBufferGeometry(1, 64, 32)
-    mesh.scale.set(1, 1, 1)
+  if (mesh.material.map) {
+    const flippedTexture = mesh.material.map.flipY
+    switch (image.projection) {
+      case ImageProjection.Equirectangular360:
+        mesh.geometry = flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED
+        mesh.scale.set(-1, 1, 1)
+        break
+      case ImageProjection.Flat:
+      default:
+        mesh.geometry = flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED
+        resizeImageMesh(mesh)
+    }
   }
 
-  if (changeToPlaneProjection) {
-    mesh.geometry = new PlaneBufferGeometry()
-    if (mesh.material.map) resizeImageMesh(mesh)
-  }
-
-  mesh.material.transparent = imageComponent.alphaMode === ImageAlphaMode.Blend
-  mesh.material.alphaTest = imageComponent.alphaMode === ImageAlphaMode.Mask ? imageComponent.alphaCutoff : 0
-  mesh.material.alphaTest = imageComponent.alphaCutoff
-  mesh.material.side = imageComponent.side
-
+  mesh.material.transparent = image.alphaMode === ImageAlphaMode.Blend
+  mesh.material.alphaTest = image.alphaMode === 'Mask' ? image.alphaCutoff : 0
+  mesh.material.side = image.side
   mesh.material.needsUpdate = true
 }
 
@@ -98,7 +90,7 @@ export const serializeImage: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    imageSource: component.imageSource,
+    source: component.source,
     alphaCutoff: component.alphaCutoff,
     alphaMode: component.alphaMode,
     projection: component.projection,
@@ -116,18 +108,11 @@ export const prepareImageForGLTFExport: ComponentPrepareForGLTFExportFunction = 
 export const resizeImageMesh = (mesh: Mesh<any, any>) => {
   if (!mesh.material.map) return
 
-  const ratio = (mesh.material.map.image.height || 1) / (mesh.material.map.image.width || 1)
+  const width = mesh.material.map.width ?? mesh.material.map.image.width
+  const height = mesh.material.map.height ?? mesh.material.map.image.height
+
+  const ratio = (height || 1) / (width || 1)
   const _width = Math.min(1.0, 1.0 / ratio)
   const _height = Math.min(1.0, ratio)
   mesh.scale.set(_width, _height, 1)
-}
-
-const parseImageProperties = (props): ImageComponentType => {
-  return {
-    imageSource: props.imageSource ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.imageSource,
-    alphaMode: props.alphaMode ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.alphaMode,
-    alphaCutoff: props.alphaCutoff ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.alphaCutoff,
-    projection: props.projection ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.projection,
-    side: props.side ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.side
-  }
 }

@@ -73,7 +73,7 @@ export async function addMediaNode(
         {
           affectedNodes: [node],
           component: ImageComponent,
-          properties: [{ imageSource: url }]
+          properties: [{ source: url }]
         },
         false
       )

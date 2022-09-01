@@ -161,18 +161,6 @@ describe.skip('VideoFunctions', () => {
     })
   })
 
-  describe('parseVideoProperties()', () => {
-    it('should use default component values', () => {
-      const componentData = videoFunctions.parseVideoProperties({})
-      assert(componentData.elementId.includes('video-'))
-    })
-
-    it('should use passed values', () => {
-      const componentData = videoFunctions.parseVideoProperties({ ...sceneComponentData })
-      assert.deepEqual(componentData, sceneComponentData)
-    })
-  })
-
   describe('toggleVideo()', () => {
     it('should properly toggle video', async () => {
       const obj3d = getComponent(entity, Object3DComponent).value
