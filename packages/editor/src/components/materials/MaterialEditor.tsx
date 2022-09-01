@@ -44,8 +44,8 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   const selectionState = accessSelectionState()
 
   const createDefaults = async () => {
-    const result = materialToDefaultArgs(material)!
     thumbnails.promised && (await thumbnails.promise)
+    const result = materialToDefaultArgs(material)!
     const thumbs = thumbnails.value
     Object.entries(material).map(([k, v]) => {
       if ((v as Texture)?.isTexture && thumbs.has(k)) {
@@ -58,11 +58,12 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     })
     return result
   }
-  const thumbnails = useHookstate(() => createThumbnails())
-  const defaults = useHookstate(() => createDefaults())
+  const thumbnails = useHookstate(new Map<string, string>())
+  const defaults = useHookstate(new Object())
 
   async function clearThumbs() {
-    if (thumbnails.promised) return
+    thumbnails.promised && (await thumbnails.promise)
+    defaults.promised && (await defaults.promise)
     ;[...thumbnails.value.values()].map(URL.revokeObjectURL)
     thumbnails.value.clear()
   }
@@ -147,7 +148,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
       </Well>
       <ParameterInput
         entity={material.uuid}
-        values={material}
+        values={thumbnails.promised ? {} : material}
         onChange={(k) => async (val) => {
           let prop
           if (defaults.value[k].type === 'texture' && typeof val === 'string') {
@@ -174,7 +175,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
             properties
           })
         }}
-        defaults={defaults.promised ? {} : defaults.value}
+        defaults={thumbnails.promised || defaults.promised ? {} : defaults.value}
       />
     </Fragment>
   )
