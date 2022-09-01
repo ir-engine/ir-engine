@@ -2,12 +2,12 @@ import { Vector3 } from 'three'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
 
 export const deserializeSpline: ComponentDeserializeFunction = (entity: Entity, data: SplineComponentType) => {
   const props = parseSplineProperties(data)
-  addComponent(entity, SplineComponent, props)
+  setComponent(entity, SplineComponent, props)
 }
 
 export const serializeSpline: ComponentSerializeFunction = (entity) => {

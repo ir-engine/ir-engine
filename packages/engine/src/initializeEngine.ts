@@ -31,7 +31,7 @@ import { FontManager } from './xrui/classes/FontManager'
  * adds action receptors and creates a new world.
  * @returns {Engine}
  */
-export const createEngine = async () => {
+export const createEngine = () => {
   if (Engine.instance?.currentWorld) {
     destroyWorld(Engine.instance.currentWorld)
   }

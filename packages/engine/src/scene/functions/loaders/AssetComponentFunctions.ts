@@ -12,7 +12,8 @@ import {
   addComponent,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   AssetComponent,
@@ -66,7 +67,7 @@ export const deserializeAsset: ComponentDeserializeFunction = async (entity: Ent
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
   const props = parseAssetProperties(data)
-  addComponent(entity, AssetComponent, props)
+  setComponent(entity, AssetComponent, props)
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {

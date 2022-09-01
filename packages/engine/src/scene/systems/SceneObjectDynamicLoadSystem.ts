@@ -39,7 +39,7 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
 
       for (const [uuid, data] of world.sceneDynamicallyUnloadedEntities) {
         if (data.position.distanceToSquared(avatarPosition) < data.distance * distanceMultiplier) {
-          const entity = createSceneEntity(world, uuid, data.json)
+          const entity = createSceneEntity(uuid, data.json, world)
           world.sceneDynamicallyLoadedEntities.set(entity, {
             json: data.json,
             distance: data.distance,

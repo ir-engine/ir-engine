@@ -4,7 +4,12 @@ import {
   ComponentShouldDeserializeFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import {
   PostprocessingComponent,
   PostprocessingComponentType,
@@ -15,7 +20,7 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
   entity: Entity,
   data: PostprocessingComponentType
 ): Promise<void> {
-  addComponent(entity, PostprocessingComponent, parsePostprocessingProperties(data))
+  setComponent(entity, PostprocessingComponent, parsePostprocessingProperties(data))
 }
 
 export const serializePostprocessing: ComponentSerializeFunction = (entity) => {

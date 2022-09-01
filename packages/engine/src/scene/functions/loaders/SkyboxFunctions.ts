@@ -9,7 +9,12 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Sky } from '../../classes/Sky'
 import {
@@ -23,7 +28,7 @@ import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, data: SkyboxComponentType) => {
   const props = parseSkyboxProperties(data)
-  addComponent(entity, SkyboxComponent, props)
+  setComponent(entity, SkyboxComponent, props)
 }
 
 export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {

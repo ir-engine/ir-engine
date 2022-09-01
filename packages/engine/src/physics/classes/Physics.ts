@@ -276,6 +276,7 @@ function createColliderAndAttachToRigidBody(world: World, colliderDesc: Collider
 }
 
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
+  console.trace('removeCollidersFromRigidBody', entity)
   const rigidBody = getComponent(entity, RigidBodyComponent).body
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
@@ -285,6 +286,7 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
 }
 
 function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
+  console.trace('removeRigidBody', entity)
   const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)?.body
   if (rigidBody && world.bodies.contains(rigidBody.handle)) {
     if (!hasBeenRemoved) {

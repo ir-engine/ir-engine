@@ -9,6 +9,7 @@ import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
 import { addComponent, removeAllComponents } from './ComponentFunctions'
+import { createEntity } from './EntityFunctions'
 
 // ========== Entity Tree Functions ========== //
 /**
@@ -98,7 +99,7 @@ export function emptyEntityTree(tree = Engine.instance.currentWorld.entityTree):
     delete arr[i]
   }
 
-  tree.rootNode = createEntityNode(-1 as Entity)
+  tree.rootNode = createEntityNode(createEntity())
 
   tree.entityNodeMap.clear()
   tree.uuidNodeMap.clear()

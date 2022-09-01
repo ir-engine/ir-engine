@@ -3,7 +3,7 @@ import { Mesh, MeshStandardMaterial, Object3D, Scene, Vector3 } from 'three'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import {
   EnvMapBakeComponent,
@@ -15,7 +15,7 @@ import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponen
 
 export const deserializeEnvMapBake: ComponentDeserializeFunction = (entity: Entity, data: EnvMapBakeComponentType) => {
   const props = parseEnvMapBakeProperties(data)
-  addComponent(entity, EnvMapBakeComponent, props)
+  setComponent(entity, EnvMapBakeComponent, props)
 }
 
 export const serializeEnvMapBake: ComponentSerializeFunction = (entity) => {

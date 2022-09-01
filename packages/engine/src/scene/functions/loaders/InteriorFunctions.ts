@@ -6,7 +6,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Interior } from '../../classes/Interior'
 import {
   InteriorComponent,
@@ -18,7 +18,7 @@ import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeInterior: ComponentDeserializeFunction = (entity: Entity, data: InteriorComponentType) => {
   const props = parseInteriorProperties(data)
-  addComponent(entity, InteriorComponent, props)
+  setComponent(entity, InteriorComponent, props)
 }
 
 export const updateInterior: ComponentUpdateFunction = (entity: Entity) => {

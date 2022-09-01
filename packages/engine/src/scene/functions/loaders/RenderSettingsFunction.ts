@@ -12,7 +12,13 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../../../scene/components/DirectionalLightComponent'
@@ -29,7 +35,7 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
   data: RenderSettingComponentType
 ) => {
   const props = parseRenderSettingsProperties(data)
-  addComponent(entity, RenderSettingComponent, props)
+  setComponent(entity, RenderSettingComponent, props)
 }
 
 export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => {
