@@ -43,8 +43,9 @@ export default function MaterialEditor({ material }: { ['material']: Material })
 
   const selectionState = accessSelectionState()
 
-  const createDefaults = () => {
+  const createDefaults = async () => {
     const result = materialToDefaultArgs(material)!
+    thumbnails.promised && (await thumbnails.promise)
     const thumbs = thumbnails.value
     Object.entries(material).map(([k, v]) => {
       if ((v as Texture)?.isTexture && thumbs.has(k)) {
@@ -58,9 +59,10 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     return result
   }
   const thumbnails = useHookstate(() => createThumbnails())
-  const defaults = useHookstate(createDefaults())
+  const defaults = useHookstate(() => createDefaults())
 
-  function clearThumbs() {
+  async function clearThumbs() {
+    if (thumbnails.promised) return
     ;[...thumbnails.value.values()].map(URL.revokeObjectURL)
     thumbnails.value.clear()
   }
@@ -68,19 +70,22 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   const matId = useHookstate(material.uuid)
   const matName = useHookstate(material.name)
 
+  useHookEffect(() => {
+    clearThumbs().then(async () => {
+      thumbnails.set(await createThumbnails())
+      defaults.set(await createDefaults())
+      matName.set(material.name)
+    })
+    return () => {
+      clearThumbs()
+    }
+  }, [matId])
+
   useEffect(() => {
     if (matId.value !== material.uuid) {
       matId.set(material.uuid)
     }
   })
-
-  useHookEffect(() => {
-    clearThumbs()
-    thumbnails.set(createThumbnails())
-    defaults.set(createDefaults())
-    matName.set(material.name)
-    return clearThumbs
-  }, [matId])
 
   function onChangeMaterialType(nuType) {
     const newDefaultArgs = materialTypeToDefaultArgs(nuType)!
@@ -169,7 +174,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
             properties
           })
         }}
-        defaults={defaults.value}
+        defaults={defaults.promised ? {} : defaults.value}
       />
     </Fragment>
   )
