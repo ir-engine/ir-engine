@@ -1,28 +1,30 @@
-import { Paginated } from '@feathersjs/feathers'
-import { none } from '@hookstate/core'
+import i18n from 'i18next'
 import { useEffect } from 'react'
 
+import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
-import { UserAction } from '../../user/services/UserService'
+
+const logger = multiLogger.child({ component: 'client-core:FriendService' })
 
 //State
 const FriendState = defineState({
   name: 'FriendState',
   initial: () => ({
-    friends: {
-      friends: [] as Array<UserInterface>,
-      total: 0,
-      limit: 5,
-      skip: 0
+    relationships: {
+      blocked: [] as Array<UserInterface>,
+      blocking: [] as Array<UserInterface>,
+      friend: [] as Array<UserInterface>,
+      requested: [] as Array<UserInterface>,
+      pending: [] as Array<UserInterface>
     },
-    getFriendsInProgress: false,
+    isFetching: false,
     updateNeeded: true
   })
 })
@@ -30,56 +32,20 @@ const FriendState = defineState({
 export const FriendServiceReceptor = (action) => {
   const s = getState(FriendState)
   matches(action)
+    .when(FriendAction.fetchingFriendsAction.matches, () => {
+      return s.isFetching.set(true)
+    })
     .when(FriendAction.loadedFriendsAction.matches, (action) => {
-      s.friends.merge({
-        skip: action.friends.skip,
-        limit: action.friends.limit,
-        total: action.friends.total,
-        friends: action.friends.data
+      s.relationships.merge({
+        blocked: action.relationships.blocked,
+        blocking: action.relationships.blocking,
+        friend: action.relationships.friend,
+        requested: action.relationships.requested,
+        pending: action.relationships.pending
       })
       s.updateNeeded.set(false)
-      s.getFriendsInProgress.set(false)
+      s.isFetching.set(false)
       return
-    })
-    .when(FriendAction.createdFriendAction.matches, (action) => {
-      let newValues
-      newValues = action
-      const createdUserRelationship = newValues.userRelationship
-      return s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
-    })
-    .when(FriendAction.patchedFriendAction.matches, (action) => {
-      let newValues, selfUser, otherUser
-      newValues = action
-      const patchedUserRelationship = newValues.userRelationship
-      selfUser = newValues.selfUser
-      otherUser =
-        patchedUserRelationship.userId === selfUser.id
-          ? patchedUserRelationship.relatedUser
-          : patchedUserRelationship.user
-
-      const patchedFriendIndex = s.friends.friends.value.findIndex((friendItem) => {
-        return friendItem != null && friendItem.id === otherUser.id
-      })
-      if (patchedFriendIndex === -1) {
-        return s.friends.friends.set([...s.friends.friends.value, otherUser])
-      } else {
-        return s.friends.friends[patchedFriendIndex].set(otherUser)
-      }
-    })
-    .when(FriendAction.removedFriendAction.matches, (action) => {
-      const otherUserId =
-        action.userRelationship.userId === action.selfUser.id
-          ? action.userRelationship.relatedUserId
-          : action.userRelationship.userId
-
-      const friendId = s.friends.friends.value.findIndex((friendItem) => {
-        return friendItem != null && friendItem.id === otherUserId
-      })
-
-      return s.friends.friends[friendId].set(none)
-    })
-    .when(FriendAction.fetchingFriendsAction.matches, () => {
-      return s.getFriendsInProgress.set(true)
     })
 }
 
@@ -89,146 +55,87 @@ export const useFriendState = () => useState(accessFriendState())
 
 //Service
 export const FriendService = {
-  // export function getUserRelationshipasync (userId: string) {
-  //; {
-  //     // dispatch(actionProcessing(true))
-  //
-  //     console.log('------get relations-------', userId)
-  //     client.service('user-relationship').find({
-  //       query: {
-  //         userId
-  //       }
-  //     }).then((res: any) => {
-  //       console.log('relations------', res)
-  //       dispatch(loadedUserRelationship(res as Relationship))
-  //     })
-  //       .catch((err: any) => {
-  //         console.log(err)
-  //       })
-  //       // .finally(() => dispatch(actionProcessing(false)))
-  //   }
-  // }
-
-  getFriends: async (skip: number = 0, limit: number = 10) => {
-    dispatchAction(FriendAction.fetchingFriendsAction({}))
+  getUserRelationship: async (userId: string) => {
     try {
-      const friendState = accessFriendState()
-      const friendResult = (await API.instance.client.service('user').find({
+      dispatchAction(FriendAction.fetchingFriendsAction({}))
+
+      const relationships: Relationship = await API.instance.client.service('user-relationship').find({
         query: {
-          action: 'friends',
-          $limit: limit != null ? limit : friendState.friends.limit.value,
-          $skip: skip != null ? skip : friendState.friends.skip.value
+          userId
         }
-      })) as Paginated<UserInterface>
-      dispatchAction(FriendAction.loadedFriendsAction({ friends: friendResult }))
+      })
+      dispatchAction(FriendAction.loadedFriendsAction({ relationships }))
     } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-      dispatchAction(FriendAction.loadedFriendsAction({ friends: { data: [], limit: 0, skip: 0, total: 0 } }))
+      logger.error(err)
     }
   },
-
-  // function createRelationasync (userId: string, relatedUserId: string, type: 'friend' | 'blocking') {
-  //; {
-  //     client.service('user-relationship').create({
-  //       relatedUserId,
-  //       userRelationshipType: type
-  //     }).then((res: any) => {
-  //       console.log('add relations------', res)
-  //       dispatch(changedRelation())
-  //     })
-  //       .catch((err: any) => {
-  //         console.log(err)
-  //       })
-  //       // .finally(() => dispatch(actionProcessing(false)))
-  //   }
-  // }
-  //
-  removeFriend: async (relatedUserId: string) => {
+  requestFriend: (userId: string, relatedUserId: string) => {
+    return createRelation(userId, relatedUserId, 'requested')
+  },
+  acceptFriend: async (userId: string, relatedUserId: string) => {
     try {
-      await API.instance.client.service('user-relationship').remove(relatedUserId)
+      await API.instance.client.service('user-relationship').patch(relatedUserId, {
+        userRelationshipType: 'friend'
+      })
+
+      FriendService.getUserRelationship(userId)
     } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      logger.error(err)
     }
   },
-  //
-  // function patchRelationasync (userId: string, relatedUserId: string, type: 'friend') {
-  //; {
-  //     client.service('user-relationship').patch(relatedUserId, {
-  //       userRelationshipType: type
-  //     }).then((res: any) => {
-  //       console.log('Patching relationship to friend', res)
-  //       dispatch(changedRelation())
-  //     })
-  //       .catch((err: any) => {
-  //         console.log(err)
-  //       })
-  //       // .finally(() => dispatch(actionProcessing(false)))
-  //   }
-  // }
-
-  // export function requestFriend(userId: string, relatedUserId: string) {
-  //   return createRelation(userId, relatedUserId, 'friend')
-  // }
-  //
-  // export function blockUser(userId: string, relatedUserId: string) {
-  //   return createRelation(userId, relatedUserId, 'blocking')
-  // }
-  //
-  // export function acceptFriend(userId: string, relatedUserId: string) {
-  //   return patchRelation(userId, relatedUserId, 'friend')
-  // }
-  //
-  // export function declineFriend(userId: string, relatedUserId: string) {
-  //   return removeRelation(userId, relatedUserId)
-  // }
-  //
-  // export function cancelBlock(userId: string, relatedUserId: string) {
-  //   return removeRelation(userId, relatedUserId)
-  // }
-
-  unfriend: (relatedUserId: string) => {
-    return FriendService.removeFriend(relatedUserId)
+  declineFriend: (userId: string, relatedUserId: string) => {
+    return removeRelation(userId, relatedUserId)
+  },
+  unfriend: (userId: string, relatedUserId: string) => {
+    return removeRelation(userId, relatedUserId)
+  },
+  blockUser: async (userId: string, relatedUserId: string) => {
+    return createRelation(userId, relatedUserId, 'blocking')
+  },
+  unblockUser: (userId: string, relatedUserId: string) => {
+    return removeRelation(userId, relatedUserId)
   },
   useAPIListeners: () => {
     useEffect(() => {
       const userRelationshipCreatedListener = (params) => {
-        if (params.userRelationship.userRelationshipType === 'friend') {
-          dispatchAction(FriendAction.createdFriendAction({ userRelationship: params.userRelationship }))
-        }
-      }
+        const userRelationship = params.userRelationship
+        const selfUser = accessAuthState().user
 
+        if (
+          userRelationship.userRelationshipType === 'requested' &&
+          selfUser.id.value === userRelationship.relatedUserId
+        ) {
+          NotificationService.dispatchNotify(
+            `${userRelationship.user.name} ${i18n.t('user:friends.requestReceived')}`,
+            {
+              variant: 'success'
+            }
+          )
+        }
+
+        FriendService.getUserRelationship(selfUser.id.value)
+      }
       const userRelationshipPatchedListener = (params) => {
-        const patchedUserRelationship = params.userRelationship
+        const userRelationship = params.userRelationship
         const selfUser = accessAuthState().user
-        if (patchedUserRelationship.userRelationshipType === 'friend') {
-          dispatchAction(
-            FriendAction.patchedFriendAction({ userRelationship: patchedUserRelationship, selfUser: selfUser.value })
-          )
-          if (
-            patchedUserRelationship.user.channelInstanceId != null &&
-            patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
-          )
-            dispatchAction(UserAction.addedChannelLayerUserAction({ user: patchedUserRelationship.user }))
-          if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-            dispatchAction(UserAction.removedChannelLayerUserAction({ user: patchedUserRelationship.user }))
-        }
-      }
 
-      const userRelationshipRemovedListener = (params) => {
-        const deletedUserRelationship = params.userRelationship
-        const selfUser = accessAuthState().user
-        if (deletedUserRelationship.userRelationshipType === 'friend') {
-          dispatchAction(
-            FriendAction.removedFriendAction({ userRelationship: deletedUserRelationship, selfUser: selfUser.value })
+        if (
+          userRelationship.userRelationshipType === 'friend' &&
+          selfUser.id.value === userRelationship.relatedUserId
+        ) {
+          NotificationService.dispatchNotify(
+            `${userRelationship.user.name} ${i18n.t('user:friends.requestAccepted')}`,
+            {
+              variant: 'success'
+            }
           )
-          if (
-            deletedUserRelationship.user.channelInstanceId != null &&
-            deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
-          )
-            dispatchAction(UserAction.addedChannelLayerUserAction({ user: deletedUserRelationship.user }))
-          if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-            dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedUserRelationship.user }))
         }
+
+        FriendService.getUserRelationship(selfUser.id.value)
+      }
+      const userRelationshipRemovedListener = () => {
+        const selfUser = accessAuthState().user
+        FriendService.getUserRelationship(selfUser.id.value)
       }
 
       API.instance.client.service('user-relationship').on('created', userRelationshipCreatedListener)
@@ -244,31 +151,37 @@ export const FriendService = {
   }
 }
 
+async function createRelation(userId: string, relatedUserId: string, type: 'requested' | 'blocking') {
+  try {
+    await API.instance.client.service('user-relationship').create({
+      relatedUserId,
+      userRelationshipType: type
+    })
+
+    FriendService.getUserRelationship(userId)
+  } catch (err) {
+    logger.error(err)
+  }
+}
+
+async function removeRelation(userId: string, relatedUserId: string) {
+  try {
+    await API.instance.client.service('user-relationship').remove(relatedUserId)
+
+    FriendService.getUserRelationship(userId)
+  } catch (err) {
+    logger.error(err)
+  }
+}
+
 //Action
 export class FriendAction {
-  static loadedFriendsAction = defineAction({
-    type: 'LOADED_FRIENDS' as const,
-    friends: matches.any as Validator<unknown, Paginated<UserInterface>>
-  })
-
-  static createdFriendAction = defineAction({
-    type: 'CREATED_FRIEND' as const,
-    userRelationship: matches.object as Validator<unknown, UserRelationship>
-  })
-
-  static patchedFriendAction = defineAction({
-    type: 'PATCHED_FRIEND' as const,
-    userRelationship: matches.object as Validator<unknown, UserRelationship>,
-    selfUser: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static removedFriendAction = defineAction({
-    type: 'REMOVED_FRIEND' as const,
-    userRelationship: matches.object as Validator<unknown, UserRelationship>,
-    selfUser: matches.object as Validator<unknown, UserInterface>
-  })
-
   static fetchingFriendsAction = defineAction({
     type: 'FETCHING_FRIENDS' as const
+  })
+
+  static loadedFriendsAction = defineAction({
+    type: 'LOADED_FRIENDS' as const,
+    relationships: matches.object as Validator<unknown, Relationship>
   })
 }
