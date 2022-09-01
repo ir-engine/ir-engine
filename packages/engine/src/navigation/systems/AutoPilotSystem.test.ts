@@ -4,6 +4,7 @@ import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { Object3D, Quaternion, Vector2, Vector3 } from 'three'
 
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -141,6 +142,6 @@ describe('AutoPilotSystem', async () => {
     system()
 
     assert(!hasComponent(avatarEntity, AutoPilotComponent), 'removes the autoPilot component')
-    // TODO reset movement mode
+    assert.equal(getComponent(avatarEntity, AvatarControllerComponent).movementMode, 'relative')
   })
 })
