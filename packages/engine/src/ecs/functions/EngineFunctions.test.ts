@@ -25,15 +25,16 @@ describe('EngineFunctions', () => {
 
       const objectEntities = object3dQuery(world)
 
-      // add obejcts to scene
+      // add objects to scene
       for (const entity of objectEntities)
         Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
 
-      assert.equal(objectEntities.length, 2)
+      // camera entity will have Object3DComponent, so 3
+      assert.equal(objectEntities.length, 3)
 
       unloadScene(world)
-
-      assert.equal(object3dQuery(world).length, 1)
+      // camera entity and non scene entity shoulder persist
+      assert.equal(object3dQuery(world).length, 2)
 
       // should clean up world entity too
       assert.equal(hasComponent(world.sceneEntity, SceneObjectComponent), false)

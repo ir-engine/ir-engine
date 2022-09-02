@@ -55,7 +55,7 @@ const logger = multiLogger.child({ component: 'engine:ecs:World' })
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
-    bitecs.createWorld(this, 1000)
+    bitecs.createWorld(this)
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
@@ -69,14 +69,9 @@ export class World {
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
     setTransformComponent(this.cameraEntity)
 
-    // this.scene.autoUpdate = false
-    this.sceneEntity = createEntity()
-    addComponent(this.sceneEntity, NameComponent, { name: 'scene' })
-    addComponent(this.sceneEntity, VisibleComponent, true)
-    setTransformComponent(this.sceneEntity)
-    if (isMobile) addComponent(this.sceneEntity, SimpleMaterialTagComponent, true)
-
     initializeEntityTree(this)
+
+    // this.scene.autoUpdate = false
     this.scene.layers.set(ObjectLayers.Scene)
   }
 
@@ -369,6 +364,6 @@ export function createWorld() {
 }
 
 export function destroyWorld(world: World) {
-  bitecs.resetWorld(world)
-  bitecs.deleteWorld(world)
+  /** @todo this is broken - re-enable with next bitecs update */
+  // bitecs.deleteWorld(world)
 }
