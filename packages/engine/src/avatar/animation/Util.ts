@@ -79,7 +79,12 @@ export const AvatarAnimations = {
   KISS: 'kiss',
   DEFEAT: 'defeat',
   PAUSE: 'pause',
-  CRY: 'cry'
+  CRY: 'cry',
+
+  // Mount points
+  SIT_ENTER: 'sitting_enter' as const,
+  SIT_LEAVE: 'sitting_leave' as const,
+  SIT_IDLE: 'sitting_idle' as const
 }
 
 const matchesMovementType = matches.shape({

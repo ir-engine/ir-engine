@@ -120,9 +120,9 @@ export default async function MountPointSystem(world: World) {
       const sitting = getComponent(entity, SittingComponent)
 
       if (controller.localMovementDirection.lengthSq() > 0.1) {
-        sitting.state = AvatarStates.SIT_LEAVE
+        // sitting.state = AvatarStates.SIT_LEAVE
 
-        changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
+        // changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
 
         const avatarTransform = getComponent(entity, TransformComponent)
         const newPos = avatarTransform.position

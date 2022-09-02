@@ -233,7 +233,7 @@ export function createAvatarAnimationGraph(
   const sitEnterState: SingleAnimationState = {
     name: AvatarStates.SIT_ENTER,
     type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    action: getAnimationAction(AvatarAnimations.SIT_ENTER, mixer),
     loop: false,
     clamp: true
   }
@@ -241,7 +241,7 @@ export function createAvatarAnimationGraph(
   const sitLeaveState: SingleAnimationState = {
     name: AvatarStates.SIT_LEAVE,
     type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    action: getAnimationAction(AvatarAnimations.SIT_LEAVE, mixer),
     loop: false,
     clamp: true
   }
@@ -249,7 +249,7 @@ export function createAvatarAnimationGraph(
   const sitIdleState: SingleAnimationState = {
     name: AvatarStates.SIT_IDLE,
     type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    action: getAnimationAction(AvatarAnimations.SIT_IDLE, mixer),
     loop: true,
     clamp: false
   }
@@ -372,12 +372,13 @@ export function createAvatarAnimationGraph(
   graph.transitionRules[AvatarStates.DANCE3] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
   graph.transitionRules[AvatarStates.DANCE4] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
 
-  graph.transitionRules[AvatarStates.SIT_ENTER] = [
-    {
-      rule: animationTimeTransitionRule(sitEnterState.action, 0.95),
-      nextState: AvatarStates.SIT_IDLE
-    }
-  ]
+  // graph.transitionRules[AvatarStates.SIT_IDLE] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
+  // graph.transitionRules[AvatarStates.SIT_ENTER] = [
+  //   {
+  //     rule: animationTimeTransitionRule(sitEnterState.action, 0.95),
+  //     nextState: AvatarStates.SIT_IDLE
+  //   }
+  // ]
 
   graph.currentState = locomotionState
   enterAnimationState(graph.currentState)
