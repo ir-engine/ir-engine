@@ -6,7 +6,13 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../../scene/components/VisibleComponent'
 import {
@@ -21,7 +27,7 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   data: DirectionalLightComponentType
 ) => {
   const props = parseDirectionalLightProperties(data)
-  addComponent(entity, DirectionalLightComponent, props)
+  setComponent(entity, DirectionalLightComponent, props)
 }
 
 export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) => {

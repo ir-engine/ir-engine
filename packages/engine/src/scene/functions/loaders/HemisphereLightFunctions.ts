@@ -11,7 +11,8 @@ import {
   addComponent,
   getComponent,
   getComponentCountOfType,
-  hasComponent
+  hasComponent,
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import {
   HemisphereLightComponent,
@@ -25,7 +26,7 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (
   data: HemisphereLightComponentType
 ) => {
   const props = parseHemisphereLightProperties(data)
-  addComponent(entity, HemisphereLightComponent, props)
+  setComponent(entity, HemisphereLightComponent, props)
 }
 
 export const updateHemisphereLight: ComponentUpdateFunction = (entity: Entity) => {

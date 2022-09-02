@@ -15,7 +15,8 @@ import {
   addComponent,
   getComponent,
   getComponentCountOfType,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
@@ -28,7 +29,7 @@ import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } fro
 
 export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, data: FogComponentType) => {
   const props = parseFogProperties(data)
-  addComponent(entity, FogComponent, props)
+  setComponent(entity, FogComponent, props)
 }
 
 export const updateFog: ComponentUpdateFunction = (entity: Entity) => {

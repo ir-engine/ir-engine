@@ -104,7 +104,7 @@ export const loadAvatarForUser = async (
     const effectEntity = createEntity()
     addComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,
-      opacityMultiplier: 0,
+      opacityMultiplier: 1,
       originMaterials: avatarMaterials
     })
   }

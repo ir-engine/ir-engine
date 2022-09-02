@@ -2,7 +2,7 @@ import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFu
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   CameraPropertiesComponent,
   CameraPropertiesComponentType,
@@ -15,7 +15,7 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
   data: CameraPropertiesComponentType
 ): void => {
   const props = parseCameraPropertiesProperties(data)
-  addComponent(entity, CameraPropertiesComponent, props)
+  setComponent(entity, CameraPropertiesComponent, props)
 }
 
 export const updateCameraProperties = (entity: Entity) => {

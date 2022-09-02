@@ -12,7 +12,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { CallbackComponent } from '../../components/CallbackComponent'
 import { ImageComponent } from '../../components/ImageComponent'
@@ -32,8 +32,8 @@ import { resizeImageMesh } from './ImageFunctions'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
 export const deserializeVideo: ComponentDeserializeFunction = (entity: Entity, data: VideoComponentType) => {
-  const props = parseVideoProperties(data) as VideoComponentType
-  addComponent(entity, VideoComponent, props)
+  const props = parseVideoProperties(data)
+  setComponent(entity, VideoComponent, props)
 }
 
 export const updateVideo: ComponentUpdateFunction = (entity: Entity) => {

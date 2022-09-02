@@ -123,7 +123,8 @@ export default async function PhysicsSystem(world: World) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ColliderComponent)) {
           if (hasComponent(entity, MeshColliderComponentTag)) {
-            updateMeshCollider(entity)
+            /** @todo we currently have no reason to support this, and it breaks live scene updates */
+            // updateMeshCollider(entity)
           } else {
             updateCollider(entity)
           }

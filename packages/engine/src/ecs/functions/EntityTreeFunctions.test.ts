@@ -125,7 +125,7 @@ describe('EntityTreeFunctions', () => {
 
       emptyEntityTree(world.entityTree)
 
-      assert.equal(world.entityTree.rootNode.entity, -1)
+      assert(world.entityTree.rootNode.entity)
       assert.equal(world.entityTree.entityNodeMap.size, 0)
       assert.equal(world.entityTree.uuidNodeMap.size, 0)
     })
@@ -133,16 +133,17 @@ describe('EntityTreeFunctions', () => {
 
   describe('createEntityNode function', () => {
     it('will create entity node', () => {
-      const entity = createEntity()
-      const node_0 = createEntityNode(entity)
+      const entity0 = createEntity()
+      const node_0 = createEntityNode(entity0)
       assert.equal(node_0.type, 'EntityNode')
-      assert.equal(node_0.entity, entity)
+      assert.equal(node_0.entity, entity0)
       assert(node_0.uuid)
 
+      const entity1 = createEntity()
       const uuid = MathUtils.generateUUID()
-      const node_1 = createEntityNode(entity, uuid)
+      const node_1 = createEntityNode(entity1, uuid)
       assert.equal(node_1.type, 'EntityNode')
-      assert.equal(node_1.entity, entity)
+      assert.equal(node_1.entity, entity1)
       assert.equal(node_1.uuid, uuid)
     })
   })

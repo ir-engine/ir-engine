@@ -6,7 +6,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../../classes/Clouds'
 import {
   CloudComponent,
@@ -17,11 +17,14 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 
 export const deserializeCloud: ComponentDeserializeFunction = (entity: Entity, data: CloudComponentType) => {
-  const obj3d = new Clouds(entity)
+  let obj3d = getComponent(entity, Object3DComponent)?.value
+  if (!obj3d) {
+    obj3d = new Clouds(entity)
+    addComponent(entity, Object3DComponent, { value: obj3d })
+    setComponent(entity, UpdatableComponent, true)
+  }
   const props = parseCloudProperties(data)
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, CloudComponent, props)
-  addComponent(entity, UpdatableComponent, true)
+  setComponent(entity, CloudComponent, props)
 }
 
 export const updateCloud: ComponentUpdateFunction = (entity: Entity) => {

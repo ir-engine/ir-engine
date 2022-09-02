@@ -11,7 +11,7 @@ import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFu
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { CallbackComponent } from '../../components/CallbackComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
@@ -20,7 +20,7 @@ import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctio
 
 export const deserializeAudio: ComponentDeserializeFunction = async (entity: Entity, data: AudioComponentType) => {
   const props = parseAudioProperties(data)
-  addComponent(entity, AudioComponent, props)
+  setComponent(entity, AudioComponent, props)
 }
 
 export const createAudioNode = (

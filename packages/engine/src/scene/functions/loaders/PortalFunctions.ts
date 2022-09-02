@@ -16,7 +16,8 @@ import {
   ComponentType,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
@@ -42,7 +43,7 @@ PortalEffects.set('None', null!)
 
 export const deserializePortal: ComponentDeserializeFunction = (entity: Entity, data: PortalComponentType): void => {
   const props = parsePortalProperties(data)
-  addComponent(entity, PortalComponent, props)
+  setComponent(entity, PortalComponent, props)
 }
 
 export const updatePortal = (entity: Entity) => {

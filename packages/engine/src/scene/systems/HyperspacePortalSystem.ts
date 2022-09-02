@@ -74,7 +74,7 @@ export default async function HyperspacePortalSystem(world: World) {
 
         if (opacity === 0) {
           sceneVisible = true
-          removeComponent(world.sceneEntity, HyperspaceTagComponent)
+          removeComponent(world.localClientEntity, HyperspaceTagComponent)
           hyperspaceEffect.removeFromParent()
           light.removeFromParent()
           light.dispose()

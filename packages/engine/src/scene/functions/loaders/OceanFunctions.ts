@@ -6,7 +6,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Ocean } from '../../classes/Ocean'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
@@ -18,12 +18,15 @@ import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeOcean: ComponentDeserializeFunction = (entity: Entity, data: OceanComponentType) => {
-  const obj3d = new Ocean(entity)
   const props = parseOceanProperties(data)
+  setComponent(entity, OceanComponent, props)
 
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, OceanComponent, props)
-  addComponent(entity, UpdatableComponent, true)
+  let obj3d = getComponent(entity, Object3DComponent)?.value
+  if (!obj3d) {
+    const obj3d = new Ocean(entity)
+    addComponent(entity, Object3DComponent, { value: obj3d })
+    addComponent(entity, UpdatableComponent, true)
+  }
 }
 
 export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {

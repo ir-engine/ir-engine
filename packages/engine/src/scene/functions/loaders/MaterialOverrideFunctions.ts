@@ -6,6 +6,7 @@ import { DefaultArguments } from '../../../renderer/materials/MaterialLibrary'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent } from '../../components/ModelComponent'
+import { SceneObjectComponent } from '../../components/SceneObjectComponent'
 
 /**
  * Initializes material override in ecs system
@@ -20,6 +21,7 @@ export function initializeOverride(target: Entity, override: MaterialOverrideCom
     return undefined
   }
   const entity = createEntity()
+  addComponent(entity, SceneObjectComponent, true)
   nuOR.entity = entity
   nuOR.targetEntity = target
   return async () => {

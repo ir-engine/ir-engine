@@ -18,7 +18,7 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   EnvmapComponent,
   EnvmapComponentType,
@@ -39,7 +39,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, 
   if (!isClient) return
 
   const props = parseEnvMapProperties(data)
-  addComponent(entity, EnvmapComponent, props)
+  setComponent(entity, EnvmapComponent, props)
 }
 
 export const updateEnvMap = (entity: Entity) => {
