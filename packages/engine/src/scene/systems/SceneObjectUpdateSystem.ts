@@ -51,6 +51,7 @@ import {
   SCENE_COMPONENT_IMAGE,
   SCENE_COMPONENT_IMAGE_DEFAULT_VALUES
 } from '../components/ImageComponent'
+import { InstancingComponent } from '../components/InstancingComponent'
 import {
   InteriorComponent,
   SCENE_COMPONENT_INTERIOR,
@@ -70,7 +71,6 @@ import {
 import {
   PortalComponent,
   SCENE_COMPONENT_PORTAL,
-  SCENE_COMPONENT_PORTAL_COLLIDER_VALUES,
   SCENE_COMPONENT_PORTAL_DEFAULT_VALUES
 } from '../components/PortalComponent'
 import {
@@ -133,6 +133,7 @@ import {
   serializeImage,
   updateImage
 } from '../functions/loaders/ImageFunctions'
+import { updateInstancing } from '../functions/loaders/InstancingFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
@@ -493,6 +494,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const postProcessingQuery = defineQuery([PostprocessingComponent])
   const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent])
   const scenePreviewCameraTagQuery = defineQuery([ScenePreviewCameraTagComponent])
+  const instancingQuery = defineQuery([InstancingComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
@@ -518,6 +520,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
         if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
         if (hasComponent(entity, ScenePreviewCameraTagComponent)) updateCameraTransform(entity)
+        if (hasComponent(entity, InstancingComponent)) updateInstancing(entity)
       }
     }
 
@@ -538,5 +541,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
     for (const entity of scenePreviewCameraTagQuery.enter()) updateCameraTransform(entity)
+    for (const entity of instancingQuery.enter()) updateInstancing(entity)
   }
 }

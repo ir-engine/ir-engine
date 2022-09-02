@@ -26,7 +26,11 @@ import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../../assets/classes/DependencyTree'
 import { AssetClass } from '../../../assets/enum/AssetClass'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -296,6 +300,11 @@ export const deserializeInstancing: ComponentDeserializeFunction = (entity: Enti
   if (scatterProps.state === ScatterState.STAGING) {
     scatterProps.state = ScatterState.UNSTAGED
   }
+  addComponent(entity, InstancingComponent, scatterProps)
+}
+
+export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
+  const scatterProps = getComponent(entity, InstancingComponent)
   if (scatterProps.surface) {
     const eNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
     DependencyTree.add(
@@ -308,7 +317,6 @@ export const deserializeInstancing: ComponentDeserializeFunction = (entity: Enti
       })
     )
   }
-  addComponent(entity, InstancingComponent, scatterProps)
   if (scatterProps.state === ScatterState.STAGED) {
     const executeStaging = () => {
       addComponent(entity, InstancingStagingComponent, {})
