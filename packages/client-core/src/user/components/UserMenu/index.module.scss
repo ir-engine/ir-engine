@@ -898,7 +898,7 @@
         background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
         color: var(--textColor);
         border-radius: 20px;
-        margin: 15px 0 20px;
+        margin: 15px 5px 20px;
 
         &:hover {
           opacity: 0.8;
@@ -1845,6 +1845,20 @@
   flex-direction: column;
   align-items: center;
 
+  .headerBlock {
+    position: absolute;
+    align-self: flex-start;
+  }
+
+  .iconBlock {
+    @include icon-block-styling;
+
+    display: inline-block;
+    cursor: pointer;
+    color: var(--textColor);
+    background: transparent;
+  }
+
   .ownerImage {
     width: 150px;
     height: 150px;
@@ -1864,6 +1878,7 @@
     display: flex;
     flex-direction: column;
     margin-top: 20px;
+    align-items: center;
   }
 
   .gradientBtn {
@@ -1879,6 +1894,10 @@
 
     &:hover {
       opacity: 0.8;
+    }
+
+    &:disabled {
+      opacity: 0.7 !important;
     }
   }
 }
@@ -2430,26 +2449,6 @@
   color: var(--sidebarSelectedBackground) !important;
 }
 
-.tabsPanel {
-  width: 100%;
-  min-height: auto;
-
-  button {
-    color: var(--textColor);
-    opacity: 1;
-    min-height: 35px;
-  }
-
-  :global(.Mui-selected) {
-    color: var(--textColor);
-    opacity: 1 !important;
-  }
-
-  :global(.MuiTabs-indicator) {
-    background-color: var(--iconButtonBackground);
-  }
-}
-
 .tabsContent {
   min-height: 250px;
   padding: 20px;
@@ -2572,4 +2571,74 @@
       }
     }
   }
+}
+
+.friendsPanel {
+  .friendsList {
+    margin: 30px;
+    max-height: 400px;
+    height: 200px;
+    overflow: auto;
+  }
+
+  .friendItem {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: var(--textColor);
+    font-size: 14px;
+  }
+
+  .friendName {
+    flex: 1;
+    font-size: 16px;
+    margin-left: 15px;
+  }
+
+  .filledBtn {
+    background: var(--iconButtonBackground);
+    color: var(--textColor);
+    opacity: 1;
+    border-radius: 20px;
+    min-height: 35px;
+    margin: 0 5px;
+    font-size: 14px;
+    width: auto;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .noUsers {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--textColor);
+  }
+}
+
+.tabsPanel {
+  width: 100%;
+  min-height: auto;
+
+  button {
+    color: var(--textColor);
+    opacity: 1;
+    min-height: 35px;
+  }
+
+  :global(.Mui-selected) {
+    color: var(--textColor);
+    opacity: 1 !important;
+  }
+
+  :global(.MuiTabs-indicator) {
+    background-color: var(--iconButtonBackground);
+  }
+}
+
+.chip {
+  color: var(--textColor);
+  border-color: var(--textColor);
+  margin-right: 10px;
 }

@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
 import GroupsIcon from '@mui/icons-material/Groups'
-import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
-import SettingsIcon from '@mui/icons-material/Settings'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import { useUserState } from '../../services/UserService'
 import styles from './index.module.scss'
+import AvatarContextMenu from './menus/AvatarContextMenu'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
 import EmoteMenu from './menus/EmoteMenu'
+import FriendsMenu from './menus/FriendsMenu'
 import PartyMenu from './menus/PartyMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
@@ -54,6 +55,8 @@ UserMenuPanels.set(Views.AvatarSelect, SelectAvatarMenu)
 UserMenuPanels.set(Views.AvatarUpload, AvatarUploadModal)
 UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
 UserMenuPanels.set(Views.Emote, EmoteMenu)
+UserMenuPanels.set(Views.Friends, FriendsMenu)
+UserMenuPanels.set(Views.AvatarContext, AvatarContextMenu)
 
 // menus to be shown as icons at bottom of screen
 export const HotbarMenu = new Map<string, any>()
@@ -68,16 +71,23 @@ interface Props {
   fadeOutBottom?: any
 }
 
+interface ActiveMenu {
+  view: typeof Views[keyof typeof Views]
+  params?: any
+}
+
 const UserMenu = (props: Props): any => {
-  const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
-  const Panel = UserMenuPanels.get(currentActiveMenu!)!
+  const [currentActiveMenu, setCurrentActiveMenu] = useState<ActiveMenu>({ view: Views.Closed })
+
+  const Panel = UserMenuPanels.get(currentActiveMenu?.view)!
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
+  const userState = useUserState()
 
   useEffect(() => {
     function shareLinkReceptor(a) {
       matches(a).when(EngineActions.shareInteractableLink.matches, (action) => {
         if (action.shareLink !== '') {
-          setCurrentActiveMenu(Views.Share)
+          setCurrentActiveMenu({ view: Views.Share })
         }
       })
     }
@@ -85,11 +95,26 @@ const UserMenu = (props: Props): any => {
     return () => removeActionReceptor(shareLinkReceptor)
   }, [])
 
+  useEffect(() => {
+    function userAvatarTappedReceptor(a) {
+      matches(a).when(EngineActions.userAvatarTapped.matches, (action) => {
+        if (action.userId !== '') {
+          const tappedUser = userState.layerUsers.find((user) => user.id.value === action.userId)
+          setCurrentActiveMenu({ view: Views.AvatarContext, params: { user: tappedUser?.value } })
+        }
+      })
+    }
+    addActionReceptor(userAvatarTappedReceptor)
+    return () => removeActionReceptor(userAvatarTappedReceptor)
+  }, [])
+
   return (
     <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
       <div>
         <section
-          className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
+          className={`${styles.settingContainer} ${props.animate} ${
+            currentActiveMenu?.view ? props.fadeOutBottom : ''
+          }`}
         >
           {!xrSessionActive.value && (
             <div className={styles.iconContainer}>
@@ -99,9 +124,9 @@ const UserMenu = (props: Props): any => {
                   <span
                     key={index}
                     id={id + '_' + index}
-                    onClick={() => setCurrentActiveMenu(id)}
+                    onClick={() => setCurrentActiveMenu({ view: id })}
                     className={`${styles.materialIconBlock} ${
-                      currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
+                      currentActiveMenu && currentActiveMenu.view === id ? styles.activeMenu : null
                     }`}
                   >
                     <IconNode
@@ -115,7 +140,14 @@ const UserMenu = (props: Props): any => {
             </div>
           )}
         </section>
-        {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
+        {currentActiveMenu && currentActiveMenu.view && (
+          <Panel
+            {...currentActiveMenu.params}
+            changeActiveMenu={(view, params) => {
+              setCurrentActiveMenu({ view, params })
+            }}
+          />
+        )}
       </div>
     </ClickAwayListener>
   )

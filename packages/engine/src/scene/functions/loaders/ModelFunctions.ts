@@ -16,6 +16,7 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
 import { GLTFLoadedComponent } from '../../components/GLTFLoadedComponent'
+import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import {
   ModelComponent,
   ModelComponentType,
@@ -95,8 +96,8 @@ export const updateModel = async (entity: Entity) => {
 
   if (isClient && model.materialOverrides.length > 0) {
     const overrides = await Promise.all(
-      model.materialOverrides.map((override, i) => initializeOverride(entity, override)())
-    )
+      model.materialOverrides.map((override, i) => initializeOverride(entity, override)?.())
+    ).then((results) => results.filter((result) => typeof result !== 'undefined') as MaterialOverrideComponentType[])
     model.materialOverrides = overrides
   }
 

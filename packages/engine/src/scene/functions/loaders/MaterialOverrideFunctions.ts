@@ -16,6 +16,10 @@ import { SceneObjectComponent } from '../../components/SceneObjectComponent'
  */
 export function initializeOverride(target: Entity, override: MaterialOverrideComponentType) {
   const nuOR: MaterialOverrideComponentType = { ...override }
+  if (!Object.keys(DefaultArguments).includes(nuOR.materialID)) {
+    console.warn('unrecognized material ID ' + nuOR.materialID + ' on entity ' + target)
+    return undefined
+  }
   const entity = createEntity()
   addComponent(entity, SceneObjectComponent, true)
   nuOR.entity = entity
@@ -26,7 +30,7 @@ export function initializeOverride(target: Entity, override: MaterialOverrideCom
       nuOR.args = formatMaterialArgs({ ...nuOR.args }, defaultArgs)
       await Promise.all(
         Object.entries(nuOR.args).map(async ([k, v], idx) => {
-          if (nuOR.args?.[k]?.type === 'texture' && typeof v === 'string') {
+          if (defaultArgs[k]?.type === 'texture' && typeof v === 'string') {
             const nuTxr = await AssetLoader.loadAsync(v)
             nuOR.args[k] = nuTxr
           }
@@ -55,7 +59,7 @@ export async function refreshMaterials(target: Entity) {
     setTimeout(resolve, 100)
   })
   model.materialOverrides = await Promise.all(
-    model.materialOverrides.map(async (override) => await initializeOverride(target, override)())
-  )
+    model.materialOverrides.map(async (override) => await initializeOverride(target, override)?.())
+  ).then((overrides) => overrides.filter((override) => override !== undefined) as MaterialOverrideComponentType[])
   return model.materialOverrides
 }

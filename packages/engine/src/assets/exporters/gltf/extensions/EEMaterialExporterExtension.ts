@@ -27,6 +27,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
           break
       }
     })
+    materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions.EE_material = {
       ...result
     }
