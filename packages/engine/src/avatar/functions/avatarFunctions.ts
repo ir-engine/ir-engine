@@ -17,14 +17,14 @@ import {
   Vector3
 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/isClient'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -108,6 +108,8 @@ export const loadAvatarForUser = async (
       originMaterials: avatarMaterials
     })
   }
+
+  dispatchAction(EngineActions.avatarModelChanged({ entity }))
 }
 
 export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
