@@ -485,10 +485,12 @@ export default async function DebugHelpersSystem(world: World) {
     }
 
     for (const entity of ikAvatarQuery.exit()) {
-      ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
-        obj.removeFromParent()
-      })
-      helpersByEntity.ikExtents.delete(entity)
+      if (helpersByEntity.ikExtents.has(entity)) {
+        ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
+          obj.removeFromParent()
+        })
+        helpersByEntity.ikExtents.delete(entity)
+      }
     }
 
     /**
