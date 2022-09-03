@@ -3,7 +3,6 @@ import { PerspectiveCamera, Quaternion } from 'three'
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_010 } from '../common/constants/MathConstants'
@@ -64,12 +63,6 @@ export const requestXRSession = createHookableFunction(
       const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
 
-      /**
-       * rotate avatar 180 degrees for VR - who knows why
-       */
-      const { modelContainer } = getComponent(world.localClientEntity, AvatarComponent)
-      modelContainer.applyQuaternion(rot180Y)
-
       if (mode === 'immersive-ar') world.scene.background = null
 
       const onSessionEnd = () => {
@@ -81,12 +74,6 @@ export const requestXRSession = createHookableFunction(
         EngineRenderer.instance.xrManager.setSession(null!)
         const world = Engine.instance.currentWorld
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
-
-        /**
-         * rotate avatar 180 degrees for VR - who knows why
-         */
-        const { modelContainer } = getComponent(world.localClientEntity, AvatarComponent)
-        modelContainer.applyQuaternion(rot180Y)
 
         cleanXRInputs(world.localClientEntity)
         removeComponent(world.localClientEntity, XRInputSourceComponent)
@@ -225,7 +212,7 @@ export function updateGamepadInput(source: XRInputSource) {
 
       Engine.instance.currentWorld.inputState.set(Touchpad, {
         type: InputType.TWODIM,
-        value: [-inputData[0], -inputData[1]],
+        value: [inputData[0], inputData[1]],
         lifecycleState: LifecycleValue.Started // TODO
       })
     }
@@ -234,7 +221,7 @@ export function updateGamepadInput(source: XRInputSource) {
       const Thumbstick = source.handedness === 'left' ? GamepadAxis.LThumbstick : GamepadAxis.RThumbstick
       Engine.instance.currentWorld.inputState.set(Thumbstick, {
         type: InputType.TWODIM,
-        value: [-inputData[2], -inputData[3]],
+        value: [inputData[2], inputData[3]],
         lifecycleState: LifecycleValue.Started // TODO
       })
     }

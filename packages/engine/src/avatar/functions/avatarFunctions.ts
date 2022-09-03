@@ -1,21 +1,5 @@
 import { pipe } from 'bitecs'
-import {
-  AdditiveBlending,
-  AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  DoubleSide,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  PlaneGeometry,
-  Skeleton,
-  SkinnedMesh,
-  sRGBEncoding,
-  Vector3
-} from 'three'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
@@ -28,7 +12,6 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
@@ -36,9 +19,8 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
-import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneNames, createSkeletonFromBone } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
