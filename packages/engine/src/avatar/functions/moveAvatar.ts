@@ -53,7 +53,7 @@ const avatarStepRaycast = {
   origin: new Vector3(),
   direction: AvatarDirection.Down,
   maxDistance: stepHeight,
-  flags: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
+  groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
 }
 
 /**
