@@ -2,13 +2,10 @@ import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
@@ -34,7 +31,6 @@ export default async function LoadingUISystem(world: World) {
     new Promise<Texture | null>((resolve) => textureLoader.load(thumbnailUrl, resolve, null!, () => resolve(null)))
   ])
 
-  addComponent(ui.entity, PersistTagComponent, true)
   addComponent(ui.entity, NameComponent, { name: 'Loading XRUI' })
 
   const mesh = new Mesh(

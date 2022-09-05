@@ -31,7 +31,7 @@ import {
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
+import { CameraTagComponent } from '../components/CameraTagComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -257,12 +257,12 @@ export function cameraSpawnReceptor(
 
   console.log('Camera Spawn Receptor Call', entity)
 
-  addComponent(entity, NetworkCameraComponent, {})
+  addComponent(entity, CameraTagComponent, true)
 }
 
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
-  const ownedNetworkCamera = defineQuery([NetworkCameraComponent, NetworkObjectOwnedTag])
+  const ownedNetworkCamera = defineQuery([CameraTagComponent, NetworkObjectOwnedTag])
   const spectatorQuery = defineQuery([SpectatorComponent])
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
@@ -295,7 +295,7 @@ export default async function CameraSystem(world: World) {
     for (const cameraEntity of spectatorQuery.enter()) {
       const cameraTransform = getComponent(cameraEntity, TransformComponent)
       const spectator = getComponent(cameraEntity, SpectatorComponent)
-      const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, NetworkCameraComponent)
+      const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, CameraTagComponent)
       const networkTransform = getComponent(networkCameraEntity, TransformComponent)
       setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
         cameraTransform.position.copy(networkTransform.position)

@@ -179,4 +179,9 @@ export class EngineActions {
     type: 'xre.engine.SIMPLE_MATERIALS' as const,
     useSimpleMaterials: matches.boolean
   })
+
+  static avatarModelChanged = defineAction({
+    type: 'xre.engine.AVATAR_MODEL_CHANGED' as const,
+    entity: matchesEntity
+  })
 }

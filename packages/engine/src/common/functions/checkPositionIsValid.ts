@@ -28,7 +28,7 @@ export default function checkPositionIsValid(
     origin: position,
     direction: raycastDirection,
     maxDistance: 2,
-    flags: interactionGroups
+    groups: interactionGroups
   }
   const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 

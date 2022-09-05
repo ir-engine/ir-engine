@@ -7,9 +7,16 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
 import { GLTFLoadedComponent } from '../../components/GLTFLoadedComponent'
+import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import {
   ModelComponent,
   ModelComponentType,
@@ -27,12 +34,12 @@ import { initializeOverride } from './MaterialOverrideFunctions'
 
 export const deserializeModel: ComponentDeserializeFunction = (entity: Entity, data: ModelComponentType) => {
   const props = parseModelProperties(data)
-  addComponent(entity, ModelComponent, props)
+  setComponent(entity, ModelComponent, props)
 
   /**
    * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
    */
-  addComponent(entity, SceneAssetPendingTagComponent, true)
+  setComponent(entity, SceneAssetPendingTagComponent, true)
 }
 
 export const updateModel = async (entity: Entity) => {
@@ -89,8 +96,8 @@ export const updateModel = async (entity: Entity) => {
 
   if (isClient && model.materialOverrides.length > 0) {
     const overrides = await Promise.all(
-      model.materialOverrides.map((override, i) => initializeOverride(entity, override)())
-    )
+      model.materialOverrides.map((override, i) => initializeOverride(entity, override)?.())
+    ).then((results) => results.filter((result) => typeof result !== 'undefined') as MaterialOverrideComponentType[])
     model.materialOverrides = overrides
   }
 

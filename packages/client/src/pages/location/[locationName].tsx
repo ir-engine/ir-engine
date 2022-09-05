@@ -8,6 +8,7 @@ import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/
 import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLocationScene'
 import NetworkInstanceProvisioning from '@xrengine/client-core/src/components/World/NetworkInstanceProvisioning'
 import OfflineLocation from '@xrengine/client-core/src/components/World/OfflineLocation'
+import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
@@ -30,6 +31,7 @@ const LocationPage = () => {
 
   AuthService.useAPIListeners()
   SceneService.useAPIListeners()
+  FriendService.useAPIListeners()
 
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName }))

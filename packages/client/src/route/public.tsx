@@ -17,6 +17,7 @@ import { DialogServiceReceptor } from '@xrengine/client-core/src/common/services
 import { MediaInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ProjectServiceReceptor } from '@xrengine/client-core/src/common/services/ProjectService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+import { FriendServiceReceptor } from '@xrengine/client-core/src/social/services/FriendService'
 import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
@@ -55,6 +56,7 @@ function RouterComp() {
     addActionReceptor(AppLoadingServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
+    addActionReceptor(FriendServiceReceptor)
 
     dispatchAction(StoredLocalAction.restoreLocalData({}))
     StoredLocalStoreService.fetchLocalStoredState()
@@ -82,6 +84,7 @@ function RouterComp() {
       removeActionReceptor(AppLoadingServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
       removeActionReceptor(MediaInstanceConnectionServiceReceptor)
+      removeActionReceptor(FriendServiceReceptor)
     }
   }, [])
 

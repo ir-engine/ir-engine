@@ -12,7 +12,6 @@ import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { createWorld, destroyWorld } from './ecs/classes/World'
-import { defineQuery, getComponent } from './ecs/functions/ComponentFunctions'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
 import { initSystems, initSystemSync, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
@@ -28,7 +27,7 @@ import { FontManager } from './xrui/classes/FontManager'
  * adds action receptors and creates a new world.
  * @returns {Engine}
  */
-export const createEngine = async () => {
+export const createEngine = () => {
   if (Engine.instance?.currentWorld) {
     destroyWorld(Engine.instance.currentWorld)
   }

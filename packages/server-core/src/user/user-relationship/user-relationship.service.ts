@@ -33,6 +33,39 @@ export default (app: Application) => {
 
   service.hooks(hooks)
 
+  service.publish('created', async (data: UserRelationshipInterface): Promise<any> => {
+    try {
+      const inverseRelationship = await app.service('user-relationship').Model.findOne({
+        where: {
+          relatedUserId: data.userId,
+          userId: data.relatedUserId
+        }
+      })
+      if (data.userRelationshipType === 'requested' && inverseRelationship != null) {
+        if (data?.dataValues != null) {
+          data.dataValues.user = await app.service('user').get(data.userId)
+          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
+        } else {
+          ;(data as any).user = await app.service('user').get(data.userId)
+          ;(data as any).relatedUser = await app.service('user').get(data.relatedUserId)
+        }
+
+        const targetIds = [data.userId, data.relatedUserId]
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        return await Promise.all(
+          targetIds.map((userId: string) => {
+            return app.channel(`userIds/${userId}`).send({
+              userRelationship: data
+            })
+          })
+        )
+      }
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
+  })
+
   service.publish('patched', async (data: UserRelationshipInterface): Promise<any> => {
     try {
       const inverseRelationship = await app.service('user-relationship').Model.findOne({

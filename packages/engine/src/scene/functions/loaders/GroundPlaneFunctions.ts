@@ -15,7 +15,8 @@ import {
   getComponent,
   getComponentCountOfType,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
 import { Physics } from '../../../physics/classes/Physics'
@@ -37,7 +38,7 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   data: GroundPlaneComponentType
 ): Promise<void> {
   const props = parseGroundPlaneProperties(data)
-  addComponent(entity, GroundPlaneComponent, props)
+  setComponent(entity, GroundPlaneComponent, props)
 }
 
 let navigationRaycastTarget: Group

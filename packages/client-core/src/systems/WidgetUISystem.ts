@@ -8,7 +8,6 @@ import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/C
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
@@ -37,7 +36,6 @@ export default async function WidgetSystem(world: World) {
   const xrui = getComponent(ui.entity, XRUIComponent)
   ObjectFitFunctions.setUIVisible(xrui.container, false)
 
-  addComponent(ui.entity, PersistTagComponent, true)
   addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
 
   // lazily create XRUI widgets to speed up initial page loading time

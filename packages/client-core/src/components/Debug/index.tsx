@@ -85,7 +85,10 @@ export const Debug = () => {
             const name = getComponent(eid, NameComponent)?.name
             try {
               return [
-                '(eid:' + eid + ') ' + (name ?? ''),
+                '(eid:' +
+                  eid +
+                  ') ' +
+                  (name ?? Engine.instance.currentWorld.entityTree.entityNodeMap.get(eid)?.uuid ?? ''),
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {

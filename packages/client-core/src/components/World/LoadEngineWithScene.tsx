@@ -159,7 +159,7 @@ export const LoadEngineWithScene = () => {
       setAvatarToLocationTeleportingState(world)
 
       if (activePortal.effectType !== 'None') {
-        addComponent(world.sceneEntity, PortalEffects.get(activePortal.effectType), true)
+        addComponent(world.localClientEntity, PortalEffects.get(activePortal.effectType), true)
       } else {
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.START_STATE }))
       }

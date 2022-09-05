@@ -14,7 +14,7 @@ import {
 } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
-import { Direction } from '../common/constants/Axis3D'
+import { AvatarDirection } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import {
@@ -51,9 +51,9 @@ const lightOpacity = (y, r) => {
 const downwardGroundRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
-  direction: Direction.Down,
+  direction: AvatarDirection.Down,
   maxDistance: 10,
-  flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+  groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
 }
 
 export default async function AvatarLoadingSystem(world: World) {
@@ -234,7 +234,7 @@ export default async function AvatarLoadingSystem(world: World) {
               {
                 opacityMultiplier: 0
               },
-              3000
+              2000
             )
             .start()
             .onComplete(async () => {

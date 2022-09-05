@@ -8,7 +8,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -18,20 +18,22 @@ import {
   MeshColliderComponentTag,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
+import { NameComponent } from '../../components/NameComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
-  if (!data.shapeType) {
-    addComponent(entity, MeshColliderComponentTag, {})
+  /** @todo this is brittle, should be replaced with something explicit for models */
+  if (typeof data.shapeType === 'undefined') {
+    setComponent(entity, MeshColliderComponentTag, true)
   }
   const colliderProps = parseColliderProperties(data)
   if (!hasComponent(entity, Object3DComponent)) {
     addComponent(entity, Object3DComponent, { value: new Object3D() })
   }
-  addComponent(entity, ColliderComponent, colliderProps)
+  setComponent(entity, ColliderComponent, colliderProps)
 }
 
 export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {

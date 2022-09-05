@@ -241,7 +241,15 @@ const ShareMenu = (props: Props): JSX.Element => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            {t('user:usermenu.share.lbl-findFriends')}
+            {t('user:usermenu.share.party')}
+          </Button>
+          <Button
+            className={styles.friendsBtn}
+            onClick={() => props.changeActiveMenu(Views.Friends)}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
+            {t('user:usermenu.share.friends')}
           </Button>
         </div>
       </div>
