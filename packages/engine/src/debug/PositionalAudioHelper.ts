@@ -1,14 +1,14 @@
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, MathUtils } from 'three'
 
-import { AudioNodes } from '../scene/components/MediaComponent'
+import { AudioNodeGroup } from '../audio/systems/MediaSystem'
 
 class PositionalAudioHelper extends Line {
-  audio: AudioNodes
+  audio: AudioNodeGroup
   range: number
   divisionsInnerAngle: number
   divisionsOuterAngle: number
 
-  constructor(audio: AudioNodes, range = 1, divisionsInnerAngle = 16, divisionsOuterAngle = 2) {
+  constructor(audio: AudioNodeGroup, range = 1, divisionsInnerAngle = 16, divisionsOuterAngle = 2) {
     const geometry = new BufferGeometry()
     const divisions = divisionsInnerAngle + divisionsOuterAngle * 2
     const positions = new Float32Array((divisions * 3 + 3) * 3)
