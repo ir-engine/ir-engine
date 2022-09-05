@@ -1,11 +1,11 @@
-import { Downgraded, useHookstate } from '@hookstate/core'
+import { useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'

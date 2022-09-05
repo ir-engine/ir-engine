@@ -28,8 +28,8 @@ import {
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AudioComponent } from '../../audio/components/AudioComponent'
-import { AudioElementNodes } from '../../audio/systems/AudioSystem'
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
+import { AudioNodeGroups } from '../../audio/systems/MediaSystem'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -46,7 +46,7 @@ import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import Spline from '../../scene/classes/Spline'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
-import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { MediaElementComponent } from '../../scene/components/MediaComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
@@ -116,7 +116,7 @@ export default async function DebugHelpersSystem(world: World) {
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const avatarAnimationQuery = defineQuery([Object3DComponent, AvatarAnimationComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
-  const audioHelper = defineQuery([AudioComponent])
+  const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
@@ -552,19 +552,19 @@ export default async function DebugHelpersSystem(world: World) {
 
       if (debugEnabled)
         for (const entity of audioHelper()) {
-          const mediaComponent = getComponent(entity, MediaElementComponent)
-          const audioEl = AudioElementNodes.get(mediaComponent)
-          if (!audioEl) continue
+          const mediaElement = getComponent(entity, MediaElementComponent)
+          const audioNodes = AudioNodeGroups.get(mediaElement.element)
+          if (!audioNodes) continue
 
           if (!helpersByEntity.positionalAudioHelper.has(entity)) {
-            const helper = new PositionalAudioHelper(audioEl)
+            const helper = new PositionalAudioHelper(audioNodes)
             // helper.visible = false
             helpersByEntity.positionalAudioHelper.set(entity, helper)
             Engine.instance.currentWorld.scene.add(helper)
           }
 
           const helper = helpersByEntity.positionalAudioHelper.get(entity)
-          audioEl.panner && helper?.update()
+          audioNodes.panner && helper?.update()
           helper?.position.copy(getComponent(entity, TransformComponent).position)
         }
     }

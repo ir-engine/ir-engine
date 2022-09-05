@@ -224,7 +224,7 @@ export const loadComponent = (entity: Entity, component: ComponentJson, world = 
     const isTagComponent = !sceneComponent.defaultData
     addComponent(
       entity,
-      ComponentMap.get(Component[0]),
+      ComponentMap.get(Component[0])!,
       isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
     )
   }

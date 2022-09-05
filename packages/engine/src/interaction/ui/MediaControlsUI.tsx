@@ -1,54 +1,30 @@
-import { createState } from '@hookstate/core'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import { Pause, PlayArrow } from '@mui/icons-material'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { CallbackComponent } from '../../scene/components/CallbackComponent'
-import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 
-type Props = {
-  playing: boolean
-}
-
-export function createMediaControlsView(data: Props, entity: Entity) {
+export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />
-  return createXRUI(MediaControls, createMediaControlsState(data))
+  return createXRUI(MediaControls)
 }
-
-function createMediaControlsState(data: Props) {
-  return createState({
-    playing: data.playing,
-    mouseOver: false
-  })
-}
-
-type MediaControlsState = ReturnType<typeof createMediaControlsState>
 
 type MediaControlsProps = {
   entity: Entity
 }
 
 const MediaControlsView = (props: MediaControlsProps) => {
-  const detailState = useXRUIState() as MediaControlsState
-  const mediaComponent = getComponent(props.entity, MediaElementComponent)
-
-  useEffect(() => {
-    mediaComponent.addEventListener('playing', () => {
-      detailState.merge({ playing: true })
-    })
-    mediaComponent.addEventListener('pause', () => {
-      detailState.merge({ playing: false })
-    })
-  }, [])
+  const mediaComponent = useHookstate(getComponent(props.entity, MediaComponent))
 
   const buttonClick = () => {
-    const callback = getComponent(props.entity, CallbackComponent) as any
-    detailState.playing.value ? callback?.pause() : callback?.play()
+    const mediaElement = getComponent(props.entity, MediaElementComponent)
+    if (!mediaElement) return
+    mediaElement.element.paused ? mediaElement.element.play() : mediaElement.element.pause()
   }
 
   return (
@@ -86,7 +62,7 @@ const MediaControlsView = (props: MediaControlsProps) => {
             background-color: grey;
         }`}
         </style>
-        {detailState.playing.value ? <Pause style={{ fill: 'white' }} /> : <PlayArrow style={{ fill: 'white' }} />}
+        {mediaComponent.paused.value ? <PlayArrow style={{ fill: 'white' }} /> : <Pause style={{ fill: 'white' }} />}
       </button>
     </div>
   )

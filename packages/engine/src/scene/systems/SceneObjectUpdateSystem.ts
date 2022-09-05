@@ -46,11 +46,7 @@ import {
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
 } from '../components/GroundPlaneComponent'
 import { GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
-import {
-  ImageComponent,
-  SCENE_COMPONENT_IMAGE,
-  SCENE_COMPONENT_IMAGE_DEFAULT_VALUES
-} from '../components/ImageComponent'
+import { ImageComponent, SCENE_COMPONENT_IMAGE } from '../components/ImageComponent'
 import {
   InteriorComponent,
   SCENE_COMPONENT_INTERIOR,
@@ -127,12 +123,7 @@ import {
   updateGroundPlane
 } from '../functions/loaders/GroundPlaneFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
-import {
-  deserializeImage,
-  prepareImageForGLTFExport,
-  serializeImage,
-  updateImage
-} from '../functions/loaders/ImageFunctions'
+import { deserializeImage, serializeImage, updateImage } from '../functions/loaders/ImageFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
@@ -402,15 +393,17 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.image, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_IMAGE, props: SCENE_COMPONENT_IMAGE_DEFAULT_VALUES }
+    {
+      name: SCENE_COMPONENT_IMAGE,
+      props: { source: '__$project$__/XREngine-development-test-suite/assets/sample_etc1s.ktx2' }
+    }
   ])
 
   world.sceneComponentRegistry.set(ImageComponent._name, SCENE_COMPONENT_IMAGE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {
-    defaultData: SCENE_COMPONENT_IMAGE_DEFAULT_VALUES,
+    defaultData: {},
     deserialize: deserializeImage,
-    serialize: serializeImage,
-    prepareForGLTFExport: prepareImageForGLTFExport
+    serialize: serializeImage
   })
 
   world.sceneComponentRegistry.set(LoopAnimationComponent._name, SCENE_COMPONENT_LOOP_ANIMATION)

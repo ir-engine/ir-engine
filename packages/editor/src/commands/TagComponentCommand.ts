@@ -1,8 +1,7 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
-  ComponentConstructor,
-  getComponent,
+  Component,
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -20,7 +19,7 @@ export enum TagComponentOperation {
 }
 
 export type TagComponentOperationType = {
-  component: ComponentConstructor<any, any>
+  component: Component<any, any>
   type: TagComponentOperation
   sceneComponentName: string
 }

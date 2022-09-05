@@ -27,7 +27,7 @@ import './styles.scss'
 import { API } from '@xrengine/client-core/src/API'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {

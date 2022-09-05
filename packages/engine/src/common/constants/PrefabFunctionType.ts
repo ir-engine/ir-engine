@@ -24,5 +24,4 @@ export type SceneLoaderType = {
    */
   deserialize?: ComponentDeserializeFunction
   shouldDeserialize?: ComponentShouldDeserializeFunction
-  prepareForGLTFExport?: ComponentPrepareForGLTFExportFunction
 }

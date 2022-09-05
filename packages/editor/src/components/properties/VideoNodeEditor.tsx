@@ -45,14 +45,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.video.name')}
       description={t('editor:properties.video.description')}
-    >
-      <InputGroup name="Location" label={t('editor:properties.video.lbl-id')}>
-        <ControlledStringInput
-          value={videoComponent.elementId}
-          onChange={updateProperty(VideoComponent, 'elementId')}
-        />
-      </InputGroup>
-    </NodeEditor>
+    ></NodeEditor>
   )
 }
 

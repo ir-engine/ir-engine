@@ -30,12 +30,12 @@ import { setTransformComponent } from '../../transform/components/TransformCompo
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
+  Component,
   ComponentType,
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent,
-  MappedComponent
+  hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTreeFunctions'
@@ -217,7 +217,7 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  activePortal = null as ReturnType<typeof PortalComponent.get> | null
+  activePortal = null as ComponentType<typeof PortalComponent> | null
 
   /**
    * Custom systems injected into this world
@@ -316,7 +316,7 @@ export class World {
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
+  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
     return (
       this.getOwnedNetworkObjects(userId).find((eid) => {
         return hasComponent(eid, component, this)

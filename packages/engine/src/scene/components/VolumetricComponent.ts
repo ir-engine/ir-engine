@@ -1,16 +1,33 @@
-import type Volumetric from '@xrfoundation/volumetric/player'
+import { subscribable } from '@hookstate/subscribable'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
-export type VolumetricComponentType = {
-  player: Volumetric
-  useLoadingEffect: boolean
-}
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const VolumetricComponent = createMappedComponent<VolumetricComponentType>('VolumetricComponent')
+export const VolumetricComponent = defineComponent({
+  name: 'XRE_volumetric',
+
+  onAdd: (entity, json) => {
+    const state = hookstate(
+      {
+        useLoadingEffect: false
+      },
+      subscribable()
+    )
+    state.merge(json)
+    return state
+  },
+
+  onRemove: (entity, component) => {
+    ;(component as typeof component & StateMethodsDestroy).destroy()
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      useLoadingEffect: component.useLoadingEffect
+    }
+  }
+})
 
 export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
-export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
-  useLoadingEffect: true
-}

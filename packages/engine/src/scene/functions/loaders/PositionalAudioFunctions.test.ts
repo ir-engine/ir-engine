@@ -2,18 +2,14 @@ import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { Object3D } from 'three'
 
-import {
-  AudioComponent,
-  AudioComponentType,
-  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
-} from '../../../audio/components/AudioComponent'
+import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { deserializeAudio } from './AudioFunctions'
+import { deserializePositionalAudio } from './PositionalAudioFunctions'
 
 const testURLs = {
   noContentType: { url: 'noContentType' },
@@ -64,7 +60,7 @@ class PositionalAudio extends Audio {}
 
 describe.skip('AudioFunctions', () => {
   let entity: Entity
-  let audioFunctions = proxyquire('./AudioFunctions', {
+  let audioFunctions = proxyquire('./PositionalAudioFunctions', {
     '../../../common/functions/isClient': { isClient: true },
     three: {
       Audio: Audio,
@@ -90,10 +86,10 @@ describe.skip('AudioFunctions', () => {
     coneOuterGain: Math.random()
   }
 
-  describe('deserializeAudio()', () => {
+  describe('deserializePositionalAudio()', () => {
     describe('Object 3D Tests', () => {
       it('add object 3d component if not present', () => {
-        deserializeAudio(entity, sceneComponentData)
+        deserializePositionalAudio(entity, sceneComponentData)
         assert(hasComponent(entity, Object3DComponent))
       })
 
@@ -101,7 +97,7 @@ describe.skip('AudioFunctions', () => {
         const obj3d = new Object3D()
 
         addComponent(entity, Object3DComponent, { value: obj3d })
-        deserializeAudio(entity, sceneComponentData)
+        deserializePositionalAudio(entity, sceneComponentData)
 
         const obj3dComp = getComponent(entity, Object3DComponent)
         assert(obj3dComp && obj3dComp.value === obj3d)
@@ -110,25 +106,25 @@ describe.skip('AudioFunctions', () => {
 
     describe('Client vs Server', () => {
       it('will add audio component while running on client', () => {
-        audioFunctions.deserializeAudio(entity, sceneComponentData)
-        assert(hasComponent(entity, AudioComponent))
+        audioFunctions.deserializePositionalAudio(entity, sceneComponentData)
+        assert(hasComponent(entity, PositionalAudioComponent))
       })
 
       it('will not add audio component while running on server', () => {
-        const _audioFunctions = proxyquire('./AudioFunctions', {
+        const _audioFunctions = proxyquire('./PositionalAudioFunctions', {
           '../../../common/functions/isClient': {
             isClient: false
           }
         })
 
-        _audioFunctions.deserializeAudio(entity, sceneComponentData)
-        assert(!hasComponent(entity, AudioComponent))
+        _audioFunctions.deserializePositionalAudio(entity, sceneComponentData)
+        assert(!hasComponent(entity, PositionalAudioComponent))
       })
     })
 
     it('sets loop and autoplay', () => {
       // addComponent(entity, MediaComponent, { autoplay: true, loop: true } as MediaComponentType)
-      audioFunctions.deserializeAudio(entity, sceneComponentData)
+      audioFunctions.deserializePositionalAudio(entity, sceneComponentData)
 
       const obj3d = getComponent(entity, Object3DComponent).value
       assert(obj3d.userData.audioEl.autoplay === true, 'Autoplay is not being set')
@@ -137,25 +133,22 @@ describe.skip('AudioFunctions', () => {
   })
 
   describe('updateAudio()', () => {
-    let audioComponent: AudioComponentType
+    let positionalAudio: any
     let obj3d: Object3D
 
     beforeEach(() => {
-      audioFunctions.deserializeAudio(entity, sceneComponentData)
-      audioComponent = getComponent(entity, AudioComponent) as AudioComponentType
+      audioFunctions.deserializePositionalAudio(entity, sceneComponentData)
+      positionalAudio = getComponent(entity, PositionalAudioComponent)
       obj3d = getComponent(entity, Object3DComponent)?.value as Object3D
     })
 
     describe('Property tests for "audioType"', () => {
       it('should not update property', () => {
         audioFunctions.updateAudio(entity, {})
-
-        assert(audioComponent.audioType === sceneComponentData.audioType)
         assert(obj3d.userData.audioEl instanceof PositionalAudio)
       })
 
       it('should update property', () => {
-        audioComponent.audioType = AudioType.Stereo
         audioFunctions.updateAudio(entity, { audioType: AudioType.Stereo })
 
         assert(obj3d.userData.audioEl instanceof Audio)
@@ -207,51 +200,30 @@ describe.skip('AudioFunctions', () => {
     //   })
     // })
 
-    describe('Property tests for "volume"', () => {
-      it('should not update property', () => {
-        audioFunctions.updateAudio(entity, {})
-
-        assert(audioComponent.volume === sceneComponentData.volume)
-        assert(obj3d.userData.audioEl.volume === sceneComponentData.volume)
-      })
-
-      it('should update property', () => {
-        audioComponent.volume = Math.random()
-
-        audioFunctions.updateAudio(entity, { volume: audioComponent.volume })
-        assert(obj3d.userData.audioEl.volume === audioComponent.volume)
-
-        audioFunctions.updateAudio(entity, { volume: Math.random() })
-        assert(obj3d.userData.audioEl.volume === audioComponent.volume, 'should not update property to passed value')
-      })
-    })
-
     describe('Positional Audio Properties', () => {
       it('should not update positional properties for sterio type', () => {
-        audioComponent.rolloffFactor = Math.random()
-        audioComponent.audioType = AudioType.Stereo
-        audioFunctions.updateAudio(entity, { rolloffFactor: audioComponent.rolloffFactor })
+        positionalAudio.rolloffFactor = Math.random()
+        audioFunctions.updateAudio(entity, { rolloffFactor: positionalAudio.rolloffFactor })
 
-        assert(obj3d.userData.audioEl.rolloffFactor !== audioComponent.rolloffFactor)
+        assert(obj3d.userData.audioEl.rolloffFactor !== positionalAudio.rolloffFactor)
       })
 
       describe('Property tests for "distanceModel"', () => {
         it('should not update property', () => {
           audioFunctions.updateAudio(entity, {})
-
-          assert(audioComponent.distanceModel === sceneComponentData.distanceModel)
+          assert(positionalAudio.distanceModel.value === sceneComponentData.distanceModel)
           assert(obj3d.userData.audioEl.distanceModel === sceneComponentData.distanceModel)
         })
 
         it('should update property', () => {
-          audioComponent.distanceModel = 'exponential'
+          positionalAudio.distanceModel = 'exponential'
 
-          audioFunctions.updateAudio(entity, { distanceModel: audioComponent.distanceModel })
-          assert(obj3d.userData.audioEl.distanceModel === audioComponent.distanceModel)
+          audioFunctions.updateAudio(entity, { distanceModel: positionalAudio.distanceModel })
+          assert(obj3d.userData.audioEl.distanceModel === positionalAudio.distanceModel)
 
           audioFunctions.updateAudio(entity, { distanceModel: 'linear' })
           assert(
-            obj3d.userData.audioEl.distanceModel === audioComponent.distanceModel,
+            obj3d.userData.audioEl.distanceModel === positionalAudio.distanceModel,
             'should not update property to passed value'
           )
         })
@@ -261,19 +233,19 @@ describe.skip('AudioFunctions', () => {
         it('should not update property', () => {
           audioFunctions.updateAudio(entity, {})
 
-          assert(audioComponent.rolloffFactor === sceneComponentData.rolloffFactor)
+          assert(positionalAudio.rolloffFactor === sceneComponentData.rolloffFactor)
           assert(obj3d.userData.audioEl.rolloffFactor === sceneComponentData.rolloffFactor)
         })
 
         it('should update property', () => {
-          audioComponent.rolloffFactor = Math.random()
+          positionalAudio.rolloffFactor = Math.random()
 
-          audioFunctions.updateAudio(entity, { rolloffFactor: audioComponent.rolloffFactor })
-          assert(obj3d.userData.audioEl.rolloffFactor === audioComponent.rolloffFactor)
+          audioFunctions.updateAudio(entity, { rolloffFactor: positionalAudio.rolloffFactor })
+          assert(obj3d.userData.audioEl.rolloffFactor === positionalAudio.rolloffFactor)
 
           audioFunctions.updateAudio(entity, { rolloffFactor: Math.random() })
           assert(
-            obj3d.userData.audioEl.rolloffFactor === audioComponent.rolloffFactor,
+            obj3d.userData.audioEl.rolloffFactor === positionalAudio.rolloffFactor,
             'should not update property to passed value'
           )
         })
@@ -283,19 +255,19 @@ describe.skip('AudioFunctions', () => {
         it('should not update property', () => {
           audioFunctions.updateAudio(entity, {})
 
-          assert(audioComponent.refDistance === sceneComponentData.refDistance)
+          assert(positionalAudio.refDistance === sceneComponentData.refDistance)
           assert(obj3d.userData.audioEl.refDistance === sceneComponentData.refDistance)
         })
 
         it('should update property', () => {
-          audioComponent.refDistance = Math.random()
+          positionalAudio.refDistance = Math.random()
 
-          audioFunctions.updateAudio(entity, { refDistance: audioComponent.refDistance })
-          assert(obj3d.userData.audioEl.refDistance === audioComponent.refDistance)
+          audioFunctions.updateAudio(entity, { refDistance: positionalAudio.refDistance })
+          assert(obj3d.userData.audioEl.refDistance === positionalAudio.refDistance)
 
           audioFunctions.updateAudio(entity, { refDistance: Math.random() })
           assert(
-            obj3d.userData.audioEl.refDistance === audioComponent.refDistance,
+            obj3d.userData.audioEl.refDistance === positionalAudio.refDistance,
             'should not update property to passed value'
           )
         })
@@ -305,19 +277,19 @@ describe.skip('AudioFunctions', () => {
         it('should not update property', () => {
           audioFunctions.updateAudio(entity, {})
 
-          assert(audioComponent.maxDistance === sceneComponentData.maxDistance)
+          assert(positionalAudio.maxDistance === sceneComponentData.maxDistance)
           assert(obj3d.userData.audioEl.maxDistance === sceneComponentData.maxDistance)
         })
 
         it('should update property', () => {
-          audioComponent.maxDistance = Math.random()
+          positionalAudio.maxDistance = Math.random()
 
-          audioFunctions.updateAudio(entity, { maxDistance: audioComponent.maxDistance })
-          assert(obj3d.userData.audioEl.maxDistance === audioComponent.maxDistance)
+          audioFunctions.updateAudio(entity, { maxDistance: positionalAudio.maxDistance })
+          assert(obj3d.userData.audioEl.maxDistance === positionalAudio.maxDistance)
 
           audioFunctions.updateAudio(entity, { maxDistance: Math.random() })
           assert(
-            obj3d.userData.audioEl.maxDistance === audioComponent.maxDistance,
+            obj3d.userData.audioEl.maxDistance === positionalAudio.maxDistance,
             'should not update property to passed value'
           )
         })
@@ -327,19 +299,19 @@ describe.skip('AudioFunctions', () => {
         it('should not update property', () => {
           audioFunctions.updateAudio(entity, {})
 
-          assert(audioComponent.coneInnerAngle === sceneComponentData.coneInnerAngle)
+          assert(positionalAudio.coneInnerAngle === sceneComponentData.coneInnerAngle)
           assert(obj3d.userData.audioEl.panner.coneInnerAngle === sceneComponentData.coneInnerAngle)
         })
 
         it('should update property', () => {
-          audioComponent.coneInnerAngle = Math.random()
+          positionalAudio.coneInnerAngle = Math.random()
 
-          audioFunctions.updateAudio(entity, { coneInnerAngle: audioComponent.coneInnerAngle })
-          assert(obj3d.userData.audioEl.panner.coneInnerAngle === audioComponent.coneInnerAngle)
+          audioFunctions.updateAudio(entity, { coneInnerAngle: positionalAudio.coneInnerAngle })
+          assert(obj3d.userData.audioEl.panner.coneInnerAngle === positionalAudio.coneInnerAngle)
 
           audioFunctions.updateAudio(entity, { coneInnerAngle: Math.random() })
           assert(
-            obj3d.userData.audioEl.panner.coneInnerAngle === audioComponent.coneInnerAngle,
+            obj3d.userData.audioEl.panner.coneInnerAngle === positionalAudio.coneInnerAngle,
             'should not update property to passed value'
           )
         })
@@ -349,19 +321,19 @@ describe.skip('AudioFunctions', () => {
         it('should not update property', () => {
           audioFunctions.updateAudio(entity, {})
 
-          assert(audioComponent.coneOuterAngle === sceneComponentData.coneOuterAngle)
+          assert(positionalAudio.coneOuterAngle === sceneComponentData.coneOuterAngle)
           assert(obj3d.userData.audioEl.panner.coneOuterAngle === sceneComponentData.coneOuterAngle)
         })
 
         it('should update property', () => {
-          audioComponent.coneOuterAngle = Math.random()
+          positionalAudio.coneOuterAngle = Math.random()
 
-          audioFunctions.updateAudio(entity, { coneOuterAngle: audioComponent.coneOuterAngle })
-          assert(obj3d.userData.audioEl.panner.coneOuterAngle === audioComponent.coneOuterAngle)
+          audioFunctions.updateAudio(entity, { coneOuterAngle: positionalAudio.coneOuterAngle })
+          assert(obj3d.userData.audioEl.panner.coneOuterAngle === positionalAudio.coneOuterAngle)
 
           audioFunctions.updateAudio(entity, { coneOuterAngle: Math.random() })
           assert(
-            obj3d.userData.audioEl.panner.coneOuterAngle === audioComponent.coneOuterAngle,
+            obj3d.userData.audioEl.panner.coneOuterAngle === positionalAudio.coneOuterAngle,
             'should not update property to passed value'
           )
         })
@@ -371,19 +343,19 @@ describe.skip('AudioFunctions', () => {
         it('should not update property', () => {
           audioFunctions.updateAudio(entity, {})
 
-          assert(audioComponent.coneOuterGain === sceneComponentData.coneOuterGain)
+          assert(positionalAudio.coneOuterGain === sceneComponentData.coneOuterGain)
           assert(obj3d.userData.audioEl.panner.coneOuterGain === sceneComponentData.coneOuterGain)
         })
 
         it('should update property', () => {
-          audioComponent.coneOuterGain = Math.random()
+          positionalAudio.coneOuterGain = Math.random()
 
-          audioFunctions.updateAudio(entity, { coneOuterGain: audioComponent.coneOuterGain })
-          assert(obj3d.userData.audioEl.panner.coneOuterGain === audioComponent.coneOuterGain)
+          audioFunctions.updateAudio(entity, { coneOuterGain: positionalAudio.coneOuterGain })
+          assert(obj3d.userData.audioEl.panner.coneOuterGain === positionalAudio.coneOuterGain)
 
           audioFunctions.updateAudio(entity, { coneOuterGain: Math.random() })
           assert(
-            obj3d.userData.audioEl.panner.coneOuterGain === audioComponent.coneOuterGain,
+            obj3d.userData.audioEl.panner.coneOuterGain === positionalAudio.coneOuterGain,
             'should not update property to passed value'
           )
         })
@@ -393,7 +365,7 @@ describe.skip('AudioFunctions', () => {
 
   describe('serializeAudio()', () => {
     it('should properly serialize audio', () => {
-      audioFunctions.deserializeAudio(entity, sceneComponentData)
+      audioFunctions.deserializePositionalAudio(entity, sceneComponentData)
       assert.deepEqual(audioFunctions.serializeAudio(entity), sceneComponentData)
     })
 
@@ -404,7 +376,7 @@ describe.skip('AudioFunctions', () => {
 
   describe('toggleAudio()', () => {
     it('should properly toggle audio', () => {
-      audioFunctions.deserializeAudio(entity, sceneComponentData)
+      audioFunctions.deserializePositionalAudio(entity, sceneComponentData)
 
       const audioEl = getComponent(entity, Object3DComponent)?.value.userData.audioEl as Audio
       let prevState = audioEl.isPlaying
@@ -423,48 +395,6 @@ describe.skip('AudioFunctions', () => {
       addComponent(entity, Object3DComponent, { value: new Object3D() })
       audioFunctions.toggleAudio(entity)
       assert(true)
-    })
-  })
-
-  describe('parseAudioProperties()', () => {
-    it('should use default component values', () => {
-      const componentData = audioFunctions.parseAudioProperties({})
-      assert(componentData.volume === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.volume)
-      assert(componentData.audioType === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioType)
-      assert(componentData.distanceModel === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.distanceModel)
-      assert(componentData.rolloffFactor === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.rolloffFactor)
-      assert(componentData.refDistance === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.refDistance)
-      assert(componentData.maxDistance === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.maxDistance)
-      assert(componentData.coneInnerAngle === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneInnerAngle)
-      assert(componentData.coneOuterAngle === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneOuterAngle)
-      assert(componentData.coneOuterGain === SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneOuterGain)
-    })
-
-    it('should use passed values', () => {
-      const props = {
-        audioSource: 'Test',
-        volume: Math.random(),
-        audioType: AudioType.Stereo as AudioTypeType,
-        distanceModel: 'exponential' as DistanceModelType,
-        rolloffFactor: Math.random(),
-        refDistance: Math.random(),
-        maxDistance: Math.random(),
-        coneInnerAngle: Math.random(),
-        coneOuterAngle: Math.random(),
-        coneOuterGain: Math.random()
-      }
-      const componentData = audioFunctions.parseAudioProperties(props)
-
-      assert(componentData.audioSource === props.audioSource)
-      assert(componentData.volume === props.volume)
-      assert(componentData.audioType === props.audioType)
-      assert(componentData.distanceModel === props.distanceModel)
-      assert(componentData.rolloffFactor === props.rolloffFactor)
-      assert(componentData.refDistance === props.refDistance)
-      assert(componentData.maxDistance === props.maxDistance)
-      assert(componentData.coneInnerAngle === props.coneInnerAngle)
-      assert(componentData.coneOuterAngle === props.coneOuterAngle)
-      assert(componentData.coneOuterGain === props.coneOuterGain)
     })
   })
 

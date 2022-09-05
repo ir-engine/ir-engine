@@ -1,5 +1,5 @@
-import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { PositionalAudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
@@ -121,7 +121,7 @@ export const EntityNodeEditor = {
   [SpawnPointComponent._name]: SpawnPointNodeEditor,
   [MediaComponent._name]: MediaNodeEditor,
   [ImageComponent._name]: ImageNodeEditor,
-  [AudioComponent._name]: AudioNodeEditor,
+  [PositionalAudioComponent._name]: AudioNodeEditor,
   [VideoComponent._name]: VideoNodeEditor,
   [VolumetricComponent._name]: VolumetricNodeEditor,
   [CloudComponent._name]: CloudsNodeEditor,

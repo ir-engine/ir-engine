@@ -39,7 +39,6 @@
     "@feathersjs/rest-client": "5.0.0-pre.10",
     "@feathersjs/socketio-client": "5.0.0-pre.10",
     "@google/model-viewer": "1.11.1",
-    "@hookstate/core": "4.0.0-rc13",
     "@iconify/react": "3.2.0",
     "@mui/icons-material": "5.8.4",
     "@mui/lab": "5.0.0-alpha.94",

@@ -25,7 +25,6 @@ export const TransformComponent = createMappedComponent<TransformComponentType, 
   'TransformComponent',
   TransformSchema
 )
-// createComponent('TransformComponent', SCHEMA).withMap<TransformComponentType>()
 
 globalThis.TransformComponent = TransformComponent
 

@@ -5,7 +5,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaComponent } from '../../scene/components/MediaComponent'
-import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
@@ -20,13 +19,11 @@ const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<ty
   const buttonLayer = xrui.container.rootLayer.querySelector('button')!
   const model = getComponent(entity, Object3DComponent).value
   const intersectObjects = world.pointerScreenRaycaster.intersectObject(model, true)
-  if (intersectObjects.length && !mediaControls.state.mouseOver.value) {
+  if (intersectObjects.length) {
     transition.setState('IN')
-    mediaControls.state.mouseOver.set(true)
   }
-  if (!intersectObjects.length && mediaControls.state.mouseOver.value) {
+  if (!intersectObjects.length) {
     transition.setState('OUT')
-    mediaControls.state.mouseOver.set(false)
   }
   transition.update(world.deltaSeconds, (opacity) => {
     buttonLayer.scale.setScalar(0.9 + 0.1 * opacity * opacity)
@@ -41,7 +38,7 @@ export default async function MediaControlSystem(world: World) {
   /** @todo, remove this when we have better system pipeline injection */
   if (Engine.instance.isEditor) return () => {}
 
-  const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
+  const mediaQuery = defineQuery([MediaComponent, MediaComponent])
 
   const update = onUpdate(world)
 
@@ -56,8 +53,6 @@ export default async function MediaControlSystem(world: World) {
 
     for (const entity of mediaQuery.exit(world)) {
       if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
-      const mediaComponent = getComponent(entity, MediaElementComponent, true)
-      mediaComponent?.remove()
     }
   }
 }

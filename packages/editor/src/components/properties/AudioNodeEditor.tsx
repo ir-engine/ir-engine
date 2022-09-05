@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { PositionalAudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { AudioType, DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
@@ -28,7 +28,7 @@ const AudioTypeOptions = [
  */
 export const AudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const audioComponent = getComponent(props.node.entity, AudioComponent)
+  const audioComponent = getComponent(props.node.entity, PositionalAudioComponent)
 
   return (
     <NodeEditor
@@ -41,14 +41,17 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
           key={props.node.entity}
           options={AudioTypeOptions}
           value={audioComponent.audioType}
-          onChange={updateProperty(AudioComponent, 'audioType')}
+          onChange={updateProperty(PositionalAudioComponent, 'audioType')}
         />
       </InputGroup>
       <InputGroup name="Volume" label={t('editor:properties.audio.lbl-volume')}>
-        <CompoundNumericInput value={audioComponent.volume} onChange={updateProperty(AudioComponent, 'volume')} />
+        <CompoundNumericInput
+          value={audioComponent.volume}
+          onChange={updateProperty(PositionalAudioComponent, 'volume')}
+        />
       </InputGroup>
       <InputGroup name="Is Music" label={t('editor:properties.audio.lbl-isMusic')}>
-        <BooleanInput value={audioComponent.isMusic} onChange={updateProperty(AudioComponent, 'isMusic')} />
+        <BooleanInput value={audioComponent.isMusic} onChange={updateProperty(PositionalAudioComponent, 'isMusic')} />
       </InputGroup>
       {!props.multiEdit && audioComponent.audioType === AudioType.Positional && (
         <>
@@ -61,7 +64,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
               key={props.node.entity}
               options={DistanceModelOptions}
               value={audioComponent.distanceModel}
-              onChange={updateProperty(AudioComponent, 'distanceModel')}
+              onChange={updateProperty(PositionalAudioComponent, 'distanceModel')}
             />
           </InputGroup>
 
@@ -78,7 +81,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
                 mediumStep={0.01}
                 largeStep={0.1}
                 value={audioComponent.rolloffFactor}
-                onChange={updateProperty(AudioComponent, 'rolloffFactor')}
+                onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
               />
             </InputGroup>
           ) : (
@@ -91,7 +94,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
               mediumStep={1}
               largeStep={10}
               value={audioComponent.rolloffFactor}
-              onChange={updateProperty(AudioComponent, 'rolloffFactor')}
+              onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
             />
           )}
           <NumericInputGroup
@@ -103,7 +106,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.refDistance}
-            onChange={updateProperty(AudioComponent, 'refDistance')}
+            onChange={updateProperty(PositionalAudioComponent, 'refDistance')}
             unit="m"
           />
           <NumericInputGroup
@@ -115,7 +118,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.maxDistance}
-            onChange={updateProperty(AudioComponent, 'maxDistance')}
+            onChange={updateProperty(PositionalAudioComponent, 'maxDistance')}
             unit="m"
           />
           <NumericInputGroup
@@ -128,7 +131,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.coneInnerAngle}
-            onChange={updateProperty(AudioComponent, 'coneInnerAngle')}
+            onChange={updateProperty(PositionalAudioComponent, 'coneInnerAngle')}
             unit="°"
           />
           <NumericInputGroup
@@ -141,7 +144,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.coneOuterAngle}
-            onChange={updateProperty(AudioComponent, 'coneOuterAngle')}
+            onChange={updateProperty(PositionalAudioComponent, 'coneOuterAngle')}
             unit="°"
           />
           <InputGroup
@@ -154,7 +157,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
               max={1}
               step={0.01}
               value={audioComponent.coneOuterGain}
-              onChange={updateProperty(AudioComponent, 'coneOuterGain')}
+              onChange={updateProperty(PositionalAudioComponent, 'coneOuterGain')}
             />
           </InputGroup>
         </>

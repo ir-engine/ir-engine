@@ -6,7 +6,7 @@ import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux
 
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
-import { AudioEffectPlayer } from './audio/systems/AudioSystem'
+import { AudioEffectPlayer } from './audio/systems/MediaSystem'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
@@ -20,9 +20,6 @@ import { matchActionOnce } from './networking/functions/matchActionOnce'
 import IncomingActionSystem from './networking/systems/IncomingActionSystem'
 import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
-import { CallbackComponent } from './scene/components/CallbackComponent'
-import { MediaComponent } from './scene/components/MediaComponent'
-import { MediaElementComponent } from './scene/components/MediaElementComponent'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { FontManager } from './xrui/classes/FontManager'
 
@@ -268,7 +265,7 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./audio/systems/AudioSystem')
+        systemModulePromise: import('./audio/systems/MediaSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,

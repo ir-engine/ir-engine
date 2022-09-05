@@ -8,10 +8,9 @@ import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { MediaComponent } from '../../components/MediaComponent'
-import { MediaElementComponent } from '../../components/MediaElementComponent'
+import { MediaComponent, MediaElementComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
+import { VideoComponent } from '../../components/VideoComponent'
 
 class Media {
   paused: boolean = false
@@ -50,12 +49,8 @@ describe.skip('VideoFunctions', () => {
       paths: [],
       playMode: 3,
       autoplay: true,
-      playing: false,
       controls: false,
-      autoStartTime: 0,
-      currentSource: 0,
-      startTimer: null!,
-      stopOnNextTrack: false
+      autoStartTime: 0
     })
     const obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
     obj3d.userData.mesh = new Mesh()
@@ -74,7 +69,7 @@ describe.skip('VideoFunctions', () => {
       assert(videoComponent)
       assert.deepEqual(videoComponent, sceneComponentData)
 
-      const mediaComponent = getComponent(entity, MediaElementComponent)
+      const mediaComponent = getComponent(entity, MediaElementComponent)!.element
       assert(mediaComponent)
       assert(mediaComponent.muted)
       assert(mediaComponent.hidden)
@@ -99,12 +94,12 @@ describe.skip('VideoFunctions', () => {
   })
 
   describe('updateVideo()', () => {
-    let videoComponent: VideoComponentType
+    let videoComponent: any
     let obj3d: Object3D
 
     beforeEach(() => {
       videoFunctions.deserializeVideo(entity, sceneComponentData)
-      videoComponent = getComponent(entity, VideoComponent) as VideoComponentType
+      videoComponent = getComponent(entity, VideoComponent)
       obj3d = getComponent(entity, Object3DComponent)?.value
     })
 
