@@ -1,4 +1,4 @@
-import { PositionalAudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { PositionalAudioComponent } from '@xrengine/engine/src/audio/components/PositionalAudioComponent'
 import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'

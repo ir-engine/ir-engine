@@ -13,6 +13,7 @@ import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
@@ -53,6 +54,12 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
 
   return (
     <>
+      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
+        <CompoundNumericInput value={mediaComponent.volume} onChange={updateProperty(MediaComponent, 'volume')} />
+      </InputGroup>
+      <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
+        <BooleanInput value={mediaComponent.isMusic} onChange={updateProperty(MediaComponent, 'isMusic')} />
+      </InputGroup>
       <InputGroup
         name="Controls"
         label={t('editor:properties.media.lbl-controls')}
