@@ -1,6 +1,6 @@
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { Component, ComponentType, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component, getComponent, SerializedComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
@@ -10,13 +10,13 @@ import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 
 export type ModifyPropertyCommandUndoParams<C extends Component<any, any>> = {
-  properties: Partial<ComponentType<C>>[]
+  properties: Partial<SerializedComponentType<C>>[]
 }
 
 export type ModifyPropertyCommandParams<C extends Component<any, any>> = CommandParams & {
   type: ObjectCommands.MODIFY_PROPERTY
 
-  properties: Partial<ComponentType<C>>[]
+  properties: Partial<SerializedComponentType<C>>[]
 
   component: C
 

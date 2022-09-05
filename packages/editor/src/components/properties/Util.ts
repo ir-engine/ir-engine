@@ -1,7 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { ComponentConstructor, ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component, ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 
 import { setPropertyOnSelectionEntities } from '../../classes/History'
@@ -15,7 +15,7 @@ export type EditorComponentType = React.FC<EditorPropType> & {
   iconComponent?: any
 }
 
-export const updateProperty = <C extends ComponentConstructor<any, any>, K extends keyof ComponentType<C>>(
+export const updateProperty = <C extends Component<any, any>, K extends keyof ComponentType<C>>(
   component: C,
   propName: K,
   ...args: any
