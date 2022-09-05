@@ -1,4 +1,11 @@
-import RAPIER, { ActiveCollisionTypes, ColliderHandle, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import RAPIER, {
+  ActiveCollisionTypes,
+  ColliderHandle,
+  RigidBodyType,
+  ShapeType,
+  Vector
+} from '@dimforge/rapier3d-compat'
+import { Vector3 } from 'three'
 
 export interface Vec3 {
   x: number
@@ -19,23 +26,13 @@ export enum SceneQueryType {
   // Multiple,
   Closest
 }
-export interface SceneQuery {
-  type: SceneQueryType
-  flags?: number
-  collisionMask?: number
-  origin?: Vec3
-  direction?: Vec3
-  maxDistance?: number
-  maxHits?: number
-  hits?: RaycastHit[]
-}
 
 export interface RaycastHit {
   distance: number
-  position: Vec3
-  normal: Vec3
-  body?: RAPIER.RigidBody
-  collider?: RAPIER.Collider
+  position: Vector
+  normal: Vector
+  body: RAPIER.RigidBody
+  collider: RAPIER.Collider
 }
 
 export enum CollisionEvents {
@@ -53,11 +50,8 @@ export type ColliderHitEvent = {
   bodyOther: RAPIER.RigidBody
   shapeSelf: RAPIER.Collider
   shapeOther: RAPIER.Collider
-  /**
-   * @todo: populate this using Rapier contact queue drain
-   * https://rapier.rs/docs/user_guides/javascript/advanced_collision_detection_js
-   */
-  // contacts: any
+  maxForceDirection: null | Vector
+  totalForce: null | Vector
 }
 
 export type ColliderDescOptions = {
@@ -65,7 +59,7 @@ export type ColliderDescOptions = {
   type?: ShapeType
   shapeType?: ShapeType
   bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
-  size?: Vec3 // For cases where mesh.scale can't provide the actual size of collider.
+  size?: Vector3 // For cases where mesh.scale can't provide the actual size of collider.
   isTrigger?: boolean
   removeMesh?: boolean
   friction?: number
