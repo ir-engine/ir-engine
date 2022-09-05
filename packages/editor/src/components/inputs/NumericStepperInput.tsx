@@ -7,7 +7,7 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import { InfoTooltip } from '../layout/Tooltip'
 import NumericInput from './NumericInput'
 
-const StepperInputContainer = (styled as any).div`
+const StepperInputContainer = styled.div`
   display: flex;
   flex: 1;
   width: 100%;

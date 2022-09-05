@@ -25,7 +25,7 @@ const useStyles = makeStyles<any, {}, any>((theme: any) => {
  *
  * @type {Styled component}
  */
-export const InputGroupContainer = (styled as any).div`
+export const InputGroupContainer = styled.div`
   display: flex;
   flex-direction: row;
   padding: 4px 8px;
@@ -53,13 +53,13 @@ export const InputGroupContainer = (styled as any).div`
  *
  * @type {Styled component}
  */
-export const InputGroupContent = (styled as any).div`
+export const InputGroupContent = styled.div`
   display: flex;
   justify-content: space-between;
   margin-left: 5px;
 
-  &>*:first-child {
-    max-width: calc(100% - 2px)
+  & > *:first-child {
+    max-width: calc(100% - 2px);
   }
 
   & > label {
@@ -71,8 +71,7 @@ export const InputGroupContent = (styled as any).div`
   }
 `
 
-export const InputGroupVerticalContainer = (styled as any).div`
-
+export const InputGroupVerticalContainer = styled.div`
   ${(props) =>
     props.disabled &&
     `
@@ -89,8 +88,7 @@ export const InputGroupVerticalContainer = (styled as any).div`
   }
 `
 
-export const InputGroupVerticalContainerWide = (styled as any).div`
-
+export const InputGroupVerticalContainerWide = styled.div`
   ${(props) =>
     props.disabled &&
     `
@@ -107,7 +105,7 @@ export const InputGroupVerticalContainerWide = (styled as any).div`
   }
 `
 
-export const InputGroupVerticalContent = (styled as any).div`
+export const InputGroupVerticalContent = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;

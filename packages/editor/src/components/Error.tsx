@@ -7,7 +7,7 @@ import styled from 'styled-components'
  *
  * @type {styled component}
  */
-const StyledError = (styled as any).div`
+const StyledError = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;

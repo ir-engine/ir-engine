@@ -13,7 +13,7 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 
 import styles from '../styles.module.scss'
 
-const ModelPreview = (styled as any).canvas`
+const ModelPreview = styled.canvas`
   display: block;
   margin-left: auto;
   margin-right: auto;

@@ -8,6 +8,7 @@ import { setPropertyOnSelectionEntities } from '../../classes/History'
 
 export type EditorPropType = {
   node: EntityTreeNode
+  component?: ComponentConstructor<any, any>
   multiEdit?: boolean
 }
 

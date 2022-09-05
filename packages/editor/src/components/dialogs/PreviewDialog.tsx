@@ -8,7 +8,7 @@ import Dialog from './Dialog'
  *
  * @type {Styled component}
  */
-const LeftContent = (styled as any).div`
+const LeftContent = styled.div`
   display: flex;
   width: 360px;
   border-top-left-radius: inherit;
@@ -25,7 +25,7 @@ const LeftContent = (styled as any).div`
  *
  * @type {Styled component}
  */
-const RightContent = (styled as any).div`
+const RightContent = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;

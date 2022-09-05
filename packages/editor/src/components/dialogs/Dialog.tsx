@@ -8,7 +8,7 @@ import { Button, SecondaryButton } from '../inputs/Button'
  *
  * @type {Styled component}
  */
-const DialogContainer = (styled as any).form`
+const DialogContainer = styled.form`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
@@ -24,7 +24,7 @@ const DialogContainer = (styled as any).form`
  *
  * @type {Styled component}
  */
-const DialogHeader = (styled as any).div`
+const DialogHeader = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -48,7 +48,7 @@ const DialogHeader = (styled as any).div`
  *
  * @type {Styled component}
  */
-export const DialogContent = (styled as any).div`
+export const DialogContent = styled.div`
   color: var(--textColor);
   display: flex;
   flex: 1;
@@ -75,7 +75,7 @@ export const DialogContent = (styled as any).div`
  *
  * @type {Styled component}
  */
-const DialogBottomNav = (styled as any).div`
+const DialogBottomNav = styled.div`
   padding: 8px;
   margin: auto;
 

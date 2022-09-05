@@ -57,7 +57,7 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
  *
  * @type {type}
  */
-export const DockContainer = (styled as any).div`
+export const DockContainer = styled.div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;
@@ -67,14 +67,18 @@ export const DockContainer = (styled as any).div`
     position: relative;
     z-index: 99;
   }
-  .dock-panel[data-dockid="+5"] {
+  .dock-panel[data-dockid='+5'] {
     pointer-events: none;
   }
-  .dock-panel[data-dockid="+5"] .dock-bar { display: none; }
-  .dock-panel[data-dockid="+5"] .dock { background: transparent; }
+  .dock-panel[data-dockid='+5'] .dock-bar {
+    display: none;
+  }
+  .dock-panel[data-dockid='+5'] .dock {
+    background: transparent;
+  }
   .dock-divider {
     pointer-events: auto;
-    background:rgba(1,1,1,${(props) => props.dividerAlpha});
+    background: rgba(1, 1, 1, ${(props) => props.dividerAlpha});
   }
   .dock {
     border-radius: 4px;
@@ -82,18 +86,25 @@ export const DockContainer = (styled as any).div`
   }
   .dock-top .dock-bar {
     font-size: 12px;
-    border-bottom: 1px solid rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     background: transparent;
   }
   .dock-tab {
     background: transparent;
     border-bottom: none;
   }
-  .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
+  .dock-tab:hover,
+  .dock-tab-active,
+  .dock-tab-active:hover {
     border-bottom: 1px solid #ddd;
   }
-  .dock-tab:hover div, .dock-tab:hover svg { color: var(--textColor); }
-  .dock-tab > div { padding: 2px 12px; }
+  .dock-tab:hover div,
+  .dock-tab:hover svg {
+    color: var(--textColor);
+  }
+  .dock-tab > div {
+    padding: 2px 12px;
+  }
   .dock-tab-active {
     color: var(--textColor);
   }

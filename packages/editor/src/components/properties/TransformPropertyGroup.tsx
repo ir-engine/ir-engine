@@ -57,7 +57,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const transform = localTransfromComponent ?? transfromComponent
 
   return (
-    <NodeEditor {...props} name={t('editor:properties.transform.title')}>
+    <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
         <Vector3Input
           value={transform.position}

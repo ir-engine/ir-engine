@@ -12,7 +12,7 @@ import Dialog from './Dialog'
  *
  * @type {Styled component}
  */
-const ProgressContainer = (styled as any).div`
+const ProgressContainer = styled.div`
   color: var(--textColor);
   display: flex;
   flex: 1;
@@ -27,7 +27,7 @@ const ProgressContainer = (styled as any).div`
  *
  * @type {styled component}
  */
-const ProgressMessage = (styled as any).div`
+const ProgressMessage = styled.div`
   margin: auto;
   white-space: pre;
 `

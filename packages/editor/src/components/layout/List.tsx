@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const ListItem = (styled as any).li`
+export const ListItem = styledli`
   display: flex;
   flex-direction: row;
   outline: none;
@@ -31,7 +31,7 @@ export const ListItem = (styled as any).li`
   }
 `
 
-const ListItemIcon = (styled as any).div`
+const ListItemIcon = styled.div`
   width: 12px;
   height: 12px;
   margin-right: 4px;
@@ -53,7 +53,7 @@ export function IconListItem({ iconComponent, children, ...rest }) {
   )
 }
 
-export const List = (styled as any).ul`
+export const List = styledul`
   height: 100%;
   overflow-y: auto;
 `

@@ -1,24 +1,24 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const PanelIcon = (styled as any).div`
+export const PanelIcon = styled.div`
   color: var(--textColor);
   margin-right: 6px;
   width: 18px;
 `
 
-export const PanelTitle = (styled as any).div`
+export const PanelTitle = styled.div`
   color: var(--textColor);
   position: relative;
 `
 
-export const PanelCheckbox = (styled as any).div`
+export const PanelCheckbox = styled.div`
   color: var(--textColor);
   position: relative;
   padding: 0px;
 `
 
-export const PanelDragContainer = (styled as any).div`
+export const PanelDragContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
@@ -26,7 +26,6 @@ export const PanelDragContainer = (styled as any).div`
   padding: 0px;
 
   &.dock-tab-active {
-
     ${PanelTitle} {
       color: white !important;
     }
@@ -37,7 +36,7 @@ export const PanelDragContainer = (styled as any).div`
   }
 `
 
-export const PanelContainer = (styled as any).div`
+export const PanelContainer = styled.div`
   position: relative;
   display: flex;
   flex: 1;
@@ -48,7 +47,7 @@ export const PanelContainer = (styled as any).div`
   user-select: none;
 `
 
-export const PanelToolbar = (styled as any).div`
+export const PanelToolbar = styled.div`
   display: flex;
   padding: 4px;
   height: 24px;
@@ -56,7 +55,7 @@ export const PanelToolbar = (styled as any).div`
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 `
 
-export const PanelContent = (styled as any).div`
+export const PanelContent = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;

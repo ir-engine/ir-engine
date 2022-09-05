@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const Center = (styled as any).div`
+const Center = styled.div`
   display: flex;
   flex: 1;
   justify-content: center;

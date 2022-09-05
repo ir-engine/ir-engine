@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getAllComponents, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   PreventBakeTagComponent,
   SCENE_COMPONENT_PREVENT_BAKE
@@ -19,7 +19,7 @@ import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@xrengine/engine/src/
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
-import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
+import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -28,13 +28,12 @@ import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
 import { updateProperty } from './Util'
 
-const StyledNodeEditor = (styled as any).div`
-`
+const StyledNodeEditor = styled.div``
 
 /**
  * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
  */
-const PropertiesHeader = (styled as any).div`
+const PropertiesHeader = styled.div`
   border: none !important;
   padding-bottom: 0 !important;
 `
@@ -44,8 +43,7 @@ const PropertiesHeader = (styled as any).div`
  *
  *  @type {Styled Component}
  */
-const NameInputGroupContainer = (styled as any).div`
-`
+const NameInputGroupContainer = styled.div``
 /**
  * Styled component used to provide styles for visiblity checkbox.
  */
@@ -59,7 +57,7 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
  * PropertiesPanelContent used as container element contains content of editor view.
  * @type {Styled Component}
  */
-const PropertiesPanelContent = (styled as any).div`
+const PropertiesPanelContent = styled.div`
   overflow-y: auto;
   height: 100%;
 `
@@ -69,7 +67,7 @@ const PropertiesPanelContent = (styled as any).div`
  *
  * @type {Styled component}
  */
-const NoNodeSelectedMessage = (styled as any).div`
+const NoNodeSelectedMessage = styled.div`
   height: 100%;
   display: flex;
   justify-content: center;
@@ -137,54 +135,56 @@ export const PropertiesPanelContainer = () => {
   const node = isObject3D
     ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', nodeEntity)
     : Engine.instance.currentWorld.entityTree.entityNodeMap.get(nodeEntity)
-
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
-  } else {
-    // get all editors that this entity has a component for
-    const editors = isObject3D ? [Object3DNodeEditor] : getNodeEditorsForEntity(nodeEntity)
-
+  } else if (isObject3D) {
     content = (
       <StyledNodeEditor>
-        {!isObject3D && (
-          <PropertiesHeader>
-            <NameInputGroupContainer>
-              <NameInputGroup node={node as EntityTreeNode} key={nodeEntity} />
-              {!hasComponent(nodeEntity, SceneTagComponent) && (
-                <>
-                  <VisibleInputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
-                    <BooleanInput
-                      value={hasComponent(nodeEntity, SceneDynamicLoadTagComponent)}
-                      onChange={onChangeDynamicLoad}
+        <Object3DNodeEditor multiEdit={multiEdit} node={node as EntityTreeNode} />
+      </StyledNodeEditor>
+    )
+  } else {
+    const components = getAllComponents(nodeEntity).filter((c) => EntityNodeEditor.has(c))
+    content = (
+      <StyledNodeEditor>
+        <PropertiesHeader>
+          <NameInputGroupContainer>
+            <NameInputGroup node={node as EntityTreeNode} key={nodeEntity} />
+            {!hasComponent(nodeEntity, SceneTagComponent) && (
+              <>
+                <VisibleInputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
+                  <BooleanInput
+                    value={hasComponent(nodeEntity, SceneDynamicLoadTagComponent)}
+                    onChange={onChangeDynamicLoad}
+                  />
+                  {hasComponent(nodeEntity, SceneDynamicLoadTagComponent) && (
+                    <CompoundNumericInput
+                      style={{ paddingLeft: `8px`, paddingRight: `8px` }}
+                      min={1}
+                      max={100}
+                      step={1}
+                      value={getComponent(nodeEntity, SceneDynamicLoadTagComponent).distance}
+                      onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
                     />
-                    {hasComponent(nodeEntity, SceneDynamicLoadTagComponent) && (
-                      <CompoundNumericInput
-                        style={{ paddingLeft: `8px`, paddingRight: `8px` }}
-                        min={1}
-                        max={100}
-                        step={1}
-                        value={getComponent(nodeEntity, SceneDynamicLoadTagComponent).distance}
-                        onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
-                      />
-                    )}
-                  </VisibleInputGroup>
-                  <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
-                    <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
-                  </VisibleInputGroup>
-                  <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
-                    <BooleanInput
-                      value={hasComponent(nodeEntity, PreventBakeTagComponent)}
-                      onChange={onChangeBakeStatic}
-                    />
-                  </VisibleInputGroup>
-                </>
-              )}
-            </NameInputGroupContainer>
-          </PropertiesHeader>
-        )}
-        {editors.map((Editor, i) => (
-          <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} />
-        ))}
+                  )}
+                </VisibleInputGroup>
+                <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
+                  <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
+                </VisibleInputGroup>
+                <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
+                  <BooleanInput
+                    value={hasComponent(nodeEntity, PreventBakeTagComponent)}
+                    onChange={onChangeBakeStatic}
+                  />
+                </VisibleInputGroup>
+              </>
+            )}
+          </NameInputGroupContainer>
+        </PropertiesHeader>
+        {components.map((c, i) => {
+          const Editor = EntityNodeEditor.get(c)!
+          return <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} component={c} />
+        })}
       </StyledNodeEditor>
     )
   }

@@ -17,7 +17,7 @@ const StyledToolButton = (styled as any).button`
   }
 `
 
-const Icon = (styled as any).div`
+const Icon = styled.div`
   width: '100%';
   height: '100%';
   font-size: 14px;

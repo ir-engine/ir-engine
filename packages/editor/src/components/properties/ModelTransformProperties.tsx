@@ -31,19 +31,19 @@ import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import ModelResourceProperties from './ModelResourceProperties'
 
-const TransformContainer = (styled as any).div`
-color: var(--textColor);
-text-align: -webkit-center;
-margin-top: 2em;
-margin-bottom: 4em;
-background-color: var(--background2);
-overflow: scroll;
+const TransformContainer = styled.div`
+  color: var(--textColor);
+  text-align: -webkit-center;
+  margin-top: 2em;
+  margin-bottom: 4em;
+  background-color: var(--background2);
+  overflow: scroll;
 `
 
-const ElementsContainer = (styled as any).div`
-margin: 16px;
-padding: 8px;
-color: var(--textColor);
+const ElementsContainer = styled.div`
+  margin: 16px;
+  padding: 8px;
+  color: var(--textColor);
 `
 
 const FilterToggle = styled(ToggleButton)`

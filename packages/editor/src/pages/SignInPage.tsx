@@ -11,22 +11,22 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
  * @ProjectsSection
  *
  */
-export const StyledProjectsSection = (styled as any).section<{ flex?: number }>`
- padding-bottom: 100px;
- display: flex;
- flex: ${(props) => (props.flex === undefined ? 1 : props.flex)};
+export const StyledProjectsSection = styled.section<{ flex?: number }>`
+  padding-bottom: 100px;
+  display: flex;
+  flex: ${(props) => (props.flex === undefined ? 1 : props.flex)};
 
- &:first-child {
-   padding-top: 50px;
- }
+  &:first-child {
+    padding-top: 50px;
+  }
 
- h1 {
-   font-size: 36px;
- }
+  h1 {
+    font-size: 36px;
+  }
 
- h2 {
-   font-size: 16px;
- }
+  h2 {
+    font-size: 16px;
+  }
 `
 
 /**
@@ -35,13 +35,13 @@ export const StyledProjectsSection = (styled as any).section<{ flex?: number }>`
  * @ProjectsContainer
  *
  */
-export const StyledProjectsContainer = (styled as any).div`
- display: flex;
- flex: 1;
- flex-direction: column;
- margin: 0 auto;
- width: 90vw;
- padding: 0 20px;
+export const StyledProjectsContainer = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: 0 auto;
+  width: 90vw;
+  padding: 0 20px;
 `
 
 /**
@@ -50,11 +50,11 @@ export const StyledProjectsContainer = (styled as any).div`
  * @ProjectsHeader
  *
  */
-export const StyledProjectsHeader = (styled as any).div`
- margin-bottom: 36px;
- display: flex;
- justify-content: space-between;
- align-items: center;
+export const StyledProjectsHeader = styled.div`
+  margin-bottom: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `
 
 const ProjectGridContainer = styled.div`

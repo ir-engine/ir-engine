@@ -6,14 +6,14 @@ import { Stack } from '@mui/material'
 import ImageInput from './ImageInput'
 import InputGroup from './InputGroup'
 
-export const ImageContainer = (styled as any).div`
-display: flex;
-width: 100%;
-border-radius: 4px;
-border: solid;
-border-color: var(--inputOutline);
-margin: 8px;
-padding: 4px;
+export const ImageContainer = styled.div`
+  display: flex;
+  width: 100%;
+  border-radius: 4px;
+  border: solid;
+  border-color: var(--inputOutline);
+  margin: 8px;
+  padding: 4px;
 `
 
 export default function ImagePreviewInput({ value, onChange, ...rest }) {

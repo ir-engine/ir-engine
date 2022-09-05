@@ -11,7 +11,7 @@ import Tooltip from '../layout/Tooltip'
  *
  * @type {styled component}
  */
-const IssuesTooltipContainer = (styled as any).div`
+const IssuesTooltipContainer = styled.div`
   display: inline-block;
   pointer-events: none;
   background-color: rgba(21, 23, 27, 0.9);
@@ -33,7 +33,7 @@ const IssuesTooltipContainer = (styled as any).div`
   li {
     margin-bottom: 4px;
     margin-left: 4px;
-    font-family: "Lucida Console", Monaco, monospace;
+    font-family: 'Lucida Console', Monaco, monospace;
     font-size: 12px;
   }
 `

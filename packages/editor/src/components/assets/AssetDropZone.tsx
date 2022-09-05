@@ -21,7 +21,7 @@ import useUpload from './useUpload'
  *
  * @param {styled component}
  */
-const DropZoneBackground = (styled as any).div`
+const DropZoneBackground = styled.div`
   position: absolute;
   display: flex;
   flex-direction: column;
