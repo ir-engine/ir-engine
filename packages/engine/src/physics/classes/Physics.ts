@@ -10,6 +10,7 @@ import RAPIER, {
   RigidBodyDesc,
   RigidBodyType,
   ShapeType,
+  TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
 import {
@@ -328,6 +329,7 @@ function castRay(world: World, raycastQuery: RaycastArgs) {
   let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
   if (hitWithNormal != null) {
     hits.push({
+      collider: hitWithNormal.collider,
       distance: hitWithNormal.toi,
       position: ray.pointAt(hitWithNormal.toi),
       normal: hitWithNormal.normal,
@@ -413,19 +415,52 @@ const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, hand
       bodySelf: rigidBody1 as RigidBody,
       bodyOther: rigidBody2 as RigidBody,
       shapeSelf: collider1 as Collider,
-      shapeOther: collider2 as Collider
+      shapeOther: collider2 as Collider,
+      maxForceDirection: null,
+      totalForce: null
     })
     collisionComponent2?.set(entity1, {
       type,
       bodySelf: rigidBody2 as RigidBody,
       bodyOther: rigidBody1 as RigidBody,
       shapeSelf: collider2 as Collider,
-      shapeOther: collider1 as Collider
+      shapeOther: collider1 as Collider,
+      maxForceDirection: null,
+      totalForce: null
     })
   } else {
     const type = isTriggerEvent ? CollisionEvents.TRIGGER_END : CollisionEvents.COLLISION_END
     if (collisionComponent1?.has(entity2)) collisionComponent1.get(entity2)!.type = type
     if (collisionComponent2?.has(entity1)) collisionComponent2.get(entity1)!.type = type
+  }
+}
+
+const drainContactEventQueue = (physicsWorld: World) => (event: TempContactForceEvent) => {
+  const collider1 = physicsWorld.getCollider(event.collider1())
+  const collider2 = physicsWorld.getCollider(event.collider2())
+
+  const rigidBody1 = collider1.parent()
+  const rigidBody2 = collider2.parent()
+  const entity1 = (rigidBody1?.userData as any)['entity']
+  const entity2 = (rigidBody2?.userData as any)['entity']
+
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
+
+  const collision1 = collisionComponent1?.get(entity2)
+  const collision2 = collisionComponent2?.get(entity1)
+
+  const maxForceDirection = event.maxForceDirection()
+  const totalForce = event.totalForce()
+
+  if (collision1) {
+    collision1.maxForceDirection = maxForceDirection
+    collision1.totalForce = totalForce
+  }
+
+  if (collision2) {
+    collision2.maxForceDirection = maxForceDirection
+    collision2.totalForce = totalForce
   }
 }
 
@@ -444,5 +479,6 @@ export const Physics = {
   castRayFromCamera,
   castShape,
   createCollisionEventQueue,
-  drainCollisionEventQueue
+  drainCollisionEventQueue,
+  drainContactEventQueue
 }
