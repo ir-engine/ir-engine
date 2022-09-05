@@ -83,29 +83,6 @@ import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 
-export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] => {
-  const components = getAllComponents(entity)
-  if (!components.length) return [DefaultNodeEditor]
-
-  const editors = [] as EditorComponentType[]
-
-  for (let i = 0; i < components.length; i++) {
-    // const component = getComponent(entity, components[i])
-    // if(typeof component === 'boolean' && component === true) {
-    // } else
-    if (EntityNodeEditor.has(components[i])) {
-      editors.push(EntityNodeEditor.get(components[i])!)
-    } else {
-      /** @todo */
-      // editors.push((props) => {
-      //   return <NodeEditor {...props} name={entityNode[i]}/>
-      // })
-    }
-  }
-
-  return editors.length ? editors : [DefaultNodeEditor]
-}
-
 export const EntityNodeEditor = new Map<ComponentConstructor<any, any>, EditorComponentType>()
 EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
 EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
