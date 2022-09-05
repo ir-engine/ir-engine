@@ -4,15 +4,11 @@ import styled from 'styled-components'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getAllComponents, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getAllComponents, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   PreventBakeTagComponent,
   SCENE_COMPONENT_PREVENT_BAKE
 } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
-import {
-  SCENE_COMPONENT_DYNAMIC_LOAD,
-  SceneDynamicLoadTagComponent
-} from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 
@@ -22,11 +18,9 @@ import EditorCommands from '../../constants/EditorCommands'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
-import { updateProperty } from './Util'
 
 const StyledNodeEditor = styled.div``
 
@@ -88,19 +82,6 @@ export const PropertiesPanelContainer = () => {
   // access state to detect the change
   selectionState.objectChangeCounter.value
 
-  const onChangeDynamicLoad = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.TAG_COMPONENT,
-      operations: [
-        {
-          component: SceneDynamicLoadTagComponent,
-          sceneComponentName: SCENE_COMPONENT_DYNAMIC_LOAD,
-          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-        }
-      ]
-    })
-  }
-
   const onChangeVisible = (value) => {
     executeCommandWithHistoryOnSelection({
       type: EditorCommands.TAG_COMPONENT,
@@ -152,22 +133,6 @@ export const PropertiesPanelContainer = () => {
             <NameInputGroup node={node as EntityTreeNode} key={nodeEntity} />
             {!hasComponent(nodeEntity, SceneTagComponent) && (
               <>
-                <VisibleInputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
-                  <BooleanInput
-                    value={hasComponent(nodeEntity, SceneDynamicLoadTagComponent)}
-                    onChange={onChangeDynamicLoad}
-                  />
-                  {hasComponent(nodeEntity, SceneDynamicLoadTagComponent) && (
-                    <CompoundNumericInput
-                      style={{ paddingLeft: `8px`, paddingRight: `8px` }}
-                      min={1}
-                      max={100}
-                      step={1}
-                      value={getComponent(nodeEntity, SceneDynamicLoadTagComponent).distance}
-                      onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
-                    />
-                  )}
-                </VisibleInputGroup>
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
                   <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
                 </VisibleInputGroup>

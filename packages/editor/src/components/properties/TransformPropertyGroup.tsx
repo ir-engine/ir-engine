@@ -2,12 +2,19 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  SCENE_COMPONENT_DYNAMIC_LOAD,
+  SceneDynamicLoadTagComponent
+} from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
+import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import { useSelectionState } from '../../services/SelectionServices'
+import BooleanInput from '../inputs/BooleanInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
@@ -25,6 +32,19 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   // access state to detect the change
   selectionState.objectChangeCounter.value
+
+  const onChangeDynamicLoad = (value) => {
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.TAG_COMPONENT,
+      operations: [
+        {
+          component: SceneDynamicLoadTagComponent,
+          sceneComponentName: SCENE_COMPONENT_DYNAMIC_LOAD,
+          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+        }
+      ]
+    })
+  }
 
   //function to handle the position properties
   const onChangePosition = (value) => {
@@ -58,6 +78,22 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   return (
     <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
+      <InputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
+        <BooleanInput
+          value={hasComponent(props.node.entity, SceneDynamicLoadTagComponent)}
+          onChange={onChangeDynamicLoad}
+        />
+        {hasComponent(props.node.entity, SceneDynamicLoadTagComponent) && (
+          <CompoundNumericInput
+            style={{ paddingLeft: `12px`, paddingRight: `3px` }}
+            min={1}
+            max={100}
+            step={1}
+            value={getComponent(props.node.entity, SceneDynamicLoadTagComponent).distance}
+            onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
+          />
+        )}
+      </InputGroup>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
         <Vector3Input
           value={transform.position}
