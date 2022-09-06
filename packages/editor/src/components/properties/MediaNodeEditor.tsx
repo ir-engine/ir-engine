@@ -8,6 +8,7 @@ import { CallbackComponent } from '@xrengine/engine/src/scene/components/Callbac
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@xrengine/engine/src/scene/constants/PlayMode'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
@@ -43,7 +44,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const [isPlaying, setPlaying] = useState(false)
   const engineState = useEngineState()
 
-  const mediaComponent = getComponent(props.node.entity, MediaComponent)
+  const mediaComponent = useHookstate(getComponent(props.node.entity, MediaComponent)).value
   const hasError = engineState.errorEntities[props.node.entity].get() || hasComponent(props.node.entity, ErrorComponent)
 
   const toggle = () => {

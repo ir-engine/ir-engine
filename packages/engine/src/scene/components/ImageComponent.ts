@@ -42,8 +42,14 @@ export const ImageComponent = defineComponent({
       subscribable()
     )
 
-    state.source.subscribe(async (source) => {
+    const updateTexture = async () => {
       try {
+        const source = state.source.value
+        if (!source) {
+          addError(entity, 'imageError', `Image source is missing`)
+          return
+        }
+
         const assetType = AssetLoader.getAssetClass(source)
         if (assetType !== AssetClass.Image) {
           addError(entity, 'imageError', `Image format ${source.split('.').pop()} not supported`)
@@ -51,17 +57,18 @@ export const ImageComponent = defineComponent({
         }
         const texture = (await AssetLoader.loadAsync(source)) as Texture
         if (entityExists(entity) && source === state.source.value) {
-          state.mesh.material.map.ornull?.value.dispose()
-          state.mesh.material.map.set(texture)
           texture.encoding = sRGBEncoding
           texture.minFilter = LinearMipmapLinearFilter
+          state.mesh.material.map.ornull?.value.dispose()
+          state.mesh.material.map.set(texture)
+          state.mesh.material.value.needsUpdate = true
           removeError(entity, 'imageError')
         }
       } catch (error) {
         addError(entity, 'imageError', 'Error Loading image')
         return
       }
-    })
+    }
 
     const updateGeometry = () => {
       if (state.mesh.material.map.value) {
@@ -79,9 +86,6 @@ export const ImageComponent = defineComponent({
       }
     }
 
-    state.mesh.material.map.subscribe(updateGeometry)
-    state.projection.subscribe(updateGeometry)
-
     const updateMaterial = () => {
       state.mesh.material.transparent.set(state.alphaMode.value === ImageAlphaMode.Blend)
       state.mesh.material.alphaTest.set(state.alphaMode.value === 'Mask' ? state.alphaCutoff.value : 0)
@@ -89,12 +93,21 @@ export const ImageComponent = defineComponent({
       state.mesh.material.value.needsUpdate = true
     }
 
+    // bind state data to mesh
+    state.source.subscribe(updateTexture)
+    state.mesh.material.map.subscribe(updateGeometry)
+    state.projection.subscribe(updateGeometry)
     state.alphaMode.subscribe(updateMaterial)
     state.alphaMode.subscribe(updateMaterial)
     state.side.subscribe(updateMaterial)
 
     const imageData = data as ReturnType<typeof ImageComponent.toJSON>
     state.merge(imageData)
+
+    // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
+    updateTexture()
+    updateMaterial()
+    updateGeometry()
 
     return state as typeof state & StateMethodsDestroy // TODO: StateMethodsDestroy temporary until hookstate fixes typings
   },

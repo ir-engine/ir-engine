@@ -96,7 +96,7 @@ export function ArrayInputGroup({
           <ArrayInputGroupContent>
             <label> Size: </label>
             <ControlledStringInput
-              value={count}
+              value={'' + count}
               onChange={(text) => {
                 onChangeSize(text, values, onChange)
               }}

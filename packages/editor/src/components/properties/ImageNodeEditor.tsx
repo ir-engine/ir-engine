@@ -19,7 +19,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
   const engineState = useEngineState()
-  const imageComponent = getComponent(entity, ImageComponent)
+  const imageComponent = getComponent(entity, ImageComponent).value
   const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
 
   return (

@@ -81,12 +81,12 @@ const NumericInputUnit = (styled as any).div`
   height: 100%;
 `
 
-interface NumericInputProp {
+export interface NumericInputProp {
   className?: string
   unit?: any
   prefix?: any
   displayPrecision?: any
-  value?: any
+  value?: number
   convertFrom?: any
   precision?: number
   mediumStep?: number

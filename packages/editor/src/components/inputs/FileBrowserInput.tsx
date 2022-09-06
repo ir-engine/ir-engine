@@ -1,10 +1,12 @@
 import React from 'react'
 import { useDrop } from 'react-dnd'
 
+import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import { AddCorsProxyButton } from '../AddCorsProxyButton'
 import useUpload from '../assets/useUpload'
-import { ControlledStringInput } from './StringInput'
+import { ControlledStringInput, StringInputProp } from './StringInput'
 
 /**
  * Function component used for rendering FileBrowserInput.
@@ -13,7 +15,12 @@ import { ControlledStringInput } from './StringInput'
  * @param {any} rest
  * @returns
  */
-export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, ...rest }) {
+export function FileBrowserInput({
+  onChange,
+  acceptFileTypes,
+  acceptDropItems,
+  ...rest
+}: StringInputProp & { acceptFileTypes: string[]; acceptDropItems: string[] }) {
   const uploadOptions = {
     multiple: false,
     accepts: acceptFileTypes
@@ -31,7 +38,7 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
           url += item.fullName
         }
 
-        onChange(url, item)
+        onChange?.(url, item)
       } else {
         // https://github.com/react-dnd/react-dnd/issues/1345#issuecomment-538728576
         const dndItem: any = monitor.getItem()
@@ -40,7 +47,7 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
         onUpload(entries).then((assets) => {
           if (assets) {
             for (let index = 0; index < assets.length; index++) {
-              onChange(assets[index], item)
+              onChange?.(assets[index], item)
             }
           }
         })
@@ -56,12 +63,12 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
     <>
       <ControlledStringInput
         ref={dropRef}
-        onChange={(value, e) => onChange(value, {}, e)}
+        onChange={(value, e) => onChange?.(value, {}, e)}
         error={isOver && !canDrop}
         canDrop={isOver && canDrop}
         {...rest}
       />
-      <AddCorsProxyButton value={rest.value} onAddCorsProxy={onChange} />
+      <AddCorsProxyButton value={rest.value || ''} onAddCorsProxy={onChange} />
     </>
   )
 }

@@ -93,8 +93,8 @@ export const MediaComponent = defineComponent({
     window.addEventListener('pointerdown', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
 
-    // bind track to media element
-    state.track.subscribe((track) => {
+    const updateMediaElement = () => {
+      const track = state.track.value
       const path = state.paths[track].value
       if (!path) {
         removeComponent(entity, MediaElementComponent)
@@ -153,12 +153,12 @@ export const MediaComponent = defineComponent({
       }
 
       mediaElement.element.play()
-    })
+    }
 
-    // bind paths to track metadata
-    let pathsVersion = 0
-    state.paths.subscribe((paths) => {
-      pathsVersion++
+    let metadataVersion = 0
+    const updateTrackMetadata = () => {
+      const paths = state.paths.value
+      metadataVersion++
 
       // autoplay to track 0
       if (state.autoplay.value) state.track.set(0)
@@ -176,10 +176,10 @@ export const MediaComponent = defineComponent({
           return
         }
         const tempElement = document.createElement(assetClass) as HTMLMediaElement
-        const prevVersion = pathsVersion
+        const prevVersion = metadataVersion
         tempElement.addEventListener('loadedmetadata', () => {
           metadataElements.delete(tempElement)
-          if (prevVersion === pathsVersion) state.trackDurations[i].set(tempElement.duration)
+          if (prevVersion === metadataVersion) state.trackDurations[i].set(tempElement.duration)
         })
         tempElement.preload = 'metadata'
         tempElement.src = path
@@ -188,31 +188,45 @@ export const MediaComponent = defineComponent({
       }
 
       removeError(entity, 'mediaError')
-    })
+    }
 
-    // bind volume
-    state.volume.subscribe((volume) => {
+    const updateVolume = () => {
+      const volume = state.volume.value
       const element = getComponent(entity, MediaElementComponent)?.element
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.gain.setTargetAtTime(volume, Engine.instance.audioContext.currentTime, 0.1)
       }
-    })
+    }
 
-    // bind mixbus
-    state.isMusic.subscribe((isMusic) => {
+    const updateMixbus = () => {
       const element = getComponent(entity, MediaElementComponent)?.element
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.disconnect(audioNodes.mixbus)
-        audioNodes.mixbus = isMusic
+        audioNodes.mixbus = state.isMusic.value
           ? Engine.instance.gainNodeMixBuses.music
           : Engine.instance.gainNodeMixBuses.soundEffects
         audioNodes.gain.connect(audioNodes.mixbus)
       }
-    })
+    }
+
+    // bind track to media element
+    state.track.subscribe(updateMediaElement)
+    // bind paths to track metadata
+    state.paths.subscribe(updateTrackMetadata)
+    // bind volume
+    state.volume.subscribe(updateVolume)
+    // bind mixbus
+    state.isMusic.subscribe(updateMixbus)
 
     state.merge(json)
+
+    // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
+    updateMediaElement()
+    updateTrackMetadata()
+    updateVolume()
+    updateMixbus()
 
     return state
   },

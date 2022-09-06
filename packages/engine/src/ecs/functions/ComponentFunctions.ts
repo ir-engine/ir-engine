@@ -167,7 +167,8 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
     throw new Error('[removeComponent]: world is undefined')
   }
   bitECS.removeComponent(world, component, entity)
-  component.onRemove(entity, component.map.get(entity)!)
+  const c = component.map.get(entity)!
+  c && component.onRemove(entity, c)
 }
 
 export const getAllComponents = (entity: Entity, world = Engine.instance.currentWorld): Component<any, any>[] => {

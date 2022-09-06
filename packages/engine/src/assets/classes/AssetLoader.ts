@@ -230,7 +230,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
   } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
     return AssetClass.Audio
   } else {
-    return null!
+    return AssetClass.Unknown
   }
 }
 
