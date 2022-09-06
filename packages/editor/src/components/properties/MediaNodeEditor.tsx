@@ -18,6 +18,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
 const PlayModeOptions = [
@@ -45,7 +46,8 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const engineState = useEngineState()
 
   const mediaComponent = useHookstate(getComponent(props.node.entity, MediaComponent)).value
-  const hasError = engineState.errorEntities[props.node.entity].get() || hasComponent(props.node.entity, ErrorComponent)
+  const hasError = engineState.errorEntities[props.node.entity].get()
+  const error = getComponent(props.node.entity, ErrorComponent)
 
   const toggle = () => {
     const callback = getComponent(props.node.entity, CallbackComponent) as any
@@ -54,7 +56,14 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.media.name')}
+      description={t('editor:properties.media.description')}
+    >
+      {hasError && error.mediaError && (
+        <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + error.mediaError}</div>
+      )}
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
         <CompoundNumericInput value={mediaComponent.volume} onChange={updateProperty(MediaComponent, 'volume')} />
       </InputGroup>
@@ -82,7 +91,6 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       >
         <NumericInput value={mediaComponent.autoStartTime} onChange={updateProperty(MediaComponent, 'autoStartTime')} />
       </InputGroup>
-      {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.video.error-url')}</div>}
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
@@ -105,7 +113,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           </Button>
         )}
       </InputGroup>
-    </>
+    </NodeEditor>
   )
 }
 

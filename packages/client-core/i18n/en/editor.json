@@ -145,6 +145,7 @@
     },
     "media": {
       "name": "Media",
+      "description": "Audio and video playback",
       "paths": "Source Paths",
       "playmode": "Play Mode",
       "playtitle": "Play",
@@ -159,11 +160,8 @@
       "lbl-isMusic": "Is Music"
     },
     "audio": {
-      "name": "Audio",
-      "description": "Dynamically loads audio.",
-      "lbl-loop": "Loop",
-      "info-loop": "If true the media will loop indefinitely.",
-      "lbl-audioType": "Audio Type",
+      "name": "Positional Audio",
+      "description": "Positional audio settings",
       "lbl-distanceModel": "Distance Model",
       "info-distanceModel": "The algorithim used to calculate audio rolloff.",
       "lbl-rolloffFactor": "Rolloff Factor",

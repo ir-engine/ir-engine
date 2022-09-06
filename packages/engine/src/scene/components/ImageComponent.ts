@@ -42,6 +42,8 @@ export const ImageComponent = defineComponent({
       subscribable()
     )
 
+    state.mesh.value.visible = false
+
     const updateTexture = async () => {
       try {
         const source = state.source.value
@@ -61,6 +63,7 @@ export const ImageComponent = defineComponent({
           texture.minFilter = LinearMipmapLinearFilter
           state.mesh.material.map.ornull?.value.dispose()
           state.mesh.material.map.set(texture)
+          state.mesh.visible.set(true)
           state.mesh.material.value.needsUpdate = true
           removeError(entity, 'imageError')
         }
@@ -134,6 +137,8 @@ export function resizeImageMesh(mesh: Mesh<any, any>) {
 
   const width = mesh.material.map.width || mesh.material.map.image.width || mesh.material.map.image.videoWidth
   const height = mesh.material.map.height || mesh.material.map.image.height || mesh.material.map.image.videoHeight
+
+  if (!width || !height) return
 
   const ratio = (height || 1) / (width || 1)
   const _width = Math.min(1.0, 1.0 / ratio)

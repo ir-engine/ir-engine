@@ -21,25 +21,27 @@ export interface ArrayInputGroupState {
   values: any
 }
 
-const onChangeSize = (text, values, onChange) => {
-  console.log('onChangeSize', text, values, onChange)
-  const count = parseInt(text)
+const onChangeSize = (textSize: string, values: string[], onChange) => {
+  let valuesCopy = [] as string[]
+  console.log('onChangeSize', textSize, values, onChange)
+  const count = parseInt(textSize)
   let preCount = 0
-  if (!values) {
-    values = []
+  if (!valuesCopy) {
+    valuesCopy = []
   } else {
-    preCount = values.length
+    valuesCopy = [...values]
+    preCount = valuesCopy.length
   }
   if (count == undefined || preCount == count) return
   if (preCount > count) {
-    values.splice(count)
+    valuesCopy.splice(count)
   } else {
     for (let i = 0; i < count - preCount; i++) {
-      values.push('')
+      valuesCopy.push('')
     }
   }
   preCount = count
-  onChange(values)
+  onChange(valuesCopy)
 }
 
 const onChangeText = (text, index, values, onChange) => {

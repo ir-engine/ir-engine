@@ -163,8 +163,8 @@ export default async function MediaSystem(world: World) {
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
   const mediaElementQuery = defineQuery([MediaElementComponent])
-  const videoQuery = defineQuery([MediaComponent, VideoComponent])
-  const volumetricQuery = defineQuery([MediaComponent, VolumetricComponent])
+  const videoQuery = defineQuery([MediaElementComponent, VideoComponent])
+  const volumetricQuery = defineQuery([MediaElementComponent, VolumetricComponent])
 
   const enableAudioContext = () => {
     if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
