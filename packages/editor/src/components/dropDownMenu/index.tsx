@@ -1,8 +1,5 @@
 import React from 'react'
-import { useState } from 'react'
 import Hotkeys, { OnKeyFun } from 'react-hot-keys'
-
-import MenuIcon from '@mui/icons-material/Menu'
 
 import { ContextMenu, MenuItem, showMenu, SubMenu } from '../layout/ContextMenu'
 import ToolButton from '../toolbar/ToolButton'
@@ -16,10 +13,13 @@ interface Command {
 
 interface MainMenuProp {
   commands: Command[]
+  icon: any
+  isMenuOpen: boolean
+  setMenuOpen: (open: boolean) => void
 }
 
 const MainMenu = (props: MainMenuProp) => {
-  let [isMenuOpen, setMenuOpen] = useState(false)
+  const { commands, icon, isMenuOpen, setMenuOpen } = props
 
   const toggleMenu = (e) => {
     if (isMenuOpen) {
@@ -70,9 +70,9 @@ const MainMenu = (props: MainMenuProp) => {
 
   return (
     <>
-      <ToolButton icon={MenuIcon} onClick={toggleMenu} isSelected={isMenuOpen} id="menu" />
+      <ToolButton icon={icon} onClick={toggleMenu} isSelected={isMenuOpen} id="menu" />
       <ContextMenu id="menu" onHide={hideMenu}>
-        {props.commands.map((command: Command) => renderMenu(command))}
+        {commands.map((command: Command) => renderMenu(command))}
       </ContextMenu>
     </>
   )

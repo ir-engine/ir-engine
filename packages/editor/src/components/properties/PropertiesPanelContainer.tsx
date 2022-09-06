@@ -1,10 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getAllComponents, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentMap,
+  getAllComponents,
+  hasComponent,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   PreventBakeTagComponent,
   SCENE_COMPONENT_PREVENT_BAKE
@@ -12,11 +18,15 @@ import {
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 
+import { Close } from '@mui/icons-material'
+import AddIcon from '@mui/icons-material/Add'
+
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
+import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
@@ -79,6 +89,8 @@ export const PropertiesPanelContainer = () => {
   const selectedEntities = selectionState.selectedEntities.value
   const { t } = useTranslation()
 
+  const [isMenuOpen, setMenuOpen] = useState(false)
+
   // access state to detect the change
   selectionState.objectChangeCounter.value
 
@@ -126,6 +138,8 @@ export const PropertiesPanelContainer = () => {
     )
   } else {
     const components = getAllComponents(nodeEntity).filter((c) => EntityNodeEditor.has(c))
+    const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry)
+
     content = (
       <StyledNodeEditor>
         <PropertiesHeader>
@@ -146,6 +160,32 @@ export const PropertiesPanelContainer = () => {
             )}
           </NameInputGroupContainer>
         </PropertiesHeader>
+        <div style={{ pointerEvents: 'auto' }}>
+          <MainMenu
+            icon={isMenuOpen ? Close : AddIcon}
+            isMenuOpen={isMenuOpen}
+            setMenuOpen={setMenuOpen}
+            commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
+              name: component._name,
+              action: () => {
+                console.log('\n\nhey\n\n')
+                const [sceneComponentID] = registeredComponents.find(([_, prefab]) => prefab === component._name)!
+                const sceneComponent = Engine.instance.currentWorld.sceneLoadingRegistry.get(sceneComponentID)!
+                console.log(sceneComponentID, sceneComponent)
+                if (!sceneComponentID)
+                  return console.warn('[ SceneLoading] could not find component name', sceneComponentID)
+                if (!ComponentMap.get(sceneComponentID))
+                  return console.warn('[ SceneLoading] could not find component', sceneComponentID)
+                const isTagComponent = !sceneComponent.defaultData
+                setComponent(
+                  nodeEntity,
+                  ComponentMap.get(sceneComponentID),
+                  isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
+                )
+              }
+            }))}
+          />
+        </div>
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
           return <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} component={c} />

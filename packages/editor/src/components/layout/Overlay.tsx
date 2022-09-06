@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const Overlay = styled.div`
+const Overlay = (styled as any).div`
   position: fixed;
   left: 0;
   right: 0;

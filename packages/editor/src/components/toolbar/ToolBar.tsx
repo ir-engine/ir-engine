@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import MainMenu from '../mainMenu'
+import MenuIcon from '@mui/icons-material/Menu'
+
+import DropDownMenu from '../dropDownMenu'
 import { EditorNavbarProfile } from '../projects/EditorNavbarProfile'
 import { WorldInstanceConnection } from '../realtime/WorldInstanceConnection'
 import * as styles from './styles.module.scss'
@@ -24,10 +26,11 @@ export const ToolBar = (props: ToolBarProps) => {
   if (!props.editorReady) {
     return <div className={styles.toolbarContainer} />
   }
+  const [isMenuOpen, setMenuOpen] = useState(false)
 
   return (
     <div style={{ pointerEvents: 'auto' }} className={styles.toolbarContainer}>
-      <MainMenu commands={props.menu} />
+      <DropDownMenu icon={MenuIcon} commands={props.menu} isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} />
       <AdvancedModeTool />
       <WorldInstanceConnection />
       <TransformTool />
