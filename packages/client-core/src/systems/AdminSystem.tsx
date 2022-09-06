@@ -61,7 +61,11 @@ export default async function AdminSystem(world: World) {
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
   const avatarUpdatedQueue = createActionQueue(AdminAvatarActions.avatarUpdated.matches)
   const resourcesFetchedQueue = createActionQueue(AdminResourceActions.resourcesFetched.matches)
+  const resourceFiltersFetchedQueue = createActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
+  const setSelectedMimeTypesQueue = createActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
+  const setSelectedResourceTypesQueue = createActionQueue(AdminResourceActions.setSelectedResourceTypes.matches)
   const resourceRemovedQueue = createActionQueue(AdminResourceActions.resourceRemoved.matches)
+  const resourcesResetFilterQueue = createActionQueue(AdminResourceActions.resourcesResetFilter.matches)
   const scenesFetchedQueue = createActionQueue(AdminSceneActions.scenesFetched.matches)
   const sceneFetchedQueue = createActionQueue(AdminSceneActions.sceneFetched.matches)
   const locationsRetrievedQueue = createActionQueue(AdminLocationActions.locationsRetrieved.matches)
@@ -180,8 +184,20 @@ export default async function AdminSystem(world: World) {
     for (const action of resourcesFetchedQueue()) {
       AdminResourceReceptors.resourcesFetchedReceptor(action)
     }
+    for (const action of resourceFiltersFetchedQueue()) {
+      AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
+    }
+    for (const action of setSelectedMimeTypesQueue()) {
+      AdminResourceReceptors.setSelectedMimeTypesReceptor(action)
+    }
+    for (const action of setSelectedResourceTypesQueue()) {
+      AdminResourceReceptors.setSelectedResourceTypesReceptor(action)
+    }
     for (const action of resourceRemovedQueue()) {
       AdminResourceReceptors.resourceRemovedReceptor(action)
+    }
+    for (const action of resourcesResetFilterQueue()) {
+      AdminResourceReceptors.resourcesResetFilterReceptor(action)
     }
     for (const action of scenesFetchedQueue()) {
       AdminSceneReceptors.scenesFetchedReceptor(action)

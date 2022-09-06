@@ -6,3 +6,8 @@ export interface StaticResourceResult {
   limit: number
   skip: number
 }
+
+export interface StaticResourceFilterResult {
+  mimeTypes: string[]
+  staticResourceTypes: string[]
+}

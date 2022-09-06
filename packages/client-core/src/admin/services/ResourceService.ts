@@ -1,7 +1,7 @@
 import { Paginated } from '@feathersjs/feathers/lib'
 
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
+import { StaticResourceFilterResult, StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
@@ -23,7 +23,10 @@ const AdminResourceState = defineState({
     retrieving: false,
     fetched: false,
     updateNeeded: true,
-    lastFetched: Date.now()
+    lastFetched: Date.now(),
+    filters: undefined as StaticResourceFilterResult | undefined,
+    selectedMimeTypes: [] as string[],
+    selectedResourceTypes: [] as string[]
   })
 })
 
@@ -41,14 +44,54 @@ const resourcesFetchedReceptor = (action: typeof AdminResourceActions.resourcesF
   })
 }
 
+const resourceFiltersFetchedReceptor = (action: typeof AdminResourceActions.resourceFiltersFetched.matches._TYPE) => {
+  const state = getState(AdminResourceState)
+  return state.merge({
+    filters: action.filters,
+    selectedMimeTypes: action.filters.mimeTypes,
+    selectedResourceTypes: action.filters.staticResourceTypes
+  })
+}
+
+const setSelectedMimeTypesReceptor = (action: typeof AdminResourceActions.setSelectedMimeTypes.matches._TYPE) => {
+  const state = getState(AdminResourceState)
+  return state.merge({
+    updateNeeded: true,
+    selectedMimeTypes: action.types
+  })
+}
+
+const setSelectedResourceTypesReceptor = (
+  action: typeof AdminResourceActions.setSelectedResourceTypes.matches._TYPE
+) => {
+  const state = getState(AdminResourceState)
+  return state.merge({
+    updateNeeded: true,
+    selectedResourceTypes: action.types
+  })
+}
+
 const resourceRemovedReceptor = (action: typeof AdminResourceActions.resourceRemoved.matches._TYPE) => {
   const state = getState(AdminResourceState)
   return state.merge({ updateNeeded: true })
 }
 
+const resourcesResetFilterReceptor = (action: typeof AdminResourceActions.resourcesResetFilter.matches._TYPE) => {
+  const state = getState(AdminResourceState)
+  return state.merge({
+    updateNeeded: true,
+    selectedMimeTypes: state.filters.value?.mimeTypes,
+    selectedResourceTypes: state.filters.value?.staticResourceTypes
+  })
+}
+
 export const AdminResourceReceptors = {
   resourcesFetchedReceptor,
-  resourceRemovedReceptor
+  resourceFiltersFetchedReceptor,
+  setSelectedMimeTypesReceptor,
+  setSelectedResourceTypesReceptor,
+  resourceRemovedReceptor,
+  resourcesResetFilterReceptor
 }
 
 export const accessAdminResourceState = () => getState(AdminResourceState)
@@ -56,6 +99,10 @@ export const accessAdminResourceState = () => getState(AdminResourceState)
 export const useAdminResourceState = () => useState(accessAdminResourceState())
 
 export const ResourceService = {
+  getResourceFilters: async () => {
+    const filters = (await API.instance.client.service('static-resource-filters').get()) as StaticResourceFilterResult
+    dispatchAction(AdminResourceActions.resourceFiltersFetched({ filters }))
+  },
   fetchAdminResources: async (skip = 0, search: string | null = null, sortField = 'key', orderBy = 'asc') => {
     let sortData = {}
     if (sortField.length > 0) {
@@ -63,17 +110,28 @@ export const ResourceService = {
     }
     const adminResourceState = accessAdminResourceState()
     const limit = adminResourceState.limit.value
+    const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
+    const selectedResourceTypes = adminResourceState.selectedResourceTypes.value
+
     const resources = (await API.instance.client.service('static-resource').find({
       query: {
         $sort: {
           ...sortData
         },
         $limit: limit,
-        $skip: skip * RESOURCE_PAGE_LIMIT
-        // search: search
+        $skip: skip * RESOURCE_PAGE_LIMIT,
+        search: search,
+        mimeTypes: selectedMimeTypes,
+        resourceTypes: selectedResourceTypes
       }
     })) as Paginated<StaticResourceInterface>
     dispatchAction(AdminResourceActions.resourcesFetched({ resources }))
+  },
+  setSelectedMimeTypes: async (types: string[]) => {
+    dispatchAction(AdminResourceActions.setSelectedMimeTypes({ types }))
+  },
+  setSelectedResourceTypes: async (types: string[]) => {
+    dispatchAction(AdminResourceActions.setSelectedResourceTypes({ types }))
   },
   removeAdminResource: async (id: string) => {
     try {
@@ -82,6 +140,9 @@ export const ResourceService = {
     } catch (err) {
       logger.error(err)
     }
+  },
+  resetFilter: () => {
+    dispatchAction(AdminResourceActions.resourcesResetFilter({}))
   }
 }
 
@@ -92,8 +153,27 @@ export class AdminResourceActions {
     resources: matches.object as Validator<unknown, StaticResourceResult>
   })
 
+  static resourceFiltersFetched = defineAction({
+    type: 'RESOURCE_FILTERS_RETRIEVED' as const,
+    filters: matches.object as Validator<unknown, StaticResourceFilterResult>
+  })
+
   static resourceRemoved = defineAction({
     type: 'RESOURCE_REMOVED' as const,
     id: matches.string
+  })
+
+  static setSelectedMimeTypes = defineAction({
+    type: 'RESOURCE_SET_MIME' as const,
+    types: matches.object as Validator<unknown, string[]>
+  })
+
+  static setSelectedResourceTypes = defineAction({
+    type: 'RESOURCE_SET_TYPE' as const,
+    types: matches.object as Validator<unknown, string[]>
+  })
+
+  static resourcesResetFilter = defineAction({
+    type: 'RESOURCES_RESET_FILTER' as const
   })
 }
