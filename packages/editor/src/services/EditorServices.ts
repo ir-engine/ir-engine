@@ -18,7 +18,8 @@ const EditorState = defineState({
     preprojectLoadTaskStatus: TaskStatus.NOT_STARTED,
     projectLoaded: false,
     rendererInitialized: false,
-    showObject3DInHierarchy: false
+    showObject3DInHierarchy: false,
+    advancedMode: false
   })
 })
 
@@ -45,6 +46,9 @@ export const EditorServiceReceptor = (action) => {
     })
     .when(EditorAction.showObject3DInHierarchy.matches, (action) => {
       return s.merge({ showObject3DInHierarchy: action.showObject3DInHierarchy })
+    })
+    .when(EditorAction.setAdvancedMode.matches, (action) => {
+      return s.merge({ advancedMode: action.advanced })
     })
 }
 
@@ -85,6 +89,11 @@ export class EditorAction {
   static showObject3DInHierarchy = defineAction({
     type: 'editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
     showObject3DInHierarchy: matches.boolean
+  })
+
+  static setAdvancedMode = defineAction({
+    type: 'editor.SET_ADVANCED_MODE' as const,
+    advanced: matches.boolean
   })
 
   static updatePreprojectLoadTask = defineAction({

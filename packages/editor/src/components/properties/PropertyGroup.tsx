@@ -21,6 +21,7 @@ const PropertyGroupHeader = styled.div`
   font-weight: bold;
   color: var(--textColor);
   padding: 0 8px;
+  height: 16px;
   :last-child {
     margin-left: auto;
   }

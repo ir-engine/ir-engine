@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const PanelIcon = styled.div`
+export const PanelIcon = (styled as any).div`
   color: var(--textColor);
   margin-right: 6px;
   width: 18px;

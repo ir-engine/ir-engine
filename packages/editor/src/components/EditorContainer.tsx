@@ -57,7 +57,7 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
  *
  * @type {type}
  */
-export const DockContainer = styled.div`
+export const DockContainer = (styled as any).div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;
@@ -582,24 +582,28 @@ const EditorContainer = () => {
                 {
                   id: 'hierarchyPanel',
                   title: (
-                    <PanelDragContainer>
-                      <PanelIcon as={AccountTreeIcon} size={12} />
-                      <PanelTitle>Hierarchy</PanelTitle>
-                      {/* <PanelCheckbox> */}
-                      <PanelTitle>
-                        Explode Objects{' '}
-                        <Checkbox
-                          style={{ padding: '0px' }}
-                          value={editorState.showObject3DInHierarchy.value}
-                          onChange={(e, value) =>
-                            dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
-                          }
-                        />
-                      </PanelTitle>
-
-                      {/* </PanelCheckbox> */}
-                      <Search elementsName="hierarchy" handleInputChange={handleInputChangeHierarchy} />
-                    </PanelDragContainer>
+                    <div className={styles.hierarchyTab}>
+                      <PanelDragContainer>
+                        <PanelIcon as={AccountTreeIcon} size={12} />
+                        <PanelTitle>Hierarchy</PanelTitle>
+                      </PanelDragContainer>
+                      <div className={styles.hierarchyTabButtons}>
+                        {/** @todo fix this styling */}
+                        {/* {editorState.advancedMode.value && ( */}
+                        <>
+                          {t('editor:hierarchy.lbl-explode')}
+                          <Checkbox
+                            style={{ padding: '0px' }}
+                            value={editorState.showObject3DInHierarchy.value}
+                            onChange={(e, value) =>
+                              dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
+                            }
+                          />
+                        </>
+                        {/* )} */}
+                        <Search elementsName="hierarchy" handleInputChange={handleInputChangeHierarchy} />
+                      </div>
+                    </div>
                   ),
                   content: <HierarchyPanelContainer />
                 }

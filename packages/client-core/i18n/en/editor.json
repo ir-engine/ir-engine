@@ -97,6 +97,8 @@
     }
   },
   "toolbar": {
+    "lbl-advanced": "Advanced",
+    "info-advanced": "Enables advanced editing mode",
     "lbl-publish": "Publish",
     "lbl-published": "Published",
     "command": {
@@ -230,6 +232,7 @@
       "description": "3D geospatial map of e.g. a city."
     },
     "model": {
+      "title": "Model",
       "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
       "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
       "lbl-modelurl": "Model Url",
@@ -657,6 +660,7 @@
     "lbl-delete": "Delete",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
+    "lbl-explode": "Explode Objects",
     "isseus": "Issues:"
   },
   "dnd": {
