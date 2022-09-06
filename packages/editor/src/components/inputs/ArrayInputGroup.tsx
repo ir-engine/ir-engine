@@ -43,8 +43,10 @@ const onChangeSize = (text, values, onChange) => {
 }
 
 const onChangeText = (text, index, values, onChange) => {
-  values[index] = text
-  onChange(values)
+  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
+  const valuesCopy = [...values]
+  valuesCopy[index] = text
+  onChange(valuesCopy)
 }
 
 const GroupContainer = (styled as any).label`

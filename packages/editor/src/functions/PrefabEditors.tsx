@@ -85,8 +85,8 @@ export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] =
   const editors = [] as EditorComponentType[]
 
   for (let i = 0; i < components.length; i++) {
-    if (EntityNodeEditor[components[i]._name]) {
-      editors.push(EntityNodeEditor[components[i]._name])
+    if (EntityNodeEditor[components[i].name]) {
+      editors.push(EntityNodeEditor[components[i].name])
     } else {
       /** @todo */
       // editors.push((props) => {
@@ -99,41 +99,42 @@ export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] =
 }
 
 export const EntityNodeEditor = {
-  [TransformComponent._name]: TransformPropertyGroup,
-  [DirectionalLightComponent._name]: DirectionalLightNodeEditor,
-  [HemisphereLightComponent._name]: HemisphereLightNodeEditor,
-  [AmbientLightComponent._name]: AmbientLightNodeEditor,
-  [PointLightComponent._name]: PointLightNodeEditor,
-  [SpotLightComponent._name]: SpotLightNodeEditor,
-  [GroundPlaneComponent._name]: GroundPlaneNodeEditor,
-  [CameraPropertiesComponent._name]: CameraPropertiesNodeEditor,
-  [ModelComponent._name]: ModelNodeEditor,
-  [ParticleEmitterComponent._name]: ParticleEmitterNodeEditor,
-  [PortalComponent._name]: PortalNodeEditor,
-  [MountPointComponent._name]: MountPointNodeEditor,
-  [ColliderComponent._name]: ColliderNodeEditor,
-  [GroupComponent._name]: GroupNodeEditor,
-  [AssetComponent._name]: AssetNodeEditor,
-  [PostprocessingComponent._name]: PostProcessingNodeEditor,
-  [SceneTagComponent._name]: SceneNodeEditor,
-  [ScenePreviewCameraTagComponent._name]: ScenePreviewCameraNodeEditor,
-  [SkyboxComponent._name]: SkyboxNodeEditor,
-  [SpawnPointComponent._name]: SpawnPointNodeEditor,
-  [MediaComponent._name]: MediaNodeEditor,
-  [ImageComponent._name]: ImageNodeEditor,
-  [PositionalAudioComponent._name]: AudioNodeEditor,
-  [VideoComponent._name]: VideoNodeEditor,
-  [VolumetricComponent._name]: VolumetricNodeEditor,
-  [CloudComponent._name]: CloudsNodeEditor,
-  [OceanComponent._name]: OceanNodeEditor,
-  [WaterComponent._name]: WaterNodeEditor,
-  [InteriorComponent._name]: InteriorNodeEditor,
-  [SystemComponent._name]: SystemNodeEditor,
-  [SplineComponent._name]: SplineNodeEditor,
-  [EnvMapBakeComponent._name]: EnvMapBakeNodeEditor,
-  [InstancingComponent._name]: InstancingNodeEditor,
-  [FogComponent._name]: FogNodeEditor
-}
+  default: DefaultNodeEditor,
+  [TransformComponent.name]: TransformPropertyGroup,
+  [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
+  [HemisphereLightComponent.name]: HemisphereLightNodeEditor,
+  [AmbientLightComponent.name]: AmbientLightNodeEditor,
+  [PointLightComponent.name]: PointLightNodeEditor,
+  [SpotLightComponent.name]: SpotLightNodeEditor,
+  [GroundPlaneComponent.name]: GroundPlaneNodeEditor,
+  [CameraPropertiesComponent.name]: CameraPropertiesNodeEditor,
+  [ModelComponent.name]: ModelNodeEditor,
+  [ParticleEmitterComponent.name]: ParticleEmitterNodeEditor,
+  [PortalComponent.name]: PortalNodeEditor,
+  [MountPointComponent.name]: MountPointNodeEditor,
+  [ColliderComponent.name]: ColliderNodeEditor,
+  [GroupComponent.name]: GroupNodeEditor,
+  [AssetComponent.name]: AssetNodeEditor,
+  [PostprocessingComponent.name]: PostProcessingNodeEditor,
+  [SceneTagComponent.name]: SceneNodeEditor,
+  [ScenePreviewCameraTagComponent.name]: ScenePreviewCameraNodeEditor,
+  [SkyboxComponent.name]: SkyboxNodeEditor,
+  [SpawnPointComponent.name]: SpawnPointNodeEditor,
+  [MediaComponent.name]: MediaNodeEditor,
+  [ImageComponent.name]: ImageNodeEditor,
+  [PositionalAudioComponent.name]: AudioNodeEditor,
+  [VideoComponent.name]: VideoNodeEditor,
+  [VolumetricComponent.name]: VolumetricNodeEditor,
+  [CloudComponent.name]: CloudsNodeEditor,
+  [OceanComponent.name]: OceanNodeEditor,
+  [WaterComponent.name]: WaterNodeEditor,
+  [InteriorComponent.name]: InteriorNodeEditor,
+  [SystemComponent.name]: SystemNodeEditor,
+  [SplineComponent.name]: SplineNodeEditor,
+  [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
+  [InstancingComponent.name]: InstancingNodeEditor,
+  [FogComponent.name]: FogNodeEditor
+} as { [key: string]: EditorComponentType }
 
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,

@@ -132,8 +132,8 @@ export const ImageComponent = defineComponent({
 export function resizeImageMesh(mesh: Mesh<any, any>) {
   if (!mesh.material.map) return
 
-  const width = mesh.material.map.width ?? mesh.material.map.image.width ?? mesh.material.map.image.videoWidth
-  const height = mesh.material.map.height ?? mesh.material.map.image.height ?? mesh.material.map.image.videoHeight
+  const width = mesh.material.map.width || mesh.material.map.image.width || mesh.material.map.image.videoWidth
+  const height = mesh.material.map.height || mesh.material.map.image.height || mesh.material.map.image.videoHeight
 
   const ratio = (height || 1) / (width || 1)
   const _width = Math.min(1.0, 1.0 / ratio)

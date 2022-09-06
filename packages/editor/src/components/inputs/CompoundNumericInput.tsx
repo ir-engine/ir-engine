@@ -25,10 +25,14 @@ const StyledCompoundNumericInput = styled.div`
  * @param       {any} extras
  * @constructor
  */
-export function CompoundNumericInput({ value, onChange, ...extras }: NumericInputProp & { step: number }) {
-  const { min, max, step } = extras
+export function CompoundNumericInput({
+  value,
+  onChange,
+  ...extras
+}: NumericInputProp & { step: number; style?: React.CSSProperties }) {
+  const { min, max, step, style } = extras
   return (
-    <StyledCompoundNumericInput>
+    <StyledCompoundNumericInput style={style}>
       <Slider min={min} max={max} value={value} step={step} onChange={onChange} />
       <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} />
     </StyledCompoundNumericInput>

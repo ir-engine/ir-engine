@@ -105,6 +105,11 @@ export const MediaComponent = defineComponent({
 
       const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
 
+      if (assetClass !== 'audio' && assetClass !== 'video') {
+        addError(entity, 'mediaError', `invalid asset class ${assetClass}; only audio and video are supported`)
+        return
+      }
+
       if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
         removeComponent(entity, MediaElementComponent)
 

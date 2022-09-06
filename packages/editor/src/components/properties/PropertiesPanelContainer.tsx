@@ -183,7 +183,10 @@ export const PropertiesPanelContainer = () => {
           </PropertiesHeader>
         )}
         {editors.map((Editor, i) => (
-          <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} />
+          // nodeEntity is used as key here to signal to React when the entity has changed,
+          // and to prevent state from being recycled between editor instances, which
+          // can cause hookstate to throw errors.
+          <Editor key={`${nodeEntity}-${Editor.name}`} multiEdit={multiEdit} node={node as EntityTreeNode} />
         ))}
       </StyledNodeEditor>
     )
