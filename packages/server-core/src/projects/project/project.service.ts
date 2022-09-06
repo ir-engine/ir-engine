@@ -81,9 +81,9 @@ export default (app: Application): void => {
   })
 
   app.use('project-invalidate', {
-    patch: async ({ projectName }, params) => {
+    patch: async ({ projectName, storageProviderName }, params) => {
       if (projectName) {
-        return await getStorageProvider().createInvalidation([`projects/${projectName}*`])
+        return await getStorageProvider(storageProviderName).createInvalidation([`projects/${projectName}*`])
       }
     }
   })

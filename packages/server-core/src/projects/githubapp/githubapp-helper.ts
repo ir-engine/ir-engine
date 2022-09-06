@@ -187,9 +187,10 @@ export const pushProjectToGithub = async (
   app: Application,
   project: ProjectInterface,
   user: UserInterface,
-  reset = false
+  reset = false,
+  storageProviderName?: string
 ) => {
-  const storageProvider = getStorageProvider()
+  const storageProvider = getStorageProvider(storageProviderName)
   try {
     logger.info(`[ProjectPush]: Getting files for project "${project.name}"...`)
     let files = await getFileKeysRecursive(`projects/${project.name}/`)

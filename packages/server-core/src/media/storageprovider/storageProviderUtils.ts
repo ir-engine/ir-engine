@@ -1,8 +1,8 @@
 import logger from '../../logger'
 import { getStorageProvider } from './storageprovider'
 
-export const getFileKeysRecursive = async (path: string) => {
-  const storageProvider = getStorageProvider()
+export const getFileKeysRecursive = async (path: string, storageProviderName?: string) => {
+  const storageProvider = getStorageProvider(storageProviderName)
   const files: string[] = []
   try {
     const response = await storageProvider.listObjects(path, true)

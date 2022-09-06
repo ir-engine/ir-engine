@@ -23,6 +23,7 @@ type UpdateParamsType = {
   oldPath: string
   newPath: string
   isCopy?: boolean
+  storageProviderName?: string
 }
 
 interface PatchParams {
@@ -30,6 +31,7 @@ interface PatchParams {
   fileName: string
   body: Buffer
   contentType: string
+  storageProviderName?: string
 }
 
 /**
@@ -55,12 +57,13 @@ export class FileBrowserService implements ServiceMethods<any> {
   async get(directory: string, params?: Params): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
-    const { $skip, $limit } = params.query
+    const { $skip, $limit, storageProviderName } = params.query
 
+    delete params.query.storageProviderName
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 100
 
-    const storageProvider = getStorageProvider()
+    const storageProvider = getStorageProvider(storageProviderName)
     const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
@@ -99,11 +102,12 @@ export class FileBrowserService implements ServiceMethods<any> {
 
   /**
    * Create a directory
-   * @param directory
+   * @param directory: string
+   * @param params
    * @returns
    */
-  async create(directory) {
-    const storageProvider = getStorageProvider()
+  async create(directory, params?: Params) {
+    const storageProvider = getStorageProvider(params?.query?.storageProviderName)
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
 
     const parentPath = path.dirname(directory)
@@ -126,7 +130,9 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async update(id: NullableId, data: UpdateParamsType, params?: Params) {
-    const storageProvider = getStorageProvider()
+    const storageProviderName = data.storageProviderName
+    delete data.storageProviderName
+    const storageProvider = getStorageProvider(storageProviderName)
     const _oldPath = data.oldPath[0] === '/' ? data.oldPath.substring(1) : data.oldPath
     const _newPath = data.newPath[0] === '/' ? data.newPath.substring(1) : data.newPath
 
@@ -153,7 +159,9 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    */
   async patch(id: NullableId, data: PatchParams, params?: Params) {
-    const storageProvider = getStorageProvider()
+    const storageProviderName = data.storageProviderName
+    delete data.storageProviderName
+    const storageProvider = getStorageProvider(storageProviderName)
     const name = processFileName(data.fileName)
 
     const key = path.join(data.path[0] === '/' ? data.path.substring(1) : data.path, name)
@@ -186,7 +194,9 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async remove(key: string, params?: Params) {
-    const storageProvider = getStorageProvider()
+    const storageProviderName = params?.query?.storageProviderName
+    if (storageProviderName) delete params.query?.storageProviderName
+    const storageProvider = getStorageProvider(storageProviderName)
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
