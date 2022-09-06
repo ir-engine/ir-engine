@@ -1,10 +1,10 @@
 export interface StaticResourceInterface {
   id: string
   sid: string
-  key: string
-  name?: string
   url: string
+  key: String
+  metadata: object
+  mimeType: string
   staticResourceType: string
   userId: string
-  description?: string
 }

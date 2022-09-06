@@ -163,6 +163,15 @@
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance"
     },
+    "resources": {
+      "resources": "resources",
+      "id": "Id",
+      "key": "Key",
+      "mimeType": "Mime Type",
+      "resourceType": "Resource Type",
+      "preview": "Preview",
+      "confirmResourceDelete": "Do you want to delete resource"
+    },
     "setting": {
       "authentication": "Authentication",
       "service": "Service",

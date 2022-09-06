@@ -13,6 +13,7 @@ import { AdminInstanceActions, AdminInstanceReceptors } from '../admin/services/
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
+import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
@@ -59,6 +60,8 @@ export default async function AdminSystem(world: World) {
   const avatarCreatedQueue = createActionQueue(AdminAvatarActions.avatarCreated.matches)
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
   const avatarUpdatedQueue = createActionQueue(AdminAvatarActions.avatarUpdated.matches)
+  const resourcesFetchedQueue = createActionQueue(AdminResourceActions.resourcesFetched.matches)
+  const resourceRemovedQueue = createActionQueue(AdminResourceActions.resourceRemoved.matches)
   const scenesFetchedQueue = createActionQueue(AdminSceneActions.scenesFetched.matches)
   const sceneFetchedQueue = createActionQueue(AdminSceneActions.sceneFetched.matches)
   const locationsRetrievedQueue = createActionQueue(AdminLocationActions.locationsRetrieved.matches)
@@ -173,6 +176,12 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of avatarUpdatedQueue()) {
       AdminAvatarReceptors.avatarUpdatedReceptor(action)
+    }
+    for (const action of resourcesFetchedQueue()) {
+      AdminResourceReceptors.resourcesFetchedReceptor(action)
+    }
+    for (const action of resourceRemovedQueue()) {
+      AdminResourceReceptors.resourceRemovedReceptor(action)
     }
     for (const action of scenesFetchedQueue()) {
       AdminSceneReceptors.scenesFetchedReceptor(action)

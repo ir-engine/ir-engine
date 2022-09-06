@@ -1,7 +1,7 @@
-import { StaticResource } from './StaticResource'
+import { StaticResourceInterface } from './StaticResourceInterface'
 
 export interface StaticResourceResult {
-  data: StaticResource[]
+  data: StaticResourceInterface[]
   total: number
   limit: number
   skip: number
