@@ -435,7 +435,7 @@ export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, input
     origin: new Vector3(),
     direction: new Vector3(),
     maxDistance: 20,
-    flags: interactionGroups
+    groups: interactionGroups
   } as RaycastArgs
 
   const input = getComponent(entity, InputComponent)

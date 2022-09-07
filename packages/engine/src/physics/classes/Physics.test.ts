@@ -227,12 +227,11 @@ describe('Physics', () => {
     physicsWorld.step()
 
     const raycastComponentData = {
-      filterData: null, // TODO
       type: SceneQueryType.Closest,
       origin: new Vector3().set(0, 1, 0),
-      direction: AvatarDirection.Right,
+      direction: AvatarDirection.Left,
       maxDistance: 20,
-      flags: getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+      groups: getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
     }
     const hits = Physics.castRay(physicsWorld, raycastComponentData)
 

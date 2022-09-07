@@ -5,11 +5,13 @@ import RAPIER, {
   ColliderDesc,
   EventQueue,
   InteractionGroups,
+  QueryFilterFlags,
   Ray,
   RigidBody,
   RigidBodyDesc,
   RigidBodyType,
   ShapeType,
+  TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
 import {
@@ -26,7 +28,7 @@ import {
 } from 'three'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
-import { createVector3Proxy } from '../../common/proxies/three'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -83,10 +85,10 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
 
   addComponent(entity, RigidBodyComponent, {
     body: rigidBody,
-    previousPosition: new Vector3(),
-    previousRotation: new Quaternion(),
-    previousLinearVelocity: new Vector3(),
-    previousAngularVelocity: new Vector3()
+    previousPosition: createVector3Proxy(RigidBodyComponent.previousPosition, entity, new Set()),
+    previousRotation: createQuaternionProxy(RigidBodyComponent.previousRotation, entity, new Set()),
+    previousLinearVelocity: createVector3Proxy(RigidBodyComponent.previousLinearVelocity, entity, new Set()),
+    previousAngularVelocity: createVector3Proxy(RigidBodyComponent.previousAngularVelocity, entity, new Set())
   })
 
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
@@ -315,19 +317,33 @@ export type RaycastArgs = {
   origin: Vector3
   direction: Vector3
   maxDistance: number
-  flags: number // TODO: rename to collision groups & type should be RAPIER.InteractionGroups
+  groups: InteractionGroups
+  flags?: QueryFilterFlags
+  excludeCollider?: Collider
+  excludeRigidBody?: RigidBody
 }
 
-function castRay(world: World, raycastQuery: RaycastArgs) {
+function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (collider: Collider) => boolean) {
   const ray = new Ray(raycastQuery.origin, raycastQuery.direction)
   const maxToi = raycastQuery.maxDistance
   const solid = true // TODO: Add option for this in args
-  const groups = raycastQuery.flags
+  const groups = raycastQuery.groups
+  const flags = raycastQuery.flags
 
   const hits = [] as RaycastHit[]
-  let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
+  let hitWithNormal = world.castRayAndGetNormal(
+    ray,
+    maxToi,
+    solid,
+    flags,
+    groups,
+    raycastQuery.excludeCollider,
+    raycastQuery.excludeRigidBody,
+    filterPredicate
+  )
   if (hitWithNormal != null) {
     hits.push({
+      collider: hitWithNormal.collider,
       distance: hitWithNormal.toi,
       position: ray.pointAt(hitWithNormal.toi),
       normal: hitWithNormal.normal,
@@ -344,7 +360,8 @@ function castRayFromCamera(
   camera: PerspectiveCamera | OrthographicCamera,
   coords: Vector2,
   world: World,
-  raycastQuery: RaycastArgs
+  raycastQuery: RaycastArgs,
+  filterPredicate?: (collider: Collider) => boolean
 ) {
   if ((camera as PerspectiveCamera).isPerspectiveCamera) {
     raycastQuery.origin.setFromMatrixPosition(camera.matrixWorld)
@@ -355,7 +372,7 @@ function castRayFromCamera(
       .unproject(camera)
     raycastQuery.direction.set(0, 0, -1).transformDirection(camera.matrixWorld)
   }
-  return Physics.castRay(world, raycastQuery)
+  return Physics.castRay(world, raycastQuery, filterPredicate)
 }
 
 export type ShapecastArgs = {
@@ -413,19 +430,52 @@ const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, hand
       bodySelf: rigidBody1 as RigidBody,
       bodyOther: rigidBody2 as RigidBody,
       shapeSelf: collider1 as Collider,
-      shapeOther: collider2 as Collider
+      shapeOther: collider2 as Collider,
+      maxForceDirection: null,
+      totalForce: null
     })
     collisionComponent2?.set(entity1, {
       type,
       bodySelf: rigidBody2 as RigidBody,
       bodyOther: rigidBody1 as RigidBody,
       shapeSelf: collider2 as Collider,
-      shapeOther: collider1 as Collider
+      shapeOther: collider1 as Collider,
+      maxForceDirection: null,
+      totalForce: null
     })
   } else {
     const type = isTriggerEvent ? CollisionEvents.TRIGGER_END : CollisionEvents.COLLISION_END
     if (collisionComponent1?.has(entity2)) collisionComponent1.get(entity2)!.type = type
     if (collisionComponent2?.has(entity1)) collisionComponent2.get(entity1)!.type = type
+  }
+}
+
+const drainContactEventQueue = (physicsWorld: World) => (event: TempContactForceEvent) => {
+  const collider1 = physicsWorld.getCollider(event.collider1())
+  const collider2 = physicsWorld.getCollider(event.collider2())
+
+  const rigidBody1 = collider1.parent()
+  const rigidBody2 = collider2.parent()
+  const entity1 = (rigidBody1?.userData as any)['entity']
+  const entity2 = (rigidBody2?.userData as any)['entity']
+
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
+
+  const collision1 = collisionComponent1?.get(entity2)
+  const collision2 = collisionComponent2?.get(entity1)
+
+  const maxForceDirection = event.maxForceDirection()
+  const totalForce = event.totalForce()
+
+  if (collision1) {
+    collision1.maxForceDirection = maxForceDirection
+    collision1.totalForce = totalForce
+  }
+
+  if (collision2) {
+    collision2.maxForceDirection = maxForceDirection
+    collision2.totalForce = totalForce
   }
 }
 
@@ -444,5 +494,6 @@ export const Physics = {
   castRayFromCamera,
   castShape,
   createCollisionEventQueue,
-  drainCollisionEventQueue
+  drainCollisionEventQueue,
+  drainContactEventQueue
 }

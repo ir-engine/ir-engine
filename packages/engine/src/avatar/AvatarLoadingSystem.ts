@@ -53,7 +53,7 @@ const downwardGroundRaycast = {
   origin: new Vector3(),
   direction: AvatarDirection.Down,
   maxDistance: 10,
-  flags: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
+  groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
 }
 
 export default async function AvatarLoadingSystem(world: World) {

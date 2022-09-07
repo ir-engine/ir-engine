@@ -53,7 +53,7 @@ const avatarStepRaycast = {
   origin: new Vector3(),
   direction: AvatarDirection.Down,
   maxDistance: stepHeight,
-  flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+  groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
 }
 
 /**
@@ -171,15 +171,13 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   if (xzVelocitySqrMagnitude > minimumStepSpeed) {
     // TODO this can be improved by using a shapeCast with a plane instead of a line
     // set the raycast position to the egde of the bottom of the cylindical portion of the capsule collider in the direction of motion
-    const pos = new Vector3()
+    avatarStepRaycast.origin
       .copy(transform.position)
       .add(xzVelocity.normalize().multiplyScalar(expandedAvatarRadius).applyQuaternion(forwardOrientation))
-    pos.y += stepLowerBound + stepHeight
-    avatarStepRaycast.origin.copy(pos)
+    avatarStepRaycast.origin.y += stepLowerBound + stepHeight
 
     const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, avatarStepRaycast)
-
-    if (hits.length) {
+    if (hits.length && hits[0].collider !== controller.bodyCollider) {
       _vec3.copy(hits[0].normal as Vector3)
       const angle = _vec3.angleTo(V_010)
       if (angle < stepAngle) {
