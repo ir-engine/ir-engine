@@ -26,6 +26,7 @@ import {
   traverseEntityNode
 } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SCENE_COMPONENT_TRANSFORM } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -36,6 +37,7 @@ import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
+import { SceneDynamicLoadAction } from './SceneObjectDynamicLoadSystem'
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
   const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
@@ -174,7 +176,7 @@ export const updateSceneFromJSON = (sceneData: SceneJson) => {
   // })
 
   for (const [uuid, entityJson] of newNonDynamicEntityNodes) {
-    createSceneEntity(uuid, entityJson, world)
+    createSceneEntity(uuid, entityJson, world, sceneData)
   }
 
   for (const [uuid, entityJson] of newUnloadedDynamicEntityNodes) {
@@ -228,8 +230,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   if (Engine.instance.isEditor) {
     for (const [key, val] of Object.entries(sceneData.entities)) createSceneEntity(key, val, world)
   } else {
-    for (const [key, val] of Object.entries(entityLoadQueue)) createSceneEntity(key, val, world)
     for (const [key, val] of Object.entries(entityDynamicQueue)) addDynamicallyLoadedEntity(key, val, world)
+    for (const [key, val] of Object.entries(entityLoadQueue)) createSceneEntity(key, val, world, sceneData)
   }
 
   const tree = world.entityTree
@@ -261,11 +263,38 @@ export const addDynamicallyLoadedEntity = (
 /**
  * Creates a scene entity and loads the data for it
  */
-export const createSceneEntity = (uuid: string, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
-  const node = createEntityNode(createEntity(), uuid)
-  addEntityNodeInTree(node, entityJson.parent ? world.entityTree.uuidNodeMap.get(entityJson.parent) : undefined)
-  loadSceneEntity(node, entityJson)
-  return node.entity
+export const createSceneEntity = (
+  uuid: string,
+  entityJson: EntityJson,
+  world = Engine.instance.currentWorld,
+  sceneJson?: SceneJson
+) => {
+  function creation() {
+    const node = createEntityNode(createEntity(), uuid)
+    addEntityNodeInTree(node, entityJson.parent ? world.entityTree.uuidNodeMap.get(entityJson.parent) : undefined)
+    loadSceneEntity(node, entityJson)
+    return node.entity
+  }
+  if (sceneJson === undefined || entityJson.parent === undefined) return creation()
+  else {
+    let hasDynamicAncestor = false
+    let walker = entityJson.parent as string | undefined
+    while (walker) {
+      if (world.sceneDynamicallyUnloadedEntities.has(walker)) {
+        hasDynamicAncestor = true
+        break
+      }
+      walker = sceneJson.entities[walker].parent
+    }
+    if (hasDynamicAncestor) {
+      matchActionOnce(
+        SceneDynamicLoadAction.load.matches.validate((action) => action.uuid === walker, ''),
+        () => {
+          creation()
+        }
+      )
+    } else return creation()
+  }
 }
 
 /**

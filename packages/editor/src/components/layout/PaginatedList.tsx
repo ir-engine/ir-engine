@@ -11,12 +11,10 @@ import Well from './Well'
 export default function PaginatedList({
   list,
   element,
-  onChange,
   options
 }: {
   ['list']: any[]
   ['element']: any
-  ['onChange']: Function
   ['options']?: {
     ['countPerPage']?: number
   }
@@ -77,7 +75,7 @@ export default function PaginatedList({
           </Grid>
         </Grid>
       </Well>
-      {list.slice(...pageView.value).map((index) => {
+      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((index) => {
         return element(index)
       })}
     </>
