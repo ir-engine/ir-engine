@@ -145,7 +145,8 @@ export const PropertiesPanelContainer = () => {
     )
   } else {
     const components = getAllComponents(nodeEntity).filter((c) => EntityNodeEditor.has(c))
-    const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry)
+    // todo - still WIP
+    // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry)
 
     content = (
       <StyledNodeEditor>
@@ -167,7 +168,8 @@ export const PropertiesPanelContainer = () => {
             )}
           </NameInputGroupContainer>
         </PropertiesHeader>
-        <div style={{ pointerEvents: 'auto' }}>
+        {/** @todo this is the add component menu - still a work in progress */}
+        {/* <div style={{ pointerEvents: 'auto' }}>
           <MainMenu
             icon={isMenuOpen ? Close : AddIcon}
             isMenuOpen={isMenuOpen}
@@ -175,10 +177,8 @@ export const PropertiesPanelContainer = () => {
             commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
               name: component._name,
               action: () => {
-                console.log('\n\nhey\n\n')
                 const [sceneComponentID] = registeredComponents.find(([_, prefab]) => prefab === component._name)!
                 const sceneComponent = Engine.instance.currentWorld.sceneLoadingRegistry.get(sceneComponentID)!
-                console.log(sceneComponentID, sceneComponent)
                 if (!sceneComponentID)
                   return console.warn('[ SceneLoading] could not find component name', sceneComponentID)
                 if (!ComponentMap.get(sceneComponentID))
@@ -192,7 +192,7 @@ export const PropertiesPanelContainer = () => {
               }
             }))}
           />
-        </div>
+        </div> */}
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
           return <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} component={c} />

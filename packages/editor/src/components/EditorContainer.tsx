@@ -12,16 +12,10 @@ import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
-import LockIcon from '@mui/icons-material/Lock'
-import UnlockIcon from '@mui/icons-material/LockOpen'
-import TuneIcon from '@mui/icons-material/Tune'
-import { Checkbox } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
@@ -33,7 +27,6 @@ import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
-import { useSelectionState } from '../services/SelectionServices'
 import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
@@ -46,12 +39,12 @@ import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
+import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
 import { DialogContext } from './hooks/useDialog'
-import { Button } from './inputs/Button'
-import { PanelCheckbox, PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
+import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
+import { PropertiesPanelTitle } from './properties/PropertiesPanelTitle'
 import { AppContext } from './Search/context'
-import Search from './Search/Search'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
@@ -131,7 +124,6 @@ DockContainer.defaultProps = {
  */
 const EditorContainer = () => {
   const editorState = useEditorState()
-  const selectionState = useSelectionState()
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
@@ -166,13 +158,6 @@ const EditorContainer = () => {
         />
       )
     }
-  }
-
-  const handleInputChangeHierarchy = (searchInput) => {
-    setSearchHierarchy(searchInput)
-  }
-  const handleInputChangeElement = (searchInput) => {
-    setSearchElement(searchInput)
   }
 
   useHookEffect(() => {
@@ -588,28 +573,7 @@ const EditorContainer = () => {
                 {
                   id: 'hierarchyPanel',
                   title: (
-                    <div className={styles.hierarchyTab}>
-                      <PanelDragContainer>
-                        <PanelIcon as={AccountTreeIcon} size={12} />
-                        <PanelTitle>Hierarchy</PanelTitle>
-                      </PanelDragContainer>
-                      <div className={styles.hierarchyTabButtons}>
-                        {/** @todo fix this styling */}
-                        {/* {editorState.advancedMode.value && ( */}
-                        <>
-                          {t('editor:hierarchy.lbl-explode')}
-                          <Checkbox
-                            style={{ padding: '0px' }}
-                            value={editorState.showObject3DInHierarchy.value}
-                            onChange={(e, value) =>
-                              dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
-                            }
-                          />
-                        </>
-                        {/* )} */}
-                        <Search elementsName="hierarchy" handleInputChange={handleInputChangeHierarchy} />
-                      </div>
-                    </div>
+                    <HierarchyPanelTitle setSearchElement={setSearchElement} setSearchHierarchy={setSearchHierarchy} />
                   ),
                   content: <HierarchyPanelContainer />
                 }
@@ -619,40 +583,7 @@ const EditorContainer = () => {
               tabs: [
                 {
                   id: 'propertiesPanel',
-                  title: (
-                    <PanelDragContainer>
-                      <PanelIcon as={TuneIcon} size={12} />
-                      <PanelTitle>Properties</PanelTitle>
-                      <Button
-                        onClick={() => {
-                          const currentEntity = selectionState.selectedEntities.value.find(
-                            (selected) => typeof selected !== 'string'
-                          ) as Entity | undefined
-                          const currentState = editorState.lockPropertiesPanel.value
-                          if (currentState) {
-                            dispatchAction(
-                              EditorAction.lockPropertiesPanel({
-                                lockPropertiesPanel: ''
-                              })
-                            )
-                          } else {
-                            if (currentEntity) {
-                              const currentNode =
-                                Engine.instance.currentWorld.entityTree.entityNodeMap.get(currentEntity)!
-                              dispatchAction(
-                                EditorAction.lockPropertiesPanel({
-                                  lockPropertiesPanel: currentNode.uuid
-                                })
-                              )
-                            }
-                          }
-                        }}
-                      >
-                        <PanelIcon as={editorState.lockPropertiesPanel.value ? LockIcon : UnlockIcon} size={10} />
-                        <PanelTitle>{editorState.lockPropertiesPanel.value ? 'Unlock' : 'Lock'}</PanelTitle>
-                      </Button>
-                    </PanelDragContainer>
-                  ),
+                  title: <PropertiesPanelTitle />,
                   content: <PropertiesPanelContainer />
                 }
               ]
