@@ -73,3 +73,5 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
 }
 
 LoadVolumeNodeEditor.iconComponent = CloudSyncIcon
+
+export default LoadVolumeNodeEditor
