@@ -190,16 +190,16 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   )
 
   // debug
-  console.log({
-    data: sceneData.scene.entities,
-    systemsToLoad,
-    systemsToUnload,
-    changedEntityNodes,
-    newNonDynamicEntityNodes,
-    newUnloadedDynamicEntityNodes,
-    oldLoadedEntityNodesToRemove,
-    oldUnloadedEntityNodesToRemove
-  })
+  // console.log({
+  //   data: sceneData.scene.entities,
+  //   systemsToLoad,
+  //   systemsToUnload,
+  //   changedEntityNodes,
+  //   newNonDynamicEntityNodes,
+  //   newUnloadedDynamicEntityNodes,
+  //   oldLoadedEntityNodesToRemove,
+  //   oldUnloadedEntityNodesToRemove
+  // })
 
   for (const [uuid, entityJson] of newNonDynamicEntityNodes) {
     createSceneEntity(uuid, entityJson, world, sceneData.scene)
