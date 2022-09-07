@@ -44,8 +44,9 @@ export class StaticResource extends Service<StaticResourceInterface> {
 
   async find(params?: Params): Promise<StaticResourceInterface[] | Paginated<StaticResourceInterface>> {
     const search = params?.query?.search ?? ''
-    const mimeTypes = params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : null
-    const resourceTypes = params?.query?.resourceTypes.length > 0 ? params?.query?.resourceTypes : null
+    const mimeTypes = params?.query?.mimeTypes && params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : null
+    const resourceTypes =
+      params?.query?.resourceTypes && params?.query?.resourceTypes.length > 0 ? params?.query?.resourceTypes : null
 
     const sort = params?.query?.$sort
     const order: any[] = []

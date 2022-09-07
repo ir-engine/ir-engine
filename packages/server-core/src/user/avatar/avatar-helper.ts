@@ -91,13 +91,15 @@ export const uploadAvatarStaticResource = async (app: Application, data: AvatarU
   const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, {
     userId: data.userId!,
     key: `${key}.${data.avatarFileType ?? 'glb'}`,
-    contentType: CommonKnownContentTypes.glb
+    contentType: CommonKnownContentTypes.glb,
+    staticResourceType: 'avatar'
   })
 
   const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, {
     userId: data.userId!,
     key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
-    contentType: CommonKnownContentTypes.png
+    contentType: CommonKnownContentTypes.png,
+    staticResourceType: 'user-thumbnail'
   })
 
   const [modelResource, thumbnailResource] = await Promise.all([modelPromise, thumbnailPromise])

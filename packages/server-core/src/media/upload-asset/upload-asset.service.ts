@@ -89,6 +89,7 @@ export const addGenericAssetToS3AndStaticResources = async (
                 mimeType: args.contentType,
                 url: assetURL,
                 key: key,
+                staticResourceType: args.staticResourceType,
                 ...userIdQuery
               },
               { isInternal: true }
