@@ -22,6 +22,7 @@ import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@xrengine/engine/src/scene/components/InstancingComponent'
 import { InteriorComponent } from '@xrengine/engine/src/scene/components/InteriorComponent'
+import { LoadVolumeComponent } from '@xrengine/engine/src/scene/components/LoadVolumeComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@xrengine/engine/src/scene/components/MountPointComponent'
@@ -62,6 +63,7 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
+import LoadVolumeNodeEditor from '../components/properties/LoadVolumeNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
@@ -117,6 +119,7 @@ EntityNodeEditor.set(SystemComponent, SystemNodeEditor)
 EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
+EntityNodeEditor.set(LoadVolumeComponent, LoadVolumeNodeEditor)
 EntityNodeEditor.set(FogComponent, FogNodeEditor)
 
 export const prefabIcons = {
@@ -151,5 +154,6 @@ export const prefabIcons = {
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
   [ScenePrefabs.fog]: FogNodeEditor.iconComponent,
   [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
+  [ScenePrefabs.loadVolume]: LoadVolumeNodeEditor.iconComponent,
   [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
 }

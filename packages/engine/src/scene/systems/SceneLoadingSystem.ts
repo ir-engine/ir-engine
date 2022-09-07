@@ -200,13 +200,12 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   //   oldLoadedEntityNodesToRemove,
   //   oldUnloadedEntityNodesToRemove
   // })
+  for (const [uuid, entityJson] of newUnloadedDynamicEntityNodes) {
+    addDynamicallyLoadedEntity(uuid, entityJson, world)
+  }
 
   for (const [uuid, entityJson] of newNonDynamicEntityNodes) {
     createSceneEntity(uuid, entityJson, world, sceneData.scene)
-  }
-
-  for (const [uuid, entityJson] of newUnloadedDynamicEntityNodes) {
-    addDynamicallyLoadedEntity(uuid, entityJson, world)
   }
 
   /** remove entites that are no longer part of the scene */

@@ -139,7 +139,7 @@ export default async function PhysicsSystem(world: World) {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of rigidBodyQuery.exit()) {
-      Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
+      //Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
       Physics.removeRigidBody(entity, world.physicsWorld, true)
     }
 
