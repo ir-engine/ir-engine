@@ -216,6 +216,9 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
     literalValidators,
     defaultValidators
   ) as any
+  delete resolvedActionShape.$cache
+  delete resolvedActionShape.$topic
+
   const allValuesNull = Object.fromEntries(Object.entries(resolvedActionShape).map(([k]) => [k, null]))
 
   const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
