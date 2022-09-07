@@ -89,22 +89,23 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
           const targetNode = nodeMap.get(entity)
           if (targetNode) {
             iterateEntityNode(targetNode, (node) => {
-              node !== targetNode &&
+              if (node !== targetNode) {
+                const data = { name: node.uuid, components: serializeEntity(node.entity) }
+                if (node.parentEntity) {
+                  const parentNode = nodeMap.get(node.parentEntity!)!
+                  data['parent'] = parentNode.uuid
+                }
                 matchActionOnce(
                   SceneDynamicLoadAction.load.matches.validate((action) => action.uuid === targetNode.uuid, ''),
                   () => {
-                    const data = { name: node.uuid, components: serializeEntity(node.entity) }
-                    if (node.parentEntity) {
-                      const parentNode = nodeMap.get(node.parentEntity!)!
-                      data['parent'] = parentNode.uuid
-                    }
                     createSceneEntity(node.uuid, data)
                   }
                 )
+              }
               node.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
               removeEntity(node.entity)
-              removeEntityNodeFromParent(node)
             })
+            iterateEntityNode(targetNode, (node) => removeEntityNodeFromParent(node))
           }
           const uuid = data.uuid
           dispatchAction(SceneDynamicLoadAction.unload({ uuid }))
