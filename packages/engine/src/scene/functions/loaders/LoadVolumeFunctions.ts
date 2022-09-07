@@ -60,6 +60,7 @@ export const updateLoadVolume: ComponentUpdateFunction = (entity: Entity) => {
 
   function doUnload() {
     const nuComponent = { ...component }
+    nuComponent.targets = []
     component.targets.map(({ uuid }) => {
       if (uuidMap.has(uuid)) {
         const targetNode = uuidMap.get(uuid)!
