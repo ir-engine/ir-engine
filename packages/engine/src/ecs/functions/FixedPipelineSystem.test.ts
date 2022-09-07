@@ -13,7 +13,7 @@ const MockState = defineState({
   initial: { count: 0 }
 })
 
-const MockSystemModulePromise = async () => {
+const MocksystemLoader = async () => {
   return {
     default: async (world: World) => {
       return () => {
@@ -32,7 +32,7 @@ describe('FixedPipelineSystem', () => {
     const injectedSystems = [
       {
         uuid: 'Mock',
-        systemModulePromise: () => MockSystemModulePromise(),
+        systemLoader: () => MocksystemLoader(),
         type: SystemUpdateType.FIXED
       }
     ]
@@ -62,7 +62,7 @@ describe('FixedPipelineSystem', () => {
     const injectedSystems = [
       {
         uuid: 'Mock',
-        systemModulePromise: () => MockSystemModulePromise(),
+        systemLoader: () => MocksystemLoader(),
         type: SystemUpdateType.FIXED
       }
     ]

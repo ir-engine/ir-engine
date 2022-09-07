@@ -54,7 +54,7 @@ describe('InstancingFunctions', async () => {
       {
         uuid: 'Instance',
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: () =>
+        systemLoader: () =>
           Promise.resolve({
             default: async () => {
               let resolve: () => void

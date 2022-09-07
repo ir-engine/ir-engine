@@ -103,7 +103,7 @@ export const addAnimationLogic = (
     {
       uuid: generateUUID(),
       type: SystemUpdateType.POST_RENDER,
-      systemModulePromise: () => Promise.resolve({ default: AvatarSelectRenderSystem })
+      systemLoader: () => Promise.resolve({ default: AvatarSelectRenderSystem })
     }
   ])
 }

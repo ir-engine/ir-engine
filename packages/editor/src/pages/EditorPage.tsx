@@ -22,55 +22,55 @@ import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 const systems = [
   {
     uuid: 'core.editor.RenderSystem',
-    systemModulePromise: () => import('../systems/RenderSystem'),
+    systemLoader: () => import('../systems/RenderSystem'),
     type: SystemUpdateType.POST_RENDER,
     args: { enabled: true }
   },
   {
     uuid: 'core.editor.InputSystem',
-    systemModulePromise: () => import('../systems/InputSystem'),
+    systemLoader: () => import('../systems/InputSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
     uuid: 'core.editor.FlyControlSystem',
-    systemModulePromise: () => import('../systems/FlyControlSystem'),
+    systemLoader: () => import('../systems/FlyControlSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
     uuid: 'core.editor.EditorControlSystem',
-    systemModulePromise: () => import('../systems/EditorControlSystem'),
+    systemLoader: () => import('../systems/EditorControlSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
     uuid: 'core.editor.EditorLocalTransformUpdateSystem',
-    systemModulePromise: () => import('../systems/EditorLocalTransformUpdateSystem'),
+    systemLoader: () => import('../systems/EditorLocalTransformUpdateSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
     uuid: 'core.editor.EditorCameraSystem',
-    systemModulePromise: () => import('../systems/EditorCameraSystem'),
+    systemLoader: () => import('../systems/EditorCameraSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
     uuid: 'core.editor.ResetInputSystem',
-    systemModulePromise: () => import('../systems/ResetInputSystem'),
+    systemLoader: () => import('../systems/ResetInputSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
     uuid: 'core.editor.GizmoSystem',
-    systemModulePromise: () => import('../systems/GizmoSystem'),
+    systemLoader: () => import('../systems/GizmoSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
     uuid: 'core.editor.PortalLoadSystem',
-    systemModulePromise: () => import('@xrengine/client-core/src/systems/PortalLoadSystem'),
+    systemLoader: () => import('@xrengine/client-core/src/systems/PortalLoadSystem'),
     type: SystemUpdateType.FIXED,
     args: { enabled: true }
   }

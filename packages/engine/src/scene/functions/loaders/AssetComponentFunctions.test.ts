@@ -60,7 +60,7 @@ describe('AssetComponentFunctions', async () => {
       {
         uuid: 'Asset',
         type: 'FIXED_LATE',
-        systemModulePromise: () =>
+        systemLoader: () =>
           Promise.resolve({
             default: async () => {
               let resolve: () => void

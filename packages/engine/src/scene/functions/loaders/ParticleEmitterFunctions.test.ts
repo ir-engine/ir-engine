@@ -41,7 +41,7 @@ describe('ParticleEmitterFunctions', async () => {
       {
         uuid: 'Particle',
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: () =>
+        systemLoader: () =>
           Promise.resolve({
             default: async () => {
               let resolve: () => void

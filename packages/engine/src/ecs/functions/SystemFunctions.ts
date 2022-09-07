@@ -10,7 +10,7 @@ const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 export type CreateSystemSyncFunctionType<A extends any> = (world: World, props?: A) => () => void
 export type CreateSystemFunctionType<A extends any> = (world: World, props?: A) => Promise<() => void>
 export type SystemModule<A extends any> = { default: CreateSystemFunctionType<A> }
-export type SystemModulePromise<A extends any> = Promise<SystemModule<A>>
+export type systemLoader<A extends any> = Promise<SystemModule<A>>
 
 export type SystemSyncFunctionType<A> = {
   systemFunction: CreateSystemSyncFunctionType<A>
@@ -19,7 +19,7 @@ export type SystemSyncFunctionType<A> = {
 }
 
 export type SystemModuleType<A> = {
-  systemModulePromise: () => SystemModulePromise<A>
+  systemLoader: () => systemLoader<A>
   /** any string to uniquely identity this module - can be a uuidv4 or a string name */
   uuid: string
   type: SystemUpdateType
@@ -86,7 +86,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         args: s.args,
         type: s.type,
         sceneSystem: s.sceneSystem,
-        systemModule: await s.systemModulePromise()
+        systemModule: await s.systemLoader()
       }
     })
   )
