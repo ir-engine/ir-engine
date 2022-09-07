@@ -26,7 +26,7 @@ export default function makeUniqueName(node: EntityTreeNode) {
 
     const nameComponent = getComponent(child.entity, NameComponent)
 
-    if (!nameComponent || !nameComponent.name.startsWith(nameWithoutIndex)) return
+    if (!nameComponent || !nameComponent.name?.startsWith(nameWithoutIndex)) return
 
     const parts = nameComponent.name.split(nameWithoutIndex)
 
