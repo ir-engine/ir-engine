@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
+import { State } from '@xrengine/hyperflux/functions/StateFunctions'
+
 import CheckIcon from '@mui/icons-material/Check'
 
 import Input from './Input'
@@ -51,7 +53,7 @@ const BooleanCheck = (styled as any)(CheckIcon)`
 
 interface BooleanInputProp {
   id?: string
-  value: any
+  value: State<boolean> | boolean
   onChange: Function
   disabled?: boolean
 }

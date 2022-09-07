@@ -246,7 +246,7 @@ export default async function EditorControlSystem(_: World) {
             dragging = false
           }
         }
-      } else if (gizmoObj.activeControls && !dragging) {
+      } else if (gizmoObj.activeControls && !dragging && cursorPosition) {
         gizmoObj.highlightHoveredAxis(cursorPosition)
       }
 

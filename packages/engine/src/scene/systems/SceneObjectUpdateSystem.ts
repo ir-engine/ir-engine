@@ -6,6 +6,7 @@ import {
   SCENE_COMPONENT_LOOP_ANIMATION,
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
 } from '../../avatar/components/LoopAnimationComponent'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -395,7 +396,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     ...defaultSpatialComponents,
     {
       name: SCENE_COMPONENT_IMAGE,
-      props: { source: '__$project$__/XREngine-development-test-suite/assets/sample_etc1s.ktx2' }
+      props: { source: '__$project$__/default-project/assets/sample_etc1s.ktx2' }
     }
   ])
 
@@ -484,7 +485,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const interiorQuery = defineQuery([InteriorComponent])
   const renderSettingsQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
-  const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent])
+  const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent, FollowCameraComponent])
   const scenePreviewCameraTagQuery = defineQuery([ScenePreviewCameraTagComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)

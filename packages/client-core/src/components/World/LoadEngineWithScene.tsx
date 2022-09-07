@@ -66,7 +66,9 @@ export const LoadEngineWithScene = () => {
    * load the scene whenever it changes
    */
   useHookEffect(() => {
-    const sceneData = sceneState.currentScene.value
+    // loadScene() deserializes the scene data, and deserializers sometimes mutate/update that data for backwards compatability.
+    // Since hookstate throws errors when mutating proxied values, we have to pass down the unproxied value here
+    const sceneData = sceneState.currentScene.get({ noproxy: true })
     if (clientReady && sceneData) {
       AvatarService.fetchAvatarList()
       if (loadingState.state.value !== AppLoadingStates.SUCCESS)

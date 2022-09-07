@@ -1,9 +1,12 @@
 import { addActionReceptor, createActionQueue, getState } from '@xrengine/hyperflux'
 
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { MediaSettingReceptor, restoreMediaSettings } from '../../networking/MediaSettingsState'
 import { setCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
@@ -94,6 +97,35 @@ export const createAudioNodeGroup = (
   return group
 }
 
+// TODO: move this into system initializer once we have system destroy callbacks
+if (isClient) {
+  const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
+
+  // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+  // in order to ensure media will play programmatically
+  function handleAutoplay() {
+    for (const entity of mediaQuery()) {
+      const media = getComponent(entity, MediaComponent)
+      if (media.playing.value) return
+
+      const mediaElement = getComponent(entity, MediaElementComponent)
+      if (!mediaElement) return
+
+      // const autoStartTime = media.autoStartTime.value
+      // if (autoStartTime < 0) return
+
+      // let timeSinceStart = Date.now() - media.autoStartTime.value
+      // if (timeSinceStart < 0) return
+
+      // mediaElement.element.currentTime = timeSinceStart
+      mediaElement.element.play()
+    }
+  }
+
+  window.addEventListener('pointerdown', handleAutoplay)
+  window.addEventListener('keypress', handleAutoplay)
+}
+
 export default async function MediaSystem(world: World) {
   world.scenePrefabRegistry.set(MediaPrefabs.audio, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -162,7 +194,8 @@ export default async function MediaSystem(world: World) {
 
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
-  const mediaElementQuery = defineQuery([MediaElementComponent])
+  const mediaQuery = defineQuery([MediaComponent])
+  const mediaElementQuery = defineQuery([MediaComponent, MediaElementComponent])
   const videoQuery = defineQuery([MediaElementComponent, VideoComponent])
   const volumetricQuery = defineQuery([MediaElementComponent, VolumetricComponent])
 
@@ -176,16 +209,18 @@ export default async function MediaSystem(world: World) {
       enableAudioContext()
     }
 
-    for (const entity of mediaElementQuery.enter()) {
-      const media = getComponent(entity, MediaElementComponent)
+    for (const entity of mediaQuery.enter()) {
+      const media = getComponent(entity, MediaComponent)
       setCallbacks(entity, {
-        play: () => {
-          media.element.play()
-        },
-        pause: () => {
-          media.element.pause()
-        }
+        play: () => media.paused.set(false),
+        pause: () => media.paused.set(true)
       })
+    }
+
+    for (const entity of mediaElementQuery()) {
+      const media = getComponent(entity, MediaComponent)
+      const mediaElement = getComponent(entity, MediaElementComponent)
+      // play
     }
 
     for (const entity of videoQuery()) updateVideo(entity)

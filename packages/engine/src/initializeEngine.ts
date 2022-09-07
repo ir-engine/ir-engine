@@ -234,6 +234,10 @@ export const initializeSceneSystems = async () => {
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/TriggerSystem')
+    },
+    {
+      type: SystemUpdateType.PRE_RENDER,
+      systemModulePromise: import('./audio/systems/MediaSystem')
     }
   )
   if (isClient) {
@@ -261,10 +265,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./interaction/systems/MountPointSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./audio/systems/MediaSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,

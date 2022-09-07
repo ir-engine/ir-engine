@@ -24,19 +24,19 @@ import { EditorComponentType, updateProperty } from './Util'
 const PlayModeOptions = [
   {
     label: 'Single',
-    value: PlayMode.Single
+    value: PlayMode.single
   },
   {
     label: 'Random',
-    value: PlayMode.Random
+    value: PlayMode.random
   },
   {
     label: 'Loop',
-    value: PlayMode.Loop
+    value: PlayMode.loop
   },
   {
     label: 'SingleLoop',
-    value: PlayMode.SingleLoop
+    value: PlayMode.singleloop
   }
 ]
 
@@ -45,7 +45,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const [isPlaying, setPlaying] = useState(false)
   const engineState = useEngineState()
 
-  const mediaComponent = useHookstate(getComponent(props.node.entity, MediaComponent)).value
+  const mediaComponent = useHookstate(getComponent(props.node.entity, MediaComponent)).get({ noproxy: true })
   const hasError = engineState.errorEntities[props.node.entity].get()
   const error = getComponent(props.node.entity, ErrorComponent)
 
@@ -89,7 +89,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-synchronize')}
         info={t('editor:properties.media.info-synchronize')}
       >
-        <NumericInput value={mediaComponent.autoStartTime} onChange={updateProperty(MediaComponent, 'autoStartTime')} />
+        <BooleanInput value={mediaComponent.synchronize} onChange={updateProperty(MediaComponent, 'synchronize')} />
       </InputGroup>
       <ArrayInputGroup
         name="Source Paths"

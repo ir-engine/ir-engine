@@ -99,7 +99,6 @@ export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] =
 }
 
 export const EntityNodeEditor = {
-  default: DefaultNodeEditor,
   [TransformComponent.name]: TransformPropertyGroup,
   [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
   [HemisphereLightComponent.name]: HemisphereLightNodeEditor,

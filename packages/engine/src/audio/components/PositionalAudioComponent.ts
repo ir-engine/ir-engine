@@ -6,10 +6,11 @@ export const PositionalAudioComponent = defineComponent({
 
   onAdd: (entity, json) => {
     const state = createState({
-      distanceModel: 'linear' as DistanceModelType,
-      rolloffFactor: 1,
-      refDistance: 20,
-      maxDistance: 1000,
+      // default values as suggested at https://medium.com/@kfarr/understanding-web-audio-api-positional-audio-distance-models-for-webxr-e77998afcdff
+      distanceModel: 'inverse' as DistanceModelType,
+      rolloffFactor: 3,
+      refDistance: 1,
+      maxDistance: 40,
       coneInnerAngle: 360,
       coneOuterAngle: 0,
       coneOuterGain: 0

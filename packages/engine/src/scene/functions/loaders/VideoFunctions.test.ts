@@ -11,6 +11,7 @@ import { createEngine } from '../../../initializeEngine'
 import { MediaComponent, MediaElementComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent } from '../../components/VideoComponent'
+import { PlayMode } from '../../constants/PlayMode'
 
 class Media {
   paused: boolean = false
@@ -47,10 +48,10 @@ describe.skip('VideoFunctions', () => {
     entity = createEntity()
     addComponent(entity, MediaComponent, {
       paths: [],
-      playMode: 3,
+      playMode: PlayMode.loop,
       autoplay: true,
       controls: false,
-      autoStartTime: 0
+      isMusic: false
     })
     const obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
     obj3d.userData.mesh = new Mesh()

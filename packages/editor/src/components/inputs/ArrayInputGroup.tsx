@@ -10,7 +10,7 @@ export interface ArrayInputGroupProp {
   prefix?: string
   isStringInput?: boolean
   label?: any
-  values?: any
+  values: string[]
   onChange?: Function
   acceptFileTypes?: any
   itemType?: any
@@ -18,20 +18,15 @@ export interface ArrayInputGroupProp {
 
 export interface ArrayInputGroupState {
   count: number
-  values: any
+  values: string[]
 }
 
-const onChangeSize = (textSize: string, values: string[], onChange) => {
-  let valuesCopy = [] as string[]
+const onChangeSize = (textSize: string, values: string[], onChange?: Function) => {
+  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
+  let valuesCopy = [...values] as string[]
+  let preCount = valuesCopy.length
   console.log('onChangeSize', textSize, values, onChange)
   const count = parseInt(textSize)
-  let preCount = 0
-  if (!valuesCopy) {
-    valuesCopy = []
-  } else {
-    valuesCopy = [...values]
-    preCount = valuesCopy.length
-  }
   if (count == undefined || preCount == count) return
   if (preCount > count) {
     valuesCopy.splice(count)
@@ -40,15 +35,14 @@ const onChangeSize = (textSize: string, values: string[], onChange) => {
       valuesCopy.push('')
     }
   }
-  preCount = count
-  onChange(valuesCopy)
+  onChange?.(valuesCopy)
 }
 
-const onChangeText = (text, index, values, onChange) => {
+const onChangeText = (text: string, index: number, values: string[], onChange?: Function) => {
   // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
   const valuesCopy = [...values]
   valuesCopy[index] = text
-  onChange(valuesCopy)
+  onChange?.(valuesCopy)
 }
 
 const GroupContainer = (styled as any).label`
@@ -91,7 +85,7 @@ export function ArrayInputGroup({
   itemType
 }: ArrayInputGroupProp) {
   let count = 0
-  if (values && values.length) count = values.length.toString()
+  if (values && values.length) count = values.length
   return (
     <GroupContainer>
       <InputGroupVerticalContainer>

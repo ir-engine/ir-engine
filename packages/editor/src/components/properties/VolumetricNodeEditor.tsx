@@ -31,7 +31,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
         <BooleanInput
           onChange={updateProperty(VolumetricComponent, 'useLoadingEffect')}
-          value={volumetricComponent.useLoadingEffect}
+          value={volumetricComponent.useLoadingEffect.value}
         />
       </InputGroup>
     </NodeEditor>

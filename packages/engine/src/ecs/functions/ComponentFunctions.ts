@@ -109,8 +109,9 @@ export const setComponent = <T, S extends bitECS.ISchema, J>(
   if (typeof world === 'undefined' || world === null) {
     throw new Error('[setComponent]: world is undefined')
   }
-  bitECS.addComponent(world, component, entity, false) // don't clear data on-add
+  if (hasComponent(entity, component)) removeComponent(entity, component)
   component.map.set(entity, component.onAdd(entity, args))
+  bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   return component.map.get(entity)!
 }
 

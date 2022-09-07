@@ -24,7 +24,7 @@ export const VolumetricComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      useLoadingEffect: component.useLoadingEffect
+      useLoadingEffect: component.useLoadingEffect.value
     }
   }
 })

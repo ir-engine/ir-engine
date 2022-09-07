@@ -16,11 +16,12 @@ import {
   serializeComponent,
   SerializedComponentType
 } from '../../../ecs/functions/ComponentFunctions'
-import { entityExists } from '../../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists } from '../../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { MediaElementComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent } from '../../components/VolumetricComponent'
+import { PlayMode } from '../../constants/PlayMode'
 
 let VolumetricPlayerPromise = null! as Promise<typeof import('@xrfoundation/volumetric/player').default>
 
@@ -78,8 +79,9 @@ export const updateVolumetric = async (entity: Entity) => {
 
   const player = new VolumetricPlayer({
     renderer: EngineRenderer.instance.renderer,
-    video: mediaElement.element,
-    paths: []
+    video: mediaElement.element as HTMLVideoElement,
+    paths: [],
+    playMode: PlayMode.single
   })
 
   volumetric = {
@@ -177,23 +179,18 @@ const setupLoadingEffect = (entity: Entity, obj: Object3D) => {
     }
   })
   if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
-  addComponent(entity, AvatarEffectComponent, {
+  const effectEntity = createEntity()
+  addComponent(effectEntity, AvatarEffectComponent, {
     sourceEntity: entity,
     opacityMultiplier: 0,
     originMaterials: materialList
   })
 }
 
-const calculateHeight = (obj3d: Object3D) => {
-  let childObject
-  obj3d.children.forEach((child) => {
-    if (!childObject && (child.type == 'Group' || child.type == 'Object3D' || child.type == 'Mesh')) {
-      childObject = child
-    }
-  })
+const calculateHeight = (obj: Object3D) => {
   //calculate the uvol model height
-  const bbox = new Box3().setFromObject(childObject)
-  let height = 1
+  const bbox = new Box3().setFromObject(obj)
+  let height = 1.5
   if (bbox.max.y != undefined && bbox.min.y != undefined) {
     height = bbox.max.y - bbox.min.y
   }
