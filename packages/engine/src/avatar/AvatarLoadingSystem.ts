@@ -26,7 +26,8 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
-import { Physics } from '../physics/classes/Physics'
+import { Physics, RaycastArgs } from '../physics/classes/Physics'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
@@ -54,7 +55,7 @@ const downwardGroundRaycast = {
   direction: AvatarDirection.Down,
   maxDistance: 10,
   groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
-}
+} as RaycastArgs
 
 export default async function AvatarLoadingSystem(world: World) {
   const effectQuery = defineQuery([AvatarEffectComponent, Not(Object3DComponent)])
@@ -114,6 +115,7 @@ export default async function AvatarLoadingSystem(world: World) {
       /**
        * cast ray to move this downward to be on the ground
        */
+      downwardGroundRaycast.excludeRigidBody = getComponent(entity, RigidBodyComponent).body
       const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, downwardGroundRaycast)
       if (hits.length) {
         transform.position.y = hits[0].position.y
