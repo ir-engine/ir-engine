@@ -61,8 +61,9 @@ describe('ECS', () => {
     const world = Engine.instance.currentWorld
     await initSystems(world, [
       {
+        uuid: 'Mock',
         type: SystemUpdateType.UPDATE,
-        systemModulePromise: MockSystemModulePromise()
+        systemModulePromise: () => MockSystemModulePromise()
       }
     ])
   })

@@ -4,14 +4,15 @@ import { LocationService } from '@xrengine/client-core/src/social/services/Locat
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   initializeCoreSystems,
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { getState } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
-import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { API } from '../../API'
 
@@ -31,6 +32,8 @@ export const retrieveLocationByName = (locationName: string, userId: string) => 
 }
 
 export const initClient = async () => {
+  if (getState(EngineState).isEngineInitialized.value) return
+
   const world = Engine.instance.currentWorld
   const projects = API.instance.client.service('projects').find()
 
@@ -41,6 +44,6 @@ export const initClient = async () => {
 }
 
 export const loadScene = async (sceneData: SceneData) => {
-  const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
-  await loadSceneFromJSON(sceneData.scene, sceneSystems)
+  EngineActions.sceneLoadingProgress({ progress: 0 })
+  await updateSceneFromJSON(sceneData)
 }

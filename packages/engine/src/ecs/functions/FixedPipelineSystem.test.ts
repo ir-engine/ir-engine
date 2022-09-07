@@ -31,7 +31,8 @@ describe('FixedPipelineSystem', () => {
 
     Engine.instance.injectedSystems = [
       {
-        systemModulePromise: MockSystemModulePromise(),
+        uuid: 'Mock',
+        systemModulePromise: () => MockSystemModulePromise(),
         type: SystemUpdateType.FIXED
       }
     ]
@@ -60,7 +61,8 @@ describe('FixedPipelineSystem', () => {
 
     Engine.instance.injectedSystems = [
       {
-        systemModulePromise: MockSystemModulePromise(),
+        uuid: 'Mock',
+        systemModulePromise: () => MockSystemModulePromise(),
         type: SystemUpdateType.FIXED
       }
     ]

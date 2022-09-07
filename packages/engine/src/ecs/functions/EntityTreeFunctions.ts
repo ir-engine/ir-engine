@@ -7,6 +7,7 @@ import { isMobile } from '../../common/functions/isMobile'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
+import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
@@ -92,6 +93,7 @@ export function addEntityNodeInTree(
   const parent = tree.entityNodeMap.get(parentNode.entity)
 
   if (!parent) {
+    addComponent(tree.rootNode.entity, SceneTagComponent, true)
     addEntityNodeChild(tree.rootNode, parentNode)
   }
 

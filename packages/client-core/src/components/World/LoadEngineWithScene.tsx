@@ -1,5 +1,5 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import { useParams } from 'react-router-dom'
 
@@ -36,51 +36,16 @@ import { initClient, loadScene } from './LocationLoadHelper'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
-export const LoadEngineWithScene = () => {
-  const history = useHistory()
+export const useLocationSpawnAvatar = () => {
   const engineState = useEngineState()
-  const sceneState = useSceneState()
-  const loadingState = useLoadingState()
-  const locationState = useLocationState()
   const authState = useAuthState()
-  const [clientReady, setClientReady] = useState(false)
-
-  /**
-   * initialise the client
-   */
-  useHookEffect(() => {
-    initClient().then(() => {
-      setClientReady(true)
-    })
-
-    addActionReceptor(SceneServiceReceptor)
-    addActionReceptor(LocationInstanceConnectionServiceReceptor)
-
-    return () => {
-      removeActionReceptor(SceneServiceReceptor)
-      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
-    }
-  }, [])
-
-  /**
-   * load the scene whenever it changes
-   */
-  useHookEffect(() => {
-    const sceneData = sceneState.currentScene.value
-    if (clientReady && sceneData) {
-      AvatarService.fetchAvatarList()
-      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
-      loadScene(sceneData).then(() => {
-        if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
-      })
-    }
-  }, [clientReady, sceneState.currentScene])
-
   const didSpawn = useHookstate(false)
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
+
+  useEffect(() => {
+    AvatarService.fetchAvatarList()
+  }, [])
 
   useHookEffect(async () => {
     if (
@@ -112,16 +77,13 @@ export const LoadEngineWithScene = () => {
       name: user.name
     })
   }, [engineState.sceneLoaded, authState.user, authState.avatarList, spectateParam])
+}
 
-  useHookEffect(() => {
-    if (engineState.sceneLoaded.value) {
-      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
-      if (engineState.isTeleporting.value) {
-        revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
-      }
-    }
-  }, [engineState.sceneLoaded])
+export const usePortalTeleport = () => {
+  const history = useHistory()
+  const engineState = useEngineState()
+  const locationState = useLocationState()
+  const authState = useAuthState()
 
   useHookEffect(() => {
     if (engineState.isTeleporting.value) {
@@ -165,6 +127,59 @@ export const LoadEngineWithScene = () => {
       }
     }
   }, [engineState.isTeleporting])
+}
+
+export const LoadEngineWithScene = () => {
+  const engineState = useEngineState()
+  const sceneState = useSceneState()
+  const loadingState = useLoadingState()
+  const [clientReady, setClientReady] = useState(false)
+
+  useLocationSpawnAvatar()
+  usePortalTeleport()
+
+  /**
+   * initialise the client
+   */
+  useHookEffect(() => {
+    console.log('hmm')
+    initClient().then(() => {
+      setClientReady(true)
+    })
+
+    addActionReceptor(SceneServiceReceptor)
+    addActionReceptor(LocationInstanceConnectionServiceReceptor)
+
+    return () => {
+      removeActionReceptor(SceneServiceReceptor)
+      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
+    }
+  }, [])
+
+  /**
+   * load the scene whenever it changes
+   */
+  useHookEffect(() => {
+    const sceneData = sceneState.currentScene.value
+    if (clientReady && sceneData) {
+      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
+      loadScene(sceneData).then(() => {
+        if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
+      })
+    }
+  }, [clientReady, sceneState.currentScene])
+
+  useHookEffect(() => {
+    if (engineState.sceneLoaded.value) {
+      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+      if (engineState.isTeleporting.value) {
+        revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
+      }
+    }
+  }, [engineState.sceneLoaded])
 
   return <></>
 }

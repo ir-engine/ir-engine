@@ -2,7 +2,6 @@
 import multiLogger from '@xrengine/common/src/logger'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { World } from '../classes/World'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 
@@ -20,13 +19,16 @@ export type SystemSyncFunctionType<A> = {
 }
 
 export type SystemModuleType<A> = {
-  systemModulePromise: SystemModulePromise<A>
+  systemModulePromise: () => SystemModulePromise<A>
+  /** any string to uniquely identity this module - can be a uuidv4 or a string name */
+  uuid: string
   type: SystemUpdateType
   sceneSystem?: boolean
   args?: A
 }
 
 export type SystemFactoryType<A> = {
+  uuid: string
   systemModule: SystemModule<A>
   type: SystemUpdateType
   sceneSystem?: boolean
@@ -35,6 +37,7 @@ export type SystemFactoryType<A> = {
 
 export type SystemInstanceType = {
   name: string
+  uuid: string
   type: SystemUpdateType
   sceneSystem: boolean
   enabled: boolean
@@ -51,6 +54,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
       let lastWarningTime = 0
       const warningCooldownDuration = 1000 * 10 // 10 seconds
       return {
+        uuid: s.uuid,
         name,
         type: s.type,
         sceneSystem: s.sceneSystem,
@@ -78,10 +82,11 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
   const systemModule = await Promise.all(
     systemModulesToLoad.map(async (s) => {
       return {
+        uuid: s.uuid,
         args: s.args,
         type: s.type,
         sceneSystem: s.sceneSystem,
-        systemModule: await s.systemModulePromise
+        systemModule: await s.systemModulePromise()
       }
     })
   )

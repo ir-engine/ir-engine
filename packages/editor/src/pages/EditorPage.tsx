@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
 import { API } from '@xrengine/client-core/src/API'
-import { ProjectAction, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
@@ -14,7 +14,6 @@ import {
 } from '@xrengine/engine/src/initializeEngine'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
-import ProjectService from '@xrengine/server-core/src/projects/project/project.service'
 
 import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
@@ -22,47 +21,56 @@ import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 
 const systems = [
   {
-    systemModulePromise: import('../systems/RenderSystem'),
+    uuid: 'core.editor.RenderSystem',
+    systemModulePromise: () => import('../systems/RenderSystem'),
     type: SystemUpdateType.POST_RENDER,
     args: { enabled: true }
   },
   {
-    systemModulePromise: import('../systems/InputSystem'),
+    uuid: 'core.editor.InputSystem',
+    systemModulePromise: () => import('../systems/InputSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
-    systemModulePromise: import('../systems/FlyControlSystem'),
+    uuid: 'core.editor.FlyControlSystem',
+    systemModulePromise: () => import('../systems/FlyControlSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
-    systemModulePromise: import('../systems/EditorControlSystem'),
+    uuid: 'core.editor.EditorControlSystem',
+    systemModulePromise: () => import('../systems/EditorControlSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
-    systemModulePromise: import('../systems/EditorLocalTransformUpdateSystem'),
+    uuid: 'core.editor.EditorLocalTransformUpdateSystem',
+    systemModulePromise: () => import('../systems/EditorLocalTransformUpdateSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
-    systemModulePromise: import('../systems/EditorCameraSystem'),
+    uuid: 'core.editor.EditorCameraSystem',
+    systemModulePromise: () => import('../systems/EditorCameraSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
-    systemModulePromise: import('../systems/ResetInputSystem'),
+    uuid: 'core.editor.ResetInputSystem',
+    systemModulePromise: () => import('../systems/ResetInputSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
-    systemModulePromise: import('../systems/GizmoSystem'),
+    uuid: 'core.editor.GizmoSystem',
+    systemModulePromise: () => import('../systems/GizmoSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
-    systemModulePromise: import('@xrengine/client-core/src/systems/PortalLoadSystem'),
+    uuid: 'core.editor.PortalLoadSystem',
+    systemModulePromise: () => import('@xrengine/client-core/src/systems/PortalLoadSystem'),
     type: SystemUpdateType.FIXED,
     args: { enabled: true }
   }

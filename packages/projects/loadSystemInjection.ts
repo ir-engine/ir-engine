@@ -8,12 +8,12 @@ export const getSystemsFromSceneData = (
   isClient: boolean
 ): SystemModuleType<any>[] => {
   const systems: SystemModuleType<any>[] = []
-  for (const entity of Object.values(sceneData.entities)) {
+  for (const [uuid, entity] of Object.entries(sceneData.entities)) {
     for (const component of entity.components) {
       if (component.name === 'system') {
         const data: SystemComponentType = component.props
         if ((isClient && data.enableClient) || (!isClient && data.enableServer)) {
-          systems.push(importSystem(project, data))
+          systems.push({ ...importSystem(project, data), uuid })
         }
       }
     }
@@ -21,7 +21,7 @@ export const getSystemsFromSceneData = (
   return systems
 }
 
-export const importSystem = (project: string, data: SystemComponentType): SystemModuleType<any> => {
+export const importSystem = (project: string, data: SystemComponentType): Omit<SystemModuleType<any>, 'uuid'> => {
   console.info(`Loading system ${data.filePath} from project ${project}. Data`, data)
   const { filePath, systemUpdateType, args } = data
   const filePathRelative = new URL(filePath).pathname.replace(`/projects/${project}/`, '')
@@ -64,7 +64,7 @@ export const importSystem = (project: string, data: SystemComponentType): System
             'Custom systems cannot be located more than five directories down from the root of the project'
           )
         return {
-          systemModulePromise: systemModulePromise,
+          systemModulePromise: () => systemModulePromise,
           type: systemUpdateType,
           sceneSystem: true,
           args
@@ -95,7 +95,7 @@ export const importSystem = (project: string, data: SystemComponentType): System
             'Custom systems cannot be located more than five directories down from the root of the project'
           )
         return {
-          systemModulePromise: systemModulePromise,
+          systemModulePromise: () => systemModulePromise,
           type: systemUpdateType,
           sceneSystem: true,
           args
@@ -126,7 +126,7 @@ export const importSystem = (project: string, data: SystemComponentType): System
             'Custom systems cannot be located more than five directories down from the root of the project'
           )
         return {
-          systemModulePromise: systemModulePromise,
+          systemModulePromise: () => systemModulePromise,
           type: systemUpdateType,
           sceneSystem: true,
           args
@@ -157,7 +157,7 @@ export const importSystem = (project: string, data: SystemComponentType): System
             'Custom systems cannot be located more than five directories down from the root of the project'
           )
         return {
-          systemModulePromise: systemModulePromise,
+          systemModulePromise: () => systemModulePromise,
           type: systemUpdateType,
           sceneSystem: true,
           args

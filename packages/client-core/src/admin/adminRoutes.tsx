@@ -26,8 +26,9 @@ const projects = React.lazy(() => import('./components/Project'))
 const setting = React.lazy(() => import('./components/Setting'))
 
 const AdminSystemInjection = {
+  uuid: 'core.admin.AdminSystem',
   type: 'PRE_RENDER',
-  systemModulePromise: import('../systems/AdminSystem')
+  systemModulePromise: () => import('../systems/AdminSystem')
 } as const
 
 const ProtectedRoutes = () => {
