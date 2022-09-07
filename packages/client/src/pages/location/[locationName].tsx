@@ -13,7 +13,6 @@ import { LocationAction, useLocationState } from '@xrengine/client-core/src/soci
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
 import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useHookEffect } from '@xrengine/hyperflux'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -35,7 +34,6 @@ const LocationPage = () => {
 
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName }))
-    Engine.instance.injectedSystems.push(...DefaultLocationSystems)
   }, [])
 
   /**
@@ -51,7 +49,7 @@ const LocationPage = () => {
   return (
     <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
       {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
-      <LoadEngineWithScene />
+      <LoadEngineWithScene injectedSystems={DefaultLocationSystems} />
       {offline ? <OfflineLocation /> : <NetworkInstanceProvisioning />}
       <LoadLocationScene />
     </Layout>

@@ -29,14 +29,14 @@ describe('FixedPipelineSystem', () => {
     setupEngineActionSystems()
     const world = Engine.instance.currentWorld
 
-    Engine.instance.injectedSystems = [
+    const injectedSystems = [
       {
         uuid: 'Mock',
         systemModulePromise: () => MockSystemModulePromise(),
         type: SystemUpdateType.FIXED
       }
     ]
-    await initSystems(world, Engine.instance.injectedSystems)
+    await initSystems(world, injectedSystems)
 
     const mockState = getState(MockState)
 
@@ -59,14 +59,14 @@ describe('FixedPipelineSystem', () => {
     setupEngineActionSystems()
     const world = Engine.instance.currentWorld
 
-    Engine.instance.injectedSystems = [
+    const injectedSystems = [
       {
         uuid: 'Mock',
         systemModulePromise: () => MockSystemModulePromise(),
         type: SystemUpdateType.FIXED
       }
     ]
-    await initSystems(world, Engine.instance.injectedSystems)
+    await initSystems(world, injectedSystems)
 
     const mockState = getState(MockState)
 

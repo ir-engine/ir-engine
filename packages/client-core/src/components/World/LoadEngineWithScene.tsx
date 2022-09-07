@@ -21,6 +21,7 @@ import { teleportAvatar } from '@xrengine/engine/src/avatar/functions/moveAvatar
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   PortalEffects,
@@ -35,6 +36,26 @@ import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNe
 import { initClient, loadScene } from './LocationLoadHelper'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
+
+type LoadEngineProps = {
+  setClientReady: (ready: boolean) => void
+}
+
+export const useLoadEngine = ({ setClientReady }: LoadEngineProps) => {
+  useHookEffect(() => {
+    initClient().then(() => {
+      setClientReady(true)
+    })
+
+    addActionReceptor(SceneServiceReceptor)
+    addActionReceptor(LocationInstanceConnectionServiceReceptor)
+
+    return () => {
+      removeActionReceptor(SceneServiceReceptor)
+      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
+    }
+  }, [])
+}
 
 export const useLocationSpawnAvatar = () => {
   const engineState = useEngineState()
@@ -129,7 +150,11 @@ export const usePortalTeleport = () => {
   }, [engineState.isTeleporting])
 }
 
-export const LoadEngineWithScene = () => {
+type Props = {
+  injectedSystems?: SystemModuleType<any>[]
+}
+
+export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
   const engineState = useEngineState()
   const sceneState = useSceneState()
   const loadingState = useLoadingState()
@@ -142,8 +167,7 @@ export const LoadEngineWithScene = () => {
    * initialise the client
    */
   useHookEffect(() => {
-    console.log('hmm')
-    initClient().then(() => {
+    initClient(injectedSystems).then(() => {
       setClientReady(true)
     })
 
@@ -166,20 +190,11 @@ export const LoadEngineWithScene = () => {
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
       loadScene(sceneData).then(() => {
         if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
+          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+        if (engineState.isTeleporting.value) revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
       })
     }
   }, [clientReady, sceneState.currentScene])
-
-  useHookEffect(() => {
-    if (engineState.sceneLoaded.value) {
-      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
-      if (engineState.isTeleporting.value) {
-        revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
-      }
-    }
-  }, [engineState.sceneLoaded])
 
   return <></>
 }

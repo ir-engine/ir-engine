@@ -5,6 +5,7 @@ import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
   initializeCoreSystems,
   initializeRealtimeSystems,
@@ -31,13 +32,13 @@ export const retrieveLocationByName = (locationName: string, userId: string) => 
   }
 }
 
-export const initClient = async () => {
+export const initClient = async (injectedSystems?: SystemModuleType<any>[]) => {
   if (getState(EngineState).isEngineInitialized.value) return
 
   const world = Engine.instance.currentWorld
   const projects = API.instance.client.service('projects').find()
 
-  await initializeCoreSystems()
+  await initializeCoreSystems(injectedSystems)
   await initializeRealtimeSystems()
   await initializeSceneSystems()
   await loadEngineInjection(world, await projects)

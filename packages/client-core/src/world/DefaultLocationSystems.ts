@@ -2,33 +2,33 @@ import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunct
 
 export const DefaultLocationSystems: SystemModuleType<any>[] = [
   {
-    uuid: 'core.client-core.LoadingUISystem',
+    uuid: 'xre.client-core.LoadingUISystem',
     type: 'PRE_RENDER',
     systemModulePromise: () => import('../systems/LoadingUISystem')
   },
   {
-    uuid: 'core.client-core.AvatarUISystem',
+    uuid: 'xre.client-core.AvatarUISystem',
     type: 'PRE_RENDER',
     systemModulePromise: () => import('../systems/AvatarUISystem')
   },
   // TODO: optimize this system; it crashes mobile/iOS
   // {
-  //   uuid: 'core.client-core.WidgetUISystem',
+  //   uuid: 'xre.client-core.WidgetUISystem',
   //   type: 'PRE_RENDER',
   //   systemModulePromise: () => import('../systems/WidgetUISystem')
   // },
   {
-    uuid: 'core.client-core.PartySystem',
+    uuid: 'xre.client-core.PartySystem',
     type: 'PRE_RENDER',
     systemModulePromise: () => import('../systems/state/PartySystem')
   },
   {
-    uuid: 'core.client-core.PortalLoadSystem',
+    uuid: 'xre.client-core.PortalLoadSystem',
     type: 'FIXED',
     systemModulePromise: () => import('../systems/PortalLoadSystem')
   },
   {
-    uuid: 'core.client-core.UpdateNearbyUsersSystem',
+    uuid: 'xre.client-core.UpdateNearbyUsersSystem',
     type: 'FIXED',
     systemModulePromise: () => import('../transports/UpdateNearbyUsersSystem')
   }

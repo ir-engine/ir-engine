@@ -136,26 +136,25 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
 
   const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
+  console.log(sceneSystems, Object.values(world.pipelines).flat())
   const systemsToLoad = sceneSystems.filter(
-    (system) =>
-      !Object.values(world.pipelines).find((p) => p.find((s) => s.uuid === system.uuid && s.type === system.type))
+    (systemToLoad) =>
+      !Object.values(world.pipelines)
+        .flat()
+        .find((s) => s.uuid === systemToLoad.uuid)
   )
-  const systemsToUnload = sceneSystems
-    .filter((system) =>
-      Object.values(world.pipelines).find((p) => p.find((s) => s.uuid === system.uuid && s.type === system.type))
-    )
-    .map((s) => s.uuid)
+  const systemsToUnload = Object.values(world.pipelines).map((p) =>
+    p.filter((loaded) => !sceneSystems.find((s) => s.sceneSystem && s.uuid === loaded.uuid))
+  )
 
   /** unload old systems */
-  for (const [type, pipeline] of Object.entries(world.pipelines)) {
+  for (const pipeline of systemsToUnload) {
     for (const system of pipeline) {
-      if (systemsToUnload.includes(system.uuid)) {
-        const i = pipeline.indexOf(system)
-        pipeline.splice(i, 1)
-      }
+      /** @todo run cleanup hook for this system */
+      const i = pipeline.indexOf(system)
+      pipeline.splice(i, 1)
     }
   }
-  /** load new systems */
   await initSystems(world, systemsToLoad)
 
   const { entityLoadQueue, entityDynamicQueue } = splitLazyLoadedSceneEntities(sceneData.scene)
@@ -189,16 +188,16 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   )
 
   // debug
-  // console.log({
-  //   data: sceneData.scene.entities,
-  //   systemsToLoad,
-  //   systemsToUnload,
-  //   changedEntityNodes,
-  //   newNonDynamicEntityNodes,
-  //   newUnloadedDynamicEntityNodes,
-  //   oldLoadedEntityNodesToRemove,
-  //   oldUnloadedEntityNodesToRemove
-  // })
+  console.log({
+    data: sceneData.scene.entities,
+    systemsToLoad,
+    systemsToUnload,
+    changedEntityNodes,
+    newNonDynamicEntityNodes,
+    newUnloadedDynamicEntityNodes,
+    oldLoadedEntityNodesToRemove,
+    oldUnloadedEntityNodesToRemove
+  })
 
   for (const [uuid, entityJson] of newNonDynamicEntityNodes) {
     createSceneEntity(uuid, entityJson, world)
