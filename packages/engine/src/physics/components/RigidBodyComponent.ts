@@ -1,4 +1,5 @@
 import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
+import { Types } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
@@ -11,7 +12,20 @@ interface RigidBodyComponentType {
   previousAngularVelocity: Vector3
 }
 
-export const RigidBodyComponent = createMappedComponent<RigidBodyComponentType>('RigidBodyComponent')
+const { f32 } = Types
+const Vector3Schema = { x: f32, y: f32, z: f32 }
+const QuaternionSchema = { x: f32, y: f32, z: f32, w: f32 }
+const SCHEMA = {
+  previousPosition: Vector3Schema,
+  previousRotation: QuaternionSchema,
+  previousLinearVelocity: Vector3Schema,
+  previousAngularVelocity: Vector3Schema
+}
+
+export const RigidBodyComponent = createMappedComponent<RigidBodyComponentType, typeof SCHEMA>(
+  'RigidBodyComponent',
+  SCHEMA
+)
 export const RigidBodyDynamicTagComponent = createMappedComponent<true>('RigidBodyDynamicTagComponent')
 export const RigidBodyFixedTagComponent = createMappedComponent<true>('RigidBodyFixedTagComponent')
 export const RigidBodyKinematicPositionBasedTagComponent = createMappedComponent<true>(

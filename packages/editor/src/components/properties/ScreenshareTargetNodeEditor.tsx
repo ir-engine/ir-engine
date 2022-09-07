@@ -31,6 +31,7 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
+      component={ScreenshareTargetComponent}
       name={t('editor:properties.screenshare.name')}
       description={t('editor:properties.screenshare.description')}
     >

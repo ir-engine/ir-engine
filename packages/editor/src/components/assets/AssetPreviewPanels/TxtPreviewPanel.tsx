@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-const TxtPreview = styled.div`
+const TxtPreview = (styled as any).div`
   margin-left: auto;
   margin-right: auto;
   color: #fff;

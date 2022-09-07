@@ -135,7 +135,7 @@ export default async function MountPointSystem(world: World) {
           origin: newPos,
           direction: new Vector3(0, -1, 0),
           maxDistance: 2,
-          flags: interactionGroups
+          groups: interactionGroups
         }
         const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 

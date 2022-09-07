@@ -26,7 +26,6 @@ export const PanelDragContainer = (styled as any).div`
   padding: 0px;
 
   &.dock-tab-active {
-
     ${PanelTitle} {
       color: white !important;
     }

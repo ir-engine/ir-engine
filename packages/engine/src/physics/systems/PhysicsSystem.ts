@@ -50,7 +50,7 @@ export function teleportObjectReceptor(
   }
 }
 
-const processCollisions = (world: World, drainCollisions, collisionEntities: Entity[]) => {
+const processCollisions = (world: World, drainCollisions, drainContacts, collisionEntities: Entity[]) => {
   const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
 
   for (const collisionEntity of collisionEntities) {
@@ -63,6 +63,7 @@ const processCollisions = (world: World, drainCollisions, collisionEntities: Ent
   }
 
   world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
+  world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
 
   for (const { entity, collisionEntity, hit } of existingColliderHits) {
     const collisionComponent = getComponent(collisionEntity, CollisionComponent)
@@ -115,6 +116,7 @@ export default async function PhysicsSystem(world: World) {
   world.physicsWorld = Physics.createWorld()
   world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
   const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
+  const drainContacts = Physics.drainContactEventQueue(world.physicsWorld)
 
   const collisionQuery = defineQuery([CollisionComponent])
 
@@ -137,6 +139,7 @@ export default async function PhysicsSystem(world: World) {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of rigidBodyQuery.exit()) {
+      Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
       Physics.removeRigidBody(entity, world.physicsWorld, true)
     }
 
@@ -168,6 +171,6 @@ export default async function PhysicsSystem(world: World) {
     world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
     world.physicsWorld.step(world.physicsCollisionEventQueue)
 
-    processCollisions(world, drainCollisions, collisionQuery())
+    processCollisions(world, drainCollisions, drainContacts, collisionQuery())
   }
 }

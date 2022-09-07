@@ -10,13 +10,13 @@ import CompoundNumericInput from './CompoundNumericInput'
 import InputGroup from './InputGroup'
 
 const PropertyContainer = (styled as any).div`
-display: flex;
-width: 100%;
-border-width: 2px;
-border: solid;
-border-color: #FFFFFF;
-margin: 8px;
-padding: 4px;
+  display: flex;
+  width: 100%;
+  border-width: 2px;
+  border: solid;
+  border-color: #ffffff;
+  margin: 8px;
+  padding: 4px;
 `
 
 export default function RandomizedPropertyInputGroup({ name, label, value, onChange, ...rest }) {
