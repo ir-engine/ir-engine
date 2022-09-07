@@ -2,7 +2,7 @@ export interface StaticResourceInterface {
   id: string
   sid: string
   url: string
-  key: String
+  key: string
   metadata: object
   mimeType: string
   staticResourceType: string

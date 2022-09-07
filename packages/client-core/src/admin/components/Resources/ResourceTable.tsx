@@ -59,9 +59,9 @@ const ResourceTable = ({ className, search }: Props) => {
     return {
       el,
       id: el.id,
-      key: el.key as string,
-      mimeType: el.mimeType as string,
-      staticResourceType: el.staticResourceType as string,
+      key: el.key,
+      mimeType: el.mimeType,
+      staticResourceType: el.staticResourceType,
       action: (
         <>
           <a
@@ -79,7 +79,7 @@ const ResourceTable = ({ className, search }: Props) => {
             className={styles.actionStyle}
             onClick={() => {
               setResourceId(el.id)
-              setResourceKey(el.key as string)
+              setResourceKey(el.key)
               setOpenConfirm(true)
             }}
           >
