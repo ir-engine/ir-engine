@@ -45,9 +45,9 @@ const onChangeText = (text: string, index: number, values: string[], onChange?: 
   onChange?.(valuesCopy)
 }
 
-const GroupContainer = (styled as any).label`
+const GroupContainer = styled.label`
   background-color: $transparent;
-  color: #9FA4B5;
+  color: #9fa4b5;
   white-space: pre-wrap;
   padding: 0 8px 8px;
 `

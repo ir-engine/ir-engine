@@ -33,7 +33,7 @@ const IssuesTooltipContainer = (styled as any).div`
   li {
     margin-bottom: 4px;
     margin-left: 4px;
-    font-family: "Lucida Console", Monaco, monospace;
+    font-family: 'Lucida Console', Monaco, monospace;
     font-size: 12px;
   }
 `

@@ -8,7 +8,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { accessLocationState } from '../../social/services/LocationService'
 
-const SceneState = defineState({
+export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
     currentScene: null as SceneData | null
@@ -48,7 +48,7 @@ export const SceneService = {
         const sceneData = await API.instance.client
           .service('scene')
           .get({ projectName, sceneName, metadataOnly: null }, {})
-        updateSceneFromJSON(sceneData.data.scene)
+        updateSceneFromJSON(sceneData.data)
         // ;(getState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
       }
       // for testing

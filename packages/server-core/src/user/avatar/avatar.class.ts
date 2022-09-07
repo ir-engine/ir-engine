@@ -40,8 +40,8 @@ export class Avatar extends Service<AvatarInterface> {
         params.query.name = {
           [Op.like]: `%${params.query.search}%`
         }
-      delete params.query.search
     }
+    if (params?.query) delete params.query.search
     const avatars = (await super.find(params)) as Paginated<AvatarInterface>
     await Promise.all(
       avatars.data.map(async (avatar) => {

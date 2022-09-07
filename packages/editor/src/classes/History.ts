@@ -3,6 +3,7 @@
  * Developed as part of a project at University of Applied Sciences and Arts Northwestern Switzerland (www.fhnw.ch)
  */
 import multiLogger from '@xrengine/common/src/logger'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -14,6 +15,7 @@ import EditorCommands, {
   CommandParamsOmitAffectedNodes,
   CommandParamsType
 } from '../constants/EditorCommands'
+import { accessEditorState } from '../services/EditorServices'
 import { accessSelectionState } from '../services/SelectionServices'
 
 const logger = multiLogger.child({ component: 'editor:History' })
@@ -142,9 +144,12 @@ export function setPropertyOnSelectionEntities<C extends Component<any, any>>(
   command: Omit<ModifyPropertyCommandParams<C>, 'type' | 'affectedNodes'>,
   withHistory = true
 ) {
-  ;(command as ModifyPropertyCommandParams<C>).affectedNodes = getEntityNodeArrayFromEntities(
-    accessSelectionState().selectedEntities.value
-  )
+  const editorState = accessEditorState()
+  const selectionState = accessSelectionState()
+
+  ;(command as ModifyPropertyCommandParams<C>).affectedNodes = editorState.lockPropertiesPanel.value
+    ? [Engine.instance.currentWorld.entityTree.uuidNodeMap.get(editorState.lockPropertiesPanel.value)!]
+    : getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
   executeModifyPropertyCommand(command as ModifyPropertyCommandParams<C>, withHistory)
 }
 

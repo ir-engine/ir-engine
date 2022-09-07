@@ -297,7 +297,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                   </Well>
                 )
               }}
-              onChange={(nuVal) => {}}
             />
           )}
         </CollapsibleBlock>

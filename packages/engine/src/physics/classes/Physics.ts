@@ -267,7 +267,7 @@ function createRigidBodyForObject(
   if (!Engine.instance.isEditor)
     for (const mesh of meshes) {
       mesh.removeFromParent()
-      cleanupAllMeshData(mesh, {})
+      cleanupAllMeshData(mesh, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
     }
 
   return body

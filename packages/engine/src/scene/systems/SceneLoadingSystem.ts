@@ -1,8 +1,9 @@
 import { cloneDeep } from 'lodash'
 import { MathUtils, Vector3 } from 'three'
 
-import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -25,7 +26,8 @@ import {
   removeEntityNodeFromParent,
   traverseEntityNode
 } from '../../ecs/functions/EntityTreeFunctions'
-import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
+import { initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SCENE_COMPONENT_TRANSFORM } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -36,6 +38,7 @@ import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
+import { SceneDynamicLoadAction } from './SceneObjectDynamicLoadSystem'
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
   const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
@@ -131,10 +134,32 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
  * @param oldSceneData
  * @param sceneData
  */
-export const updateSceneFromJSON = (sceneData: SceneJson) => {
+export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
 
-  const { entityLoadQueue, entityDynamicQueue } = splitLazyLoadedSceneEntities(sceneData)
+  const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
+  console.log(sceneSystems, Object.values(world.pipelines).flat())
+  const systemsToLoad = sceneSystems.filter(
+    (systemToLoad) =>
+      !Object.values(world.pipelines)
+        .flat()
+        .find((s) => s.uuid === systemToLoad.uuid)
+  )
+  const systemsToUnload = Object.values(world.pipelines).map((p) =>
+    p.filter((loaded) => !sceneSystems.find((s) => s.sceneSystem && s.uuid === loaded.uuid))
+  )
+
+  /** unload old systems */
+  for (const pipeline of systemsToUnload) {
+    for (const system of pipeline) {
+      /** @todo run cleanup hook for this system */
+      const i = pipeline.indexOf(system)
+      pipeline.splice(i, 1)
+    }
+  }
+  await initSystems(world, systemsToLoad)
+
+  const { entityLoadQueue, entityDynamicQueue } = splitLazyLoadedSceneEntities(sceneData.scene)
 
   /** load new non dynamic scene entities */
   const newNonDynamicEntityNodes = Object.entries(entityLoadQueue).filter(
@@ -157,28 +182,30 @@ export const updateSceneFromJSON = (sceneData: SceneJson) => {
 
   /** remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
   const oldLoadedEntityNodesToRemove = Array.from(world.entityTree.uuidNodeMap).filter(
-    ([uuid, node]) => !sceneData.entities[uuid] && !getComponent(node.entity, GLTFLoadedComponent)?.includes('entity')
+    ([uuid, node]) =>
+      !sceneData.scene.entities[uuid] && !getComponent(node.entity, GLTFLoadedComponent)?.includes('entity')
   )
   const oldUnloadedEntityNodesToRemove = Array.from(world.sceneDynamicallyUnloadedEntities).filter(
-    ([uuid]) => !sceneData.entities[uuid]
+    ([uuid]) => !sceneData.scene.entities[uuid]
   )
 
   // debug
   // console.log({
-  //   data: sceneData.entities,
+  //   data: sceneData.scene.entities,
+  //   systemsToLoad,
+  //   systemsToUnload,
   //   changedEntityNodes,
   //   newNonDynamicEntityNodes,
   //   newUnloadedDynamicEntityNodes,
   //   oldLoadedEntityNodesToRemove,
   //   oldUnloadedEntityNodesToRemove
   // })
-
-  for (const [uuid, entityJson] of newNonDynamicEntityNodes) {
-    createSceneEntity(uuid, entityJson, world)
-  }
-
   for (const [uuid, entityJson] of newUnloadedDynamicEntityNodes) {
     addDynamicallyLoadedEntity(uuid, entityJson, world)
+  }
+
+  for (const [uuid, entityJson] of newNonDynamicEntityNodes) {
+    createSceneEntity(uuid, entityJson, world, sceneData.scene)
   }
 
   /** remove entites that are no longer part of the scene */
@@ -206,15 +233,13 @@ export const updateSceneFromJSON = (sceneData: SceneJson) => {
 }
 
 /**
- * Loads a scene from scene json
+ * Loads a scene from scene json, unloading the current scene if there is one already loaded
  * @param sceneData
  * @param sceneSystems an array of system modules to load
  * @param softReload a boolean to indicate if the unloading should only unload scene entities, rather than network objects
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
   const world = Engine.instance.currentWorld
-
-  EngineActions.sceneLoadingProgress({ progress: 0 })
 
   unloadScene(world)
 
@@ -228,15 +253,12 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   if (Engine.instance.isEditor) {
     for (const [key, val] of Object.entries(sceneData.entities)) createSceneEntity(key, val, world)
   } else {
-    for (const [key, val] of Object.entries(entityLoadQueue)) createSceneEntity(key, val, world)
     for (const [key, val] of Object.entries(entityDynamicQueue)) addDynamicallyLoadedEntity(key, val, world)
+    for (const [key, val] of Object.entries(entityLoadQueue)) createSceneEntity(key, val, world, sceneData)
   }
 
-  const tree = world.entityTree
-  addComponent(tree.rootNode.entity, SceneTagComponent, true)
-
   if (!sceneAssetPendingTagQuery().length) {
-    onAllSceneAssetsSettled(world)
+    dispatchAction(EngineActions.sceneLoaded({}))
   }
 }
 
@@ -261,11 +283,38 @@ export const addDynamicallyLoadedEntity = (
 /**
  * Creates a scene entity and loads the data for it
  */
-export const createSceneEntity = (uuid: string, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
-  const node = createEntityNode(createEntity(), uuid)
-  addEntityNodeInTree(node, entityJson.parent ? world.entityTree.uuidNodeMap.get(entityJson.parent) : undefined)
-  loadSceneEntity(node, entityJson)
-  return node.entity
+export const createSceneEntity = (
+  uuid: string,
+  entityJson: EntityJson,
+  world = Engine.instance.currentWorld,
+  sceneJson?: SceneJson
+) => {
+  function creation() {
+    const node = createEntityNode(createEntity(), uuid)
+    addEntityNodeInTree(node, entityJson.parent ? world.entityTree.uuidNodeMap.get(entityJson.parent) : undefined)
+    loadSceneEntity(node, entityJson)
+    return node.entity
+  }
+  if (sceneJson === undefined || entityJson.parent === undefined) return creation()
+  else {
+    let hasDynamicAncestor = false
+    let walker = entityJson.parent as string | undefined
+    while (walker) {
+      if (world.sceneDynamicallyUnloadedEntities.has(walker)) {
+        hasDynamicAncestor = true
+        break
+      }
+      walker = sceneJson.entities[walker].parent
+    }
+    if (hasDynamicAncestor) {
+      matchActionOnce(
+        SceneDynamicLoadAction.load.matches.validate((action) => action.uuid === walker, ''),
+        () => {
+          creation()
+        }
+      )
+    } else return creation()
+  }
 }
 
 /**
@@ -318,12 +367,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson, world = 
   }
 }
 
-export const onAllSceneAssetsSettled = (world: World) => {
-  world.camera?.layers.enable(ObjectLayers.Scene)
-  dispatchAction(EngineActions.sceneLoaded({}))
-  // DependencyTree.activate()
-}
-
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 export default async function SceneLoadingSystem(world: World) {
   let totalPendingAssets = 0
@@ -349,7 +392,7 @@ export default async function SceneLoadingSystem(world: World) {
       onComplete(pendingAssets)
       if (pendingAssets === 0) {
         totalPendingAssets = 0
-        onAllSceneAssetsSettled(world)
+        dispatchAction(EngineActions.sceneLoaded({}))
       }
     }
   }

@@ -43,7 +43,9 @@ const NumericInputContainer = (styled as any).div`
     border-color: var(--blueHover);
   }
 
-  &:focus, &:focus-visible, &:focus-within {
+  &:focus,
+  &:focus-visible,
+  &:focus-within {
     border-color: var(--blue);
   }
 

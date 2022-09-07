@@ -57,7 +57,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const activeChannel = Object.values(channels).find((channel) => channel.channelType.value === 'instance')
 
   useEffect(() => {
-    if (activeChannel?.messages && activeChannel?.messages.length > 0 && !chatWindowOpen) setUnreadMessages(true)
+    if (activeChannel?.messages?.length && !chatWindowOpen) setUnreadMessages(true)
   }, [activeChannel?.messages])
 
   /**

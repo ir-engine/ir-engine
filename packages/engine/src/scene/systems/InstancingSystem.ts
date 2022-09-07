@@ -1,6 +1,8 @@
+import { createActionQueue } from '@xrengine/hyperflux'
+
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -18,7 +20,8 @@ import {
   SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES,
   serializeInstancing,
   stageInstancing,
-  unstageInstancing
+  unstageInstancing,
+  updateInstancing
 } from '../functions/loaders/InstancingFunctions'
 import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
@@ -35,10 +38,20 @@ export default async function ScatterSystem(world: World) {
     { name: SCENE_COMPONENT_INSTANCING, props: SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES }
   ])
 
+  const instancingQuery = defineQuery([InstancingComponent])
   const stagingQuery = defineQuery([InstancingComponent, InstancingStagingComponent])
   const unstagingQuery = defineQuery([InstancingComponent, InstancingUnstagingComponent])
   const engineState = getEngineState()
+
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+
   return () => {
+    instancingQuery.enter().map(updateInstancing)
+
+    modifyPropertyActionQueue().map((action) =>
+      action.entities.filter((entity) => hasComponent(entity, InstancingComponent)).map(updateInstancing)
+    )
+
     for (const entity of stagingQuery.enter()) {
       const executeStaging = () =>
         stageInstancing(entity).then(() => {

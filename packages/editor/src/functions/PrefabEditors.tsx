@@ -1,7 +1,6 @@
 import { PositionalAudioComponent } from '@xrengine/engine/src/audio/components/PositionalAudioComponent'
 import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
@@ -17,6 +16,7 @@ import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@xrengine/engine/src/scene/components/InstancingComponent'
 import { InteriorComponent } from '@xrengine/engine/src/scene/components/InteriorComponent'
+import { LoadVolumeComponent } from '@xrengine/engine/src/scene/components/LoadVolumeComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@xrengine/engine/src/scene/components/MountPointComponent'
@@ -47,7 +47,6 @@ import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
-import { DefaultNodeEditor } from '../components/properties/DefaultNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import FogNodeEditor from '../components/properties/FogNodeEditor'
@@ -57,6 +56,7 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
+import LoadVolumeNodeEditor from '../components/properties/LoadVolumeNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
@@ -78,62 +78,42 @@ import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 
-export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] => {
-  const components = getAllComponents(entity)
-  if (!components.length) return [DefaultNodeEditor]
-
-  const editors = [] as EditorComponentType[]
-
-  for (let i = 0; i < components.length; i++) {
-    if (EntityNodeEditor[components[i].name]) {
-      editors.push(EntityNodeEditor[components[i].name])
-    } else {
-      /** @todo */
-      // editors.push((props) => {
-      //   return <NodeEditor {...props} name={entityNode[i]}/>
-      // })
-    }
-  }
-
-  return editors.length ? editors : [DefaultNodeEditor]
-}
-
-export const EntityNodeEditor = {
-  [TransformComponent.name]: TransformPropertyGroup,
-  [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
-  [HemisphereLightComponent.name]: HemisphereLightNodeEditor,
-  [AmbientLightComponent.name]: AmbientLightNodeEditor,
-  [PointLightComponent.name]: PointLightNodeEditor,
-  [SpotLightComponent.name]: SpotLightNodeEditor,
-  [GroundPlaneComponent.name]: GroundPlaneNodeEditor,
-  [CameraPropertiesComponent.name]: CameraPropertiesNodeEditor,
-  [ModelComponent.name]: ModelNodeEditor,
-  [ParticleEmitterComponent.name]: ParticleEmitterNodeEditor,
-  [PortalComponent.name]: PortalNodeEditor,
-  [MountPointComponent.name]: MountPointNodeEditor,
-  [ColliderComponent.name]: ColliderNodeEditor,
-  [GroupComponent.name]: GroupNodeEditor,
-  [AssetComponent.name]: AssetNodeEditor,
-  [PostprocessingComponent.name]: PostProcessingNodeEditor,
-  [SceneTagComponent.name]: SceneNodeEditor,
-  [ScenePreviewCameraTagComponent.name]: ScenePreviewCameraNodeEditor,
-  [SkyboxComponent.name]: SkyboxNodeEditor,
-  [SpawnPointComponent.name]: SpawnPointNodeEditor,
-  [MediaComponent.name]: MediaNodeEditor,
-  [ImageComponent.name]: ImageNodeEditor,
-  [PositionalAudioComponent.name]: AudioNodeEditor,
-  [VideoComponent.name]: VideoNodeEditor,
-  [VolumetricComponent.name]: VolumetricNodeEditor,
-  [CloudComponent.name]: CloudsNodeEditor,
-  [OceanComponent.name]: OceanNodeEditor,
-  [WaterComponent.name]: WaterNodeEditor,
-  [InteriorComponent.name]: InteriorNodeEditor,
-  [SystemComponent.name]: SystemNodeEditor,
-  [SplineComponent.name]: SplineNodeEditor,
-  [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
-  [InstancingComponent.name]: InstancingNodeEditor,
-  [FogComponent.name]: FogNodeEditor
-} as { [key: string]: EditorComponentType }
+export const EntityNodeEditor = new Map<Component<any, any>, EditorComponentType>()
+EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
+EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
+EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
+EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)
+EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
+EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
+EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
+EntityNodeEditor.set(CameraPropertiesComponent, CameraPropertiesNodeEditor)
+EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
+EntityNodeEditor.set(ParticleEmitterComponent, ParticleEmitterNodeEditor)
+EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
+EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
+EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
+EntityNodeEditor.set(GroupComponent, GroupNodeEditor)
+EntityNodeEditor.set(AssetComponent, AssetNodeEditor)
+EntityNodeEditor.set(PostprocessingComponent, PostProcessingNodeEditor)
+EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
+EntityNodeEditor.set(ScenePreviewCameraTagComponent, ScenePreviewCameraNodeEditor)
+EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)
+EntityNodeEditor.set(SpawnPointComponent, SpawnPointNodeEditor)
+EntityNodeEditor.set(MediaComponent, MediaNodeEditor)
+EntityNodeEditor.set(ImageComponent, ImageNodeEditor)
+EntityNodeEditor.set(PositionalAudioComponent, AudioNodeEditor)
+EntityNodeEditor.set(VideoComponent, VideoNodeEditor)
+EntityNodeEditor.set(VolumetricComponent, VolumetricNodeEditor)
+EntityNodeEditor.set(CloudComponent, CloudsNodeEditor)
+EntityNodeEditor.set(OceanComponent, OceanNodeEditor)
+EntityNodeEditor.set(WaterComponent, WaterNodeEditor)
+EntityNodeEditor.set(InteriorComponent, InteriorNodeEditor)
+EntityNodeEditor.set(SystemComponent, SystemNodeEditor)
+EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
+EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
+EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
+EntityNodeEditor.set(LoadVolumeComponent, LoadVolumeNodeEditor)
+EntityNodeEditor.set(FogComponent, FogNodeEditor)
 
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
@@ -167,5 +147,6 @@ export const prefabIcons = {
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
   [ScenePrefabs.fog]: FogNodeEditor.iconComponent,
   [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
+  [ScenePrefabs.loadVolume]: LoadVolumeNodeEditor.iconComponent,
   [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
 }

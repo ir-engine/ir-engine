@@ -14,13 +14,13 @@ let uniqueId = 0
  *
  * @type {Styled component}
  */
-const StyledBooleanInput = (styled as any).input`
+const StyledBooleanInput = styled.input`
   display: none;
 
   :disabled ~ label {
     opacity: 0.8;
     filter: grayscale(0.8);
-    cursor: initial
+    cursor: initial;
   }
 `
 

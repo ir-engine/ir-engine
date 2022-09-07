@@ -12,7 +12,7 @@ import { initGA, logPageView } from '@xrengine/client-core/src/common/components
 import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { theme } from '@xrengine/client-core/src/theme'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthState, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -24,6 +24,10 @@ import RouterComp from '../route/public'
 
 import './styles.scss'
 
+import {
+  AdminCoilSettingService,
+  useCoilSettingState
+} from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@xrengine/client-core/src/API'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
@@ -42,8 +46,11 @@ declare module '@mui/styles/defaultTheme' {
 
 const App = (): any => {
   const notistackRef = createRef<SnackbarProvider>()
-  const selfUser = useAuthState().user
+  const authState = useAuthState()
+  const selfUser = authState.user
   const clientSettingState = useClientSettingState()
+  const coilSettingState = useCoilSettingState()
+  const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
   const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
@@ -61,7 +68,6 @@ const App = (): any => {
       ;(window as any).env = (window as any).env ?? ''
     }
     initGA()
-
     logPageView()
   }, [])
 
@@ -123,6 +129,10 @@ const App = (): any => {
   }, [selfUser.id])
 
   useEffect(() => {
+    authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
+  }, [authState.isLoggedIn])
+
+  useEffect(() => {
     if (clientSetting) {
       setTitle(clientSetting?.title)
       setFavicon16(clientSetting?.favicon16px)
@@ -162,6 +172,7 @@ const App = (): any => {
         />
         <meta name="theme-color" content={clientThemeSettings?.[currentTheme]?.mainBackground || '#FFFFFF'} />
         {description && <meta name="description" content={description}></meta>}
+        {paymentPointer && <meta name="monetization" content={paymentPointer} />}
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
       </Helmet>

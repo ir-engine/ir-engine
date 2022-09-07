@@ -52,17 +52,19 @@ describe('InstancingFunctions', async () => {
 
     await initSystems(world, [
       {
+        uuid: 'Instance',
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: Promise.resolve({
-          default: async () => {
-            let resolve: () => void
-            nextFixedStep = new Promise<void>((r) => (resolve = r))
-            return () => {
-              resolve()
+        systemLoader: () =>
+          Promise.resolve({
+            default: async () => {
+              let resolve: () => void
               nextFixedStep = new Promise<void>((r) => (resolve = r))
+              return () => {
+                resolve()
+                nextFixedStep = new Promise<void>((r) => (resolve = r))
+              }
             }
-          }
-        })
+          })
       }
     ])
   })

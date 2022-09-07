@@ -4,7 +4,6 @@ import { defineAction, defineState, getState, useState } from '@xrengine/hyperfl
 export const AppLoadingStates = {
   START_STATE: 'START_STATE' as const,
   SCENE_LOADING: 'SCENE_LOADING' as const,
-  SCENE_LOADED: 'SCENE_LOADED' as const,
   SUCCESS: 'SUCCESS' as const
 }
 

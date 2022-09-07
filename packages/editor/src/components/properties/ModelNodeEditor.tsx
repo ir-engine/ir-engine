@@ -95,7 +95,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor description={t('editor:properties.model.description')} {...props}>
+    <NodeEditor
+      name={t('editor:properties.model.title')}
+      description={t('editor:properties.model.description')}
+      {...props}
+    >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={modelComponent.src} onChange={updateProperty(ModelComponent, 'src')} />
         {hasError && errorComponent?.srcError && (
