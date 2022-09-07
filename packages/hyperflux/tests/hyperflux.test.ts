@@ -64,14 +64,7 @@ describe('Hyperflux Unit Tests', () => {
     const action = test({ $cache: true })
     assert(action.type === 'TEST_OPTIONS')
     assert(test.matches.test(action))
-    assert(test.resolvedActionShape.$cache.test(true))
-    assert(test.resolvedActionShape.$cache.test(false) === false)
-    assert(
-      test.matches.test({
-        type: 'TEST',
-        $cache: false
-      }) === false
-    )
+    assert(test.matches.test({ type: 'TEST' }) === false)
   })
 
   it('should be able to define and create actions with default values', () => {

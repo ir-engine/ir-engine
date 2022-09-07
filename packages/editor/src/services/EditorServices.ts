@@ -19,6 +19,7 @@ const EditorState = defineState({
     projectLoaded: false,
     rendererInitialized: false,
     showObject3DInHierarchy: false,
+    lockPropertiesPanel: '',
     advancedMode: false
   })
 })
@@ -47,6 +48,9 @@ export const EditorServiceReceptor = (action) => {
     .when(EditorAction.showObject3DInHierarchy.matches, (action) => {
       return s.merge({ showObject3DInHierarchy: action.showObject3DInHierarchy })
     })
+    .when(EditorAction.lockPropertiesPanel.matches, (action) =>
+      s.merge({ lockPropertiesPanel: action.lockPropertiesPanel })
+    )
     .when(EditorAction.setAdvancedMode.matches, (action) => {
       return s.merge({ advancedMode: action.advanced })
     })
@@ -99,5 +103,10 @@ export class EditorAction {
   static updatePreprojectLoadTask = defineAction({
     type: 'editor.UPDATE_PREPROJECT_TASK_STATUS' as const,
     taskStatus: matches.any as Validator<unknown, TaskStatus>
+  })
+
+  static lockPropertiesPanel = defineAction({
+    type: 'editor.LOCK_PROPERTIES_PANEL' as const,
+    lockPropertiesPanel: matches.string
   })
 }

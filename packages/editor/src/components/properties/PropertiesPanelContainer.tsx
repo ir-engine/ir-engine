@@ -25,6 +25,7 @@ import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
+import { useEditorState } from '../../services/EditorServices'
 import { useSelectionState } from '../../services/SelectionServices'
 import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
@@ -86,6 +87,7 @@ const NoNodeSelectedMessage = styled.div`
  */
 export const PropertiesPanelContainer = () => {
   const selectionState = useSelectionState()
+  const editorState = useEditorState()
   const selectedEntities = selectionState.selectedEntities.value
   const { t } = useTranslation()
 
@@ -122,12 +124,17 @@ export const PropertiesPanelContainer = () => {
 
   //rendering editor views for customization of element properties
   let content
+  const world = Engine.instance.currentWorld
+  const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
-  const nodeEntity = selectedEntities[selectedEntities.length - 1]
+  const nodeEntity = lockedNode
+    ? world.entityTree.uuidNodeMap.get(lockedNode)!.entity
+    : selectedEntities[selectedEntities.length - 1]
   const isObject3D = typeof nodeEntity === 'string'
   const node = isObject3D
-    ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', nodeEntity)
-    : Engine.instance.currentWorld.entityTree.entityNodeMap.get(nodeEntity)
+    ? world.scene.getObjectByProperty('uuid', nodeEntity)
+    : world.entityTree.entityNodeMap.get(nodeEntity)
+
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else if (isObject3D) {

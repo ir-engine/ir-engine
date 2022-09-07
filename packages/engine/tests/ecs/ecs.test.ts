@@ -23,7 +23,7 @@ type MockComponentData = {
 
 const MockComponent = createMappedComponent<MockComponentData>('MockComponent')
 
-const MockSystemModulePromise = async () => {
+const MocksystemLoader = async () => {
   return {
     default: MockSystemInitialiser
   }
@@ -61,8 +61,9 @@ describe('ECS', () => {
     const world = Engine.instance.currentWorld
     await initSystems(world, [
       {
+        uuid: 'Mock',
         type: SystemUpdateType.UPDATE,
-        systemModulePromise: MockSystemModulePromise()
+        systemLoader: () => MocksystemLoader()
       }
     ])
   })
