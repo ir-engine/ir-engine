@@ -33,12 +33,12 @@ import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
 
-const StyledNodeEditor = styled.div``
+const StyledNodeEditor = (styled as any).div``
 
 /**
  * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
  */
-const PropertiesHeader = styled.div`
+const PropertiesHeader = (styled as any).div`
   border: none !important;
   padding-bottom: 0 !important;
 `
@@ -48,7 +48,7 @@ const PropertiesHeader = styled.div`
  *
  *  @type {Styled Component}
  */
-const NameInputGroupContainer = styled.div``
+const NameInputGroupContainer = (styled as any).div``
 /**
  * Styled component used to provide styles for visiblity checkbox.
  */
@@ -62,7 +62,7 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
  * PropertiesPanelContent used as container element contains content of editor view.
  * @type {Styled Component}
  */
-const PropertiesPanelContent = styled.div`
+const PropertiesPanelContent = (styled as any).div`
   overflow-y: auto;
   height: 100%;
 `
@@ -72,7 +72,7 @@ const PropertiesPanelContent = styled.div`
  *
  * @type {Styled component}
  */
-const NoNodeSelectedMessage = styled.div`
+const NoNodeSelectedMessage = (styled as any).div`
   height: 100%;
   display: flex;
   justify-content: center;

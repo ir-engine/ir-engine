@@ -31,7 +31,7 @@ import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import ModelResourceProperties from './ModelResourceProperties'
 
-const TransformContainer = styled.div`
+const TransformContainer = (styled as any).div`
   color: var(--textColor);
   text-align: -webkit-center;
   margin-top: 2em;
@@ -40,7 +40,7 @@ const TransformContainer = styled.div`
   overflow: scroll;
 `
 
-const ElementsContainer = styled.div`
+const ElementsContainer = (styled as any).div`
   margin: 16px;
   padding: 8px;
   color: var(--textColor);

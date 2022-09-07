@@ -6,7 +6,7 @@ import styled from 'styled-components'
  *
  * @type {styled component}
  */
-const BlockFormField = styled.div`
+const BlockFormField = (styled as any).div`
   margin-bottom: 16px;
 
   label {
@@ -20,7 +20,7 @@ const BlockFormField = styled.div`
  *
  * @type {styled component}
  */
-const InlineFormField = styled.div`
+const InlineFormField = (styled as any).div`
   display: flex;
   justify-content: space-between;
 

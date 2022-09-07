@@ -21,7 +21,7 @@ export const enum BakePropertyTypes {
   'Vector'
 }
 
-const TitleLabel = styled.div`
+const TitleLabel = (styled as any).div`
   display: flex;
   flex-direction: row;
   align-items: left;

@@ -105,7 +105,7 @@ export const InputGroupVerticalContainerWide = (styled as any).div`
   }
 `
 
-export const InputGroupVerticalContent = styled.div`
+export const InputGroupVerticalContent = (styled as any).div`
   display: flex;
   flex-direction: column;
   flex: 1;

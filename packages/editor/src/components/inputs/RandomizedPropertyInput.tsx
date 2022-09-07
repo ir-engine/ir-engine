@@ -9,7 +9,7 @@ import { Stack } from '@mui/material'
 import CompoundNumericInput from './CompoundNumericInput'
 import InputGroup from './InputGroup'
 
-const PropertyContainer = styled.div`
+const PropertyContainer = (styled as any).div`
   display: flex;
   width: 100%;
   border-width: 2px;

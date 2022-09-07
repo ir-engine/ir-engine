@@ -96,7 +96,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   return (
     <NodeEditor
-      title={t('editor:properties.model.title')}
+      name={t('editor:properties.model.title')}
       description={t('editor:properties.model.description')}
       {...props}
     >

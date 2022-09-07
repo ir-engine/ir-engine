@@ -24,7 +24,7 @@ const DialogContainer = styled.form`
  *
  * @type {Styled component}
  */
-const DialogHeader = styled.div`
+const DialogHeader = (styled as any).div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -48,7 +48,7 @@ const DialogHeader = styled.div`
  *
  * @type {Styled component}
  */
-export const DialogContent = styled.div`
+export const DialogContent = (styled as any).div`
   color: var(--textColor);
   display: flex;
   flex: 1;
@@ -75,7 +75,7 @@ export const DialogContent = styled.div`
  *
  * @type {Styled component}
  */
-const DialogBottomNav = styled.div`
+const DialogBottomNav = (styled as any).div`
   padding: 8px;
   margin: auto;
 

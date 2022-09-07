@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import CloseIcon from '@mui/icons-material/Close'
 
 // styled component used as root element for property group
-const StyledPropertyGroup = styled.div`
+const StyledPropertyGroup = (styled as any).div`
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -14,7 +14,7 @@ const StyledPropertyGroup = styled.div`
 `
 
 // PropertyGroupHeader used to provide styles for property group header
-const PropertyGroupHeader = styled.div`
+const PropertyGroupHeader = (styled as any).div`
   display: flex;
   flex-direction: row;
   align-items: left;
@@ -28,14 +28,14 @@ const PropertyGroupHeader = styled.div`
 `
 
 // PropertyGroupDescription used to show the property group description
-const PropertyGroupDescription = styled.div`
+const PropertyGroupDescription = (styled as any).div`
   color: var(--textColor);
   white-space: pre-wrap;
   padding: 0 8px;
 `
 
 // component to contain content of property group
-const PropertyGroupContent = styled.div`
+const PropertyGroupContent = (styled as any).div`
   display: flex;
   flex-direction: column;
 `

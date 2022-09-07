@@ -10,7 +10,7 @@ import { getStepSize, toPrecision } from '../../functions/utils'
 import Overlay from '../layout/Overlay'
 import Portal from '../layout/Portal'
 
-const ScrubberContainer = styled.div`
+const ScrubberContainer = (styled as any).div`
   cursor: ew-resize;
   user-select: none;
 `

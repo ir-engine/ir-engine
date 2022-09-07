@@ -40,7 +40,7 @@ StringInput.defaultProps = {
 
 export default StringInput
 
-const DropContainer = styled.div`
+const DropContainer = (styled as any).div`
   display: flex;
   width: 100%;
 `

@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const Hidden = styled.div`
+const Hidden = (styled as any).div`
   display: none;
 `
 

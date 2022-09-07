@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const ProgressBarContainer = styled.div`
+const ProgressBarContainer = (styled as any).div`
   height: 20px;
   position: relative;
   background: var(--inputBackground);

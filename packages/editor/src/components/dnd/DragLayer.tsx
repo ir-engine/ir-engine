@@ -10,7 +10,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
  *
  * @type {Styled component}
  */
-const DragLayerContainer = styled.div`
+const DragLayerContainer = (styled as any).div`
   position: fixed;
   pointer-events: none;
   z-index: 99999;
@@ -25,7 +25,7 @@ const DragLayerContainer = styled.div`
  *
  * @type {Styled component}
  */
-const DragPreviewContainer = styled.div.attrs((props) => ({
+const DragPreviewContainer = (styled as any).div.attrs((props) => ({
   style: {
     transform: `translate(${props.offset.x}px, ${props.offset.y}px)`
   }

@@ -6,7 +6,7 @@ import { DockContainer } from '../EditorContainer'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 
-export const ProjectDockContainer = styled.div`
+export const ProjectDockContainer = (styled as any).div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;

@@ -12,7 +12,7 @@ import Input from './Input'
  *
  * @type {styled component}
  */
-const ColorInputContainer = styled.div`
+const ColorInputContainer = (styled as any).div`
   display: flex;
   position: relative;
   width: 100%;
@@ -36,7 +36,7 @@ const StyledColorInput = (styled as any)(Input)`
  *
  * @type {styled component}
  */
-const ColorPreview = styled.div`
+const ColorPreview = (styled as any).div`
   width: 32px;
   height: auto;
   border-radius: 2px;
@@ -49,7 +49,7 @@ const ColorPreview = styled.div`
  *
  * @type {styled component}
  */
-const ColorText = styled.div`
+const ColorText = (styled as any).div`
   padding-top: 2px;
 `
 
@@ -58,7 +58,7 @@ const ColorText = styled.div`
  *
  * @type {styled component}
  */
-const ColorInputPopover = styled.div`
+const ColorInputPopover = (styled as any).div`
   box-shadow: var(--shadow30);
   margin-bottom: 3px;
 `

@@ -9,7 +9,7 @@ import Slider from './Slider'
  *
  * @type {Styled component}
  */
-const StyledCompoundNumericInput = styled.div`
+const StyledCompoundNumericInput = (styled as any).div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;

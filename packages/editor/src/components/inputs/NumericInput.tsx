@@ -29,7 +29,7 @@ function toPrecisionString(value, precision) {
   }
 }
 
-const NumericInputContainer = styled.div`
+const NumericInputContainer = (styled as any).div`
   position: relative;
   display: flex;
   flex: 1;
@@ -55,7 +55,7 @@ const NumericInputContainer = styled.div`
   }
 `
 
-const StyledNumericInput = styled.input`
+const StyledNumericInput = (styled as any).input`
   color: var(--textColor);
   background-color: var(--inputBackground);
   border: none;
@@ -73,7 +73,7 @@ const StyledNumericInput = styled.input`
   }
 `
 
-const NumericInputUnit = styled.div`
+const NumericInputUnit = (styled as any).div`
   color: var(--textColor);
   background-color: var(--inputBackground);
   padding-right: 4px;

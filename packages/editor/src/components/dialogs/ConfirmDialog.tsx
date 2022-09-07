@@ -17,7 +17,7 @@ import Dialog from './Dialog'
  *
  * @type {Styled component}
  */
-const ConfirmContainer = styled.div`
+const ConfirmContainer = (styled as any).div`
   color: var(--textColor);
   display: flex;
   flex: 1;
@@ -32,7 +32,7 @@ const ConfirmContainer = styled.div`
  *
  * @type {styled component}
  */
-const ConfirmMessage = styled.div`
+const ConfirmMessage = (styled as any).div`
   padding-bottom: 24px;
   white-space: pre;
 `

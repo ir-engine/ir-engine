@@ -11,7 +11,7 @@ import Tooltip from '../layout/Tooltip'
  *
  * @type {styled component}
  */
-const IssuesTooltipContainer = styled.div`
+const IssuesTooltipContainer = (styled as any).div`
   display: inline-block;
   pointer-events: none;
   background-color: rgba(21, 23, 27, 0.9);

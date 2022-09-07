@@ -7,7 +7,7 @@ import styled from 'styled-components'
  *
  * @type {styled component}
  */
-const StyledLoading = styled.div`
+const StyledLoading = (styled as any).div`
   display: flex;
   flex-direction: column;
   justify-content: center;

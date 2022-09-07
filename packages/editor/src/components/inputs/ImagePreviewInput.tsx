@@ -6,7 +6,7 @@ import { Stack } from '@mui/material'
 import ImageInput from './ImageInput'
 import InputGroup from './InputGroup'
 
-export const ImageContainer = styled.div`
+export const ImageContainer = (styled as any).div`
   display: flex;
   width: 100%;
   border-radius: 4px;

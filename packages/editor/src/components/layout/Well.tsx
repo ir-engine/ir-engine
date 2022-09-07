@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const Well = styled.div`
+const Well = (styled as any).div`
   display: flex;
   flex-direction: column;
   background-color: rgba(0, 0, 0, 0.2);

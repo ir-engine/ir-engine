@@ -35,7 +35,7 @@ export const StyledProjectsSection = styled.section<{ flex?: number }>`
  * @ProjectsContainer
  *
  */
-export const StyledProjectsContainer = styled.div`
+export const StyledProjectsContainer = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -50,14 +50,14 @@ export const StyledProjectsContainer = styled.div`
  * @ProjectsHeader
  *
  */
-export const StyledProjectsHeader = styled.div`
+export const StyledProjectsHeader = (styled as any).div`
   margin-bottom: 36px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 `
 
-const ProjectGridContainer = styled.div`
+const ProjectGridContainer = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -65,7 +65,7 @@ const ProjectGridContainer = styled.div`
   border-radius: 3px;
 `
 
-const ProjectGridContent = styled.div`
+const ProjectGridContent = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;

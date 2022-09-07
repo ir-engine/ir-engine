@@ -7,18 +7,18 @@ export const PanelIcon = (styled as any).div`
   width: 18px;
 `
 
-export const PanelTitle = styled.div`
+export const PanelTitle = (styled as any).div`
   color: var(--textColor);
   position: relative;
 `
 
-export const PanelCheckbox = styled.div`
+export const PanelCheckbox = (styled as any).div`
   color: var(--textColor);
   position: relative;
   padding: 0px;
 `
 
-export const PanelDragContainer = styled.div`
+export const PanelDragContainer = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: row;
@@ -36,7 +36,7 @@ export const PanelDragContainer = styled.div`
   }
 `
 
-export const PanelContainer = styled.div`
+export const PanelContainer = (styled as any).div`
   position: relative;
   display: flex;
   flex: 1;
@@ -47,7 +47,7 @@ export const PanelContainer = styled.div`
   user-select: none;
 `
 
-export const PanelToolbar = styled.div`
+export const PanelToolbar = (styled as any).div`
   display: flex;
   padding: 4px;
   height: 24px;
@@ -55,7 +55,7 @@ export const PanelToolbar = styled.div`
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 `
 
-export const PanelContent = styled.div`
+export const PanelContent = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;

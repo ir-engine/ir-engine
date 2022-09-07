@@ -7,7 +7,7 @@ interface ExpandMoreProps extends IconButtonProps {
   expand: boolean
 }
 
-const ExpandMoreContainer = styled.div`
+const ExpandMoreContainer = (styled as any).div`
   background-color: var(--inputBackground);
   border-radius: 24px;
 `

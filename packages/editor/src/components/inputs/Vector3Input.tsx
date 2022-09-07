@@ -9,7 +9,7 @@ import Hidden from '../layout/Hidden'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 
-export const Vector3InputContainer = styled.div`
+export const Vector3InputContainer = (styled as any).div`
   position: relative;
   display: flex;
   flex-direction: row;
@@ -26,7 +26,7 @@ export const Vector3Scrubber = (styled as any)(Scrubber)`
   background: ${(props) => (props.axis === 'x' ? 'var(--red)' : props.axis === 'y' ? 'var(--green)' : 'var(--blue)')};
 `
 
-export const UniformButtonContainer = styled.div`
+export const UniformButtonContainer = (styled as any).div`
   top: 0;
   display: flex;
   align-items: center;
