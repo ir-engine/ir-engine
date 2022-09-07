@@ -28,10 +28,12 @@ import {
 } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { SCENE_COMPONENT_TRANSFORM } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { PostprocessingComponent } from '../components/PostprocessingComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_DYNAMIC_LOAD } from '../components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
@@ -129,6 +131,8 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
   return result
 }
 
+const postProcessingQuery = defineQuery([PostprocessingComponent])
+
 /**
  * Updates the scene based on serialized json data
  * @param oldSceneData
@@ -138,7 +142,6 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
 
   const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
-  console.log(sceneSystems, Object.values(world.pipelines).flat())
   const systemsToLoad = sceneSystems.filter(
     (systemToLoad) =>
       !Object.values(world.pipelines)
@@ -158,6 +161,8 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     }
   }
   await initSystems(world, systemsToLoad)
+
+  resetEngineRenderer(true)
 
   const { entityLoadQueue, entityDynamicQueue } = splitLazyLoadedSceneEntities(sceneData.scene)
 
@@ -223,6 +228,10 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     for (const component of entityJson.components) {
       loadComponent(existingEntity, component, world)
     }
+  }
+
+  if (!postProcessingQuery().length) {
+    configureEffectComposer()
   }
 
   dispatchAction(

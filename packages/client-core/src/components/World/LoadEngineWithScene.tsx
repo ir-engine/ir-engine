@@ -184,7 +184,7 @@ export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
    * load the scene whenever it changes
    */
   useHookEffect(() => {
-    const sceneData = sceneState.currentScene.value
+    const sceneData = sceneState.currentScene.get({ noproxy: true })
     if (clientReady && sceneData) {
       if (loadingState.state.value !== AppLoadingStates.SUCCESS)
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))

@@ -54,7 +54,7 @@ const downwardGroundRaycast = {
   origin: new Vector3(),
   direction: AvatarDirection.Down,
   maxDistance: 10,
-  groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
+  groups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
 } as RaycastArgs
 
 export default async function AvatarLoadingSystem(world: World) {
@@ -115,7 +115,7 @@ export default async function AvatarLoadingSystem(world: World) {
       /**
        * cast ray to move this downward to be on the ground
        */
-      downwardGroundRaycast.excludeRigidBody = getComponent(entity, RigidBodyComponent).body
+      downwardGroundRaycast.origin.copy(sourceTransform.position)
       const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, downwardGroundRaycast)
       if (hits.length) {
         transform.position.y = hits[0].position.y
