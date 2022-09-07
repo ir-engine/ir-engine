@@ -40,14 +40,17 @@ export const createEngine = () => {
 export const setupEngineActionSystems = () => {
   const world = Engine.instance.currentWorld
   initSystemSync(world, {
+    uuid: 'xre.engine.FixedPipelineSystem',
     type: SystemUpdateType.UPDATE,
     systemFunction: FixedPipelineSystem
   })
   initSystemSync(world, {
+    uuid: 'xre.engine.IncomingActionSystem',
     type: SystemUpdateType.FIXED_EARLY,
     systemFunction: IncomingActionSystem
   })
   initSystemSync(world, {
+    uuid: 'xre.engine.OutgoingActionSystem',
     type: SystemUpdateType.FIXED_LATE,
     systemFunction: OutgoingActionSystem
   })

@@ -148,8 +148,8 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
         .flat()
         .find((s) => s.uuid === systemToLoad.uuid)
   )
-  const systemsToUnload = Object.values(world.pipelines).map((p) =>
-    p.filter((loaded) => !sceneSystems.find((s) => s.sceneSystem && s.uuid === loaded.uuid))
+  const systemsToUnload = Object.keys(world.pipelines).map((p) =>
+    world.pipelines[p].filter((loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid))
   )
 
   /** unload old systems */
