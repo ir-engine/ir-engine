@@ -328,6 +328,9 @@
     "bots": "Bots",
     "setting": "Settings"
   },
+  "resource": {
+    "createResource": "Create Resource"
+  },
   "avatar": {
     "title": "Upload Avatar",
     "titleSelectAvatar": "Select Avatar",

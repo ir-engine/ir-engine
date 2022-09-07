@@ -64,7 +64,7 @@ export default async function AdminSystem(world: World) {
   const resourceFiltersFetchedQueue = createActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
   const setSelectedMimeTypesQueue = createActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
   const setSelectedResourceTypesQueue = createActionQueue(AdminResourceActions.setSelectedResourceTypes.matches)
-  const resourceRemovedQueue = createActionQueue(AdminResourceActions.resourceRemoved.matches)
+  const resourceNeedsUpdateQueue = createActionQueue(AdminResourceActions.resourceNeedsUpdated.matches)
   const resourcesResetFilterQueue = createActionQueue(AdminResourceActions.resourcesResetFilter.matches)
   const scenesFetchedQueue = createActionQueue(AdminSceneActions.scenesFetched.matches)
   const sceneFetchedQueue = createActionQueue(AdminSceneActions.sceneFetched.matches)
@@ -193,8 +193,8 @@ export default async function AdminSystem(world: World) {
     for (const action of setSelectedResourceTypesQueue()) {
       AdminResourceReceptors.setSelectedResourceTypesReceptor(action)
     }
-    for (const action of resourceRemovedQueue()) {
-      AdminResourceReceptors.resourceRemovedReceptor(action)
+    for (const action of resourceNeedsUpdateQueue()) {
+      AdminResourceReceptors.resourceNeedsUpdateReceptor(action)
     }
     for (const action of resourcesResetFilterQueue()) {
       AdminResourceReceptors.resourcesResetFilterReceptor(action)

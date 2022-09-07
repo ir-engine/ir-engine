@@ -11,7 +11,7 @@ import TableComponent from '../../common/Table'
 import { resourceColumns, ResourceData } from '../../common/variables/resource'
 import { RESOURCE_PAGE_LIMIT, ResourceService, useAdminResourceState } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
-import ResourceDrawer from './ResourceDrawer'
+import ResourceDrawer, { ResourceDrawerMode } from './ResourceDrawer'
 
 interface Props {
   className?: string
@@ -123,7 +123,12 @@ const ResourceTable = ({ className, search }: Props) => {
       />
 
       {resourceData && openResourceDrawer && (
-        <ResourceDrawer open selectedResource={resourceData} onClose={() => setOpenResourceDrawer(false)} />
+        <ResourceDrawer
+          open
+          mode={ResourceDrawerMode.ViewEdit}
+          selectedResource={resourceData}
+          onClose={() => setOpenResourceDrawer(false)}
+        />
       )}
     </Box>
   )

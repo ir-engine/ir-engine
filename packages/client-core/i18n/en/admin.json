@@ -171,7 +171,13 @@
       "mimeType": "Mime Type",
       "resourceType": "Resource Type",
       "preview": "Preview",
-      "confirmResourceDelete": "Do you want to delete resource"
+      "confirmResourceDelete": "Do you want to delete resource",
+      "keyCantEmpty": "Key can't be empty",
+      "mimeTypeCantEmpty": "Mime type can't be empty",
+      "resourceTypeCantEmpty": "Resource type can't be empty",
+      "keyRequired": "Key is required",
+      "mimeTypeRequired": "Mime type is required",
+      "resourceTypeRequired": "Resource type is required"
     },
     "setting": {
       "authentication": "Authentication",

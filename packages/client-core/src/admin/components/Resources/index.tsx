@@ -12,12 +12,14 @@ import Popover from '@mui/material/Popover'
 import Search from '../../common/Search'
 import { ResourceService, useAdminResourceState } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
+import ResourceDrawer, { ResourceDrawerMode } from './ResourceDrawer'
 import ResourceTable from './ResourceTable'
 
 const Resources = () => {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [openResourceDrawer, setOpenResourceDrawer] = useState(false)
   const openMenu = Boolean(anchorEl)
   const adminResourceState = useAdminResourceState()
 
@@ -44,15 +46,25 @@ const Resources = () => {
   return (
     <React.Fragment>
       <Grid container spacing={1} className={styles.mb10px}>
-        <Grid item md={12}>
+        <Grid item sm={8} xs={12}>
+          <Search sx={{ flexGrow: 1 }} text={t('admin:components.resources.resources')} handleChange={handleChange} />
+        </Grid>
+        <Grid item sm={4} xs={8}>
           <Box sx={{ display: 'flex' }}>
-            <Search sx={{ flexGrow: 1 }} text={t('admin:components.resources.resources')} handleChange={handleChange} />
+            <Button
+              className={styles.openModalBtn}
+              type="submit"
+              variant="contained"
+              onClick={() => setOpenResourceDrawer(true)}
+            >
+              {t('user:resource.createResource')}
+            </Button>
             <IconButton
               onClick={handleClick}
               size="small"
               sx={{ ml: 1 }}
               className={styles.filterButton}
-              aria-controls={openMenu ? 'account-menu' : undefined}
+              aria-controls={openMenu ? 'resources-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={openMenu ? 'true' : undefined}
             >
@@ -63,6 +75,10 @@ const Resources = () => {
       </Grid>
 
       <ResourceTable className={styles.rootTableWithSearch} search={search} />
+
+      {openResourceDrawer && (
+        <ResourceDrawer open mode={ResourceDrawerMode.Create} onClose={() => setOpenResourceDrawer(false)} />
+      )}
 
       <Popover
         classes={{ paper: styles.popover }}

@@ -7,6 +7,7 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { NotificationService } from '../../common/services/NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:ResourcesService' })
 
@@ -29,6 +30,11 @@ const AdminResourceState = defineState({
     selectedResourceTypes: [] as string[]
   })
 })
+
+const resourceNeedsUpdateReceptor = (action: typeof AdminResourceActions.resourceNeedsUpdated.matches._TYPE) => {
+  const state = getState(AdminResourceState)
+  return state.merge({ updateNeeded: true })
+}
 
 const resourcesFetchedReceptor = (action: typeof AdminResourceActions.resourcesFetched.matches._TYPE) => {
   const state = getState(AdminResourceState)
@@ -71,11 +77,6 @@ const setSelectedResourceTypesReceptor = (
   })
 }
 
-const resourceRemovedReceptor = (action: typeof AdminResourceActions.resourceRemoved.matches._TYPE) => {
-  const state = getState(AdminResourceState)
-  return state.merge({ updateNeeded: true })
-}
-
 const resourcesResetFilterReceptor = (action: typeof AdminResourceActions.resourcesResetFilter.matches._TYPE) => {
   const state = getState(AdminResourceState)
   return state.merge({
@@ -90,7 +91,7 @@ export const AdminResourceReceptors = {
   resourceFiltersFetchedReceptor,
   setSelectedMimeTypesReceptor,
   setSelectedResourceTypesReceptor,
-  resourceRemovedReceptor,
+  resourceNeedsUpdateReceptor,
   resourcesResetFilterReceptor
 }
 
@@ -99,6 +100,22 @@ export const accessAdminResourceState = () => getState(AdminResourceState)
 export const useAdminResourceState = () => useState(accessAdminResourceState())
 
 export const ResourceService = {
+  createResource: async (resource: any) => {
+    try {
+      await API.instance.client.service('static-resource').create(resource)
+      dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
+  patchResource: async (id: string, resource: any) => {
+    try {
+      await API.instance.client.service('static-resource').patch(id, resource)
+      dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
   getResourceFilters: async () => {
     const filters = (await API.instance.client.service('static-resource-filters').get()) as StaticResourceFilterResult
     dispatchAction(AdminResourceActions.resourceFiltersFetched({ filters }))
@@ -136,7 +153,7 @@ export const ResourceService = {
   removeAdminResource: async (id: string) => {
     try {
       await API.instance.client.service('static-resource').remove(id)
-      dispatchAction(AdminResourceActions.resourceRemoved({ id }))
+      dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
     } catch (err) {
       logger.error(err)
     }
@@ -148,6 +165,10 @@ export const ResourceService = {
 
 //Action
 export class AdminResourceActions {
+  static resourceNeedsUpdated = defineAction({
+    type: 'RESOURCE_NEEDS_UPDATE' as const
+  })
+
   static resourcesFetched = defineAction({
     type: 'RESOURCES_RETRIEVED' as const,
     resources: matches.object as Validator<unknown, StaticResourceResult>
@@ -156,11 +177,6 @@ export class AdminResourceActions {
   static resourceFiltersFetched = defineAction({
     type: 'RESOURCE_FILTERS_RETRIEVED' as const,
     filters: matches.object as Validator<unknown, StaticResourceFilterResult>
-  })
-
-  static resourceRemoved = defineAction({
-    type: 'RESOURCE_REMOVED' as const,
-    id: matches.string
   })
 
   static setSelectedMimeTypes = defineAction({
