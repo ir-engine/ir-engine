@@ -22,7 +22,7 @@ const ErrorDialogContainer = (styled as any)(Dialog)`
  *
  * @type {Styled component}
  */
-const ErrorMessage = (styled as any).code`
+const ErrorMessage = styled.code`
   white-space: pre-wrap;
   overflow-wrap: break-word;
   overflow-x: hidden;

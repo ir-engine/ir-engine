@@ -1,36 +1,39 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentMap,
+  getAllComponents,
+  hasComponent,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   PreventBakeTagComponent,
   SCENE_COMPONENT_PREVENT_BAKE
 } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
-import {
-  SCENE_COMPONENT_DYNAMIC_LOAD,
-  SceneDynamicLoadTagComponent
-} from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+
+import { Close } from '@mui/icons-material'
+import AddIcon from '@mui/icons-material/Add'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
-import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
+import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useEditorState } from '../../services/EditorServices'
 import { useSelectionState } from '../../services/SelectionServices'
+import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
-import { updateProperty } from './Util'
 
-const StyledNodeEditor = (styled as any).div`
-`
+const StyledNodeEditor = (styled as any).div``
 
 /**
  * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
@@ -45,8 +48,7 @@ const PropertiesHeader = (styled as any).div`
  *
  *  @type {Styled Component}
  */
-const NameInputGroupContainer = (styled as any).div`
-`
+const NameInputGroupContainer = (styled as any).div``
 /**
  * Styled component used to provide styles for visiblity checkbox.
  */
@@ -89,21 +91,10 @@ export const PropertiesPanelContainer = () => {
   const selectedEntities = selectionState.selectedEntities.value
   const { t } = useTranslation()
 
+  const [isMenuOpen, setMenuOpen] = useState(false)
+
   // access state to detect the change
   selectionState.objectChangeCounter.value
-
-  const onChangeDynamicLoad = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.TAG_COMPONENT,
-      operations: [
-        {
-          component: SceneDynamicLoadTagComponent,
-          sceneComponentName: SCENE_COMPONENT_DYNAMIC_LOAD,
-          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-        }
-      ]
-    })
-  }
 
   const onChangeVisible = (value) => {
     executeCommandWithHistoryOnSelection({
@@ -146,51 +137,66 @@ export const PropertiesPanelContainer = () => {
 
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
+  } else if (isObject3D) {
+    content = (
+      <StyledNodeEditor>
+        <Object3DNodeEditor multiEdit={multiEdit} node={node as EntityTreeNode} />
+      </StyledNodeEditor>
+    )
   } else {
-    // get all editors that this entity has a component for
-    const editors = isObject3D ? [Object3DNodeEditor] : getNodeEditorsForEntity(nodeEntity)
+    const components = getAllComponents(nodeEntity).filter((c) => EntityNodeEditor.has(c))
+    // todo - still WIP
+    // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry)
 
     content = (
       <StyledNodeEditor>
-        {!isObject3D && (
-          <PropertiesHeader>
-            <NameInputGroupContainer>
-              <NameInputGroup node={node as EntityTreeNode} key={nodeEntity} />
-              {!hasComponent(nodeEntity, SceneTagComponent) && (
-                <>
-                  <VisibleInputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
-                    <BooleanInput
-                      value={hasComponent(nodeEntity, SceneDynamicLoadTagComponent)}
-                      onChange={onChangeDynamicLoad}
-                    />
-                    {hasComponent(nodeEntity, SceneDynamicLoadTagComponent) && (
-                      <CompoundNumericInput
-                        style={{ paddingLeft: `8px`, paddingRight: `8px` }}
-                        min={1}
-                        max={100}
-                        step={1}
-                        value={getComponent(nodeEntity, SceneDynamicLoadTagComponent).distance}
-                        onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
-                      />
-                    )}
-                  </VisibleInputGroup>
-                  <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
-                    <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
-                  </VisibleInputGroup>
-                  <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
-                    <BooleanInput
-                      value={hasComponent(nodeEntity, PreventBakeTagComponent)}
-                      onChange={onChangeBakeStatic}
-                    />
-                  </VisibleInputGroup>
-                </>
-              )}
-            </NameInputGroupContainer>
-          </PropertiesHeader>
-        )}
-        {editors.map((Editor, i) => (
-          <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} />
-        ))}
+        <PropertiesHeader>
+          <NameInputGroupContainer>
+            <NameInputGroup node={node as EntityTreeNode} key={nodeEntity} />
+            {!hasComponent(nodeEntity, SceneTagComponent) && (
+              <>
+                <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
+                  <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
+                </VisibleInputGroup>
+                <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
+                  <BooleanInput
+                    value={hasComponent(nodeEntity, PreventBakeTagComponent)}
+                    onChange={onChangeBakeStatic}
+                  />
+                </VisibleInputGroup>
+              </>
+            )}
+          </NameInputGroupContainer>
+        </PropertiesHeader>
+        {/** @todo this is the add component menu - still a work in progress */}
+        {/* <div style={{ pointerEvents: 'auto' }}>
+          <MainMenu
+            icon={isMenuOpen ? Close : AddIcon}
+            isMenuOpen={isMenuOpen}
+            setMenuOpen={setMenuOpen}
+            commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
+              name: component._name,
+              action: () => {
+                const [sceneComponentID] = registeredComponents.find(([_, prefab]) => prefab === component._name)!
+                const sceneComponent = Engine.instance.currentWorld.sceneLoadingRegistry.get(sceneComponentID)!
+                if (!sceneComponentID)
+                  return console.warn('[ SceneLoading] could not find component name', sceneComponentID)
+                if (!ComponentMap.get(sceneComponentID))
+                  return console.warn('[ SceneLoading] could not find component', sceneComponentID)
+                const isTagComponent = !sceneComponent.defaultData
+                setComponent(
+                  nodeEntity,
+                  ComponentMap.get(sceneComponentID),
+                  isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
+                )
+              }
+            }))}
+          />
+        </div> */}
+        {components.map((c, i) => {
+          const Editor = EntityNodeEditor.get(c)!
+          return <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} component={c} />
+        })}
       </StyledNodeEditor>
     )
   }

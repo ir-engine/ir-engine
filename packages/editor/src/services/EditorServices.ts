@@ -19,7 +19,8 @@ const EditorState = defineState({
     projectLoaded: false,
     rendererInitialized: false,
     showObject3DInHierarchy: false,
-    lockPropertiesPanel: ''
+    lockPropertiesPanel: '',
+    advancedMode: false
   })
 })
 
@@ -50,6 +51,9 @@ export const EditorServiceReceptor = (action) => {
     .when(EditorAction.lockPropertiesPanel.matches, (action) =>
       s.merge({ lockPropertiesPanel: action.lockPropertiesPanel })
     )
+    .when(EditorAction.setAdvancedMode.matches, (action) => {
+      return s.merge({ advancedMode: action.advanced })
+    })
 }
 
 export const accessEditorState = () => getState(EditorState)
@@ -89,6 +93,11 @@ export class EditorAction {
   static showObject3DInHierarchy = defineAction({
     type: 'editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
     showObject3DInHierarchy: matches.boolean
+  })
+
+  static setAdvancedMode = defineAction({
+    type: 'editor.SET_ADVANCED_MODE' as const,
+    advanced: matches.boolean
   })
 
   static updatePreprojectLoadTask = defineAction({

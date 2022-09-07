@@ -8,7 +8,7 @@ import { Button, SecondaryButton } from '../inputs/Button'
  *
  * @type {Styled component}
  */
-const DialogContainer = (styled as any).form`
+const DialogContainer = styled.form`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
