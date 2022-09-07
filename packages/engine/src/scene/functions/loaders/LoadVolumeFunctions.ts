@@ -15,7 +15,7 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { iterateEntityNode, removeEntityNodeFromParent } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { Physics } from '@xrengine/engine/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
@@ -27,6 +27,8 @@ import {
 } from '@xrengine/engine/src/scene/components/LoadVolumeComponent'
 import { serializeEntity, serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { createSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+
+import { EntityTreeNode } from '../../../ecs/classes/EntityTree'
 
 export const deserializeLoadVolume: ComponentDeserializeFunction = (entity: Entity, data: LoadVolumeComponentType) => {
   const props = parseLoadVolumeProperties(data)
@@ -68,10 +70,13 @@ export const updateLoadVolume: ComponentUpdateFunction = (entity: Entity) => {
         const componentJson = serializeEntity(targetEntity)
         nuComponent.targets.push({ uuid, componentJson })
         setComponent(entity, LoadVolumeComponent, nuComponent)
+        const nodesToDelete: EntityTreeNode[] = []
         iterateEntityNode(targetNode, (node) => {
+          nodesToDelete.push(node)
           node.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
+          removeEntity(entity)
+          removeEntityNodeFromParent(node)
         })
-        removeEntity(targetEntity)
       }
     })
   }

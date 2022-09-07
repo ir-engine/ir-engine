@@ -6,7 +6,11 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeAllComponents } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { createEntityNode, iterateEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import {
+  createEntityNode,
+  iterateEntityNode,
+  removeEntityNodeFromParent
+} from '../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -97,11 +101,11 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
                     createSceneEntity(node.uuid, data)
                   }
                 )
-              targetNode.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
-              removeEntity(entity)
+              node.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
+              removeEntity(node.entity)
+              removeEntityNodeFromParent(node)
             })
           }
-          removeEntity(entity)
           const uuid = data.uuid
           dispatchAction(SceneDynamicLoadAction.unload({ uuid }))
         }
