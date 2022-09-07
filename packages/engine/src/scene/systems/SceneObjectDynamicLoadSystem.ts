@@ -4,7 +4,7 @@ import { isMobile } from '../../common/functions/isMobile'
 import { matches } from '../../common/functions/MatchesUtils'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeAllComponents } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { createEntityNode, iterateEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
@@ -82,7 +82,6 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
             position: data.position
           })
 
-          hasComponent(entity, RigidBodyComponent) && Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
           const targetNode = nodeMap.get(entity)
           if (targetNode) {
             iterateEntityNode(targetNode, (node) => {
@@ -98,15 +97,10 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
                     createSceneEntity(node.uuid, data)
                   }
                 )
-
-              hasComponent(node.entity, RigidBodyComponent) &&
-                Physics.removeCollidersFromRigidBody(node.entity, world.physicsWorld)
-              node.children
-                .filter((entity) => !nodeMap.has(entity))
-                .map((entity) => Physics.removeCollidersFromRigidBody(entity, world.physicsWorld))
+              targetNode.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
+              removeEntity(entity)
             })
           }
-          console.log('unloading entity ' + entity)
           removeEntity(entity)
           const uuid = data.uuid
           dispatchAction(SceneDynamicLoadAction.unload({ uuid }))
