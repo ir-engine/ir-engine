@@ -74,6 +74,7 @@ export const loadAvatarForUser = async (
     }
   }
 
+  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
   addComponent(entity, AvatarPendingComponent, true)
   const parent = await loadAvatarModelAsset(avatarURL)
   if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)

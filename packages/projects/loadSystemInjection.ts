@@ -1,12 +1,9 @@
 import type { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import type { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import type { SystemComponentType } from '@xrengine/engine/src/scene/components/SystemComponent'
 
-export const getSystemsFromSceneData = (
-  project: string,
-  sceneData: SceneJson,
-  isClient: boolean
-): SystemModuleType<any>[] => {
+export const getSystemsFromSceneData = (project: string, sceneData: SceneJson): SystemModuleType<any>[] => {
   const systems: SystemModuleType<any>[] = []
   for (const [uuid, entity] of Object.entries(sceneData.entities)) {
     for (const component of entity.components) {
