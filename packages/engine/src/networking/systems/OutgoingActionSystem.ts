@@ -7,7 +7,7 @@ const sendOutgoingActions = (world: World) => {
   for (const [instanceId, network] of world.networks) {
     try {
       network.sendActions()
-      clearOutgoingActions(instanceId, Engine.instance.store)
+      clearOutgoingActions(network.topic, Engine.instance.store)
     } catch (e) {
       console.error(e)
     }
