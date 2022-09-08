@@ -8,7 +8,7 @@ import { setPropertyOnSelectionEntities } from '../../classes/History'
 
 export type EditorPropType = {
   node: EntityTreeNode
-  component?: ComponentConstructor<any, any>
+  component?: Component
   multiEdit?: boolean
 }
 
@@ -16,7 +16,7 @@ export type EditorComponentType = React.FC<EditorPropType> & {
   iconComponent?: any
 }
 
-export const updateProperty = <C extends Component<any, any>, K extends keyof ComponentType<C>>(
+export const updateProperty = <C extends Component, K extends keyof ComponentType<C>>(
   component: C,
   propName: K,
   ...args: any
