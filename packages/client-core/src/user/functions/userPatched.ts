@@ -39,8 +39,9 @@ export const userPatched = (params) => {
       query.set('instanceId', patchedUser.instanceId || '')
       parsed.search = query.toString()
       if (patchedUser.instanceId && Engine.instance.currentWorld._worldHostId !== patchedUser.instanceId)
-        Engine.instance.currentWorld._worldHostId = Engine.instance.currentWorld.worldNetwork.hostId =
-          patchedUser.instanceId as UserId
+        Engine.instance.currentWorld.networks.set(patchedUser.instanceId, Engine.instance.currentWorld.worldNetwork)
+      Engine.instance.currentWorld._worldHostId = Engine.instance.currentWorld.worldNetwork.hostId =
+        patchedUser.instanceId as UserId
 
       if (typeof history.pushState !== 'undefined') {
         window.history.replaceState({}, '', parsed.toString())
