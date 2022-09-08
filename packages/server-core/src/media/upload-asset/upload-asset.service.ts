@@ -34,7 +34,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   const key = processFileName(args.key)
   const existingAsset = await app.service('static-resource').Model.findAndCountAll({
     where: {
-      [Op.or]: [{ key: key }, { id: args.id }]
+      [Op.or]: [{ key: key }, { id: args.id ?? '' }]
     }
   })
 
