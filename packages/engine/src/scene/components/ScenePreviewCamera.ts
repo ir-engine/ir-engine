@@ -1,4 +1,4 @@
-import { PerspectiveCamera } from 'three/src/cameras/PerspectiveCamera'
+import { PerspectiveCamera } from 'three'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
