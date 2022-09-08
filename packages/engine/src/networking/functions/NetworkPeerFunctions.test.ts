@@ -106,7 +106,7 @@ describe('NetworkPeerFunctions', () => {
       Engine.instance.store.defaultDispatchDelay = 0
       NetworkPeerFunctions.destroyPeer(network, userId, world)
 
-      ActionFunctions.clearOutgoingActions()
+      ActionFunctions.clearOutgoingActions(network.topic)
       ActionFunctions.applyIncomingActions()
       world.execute(0)
 

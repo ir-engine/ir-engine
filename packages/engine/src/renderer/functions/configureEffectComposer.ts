@@ -1,6 +1,7 @@
 import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
 import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
@@ -11,6 +12,8 @@ import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
   if (!EngineRenderer.instance) return
+
+  if (!isClient) return
 
   if (!EngineRenderer.instance.renderPass) {
     // we always want to have at least the render pass enabled

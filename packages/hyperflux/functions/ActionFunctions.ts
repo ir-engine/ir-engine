@@ -424,15 +424,14 @@ const applyIncomingActions = (store = HyperFlux.store) => {
  * Clear the outgoing action queue
  * @param store
  */
-const clearOutgoingActions = (store = HyperFlux.store) => {
-  for (const [topic, outgoing] of Object.entries(store.actions.outgoing)) {
-    const { queue, history, historyUUIDs } = outgoing
-    for (const action of queue) {
-      history.push(action)
-      historyUUIDs.add(action.$uuid)
-    }
-    queue.length = 0
+const clearOutgoingActions = (topic: string, store = HyperFlux.store) => {
+  if (!store.actions.outgoing[topic]) return
+  const { queue, history, historyUUIDs } = store.actions.outgoing[topic]
+  for (const action of queue) {
+    history.push(action)
+    historyUUIDs.add(action.$uuid)
   }
+  queue.length = 0
 }
 
 const createActionQueue = <V extends Validator<unknown, ResolvedActionType>>(
