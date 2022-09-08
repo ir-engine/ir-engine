@@ -10,7 +10,7 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'
+import { ScenePreviewCameraComponent } from '../../components/ScenePreviewCamera'
 
 const EPSILON = 10e-8
 
@@ -35,7 +35,7 @@ describe('ScenePreviewCameraFunctions', () => {
   //   it('should set view port of preview camera to active camera', () => {
   //     Engine.instance.isEditor = true
 
-  //     addComponent(entity, ScenePreviewCameraTagComponent, true)
+  //     addComponent(entity, ScenePreviewCameraComponent, true)
 
   //     Engine.instance.currentWorld.camera = new PerspectiveCamera()
   //     Engine.instance.currentWorld.camera.position.set(1, 2, 3)
