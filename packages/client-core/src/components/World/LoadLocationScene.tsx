@@ -36,10 +36,6 @@ export const LoadLocationScene = () => {
     }
   }, [authState.isLoggedIn.value, locationState.locationName.value])
 
-  useHookEffect(() => {
-    if (authState.user.id.value) dispatchAction(EngineActions.connect({ id: authState.user.id.value }))
-  }, [authState.user])
-
   if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
   if (userNotAuthorized) return <div className="not-authorized">{t('location.notAuthorizedAtLocation')}</div>
 

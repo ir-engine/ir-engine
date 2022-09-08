@@ -1,5 +1,7 @@
 import { AmbientLight, Color } from 'three'
 
+import { createActionQueue } from '@xrengine/hyperflux'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -34,6 +36,8 @@ export default async function HyperspacePortalSystem(world: World) {
 
   let sceneVisible = true
 
+  const sceneLoadedQueue = createActionQueue(EngineActions.sceneLoaded.matches)
+
   return () => {
     const playerObj = getComponent(world.localClientEntity, Object3DComponent)
 
@@ -49,11 +53,9 @@ export default async function HyperspacePortalSystem(world: World) {
       Engine.instance.currentWorld.scene.add(light)
       Engine.instance.currentWorld.scene.add(hyperspaceEffect)
 
-      // create receptor for joining the world to end the hyperspace effect
-      matchActionOnce(EngineActions.sceneLoaded.matches, () => {
+      if (sceneLoadedQueue().length) {
         transition.setState('OUT')
-        return true
-      })
+      }
     }
 
     // run the logic for
