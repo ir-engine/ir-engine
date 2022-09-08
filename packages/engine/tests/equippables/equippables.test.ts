@@ -86,7 +86,7 @@ describe.skip('Equippables Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    ActionFunctions.clearOutgoingActions()
+    ActionFunctions.clearOutgoingActions(world.worldNetwork.topic)
     ActionFunctions.applyIncomingActions()
 
     // equipperQueryEnter(equipperEntity)
@@ -101,7 +101,7 @@ describe.skip('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    ActionFunctions.clearOutgoingActions()
+    ActionFunctions.clearOutgoingActions(world.worldNetwork.topic)
     ActionFunctions.applyIncomingActions()
 
     equipperQueryExit(equipperEntity)
