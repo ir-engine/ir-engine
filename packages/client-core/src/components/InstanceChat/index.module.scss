@@ -333,8 +333,9 @@
   white-space: pre-wrap;
 }
 
-.greyText {
-  color: #888686;
+.shadowText {
+  color: white;
+  text-shadow: 1px 1px 2px grey, 0 0 1em grey, 0 0 1em grey;
   font-size: 0.7rem;
   white-space: pre-wrap;
 }

@@ -30,6 +30,7 @@
     "react": "17.0.2"
   },
   "dependencies": {
+    "@hookstate/core": "4.0.0-rc21",
     "@mui/icons-material": "5.8.4",
     "@mui/material": "5.10.0",
     "@mui/styles": "5.9.3",

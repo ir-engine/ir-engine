@@ -1,4 +1,3 @@
-import { useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect } from 'react'
 import { Color, Material, Mesh, Texture } from 'three'
 
@@ -12,7 +11,7 @@ import {
   materialTypeToDefaultArgs,
   materialTypeToLibraryName
 } from '@xrengine/engine/src/renderer/materials/Utilities'
-import { useHookEffect } from '@xrengine/hyperflux'
+import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { executeCommandWithHistory } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'

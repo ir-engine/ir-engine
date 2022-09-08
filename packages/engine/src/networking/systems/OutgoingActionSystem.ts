@@ -7,11 +7,11 @@ const sendOutgoingActions = (world: World) => {
   for (const [instanceId, network] of world.networks) {
     try {
       network.sendActions()
+      clearOutgoingActions(network.topic, Engine.instance.store)
     } catch (e) {
       console.error(e)
     }
   }
-  clearOutgoingActions(Engine.instance.store)
 }
 
 export default function OutgoingActionSystem(world: World) {
