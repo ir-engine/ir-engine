@@ -12,11 +12,16 @@ import { changeRenderMode } from './changeRenderMode'
 export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
   if (!EngineRenderer.instance) return
 
-  EngineRenderer.instance.effectComposer.removeAllPasses()
+  if (!EngineRenderer.instance.renderPass) {
+    // we always want to have at least the render pass enabled
+    const renderPass = new RenderPass(Engine.instance.currentWorld.scene, camera)
+    EngineRenderer.instance.effectComposer.addPass(renderPass)
+    EngineRenderer.instance.renderPass = renderPass
+  }
 
-  // we always want to have at least the render pass enabled
-  const renderPass = new RenderPass(Engine.instance.currentWorld.scene, camera)
-  EngineRenderer.instance.effectComposer.addPass(renderPass)
+  for (const pass of EngineRenderer.instance.effectComposer.passes) {
+    if (pass !== EngineRenderer.instance.renderPass) EngineRenderer.instance.effectComposer.removePass(pass)
+  }
 
   if (remove) {
     return

@@ -338,11 +338,6 @@ export const initializeSceneSystems = async () => {
         uuid: 'xre.engine.HighlightSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./renderer/HighlightSystem')
-      },
-      {
-        uuid: 'xre.engine.EntityNodeEventSystem',
-        type: SystemUpdateType.PRE_RENDER,
-        systemLoader: () => import('./scene/systems/EntityNodeEventSystem')
       }
     )
 
