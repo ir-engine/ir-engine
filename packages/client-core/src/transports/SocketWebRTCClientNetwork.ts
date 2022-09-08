@@ -7,6 +7,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { clearOutgoingActions } from '@xrengine/hyperflux'
 import ActionFunctions, { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
@@ -45,7 +46,10 @@ export class SocketWebRTCClientNetwork extends Network {
 
   sendActions() {
     const actions = [...Engine.instance.store.actions.outgoing[this.topic].queue]
-    if (actions.length) this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
+    if (actions.length && this.socket) {
+      this.socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
+      clearOutgoingActions(this.topic)
+    }
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)

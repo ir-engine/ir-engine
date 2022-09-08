@@ -1,5 +1,8 @@
 import { Socket } from 'socket.io'
 
+import { AuthError } from '@xrengine/common/src/enums/AuthError'
+import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import multiLogger from '@xrengine/server-core/src/logger'
@@ -39,7 +42,7 @@ const logger = multiLogger.child({ component: 'instanceserver:socket' })
 export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket: Socket) => {
   logger.info('Initialized new socket connection with id %s', socket.id)
 
-  let startedAuthorization = false
+  let authTask: AuthTask | undefined
 
   /**
    * TODO: update this authorization procedure to use https://frontside.com/effection to better handle async flow
@@ -47,60 +50,79 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
    *
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
-  socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-    if (startedAuthorization) {
-      callback({ success: true })
+  socket.on(MessageTypes.Authorization.toString(), async (data, callback: (result: AuthTask) => void) => {
+    // if we have already started an auth task, return it's status
+    if (authTask) {
+      logger.info('[MessageTypes.Authorization]: sending auth status to user %s %o', data.userId, authTask)
+      callback(authTask)
       return
     }
 
-    startedAuthorization = true
-
-    logger.info('[MessageTypes.Authorization]: got auth request for %s', data.userId)
-    const accessToken = data.accessToken
+    // start a new auth task and let the client know it's pending.
+    // the client will have to keep polling us for the status of the task
+    // until it is resolved
+    authTask = { status: 'pending' }
+    callback(authTask)
+    logger.info('[MessageTypes.Authorization]: starting authorization for user %s', data.userId)
 
     /**
      * userId or access token were undefined, so something is wrong. Return failure
      */
-    if (typeof accessToken === 'undefined' || accessToken === null) {
-      startedAuthorization = false
-      callback({ success: false, message: 'accessToken is undefined' })
+    const accessToken = data.accessToken
+    if (!accessToken) {
+      authTask.status = 'fail'
+      authTask.error = AuthError.MISSING_ACCESS_TOKEN
+      logger.error('[MessageTypes.Authorization]: user is missing access token %s %o', data.userId, authTask)
       return
     }
 
-    const authResult = await network.app.service('authentication').strategies.jwt.authenticate!(
-      { accessToken: accessToken },
-      {}
-    )
-    const userId = authResult['identity-provider'].userId as UserId
+    let userId: UserId
+    let user: UserInterface
 
-    // Check database to verify that user ID is valid
-    const user = await network.app.service('user').Model.findOne({
-      attributes: ['id', 'name', 'instanceId', 'avatarId'],
-      where: { id: userId }
-    })
+    try {
+      const authResult = await network.app.service('authentication').strategies.jwt.authenticate!(
+        { accessToken: accessToken },
+        {}
+      )
+      userId = authResult['identity-provider'].userId as UserId
+      user = await network.app.service('user').Model.findOne({
+        attributes: ['id', 'name', 'instanceId', 'avatarId'],
+        where: { id: userId }
+      })
 
-    if (!user) {
-      startedAuthorization = false
-      callback({ success: false, message: 'user not found' })
+      if (!user) {
+        authTask.status = 'fail'
+        authTask.error = AuthError.USER_NOT_FOUND
+        logger.error('[MessageTypes.Authorization]: user not found %s %o', data.userId, authTask)
+        return
+      }
+
+      // Check that this use is allowed on this instance
+      const instance = await network.app.service('instance').get(network.app.instance.id)
+      if (!(await authorizeUserToJoinServer(network.app, instance, userId))) {
+        authTask.status = 'fail'
+        authTask.error = AuthError.USER_NOT_AUTHORIZED
+        logger.error('[MessageTypes.Authorization]: user not authorized %s %o', data.userId, authTask)
+        return
+      }
+
+      /**
+       * @todo Check that they are supposed to be in this instance
+       * @todo Check that token is valid (to prevent users hacking with a manipulated user ID payload)
+       * @todo Check if the user is banned
+       */
+
+      disconnectClientIfConnected(network, socket, userId)
+
+      await handleConnectingPeer(network, socket, user)
+    } catch (e) {
+      authTask.status = 'fail'
+      authTask.error = AuthError.INTERNAL_ERROR
+      logger.error('[MessageTypes.Authorization]: internal error while authorizing user %s %s', data.userId, e.message)
       return
     }
 
-    // Check that this use is allowed on this instance
-    const instance = await network.app.service('instance').get(network.app.instance.id)
-    if (!(await authorizeUserToJoinServer(network.app, instance, userId))) return
-
-    /**
-     * @todo Check that they are supposed to be in this instance
-     * @todo Check that token is valid (to prevent users hacking with a manipulated user ID payload)
-     */
-
-    disconnectClientIfConnected(network, socket, userId)
-
-    await handleConnectingPeer(network, socket, user)
-
-    callback({ success: true })
-
-    socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
+    socket.on(MessageTypes.JoinWorld.toString(), (data, callback) => {
       handleJoinWorld(network, socket, data, callback, userId, user)
     })
 
@@ -171,5 +193,8 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
     socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
       handleWebRtcInitializeRouter(network, socket, data, callback)
     )
+
+    logger.info('[MessageTypes.Authorization]: user successfully authorized %s %s', data.userId)
+    authTask.status = 'success'
   })
 }
