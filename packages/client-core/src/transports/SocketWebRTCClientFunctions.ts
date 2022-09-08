@@ -1,6 +1,7 @@
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
+import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -76,15 +77,17 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const token = authState.authUser.accessToken.value
   const payload = { accessToken: token }
 
-  const { success } = await new Promise<any>((resolve) => {
+  const { status } = await new Promise<AuthTask>((resolve) => {
     const interval = setInterval(async () => {
-      const response = await network.request(MessageTypes.Authorization.toString(), payload)
-      clearInterval(interval)
-      resolve(response)
-    }, 1000)
+      const response = (await network.request(MessageTypes.Authorization.toString(), payload)) as AuthTask
+      if (response.status !== 'pending') {
+        clearInterval(interval)
+        resolve(response)
+      }
+    }, 100)
   })
 
-  if (!success) {
+  if (status !== 'success') {
     return logger.error(new Error('Unable to connect with credentials'))
   }
 
@@ -126,6 +129,8 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   if (isWorldConnection) await onConnectToWorldInstance(network)
   else await onConnectToMediaInstance(network)
+
+  network.ready = true
 
   logger.info('Successfully connected to instance type: %o', { topic: network.topic, hostId: network.hostId })
 }

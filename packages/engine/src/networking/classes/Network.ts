@@ -90,6 +90,11 @@ export class Network {
   hostId: UserId
 
   /**
+   * The network is ready for sending messages and data
+   */
+  ready: boolean
+
+  /**
    * Check if this user is hosting the world.
    */
   get isHosting() {
