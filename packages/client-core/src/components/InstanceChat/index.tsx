@@ -306,7 +306,7 @@ const InstanceChat = ({
                     <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
                       <div className={styles.dFlex}>
                         <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                          <p className={styles.greyText}>{message.text}</p>
+                          <p className={styles.shadowText}>{message.text}</p>
                         </div>
                       </div>
                     </div>
