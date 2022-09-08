@@ -45,6 +45,7 @@ export class SocketWebRTCClientNetwork extends Network {
   consumers = [] as Consumer[]
 
   sendActions() {
+    if (!this.ready) return
     const actions = [...Engine.instance.store.actions.outgoing[this.topic].queue]
     if (actions.length && this.socket) {
       this.socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)

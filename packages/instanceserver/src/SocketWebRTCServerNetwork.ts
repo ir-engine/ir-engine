@@ -82,6 +82,7 @@ export class SocketWebRTCServerNetwork extends Network {
       if (arr.length) socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ arr) //)
     }
 
+    // TODO: refactor this to support multiple connections of the same topic type
     clearOutgoingActions(this.topic, Engine.instance.store)
   }
 
