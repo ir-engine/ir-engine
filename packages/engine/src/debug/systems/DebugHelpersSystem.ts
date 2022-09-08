@@ -24,7 +24,7 @@ import {
   Vector3
 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AudioComponent } from '../../audio/components/AudioComponent'
@@ -65,6 +65,7 @@ import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { DebugAutoPilotComponent } from '../DebugAutoPilotComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { PositionalAudioHelper } from '../PositionalAudioHelper'
+import { DebugActionReceptor } from '../state/DebugState'
 import { DebugRenderer } from './DebugRenderer'
 
 const vector3 = new Vector3()
@@ -149,6 +150,8 @@ export default async function DebugHelpersSystem(world: World) {
       helper.visible = physicsDebugEnable
     }
   }
+
+  addActionReceptor(DebugActionReceptor)
 
   const physicsDebugActionQueue = createActionQueue(EngineRendererAction.setPhysicsDebug.matches)
   const avatarDebugActionQueue = createActionQueue(EngineRendererAction.setAvatarDebug.matches)

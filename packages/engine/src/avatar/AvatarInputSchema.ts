@@ -11,6 +11,7 @@ import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { ParityValue } from '../common/enums/ParityValue'
 import { throttle } from '../common/functions/FunctionHelpers'
 import { clamp } from '../common/functions/MathLerpFunctions'
+import { DebugState, setLastClick } from '../debug/state/DebugState'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
@@ -420,6 +421,7 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
   const input = getComponent(entity, InputComponent)
   const coords = input.data.get(BaseInput.SCREENXY)?.value
   if (coords) {
+    setLastClick(coords as any)
     removeComponent(entity, AutoPilotRequestComponent)
     addComponent(entity, AutoPilotRequestComponent, { unprojectedPoint: new Vector2(coords[0], coords[1]) })
   }

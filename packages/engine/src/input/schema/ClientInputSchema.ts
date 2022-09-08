@@ -633,3 +633,23 @@ export function normalizeMouseCoordinates(
     y: (y / elementHeight) * -2 + 1
   }
 }
+
+/**
+ * Does the reverse of normalizeMouseCoordinates.
+ * @param x
+ * @param y
+ * @param elementWidth
+ * @param elementHeight
+ * @returns Normalized Mouse coordinates (x, y) where x and y are between -1 to 1 inclusively.
+ */
+export function denormalizeMouseCoordinates(
+  x: number,
+  y: number,
+  elementWidth: number,
+  elementHeight: number
+): { x: number; y: number } {
+  return {
+    x: (x + 1) * (elementWidth / 2),
+    y: (y - 1) * (elementHeight / -2)
+  }
+}

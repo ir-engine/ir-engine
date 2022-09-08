@@ -20,6 +20,7 @@ import { Tooltip } from '@mui/material'
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import ConferenceMode from '../ConferenceMode'
 import Debug from '../Debug'
+import { LastClick } from '../Debug/LastClick'
 import InstanceChat from '../InstanceChat'
 import InviteToast from '../InviteToast'
 import MediaIconsBox from '../MediaIconsBox'
@@ -234,6 +235,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
           </>
         )}
       </section>
+      <LastClick />
     </div>
   )
 }
