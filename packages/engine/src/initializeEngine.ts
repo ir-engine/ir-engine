@@ -40,14 +40,17 @@ export const createEngine = () => {
 export const setupEngineActionSystems = () => {
   const world = Engine.instance.currentWorld
   initSystemSync(world, {
+    uuid: 'xre.engine.FixedPipelineSystem',
     type: SystemUpdateType.UPDATE,
     systemFunction: FixedPipelineSystem
   })
   initSystemSync(world, {
+    uuid: 'xre.engine.IncomingActionSystem',
     type: SystemUpdateType.FIXED_EARLY,
     systemFunction: IncomingActionSystem
   })
   initSystemSync(world, {
+    uuid: 'xre.engine.OutgoingActionSystem',
     type: SystemUpdateType.FIXED_LATE,
     systemFunction: OutgoingActionSystem
   })
@@ -128,68 +131,87 @@ export const initializeMediaServerSystems = async () => {
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
-export const initializeCoreSystems = async () => {
+export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<any>[]) => {
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
+      uuid: 'xre.engine.TransformSystem',
       type: SystemUpdateType.UPDATE_LATE,
-      systemModulePromise: import('./transform/systems/TransformSystem')
+      systemLoader: () => import('./transform/systems/TransformSystem')
     },
     {
+      uuid: 'xre.engine.SceneObjectSystem',
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/SceneObjectSystem')
+      systemLoader: () => import('./scene/systems/SceneObjectSystem')
     },
     {
+      uuid: 'xre.engine.SceneLoadingSystem',
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/SceneLoadingSystem')
+      systemLoader: () => import('./scene/systems/SceneLoadingSystem')
     },
     {
+      uuid: 'xre.engine.SceneObjectUpdateSystem',
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/SceneObjectUpdateSystem')
+      systemLoader: () => import('./scene/systems/SceneObjectUpdateSystem')
     },
     {
+      uuid: 'xre.engine.LightSystem',
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/LightSystem')
+      systemLoader: () => import('./scene/systems/LightSystem')
     },
     {
+      uuid: 'xre.engine.AssetSystem',
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/AssetSystem')
+      systemLoader: () => import('./scene/systems/AssetSystem')
+    },
+    {
+      uuid: 'xre.engine.LoadVolumeSystem',
+      type: SystemUpdateType.FIXED_LATE,
+      systemLoader: () => import('./scene/systems/LoadVolumeSystem')
     }
   )
 
   if (isClient) {
     systemsToLoad.push(
       {
+        uuid: 'xre.engine.CameraSystem',
         type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./camera/systems/CameraSystem')
+        systemLoader: () => import('./camera/systems/CameraSystem')
       },
       {
+        uuid: 'xre.engine.XRSystem',
         type: SystemUpdateType.UPDATE_EARLY,
-        systemModulePromise: import('./xr/XRSystem')
+        systemLoader: () => import('./xr/XRSystem')
       },
       {
+        uuid: 'xre.engine.ClientInputSystem',
         type: SystemUpdateType.UPDATE_EARLY,
-        systemModulePromise: import('./input/systems/ClientInputSystem')
+        systemLoader: () => import('./input/systems/ClientInputSystem')
       },
       {
+        uuid: 'xre.engine.XRUISystem',
         type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./xrui/systems/XRUISystem')
+        systemLoader: () => import('./xrui/systems/XRUISystem')
       },
       {
+        uuid: 'xre.engine.SceneObjectDynamicLoadSystem',
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: import('./scene/systems/SceneObjectDynamicLoadSystem')
+        systemLoader: () => import('./scene/systems/SceneObjectDynamicLoadSystem')
       },
       {
+        uuid: 'xre.engine.MaterialOverrideSystem',
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: import('./scene/systems/MaterialOverrideSystem')
+        systemLoader: () => import('./scene/systems/MaterialOverrideSystem')
       },
       {
+        uuid: 'xre.engine.InstancingSystem',
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: import('./scene/systems/InstancingSystem')
+        systemLoader: () => import('./scene/systems/InstancingSystem')
       },
       {
+        uuid: 'xre.engine.WebGLRendererSystem',
         type: SystemUpdateType.RENDER,
-        systemModulePromise: import('./renderer/WebGLRendererSystem')
+        systemLoader: () => import('./renderer/WebGLRendererSystem')
       }
     )
   }
@@ -198,7 +220,7 @@ export const initializeCoreSystems = async () => {
   await initSystems(world, systemsToLoad)
 
   // load injected systems which may rely on core systems
-  await initSystems(world, Engine.instance.injectedSystems)
+  if (injectedSystems) await initSystems(world, injectedSystems)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
@@ -214,92 +236,113 @@ export const initializeSceneSystems = async () => {
 
   systemsToLoad.push(
     {
+      uuid: 'xre.engine.AvatarSpawnSystem',
       type: SystemUpdateType.FIXED,
-      systemModulePromise: import('./avatar/AvatarSpawnSystem')
+      systemLoader: () => import('./avatar/AvatarSpawnSystem')
     },
     {
+      uuid: 'xre.engine.AvatarSystem',
       type: SystemUpdateType.FIXED,
-      systemModulePromise: import('./avatar/AvatarSystem')
+      systemLoader: () => import('./avatar/AvatarSystem')
     },
     /** @todo fix equippable implementation */
     // {
+    //   uuid: 'xre.engine.EquippableSystem',
     //   type: SystemUpdateType.FIXED_LATE,
-    //   systemModulePromise: import('./interaction/systems/EquippableSystem')
+    //   systemLoader: () => import('./interaction/systems/EquippableSystem')
     // },
     {
+      uuid: 'xre.engine.PhysicsSystem',
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./physics/systems/PhysicsSystem')
+      systemLoader: () => import('./physics/systems/PhysicsSystem')
     },
     {
+      uuid: 'xre.engine.TriggerSystem',
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/TriggerSystem')
+      systemLoader: () => import('./scene/systems/TriggerSystem')
     }
   )
   if (isClient) {
     systemsToLoad.push(
       {
+        uuid: 'xre.engine.AutopilotSystem',
         type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./navigation/systems/AutopilotSystem')
+        systemLoader: () => import('./navigation/systems/AutopilotSystem')
       },
       {
+        uuid: 'xre.engine.HyperspacePortalSystem',
         type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
+        systemLoader: () => import('./scene/systems/HyperspacePortalSystem')
       },
       {
+        uuid: 'xre.engine.AvatarTeleportSystem',
         type: SystemUpdateType.FIXED,
-        systemModulePromise: import('./avatar/AvatarTeleportSystem')
+        systemLoader: () => import('./avatar/AvatarTeleportSystem')
       },
       {
+        uuid: 'xre.engine.AvatarControllerSystem',
         type: SystemUpdateType.FIXED,
-        systemModulePromise: import('./avatar/AvatarControllerSystem')
+        systemLoader: () => import('./avatar/AvatarControllerSystem')
       },
       {
+        uuid: 'xre.engine.InteractiveSystem',
         type: SystemUpdateType.UPDATE_LATE,
-        systemModulePromise: import('./interaction/systems/InteractiveSystem')
+        systemLoader: () => import('./interaction/systems/InteractiveSystem')
       },
       {
+        uuid: 'xre.engine.MountPointSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./interaction/systems/MountPointSystem')
+        systemLoader: () => import('./interaction/systems/MountPointSystem')
       },
       {
+        uuid: 'xre.engine.AudioSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./audio/systems/AudioSystem')
+        systemLoader: () => import('./audio/systems/AudioSystem')
       },
       {
+        uuid: 'xre.engine.PositionalAudioSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./audio/systems/PositionalAudioSystem')
+        systemLoader: () => import('./audio/systems/PositionalAudioSystem')
       },
       {
+        uuid: 'xre.engine.MediaControlSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./interaction/systems/MediaControlSystem')
+        systemLoader: () => import('./interaction/systems/MediaControlSystem')
       },
       {
+        uuid: 'xre.engine.AvatarLoadingSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./avatar/AvatarLoadingSystem')
+        systemLoader: () => import('./avatar/AvatarLoadingSystem')
       },
       {
+        uuid: 'xre.engine.AnimationSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./avatar/AnimationSystem')
+        systemLoader: () => import('./avatar/AnimationSystem')
       },
       {
+        uuid: 'xre.engine.RendererUpdateSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./scene/systems/RendererUpdateSystem')
+        systemLoader: () => import('./scene/systems/RendererUpdateSystem')
       },
       {
+        uuid: 'xre.engine.ParticleSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./scene/systems/ParticleSystem')
+        systemLoader: () => import('./scene/systems/ParticleSystem')
       },
       {
+        uuid: 'xre.engine.DebugHelpersSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./debug/systems/DebugHelpersSystem')
+        systemLoader: () => import('./debug/systems/DebugHelpersSystem')
       },
       {
+        uuid: 'xre.engine.HighlightSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./renderer/HighlightSystem')
+        systemLoader: () => import('./renderer/HighlightSystem')
       },
       {
+        uuid: 'xre.engine.EntityNodeEventSystem',
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./scene/systems/EntityNodeEventSystem')
+        systemLoader: () => import('./scene/systems/EntityNodeEventSystem')
       }
     )
 
@@ -314,26 +357,30 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
   const systemsToLoad: SystemModuleType<any>[] = []
 
   systemsToLoad.push({
+    uuid: 'xre.engine.WorldNetworkActionSystem',
     type: SystemUpdateType.FIXED_EARLY,
-    systemModulePromise: import('./networking/systems/WorldNetworkActionSystem')
+    systemLoader: () => import('./networking/systems/WorldNetworkActionSystem')
   })
 
   if (media) {
     systemsToLoad.push({
+      uuid: 'xre.engine.MediaStreamSystem',
       type: SystemUpdateType.UPDATE,
-      systemModulePromise: import('./networking/systems/MediaStreamSystem')
+      systemLoader: () => import('./networking/systems/MediaStreamSystem')
     })
   }
 
   if (pose) {
     systemsToLoad.push(
       {
+        uuid: 'xre.engine.IncomingNetworkSystem',
         type: SystemUpdateType.FIXED_EARLY,
-        systemModulePromise: import('./networking/systems/IncomingNetworkSystem')
+        systemLoader: () => import('./networking/systems/IncomingNetworkSystem')
       },
       {
+        uuid: 'xre.engine.OutgoingNetworkSystem',
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: import('./networking/systems/OutgoingNetworkSystem')
+        systemLoader: () => import('./networking/systems/OutgoingNetworkSystem')
       }
     )
   }

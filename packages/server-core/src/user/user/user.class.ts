@@ -150,10 +150,13 @@ export class User extends Service<UserInterface> {
     } else {
       if (
         loggedInUser.scopes &&
-        !loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin') &&
+        !(
+          loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin') &&
+          loggedInUser?.scopes.find((scope) => scope.type === 'user:read')
+        ) &&
         !params.isInternal
       )
-        throw new Forbidden('Must be system admin to execute this action')
+        throw new Forbidden('Must be system admin with user:read scope to execute this action')
       return await super.find(params)
     }
   }

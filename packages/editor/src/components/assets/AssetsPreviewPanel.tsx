@@ -15,7 +15,7 @@ import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
 import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
 
-const AssetHeading = styled.div`
+const AssetHeading = (styled as any).div`
   text-align: center;
   font-size: 0.9rem;
   padding-bottom: 10px;

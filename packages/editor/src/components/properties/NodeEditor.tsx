@@ -1,5 +1,12 @@
 import React from 'react'
 
+import {
+  ComponentConstructor,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
+import { useEditorState } from '../../services/EditorServices'
 import PropertyGroup from './PropertyGroup'
 import { EditorPropType } from './Util'
 
@@ -14,9 +21,18 @@ type NodeEditorProps = EditorPropType & {
  *
  * @type {class component}
  */
-export const NodeEditor: React.FC<NodeEditorProps> = ({ description, children, name }) => {
+export const NodeEditor: React.FC<NodeEditorProps> = ({ description, children, name, node, component }) => {
+  const editorState = useEditorState()
   return (
-    <PropertyGroup name={name} description={description}>
+    <PropertyGroup
+      name={name}
+      description={description}
+      onClose={
+        editorState.advancedMode.value && component && hasComponent(node.entity, component)
+          ? () => removeComponent(node.entity, component)
+          : undefined
+      }
+    >
       {children}
     </PropertyGroup>
   )

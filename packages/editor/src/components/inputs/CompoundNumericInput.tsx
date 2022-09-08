@@ -10,11 +10,11 @@ import Slider from './Slider'
  * @type {Styled component}
  */
 const StyledCompoundNumericInput = (styled as any).div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 `
 
 /**

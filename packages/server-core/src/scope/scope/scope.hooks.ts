@@ -8,10 +8,10 @@ export default {
     all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
     find: [iff(isProvider('external'), verifyScope('user', 'read') as any)],
     get: [iff(isProvider('external'), verifyScope('user', 'read') as any)],
-    create: [iff(isProvider('external'), verifyScope('user', 'write') as any)],
+    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
     update: [disallow()],
     patch: [disallow()],
-    remove: [iff(isProvider('external'), verifyScope('user', 'write') as any)]
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)]
   },
 
   after: {

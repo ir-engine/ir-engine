@@ -13,12 +13,18 @@ const restrictUserPatch = (context: HookContext) => {
 
   // allow admins for all patch actions
   const loggedInUser = context.params.user as UserInterface
-  if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
+  if (
+    loggedInUser.scopes &&
+    loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
+    loggedInUser.scopes.find((scope) => scope.type === 'user:write')
+  )
+    return context
 
   // only allow a user to patch it's own data
-  if (loggedInUser.id !== context.id) throw new Error('Must be an admin to patch another users data')
+  if (loggedInUser.id !== context.id)
+    throw new Error("Must be an admin with user:write scope to patch another user's data")
 
-  // filter to only allowed
+  // If a user without admin and user:write scope is patching themself, only allow changes to avatarId and name
   const data = {} as any
   // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
   if (typeof context.data.avatarId !== 'undefined') data.avatarId = context.data.avatarId
@@ -32,10 +38,15 @@ const restrictUserRemove = (context: HookContext) => {
 
   // allow admins for all patch actions
   const loggedInUser = context.params.user as UserInterface
-  if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
+  if (
+    loggedInUser.scopes &&
+    loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
+    loggedInUser.scopes.find((scope) => scope.type === 'user:write')
+  )
+    return context
 
   // only allow a user to patch it's own data
-  if (loggedInUser.id !== context.id) throw new Error('Must be an admin to delete another user')
+  if (loggedInUser.id !== context.id) throw new Error('Must be an admin with user:write scope to delete another user')
 
   return context
 }
@@ -193,8 +204,8 @@ export default {
         ]
       })
     ],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
     patch: [
       iff(isProvider('external'), restrictUserPatch as any),
       addAssociations({
