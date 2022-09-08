@@ -162,8 +162,6 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   }
   await initSystems(world, systemsToLoad)
 
-  resetEngineRenderer(true)
-
   const { entityLoadQueue, entityDynamicQueue } = splitLazyLoadedSceneEntities(sceneData.scene)
 
   /** load new non dynamic scene entities */
@@ -228,10 +226,6 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     for (const component of entityJson.components) {
       loadComponent(existingEntity, component, world)
     }
-  }
-
-  if (!postProcessingQuery().length) {
-    configureEffectComposer()
   }
 
   dispatchAction(

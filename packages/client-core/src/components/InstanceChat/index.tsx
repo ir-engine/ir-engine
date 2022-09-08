@@ -211,12 +211,11 @@ const InstanceChat = ({
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages =
-    activeChannel && activeChannel.messages.value.length
-      ? [...activeChannel.messages.value].sort(
-          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        )
-      : []
+  const sortedMessages = activeChannel?.messages?.get({ noproxy: true })?.length
+    ? [...activeChannel.messages.get({ noproxy: true })].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+    : []
 
   const user = useAuthState().user
 
