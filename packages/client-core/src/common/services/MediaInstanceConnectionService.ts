@@ -83,6 +83,15 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     .when(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel.matches, (action) => {
       return s.joiningNonInstanceMediaChannel.set(true)
     })
+    .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
+      const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
+      Engine.instance.currentWorld.mediaNetwork.hostId = action.newInstanceId as UserId
+      Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.mediaNetwork)
+      Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
+      Engine.instance.currentWorld._mediaHostId = action.newInstanceId as UserId
+      s.instances.merge({ [action.newInstanceId]: currentNetwork })
+      s.instances[action.currentInstanceId].set(none)
+    })
 }
 
 export const accessMediaInstanceConnectionState = () => getState(MediaInstanceState)
@@ -207,5 +216,11 @@ export class MediaInstanceConnectionAction {
 
   static joiningNonInstanceMediaChannel = defineAction({
     type: 'JOINING_NON_INSTANCE_MEDIA_CHANNEL' as const
+  })
+
+  static changeActiveConnectionHostId = defineAction({
+    type: 'MEDIA_INSTANCE_SERVER_CHANGE_HOST_ID' as const,
+    currentInstanceId: matchesUserId,
+    newInstanceId: matchesUserId
   })
 }

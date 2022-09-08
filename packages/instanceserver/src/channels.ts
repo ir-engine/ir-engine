@@ -341,9 +341,9 @@ const createOrUpdateInstance = async (
   userId: UserId
 ) => {
   logger.info('Creating new instance server or updating current one.')
-  logger.info('agones state is %o', status.state)
-  logger.info('app instance is %o', app.instance)
-  logger.info({ instanceLocationId: app.instance?.locationId, locationId })
+  logger.info(`agones state is ${status.state}`)
+  logger.info('app instance is %o, app.instance')
+  logger.info(`instanceLocationId: ${app.instance?.locationId}, locationId: ${locationId}`)
 
   const isReady = status.state === 'Ready'
   const isNeedingNewServer = !config.kubernetes.enabled && !instanceStarted
@@ -488,7 +488,10 @@ const handleUserDisconnect = async (
 
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (app.transport.peers.size <= 1) await shutdownServer(app, instanceId)
+  if (app.transport.peers.size <= 1) {
+    logger.info('Shutting down instance server as there are no users present.')
+    await shutdownServer(app, instanceId)
+  }
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
@@ -527,6 +530,10 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
     !config.kubernetes.enabled &&
     app.instance &&
     (app.instance.locationId != locationId || app.instance.channelId != channelId)
+
+  logger.info(
+    `current id: ${locationId ?? channelId} and new id: ${app.instance?.locationId ?? app.instance?.channelId}`
+  )
 
   if (isLocalServerNeedingNewLocation) {
     app.restart()
