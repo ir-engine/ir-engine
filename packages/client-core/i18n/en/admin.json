@@ -175,9 +175,15 @@
       "keyCantEmpty": "Key can't be empty",
       "mimeTypeCantEmpty": "Mime type can't be empty",
       "resourceTypeCantEmpty": "Resource type can't be empty",
+      "resourceUrlCantEmpty": "Resource url can't be empty",
+      "resourceFileCantEmpty": "Resource file can't be empty",
       "keyRequired": "Key is required",
       "mimeTypeRequired": "Mime type is required",
-      "resourceTypeRequired": "Resource type is required"
+      "resourceTypeRequired": "Resource type is required",
+      "resourceUrlInvalid": "Resource url is not valid",
+      "resourceFileOversized": "Resource file size must be between {{minSize}} MB and {{maxSize}} MB",
+      "selectFile": "Select File",
+      "resourceUrl": "Resource Url"
     },
     "setting": {
       "authentication": "Authentication",

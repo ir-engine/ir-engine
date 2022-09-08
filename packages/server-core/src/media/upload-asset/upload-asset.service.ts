@@ -1,6 +1,7 @@
 import { Params } from '@feathersjs/feathers'
 import express from 'express'
 import multer from 'multer'
+import { Op } from 'sequelize'
 
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
@@ -33,9 +34,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   const key = processFileName(args.key)
   const existingAsset = await app.service('static-resource').Model.findAndCountAll({
     where: {
-      staticResourceType: args.staticResourceType || 'avatar',
-      ...{ key: key },
-      ...userIdQuery
+      [Op.or]: [{ key: key }, { id: args.id }]
     }
   })
 
@@ -55,7 +54,7 @@ export const addGenericAssetToS3AndStaticResources = async (
         {
           Key: key,
           Body: file,
-          ContentType: args.contentType
+          ContentType: args.mimeType
         },
         {
           isDirectory: false
@@ -75,7 +74,9 @@ export const addGenericAssetToS3AndStaticResources = async (
           existingAsset.rows[0].id,
           {
             url: assetURL,
-            key: key
+            key: key,
+            mimeType: args.mimeType,
+            staticResourceType: args.staticResourceType
           },
           { isInternal: true }
         )
@@ -86,9 +87,9 @@ export const addGenericAssetToS3AndStaticResources = async (
           try {
             const newResource = await app.service('static-resource').create(
               {
-                mimeType: args.contentType,
                 url: assetURL,
                 key: key,
+                mimeType: args.mimeType,
                 staticResourceType: args.staticResourceType,
                 ...userIdQuery
               },
@@ -140,15 +141,11 @@ export default (app: Application): void => {
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
           if (files && files.length > 0) {
             return Promise.all(
-              files.map((file, i) =>
-                addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
-              )
+              files.map((file, i) => addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData }))
             )
           } else {
             return Promise.all(
-              data?.files.map((file, i) =>
-                addGenericAssetToS3AndStaticResources(app, file as Buffer, { ...argsData[0] })
-              )
+              data?.files.map((file, i) => addGenericAssetToS3AndStaticResources(app, file as Buffer, { ...argsData }))
             )
           }
         }

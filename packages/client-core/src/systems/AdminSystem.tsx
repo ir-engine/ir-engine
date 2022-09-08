@@ -60,8 +60,8 @@ export default async function AdminSystem(world: World) {
   const avatarCreatedQueue = createActionQueue(AdminAvatarActions.avatarCreated.matches)
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
   const avatarUpdatedQueue = createActionQueue(AdminAvatarActions.avatarUpdated.matches)
-  const resourcesFetchedQueue = createActionQueue(AdminResourceActions.resourcesFetched.matches)
   const resourceFiltersFetchedQueue = createActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
+  const resourcesFetchedQueue = createActionQueue(AdminResourceActions.resourcesFetched.matches)
   const setSelectedMimeTypesQueue = createActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
   const setSelectedResourceTypesQueue = createActionQueue(AdminResourceActions.setSelectedResourceTypes.matches)
   const resourceNeedsUpdateQueue = createActionQueue(AdminResourceActions.resourceNeedsUpdated.matches)
@@ -181,11 +181,11 @@ export default async function AdminSystem(world: World) {
     for (const action of avatarUpdatedQueue()) {
       AdminAvatarReceptors.avatarUpdatedReceptor(action)
     }
-    for (const action of resourcesFetchedQueue()) {
-      AdminResourceReceptors.resourcesFetchedReceptor(action)
-    }
     for (const action of resourceFiltersFetchedQueue()) {
       AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
+    }
+    for (const action of resourcesFetchedQueue()) {
+      AdminResourceReceptors.resourcesFetchedReceptor(action)
     }
     for (const action of setSelectedMimeTypesQueue()) {
       AdminResourceReceptors.setSelectedMimeTypesReceptor(action)

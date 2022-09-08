@@ -1,27 +1,36 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@xrengine/common/src/constants/AvatarConstants'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
 } from '@xrengine/editor/src/components/assets/AssetsPreviewPanel'
 
+import FileUploadIcon from '@mui/icons-material/FileUpload'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
+import FormControl from '@mui/material/FormControl'
+import FormHelperText from '@mui/material/FormHelperText'
+import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
+import InputRadio from '../../common/InputRadio'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
-import { validateForm } from '../../common/validation/formValidation'
 import { ResourceService, useAdminResourceState } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
+
+const Input = styled('input')({
+  display: 'none'
+})
 
 export enum ResourceDrawerMode {
   Create,
@@ -37,14 +46,17 @@ interface Props {
 
 const defaultState = {
   key: '',
-  url: '',
   mimeType: '',
   staticResourceType: '',
+  source: 'file',
+  resourceUrl: '',
+  resourceFile: undefined as File | undefined,
   formErrors: {
     key: '',
-    url: '',
     mimeType: '',
-    staticResourceType: ''
+    staticResourceType: '',
+    resourceUrl: '',
+    resourceFile: ''
   }
 }
 
@@ -68,6 +80,14 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       }
     }) || []
 
+  const selectedMime = mimeTypesMenu.find((item) => item.value === state.mimeType)
+  if (state.mimeType && !selectedMime) {
+    mimeTypesMenu.push({
+      value: state.mimeType,
+      label: state.mimeType
+    })
+  }
+
   const resourceTypesMenu: InputMenuItem[] =
     adminResourceState.value.filters?.staticResourceTypes.map((el) => {
       return {
@@ -78,29 +98,56 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
 
   useEffect(() => {
     loadSelectedResource()
-    updateResource()
   }, [selectedResource])
+
+  useEffect(() => {
+    updateResource()
+  }, [state.source, state.resourceFile, state.resourceUrl])
 
   const loadSelectedResource = () => {
     if (selectedResource) {
       setState({
         ...defaultState,
         key: selectedResource.key || '',
-        url: selectedResource.url || '',
         mimeType: selectedResource.mimeType || '',
-        staticResourceType: selectedResource.staticResourceType || ''
+        staticResourceType: selectedResource.staticResourceType || '',
+        source: 'url',
+        resourceUrl: selectedResource.url || '',
+        resourceFile: undefined
       })
     }
   }
 
   const updateResource = async () => {
-    if (selectedResource) {
-      ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.({
-        name: selectedResource.key,
-        resourceUrl: selectedResource.url,
-        contentType: selectedResource.mimeType
-      } as AssetSelectionChangePropsType)
+    let url = ''
+    if (state.source === 'url' && state.resourceUrl) {
+      url = isValidHttpUrl(state.resourceUrl) ? state.resourceUrl : ''
+    } else if (state.source === 'file' && state.resourceFile) {
+      await state.resourceFile.arrayBuffer()
+      url = URL.createObjectURL(state.resourceFile) + '#' + state.resourceFile.name
     }
+
+    if (url) {
+      ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.({
+        name: state.key,
+        resourceUrl: url,
+        contentType: state.mimeType
+      } as AssetSelectionChangePropsType)
+    } else {
+      ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.({ resourceUrl: '', name: '', contentType: '' })
+    }
+  }
+
+  const isValidHttpUrl = (urlString) => {
+    let url
+
+    try {
+      url = new URL(urlString)
+    } catch (_) {
+      return false
+    }
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
   }
 
   const handleCancel = () => {
@@ -113,6 +160,41 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
   const handleClose = () => {
     onClose()
     setState({ ...defaultState })
+  }
+
+  const handleChangeFile = (e) => {
+    const { name, files } = e.target
+
+    if (files.length === 0) {
+      return
+    }
+
+    let tempErrors = { ...state.formErrors }
+
+    switch (name) {
+      case 'resourceFile': {
+        const inValidSize = files[0].size < MIN_AVATAR_FILE_SIZE || files[0].size > MAX_AVATAR_FILE_SIZE
+        tempErrors.resourceFile = inValidSize
+          ? t('admin:components.resources.resourceFileOversized', {
+              minSize: MIN_AVATAR_FILE_SIZE / 1048576,
+              maxSize: MAX_AVATAR_FILE_SIZE / 1048576
+            })
+          : ''
+        break
+      }
+      default:
+        break
+    }
+
+    const newState = { ...state, [name]: files[0], formErrors: tempErrors }
+    if (!tempErrors.resourceFile) {
+      newState.mimeType = files[0].type
+
+      if (!state.key) {
+        newState.key = files[0].name
+      }
+    }
+    setState(newState)
   }
 
   const handleChange = (e) => {
@@ -130,6 +212,10 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       case 'staticResourceType':
         tempErrors.staticResourceType = value.length < 2 ? t('admin:components.resources.resourceTypeRequired') : ''
         break
+      case 'resourceUrl': {
+        tempErrors.resourceUrl = !isValidHttpUrl(value) ? t('admin:components.resources.resourceUrlInvalid') : ''
+        break
+      }
       default:
         break
     }
@@ -137,33 +223,50 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     setState({ ...state, [name]: value, formErrors: tempErrors })
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    let resourceBlob: Blob | undefined = undefined
+
+    let tempErrors = {
+      ...state.formErrors,
+      key: state.key ? '' : t('admin:components.resources.keyCantEmpty'),
+      mimeType: state.mimeType ? '' : t('admin:components.resources.mimeTypeCantEmpty'),
+      staticResourceType: state.staticResourceType ? '' : t('admin:components.resources.resourceTypeCantEmpty'),
+      resourceUrl:
+        state.source === 'url' && state.resourceUrl ? '' : t('admin:components.resources.resourceUrlCantEmpty'),
+      resourceFile:
+        state.source === 'file' && state.resourceFile ? '' : t('admin:components.resources.resourceFileCantEmpty')
+    }
+
+    setState({ ...state, formErrors: tempErrors })
+
+    if ((state.source === 'file' && tempErrors.resourceFile) || (state.source === 'url' && tempErrors.resourceUrl)) {
+      NotificationService.dispatchNotify(t('admin:components.common.fixErrorFields'), { variant: 'error' })
+      return
+    } else if (tempErrors.key || tempErrors.mimeType || tempErrors.staticResourceType) {
+      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
+      return
+    } else if (state.source === 'file' && state.resourceFile) {
+      resourceBlob = state.resourceFile
+    } else if (state.source === 'url' && state.resourceUrl) {
+      const resourceData = await fetch(state.resourceUrl)
+      resourceBlob = await resourceData.blob()
+    }
+
     const data = {
+      id: selectedResource ? selectedResource.id : '',
       key: state.key,
       mimeType: state.mimeType,
       staticResourceType: state.staticResourceType
     }
 
-    let tempErrors = {
-      ...state.formErrors,
-      key: state.key ? '' : t('admin:components.location.keyCantEmpty'),
-      mimeType: state.mimeType ? '' : t('admin:components.location.mimeTypeCantEmpty'),
-      staticResourceType: state.staticResourceType ? '' : t('admin:components.location.resourceTypeCantEmpty')
-    }
+    if (resourceBlob) {
+      ResourceService.createOrUpdateResource(data, resourceBlob)
 
-    setState({ ...state, formErrors: tempErrors })
-
-    if (validateForm(state, tempErrors)) {
-      if (mode === ResourceDrawerMode.Create) {
-        ResourceService.createResource(data)
-      } else if (selectedResource) {
-        ResourceService.patchResource(selectedResource.id, data)
+      if (mode === ResourceDrawerMode.ViewEdit) {
         setEditMode(false)
       }
 
       handleClose()
-    } else {
-      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
   }
 
@@ -206,9 +309,53 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         onChange={handleChange}
       />
 
+      {!viewMode && (
+        <InputRadio
+          name="source"
+          label={t('admin:components.avatar.source')}
+          value={state.source}
+          options={[
+            { value: 'file', label: t('admin:components.avatar.file') },
+            { value: 'url', label: t('admin:components.avatar.url') }
+          ]}
+          onChange={handleChange}
+        />
+      )}
+
+      {state.source === 'file' && (
+        <>
+          <label htmlFor="select-file">
+            <Input id="select-file" name="resourceFile" type="file" onChange={handleChangeFile} />
+            <Button className={styles.gradientButton} component="span" startIcon={<FileUploadIcon />}>
+              {t('admin:components.resources.selectFile')}
+            </Button>
+          </label>
+
+          {state.formErrors.resourceFile && (
+            <Box>
+              <FormControl error>
+                <FormHelperText className="Mui-error">{state.formErrors.resourceFile}</FormHelperText>
+              </FormControl>
+            </Box>
+          )}
+        </>
+      )}
+
+      {state.source === 'url' && (
+        <InputText
+          name="resourceUrl"
+          sx={{ mt: 3, mb: 1 }}
+          label={t('admin:components.resources.resourceUrl')}
+          value={state.resourceUrl}
+          error={state.formErrors.resourceUrl}
+          disabled={viewMode}
+          onChange={handleChange}
+        />
+      )}
+
       <Typography>{t('admin:components.resources.preview')}</Typography>
 
-      <Box sx={{ height: 300 }}>
+      <Box className={styles.preview} sx={{ height: 300 }}>
         <AssetsPreviewPanel hideHeading ref={assetsPreviewPanelRef} />
       </Box>
 

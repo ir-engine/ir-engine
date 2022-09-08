@@ -8,6 +8,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
+import { uploadToFeathersService } from '../../util/upload'
 
 const logger = multiLogger.child({ component: 'client-core:ResourcesService' })
 
@@ -100,17 +101,13 @@ export const accessAdminResourceState = () => getState(AdminResourceState)
 export const useAdminResourceState = () => useState(accessAdminResourceState())
 
 export const ResourceService = {
-  createResource: async (resource: any) => {
+  createOrUpdateResource: async (resource: any, resourceBlob: Blob) => {
     try {
-      await API.instance.client.service('static-resource').create(resource)
-      dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  },
-  patchResource: async (id: string, resource: any) => {
-    try {
-      await API.instance.client.service('static-resource').patch(id, resource)
+      await uploadToFeathersService('upload-asset', [resourceBlob], {
+        type: 'admin-file-upload',
+        args: resource
+      })
+
       dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
