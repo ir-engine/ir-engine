@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { KeyboardEvent, useState } from 'react'
 import styled from 'styled-components'
 
-import { State } from '@xrengine/hyperflux/functions/StateFunctions'
+import { State, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import CheckIcon from '@mui/icons-material/Check'
 
@@ -29,7 +29,7 @@ const StyledBooleanInput = styled.input`
  *
  * @type {styled component}
  */
-const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
+const BooleanInputLabel = styled(Input)`
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -44,16 +44,14 @@ const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
  *
  * @type {styled component}
  */
-const BooleanCheck = (styled as any)(CheckIcon)`
+const BooleanCheck = styled(CheckIcon)`
   width: 100% !important;
   height: auto;
   color: var(--buttonTextColor);
-
 `
 
 interface BooleanInputProp {
-  id?: string
-  value: State<boolean> | boolean
+  value: boolean
   onChange: Function
   disabled?: boolean
 }
@@ -64,17 +62,14 @@ interface BooleanInputProp {
  * @type {functional component}
  */
 export const BooleanInput = (props: BooleanInputProp) => {
-  //initializing checkboxId for BooleanInput
-  const [checkboxId, setCheckboxId] = useState(`boolean-input-${uniqueId++}`)
+  const [checkboxId] = useState(() => `boolean-input-${uniqueId++}`)
 
-  // function handling changes in BooleanInput
   const onChange = (e) => {
-    if (e.key) {
-      if (e.key === 'Enter' || e.key === ' ') props?.onChange(!props.value)
-      return
-    }
+    props.onChange(e.target.checked)
+  }
 
-    props?.onChange(e.target.checked)
+  const onKeyPress = (e: KeyboardEvent<HTMLLabelElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') props.onChange(!props.value)
   }
 
   return (
@@ -86,16 +81,11 @@ export const BooleanInput = (props: BooleanInputProp) => {
         onChange={onChange}
         disabled={props.disabled}
       />
-      <BooleanInputLabel htmlFor={checkboxId} tabIndex={0} onKeyPress={onChange}>
-        {props.value && <BooleanCheck size={12} />}
+      <BooleanInputLabel as="label" htmlFor={checkboxId} tabIndex={0} onKeyPress={onKeyPress}>
+        {props.value && <BooleanCheck />}
       </BooleanInputLabel>
     </div>
   )
 }
 
 export default BooleanInput
-
-BooleanInput.defaultProps = {
-  value: false,
-  onChange: () => {}
-}

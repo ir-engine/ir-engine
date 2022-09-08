@@ -81,7 +81,7 @@ import {
   SCENE_COMPONENT_RENDERER_SETTINGS,
   SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES
 } from '../components/RenderSettingComponent'
-import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SCENE_COMPONENT_SCREENSHARETARGET, ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import {
@@ -141,8 +141,8 @@ import {
   updateRenderSetting
 } from '../functions/loaders/RenderSettingsFunction'
 import {
-  shouldDeserializeScenePreviewCamera,
-  updateCameraTransform
+  enterScenePreviewCamera,
+  shouldDeserializeScenePreviewCamera
 } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
@@ -221,7 +221,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, props: true }
   ])
 
-  world.sceneComponentRegistry.set(ScenePreviewCameraTagComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
+  world.sceneComponentRegistry.set(ScenePreviewCameraComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
     shouldDeserialize: shouldDeserializeScenePreviewCamera
   })
@@ -487,7 +487,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const renderSettingsQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
   const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent, FollowCameraComponent])
-  const scenePreviewCameraTagQuery = defineQuery([ScenePreviewCameraTagComponent])
+  const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
@@ -512,7 +512,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, RenderSettingComponent)) updateRenderSetting(entity)
         if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
         if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
-        if (hasComponent(entity, ScenePreviewCameraTagComponent)) updateCameraTransform(entity)
       }
     }
 
@@ -532,6 +531,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
-    for (const entity of scenePreviewCameraTagQuery.enter()) updateCameraTransform(entity)
+    for (const entity of scenePreviewCameraQuery.enter()) enterScenePreviewCamera(entity)
   }
 }

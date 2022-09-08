@@ -7,7 +7,7 @@ import { accessEngineRendererState } from '@xrengine/engine/src/renderer/EngineR
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 import { getCanvasBlob } from './thumbnails'
@@ -31,7 +31,7 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
 export async function takeScreenshot(width: number, height: number): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   let scenePreviewCamera: PerspectiveCamera = null!
-  const query = defineQuery([ScenePreviewCameraTagComponent])
+  const query = defineQuery([ScenePreviewCameraComponent])
 
   for (const entity of query()) {
     scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
@@ -39,7 +39,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
 
   if (!scenePreviewCamera) {
     const entity = createEntity()
-    addComponent(entity, ScenePreviewCameraTagComponent, true)
+    addComponent(entity, ScenePreviewCameraComponent, null)
 
     scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
     Engine.instance.currentWorld.camera.matrix.decompose(

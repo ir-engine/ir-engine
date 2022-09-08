@@ -25,7 +25,7 @@ import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/
 import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/SpawnPointComponent'
@@ -78,7 +78,7 @@ import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 
-export const EntityNodeEditor = new Map<Component<any, any>, EditorComponentType>()
+export const EntityNodeEditor = new Map<Component<any, any, any>, EditorComponentType>()
 EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
 EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
 EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
@@ -96,7 +96,7 @@ EntityNodeEditor.set(GroupComponent, GroupNodeEditor)
 EntityNodeEditor.set(AssetComponent, AssetNodeEditor)
 EntityNodeEditor.set(PostprocessingComponent, PostProcessingNodeEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
-EntityNodeEditor.set(ScenePreviewCameraTagComponent, ScenePreviewCameraNodeEditor)
+EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)
 EntityNodeEditor.set(SpawnPointComponent, SpawnPointNodeEditor)
 EntityNodeEditor.set(MediaComponent, MediaNodeEditor)

@@ -51,7 +51,7 @@ import { MountPointComponent } from '../../scene/components/MountPointComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { ScenePreviewCameraTagComponent } from '../../scene/components/ScenePreviewCamera'
+import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
 import { SelectTagComponent } from '../../scene/components/SelectTagComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { SplineComponent } from '../../scene/components/SplineComponent'
@@ -113,7 +113,7 @@ export default async function DebugHelpersSystem(world: World) {
   ])
   const scenePreviewCameraSelectQuery = defineQuery([
     TransformComponent,
-    ScenePreviewCameraTagComponent,
+    ScenePreviewCameraComponent,
     Object3DComponent,
     SelectTagComponent
   ])
@@ -245,8 +245,8 @@ export default async function DebugHelpersSystem(world: World) {
        */
 
       for (const entity of scenePreviewCameraSelectQuery.enter()) {
-        const camera = getComponent(entity, Object3DComponent)?.value as Camera
-        const helper = new CameraHelper(camera)
+        const scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
+        const helper = new CameraHelper(scenePreviewCamera)
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         editorHelpers.set(entity, helper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -254,7 +254,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of scenePreviewCameraSelectQuery.exit()) {
         const helper = editorHelpers.get(entity)!
-        Engine.instance.currentWorld.scene.remove(helper)
+        helper.removeFromParent()
         editorHelpers.delete(entity)
       }
 

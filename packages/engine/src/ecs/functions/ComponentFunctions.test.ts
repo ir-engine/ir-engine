@@ -92,8 +92,8 @@ describe('ComponentFunctions', async () => {
     })
 
     it('should throw on null entity argument', () => {
-      assert.throws(() => addComponent(null!, null!, {}))
-      assert.throws(() => addComponent(undefined!, undefined!, {}))
+      assert.throws(() => addComponent(null!, null!, null!))
+      assert.throws(() => addComponent(undefined!, undefined!, null!))
     })
   })
 
