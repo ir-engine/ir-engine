@@ -270,6 +270,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
   await initPromise
+  network.ready = true
 
   NetworkPeerFunctions.createPeer(
     network,
