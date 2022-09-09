@@ -18,6 +18,8 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists } from '../../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import { MediaElementComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent } from '../../components/VolumetricComponent'
@@ -42,7 +44,7 @@ export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
 }
 
 const Volumetric = new WeakMap<
-  HTMLVideoElement,
+  HTMLMediaElement,
   {
     entity: Entity
     player: VolumetricPlayer
@@ -52,29 +54,16 @@ const Volumetric = new WeakMap<
   }
 >()
 
-export const updateVolumetric = async (entity: Entity) => {
-  if (!isClient) return
-
+export const enterVolumetric = async (entity: Entity) => {
   const VolumetricPlayer = await VolumetricPlayerPromise
   if (!entityExists(entity)) return
 
-  if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Group() })
-  const group = getComponent(entity, Object3DComponent).value
-
   const mediaElement = getComponent(entity, MediaElementComponent)
   const volumetricComponent = getComponent(entity, VolumetricComponent)
-
   if (!mediaElement || !volumetricComponent) return
 
   if (mediaElement.element instanceof HTMLVideoElement == false) {
     throw new Error('expected video media')
-  }
-
-  let volumetric = Volumetric.get(mediaElement.element as HTMLVideoElement)!
-
-  if (volumetric) {
-    volumetric.player.update()
-    return
   }
 
   const player = new VolumetricPlayer({
@@ -84,26 +73,45 @@ export const updateVolumetric = async (entity: Entity) => {
     playMode: PlayMode.single
   })
 
-  volumetric = {
+  const volumetric = {
     entity,
     player,
     height: 1.6,
     loadingEffectActive: volumetricComponent.useLoadingEffect.value,
     loadingEffectTime: 0
   }
-  Volumetric.set(mediaElement.element as HTMLVideoElement, volumetric)
+  Volumetric.set(mediaElement.element, volumetric)
 
-  if (player.mesh.parent !== group) group.add(player.mesh)
+  addObjectToGroup(entity, volumetric.player.mesh)
 
-  player.video.addEventListener('playing', () => {
-    volumetric.height = calculateHeight(player!.mesh) * group.scale.y
-    if (volumetric.loadingEffectTime === 0) setupLoadingEffect(entity, player!.mesh)
-  })
+  player.video.addEventListener(
+    'playing',
+    () => {
+      const transform = getComponent(entity, TransformComponent)
+      if (!transform) return
+      volumetric.height = calculateHeight(player.mesh) * transform.scale.y
+      if (volumetric.loadingEffectTime === 0) setupLoadingEffect(entity, player!.mesh)
+    },
+    { signal: mediaElement.abortController.signal }
+  )
 
-  player.video.addEventListener('ended', () => {
-    volumetric.loadingEffectActive = volumetricComponent.useLoadingEffect.value
-    volumetric.loadingEffectTime = 0
-  })
+  player.video.addEventListener(
+    'ended',
+    () => {
+      volumetric.loadingEffectActive = volumetricComponent.useLoadingEffect.value
+      volumetric.loadingEffectTime = 0
+    },
+    { signal: mediaElement.abortController.signal }
+  )
+}
+
+export const updateVolumetric = async (entity: Entity) => {
+  const mediaElement = getComponent(entity, MediaElementComponent)
+  const volumetric = Volumetric.get(mediaElement.element)
+  if (volumetric) {
+    volumetric.player.update()
+    updateLoadingEffect(volumetric)
+  }
 }
 
 export const updateLoadingEffect = (volumetric: NonNullable<ReturnType<typeof Volumetric.get>>) => {

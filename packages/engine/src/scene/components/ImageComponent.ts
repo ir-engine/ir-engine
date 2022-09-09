@@ -1,6 +1,7 @@
 import { subscribable } from '@hookstate/subscribable'
 import {
   BufferGeometry,
+  CompressedTexture,
   DoubleSide,
   LinearMipmapLinearFilter,
   Mesh,
@@ -132,11 +133,13 @@ export const ImageComponent = defineComponent({
   }
 })
 
-export function resizeImageMesh(mesh: Mesh<any, any>) {
+export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
   if (!mesh.material.map) return
 
-  const width = mesh.material.map.width || mesh.material.map.image.width || mesh.material.map.image.videoWidth
-  const height = mesh.material.map.height || mesh.material.map.image.height || mesh.material.map.image.videoHeight
+  const map = mesh.material.map as Texture | CompressedTexture | undefined
+  const image = map?.image as (HTMLImageElement & HTMLCanvasElement & HTMLVideoElement) | undefined
+  const width = image?.videoWidth || image?.naturalWidth || image?.width
+  const height = image?.videoHeight || image?.naturalHeight || image?.height
 
   if (!width || !height) return
 

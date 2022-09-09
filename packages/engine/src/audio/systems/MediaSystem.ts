@@ -18,9 +18,10 @@ import {
   deserializePositionalAudio,
   serializePositionalAudio
 } from '../../scene/functions/loaders/PositionalAudioFunctions'
-import { deserializeVideo, serializeVideo, updateVideo } from '../../scene/functions/loaders/VideoFunctions'
+import { deserializeVideo, enterVideo, serializeVideo } from '../../scene/functions/loaders/VideoFunctions'
 import {
   deserializeVolumetric,
+  enterVolumetric,
   serializeVolumetric,
   updateVolumetric
 } from '../../scene/functions/loaders/VolumetricFunctions'
@@ -104,22 +105,13 @@ if (isClient) {
   // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
   // in order to ensure media will play programmatically
   function handleAutoplay() {
-    for (const entity of mediaQuery()) {
-      const media = getComponent(entity, MediaComponent)
-      if (media.playing.value) return
-
-      const mediaElement = getComponent(entity, MediaElementComponent)
-      if (!mediaElement) return
-
-      // const autoStartTime = media.autoStartTime.value
-      // if (autoStartTime < 0) return
-
-      // let timeSinceStart = Date.now() - media.autoStartTime.value
-      // if (timeSinceStart < 0) return
-
-      // mediaElement.element.currentTime = timeSinceStart
-      mediaElement.element.play()
-    }
+    if (!Engine.instance)
+      for (const entity of mediaQuery()) {
+        const media = getComponent(entity, MediaComponent)
+        if (media.playing.value) return
+        if (media.paused.value) return
+        const mediaElement = getComponent(entity, MediaElementComponent)?.element.play()
+      }
   }
 
   window.addEventListener('pointerdown', handleAutoplay)
@@ -195,7 +187,6 @@ export default async function MediaSystem(world: World) {
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
   const mediaQuery = defineQuery([MediaComponent])
-  const mediaElementQuery = defineQuery([MediaComponent, MediaElementComponent])
   const videoQuery = defineQuery([MediaElementComponent, VideoComponent])
   const volumetricQuery = defineQuery([MediaElementComponent, VolumetricComponent])
 
@@ -217,13 +208,8 @@ export default async function MediaSystem(world: World) {
       })
     }
 
-    for (const entity of mediaElementQuery()) {
-      const media = getComponent(entity, MediaComponent)
-      const mediaElement = getComponent(entity, MediaElementComponent)
-      // play
-    }
-
-    for (const entity of videoQuery()) updateVideo(entity)
+    for (const entity of videoQuery.enter()) enterVideo(entity)
+    for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
   }
 }

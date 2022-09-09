@@ -8,7 +8,6 @@ export const ScenePreviewCameraComponent = defineComponent({
   onAdd: (entity, json) => {
     return {
       camera: new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
-      // TODO: add camera property settings
     }
   },
 

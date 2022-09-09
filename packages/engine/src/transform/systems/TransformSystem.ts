@@ -77,7 +77,7 @@ const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) =
 }
 
 export default async function TransformSystem(world: World) {
-  world.sceneComponentRegistry.set(TransformComponent._name, SCENE_COMPONENT_TRANSFORM)
+  world.sceneComponentRegistry.set(TransformComponent.name, SCENE_COMPONENT_TRANSFORM)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
     defaultData: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
     deserialize: deserializeTransform,

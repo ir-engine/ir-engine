@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Quaternion, Vector3 } from 'three'
 
-import { enterScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
@@ -21,12 +21,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onSetFromViewport = () => {
-    const updatedTransform = enterScenePreviewCamera(props.node.entity)
-    const position = new Vector3()
-    const rotation = new Quaternion()
-    const scale = new Vector3()
-
-    updatedTransform.decompose(position, rotation, scale)
+    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
     executeModifyPropertyCommand({
       affectedNodes: [props.node],
       component: TransformComponent,

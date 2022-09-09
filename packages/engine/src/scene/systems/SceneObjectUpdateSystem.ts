@@ -134,7 +134,7 @@ import {
   updateGroundPlane
 } from '../functions/loaders/GroundPlaneFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
-import { deserializeImage, serializeImage, updateImage } from '../functions/loaders/ImageFunctions'
+import { deserializeImage, enterImage, serializeImage } from '../functions/loaders/ImageFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
@@ -509,7 +509,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ShadowComponent) && hasComponent(entity, Object3DComponent)) updateShadow(entity)
-        if (hasComponent(entity, ImageComponent)) updateImage(entity)
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
         if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
@@ -526,10 +525,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
       }
     }
 
-    for (const entity of shadowQuery.enter()) updateShadow(entity)
-    for (const entity of imageQuery.enter()) updateImage(entity)
-    for (const entity of envmapQuery.enter()) updateEnvMap(entity)
-    for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
     for (const entity of fogQuery.enter()) {
       if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) {
         createFogFromSceneNode(entity)
@@ -537,12 +532,17 @@ export default async function SceneObjectUpdateSystem(world: World) {
         updateFog(entity)
       }
     }
+
     for (const entity of fogQuery.exit()) {
       if (entity !== Engine.instance.currentWorld.entityTree.rootNode.entity) {
         Engine.instance.currentWorld.scene.fog = null
       }
     }
 
+    for (const entity of imageQuery.enter()) enterImage(entity)
+    for (const entity of shadowQuery.enter()) updateShadow(entity)
+    for (const entity of envmapQuery.enter()) updateEnvMap(entity)
+    for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
     for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')

@@ -9,6 +9,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { getCanvasBlob } from './thumbnails'
 
@@ -34,19 +35,17 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   const query = defineQuery([ScenePreviewCameraComponent])
 
   for (const entity of query()) {
-    scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
+    scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
   }
 
   if (!scenePreviewCamera) {
     const entity = createEntity()
-    addComponent(entity, ScenePreviewCameraComponent, null)
-
-    scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
-    Engine.instance.currentWorld.camera.matrix.decompose(
-      scenePreviewCamera.position,
-      scenePreviewCamera.quaternion,
-      scenePreviewCamera.scale
-    )
+    scenePreviewCamera = addComponent(entity, ScenePreviewCameraComponent, null).camera
+    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    setTransformComponent(entity, position, rotation)
+    scenePreviewCamera.position.copy(position)
+    scenePreviewCamera.quaternion.copy(rotation)
+    scenePreviewCamera.updateMatrixWorld()
   }
 
   const prevAspect = scenePreviewCamera.aspect
