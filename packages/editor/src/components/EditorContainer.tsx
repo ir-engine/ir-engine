@@ -42,6 +42,8 @@ import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
 import { DialogContext } from './hooks/useDialog'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
+import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
+import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import { PropertiesPanelTitle } from './properties/PropertiesPanelTitle'
 import { AppContext } from './Search/context'
@@ -581,6 +583,11 @@ const EditorContainer = () => {
                     <HierarchyPanelTitle setSearchElement={setSearchElement} setSearchHierarchy={setSearchHierarchy} />
                   ),
                   content: <HierarchyPanelContainer />
+                },
+                {
+                  id: 'materialLibraryPanel',
+                  title: <MaterialLibraryPanelTitle />,
+                  content: <MaterialLibraryPanel />
                 }
               ]
             },
