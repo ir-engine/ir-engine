@@ -20,12 +20,12 @@ export default function MaterialLibraryPanel() {
             <FixedSizeList
               height={height}
               width={width}
-              itemSize={64}
+              itemSize={32}
               itemCount={materials.length}
               itemData={{
-                nodes: Object.keys(MaterialLibrary).map((name) => ({ name }))
+                nodes: Object.keys(MaterialLibrary).map((name) => ({ type: name }))
               }}
-              itemKey={(_, index) => index}
+              itemKey={(index, _) => index}
               innerElementType="ul"
             >
               {MemoMatLibEntry}
