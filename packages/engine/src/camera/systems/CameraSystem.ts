@@ -1,5 +1,6 @@
 import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
@@ -273,7 +274,7 @@ export default async function CameraSystem(world: World) {
     for (const action of spectateUserActions()) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
       if (action.user) {
-        setComponent(cameraEntity, SpectatorComponent, { userId: action.user })
+        setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
       } else {
         removeComponent(cameraEntity, SpectatorComponent)
         deleteSearchParams('spectate')
