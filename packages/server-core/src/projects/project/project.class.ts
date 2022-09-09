@@ -280,10 +280,8 @@ export class Project extends Service {
       const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
       if (branchExists.length === 0) await git.checkoutLocalBranch(branchName)
       else {
-        if (data.reset) {
-          await git.branchLocal()
-        }
-        await git.checkout(branchName)
+        if (data.reset) await git.checkoutLocalBranch(branchName)
+        else await git.checkout(branchName)
       }
     } catch (err) {
       logger.error(err)
