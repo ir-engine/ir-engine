@@ -267,6 +267,11 @@ export const initializeSceneSystems = async () => {
         systemLoader: () => import('./navigation/systems/AutopilotSystem')
       },
       {
+        uuid: 'xre.engine.PortalSystem',
+        type: SystemUpdateType.UPDATE,
+        systemLoader: () => import('./scene/systems/PortalSystem')
+      },
+      {
         uuid: 'xre.engine.HyperspacePortalSystem',
         type: SystemUpdateType.UPDATE,
         systemLoader: () => import('./scene/systems/HyperspacePortalSystem')

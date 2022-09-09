@@ -18,6 +18,7 @@ import {
   removeComponent,
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
+import { entityExists } from '../../../ecs/functions/EntityFunctions'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
@@ -41,6 +42,7 @@ export const disposeParticleSystem = (entity: Entity) => {
 }
 
 export const initializeParticleSystem = async (entity: Entity) => {
+  if (!entityExists(entity)) return
   const world = Engine.instance.currentWorld
   const ptcComp = getComponent(entity, ParticleEmitterComponent)
   let obj3d = getComponent(entity, Object3DComponent)
