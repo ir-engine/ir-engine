@@ -78,7 +78,7 @@ export const serializePortal: ComponentSerializeFunction = (entity) => {
     previewType: portalComponent.previewType,
     previewImageURL: portalComponent.previewImageURL,
     spawnPosition: portalComponent.spawnPosition,
-    spawnRotation: portalComponent.spawnRotation
+    spawnRotation: new Euler().setFromQuaternion(portalComponent.spawnRotation)
   }
 }
 

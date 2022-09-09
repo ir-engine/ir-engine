@@ -2,6 +2,7 @@ import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
@@ -12,6 +13,7 @@ import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectL
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { createActionQueue } from '@xrengine/hyperflux'
 
 import { accessSceneState } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
@@ -46,13 +48,7 @@ export default async function LoadingUISystem(world: World) {
   setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
-    // const
-    for (const entity of localInputQuery.enter()) {
-      setTimeout(() => {
-        mesh.visible = false
-        transition.setState('OUT')
-      }, 250)
-    }
+    if (transition.state === 'OUT' && transition.alpha === 0) return
 
     mesh.quaternion.copy(Engine.instance.currentWorld.camera.quaternion).invert()
 

@@ -93,9 +93,6 @@ export const initializeBrowser = () => {
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
-  matchActionOnce(EngineActions.connect.matches, (action: any) => {
-    Engine.instance.userId = action.id
-  })
   EngineRenderer.instance.initialize()
   Engine.instance.engineTimer.start()
 }
@@ -273,6 +270,11 @@ export const initializeSceneSystems = async () => {
         uuid: 'xre.engine.AutopilotSystem',
         type: SystemUpdateType.UPDATE,
         systemLoader: () => import('./navigation/systems/AutopilotSystem')
+      },
+      {
+        uuid: 'xre.engine.PortalSystem',
+        type: SystemUpdateType.UPDATE,
+        systemLoader: () => import('./scene/systems/PortalSystem')
       },
       {
         uuid: 'xre.engine.HyperspacePortalSystem',

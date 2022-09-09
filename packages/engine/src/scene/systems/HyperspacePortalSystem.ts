@@ -2,14 +2,13 @@ import { AmbientLight, Color } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
 import { GroupComponent } from '../components/GroupComponent'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
+import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PortalEffects } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -19,11 +18,13 @@ export const HyperspacePortalEffect = 'Hyperspace'
 
 PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)
 
+const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
+const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
+
 export default async function HyperspacePortalSystem(world: World) {
-  const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
   const texture = await AssetLoader.loadAsync('/hdr/galaxyTexture.jpg')
 
-  const transition = createTransitionState(0.25, 'IN')
+  const transition = createTransitionState(0.25, 'OUT')
 
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)
@@ -36,6 +37,7 @@ export default async function HyperspacePortalSystem(world: World) {
 
   return () => {
     const playerGroup = getComponent(world.localClientEntity, GroupComponent).value
+    const sceneLoaded = !sceneAssetPendingTagQuery().length
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
     for (const entity of hyperspaceTagComponent.enter()) {
@@ -48,21 +50,18 @@ export default async function HyperspacePortalSystem(world: World) {
 
       Engine.instance.currentWorld.scene.add(light)
       Engine.instance.currentWorld.scene.add(hyperspaceEffect)
-
-      // create receptor for joining the world to end the hyperspace effect
-      matchActionOnce(EngineActions.sceneLoaded.matches, () => {
-        transition.setState('OUT')
-        return true
-      })
     }
 
-    // run the logic for
     for (const entity of hyperspaceTagComponent()) {
-      transition.update(world.fixedTick, (opacity) => {
+      if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
+        transition.setState('OUT')
+      }
+
+      transition.update(world.deltaSeconds, (opacity) => {
         hyperspaceEffect.update(world.deltaSeconds)
         hyperspaceEffect.tubeMaterial.opacity = opacity
 
-        if (opacity === 1 && sceneVisible) {
+        if (transition.state === 'IN' && opacity >= 1 && sceneVisible) {
           /**
            * hide scene, render just the hyperspace effect and avatar
            */
@@ -72,13 +71,14 @@ export default async function HyperspacePortalSystem(world: World) {
           sceneVisible = false
         }
 
-        if (opacity === 0) {
+        if (sceneLoaded && transition.state === 'OUT' && opacity <= 0) {
           sceneVisible = true
           removeComponent(world.localClientEntity, HyperspaceTagComponent)
           hyperspaceEffect.removeFromParent()
           light.removeFromParent()
           light.dispose()
           Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Portal)
+          Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
         }
       })
 

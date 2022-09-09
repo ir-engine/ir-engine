@@ -34,7 +34,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [hover, setHover] = useState(false)
-  const [showLoading, setShowLoading] = useState(true)
+  const [showLoading, setShowLoading] = useState(false)
   const [error, setError] = useState('')
   const [obj, setObj] = useState<any>(null)
   const [entity, setEntity] = useState<Entity | undefined>()
@@ -68,7 +68,6 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     const url = event.data
 
     if (url && url.toString().toLowerCase().startsWith('http')) {
-      setShowLoading(true)
       setAvatarUrl(url)
       try {
         const assetType = AssetLoader.getAssetType(url)
@@ -87,7 +86,6 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
               setError(err.message)
               console.log(err.message)
             })
-            .finally(() => setShowLoading(false))
         }
       } catch (error) {
         console.error(error)
@@ -101,12 +99,6 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
   const openProfileMenu = (e) => {
     e.preventDefault()
     changeActiveMenu(Views.Profile)
-  }
-
-  const closeMenu = (e) => {
-    e.preventDefault()
-    changeActiveMenu(null)
-    uploadAvatar()
   }
 
   const uploadAvatar = () => {
@@ -123,8 +115,10 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
+      setShowLoading(true)
       await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
-      changeActiveMenu(Views.Profile)
+      setShowLoading(false)
+      changeActiveMenu(null)
     })
   }
 
@@ -185,7 +179,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
             width: '50px',
             background: hover ? '#5f5ff1' : '#fff'
           }}
-          onClick={closeMenu}
+          onClick={uploadAvatar}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >

@@ -140,10 +140,10 @@ export const disposeCSM = () => {
     }
   }
 
-  EngineRenderer.instance.directionalLightEntities.forEach((entity) => {
+  for (const entity of EngineRenderer.instance.directionalLightEntities) {
     const light = getComponent(entity, DirectionalLightComponent)?.light
     if (light) light.castShadow = getComponent(entity, DirectionalLightComponent).castShadow
-  })
+  }
 
   EngineRenderer.instance.isCSMEnabled = false
 }
