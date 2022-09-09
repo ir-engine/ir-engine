@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { CallbackComponent } from '@xrengine/engine/src/scene/components/CallbackComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@xrengine/engine/src/scene/constants/PlayMode'
@@ -16,7 +15,6 @@ import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
-import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
@@ -108,7 +106,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         />
         {mediaNoProxy.paths && mediaNoProxy.paths.length > 0 && mediaNoProxy.paths[0] && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
-            {mediaNoProxy.paused ? t('editor:properties.media.pausetitle') : t('editor:properties.media.playtitle')}
+            {mediaNoProxy.paused ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
           </Button>
         )}
       </InputGroup>
