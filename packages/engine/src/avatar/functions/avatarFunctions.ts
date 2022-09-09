@@ -19,8 +19,9 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { BoneNames, createSkeletonFromBone } from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -146,13 +147,13 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
 
-  /**@todo this is broken */
+  /**@todo replace check for loop aniamtion component with ensuring tpose is only handled once */
   // Try converting to T pose
-  // if (!isSkeletonInTPose(rig)) {
-  //   makeTPose(rig)
-  //   const meshes = findSkinnedMeshes(model)
-  //   meshes.forEach(applySkeletonPose)
-  // }
+  if (!hasComponent(entity, LoopAnimationComponent) && !isSkeletonInTPose(rig)) {
+    makeTPose(rig)
+    const meshes = findSkinnedMeshes(model)
+    meshes.forEach(applySkeletonPose)
+  }
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
@@ -193,13 +194,8 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
 }
 
 export const animateModel = (entity: Entity) => {
-  const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
-
-  if (component.action) component.action.stop()
-  component.action = animationComponent.mixer
-    .clipAction(AnimationClip.findByName(animationComponent.animations, 'wave'))
-    .play()
+  animationComponent.mixer.clipAction(AnimationClip.findByName(animationComponent.animations, 'wave')).play()
 }
 
 export const setupAvatarMaterials = (entity, root) => {
