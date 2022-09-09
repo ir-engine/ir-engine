@@ -18,7 +18,6 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
-import { Updatable } from '../interfaces/Updatable'
 
 type BPCEMProps = {
   bakeScale: Vector3
@@ -86,7 +85,7 @@ export default async function SceneObjectSystem(world: World) {
   }
 
   const sceneObjectQuery = defineQuery([GroupComponent])
-  const updatableQuery = defineQuery([GroupComponent, UpdatableComponent])
+  const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
 
@@ -118,8 +117,6 @@ export default async function SceneObjectSystem(world: World) {
 
     const delta = getState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
-      const obj = getComponent(entity, GroupComponent)?.value as unknown as Updatable
-      obj?.update(delta)
       const callbacks = getComponent(entity, CallbackComponent)
       callbacks[UpdatableCallback]?.(delta)
     }
