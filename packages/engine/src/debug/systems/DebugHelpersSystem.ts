@@ -424,7 +424,8 @@ export default async function DebugHelpersSystem(world: World) {
       if (
         !helpersByEntity.skeletonHelpers.has(entity) &&
         debugEnabled &&
-        !hasComponent(entity, AvatarPendingComponent)
+        !hasComponent(entity, AvatarPendingComponent) &&
+        anim.rig.Hips
       ) {
         const helper = new SkeletonHelper(anim.rig.Hips)
         Engine.instance.currentWorld.scene.add(helper)
