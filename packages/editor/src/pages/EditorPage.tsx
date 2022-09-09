@@ -73,6 +73,12 @@ const systems = [
     systemLoader: () => import('@xrengine/client-core/src/systems/PortalLoadSystem'),
     type: SystemUpdateType.FIXED,
     args: { enabled: true }
+  },
+  {
+    uuid: 'core.editor.ModelHandlingSystem',
+    systemLoader: () => import('../systems/ModelHandlingSystem'),
+    type: SystemUpdateType.FIXED,
+    args: { enabled: true }
   }
 ]
 

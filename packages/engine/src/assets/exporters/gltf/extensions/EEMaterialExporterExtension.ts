@@ -29,7 +29,9 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     })
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions.EE_material = {
-      ...result
+      name: material.name,
+      type: material.type,
+      args: { ...result }
     }
     this.writer.extensionsUsed.EE_material = true
   }
