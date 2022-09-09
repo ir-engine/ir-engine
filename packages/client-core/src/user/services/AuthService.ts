@@ -87,10 +87,6 @@ export interface LinkedInLoginForm {
   email: string
 }
 
-export const avatarFetchedReceptor = (s: any, action: any) => {
-  return s.avatarList.set(action.avatarList)
-}
-
 export const AuthServiceReceptor = (action) => {
   const s = getState(AuthState)
   matches(action)
@@ -159,7 +155,7 @@ export const AuthServiceReceptor = (action) => {
       return s.user.merge({ user_setting: action.data })
     })
     .when(AuthAction.updateAvatarListAction.matches, (action) => {
-      return avatarFetchedReceptor(s, action)
+      return s.avatarList.set(action.avatarList)
     })
 }
 

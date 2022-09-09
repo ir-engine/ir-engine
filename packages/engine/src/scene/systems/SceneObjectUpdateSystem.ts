@@ -1,3 +1,5 @@
+import { Color } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -6,6 +8,7 @@ import {
   SCENE_COMPONENT_LOOP_ANIMATION,
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
 } from '../../avatar/components/LoopAnimationComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -114,12 +117,19 @@ import {
 } from '../components/SystemComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
+import { FogType } from '../constants/FogType'
 import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
 import { deserializeCameraProperties, updateCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
-import { deserializeFog, serializeFog, shouldDeserializeFog, updateFog } from '../functions/loaders/FogFunctions'
+import {
+  createFogFromSceneNode,
+  deserializeFog,
+  serializeFog,
+  shouldDeserializeFog,
+  updateFog
+} from '../functions/loaders/FogFunctions'
 import {
   deserializeGround,
   serializeGroundPlane,
@@ -145,6 +155,7 @@ import {
 } from '../functions/loaders/PostprocessingFunctions'
 import {
   deserializeRenderSetting,
+  resetEngineRenderer,
   serializeRenderSettings,
   updateRenderSetting
 } from '../functions/loaders/RenderSettingsFunction'
@@ -190,7 +201,8 @@ export const ScenePrefabs = {
   spline: 'Spline' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
-  fog: 'Fog' as const
+  fog: 'Fog' as const,
+  loadVolume: 'Load Volume' as const
 }
 
 export default async function SceneObjectUpdateSystem(world: World) {
@@ -525,9 +537,22 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of imageQuery.enter()) updateImage(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
-    for (const entity of fogQuery.enter()) updateFog(entity)
+    for (const entity of fogQuery.enter()) {
+      if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) {
+        createFogFromSceneNode(entity)
+      } else {
+        updateFog(entity)
+      }
+    }
+    for (const entity of fogQuery.exit()) {
+      if (entity !== Engine.instance.currentWorld.entityTree.rootNode.entity) {
+        Engine.instance.currentWorld.scene.fog = null
+      }
+    }
+
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
+    for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')
     for (const entity of portalQuery.enter()) updatePortal(entity)
     for (const entity of modelQuery.enter()) updateModel(entity)
     for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
@@ -535,7 +560,9 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)
     for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
+    for (const entity of renderSettingsQuery.exit()) if (!renderSettingsQuery().length) resetEngineRenderer(true)
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
+    for (const entity of postProcessingQuery.exit()) configureEffectComposer()
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
     for (const entity of scenePreviewCameraTagQuery.enter()) updateCameraTransform(entity)
   }

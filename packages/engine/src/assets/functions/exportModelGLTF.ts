@@ -7,6 +7,7 @@ import createGLTFExporter from './createGLTFExporter'
 export default async function exportModelGLTF(
   entity: Entity,
   options = {
+    path: '',
     binary: true,
     includeCustomExtensions: true,
     embedImages: true

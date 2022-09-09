@@ -71,11 +71,6 @@ export const addAnimationLogic = (
     animations: [],
     animationSpeed: 1
   })
-  addComponent(entity, LoopAnimationComponent, {
-    activeClipIndex: 0,
-    hasAvatarAnimations: true,
-    action: null!
-  })
   addComponent(entity, AvatarAnimationComponent, {
     animationGraph: {
       states: {},

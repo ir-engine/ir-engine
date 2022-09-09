@@ -40,14 +40,17 @@ export const createEngine = () => {
 export const setupEngineActionSystems = () => {
   const world = Engine.instance.currentWorld
   initSystemSync(world, {
+    uuid: 'xre.engine.FixedPipelineSystem',
     type: SystemUpdateType.UPDATE,
     systemFunction: FixedPipelineSystem
   })
   initSystemSync(world, {
+    uuid: 'xre.engine.IncomingActionSystem',
     type: SystemUpdateType.FIXED_EARLY,
     systemFunction: IncomingActionSystem
   })
   initSystemSync(world, {
+    uuid: 'xre.engine.OutgoingActionSystem',
     type: SystemUpdateType.FIXED_LATE,
     systemFunction: OutgoingActionSystem
   })
@@ -90,9 +93,6 @@ export const initializeBrowser = () => {
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
-  matchActionOnce(EngineActions.connect.matches, (action: any) => {
-    Engine.instance.userId = action.id
-  })
   EngineRenderer.instance.initialize()
   Engine.instance.engineTimer.start()
 }
@@ -160,6 +160,11 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
       uuid: 'xre.engine.AssetSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => import('./scene/systems/AssetSystem')
+    },
+    {
+      uuid: 'xre.engine.LoadVolumeSystem',
+      type: SystemUpdateType.FIXED_LATE,
+      systemLoader: () => import('./scene/systems/LoadVolumeSystem')
     }
   )
 
@@ -262,6 +267,11 @@ export const initializeSceneSystems = async () => {
         systemLoader: () => import('./navigation/systems/AutopilotSystem')
       },
       {
+        uuid: 'xre.engine.PortalSystem',
+        type: SystemUpdateType.UPDATE,
+        systemLoader: () => import('./scene/systems/PortalSystem')
+      },
+      {
         uuid: 'xre.engine.HyperspacePortalSystem',
         type: SystemUpdateType.UPDATE,
         systemLoader: () => import('./scene/systems/HyperspacePortalSystem')
@@ -330,11 +340,6 @@ export const initializeSceneSystems = async () => {
         uuid: 'xre.engine.HighlightSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./renderer/HighlightSystem')
-      },
-      {
-        uuid: 'xre.engine.EntityNodeEventSystem',
-        type: SystemUpdateType.PRE_RENDER,
-        systemLoader: () => import('./scene/systems/EntityNodeEventSystem')
       }
     )
 

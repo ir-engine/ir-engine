@@ -9,10 +9,14 @@ export const createEntity = (world = Engine.instance.currentWorld): Entity => {
 }
 
 export const removeEntity = (entity: Entity, immediately = false, world = Engine.instance.currentWorld) => {
-  removeAllComponents(entity, world)
+  if (!entityExists(entity, world)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
-  if (immediately) bitECS.removeEntity(world, entity)
-  else addComponent(entity, EntityRemovedComponent, {})
+  if (immediately) {
+    bitECS.removeEntity(world, entity)
+  } else {
+    removeAllComponents(entity, world)
+    addComponent(entity, EntityRemovedComponent, {})
+  }
 }
 
 export const entityExists = (entity: Entity, world = Engine.instance.currentWorld) => {

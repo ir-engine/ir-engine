@@ -7,6 +7,7 @@ import {
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
@@ -33,6 +34,8 @@ export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, 
 
 export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, SkyboxComponent)
+
+  if (!isClient) return
 
   switch (component.backgroundType) {
     case SkyTypeEnum.color:

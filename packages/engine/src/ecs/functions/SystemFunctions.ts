@@ -14,6 +14,7 @@ export type systemLoader<A extends any> = Promise<SystemModule<A>>
 
 export type SystemSyncFunctionType<A> = {
   systemFunction: CreateSystemSyncFunctionType<A>
+  uuid: string
   type: SystemUpdateType
   args?: A
 }
