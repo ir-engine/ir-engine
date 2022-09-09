@@ -322,11 +322,6 @@ export const initializeSceneSystems = async () => {
         systemLoader: () => import('./avatar/AnimationSystem')
       },
       {
-        uuid: 'xre.engine.RendererUpdateSystem',
-        type: SystemUpdateType.PRE_RENDER,
-        systemLoader: () => import('./scene/systems/RendererUpdateSystem')
-      },
-      {
         uuid: 'xre.engine.ParticleSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./scene/systems/ParticleSystem')
