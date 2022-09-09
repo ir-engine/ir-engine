@@ -194,13 +194,8 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
 }
 
 export const animateModel = (entity: Entity) => {
-  const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
-
-  if (component.action) component.action.stop()
-  component.action = animationComponent.mixer
-    .clipAction(AnimationClip.findByName(animationComponent.animations, 'wave'))
-    .play()
+  animationComponent.mixer.clipAction(AnimationClip.findByName(animationComponent.animations, 'wave')).play()
 }
 
 export const setupAvatarMaterials = (entity, root) => {

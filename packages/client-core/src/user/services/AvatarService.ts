@@ -19,9 +19,9 @@ export const AvatarService = {
       isPublicAvatar: isPublicAvatar
     })
 
-    const uploadResponse = await this.uploadAvatarModel(model, thumbnail, newAvatar.identifierName)
+    const uploadResponse = await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName)
 
-    const patchedAvatar = (await this.patchAvatar(
+    const patchedAvatar = (await AvatarService.patchAvatar(
       newAvatar.id,
       uploadResponse[0].id,
       uploadResponse[1].id,
@@ -31,7 +31,7 @@ export const AvatarService = {
     if (!isPublicAvatar) {
       const selfUser = accessAuthState().user
       const userId = selfUser.id.value!
-      await this.updateUserAvatarId(
+      await AvatarService.updateUserAvatarId(
         userId,
         newAvatar.id,
         patchedAvatar.modelResource?.url || '',
