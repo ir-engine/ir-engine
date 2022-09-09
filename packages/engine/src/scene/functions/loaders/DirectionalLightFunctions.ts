@@ -21,7 +21,6 @@ import {
   SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES
 } from '../../components/DirectionalLightComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   entity: Entity,
@@ -64,8 +63,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
     if (EngineRenderer.instance.activeCSMLightEntity) {
       if (EngineRenderer.instance.activeCSMLightEntity === entity) return
 
-      const activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, Object3DComponent)
-        ?.value as DirectionalLight
+      const activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, DirectionalLightComponent).light
       const activeCSMLightComponent = getComponent(
         EngineRenderer.instance.activeCSMLightEntity,
         DirectionalLightComponent

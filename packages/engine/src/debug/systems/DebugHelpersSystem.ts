@@ -9,7 +9,6 @@ import {
   ConeBufferGeometry,
   ConeGeometry,
   CylinderGeometry,
-  DirectionalLight,
   DoubleSide,
   Group,
   IcosahedronGeometry,
@@ -48,7 +47,6 @@ import { DirectionalLightComponent } from '../../scene/components/DirectionalLig
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
 import { MediaElementComponent } from '../../scene/components/MediaComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
@@ -97,30 +95,24 @@ export default async function DebugHelpersSystem(world: World) {
     navpath: new Map(),
     positionalAudioHelper: new Map()
   }
-  const directionalLightQuery = defineQuery([TransformComponent, DirectionalLightComponent, Object3DComponent])
-  const pointLightQuery = defineQuery([TransformComponent, PointLightComponent, Object3DComponent])
-  const spotLightQuery = defineQuery([TransformComponent, SpotLightComponent, Object3DComponent])
+  const directionalLightQuery = defineQuery([TransformComponent, DirectionalLightComponent])
+  const pointLightQuery = defineQuery([TransformComponent, PointLightComponent])
+  const spotLightQuery = defineQuery([TransformComponent, SpotLightComponent])
   const portalQuery = defineQuery([TransformComponent, PortalComponent])
   const splineQuery = defineQuery([TransformComponent, SplineComponent])
   const spawnPointQuery = defineQuery([TransformComponent, SpawnPointComponent])
   const mountPointQuery = defineQuery([TransformComponent, MountPointComponent])
   const envMapBakeQuery = defineQuery([TransformComponent, EnvMapBakeComponent])
-  const directionalLightSelectQuery = defineQuery([
-    TransformComponent,
-    DirectionalLightComponent,
-    Object3DComponent,
-    SelectTagComponent
-  ])
+  const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
   const scenePreviewCameraSelectQuery = defineQuery([
     TransformComponent,
     ScenePreviewCameraComponent,
-    Object3DComponent,
     SelectTagComponent
   ])
 
-  const boundingBoxQuery = defineQuery([TransformComponent, Object3DComponent, BoundingBoxComponent])
+  const boundingBoxQuery = defineQuery([TransformComponent, BoundingBoxComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
-  const avatarAnimationQuery = defineQuery([Object3DComponent, AvatarAnimationComponent])
+  const avatarAnimationQuery = defineQuery([AvatarAnimationComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
@@ -148,9 +140,7 @@ export default async function DebugHelpersSystem(world: World) {
        * Directional Light
        */
       for (const entity of directionalLightQuery.enter()) {
-        const helper = new EditorDirectionalLightHelper(
-          getComponent(entity, Object3DComponent).value as DirectionalLight
-        )
+        const helper = new EditorDirectionalLightHelper(getComponent(entity, DirectionalLightComponent).light)
         helper.visible = true
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -169,7 +159,7 @@ export default async function DebugHelpersSystem(world: World) {
       }
 
       for (const entity of directionalLightSelectQuery.exit()) {
-        const light = getComponent(entity, Object3DComponent)?.value as DirectionalLight
+        const light = getComponent(entity, DirectionalLightComponent)?.light
         if (light) light.userData.cameraHelper.visible = false
       }
 

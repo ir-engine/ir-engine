@@ -9,8 +9,7 @@ export const GroupComponent = defineComponent({
   name: 'XRE_group',
 
   onAdd: (entity: Entity) => {
-    const value = new Group() as any as Object3D // TODO: replace w/ as GroupWithEntity
-    // @ts-ignore
+    const value = new Group() as GroupWithEntity
     value.entity = entity
     return { value }
   },

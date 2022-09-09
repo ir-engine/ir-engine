@@ -39,7 +39,7 @@ export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
 export type ComponentType<C extends Component> = NonNullable<ReturnType<C['map']['get']>>
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 
-export const defineComponent = <ComponentType, Schema extends bitECS.ISchema = {}, JSON = ComponentType>(
+export const defineComponent = <ComponentType, Schema extends bitECS.ISchema = {}, JSON = null>(
   def: ComponentPartial<ComponentType, Schema, JSON>
 ) => {
   const Component = bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) as Component<
@@ -69,7 +69,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
   name: string,
   schema?: Schema
 ) => {
-  return defineComponent<ComponentType, Schema>({ name, schema })
+  return defineComponent<ComponentType, Schema, ComponentType>({ name, schema })
 }
 
 export const getComponent = <ComponentType>(

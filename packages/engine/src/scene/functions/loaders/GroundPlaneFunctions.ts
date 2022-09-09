@@ -14,7 +14,6 @@ import {
   addComponent,
   getComponent,
   getComponentCountOfType,
-  hasComponent,
   removeComponent,
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
@@ -29,7 +28,6 @@ import {
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
 } from '../../components/GroundPlaneComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { generateMeshBVH } from '../bvhWorkerPool'
 import { enableObjectLayer } from '../setObjectLayers'

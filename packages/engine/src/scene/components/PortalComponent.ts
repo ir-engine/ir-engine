@@ -1,5 +1,5 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { Quaternion, Vector3 } from 'three'
+import { Mesh, Quaternion, Vector3 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -16,6 +16,7 @@ export type PortalComponentType = {
   spawnRotation: Quaternion
   remoteSpawnPosition: Vector3
   remoteSpawnRotation: Quaternion
+  mesh?: Mesh
 }
 
 export const PortalPreviewTypeSimple = 'Simple' as const

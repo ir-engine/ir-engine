@@ -3,7 +3,7 @@ import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import {
@@ -14,8 +14,10 @@ import {
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
@@ -60,8 +62,10 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   // getting scene data
   await loadSceneFromJSON(projectFile, [])
 
-  Engine.instance.currentWorld.camera.position.set(0, 5, 10)
-  Engine.instance.currentWorld.camera.lookAt(new Vector3())
+  const cameraGroup = getComponent(Engine.instance.currentWorld.cameraEntity, GroupComponent).value
+  cameraGroup.position.set(0, 5, 10)
+  cameraGroup.lookAt(new Vector3())
+
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Gizmos)

@@ -113,16 +113,23 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const updateXRCamera = (camera: PerspectiveCamera) => {
+export const updateXRCamera = () => {
+  const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+  const cameraGroup = Engine.instance.currentWorld.cameraGroup
+  cameraGroup.position.set(0, 0, 0)
+  cameraGroup.quaternion.set(0, 0, 0, 1)
+  cameraGroup.updateMatrixWorld(true)
   EngineRenderer.instance.xrManager.updateCamera(camera)
-  // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
-  camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
-  camera.updateMatrixWorld(true)
+  cameraGroup.position.copy(camera.position)
+  cameraGroup.quaternion.copy(camera.quaternion)
+  camera.position.set(0, 0, 0)
+  camera.quaternion.set(0, 0, 0, 1)
+  cameraGroup.updateMatrixWorld(true)
 
   const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
   const head = xrInputSourceComponent.head
-  head.quaternion.copy(camera.quaternion)
-  head.position.copy(camera.position)
+  head.quaternion.copy(cameraGroup.quaternion)
+  head.position.copy(cameraGroup.position)
 }
 /**
  * System for XR session and input handling
@@ -169,7 +176,7 @@ export default async function XRSystem(world: World) {
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
-      updateXRCamera(camera)
+      updateXRCamera()
 
       // Assume world.camera.layers is source of truth for all xr cameras
       const xrCamera = EngineRenderer.instance.xrManager.getCamera()

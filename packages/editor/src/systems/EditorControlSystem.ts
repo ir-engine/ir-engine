@@ -22,7 +22,9 @@ import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functio
 import { BoundingBoxComponent } from '@xrengine/engine/src/interaction/components/BoundingBoxComponents'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import {
   SnapMode,
@@ -100,7 +102,7 @@ export default async function EditorControlSystem(_: World) {
   let selectedEntities: (Entity | string)[]
   let selectedParentEntities: (Entity | string)[]
   let selectionCounter: number = 0
-  let gizmoObj: TransformGizmo
+  // let gizmoObj: TransformGizmo
   let transformMode: TransformModeType
   let transformPivot: TransformPivotType
   let transformSpace: TransformSpace
@@ -158,7 +160,8 @@ export default async function EditorControlSystem(_: World) {
 
       selectedParentEntities = selectionState.selectedParentEntities.value
       selectedEntities = selectionState.selectedEntities.value
-      gizmoObj = getComponent(SceneState.gizmoEntity, Object3DComponent)?.value as TransformGizmo
+      const gizmoObj = getComponent(SceneState.gizmoEntity, TransformGizmoComponent).gizmo
+      const gizmoGroup = getComponent(SceneState.gizmoEntity, GroupComponent).value
 
       transformModeChanged = transformMode === editorHelperState.transformMode.value
       transformMode = editorHelperState.transformMode.value
@@ -169,10 +172,10 @@ export default async function EditorControlSystem(_: World) {
       transformSpaceChanged = transformSpace === editorHelperState.transformSpace.value
       transformSpace = editorHelperState.transformSpace.value
 
-      if (!gizmoObj) continue
+      if (!gizmoObj || !gizmoGroup) continue
 
       if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
-        gizmoObj.visible = false
+        gizmoGroup.visible = false
       } else {
         const lastSelection = selectedEntities[selectedEntities.length - 1]
         const isUuid = typeof lastSelection === 'string'
@@ -188,7 +191,7 @@ export default async function EditorControlSystem(_: World) {
 
           if (isChanged || transformPivotChanged) {
             if (transformPivot === TransformPivot.Selection) {
-              lastSelectedObj3d.getWorldPosition(gizmoObj.position)
+              lastSelectedObj3d.getWorldPosition(gizmoGroup.position)
             } else {
               box.makeEmpty()
 
@@ -202,28 +205,28 @@ export default async function EditorControlSystem(_: World) {
                 }
               }
 
-              box.getCenter(gizmoObj.position)
+              box.getCenter(gizmoGroup.position)
               if (transformPivot === TransformPivot.Bottom) {
-                gizmoObj.position.y = box.min.y
+                gizmoGroup.position.y = box.min.y
               }
             }
           }
 
           if (isChanged || transformSpaceChanged) {
             if (transformSpace === TransformSpace.LocalSelection) {
-              lastSelectedObj3d.getWorldQuaternion(gizmoObj.quaternion)
+              lastSelectedObj3d.getWorldQuaternion(gizmoGroup.quaternion)
             } else {
-              gizmoObj.rotation.set(0, 0, 0)
+              gizmoGroup.rotation.set(0, 0, 0)
             }
 
-            inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
+            inverseGizmoQuaternion.copy(gizmoGroup.quaternion).invert()
           }
 
           if ((transformModeChanged || transformSpaceChanged) && transformMode === TransformMode.Scale) {
             gizmoObj.setLocalScaleHandlesVisible(transformSpace !== TransformSpace.World)
           }
 
-          gizmoObj.visible = true
+          gizmoGroup.visible = true
         }
       }
 

@@ -8,8 +8,8 @@ import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
+import { GroupComponent } from '../components/GroupComponent'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PortalEffects } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -35,15 +35,15 @@ export default async function HyperspacePortalSystem(world: World) {
   let sceneVisible = true
 
   return () => {
-    const playerObj = getComponent(world.localClientEntity, Object3DComponent)
+    const playerGroup = getComponent(world.localClientEntity, GroupComponent).value
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
     for (const entity of hyperspaceTagComponent.enter()) {
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       transition.setState('IN')
 
-      hyperspaceEffect.position.copy(playerObj.value.position)
-      hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
+      hyperspaceEffect.position.copy(playerGroup.position)
+      hyperspaceEffect.quaternion.copy(playerGroup.quaternion)
       Engine.instance.currentWorld.camera.zoom = 1.5
 
       Engine.instance.currentWorld.scene.add(light)
@@ -82,8 +82,8 @@ export default async function HyperspacePortalSystem(world: World) {
         }
       })
 
-      hyperspaceEffect.position.copy(playerObj.value.position)
-      hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
+      hyperspaceEffect.position.copy(playerGroup.position)
+      hyperspaceEffect.quaternion.copy(playerGroup.quaternion)
 
       if (Engine.instance.currentWorld.camera.zoom > 0.75) {
         Engine.instance.currentWorld.camera.zoom -= world.deltaSeconds

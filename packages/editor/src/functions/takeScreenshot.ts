@@ -6,6 +6,7 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { accessEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -41,9 +42,12 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     const entity = createEntity()
     scenePreviewCamera = addComponent(entity, ScenePreviewCameraComponent, null).camera
     const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
-    scenePreviewCamera.position.copy(position)
-    scenePreviewCamera.quaternion.copy(rotation)
-    scenePreviewCamera.updateMatrixWorld()
+    addObjectToGroup(entity, scenePreviewCamera)
+    setTransformComponent(entity)
+    const scenePreviewGroup = getComponent(Engine.instance.currentWorld.cameraEntity, GroupComponent).value
+    scenePreviewGroup.position.copy(position)
+    scenePreviewGroup.quaternion.copy(rotation)
+    scenePreviewGroup.updateMatrixWorld(true)
   }
 
   const prevAspect = scenePreviewCamera.aspect

@@ -8,6 +8,7 @@ import {
   SCENE_COMPONENT_LOOP_ANIMATION,
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
 } from '../../avatar/components/LoopAnimationComponent'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -49,7 +50,7 @@ import {
   SCENE_COMPONENT_GROUND_PLANE,
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
 } from '../components/GroundPlaneComponent'
-import { GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
+import { addObjectToGroup, GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
 import { ImageComponent, SCENE_COMPONENT_IMAGE } from '../components/ImageComponent'
 import {
   InteriorComponent,
@@ -481,6 +482,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     serialize: serializeSpline
   })
 
+  const cameraQuery = defineQuery([CameraComponent])
   const obj3dQuery = defineQuery([Object3DComponent])
   const fogQuery = defineQuery([Object3DComponent, FogComponent])
   const shadowQuery = defineQuery([Object3DComponent, ShadowComponent])
@@ -497,7 +499,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const interiorQuery = defineQuery([InteriorComponent])
   const renderSettingsQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
-  const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent, FollowCameraComponent])
+  const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent, FollowCameraComponent, CameraComponent])
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
@@ -539,6 +541,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
       }
     }
 
+    for (const entity of cameraQuery.enter()) addObjectToGroup(entity, getComponent(entity, CameraComponent).camera)
     for (const entity of imageQuery.enter()) enterImage(entity)
     for (const entity of shadowQuery.enter()) updateShadow(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)

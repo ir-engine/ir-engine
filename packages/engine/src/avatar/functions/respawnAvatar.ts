@@ -19,7 +19,7 @@ export const respawnAvatar = (entity: Entity) => {
         ownerId: networkObject.ownerId,
         networkId: networkObject.networkId
       },
-      position: new Vector3(position.x, position.y - avatarComponent.avatarHalfHeight, position.z),
+      position: new Vector3(position.x, position.y + 1, position.z),
       rotation: new Quaternion()
     })
   )

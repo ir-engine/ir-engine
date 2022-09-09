@@ -96,7 +96,7 @@ const enableCSM = () => {
 
 export const initializeCSM = () => {
   if (!Engine.instance.isHMD) {
-    let activeCSMLight
+    let activeCSMLight: DirectionalLight | undefined
     if (EngineRenderer.instance.activeCSMLightEntity) {
       activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, DirectionalLightComponent).light
 

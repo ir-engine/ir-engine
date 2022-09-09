@@ -1,7 +1,9 @@
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
+import { CameraComponent } from '@xrengine/engine/src/camera/components/CameraComponent'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -21,20 +23,20 @@ export default async function EditorCameraSystem(world: World) {
   const spherical = new Spherical()
 
   return () => {
-    const cameraQuery = defineQuery([EditorCameraComponent])
+    const cameraQuery = defineQuery([EditorCameraComponent, CameraComponent])
 
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
-      const camera = getComponent(entity, Object3DComponent)?.value
+      const cameraGroup = getComponent(entity, GroupComponent).value
 
       if (cameraComponent.zoomDelta) {
-        const distance = camera.position.distanceTo(cameraComponent.center!)
+        const distance = cameraGroup.position.distanceTo(cameraComponent.center)
         delta.set(0, 0, cameraComponent.zoomDelta * distance * ZOOM_SPEED)
 
         if (delta.length() > distance) return
 
-        delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
-        camera.position.add(delta)
+        delta.applyMatrix3(normalMatrix.getNormalMatrix(cameraGroup.matrix))
+        cameraGroup.position.add(delta)
 
         cameraComponent.zoomDelta = 0
       }
@@ -70,36 +72,36 @@ export default async function EditorCameraSystem(world: World) {
 
         delta
           .set(0, 0, 1)
-          .applyQuaternion(camera.quaternion)
+          .applyQuaternion(cameraGroup.quaternion)
           .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
-        camera.position.copy(cameraComponent.center).add(delta)
+        cameraGroup.position.copy(cameraComponent.center).add(delta)
 
         cameraComponent.focusedObjects = null!
         cameraComponent.refocus = false
       }
 
       if (cameraComponent.isPanning) {
-        const distance = camera.position.distanceTo(cameraComponent.center)
+        const distance = cameraGroup.position.distanceTo(cameraComponent.center)
         delta
           .set(cameraComponent.cursorDeltaX, -cameraComponent.cursorDeltaY, 0)
           .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
-          .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
-        camera.position.add(delta)
+          .applyMatrix3(normalMatrix.getNormalMatrix(cameraGroup.matrix))
+        cameraGroup.position.add(delta)
         cameraComponent.center.add(delta)
 
         cameraComponent.isPanning = false
       }
 
       if (cameraComponent.isOrbiting) {
-        delta.copy(camera.position).sub(cameraComponent.center)
+        delta.copy(cameraGroup.position).sub(cameraComponent.center)
         spherical.setFromVector3(delta)
         spherical.theta += cameraComponent.cursorDeltaX * ORBIT_SPEED
         spherical.phi += cameraComponent.cursorDeltaY * ORBIT_SPEED
         spherical.makeSafe()
         delta.setFromSpherical(spherical)
 
-        camera.position.copy(cameraComponent.center).add(delta)
-        camera.lookAt(cameraComponent.center)
+        cameraGroup.position.copy(cameraComponent.center).add(delta)
+        cameraGroup.lookAt(cameraComponent.center)
 
         cameraComponent.isOrbiting = false
       }

@@ -92,9 +92,7 @@ export default async function SceneObjectSystem(world: World) {
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent, true).value as Mesh
-
-      if (obj3d.parent === Engine.instance.currentWorld.scene) obj3d.removeFromParent()
+      const obj3d = getComponent(entity, Object3DComponent, true).value
 
       const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
       for (const layer of layers) {

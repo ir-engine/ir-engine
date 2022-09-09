@@ -14,8 +14,8 @@ import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -81,7 +81,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     locomotion: new Vector3()
   })
 
-  addComponent(entity, Object3DComponent, { value: tiltContainer })
+  addObjectToGroup(entity, tiltContainer)
   setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   addComponent(entity, SpawnPoseComponent, {
