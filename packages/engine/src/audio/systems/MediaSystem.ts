@@ -110,7 +110,7 @@ if (isClient) {
         const media = getComponent(entity, MediaComponent)
         if (media.playing.value) return
         if (media.paused.value) return
-        const mediaElement = getComponent(entity, MediaElementComponent)?.element.play()
+        getComponent(entity, MediaElementComponent)?.element.play()
       }
   }
 

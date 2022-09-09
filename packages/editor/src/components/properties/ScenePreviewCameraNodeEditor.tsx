@@ -25,7 +25,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     executeModifyPropertyCommand({
       affectedNodes: [props.node],
       component: TransformComponent,
-      properties: [{ position, rotation }]
+      properties: [{ position: position.clone(), rotation: rotation.clone() }]
     })
   }
 

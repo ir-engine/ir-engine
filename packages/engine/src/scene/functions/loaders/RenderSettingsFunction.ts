@@ -98,15 +98,14 @@ export const initializeCSM = () => {
   if (!Engine.instance.isHMD) {
     let activeCSMLight
     if (EngineRenderer.instance.activeCSMLightEntity) {
-      activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, Object3DComponent)
-        ?.value as DirectionalLight
+      activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, DirectionalLightComponent).light
 
       if (hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent))
         removeComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)
     }
 
     for (const entity of EngineRenderer.instance.directionalLightEntities) {
-      const light = getComponent(entity, Object3DComponent)?.value
+      const light = getComponent(entity, DirectionalLightComponent)?.light
       if (light) light.castShadow = false
     }
 
@@ -142,7 +141,7 @@ export const disposeCSM = () => {
   }
 
   EngineRenderer.instance.directionalLightEntities.forEach((entity) => {
-    const light = getComponent(entity, Object3DComponent)?.value
+    const light = getComponent(entity, DirectionalLightComponent)?.light
     if (light) light.castShadow = getComponent(entity, DirectionalLightComponent).castShadow
   })
 
