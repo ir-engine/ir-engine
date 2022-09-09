@@ -6,7 +6,12 @@ import { uploadProjectFiles } from './assetFunctions'
 
 export default async function exportGLTF(entity: Entity, path: string) {
   const isGLTF = /\.gltf$/.test(path)
-  const gltf = await exportModelGLTF(entity, { binary: !isGLTF, embedImages: !isGLTF, includeCustomExtensions: true }) //, {binary: false, embedImages: false, includeCustomExtensions: true})
+  const gltf = await exportModelGLTF(entity, {
+    path,
+    binary: !isGLTF,
+    embedImages: !isGLTF,
+    includeCustomExtensions: true
+  }) //, {binary: false, embedImages: false, includeCustomExtensions: true})
   const pName = accessEditorState().projectName.value!
   const blob = isGLTF ? [JSON.stringify(gltf)] : [gltf]
   const file = new File(blob, /[^\/]+$/.exec(path)![0])
