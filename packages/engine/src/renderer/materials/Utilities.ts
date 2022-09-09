@@ -8,7 +8,8 @@ import {
   Texture
 } from 'three'
 
-import { DefaultArguments } from './MaterialLibrary'
+import { DefaultArguments, MaterialLibrary } from './MaterialLibrary'
+import { MaterialParms } from './MaterialParms'
 
 export function extractDefaults(defaultArgs) {
   return formatMaterialArgs(
@@ -61,6 +62,10 @@ export function materialTypeToLibraryName(type: string): string {
 
 export function materialTypeToDefaultArgs(type: string): Object | undefined {
   return DefaultArguments[materialTypeToLibraryName(type)]
+}
+
+export function materialTypeToFactory(type: string): ((parms: any) => MaterialParms) | undefined {
+  return MaterialLibrary[materialTypeToLibraryName(type)]
 }
 
 export function materialToDefaultArgs(material: Material): Object | undefined {

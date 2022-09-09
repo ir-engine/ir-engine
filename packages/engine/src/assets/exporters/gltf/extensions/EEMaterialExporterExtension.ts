@@ -28,11 +28,11 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       }
     })
     materialDef.extensions = materialDef.extensions ?? {}
-    materialDef.extensions.EE_material = {
+    materialDef.extensions[this.name] = {
       name: material.name,
       type: material.type,
       args: { ...result }
     }
-    this.writer.extensionsUsed.EE_material = true
+    this.writer.extensionsUsed[this.name] = true
   }
 }
