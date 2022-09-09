@@ -131,8 +131,6 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
   return result
 }
 
-const postProcessingQuery = defineQuery([PostprocessingComponent])
-
 /**
  * Updates the scene based on serialized json data
  * @param oldSceneData
@@ -141,7 +139,7 @@ const postProcessingQuery = defineQuery([PostprocessingComponent])
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
 
-  const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
+  const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
   const systemsToLoad = sceneSystems.filter(
     (systemToLoad) =>
       !Object.values(world.pipelines)
@@ -233,32 +231,6 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
       entities: changedEntityNodes.map(([uuid]) => world.entityTree.uuidNodeMap.get(uuid)?.entity!)
     })
   )
-}
-
-/**
- * Loads a scene from scene json, unloading the current scene if there is one already loaded
- * @param sceneData
- * @param sceneSystems an array of system modules to load
- * @param softReload a boolean to indicate if the unloading should only unload scene entities, rather than network objects
- */
-export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
-  const world = Engine.instance.currentWorld
-
-  unloadScene(world)
-
-  await initSystems(world, sceneSystems)
-
-  // reset renderer settings for if we are teleporting and the new scene does not have an override
-  resetEngineRenderer(true)
-
-  const { entityLoadQueue, entityDynamicQueue } = splitLazyLoadedSceneEntities(sceneData)
-
-  if (Engine.instance.isEditor) {
-    for (const [key, val] of Object.entries(sceneData.entities)) createSceneEntity(key, val, world)
-  } else {
-    for (const [key, val] of Object.entries(entityDynamicQueue)) addDynamicallyLoadedEntity(key, val, world)
-    for (const [key, val] of Object.entries(entityLoadQueue)) createSceneEntity(key, val, world, sceneData)
-  }
 
   if (!sceneAssetPendingTagQuery().length) {
     dispatchAction(EngineActions.sceneLoaded({}))
@@ -270,6 +242,9 @@ export const addDynamicallyLoadedEntity = (
   entityJson: EntityJson,
   world = Engine.instance.currentWorld
 ) => {
+  if (Engine.instance.isEditor) {
+    return createSceneEntity(uuid, entityJson, world)
+  }
   const transform = entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_TRANSFORM)
   const dynamicLoad = entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)!
   if (transform) {
@@ -379,7 +354,7 @@ export default async function SceneLoadingSystem(world: World) {
     dispatchAction(
       EngineActions.sceneLoadingProgress({
         progress:
-          promisesCompleted > totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
+          promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
       })
     )
   }

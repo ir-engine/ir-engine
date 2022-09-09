@@ -145,7 +145,12 @@ const EditorContainer = () => {
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
-      await loadProjectScene(sceneFile)
+      await loadProjectScene({
+        project: projectName.value!,
+        scene: sceneFile,
+        thumbnailUrl: null!,
+        name: ''
+      })
       dispatchAction(EditorAction.sceneModified({ modified: true }))
       setDialogComponent(null)
     } catch (error) {
@@ -180,7 +185,7 @@ const EditorContainer = () => {
       const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) return
-      await loadProjectScene(project.scene)
+      await loadProjectScene(project)
 
       setDialogComponent(null)
     } catch (error) {

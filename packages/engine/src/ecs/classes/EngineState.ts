@@ -124,11 +124,6 @@ export class EngineActions {
     progress: matches.number
   })
 
-  static connect = defineAction({
-    type: 'xre.engine.CONNECT' as const,
-    id: matches.string
-  })
-
   static browserNotSupported = defineAction({
     type: 'xre.engine.BROWSER_NOT_SUPPORTED' as const,
     msg: matches.string

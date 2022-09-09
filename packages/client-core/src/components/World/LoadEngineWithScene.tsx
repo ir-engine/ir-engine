@@ -68,7 +68,7 @@ export const useLocationSpawnAvatar = () => {
     AvatarService.fetchAvatarList()
   }, [])
 
-  useHookEffect(async () => {
+  useHookEffect(() => {
     if (
       didSpawn.value ||
       Engine.instance.currentWorld.localClientEntity ||

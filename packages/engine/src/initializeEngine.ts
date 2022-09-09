@@ -93,9 +93,6 @@ export const initializeBrowser = () => {
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
-  matchActionOnce(EngineActions.connect.matches, (action: any) => {
-    Engine.instance.userId = action.id
-  })
   EngineRenderer.instance.initialize()
   Engine.instance.engineTimer.start()
 }

@@ -91,6 +91,7 @@ export class GLTFExporter {
 
 export class GLTFWriter {
     constructor();
+    buffers: any[]
     json: any
     cache: any
     pending: Promise<any>[]
