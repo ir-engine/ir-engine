@@ -19,6 +19,7 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
 import { Physics } from '../../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -57,14 +58,13 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
 
     mesh.name = 'GroundPlaneMesh'
     mesh.position.y = -0.05
-    mesh.rotation.x = -Math.PI / 2
     mesh.traverse(generateMeshBVH)
     enableObjectLayer(mesh, ObjectLayers.Camera, true)
     addObjectToGroup(entity, mesh)
 
     const colliderDescOptions = {
       bodyType: RigidBodyType.Fixed,
-      type: ShapeType.Cuboid,
+      shapeType: ShapeType.Cuboid,
       size: planeSize,
       removeMesh: false,
       collisionLayer: CollisionGroups.Ground,
@@ -72,6 +72,9 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
     } as ColliderDescOptions
 
     Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, mesh, colliderDescOptions)
+
+    // rotation needs to be applied so the object3d lines up with the physics collider
+    mesh.rotation.x = -Math.PI / 2
   }
 
   /**
