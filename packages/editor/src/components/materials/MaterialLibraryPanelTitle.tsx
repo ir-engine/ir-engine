@@ -1,6 +1,6 @@
 import React from 'react'
 
-import LocalFlorist from '@mui/icons-material/LocalFlorist'
+import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { useEditorState } from '../../services/EditorServices'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
@@ -10,7 +10,7 @@ export const MaterialLibraryPanelTitle = () => {
   return (
     <div className={styles.dockableTab}>
       <PanelDragContainer>
-        <PanelIcon as={LocalFlorist} size={12} />
+        <PanelIcon as={MaterialLibraryIcon} size={12} />
         <PanelTitle>Material Library</PanelTitle>
       </PanelDragContainer>
     </div>
