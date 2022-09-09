@@ -817,7 +817,7 @@ class GLTFWriter {
 		// All buffers are merged before export.
 		buffers.push( buffer );
 
-		return options.binary ? 0 : buffers.length - 1;
+		return this.options.binary ? 0 : buffers.length - 1;
 	}
 
 	/**
