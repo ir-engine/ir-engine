@@ -7,6 +7,7 @@ import { addComponent, createMappedComponent, defineQuery, getComponent } from '
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -44,7 +45,7 @@ describe('loadGLTFModel', () => {
       // 'xrengine.spawn-point': '',
       'xrengine.CustomComponent.value': number
     }
-    addComponent(entity, Object3DComponent, { value: mesh })
+    addObjectToGroup(entity, mesh)
     const modelQuery = defineQuery([TransformComponent, Object3DComponent])
     const childQuery = defineQuery([
       NameComponent,

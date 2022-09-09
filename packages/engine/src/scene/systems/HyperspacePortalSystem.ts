@@ -36,6 +36,8 @@ export default async function HyperspacePortalSystem(world: World) {
   let sceneVisible = true
 
   return () => {
+    if (isNaN(world.localClientEntity)) return
+
     const playerGroup = getComponent(world.localClientEntity, GroupComponent).value
     const sceneLoaded = !sceneAssetPendingTagQuery().length
 

@@ -101,6 +101,8 @@ export default async function EditorCameraSystem(world: World) {
         delta.setFromSpherical(spherical)
 
         cameraGroup.position.copy(cameraComponent.center).add(delta)
+        // @ts-ignore; lookAt changes behavior based on whether or not object has this flag
+        cameraGroup.isCamera = true
         cameraGroup.lookAt(cameraComponent.center)
 
         cameraComponent.isOrbiting = false

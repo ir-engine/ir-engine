@@ -92,16 +92,6 @@ describe.skip('AudioFunctions', () => {
         deserializePositionalAudio(entity, sceneComponentData)
         assert(hasComponent(entity, Object3DComponent))
       })
-
-      it('will not add object 3d component if already present', () => {
-        const obj3d = new Object3D()
-
-        addComponent(entity, Object3DComponent, { value: obj3d })
-        deserializePositionalAudio(entity, sceneComponentData)
-
-        const obj3dComp = getComponent(entity, Object3DComponent)
-        assert(obj3dComp && obj3dComp.value === obj3d)
-      })
     })
 
     describe('Client vs Server', () => {
@@ -388,13 +378,6 @@ describe.skip('AudioFunctions', () => {
       audioFunctions.toggleAudio(entity)
 
       assert(audioEl.isPlaying !== prevState)
-    })
-
-    it('should do nothing if no audio component is there', () => {
-      const entity = createEntity()
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
-      audioFunctions.toggleAudio(entity)
-      assert(true)
     })
   })
 

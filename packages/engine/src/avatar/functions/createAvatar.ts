@@ -43,7 +43,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
   tiltContainer.name = 'Actor (tiltContainer)' + entity
-  tiltContainer.position.setY(defaultAvatarHalfHeight)
+  // tiltContainer.position.setY(defaultAvatarHalfHeight)
 
   // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
   const modelContainer = new Group()

@@ -19,8 +19,9 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
+import { setCallback } from '../../scene/components/CallbackComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
+import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
@@ -136,9 +137,9 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   } else if (assetType == AssetType.VRM) {
     if (model && object3DComponent.value && (model as UpdateableObject3D).update) {
       addComponent(entity, UpdatableComponent, true)
-      ;(object3DComponent.value as unknown as Updatable).update = (delta: number) => {
+      setCallback(entity, UpdatableCallback, (delta: number) => {
         ;(model as UpdateableObject3D).update(delta)
-      }
+      })
     }
   }
 

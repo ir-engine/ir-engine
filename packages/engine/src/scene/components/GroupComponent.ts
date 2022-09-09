@@ -19,7 +19,7 @@ export const GroupComponent = defineComponent({
   },
 
   toJSON: () => {
-    return {}
+    return {} as Record<any, never>
   }
 })
 

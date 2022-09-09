@@ -50,6 +50,11 @@ export const MediaElementComponent = defineComponent({
 // temporary media elements for collecting metadata
 const metadataElements = new Set<HTMLMediaElement>()
 
+export const enum MediaCallbacks {
+  PLAY = 'xre.media.play',
+  PAUSE = 'xre.media.pause'
+}
+
 export const MediaComponent = defineComponent({
   name: 'XRE_media',
 

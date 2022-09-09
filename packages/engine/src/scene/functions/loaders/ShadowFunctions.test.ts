@@ -6,7 +6,7 @@ import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import { ShadowComponent, ShadowComponentType } from '../../components/ShadowComponent'
 import { updateShadow } from './ShadowFunctions'
 
@@ -37,7 +37,7 @@ describe('ShadowFunctions', () => {
 
       obj3d.add(child)
 
-      addComponent(entity, Object3DComponent, { value: obj3d })
+      addObjectToGroup(entity, obj3d)
       addComponent(entity, ShadowComponent, sceneComponentData)
       shadowComponent = getComponent(entity, ShadowComponent) as ShadowComponentType
     })

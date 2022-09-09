@@ -18,7 +18,7 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   EnvmapComponent,
   EnvmapComponentType,

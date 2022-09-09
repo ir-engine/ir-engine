@@ -5,5 +5,4 @@ export default class UpdateableObject3D extends Object3D {
     super()
   }
   update(dt: number) {}
-  execute(key: string, data: any) {}
 }

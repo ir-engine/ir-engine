@@ -4,7 +4,8 @@ import { Quaternion, Vector3 } from 'three'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, createMappedComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 
 export type TransformComponentType = {
   position: Vector3
@@ -34,6 +35,7 @@ export function setTransformComponent(
   rotation = new Quaternion(),
   scale = new Vector3(1, 1, 1)
 ) {
+  if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, {})
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
   return setComponent(entity, TransformComponent, {
     position: createVector3Proxy(TransformComponent.position, entity, dirtyTransforms, position),

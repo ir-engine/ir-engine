@@ -24,5 +24,9 @@ export const NetworkObjectComponent = defineComponent({
   onAdd: (entity, json) => {
     NetworkObjectComponent.networkId[entity] = json.networkId
     return json as NetworkObjectComponentType
+  },
+
+  toJSON: (entity, component) => {
+    return component
   }
 })

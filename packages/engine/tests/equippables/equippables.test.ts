@@ -16,7 +16,7 @@ import { equipEntity, unequipEntity } from '../../src/interaction/functions/equi
 import { equipperQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
-import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
+import { addObjectToGroup } from '../../src/scene/components/GroupComponent'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
 import { createMockNetwork } from '../util/createMockNetwork'
 
@@ -61,9 +61,7 @@ describe.skip('Equippables Integration Tests', () => {
     }
     mesh.userData = bodyOptions
 
-    const object3d = addComponent(equippableEntity, Object3DComponent, {
-      value: mesh
-    })
+    addObjectToGroup(equippableEntity, mesh)
     Physics.createRigidBodyForObject(equippableEntity, world.physicsWorld, mesh, bodyOptions)
     // network mock stuff
     // initially the object is owned by server

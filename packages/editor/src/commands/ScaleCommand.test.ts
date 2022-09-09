@@ -11,6 +11,7 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
+import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -47,7 +48,7 @@ describe('ScaleCommand', () => {
       obj3d.scale.copy(transform.scale)
       Engine.instance.currentWorld.scene.add(obj3d)
       addComponent(node.entity, TransformComponent, transform)
-      addComponent(node.entity, Object3DComponent, { value: obj3d })
+      addObjectToGroup(node.entity, obj3d)
     })
 
     command = {

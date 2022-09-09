@@ -28,6 +28,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { createVector3Proxy } from '../../common/proxies/three'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../../networking/classes/Network'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -159,9 +160,7 @@ export const generatePhysicsObject = (
   const nameComponent = getComponent(entity, NameComponent)
   nameComponent.name = 'physics_debug_' + uuid
 
-  const obj3d = mesh
-  obj3d.scale.copy(scale)
-  addComponent(entity, Object3DComponent, { value: obj3d })
+  addObjectToGroup(entity, mesh)
 
   parseGLTFModel(entity)
 

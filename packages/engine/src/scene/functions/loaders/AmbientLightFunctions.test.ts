@@ -50,7 +50,7 @@ describe('AmbientLightFunctions', () => {
       deserializeAmbientLight(entity, sceneComponentData)
       updateAmbientLight(entity)
 
-      const obj3d = getComponent(entity, Object3DComponent)?.value as AmbientLight
+      const obj3d = getComponent(entity, AmbientLightComponent)?.light
       assert(obj3d && obj3d instanceof AmbientLight, 'Ambient Light is not created')
       assert(obj3d.color instanceof Color)
       assert.equal(obj3d.color.getHex(), sceneComponentData.color)

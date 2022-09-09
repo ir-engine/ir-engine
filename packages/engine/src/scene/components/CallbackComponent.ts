@@ -2,13 +2,13 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, createMappedComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type CallbackComponentType = {
-  [event: string]: undefined | ((triggerEntity?: Entity) => void)
+  [event: string]: undefined | ((...params: any) => void) // todo: stronger typing
 }
 
 export const CallbackComponent = createMappedComponent<CallbackComponentType>('CallbackComponent')
 
-export function setCallbacks(entity: Entity, map: { [event: string]: (triggerEntity?: Entity) => void }) {
+export function setCallback(entity: Entity, key: string, callback: (...params: any) => void) {
   if (!hasComponent(entity, CallbackComponent)) addComponent(entity, CallbackComponent, {})
   const callbacks = getComponent(entity, CallbackComponent)
-  Object.assign(callbacks, map)
+  callbacks[key] = callback
 }

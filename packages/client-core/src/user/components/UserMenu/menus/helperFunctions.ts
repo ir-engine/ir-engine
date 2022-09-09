@@ -17,7 +17,6 @@ import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarCons
 import { BoneStructure } from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'

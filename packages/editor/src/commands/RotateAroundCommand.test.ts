@@ -11,6 +11,7 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
+import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
@@ -50,7 +51,7 @@ describe('RotateAroundCommand', () => {
       obj3d.quaternion.copy(transform.rotation)
       Engine.instance.currentWorld.scene.add(obj3d)
       addComponent(node.entity, TransformComponent, transform)
-      addComponent(node.entity, Object3DComponent, { value: obj3d })
+      addObjectToGroup(node.entity, obj3d)
     })
 
     command = {

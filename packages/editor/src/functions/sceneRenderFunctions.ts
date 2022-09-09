@@ -66,6 +66,8 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
 
   const cameraGroup = getComponent(Engine.instance.currentWorld.cameraEntity, GroupComponent).value
   cameraGroup.position.set(0, 5, 10)
+  // @ts-ignore; lookAt changes behavior based on whether or not object has this flag
+  cameraGroup.isCamera = true
   cameraGroup.lookAt(new Vector3())
 
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)

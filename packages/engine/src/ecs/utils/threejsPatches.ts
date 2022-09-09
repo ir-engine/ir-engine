@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Vector2, Vector3 } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
@@ -47,3 +48,5 @@ Object3D.prototype.getWorldDirection = function (target) {
   const e = this.matrixWorld.elements
   return target.set(e[8], e[9], e[10]).normalize()
 }
+
+globalThis.THREE = THREE

@@ -110,25 +110,15 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
-    if (Engine.instance.isEditor)
-      // store local transform in local transform component
-      setLocalTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
-
-    // apply root mesh's world transform to this mesh locally
-    applyTransformToMeshWorld(entity, mesh)
-
-    const transform = setTransformComponent(e)
-    mesh.updateWorldMatrix(true, true)
-    mesh.getWorldPosition(transform.position)
-    mesh.getWorldQuaternion(transform.rotation)
-    mesh.getWorldScale(transform.scale)
-
-    mesh.removeFromParent()
-    if (mesh.userData['xrengine.removeMesh'] === 'true') {
-      delete mesh.userData['xrengine.removeMesh']
-    } else {
-      addObjectToGroup(e, mesh)
-    }
+    setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
+    const { position, scale, rotation } = setTransformComponent(e)
+    setTransformComponent(
+      e,
+      mesh.getWorldPosition(position),
+      mesh.getWorldQuaternion(rotation),
+      mesh.getWorldScale(scale)
+    )
+    addObjectToGroup(e, mesh)
 
     addComponent(e, GLTFLoadedComponent, ['entity', TransformComponent._name])
     createObjectEntityFromGLTF(e, mesh)
@@ -196,12 +186,6 @@ export const parseGLTFModel = (entity: Entity) => {
     })
   }
 
-  // ignore disabling matrix auto update in the editor as we need to be able move things around with the transform tools
-  const transform = getComponent(entity, TransformComponent)
-  scene.position.copy(transform.position)
-  scene.quaternion.copy(transform.rotation)
-  scene.scale.copy(transform.scale)
-  scene.updateMatrixWorld(true)
   scene.traverse((child) => {
     child.matrixAutoUpdate = model.matrixAutoUpdate
   })

@@ -7,6 +7,7 @@ import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -15,6 +16,7 @@ import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/c
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import {
@@ -140,11 +142,21 @@ export default async function TransformSystem(world: World) {
     for (const entity of localTransformQuery.enter()) {
       const parentEntity = world.entityTree.entityNodeMap.get(entity)?.parentEntity!
       setComputedTransformComponent(entity, parentEntity, (childEntity, parentEntity) => {
-        const transform = getComponent(childEntity, TransformComponent)
-        const localTransform = getComponent(childEntity, LocalTransformComponent)
-        const parentTransform = getComponent(parentEntity, TransformComponent)
-        applyTransformPositionOffset(transform, parentTransform, localTransform.position)
-        applyTransformRotationOffset(transform, parentTransform, localTransform.rotation)
+        const localTransform = getComponent(entity, LocalTransformComponent)
+        const childGroup = getComponent(childEntity, GroupComponent)?.value
+        const parentGroup = getComponent(parentEntity, GroupComponent)?.value
+
+        childGroup.position.copy(localTransform.position)
+        childGroup.scale.copy(localTransform.scale)
+        childGroup.quaternion.copy(localTransform.rotation)
+
+        if (parentGroup) {
+          childGroup.updateMatrix()
+          childGroup.matrixWorld.multiplyMatrices(parentGroup.matrixWorld, childGroup.matrix)
+          childGroup.matrix.copy(childGroup.matrixWorld)
+          childGroup.matrixWorld.decompose(childGroup.position, childGroup.quaternion, childGroup.scale)
+          childGroup.matrixWorldNeedsUpdate = false
+        }
       })
     }
 
@@ -153,15 +165,13 @@ export default async function TransformSystem(world: World) {
     for (const entity of transformObjectQuery.enter()) {
       const transform = getComponent(entity, TransformComponent)
       const object3D = getComponent(entity, Object3DComponent).value
-      if (transform && object3D) {
-        object3D.matrixAutoUpdate = false
-        object3D.position.copy(transform.position)
-        object3D.quaternion.copy(transform.rotation)
-        object3D.scale.copy(transform.scale)
-        proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, object3D.position)
-        proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, object3D.quaternion)
-        proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, object3D.scale)
-      }
+      object3D.matrixAutoUpdate = false
+      object3D.position.copy(transform.position)
+      object3D.quaternion.copy(transform.rotation)
+      object3D.scale.copy(transform.scale)
+      proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, object3D.position)
+      proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, object3D.quaternion)
+      proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, object3D.scale)
     }
 
     // update transform components from rigid body components,
@@ -203,6 +213,8 @@ export default async function TransformSystem(world: World) {
           object3D.updateMatrix()
           world.dirtyTransforms.delete(entity)
         }
+
+        object3D.updateMatrixWorld()
       }
     }
 

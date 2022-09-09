@@ -10,6 +10,7 @@ import {
   EnvMapBakeComponentType,
   SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '../../components/EnvMapBakeComponent'
+import { GroupComponent } from '../../components/GroupComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 
@@ -32,7 +33,7 @@ export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene
   traverseEntityNode(world.entityTree.rootNode, (node) => {
     if (node === world.entityTree.rootNode || hasComponent(node.entity, PreventBakeTagComponent)) return
 
-    const obj3d = getComponent(node.entity, Object3DComponent)?.value as Mesh<any, MeshStandardMaterial>
+    const obj3d = getComponent(node.entity, GroupComponent)?.value as unknown as Mesh<any, MeshStandardMaterial>
 
     if (obj3d) {
       const newObj = obj3d.clone(false)

@@ -53,7 +53,7 @@ describe.skip('VideoFunctions', () => {
       controls: false,
       isMusic: false
     })
-    const obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
+    const obj3d = new Object3D()
     obj3d.userData.mesh = new Mesh()
   })
 

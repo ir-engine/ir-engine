@@ -489,7 +489,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
-  const loopableAnimationQuery = defineQuery([Object3DComponent, LoopAnimationComponent])
+  const loopableAnimationQuery = defineQuery([LoopAnimationComponent])
   const skyboxQuery = defineQuery([SkyboxComponent])
   const portalQuery = defineQuery([PortalComponent])
   const modelQuery = defineQuery([ModelComponent])

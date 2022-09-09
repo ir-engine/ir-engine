@@ -16,9 +16,9 @@ import {
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
 import { normalizeRange } from '../common/functions/MathFunctions'
 import { World } from '../ecs/classes/World'
-import { addComponent, defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { teleportAvatar } from './functions/moveAvatar'
@@ -100,7 +100,7 @@ export default async function AvatarTeleportSystem(world: World) {
   guideCursor.visible = false
 
   const guideCursorEntity = createEntity()
-  addComponent(guideCursorEntity, Object3DComponent, { value: guideCursor })
+  addObjectToGroup(guideCursorEntity, guideCursor)
 
   let guidingController = null! as Group
   let canTeleport = false

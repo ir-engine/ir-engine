@@ -11,6 +11,7 @@ import {
   getEntityNodeArrayFromEntities,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
@@ -125,15 +126,13 @@ function addObject(command: AddObjectCommandParams) {
 
     let index
     if (typeof parent !== 'string') {
-      if (before && typeof before === 'string' && !hasComponent(parent.entity, Object3DComponent)) {
-        const obj3d: Object3DWithEntity = new Object3D() as Object3DWithEntity
-        obj3d.entity = parent.entity
-        addComponent(parent.entity, Object3DComponent, { value: obj3d })
+      if (before && typeof before === 'string' && !hasComponent(parent.entity, GroupComponent)) {
+        addComponent(parent.entity, GroupComponent, {})
       }
       index =
         before && parent.children
           ? typeof before === 'string'
-            ? getComponent(parent.entity, Object3DComponent).value.children.indexOf(obj3dFromUuid(before))
+            ? getComponent(parent.entity, GroupComponent).value.children.indexOf(obj3dFromUuid(before))
             : parent.children.indexOf(before.entity)
           : undefined
     } else {

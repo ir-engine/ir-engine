@@ -18,8 +18,7 @@ import {
   MeshColliderComponentTag,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
-import { NameComponent } from '../../components/NameComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { GroupComponent } from '../../components/GroupComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
@@ -30,9 +29,6 @@ export const deserializeCollider: ComponentDeserializeFunction = (
     setComponent(entity, MeshColliderComponentTag, true)
   }
   const colliderProps = parseColliderProperties(data)
-  if (!hasComponent(entity, Object3DComponent)) {
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
-  }
   setComponent(entity, ColliderComponent, colliderProps)
 }
 
@@ -112,7 +108,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
 
 export const updateMeshCollider = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
-  const object3d = getComponent(entity, Object3DComponent)
+  const object3d = getComponent(entity, GroupComponent)
   /**
    * @todo remove this - see above
    */
