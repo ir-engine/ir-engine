@@ -2,11 +2,11 @@ import { cloneDeep } from 'lodash'
 import { MathUtils, Vector3 } from 'three'
 
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
@@ -18,28 +18,22 @@ import {
   hasComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { unloadScene } from '../../ecs/functions/EngineFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
 import {
   addEntityNodeInTree,
   createEntityNode,
   removeEntityNodeFromParent,
   traverseEntityNode
 } from '../../ecs/functions/EntityTreeFunctions'
-import { initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
+import { initSystems } from '../../ecs/functions/SystemFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { SCENE_COMPONENT_TRANSFORM } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { PostprocessingComponent } from '../components/PostprocessingComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_DYNAMIC_LOAD } from '../components/SceneDynamicLoadTagComponent'
-import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
 import { SceneDynamicLoadAction } from './SceneObjectDynamicLoadSystem'
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
@@ -191,7 +185,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   )
 
   // debug
-  // console.log({
+  // console.log('SceneLoadingSystem changes:', {
   //   data: sceneData.scene.entities,
   //   systemsToLoad,
   //   systemsToUnload,
@@ -211,7 +205,9 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
 
   /** remove entites that are no longer part of the scene */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {
-    traverseEntityNode(node, (node) => removeEntity(node.entity))
+    traverseEntityNode(node, (node) => {
+      if (entityExists(node.entity)) removeEntity(node.entity)
+    })
     removeEntityNodeFromParent(node)
   }
 
