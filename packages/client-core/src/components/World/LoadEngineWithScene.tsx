@@ -131,7 +131,6 @@ export const usePortalTeleport = () => {
         return
       }
 
-      dispatchAction(SceneActions.unloadCurrentScene({}))
       history.push('/location/' + world.activePortal!.location)
       LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
 
@@ -140,7 +139,6 @@ export const usePortalTeleport = () => {
       leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
       setAvatarToLocationTeleportingState(world)
-
       if (activePortal.effectType !== 'None') {
         addComponent(world.localClientEntity, PortalEffects.get(activePortal.effectType), true)
       } else {
@@ -188,13 +186,14 @@ export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
     if (clientReady && sceneData) {
       if (loadingState.state.value !== AppLoadingStates.SUCCESS)
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
-      loadScene(sceneData).then(() => {
-        if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
-        if (engineState.isTeleporting.value) revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
-      })
+      loadScene(sceneData)
     }
   }, [clientReady, sceneState.currentScene])
+
+  useHookEffect(() => {
+    if (engineState.sceneLoaded.value && loadingState.state.value !== AppLoadingStates.SUCCESS)
+      dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+  }, [engineState.sceneLoaded, engineState.loadingProgress])
 
   return <></>
 }
