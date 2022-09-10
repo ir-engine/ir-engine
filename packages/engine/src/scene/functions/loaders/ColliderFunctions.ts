@@ -11,23 +11,22 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
+import { LocalTransformComponent } from '../../../transform/components/LocalTransformComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import {
   ColliderComponent,
   ColliderComponentType,
-  MeshColliderComponentTag,
+  ModelColliderComponent,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
 import { GroupComponent } from '../../components/GroupComponent'
+import { ModelComponent } from '../../components/ModelComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
-  /** @todo this is brittle, should be replaced with something explicit for models */
-  if (typeof data.shapeType === 'undefined') {
-    setComponent(entity, MeshColliderComponentTag, true)
-  }
+  if (hasComponent(entity, LocalTransformComponent)) setComponent(entity, ModelColliderComponent, true)
   const colliderProps = parseColliderProperties(data)
   setComponent(entity, ColliderComponent, colliderProps)
 }
@@ -40,7 +39,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    *   as currently adding PortalComponent and then Obejct3DComponent synchronously
    *   will still trigger [PortalComponent, Not(Obejct3DComponent)] queries
    */
-  if (hasComponent(entity, MeshColliderComponentTag)) return
+  if (hasComponent(entity, ModelColliderComponent)) return
   if (!colliderComponent) return
 
   const rigidbodyTypeChanged =
@@ -109,16 +108,13 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
 export const updateMeshCollider = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
   const object3d = getComponent(entity, GroupComponent)
-  /**
-   * @todo remove this - see above
-   */
-  if (!object3d) return
+  if (!object3d?.value?.children[0]) return
 
   if (hasComponent(entity, RigidBodyComponent)) {
     Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
     Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
   }
-  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, object3d.value, {
+  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, object3d?.value?.children[0], {
     bodyType: colliderComponent.bodyType,
     shapeType: colliderComponent.shapeType,
     isTrigger: colliderComponent.isTrigger,

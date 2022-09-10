@@ -12,7 +12,7 @@ import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObject
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
-  MeshColliderComponentTag,
+  ModelColliderComponent,
   SCENE_COMPONENT_COLLIDER,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../scene/components/ColliderComponent'
@@ -104,8 +104,8 @@ export default async function PhysicsSystem(world: World) {
   ])
 
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
-  const colliderQuery = defineQuery([ColliderComponent, Not(MeshColliderComponentTag)])
-  const meshColliderQuery = defineQuery([ColliderComponent, MeshColliderComponentTag])
+  const colliderQuery = defineQuery([ColliderComponent, Not(ModelColliderComponent)])
+  const meshColliderQuery = defineQuery([ColliderComponent, ModelColliderComponent])
   const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
   const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
 
@@ -124,7 +124,7 @@ export default async function PhysicsSystem(world: World) {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ColliderComponent)) {
-          if (hasComponent(entity, MeshColliderComponentTag)) {
+          if (hasComponent(entity, ModelColliderComponent)) {
             /** @todo we currently have no reason to support this, and it breaks live scene updates */
             // updateMeshCollider(entity)
           } else {
