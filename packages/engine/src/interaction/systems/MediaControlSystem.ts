@@ -4,6 +4,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -17,8 +18,8 @@ const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<ty
   const xrui = getComponent(mediaControls.entity, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.container.rootLayer.querySelector('button')!
-  const model = getComponent(entity, Object3DComponent).value
-  const intersectObjects = world.pointerScreenRaycaster.intersectObject(model, true)
+  const group = getComponent(entity, GroupComponent)
+  const intersectObjects = group ? world.pointerScreenRaycaster.intersectObjects(group, true) : []
   if (intersectObjects.length) {
     transition.setState('IN')
   }
@@ -38,7 +39,7 @@ export default async function MediaControlSystem(world: World) {
   /** @todo, remove this when we have better system pipeline injection */
   if (Engine.instance.isEditor) return () => {}
 
-  const mediaQuery = defineQuery([MediaComponent, MediaComponent])
+  const mediaQuery = defineQuery([MediaComponent])
 
   const update = onUpdate(world)
 
