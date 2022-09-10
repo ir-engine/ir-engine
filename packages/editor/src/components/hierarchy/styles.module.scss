@@ -126,3 +126,12 @@
   width: 20px;
   flex-shrink: 0;
 }
+
+.divider {
+  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-left: 4px;
+  height: 1px;
+  width: 95%;
+  background-color: var(--inputBackground);
+}
