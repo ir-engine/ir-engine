@@ -1,6 +1,7 @@
 import { Material } from 'three'
 
 import { materialTypeToDefaultArgs, materialTypeToFactory } from '../../../../renderer/materials/functions/Utilities'
+import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
 import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
 
 export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
@@ -19,7 +20,13 @@ export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
     const factory = materialTypeToFactory(eeMaterial.type)
     return factory
       ? (function (args) {
-          return factory(args)
+          const material = factory(args)
+          MaterialLibrary.materials.set(material.uuid, {
+            material,
+            prototype: material.type,
+            parameters: args
+          })
+          return material
         } as unknown as typeof Material)
       : null
   }
