@@ -33,17 +33,19 @@ export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene
   traverseEntityNode(world.entityTree.rootNode, (node) => {
     if (node === world.entityTree.rootNode || hasComponent(node.entity, PreventBakeTagComponent)) return
 
-    const obj3d = getComponent(node.entity, Object3DComponent)?.value as unknown as Mesh<any, MeshStandardMaterial>
+    const group = getComponent(node.entity, GroupComponent) as unknown as Mesh<any, MeshStandardMaterial>[]
 
-    if (obj3d) {
-      const newObj = obj3d.clone(true)
-      if (node.parentEntity) parents[node.parentEntity].add(newObj)
-      newObj.traverse((o: any) => {
-        if (o.material) {
-          o.material = obj3d.material.clone()
-          o.material.roughness = 1
-        }
-      })
+    if (group) {
+      for (const obj of group) {
+        const newObj = obj.clone(true)
+        if (node.parentEntity) parents[node.parentEntity].add(newObj)
+        newObj.traverse((o: any) => {
+          if (o.material) {
+            o.material = obj.material.clone()
+            o.material.roughness = 1
+          }
+        })
+      }
     }
   })
 

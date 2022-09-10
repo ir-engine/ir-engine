@@ -1,5 +1,5 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { CircleGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D, Vector3 } from 'three'
+import { CircleGeometry, Color, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 
 import {
   ComponentDeserializeFunction,
@@ -51,10 +51,7 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
    */
   if (!component.mesh) {
     const planeSize = new Vector3(1000, 0.1, 1000)
-    const mesh = (component.mesh = new Mesh(
-      new CircleGeometry(planeSize.x, 32),
-      new MeshStandardMaterial({ roughness: 1, metalness: 0 })
-    ))
+    const mesh = (component.mesh = new Mesh(new CircleGeometry(planeSize.x, 32), new MeshBasicMaterial()))
 
     mesh.name = 'GroundPlaneMesh'
     mesh.position.y = -0.05

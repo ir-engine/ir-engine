@@ -180,6 +180,13 @@ export const getAllComponents = (entity: Entity, world = Engine.instance.current
   return bitECS.getEntityComponents(world, entity) as Component[]
 }
 
+export const getAllComponentData = (
+  entity: Entity,
+  world = Engine.instance.currentWorld
+): { [name: string]: ComponentType<any> } => {
+  return Object.fromEntries(getAllComponents(entity, world).map((C) => [C.name, getComponent(entity, C)]))
+}
+
 export const getComponentCountOfType = <C extends Component>(
   component: C,
   world = Engine.instance.currentWorld
@@ -234,3 +241,4 @@ export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComp
 
 globalThis.XRE_getComponent = getComponent
 globalThis.XRE_getAllComponents = getAllComponents
+globalThis.XRE_getAllComponentData = getAllComponentData

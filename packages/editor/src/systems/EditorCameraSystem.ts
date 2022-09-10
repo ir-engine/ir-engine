@@ -8,6 +8,8 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
+import { Group } from '@mui/icons-material'
+
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 
 const ZOOM_SPEED = 0.1
@@ -49,19 +51,24 @@ export default async function EditorCameraSystem(world: World) {
         } else {
           box.makeEmpty()
           for (const object of cameraComponent.focusedObjects) {
-            const obj3d =
-              typeof object === 'string' ? obj3dFromUuid(object) : getComponent(object.entity, Object3DComponent)?.value
-            if (obj3d) box.expandByObject(obj3d)
+            const group =
+              typeof object === 'string' ? [obj3dFromUuid(object)] : getComponent(object.entity, GroupComponent) || []
+            for (const obj of group) {
+              box.expandByObject(obj)
+            }
           }
           if (box.isEmpty()) {
             // Focusing on an Group, AmbientLight, etc
             const object = cameraComponent.focusedObjects[0]
+
             const obj3d =
-              typeof object === 'string' ? obj3dFromUuid(object) : getComponent(object.entity, Object3DComponent)?.value
-            if (obj3d) {
+              typeof object === 'string' ? obj3dFromUuid(object) : getComponent(object.entity, GroupComponent)?.[0]
+
+            if (typeof object === 'string') {
               cameraComponent.center.setFromMatrixPosition(obj3d.matrixWorld)
-            } else if (hasComponent(entity, TransformComponent)) {
-              cameraComponent.center.copy(getComponent(entity, TransformComponent).position)
+            } else if (hasComponent(object.entity, TransformComponent)) {
+              const position = getComponent(object.entity, TransformComponent).position
+              cameraComponent.center.copy(position)
             }
             distance = 0.1
           } else {

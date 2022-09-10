@@ -1,4 +1,4 @@
-import { CircleGeometry, Color, Mesh, MeshStandardMaterial } from 'three'
+import { CircleGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
@@ -6,7 +6,7 @@ export type GroundPlaneComponentType = {
   color: Color
   generateNavmesh: boolean
   isNavmeshGenerated?: boolean
-  mesh?: Mesh<CircleGeometry, MeshStandardMaterial>
+  mesh?: Mesh<CircleGeometry, MeshBasicMaterial>
 }
 
 export const GroundPlaneComponent = createMappedComponent<GroundPlaneComponentType>('GroundPlaneComponent')
