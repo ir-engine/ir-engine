@@ -62,7 +62,7 @@ export function materialTypeToFactory(type: string): (parms: any) => Material {
   const prototype = MaterialLibrary.prototypes.get(material.prototype)
   if (!prototype) throw new Error('could not find Material Prototype for Material ' + material)
   return (parms) => {
-    const result = new prototype.baseMaterial({ ...extractDefaults(prototype.arguments), ...parms })
+    const result = new prototype.baseMaterial({ ...material.parameters, ...parms })
     if (prototype.onBeforeCompile) {
       result.onBeforeCompile = prototype.onBeforeCompile
       result.needsUpdate = true

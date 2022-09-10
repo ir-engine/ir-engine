@@ -83,7 +83,7 @@ export type SourceProperties = GrassProperties & MeshProperties
 
 export type InstancingComponentType = {
   count: number
-  surface: any
+  surface: string
   sampling: SampleMode
   mode: ScatterMode
   state: ScatterState

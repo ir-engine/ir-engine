@@ -7,6 +7,7 @@ import MeshPhongMaterial from './constants/material-prototypes/MeshPhongMaterial
 import MeshPhysicalMaterial from './constants/material-prototypes/MeshPhysicalMaterial.mat'
 import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMaterial.mat'
 import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
+import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
 import { extractDefaults, formatMaterialArgs } from './functions/Utilities'
 
 export const MaterialLibrary = {
@@ -23,7 +24,8 @@ export function initializeMaterialLibrary() {
     MeshPhysicalMaterial,
     MeshLambertMaterial,
     MeshPhongMaterial,
-    MeshToonMaterial
+    MeshToonMaterial,
+    ShaderMaterial
   ].map((prototype) => {
     MaterialLibrary.prototypes.set(prototype.baseMaterial.name, prototype)
     //create default material from prototype

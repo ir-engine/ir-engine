@@ -39,15 +39,24 @@ function checkMatch(toCheck: string, assignment: MaterialOverrideComponentType):
 export function assignMaterial(override: MaterialOverrideComponentType): [MatRend[], Material] {
   const result: MatRend[] = []
   //first retrieve material to build assignment
+  let material: Material
+  /*if (MaterialLibrary.materials.has(override.materialID)) {
+    material = MaterialLibrary.materials.get(override.materialID)!.material
+  } else {*/
   const factory = materialTypeToFactory(override.materialID)
-
   if (!factory) {
     console.warn('Could not find factory function for material' + override.materialID)
     return [result, new Material()]
   }
   const defaultArgs = materialTypeToDefaultArgs(override.materialID)
   const formattedArgs = formatMaterialArgs(override.args, defaultArgs)
-  const material = factory(formattedArgs)
+  material = factory(formattedArgs)
+  /* MaterialLibrary.materials.set(material.type, {
+      material,
+      parameters: formattedArgs,
+      prototype: material.type
+    })
+  }*/
   const target = getComponent(override.targetEntity!, Object3DComponent)?.value
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')

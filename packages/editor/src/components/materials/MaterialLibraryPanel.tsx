@@ -10,7 +10,7 @@ import MaterialLibraryEntry from './MaterialLibraryEntry'
 
 export default function MaterialLibraryPanel() {
   const { t } = useTranslation()
-  const materials = Object.entries(MaterialLibrary)
+  const materials = MaterialLibrary.materials
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   return (
     <>
@@ -21,9 +21,12 @@ export default function MaterialLibraryPanel() {
               height={height}
               width={width}
               itemSize={32}
-              itemCount={materials.length}
+              itemCount={materials.size}
               itemData={{
-                nodes: Object.keys(MaterialLibrary).map((name) => ({ type: name }))
+                nodes: [...MaterialLibrary.materials.values()].map(({ material, prototype }) => ({
+                  type: material.type,
+                  prototype
+                }))
               }}
               itemKey={(index, _) => index}
               innerElementType="ul"
