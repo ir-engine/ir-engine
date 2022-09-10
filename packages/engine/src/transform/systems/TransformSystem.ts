@@ -1,4 +1,4 @@
-import { entityExists } from 'bitecs'
+import { addComponent, entityExists } from 'bitecs'
 import { Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
@@ -31,6 +31,7 @@ import { LocalTransformComponent } from '../components/LocalTransformComponent'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  setTransformComponent,
   TransformComponent
 } from '../components/TransformComponent'
 
@@ -44,7 +45,7 @@ const ownedDynamicRigidBodyQuery = defineQuery([
   TransformComponent,
   VelocityComponent
 ])
-const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
+const objectQuery = defineQuery([Object3DComponent])
 const localTransformQuery = defineQuery([LocalTransformComponent])
 const transformQuery = defineQuery([TransformComponent])
 const spawnPointQuery = defineQuery([SpawnPointComponent])
@@ -162,9 +163,11 @@ export default async function TransformSystem(world: World) {
 
     // proxify all object3D components w/ a transform component
 
-    for (const entity of transformObjectQuery.enter()) {
-      const transform = getComponent(entity, TransformComponent)
+    for (const entity of objectQuery.enter()) {
       const object3D = getComponent(entity, Object3DComponent).value
+      if (!hasComponent(entity, TransformComponent))
+        setTransformComponent(entity, object3D.position, object3D.quaternion, object3D.scale)
+      const transform = getComponent(entity, TransformComponent)
       object3D.matrixAutoUpdate = false
       object3D.position.copy(transform.position)
       object3D.quaternion.copy(transform.rotation)
@@ -172,6 +175,7 @@ export default async function TransformSystem(world: World) {
       proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, object3D.position)
       proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, object3D.quaternion)
       proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, object3D.scale)
+      Engine.instance.currentWorld.scene.add(object3D)
     }
 
     // update transform components from rigid body components,

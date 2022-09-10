@@ -10,6 +10,7 @@ import { EngineActions, EngineState, getEngineState } from '../../ecs/classes/En
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent } from '../components/GroupComponent'

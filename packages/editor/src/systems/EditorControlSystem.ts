@@ -17,7 +17,13 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { BoundingBoxComponent } from '@xrengine/engine/src/interaction/components/BoundingBoxComponents'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
@@ -25,6 +31,7 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
+import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import {
   SnapMode,
@@ -175,7 +182,7 @@ export default async function EditorControlSystem(_: World) {
       if (!gizmoObj || !gizmoGroup) continue
 
       if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
-        gizmoGroup.visible = false
+        removeComponent(SceneState.gizmoEntity, VisibleComponent)
       } else {
         const lastSelection = selectedEntities[selectedEntities.length - 1]
         const isUuid = typeof lastSelection === 'string'
@@ -226,7 +233,7 @@ export default async function EditorControlSystem(_: World) {
             gizmoObj.setLocalScaleHandlesVisible(transformSpace !== TransformSpace.World)
           }
 
-          gizmoGroup.visible = true
+          setComponent(SceneState.gizmoEntity, VisibleComponent, true)
         }
       }
 

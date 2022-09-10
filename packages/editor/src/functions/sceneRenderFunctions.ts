@@ -90,9 +90,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
   SceneState.editorEntity = createEditorEntity()
 
-  // Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
-  Engine.instance.currentWorld.scene.add(SceneState.transformGizmo)
-
   // Require when changing scene
   if (!Engine.instance.currentWorld.scene.children.includes(InfiniteGridHelper.instance)) {
     InfiniteGridHelper.instance = new InfiniteGridHelper()
