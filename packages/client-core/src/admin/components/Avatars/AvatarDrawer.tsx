@@ -300,6 +300,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       (state.source === 'url' && (tempErrors.avatarUrl || tempErrors.thumbnailUrl))
     ) {
       NotificationService.dispatchNotify(t('admin:components.common.fixErrorFields'), { variant: 'error' })
+      return
+    } else if (tempErrors.name) {
+      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
+      return
     } else if (state.source === 'file' && state.avatarFile && state.thumbnailFile) {
       avatarBlob = state.avatarFile
       thumbnailBlob = state.thumbnailFile
@@ -309,8 +313,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
       const thumbnailData = await fetch(state.thumbnailUrl)
       thumbnailBlob = await thumbnailData.blob()
-    } else {
-      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
 
     if (avatarBlob && thumbnailBlob) {
