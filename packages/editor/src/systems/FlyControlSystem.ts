@@ -32,7 +32,7 @@ export default async function FlyControlSystem(world: World) {
   return () => {
     for (let entity of flyControlQuery()) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
-      const camera = Engine.instance.currentWorld.cameraGroup
+      const camera = Engine.instance.currentWorld.camera
 
       if (getInput(EditorActionSet.disableFlyMode)) {
         const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)

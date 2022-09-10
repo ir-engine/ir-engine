@@ -230,7 +230,7 @@ export default async function PositionalAudioSystem(world: World) {
       const { position, rotation } = getComponent(entity, TransformComponent)
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
       const audioObject = AudioNodeGroups.get(element)!
-      updateAudioPanner(audioObject.panner!, position, rotation, endTime, positionalAudio.value)
+      audioObject.panner && updateAudioPanner(audioObject.panner, position, rotation, endTime, positionalAudio.value)
     }
 
     /** @todo, only apply this to closest 8 (configurable) avatars */

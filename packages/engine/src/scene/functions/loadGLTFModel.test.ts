@@ -28,11 +28,6 @@ describe('loadGLTFModel', () => {
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
 
     const entity = createEntity()
-    addComponent(entity, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3(1, 1, 1)
-    })
     addComponent(entity, ModelComponent, {
       ...SCENE_COMPONENT_MODEL_DEFAULT_VALUE,
       ...mockComponentData
@@ -74,11 +69,6 @@ describe('loadGLTFModel', () => {
   // TODO
   it.skip('Can load physics objects from gltf metadata', async () => {
     const entity = createEntity()
-    addComponent(entity, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3(1, 1, 1)
-    })
     const entityName = 'physics test entity'
     const parentGroup = new Group()
     parentGroup.userData = {
