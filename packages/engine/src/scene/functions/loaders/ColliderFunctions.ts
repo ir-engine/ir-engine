@@ -116,13 +116,17 @@ export const updateMeshCollider = (entity: Entity) => {
     Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
     Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
   }
-  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, object3d.value, {
+  const body = Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, object3d.value, {
     bodyType: colliderComponent.bodyType,
     isTrigger: colliderComponent.isTrigger,
     removeMesh: colliderComponent.removeMesh,
     collisionLayer: colliderComponent.collisionLayer,
     collisionMask: colliderComponent.collisionMask
   })
+
+  const transform = getComponent(entity, TransformComponent)
+  body.setTranslation(transform.position, true)
+  body.setRotation(transform.rotation, true)
 }
 
 /**

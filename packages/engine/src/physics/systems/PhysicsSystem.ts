@@ -3,11 +3,13 @@ import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
@@ -107,7 +109,13 @@ export default async function PhysicsSystem(world: World) {
   const colliderQuery = defineQuery([ColliderComponent, Not(ModelColliderComponent)])
   const meshColliderQuery = defineQuery([ColliderComponent, ModelColliderComponent])
   const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
-  const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
+
+  const networkedAvatarBodyQuery = defineQuery([
+    RigidBodyComponent,
+    NetworkObjectComponent,
+    Not(NetworkObjectOwnedTag),
+    AvatarComponent
+  ])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
@@ -151,12 +159,11 @@ export default async function PhysicsSystem(world: World) {
       rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
     }
 
-    // reset position and velocity for network objects every frame
-    // (this needs to be updated each frame, because remote objects are not locally constrained)
+    // reset position and velocity for networked avatars every frame
+    // (this needs to be updated each frame, because remote avatars are not locally constrained)
     // e.g., applying physics simulation to remote avatars is tricky, because avatar colliders should always be upright.
-    // TODO: it should be safe to skip this for objects unconstrained remote physics objects,
-    // we just need a way to identify them (Not(AvatarComponenent) may be enough for now...)
-    for (const entity of notOwnedRigidBodyQuery()) {
+    // TODO: look into constraining avatar bodies w/ the actual physics engine
+    for (const entity of networkedAvatarBodyQuery()) {
       const { body } = getComponent(entity, RigidBodyComponent)
       const { position, rotation } = getComponent(entity, TransformComponent)
       const { linear, angular } = getComponent(entity, VelocityComponent)
