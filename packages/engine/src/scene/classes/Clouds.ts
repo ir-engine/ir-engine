@@ -15,7 +15,6 @@ import {
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Entity } from '../../ecs/classes/Entity'
-import { Object3DWithEntity } from '../components/Object3DComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexShader = `

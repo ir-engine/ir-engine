@@ -19,6 +19,7 @@ import {
   AmbientLightComponentType,
   SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
 } from '../../components/AmbientLightComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeAmbientLight: ComponentDeserializeFunction = (
@@ -32,12 +33,12 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
 export const updateAmbientLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, AmbientLightComponent)
 
-  if (!hasComponent(entity, Object3DComponent)) {
-    const light = new AmbientLight()
-    addComponent(entity, Object3DComponent, { value: light })
+  if (!component.light) {
+    component.light = new AmbientLight()
+    addObjectToGroup(entity, component.light)
   }
 
-  const light = getComponent(entity, Object3DComponent)?.value as AmbientLight
+  const light = component.light
   light.color = component.color
   light.intensity = component.intensity
 }

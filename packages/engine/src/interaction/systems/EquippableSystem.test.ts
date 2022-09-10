@@ -11,7 +11,7 @@ import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/XRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -55,11 +55,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     })
     addComponent(player, EquipperComponent, { equippedEntity: item })
 
-    const equippableTransform = addComponent(item, TransformComponent, {
-      position: new Vector3(0, 0, 0),
-      rotation: new Quaternion(),
-      scale: new Vector3(1, 1, 1)
-    })
+    const equippableTransform = setTransformComponent(item)
     const attachmentPoint = equippedComponent.attachmentPoint
     const handTransform = getHandTransform(item, getParity(attachmentPoint))
     const { position, rotation } = handTransform

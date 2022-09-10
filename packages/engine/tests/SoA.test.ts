@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Vector3 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 
 import { createQuaternionProxy, createVector3Proxy } from '../src/common/proxies/three'
 import { addComponent } from '../src/ecs/functions/ComponentFunctions'
@@ -16,7 +16,8 @@ describe('Structure of Array Synchronization', () => {
     const transform = addComponent(entity, TransformComponent, {
       position: createVector3Proxy(TransformComponent.position, entity).set(1, 2, 3),
       rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(1, 2, 3, 4),
-      scale: new Vector3()
+      scale: new Vector3(),
+      matrix: new Matrix4()
     })
 
     /* assert */

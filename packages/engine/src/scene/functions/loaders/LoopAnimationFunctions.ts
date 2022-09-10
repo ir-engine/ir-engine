@@ -9,23 +9,42 @@ import { setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
 import { ComponentSerializeFunction, ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { CallbackComponent } from '../../components/CallbackComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { CallbackComponent, setCallback, StandardCallbacks } from '../../components/CallbackComponent'
+import { ModelComponent } from '../../components/ModelComponent'
 
 export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): void => {
+  /**
+   * Callback functions
+   */
+
+  const play = () => {
+    playAnimationClip(getComponent(entity, AnimationComponent), getComponent(entity, LoopAnimationComponent))
+  }
+  const pause = () => {
+    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+    if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
+  }
+  const stop = () => {
+    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+    if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+  }
+  setCallback(entity, StandardCallbacks.PLAY, play)
+  setCallback(entity, StandardCallbacks.PAUSE, pause)
+  setCallback(entity, StandardCallbacks.STOP, stop)
+
   /**
    * A model is required for LoopAnimationComponent to work.
    * If we do not detect one, throw a warning.
    */
-  const object3d = getComponent(entity, Object3DComponent)?.value
-  if (!object3d) {
+  const scene = getComponent(entity, ModelComponent).scene
+  if (!scene) {
     console.warn('Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?')
     return
   }
 
   if (!hasComponent(entity, AnimationComponent)) {
     addComponent(entity, AnimationComponent, {
-      mixer: new AnimationMixer(object3d),
+      mixer: new AnimationMixer(scene),
       animationSpeed: 1,
       animations: []
     })
@@ -37,7 +56,7 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
   const changedToAvatarAnimation =
     loopComponent.hasAvatarAnimations && animationComponent.animations !== AnimationManager.instance._animations
   const changedToObjectAnimation =
-    !loopComponent.hasAvatarAnimations && animationComponent.animations !== object3d.animations
+    !loopComponent.hasAvatarAnimations && animationComponent.animations !== scene.animations
 
   if (changedToAvatarAnimation) {
     if (!hasComponent(entity, AvatarAnimationComponent)) {
@@ -54,7 +73,7 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
         locomotion: new Vector3()
       })
       const setupLoopableAvatarModel = setupAvatarModel(entity)
-      setupLoopableAvatarModel(object3d)
+      setupLoopableAvatarModel(scene)
     }
   }
 
@@ -62,31 +81,8 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
     if (hasComponent(entity, AvatarAnimationComponent)) {
       removeComponent(entity, AvatarAnimationComponent)
     }
-    animationComponent.mixer = new AnimationMixer(object3d)
-    animationComponent.animations = object3d.animations
-  }
-
-  /**
-   * Callback functions
-   */
-
-  if (!hasComponent(entity, CallbackComponent)) {
-    const play = () => {
-      playAnimationClip(getComponent(entity, AnimationComponent), getComponent(entity, LoopAnimationComponent))
-    }
-    const pause = () => {
-      const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-      if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
-    }
-    const stop = () => {
-      const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-      if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
-    }
-    addComponent(entity, CallbackComponent, {
-      play,
-      pause,
-      stop
-    })
+    animationComponent.mixer = new AnimationMixer(scene)
+    animationComponent.animations = scene.animations
   }
 
   if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)

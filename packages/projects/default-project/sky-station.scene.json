@@ -407,7 +407,7 @@
             },
             "scale": {
               "x": 1,
-              "y": 0.5625,
+              "y": 1,
               "z": 1
             }
           }
@@ -453,7 +453,7 @@
         {
           "name": "image",
           "props": {
-            "imageSource": "",
+            "source": "",
             "alphaCutoff": 0.5,
             "alphaMode": "Opaque",
             "projection": "Flat",

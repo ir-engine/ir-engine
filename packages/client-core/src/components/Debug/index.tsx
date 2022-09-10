@@ -1,4 +1,3 @@
-import { Downgraded } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,9 +10,9 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
+  Component,
   getComponent,
   hasComponent,
-  MappedComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemInstanceType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
@@ -91,9 +90,9 @@ export const Debug = () => {
                   (name ?? Engine.instance.currentWorld.entityTree.entityNodeMap.get(eid)?.uuid ?? ''),
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
-                    (components, C: MappedComponent<any, any>) => {
+                    (components, C: Component<any, any>) => {
                       if (C !== NameComponent) {
-                        const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
+                        const component = getComponent(eid, C)
                         components.push([C._name, { ...component }])
                       }
                       return components

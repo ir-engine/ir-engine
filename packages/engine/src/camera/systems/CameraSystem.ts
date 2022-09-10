@@ -1,5 +1,6 @@
 import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
@@ -16,13 +17,11 @@ import {
   addComponent,
   defineQuery,
   getComponent,
-  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -31,7 +30,7 @@ import {
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraTagComponent } from '../components/CameraTagComponent'
+import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -257,12 +256,12 @@ export function cameraSpawnReceptor(
 
   console.log('Camera Spawn Receptor Call', entity)
 
-  addComponent(entity, CameraTagComponent, true)
+  addComponent(entity, CameraComponent, null)
 }
 
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
-  const ownedNetworkCamera = defineQuery([CameraTagComponent, NetworkObjectOwnedTag])
+  const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
   const spectatorQuery = defineQuery([SpectatorComponent])
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
@@ -273,7 +272,7 @@ export default async function CameraSystem(world: World) {
     for (const action of spectateUserActions()) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
       if (action.user) {
-        setComponent(cameraEntity, SpectatorComponent, { userId: action.user })
+        setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
       } else {
         removeComponent(cameraEntity, SpectatorComponent)
         deleteSearchParams('spectate')
@@ -295,7 +294,7 @@ export default async function CameraSystem(world: World) {
     for (const cameraEntity of spectatorQuery.enter()) {
       const cameraTransform = getComponent(cameraEntity, TransformComponent)
       const spectator = getComponent(cameraEntity, SpectatorComponent)
-      const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, CameraTagComponent)
+      const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, CameraComponent)
       const networkTransform = getComponent(networkCameraEntity, TransformComponent)
       setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
         cameraTransform.position.copy(networkTransform.position)

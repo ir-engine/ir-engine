@@ -9,7 +9,6 @@ import {
   ConeBufferGeometry,
   ConeGeometry,
   CylinderGeometry,
-  DirectionalLight,
   DoubleSide,
   Group,
   IcosahedronGeometry,
@@ -28,8 +27,8 @@ import {
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AudioComponent } from '../../audio/components/AudioComponent'
-import { AudioElementNodes } from '../../audio/systems/AudioSystem'
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
+import { AudioNodeGroups } from '../../audio/systems/MediaSystem'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -46,12 +45,11 @@ import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import Spline from '../../scene/classes/Spline'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
-import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { MediaElementComponent } from '../../scene/components/MediaComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { ScenePreviewCameraTagComponent } from '../../scene/components/ScenePreviewCamera'
+import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
 import { SelectTagComponent } from '../../scene/components/SelectTagComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { SplineComponent } from '../../scene/components/SplineComponent'
@@ -97,32 +95,26 @@ export default async function DebugHelpersSystem(world: World) {
     navpath: new Map(),
     positionalAudioHelper: new Map()
   }
-  const directionalLightQuery = defineQuery([TransformComponent, DirectionalLightComponent, Object3DComponent])
-  const pointLightQuery = defineQuery([TransformComponent, PointLightComponent, Object3DComponent])
-  const spotLightQuery = defineQuery([TransformComponent, SpotLightComponent, Object3DComponent])
+  const directionalLightQuery = defineQuery([TransformComponent, DirectionalLightComponent])
+  const pointLightQuery = defineQuery([TransformComponent, PointLightComponent])
+  const spotLightQuery = defineQuery([TransformComponent, SpotLightComponent])
   const portalQuery = defineQuery([TransformComponent, PortalComponent])
   const splineQuery = defineQuery([TransformComponent, SplineComponent])
   const spawnPointQuery = defineQuery([TransformComponent, SpawnPointComponent])
   const mountPointQuery = defineQuery([TransformComponent, MountPointComponent])
   const envMapBakeQuery = defineQuery([TransformComponent, EnvMapBakeComponent])
-  const directionalLightSelectQuery = defineQuery([
-    TransformComponent,
-    DirectionalLightComponent,
-    Object3DComponent,
-    SelectTagComponent
-  ])
+  const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
   const scenePreviewCameraSelectQuery = defineQuery([
     TransformComponent,
-    ScenePreviewCameraTagComponent,
-    Object3DComponent,
+    ScenePreviewCameraComponent,
     SelectTagComponent
   ])
 
-  const boundingBoxQuery = defineQuery([TransformComponent, Object3DComponent, BoundingBoxComponent])
+  const boundingBoxQuery = defineQuery([TransformComponent, BoundingBoxComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
-  const avatarAnimationQuery = defineQuery([Object3DComponent, AvatarAnimationComponent])
+  const avatarAnimationQuery = defineQuery([AvatarAnimationComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
-  const audioHelper = defineQuery([AudioComponent])
+  const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
@@ -148,9 +140,7 @@ export default async function DebugHelpersSystem(world: World) {
        * Directional Light
        */
       for (const entity of directionalLightQuery.enter()) {
-        const helper = new EditorDirectionalLightHelper(
-          getComponent(entity, Object3DComponent).value as DirectionalLight
-        )
+        const helper = new EditorDirectionalLightHelper(getComponent(entity, DirectionalLightComponent).light)
         helper.visible = true
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -169,7 +159,7 @@ export default async function DebugHelpersSystem(world: World) {
       }
 
       for (const entity of directionalLightSelectQuery.exit()) {
-        const light = getComponent(entity, Object3DComponent)?.value as DirectionalLight
+        const light = getComponent(entity, DirectionalLightComponent)?.light
         if (light) light.userData.cameraHelper.visible = false
       }
 
@@ -245,8 +235,8 @@ export default async function DebugHelpersSystem(world: World) {
        */
 
       for (const entity of scenePreviewCameraSelectQuery.enter()) {
-        const camera = getComponent(entity, Object3DComponent)?.value as Camera
-        const helper = new CameraHelper(camera)
+        const scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
+        const helper = new CameraHelper(scenePreviewCamera)
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         editorHelpers.set(entity, helper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -254,7 +244,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of scenePreviewCameraSelectQuery.exit()) {
         const helper = editorHelpers.get(entity)!
-        Engine.instance.currentWorld.scene.remove(helper)
+        helper.removeFromParent()
         editorHelpers.delete(entity)
       }
 
@@ -434,7 +424,8 @@ export default async function DebugHelpersSystem(world: World) {
       if (
         !helpersByEntity.skeletonHelpers.has(entity) &&
         debugEnabled &&
-        !hasComponent(entity, AvatarPendingComponent)
+        !hasComponent(entity, AvatarPendingComponent) &&
+        anim.rig.Hips
       ) {
         const helper = new SkeletonHelper(anim.rig.Hips)
         Engine.instance.currentWorld.scene.add(helper)
@@ -560,19 +551,19 @@ export default async function DebugHelpersSystem(world: World) {
 
       if (debugEnabled)
         for (const entity of audioHelper()) {
-          const mediaComponent = getComponent(entity, MediaElementComponent)
-          const audioEl = AudioElementNodes.get(mediaComponent)
-          if (!audioEl) continue
+          const mediaElement = getComponent(entity, MediaElementComponent)
+          const audioNodes = AudioNodeGroups.get(mediaElement.element)
+          if (!audioNodes) continue
 
           if (!helpersByEntity.positionalAudioHelper.has(entity)) {
-            const helper = new PositionalAudioHelper(audioEl)
+            const helper = new PositionalAudioHelper(audioNodes)
             // helper.visible = false
             helpersByEntity.positionalAudioHelper.set(entity, helper)
             Engine.instance.currentWorld.scene.add(helper)
           }
 
           const helper = helpersByEntity.positionalAudioHelper.get(entity)
-          audioEl.panner && helper?.update()
+          audioNodes.panner && helper?.update()
           helper?.position.copy(getComponent(entity, TransformComponent).position)
         }
     }

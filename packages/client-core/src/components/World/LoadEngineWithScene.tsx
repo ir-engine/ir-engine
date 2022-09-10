@@ -182,6 +182,8 @@ export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
    * load the scene whenever it changes
    */
   useHookEffect(() => {
+    // loadScene() deserializes the scene data, and deserializers sometimes mutate/update that data for backwards compatability.
+    // Since hookstate throws errors when mutating proxied values, we have to pass down the unproxied value here
     const sceneData = sceneState.currentScene.get({ noproxy: true })
     if (clientReady && sceneData) {
       if (loadingState.state.value !== AppLoadingStates.SUCCESS)

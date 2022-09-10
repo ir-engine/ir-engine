@@ -1,3 +1,5 @@
+import { Scene } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { MaterialOverrideComponentType } from './MaterialOverrideComponent'
 
@@ -9,6 +11,7 @@ export type ModelComponentType = {
   useBasicMaterial: boolean
   isUsingGPUInstancing: boolean
   curScr?: string
+  scene?: Scene
 }
 
 export const ModelComponent = createMappedComponent<ModelComponentType>('ModelComponent')

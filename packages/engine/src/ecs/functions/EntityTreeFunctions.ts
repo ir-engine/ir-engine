@@ -136,6 +136,7 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
     children: []
   }
   addComponent(entity, SceneObjectComponent, true)
+  setTransformComponent(entity)
 
   // addComponent(entity, NetworkObjectComponent, {
   //   ownerId: Engine.instance.currentWorld._worldHostId,

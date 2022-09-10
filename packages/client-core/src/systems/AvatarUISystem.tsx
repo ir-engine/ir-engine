@@ -14,6 +14,7 @@ import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
+import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -36,16 +37,14 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
   if (!contextMenuXRUI) return
 
   const userTransform = getComponent(userEntity, TransformComponent)
+  const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
   const { avatarHeight } = getComponent(userEntity, AvatarComponent)
 
-  contextMenuXRUI.container.scale.setScalar(
-    Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(userTransform.position) / 3)
-  )
+  contextMenuXRUI.container.scale.setScalar(Math.max(1, cameraPosition.distanceTo(userTransform.position) / 3))
   contextMenuXRUI.container.position.copy(userTransform.position)
   contextMenuXRUI.container.position.y += avatarHeight - 0.3
   contextMenuXRUI.container.position.x += 0.1
-  contextMenuXRUI.container.position.z +=
-    contextMenuXRUI.container.position.z > Engine.instance.currentWorld.camera.position.z ? -0.4 : 0.4
+  contextMenuXRUI.container.position.z += contextMenuXRUI.container.position.z > cameraPosition.z ? -0.4 : 0.4
   contextMenuXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
 }
 
@@ -77,12 +76,11 @@ export default async function AvatarUISystem(world: World) {
       }
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
       const ui = createAvatarDetailView(userId)
-      const uiObject = getComponent(ui.entity, Object3DComponent)
       const transition = createTransitionState(1, 'IN')
       AvatarUITransitions.set(userEntity, transition)
       ui.state.videoPreviewMesh.value.position.y += 0.3
       ui.state.videoPreviewMesh.value.visible = false
-      uiObject.value.add(ui.state.videoPreviewMesh.value)
+      addObjectToGroup(ui.entity, ui.state.videoPreviewMesh.value)
       AvatarUI.set(userEntity, ui)
     }
 
@@ -96,7 +94,8 @@ export default async function AvatarUISystem(world: World) {
       const videoPreviewMesh = ui.state.videoPreviewMesh.value
       _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
 
-      const dist = Engine.instance.currentWorld.camera.position.distanceTo(_vector3)
+      const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
+      const dist = cameraPosition.distanceTo(_vector3)
 
       if (dist > 25) transition.setState('OUT')
       if (dist < 20) transition.setState('IN')

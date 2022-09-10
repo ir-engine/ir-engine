@@ -5,7 +5,7 @@
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 
 import { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
@@ -122,7 +122,7 @@ export function executeCommandWithHistoryOnSelection(command: CommandParamsOmitA
  * @param command Nodes which properties are going to be updated
  * @param withHistory Whether to record this command to history or not
  */
-export function executeModifyPropertyCommand<C extends MappedComponent<any, any>>(
+export function executeModifyPropertyCommand<C extends Component<any, any>>(
   command: Omit<ModifyPropertyCommandParams<C>, 'type'>,
   withHistory = true
 ) {
@@ -140,7 +140,7 @@ export function executeModifyPropertyCommand<C extends MappedComponent<any, any>
  * @param params Params for command
  * @param withHistory Whether to record this command to history or not
  */
-export function setPropertyOnSelectionEntities<C extends MappedComponent<any, any>>(
+export function setPropertyOnSelectionEntities<C extends Component<any, any>>(
   command: Omit<ModifyPropertyCommandParams<C>, 'type' | 'affectedNodes'>,
   withHistory = true
 ) {
@@ -158,7 +158,7 @@ export function setPropertyOnSelectionEntities<C extends MappedComponent<any, an
  * @param command Node which will be updated
  * @param withHistory Whether to record this command to history or not
  */
-export function setPropertyOnEntityNode<C extends MappedComponent<any, any>>(
+export function setPropertyOnEntityNode<C extends Component<any, any>>(
   command: Omit<ModifyPropertyCommandParams<C>, 'type'>,
   withHistory = true
 ) {

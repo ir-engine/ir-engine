@@ -7,5 +7,6 @@ export enum AssetClass {
   Audio = 'Audio',
   Document = 'Document',
   Text = 'Text',
-  Script = 'Script'
+  Script = 'Script',
+  Unknown = 'unknown'
 }

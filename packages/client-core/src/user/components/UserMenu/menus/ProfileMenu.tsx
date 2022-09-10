@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom'
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { requestVcForEvent } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 

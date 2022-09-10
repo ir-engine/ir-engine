@@ -60,8 +60,6 @@ export function dispose() {
     Engine.instance.currentWorld.scene = null!
   }
 
-  Engine.instance.currentWorld.camera = null!
-
   if (EngineRenderer.instance.renderer) {
     EngineRenderer.instance.renderer.clear(true, true, true)
     EngineRenderer.instance.renderer.dispose()

@@ -1,10 +1,6 @@
 import React from 'react'
 
-import {
-  ComponentConstructor,
-  hasComponent,
-  removeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { useEditorState } from '../../services/EditorServices'
 import PropertyGroup from './PropertyGroup'

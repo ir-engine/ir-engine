@@ -7,6 +7,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   PointLightComponent,
@@ -22,12 +23,12 @@ export const deserializePointLight: ComponentDeserializeFunction = (entity: Enti
 export const updatePointLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, PointLightComponent)
 
-  if (!hasComponent(entity, Object3DComponent)) {
-    const light = new PointLight()
-    addComponent(entity, Object3DComponent, { value: light })
+  if (!component.light) {
+    const light = (component.light = new PointLight())
+    addObjectToGroup(entity, light)
   }
 
-  const light = getComponent(entity, Object3DComponent)?.value as PointLight
+  const light = component.light
 
   light.color.set(component.color)
   light.intensity = component.intensity

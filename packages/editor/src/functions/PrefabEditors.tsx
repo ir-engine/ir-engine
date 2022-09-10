@@ -1,12 +1,6 @@
-import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import {
-  ComponentConstructor,
-  ComponentType,
-  getAllComponents,
-  getComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PositionalAudioComponent } from '@xrengine/engine/src/audio/components/PositionalAudioComponent'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
+import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
@@ -31,7 +25,7 @@ import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/
 import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/SpawnPointComponent'
@@ -49,11 +43,9 @@ import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
-import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
-import { DefaultNodeEditor } from '../components/properties/DefaultNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import FogNodeEditor from '../components/properties/FogNodeEditor'
@@ -71,6 +63,7 @@ import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
+import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
 import PostProcessingNodeEditor from '../components/properties/PostProcessingNodeEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
@@ -85,7 +78,7 @@ import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 
-export const EntityNodeEditor = new Map<ComponentConstructor<any, any>, EditorComponentType>()
+export const EntityNodeEditor = new Map<Component<any, any, any>, EditorComponentType>()
 EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
 EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
 EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
@@ -103,12 +96,12 @@ EntityNodeEditor.set(GroupComponent, GroupNodeEditor)
 EntityNodeEditor.set(AssetComponent, AssetNodeEditor)
 EntityNodeEditor.set(PostprocessingComponent, PostProcessingNodeEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
-EntityNodeEditor.set(ScenePreviewCameraTagComponent, ScenePreviewCameraNodeEditor)
+EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)
 EntityNodeEditor.set(SpawnPointComponent, SpawnPointNodeEditor)
 EntityNodeEditor.set(MediaComponent, MediaNodeEditor)
 EntityNodeEditor.set(ImageComponent, ImageNodeEditor)
-EntityNodeEditor.set(AudioComponent, AudioNodeEditor)
+EntityNodeEditor.set(PositionalAudioComponent, PositionalAudioNodeEditor)
 EntityNodeEditor.set(VideoComponent, VideoNodeEditor)
 EntityNodeEditor.set(VolumetricComponent, VolumetricNodeEditor)
 EntityNodeEditor.set(CloudComponent, CloudsNodeEditor)
@@ -143,7 +136,7 @@ export const prefabIcons = {
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
-  [MediaPrefabs.audio]: AudioNodeEditor.iconComponent,
+  [MediaPrefabs.audio]: PositionalAudioNodeEditor.iconComponent,
   [MediaPrefabs.video]: VideoNodeEditor.iconComponent,
   [MediaPrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
   [ScenePrefabs.cloud]: CloudsNodeEditor.iconComponent,

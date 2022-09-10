@@ -6,6 +6,7 @@ import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunc
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
+import { DirectionalLightComponent } from '../../components/DirectionalLightComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializeDirectionalLight, updateDirectionalLight } from './DirectionalLightFunctions'
 
@@ -34,7 +35,7 @@ describe('DirectionalLightFunctions', () => {
       updateDirectionalLight(entity)
 
       const activeCSMLightEntity = EngineRenderer.instance.directionalLightEntities[0]
-      const light = getComponent(activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
+      const light = getComponent(activeCSMLightEntity, DirectionalLightComponent).light
 
       assert(light)
       assert(light.color instanceof Color)
@@ -68,22 +69,16 @@ describe('DirectionalLightFunctions', () => {
       deserializeDirectionalLight(entity, sceneComponentData)
       updateDirectionalLight(entity)
 
-      assert(hasComponent(entity, Object3DComponent))
-      assert(getComponent(entity, Object3DComponent).value instanceof DirectionalLight)
-      assert((getComponent(entity, Object3DComponent).value as DirectionalLight).color instanceof Color)
-      assert.deepEqual(
-        (getComponent(entity, Object3DComponent).value as DirectionalLight).color.toArray(),
-        color.toArray()
-      )
-      assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).intensity, 6)
-      assert.deepEqual(
-        (getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.mapSize,
-        new Vector2(64, 64)
-      )
-      assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.bias, 0.01)
-      assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.radius, 20)
-      assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).shadow.camera.far, 256)
-      assert.deepEqual((getComponent(entity, Object3DComponent).value as DirectionalLight).castShadow, true)
+      assert(hasComponent(entity, DirectionalLightComponent))
+      assert(getComponent(entity, DirectionalLightComponent).light instanceof DirectionalLight)
+      assert(getComponent(entity, DirectionalLightComponent).light.color instanceof Color)
+      assert.deepEqual(getComponent(entity, DirectionalLightComponent).light.color.toArray(), color.toArray())
+      assert.deepEqual(getComponent(entity, DirectionalLightComponent).light.intensity, 6)
+      assert.deepEqual(getComponent(entity, DirectionalLightComponent).light.shadow.mapSize, new Vector2(64, 64))
+      assert.deepEqual(getComponent(entity, DirectionalLightComponent).light.shadow.bias, 0.01)
+      assert.deepEqual(getComponent(entity, DirectionalLightComponent).light.shadow.radius, 20)
+      assert.deepEqual(getComponent(entity, DirectionalLightComponent).light.shadow.camera.far, 256)
+      assert.deepEqual(getComponent(entity, DirectionalLightComponent).light.castShadow, true)
     })
   })
 })
