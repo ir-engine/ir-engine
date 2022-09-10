@@ -156,6 +156,8 @@ export default async function TransformSystem(world: World) {
         const parentTransform = getComponent(parentEntity, TransformComponent)
         localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
         transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
+        transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+        world.dirtyTransforms.delete(entity)
       })
     }
 
