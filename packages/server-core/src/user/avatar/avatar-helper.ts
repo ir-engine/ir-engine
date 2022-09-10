@@ -88,17 +88,15 @@ export const uploadAvatarStaticResource = async (app: Application, data: AvatarU
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
 
-  const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, {
+  const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, CommonKnownContentTypes.glb, {
     userId: data.userId!,
     key: `${key}.${data.avatarFileType ?? 'glb'}`,
-    mimeType: CommonKnownContentTypes.glb,
     staticResourceType: 'avatar'
   })
 
-  const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, {
+  const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, CommonKnownContentTypes.png, {
     userId: data.userId!,
     key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
-    mimeType: CommonKnownContentTypes.png,
     staticResourceType: 'user-thumbnail'
   })
 

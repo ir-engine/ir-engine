@@ -26,6 +26,7 @@ declare module '@xrengine/common/declarations' {
 export const addGenericAssetToS3AndStaticResources = async (
   app: Application,
   file: Buffer,
+  mimeType: string,
   args: AdminAssetUploadArgumentsType
 ) => {
   const provider = getStorageProvider()
@@ -54,7 +55,7 @@ export const addGenericAssetToS3AndStaticResources = async (
         {
           Key: key,
           Body: file,
-          ContentType: args.mimeType
+          ContentType: mimeType
         },
         {
           isDirectory: false
@@ -75,7 +76,7 @@ export const addGenericAssetToS3AndStaticResources = async (
           {
             url: assetURL,
             key: key,
-            mimeType: args.mimeType,
+            mimeType: mimeType,
             staticResourceType: args.staticResourceType
           },
           { isInternal: true }
@@ -89,7 +90,7 @@ export const addGenericAssetToS3AndStaticResources = async (
               {
                 url: assetURL,
                 key: key,
-                mimeType: args.mimeType,
+                mimeType: mimeType,
                 staticResourceType: args.staticResourceType,
                 ...userIdQuery
               },
@@ -141,11 +142,15 @@ export default (app: Application): void => {
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
           if (files && files.length > 0) {
             return Promise.all(
-              files.map((file, i) => addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData }))
+              files.map((file, i) =>
+                addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, file.mimetype, { ...argsData })
+              )
             )
           } else {
             return Promise.all(
-              data?.files.map((file, i) => addGenericAssetToS3AndStaticResources(app, file as Buffer, { ...argsData }))
+              data?.files.map((file, i) =>
+                addGenericAssetToS3AndStaticResources(app, file as Buffer, (data.args as any).mimeType, { ...argsData })
+              )
             )
           }
         }

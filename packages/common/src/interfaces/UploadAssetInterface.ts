@@ -11,7 +11,6 @@ export type AvatarUploadType = {
 export type AdminAssetUploadArgumentsType = {
   id?: string
   key: string
-  mimeType: string
   staticResourceType?: string
   userId?: string
   name?: string

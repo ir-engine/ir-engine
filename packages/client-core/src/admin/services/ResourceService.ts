@@ -108,14 +108,21 @@ export const ResourceService = {
         args: resource
       })
 
+      await ResourceService.getResourceFilters()
       dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  getResourceFilters: async () => {
-    const filters = (await API.instance.client.service('static-resource-filters').get()) as StaticResourceFilterResult
-    dispatchAction(AdminResourceActions.resourceFiltersFetched({ filters }))
+  removeResource: async (id: string) => {
+    try {
+      await API.instance.client.service('static-resource').remove(id)
+
+      await ResourceService.getResourceFilters()
+      dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
+    } catch (err) {
+      logger.error(err)
+    }
   },
   fetchAdminResources: async (skip = 0, search: string | null = null, sortField = 'key', orderBy = 'asc') => {
     let sortData = {}
@@ -141,19 +148,15 @@ export const ResourceService = {
     })) as Paginated<StaticResourceInterface>
     dispatchAction(AdminResourceActions.resourcesFetched({ resources }))
   },
+  getResourceFilters: async () => {
+    const filters = (await API.instance.client.service('static-resource-filters').get()) as StaticResourceFilterResult
+    dispatchAction(AdminResourceActions.resourceFiltersFetched({ filters }))
+  },
   setSelectedMimeTypes: async (types: string[]) => {
     dispatchAction(AdminResourceActions.setSelectedMimeTypes({ types }))
   },
   setSelectedResourceTypes: async (types: string[]) => {
     dispatchAction(AdminResourceActions.setSelectedResourceTypes({ types }))
-  },
-  removeAdminResource: async (id: string) => {
-    try {
-      await API.instance.client.service('static-resource').remove(id)
-      dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
-    } catch (err) {
-      logger.error(err)
-    }
   },
   resetFilter: () => {
     dispatchAction(AdminResourceActions.resourcesResetFilter({}))

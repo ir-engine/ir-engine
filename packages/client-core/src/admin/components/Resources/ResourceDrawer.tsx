@@ -53,7 +53,6 @@ const defaultState = {
   resourceFile: undefined as File | undefined,
   formErrors: {
     key: '',
-    mimeType: '',
     staticResourceType: '',
     resourceUrl: '',
     resourceFile: ''
@@ -71,22 +70,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'static_resource:write')
   const viewMode = mode === ResourceDrawerMode.ViewEdit && !editMode
-
-  const mimeTypesMenu: InputMenuItem[] =
-    adminResourceState.value.filters?.mimeTypes.map((el) => {
-      return {
-        value: el,
-        label: el
-      }
-    }) || []
-
-  const selectedMime = mimeTypesMenu.find((item) => item.value === state.mimeType)
-  if (state.mimeType && !selectedMime) {
-    mimeTypesMenu.push({
-      value: state.mimeType,
-      label: state.mimeType
-    })
-  }
 
   const resourceTypesMenu: InputMenuItem[] =
     adminResourceState.value.filters?.allStaticResourceTypes.map((el) => {
@@ -206,9 +189,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       case 'key':
         tempErrors.key = value.length < 2 ? t('admin:components.resources.keyRequired') : ''
         break
-      case 'mimeType':
-        tempErrors.mimeType = value.length < 1 ? t('admin:components.resources.mimeTypeRequired') : ''
-        break
       case 'staticResourceType':
         tempErrors.staticResourceType = value.length < 2 ? t('admin:components.resources.resourceTypeRequired') : ''
         break
@@ -229,7 +209,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     let tempErrors = {
       ...state.formErrors,
       key: state.key ? '' : t('admin:components.resources.keyCantEmpty'),
-      mimeType: state.mimeType ? '' : t('admin:components.resources.mimeTypeCantEmpty'),
       staticResourceType: state.staticResourceType ? '' : t('admin:components.resources.resourceTypeCantEmpty'),
       resourceUrl:
         state.source === 'url' && state.resourceUrl ? '' : t('admin:components.resources.resourceUrlCantEmpty'),
@@ -242,7 +221,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     if ((state.source === 'file' && tempErrors.resourceFile) || (state.source === 'url' && tempErrors.resourceUrl)) {
       NotificationService.dispatchNotify(t('admin:components.common.fixErrorFields'), { variant: 'error' })
       return
-    } else if (tempErrors.key || tempErrors.mimeType || tempErrors.staticResourceType) {
+    } else if (tempErrors.key || tempErrors.staticResourceType) {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
       return
     } else if (state.source === 'file' && state.resourceFile) {
@@ -250,12 +229,15 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     } else if (state.source === 'url' && state.resourceUrl) {
       const resourceData = await fetch(state.resourceUrl)
       resourceBlob = await resourceData.blob()
+
+      if (selectedResource && selectedResource.url === state.resourceUrl) {
+        resourceBlob = new Blob([resourceBlob], { type: selectedResource.mimeType })
+      }
     }
 
     const data = {
       id: selectedResource ? selectedResource.id : '',
       key: state.key,
-      mimeType: state.mimeType,
       staticResourceType: state.staticResourceType
     }
 
@@ -289,15 +271,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         onChange={handleChange}
       />
 
-      <InputSelect
-        name="mimeType"
-        label={t('admin:components.resources.mimeType')}
-        value={state.mimeType}
-        error={state.formErrors.mimeType}
-        menu={mimeTypesMenu}
-        disabled={viewMode}
-        onChange={handleChange}
-      />
+      <InputText name="mimeType" label={t('admin:components.resources.mimeType')} value={state.mimeType} disabled />
 
       <InputSelect
         name="staticResourceType"

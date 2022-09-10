@@ -95,7 +95,7 @@ const ResourceTable = ({ className, search }: Props) => {
   })
 
   const submitRemoveResource = async () => {
-    await ResourceService.removeAdminResource(resourceId)
+    await ResourceService.removeResource(resourceId)
     setOpenConfirm(false)
   }
 
