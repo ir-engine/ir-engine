@@ -20,19 +20,25 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     Object.entries(argData).map(([k, v]) => {
       switch (v.type) {
         case 'texture':
-          result[k] = material[k]?.source?.data?.src ?? null
+          if (material[k]) {
+            const mapDef = { index: this.writer.processTexture(material[k]) }
+            this.writer.applyTextureTransform(mapDef, material[k])
+            result[k] = mapDef
+          } else result[k] = material[k]
           break
         default:
           result[k] = material[k]
           break
       }
     })
+    delete materialDef.pbrMetallicRoughness
+    delete materialDef.normalTexture
     materialDef.extensions = materialDef.extensions ?? {}
-    materialDef.extensions.EE_material = {
+    materialDef.extensions[this.name] = {
       name: material.name,
       type: material.type,
       args: { ...result }
     }
-    this.writer.extensionsUsed.EE_material = true
+    this.writer.extensionsUsed[this.name] = true
   }
 }

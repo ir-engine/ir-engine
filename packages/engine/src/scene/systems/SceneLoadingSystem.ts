@@ -278,7 +278,7 @@ export const createSceneEntity = (
         hasDynamicAncestor = true
         break
       }
-      walker = sceneJson.entities[walker].parent
+      walker = sceneJson.entities[walker]?.parent
     }
     if (hasDynamicAncestor) {
       matchActionOnce(

@@ -2,9 +2,11 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import DeleteIcon from '@mui/icons-material/Delete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmDialog from '../../common/ConfirmDialog'
@@ -94,31 +96,34 @@ const InvitesConsole = () => {
     <div>
       <ConfirmProvider>
         <Grid container spacing={1} className={styles.mb10px}>
-          <Grid item xs={8}>
+          <Grid item sm={8} xs={12}>
             <Search text="invite" handleChange={handleSearchChange} />
           </Grid>
-          <Grid item xs={2}>
-            <Button
-              className={styles.openModalBtn}
-              type="button"
-              variant="contained"
-              color="primary"
-              onClick={() => setCreateInviteModalOpen(true)}
-            >
-              {t('admin:components.invite.create')}
-            </Button>
-          </Grid>
-          <Grid item xs={2}>
-            <Button
-              className={styles.openModalBtn}
-              type="button"
-              variant="contained"
-              color="primary"
-              disabled={selectedInviteIds.size === 0}
-              onClick={() => setDeleteMultiInviteModalOpen(true)}
-            >
-              {t('admin:components.invite.deleteSelected')}
-            </Button>
+          <Grid item sm={4} xs={8}>
+            <Box sx={{ display: 'flex' }}>
+              <Button
+                className={styles.openModalBtn}
+                sx={{ flexGrow: 1 }}
+                type="button"
+                variant="contained"
+                color="primary"
+                onClick={() => setCreateInviteModalOpen(true)}
+              >
+                {t('admin:components.invite.create')}
+              </Button>
+
+              {selectedInviteIds.size > 0 && (
+                <IconButton
+                  className={styles.filterButton}
+                  sx={{ ml: 1 }}
+                  size="small"
+                  title={t('admin:components.invite.deleteSelected')}
+                  onClick={() => setDeleteMultiInviteModalOpen(true)}
+                >
+                  <DeleteIcon color="info" fontSize="large" />
+                </IconButton>
+              )}
+            </Box>
           </Grid>
         </Grid>
         <div className={styles.rootTableWithSearch}>
