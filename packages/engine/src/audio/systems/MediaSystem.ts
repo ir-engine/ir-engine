@@ -6,13 +6,8 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor, restoreMediaSettings } from '../../networking/MediaSettingsState'
-import { setCallback } from '../../scene/components/CallbackComponent'
-import {
-  MediaCallbacks as MediaCallback,
-  MediaComponent,
-  MediaElementComponent,
-  SCENE_COMPONENT_MEDIA
-} from '../../scene/components/MediaComponent'
+import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
+import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
 import { SCENE_COMPONENT_VIDEO, VideoComponent } from '../../scene/components/VideoComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { SCENE_COMPONENT_VOLUMETRIC, VolumetricComponent } from '../../scene/components/VolumetricComponent'
@@ -205,8 +200,8 @@ export default async function MediaSystem(world: World) {
 
     for (const entity of mediaQuery.enter()) {
       const media = getComponent(entity, MediaComponent)
-      setCallback(entity, MediaCallback.PLAY, () => media.paused.set(false))
-      setCallback(entity, MediaCallback.PAUSE, () => media.paused.set(true))
+      setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
+      setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }
 
     for (const entity of videoQuery.enter()) enterVideo(entity)

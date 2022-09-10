@@ -119,7 +119,7 @@ export default async function SceneObjectSystem(world: World) {
     const delta = getState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
       const callbacks = getComponent(entity, CallbackComponent)
-      callbacks[UpdatableCallback]?.(delta)
+      callbacks.get(UpdatableCallback)?.(delta)
     }
   }
 }

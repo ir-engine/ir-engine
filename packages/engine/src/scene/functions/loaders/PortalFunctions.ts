@@ -20,7 +20,7 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
-import { CallbackComponent } from '../../components/CallbackComponent'
+import { CallbackComponent, setCallback } from '../../components/CallbackComponent'
 import { ColliderComponent } from '../../components/ColliderComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
 import {
@@ -47,10 +47,7 @@ export const deserializePortal: ComponentDeserializeFunction = (entity: Entity, 
 export const updatePortal = (entity: Entity) => {
   const portalComponent = getComponent(entity, PortalComponent)
 
-  if (!hasComponent(entity, CallbackComponent))
-    addComponent(entity, CallbackComponent, {
-      teleport: portalTriggerEnter
-    })
+  setCallback(entity, 'teleport', portalTriggerEnter)
 
   if (!hasComponent(entity, ColliderComponent))
     addComponent(entity, ColliderComponent, { ...SCENE_COMPONENT_PORTAL_COLLIDER_VALUES })

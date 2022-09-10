@@ -17,9 +17,7 @@ export const triggerEnter = (world: World, entity: Entity, triggerEntity: Entity
 
   if (targetEntity) {
     const callbacks = getComponent(targetEntity, CallbackComponent)
-    if (callbacks[triggerComponent.onEnter]) {
-      callbacks[triggerComponent.onEnter]?.(triggerEntity)
-    }
+    callbacks.get(triggerComponent.onEnter)?.(triggerEntity)
   }
 }
 
@@ -34,9 +32,7 @@ export const triggerExit = (world: World, entity: Entity, triggerEntity: Entity,
 
   if (targetEntity) {
     const callbacks = getComponent(targetEntity, CallbackComponent)
-    if (callbacks[triggerComponent.onExit]) {
-      callbacks[triggerComponent.onExit]?.(triggerEntity)
-    }
+    callbacks.get(triggerComponent.onExit)?.(triggerEntity)
   }
 }
 

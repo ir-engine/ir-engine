@@ -9,10 +9,29 @@ import { setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
 import { ComponentSerializeFunction, ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { CallbackComponent } from '../../components/CallbackComponent'
+import { CallbackComponent, setCallback, StandardCallbacks } from '../../components/CallbackComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 
 export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): void => {
+  /**
+   * Callback functions
+   */
+
+  const play = () => {
+    playAnimationClip(getComponent(entity, AnimationComponent), getComponent(entity, LoopAnimationComponent))
+  }
+  const pause = () => {
+    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+    if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
+  }
+  const stop = () => {
+    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+    if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+  }
+  setCallback(entity, StandardCallbacks.PLAY, play)
+  setCallback(entity, StandardCallbacks.PAUSE, pause)
+  setCallback(entity, StandardCallbacks.STOP, stop)
+
   /**
    * A model is required for LoopAnimationComponent to work.
    * If we do not detect one, throw a warning.
@@ -64,29 +83,6 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
     }
     animationComponent.mixer = new AnimationMixer(scene)
     animationComponent.animations = scene.animations
-  }
-
-  /**
-   * Callback functions
-   */
-
-  if (!hasComponent(entity, CallbackComponent)) {
-    const play = () => {
-      playAnimationClip(getComponent(entity, AnimationComponent), getComponent(entity, LoopAnimationComponent))
-    }
-    const pause = () => {
-      const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-      if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
-    }
-    const stop = () => {
-      const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-      if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
-    }
-    addComponent(entity, CallbackComponent, {
-      play,
-      pause,
-      stop
-    })
   }
 
   if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
