@@ -17,6 +17,7 @@ import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '../../transform/components/TransformComponent'
+import { AnimationSequencerComponent } from '../components/AnimationSequencerComponent'
 import {
   AssetComponent,
   SCENE_COMPONENT_ASSET,
@@ -118,6 +119,12 @@ import {
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { FogType } from '../constants/FogType'
+import {
+  deserializeAnimationSequencer,
+  SCENE_COMPONENT_ANIMATION_SEQUENCER,
+  SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES,
+  serializeAnimationSequencer
+} from '../functions/loaders/AnimationSequencerFunctions'
 import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
 import { deserializeCameraProperties, updateCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
@@ -201,6 +208,7 @@ export const ScenePrefabs = {
   spline: 'Spline' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
+  animationSequencer: 'Animation Sequencer' as const,
   fog: 'Fog' as const,
   loadVolume: 'Load Volume' as const
 }
@@ -359,6 +367,23 @@ export default async function SceneObjectUpdateSystem(world: World) {
     defaultData: SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES,
     deserialize: deserializeEnvMapBake,
     serialize: serializeEnvMapBake
+  })
+
+  /**
+   * AC UTILITY
+   */
+
+  world.scenePrefabRegistry.set(ScenePrefabs.animationSequencer, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_ANIMATION_SEQUENCER, props: SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES }
+  ])
+
+  world.sceneComponentRegistry.set(AnimationSequencerComponent._name, SCENE_COMPONENT_ANIMATION_SEQUENCER)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_ANIMATION_SEQUENCER, {
+    defaultData: SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES,
+    deserialize: deserializeAnimationSequencer,
+    serialize: serializeAnimationSequencer
   })
 
   /**

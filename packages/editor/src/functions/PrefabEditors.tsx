@@ -9,6 +9,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
+import { AnimationSequencerComponent } from '@xrengine/engine/src/scene/components/AnimationSequencerComponent'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
@@ -48,6 +49,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
+import AnimationSequencerNodeEditor from '../components/properties/AnimationSequencerNodeEditor'
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
@@ -129,6 +131,7 @@ export const prefabIcons = {
   [LightPrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
   [LightPrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
+  [ScenePrefabs.animationSequencer]: AnimationSequencerNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
