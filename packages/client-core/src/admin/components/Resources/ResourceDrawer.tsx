@@ -89,7 +89,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
   }
 
   const resourceTypesMenu: InputMenuItem[] =
-    adminResourceState.value.filters?.staticResourceTypes.map((el) => {
+    adminResourceState.value.filters?.allStaticResourceTypes.map((el) => {
       return {
         value: el,
         label: el

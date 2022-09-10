@@ -59,10 +59,16 @@ const getFilters = async (app: Application) => {
     group: ['mimeType']
   })
 
-  const staticResourceTypes = await app.service('static-resource-type').Model.findAll()
+  const staticResourceTypes = await app.service('static-resource').Model.findAll({
+    attributes: ['staticResourceType'],
+    group: ['staticResourceType']
+  })
+
+  const allStaticResourceTypes = await app.service('static-resource-type').Model.findAll()
 
   return {
     mimeTypes: mimeTypes.map((el) => el.mimeType),
-    staticResourceTypes: staticResourceTypes.map((el) => el.type)
+    staticResourceTypes: staticResourceTypes.map((el) => el.staticResourceType),
+    allStaticResourceTypes: allStaticResourceTypes.map((el) => el.type)
   }
 }

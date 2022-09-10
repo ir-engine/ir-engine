@@ -10,4 +10,5 @@ export interface StaticResourceResult {
 export interface StaticResourceFilterResult {
   mimeTypes: string[]
   staticResourceTypes: string[]
+  allStaticResourceTypes: string[]
 }
