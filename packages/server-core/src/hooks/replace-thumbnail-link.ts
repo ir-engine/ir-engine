@@ -34,7 +34,9 @@ export default (): Hook => {
         const bucketName = config.aws.s3.staticResourceBucket
         params.uploadPath = data.url.replace('https://s3.amazonaws.com/' + bucketName + '/', '')
         params.uploadPath = params.uploadPath.replace('/manifest.mpd', '')
-        params.storageProvider = getStorageProvider()
+        const storageProviderName = data.storageProviderName
+        delete data.storageProviderName
+        params.storageProvider = getStorageProvider(storageProviderName)
         const contextClone = _.cloneDeep(context)
         const result = await (uploadThumbnailLinkHook() as any)(contextClone)
         data.metadata.thumbnailUrl = result.params.thumbnailUrl.replace(

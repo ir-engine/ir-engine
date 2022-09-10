@@ -85,10 +85,10 @@ export class StaticResource extends Service<StaticResourceInterface> {
     }
   }
 
-  async remove(id: string): Promise<StaticResourceInterface> {
+  async remove(id: string, params?: Params): Promise<StaticResourceInterface> {
     const resource = await super.get(id)
     if (resource.key) {
-      const storageProvider = getStorageProvider()
+      const storageProvider = getStorageProvider(params?.query?.storageProviderName)
       await storageProvider.deleteResources([resource.key])
     }
     return (await super.remove(id)) as StaticResourceInterface

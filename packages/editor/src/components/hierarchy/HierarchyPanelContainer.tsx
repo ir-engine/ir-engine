@@ -78,7 +78,7 @@ function getModelNodesFromTreeWalker(
     const isCollapsed = collapsedNodes[node.entityNode.entity]
     if (showObject3Ds && hasComponent(node.entityNode.entity, ModelComponent)) {
       const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
-      if (!obj3d || obj3d === Engine.instance.currentWorld.scene) continue
+      if (!obj3d) continue
       node.isLeaf = false
       if (isCollapsed) continue
       let childIndex = node.childIndex

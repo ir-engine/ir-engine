@@ -132,14 +132,14 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
+      uuid: 'xre.engine.SceneObjectSystem',
+      type: SystemUpdateType.UPDATE_LATE,
+      systemLoader: () => import('./scene/systems/SceneObjectSystem')
+    },
+    {
       uuid: 'xre.engine.TransformSystem',
       type: SystemUpdateType.UPDATE_LATE,
       systemLoader: () => import('./transform/systems/TransformSystem')
-    },
-    {
-      uuid: 'xre.engine.SceneObjectSystem',
-      type: SystemUpdateType.FIXED_LATE,
-      systemLoader: () => import('./scene/systems/SceneObjectSystem')
     },
     {
       uuid: 'xre.engine.SceneLoadingSystem',
@@ -257,6 +257,11 @@ export const initializeSceneSystems = async () => {
       uuid: 'xre.engine.TriggerSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => import('./scene/systems/TriggerSystem')
+    },
+    {
+      uuid: 'xre.engine.MediaSystem',
+      type: SystemUpdateType.PRE_RENDER,
+      systemLoader: () => import('./audio/systems/MediaSystem')
     }
   )
   if (isClient) {
@@ -297,11 +302,6 @@ export const initializeSceneSystems = async () => {
         systemLoader: () => import('./interaction/systems/MountPointSystem')
       },
       {
-        uuid: 'xre.engine.AudioSystem',
-        type: SystemUpdateType.PRE_RENDER,
-        systemLoader: () => import('./audio/systems/AudioSystem')
-      },
-      {
         uuid: 'xre.engine.PositionalAudioSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./audio/systems/PositionalAudioSystem')
@@ -320,11 +320,6 @@ export const initializeSceneSystems = async () => {
         uuid: 'xre.engine.AnimationSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./avatar/AnimationSystem')
-      },
-      {
-        uuid: 'xre.engine.RendererUpdateSystem',
-        type: SystemUpdateType.PRE_RENDER,
-        systemLoader: () => import('./scene/systems/RendererUpdateSystem')
       },
       {
         uuid: 'xre.engine.ParticleSystem',

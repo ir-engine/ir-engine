@@ -14,7 +14,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   getTagComponentForRigidBody,
@@ -46,11 +46,7 @@ describe('Physics', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
-      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-    })
+    setTransformComponent(entity)
 
     const physicsWorld = Physics.createWorld()
 
@@ -76,11 +72,7 @@ describe('Physics', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
-      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-    })
+    setTransformComponent(entity)
 
     const physicsWorld = Physics.createWorld()
 
@@ -134,11 +126,7 @@ describe('Physics', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
-      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-    })
+    setTransformComponent(entity)
 
     const physicsWorld = Physics.createWorld()
 
@@ -153,7 +141,7 @@ describe('Physics', () => {
     boxDynamicConfig.collisionLayer = collisionGroup
     boxDynamicConfig.collisionMask = collisionMask
 
-    const rigidBody = Physics.createRigidBodyForObject(entity, physicsWorld, mesh, boxDynamicConfig)
+    const rigidBody = Physics.createRigidBodyForGroup(entity, physicsWorld, boxDynamicConfig)
     const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
     const collider = rigidBody.collider(0)
@@ -174,11 +162,7 @@ describe('Physics', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
-      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-    })
+    setTransformComponent(entity)
 
     const physicsWorld = Physics.createWorld()
 
@@ -209,11 +193,7 @@ describe('Physics', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
-      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-    })
+    setTransformComponent(entity)
 
     const physicsWorld = Physics.createWorld()
 
@@ -249,16 +229,8 @@ describe('Physics', () => {
     addComponent(entity1, CollisionComponent, new Map())
     addComponent(entity2, CollisionComponent, new Map())
 
-    addComponent(entity1, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity1),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity1),
-      scale: createVector3Proxy(TransformComponent.scale, entity1).setScalar(1)
-    })
-    addComponent(entity2, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity2),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity2),
-      scale: createVector3Proxy(TransformComponent.scale, entity2).setScalar(1)
-    })
+    setTransformComponent(entity1)
+    setTransformComponent(entity2)
 
     const physicsWorld = Physics.createWorld()
     const collisionEventQueue = Physics.createCollisionEventQueue()
@@ -314,16 +286,8 @@ describe('Physics', () => {
     addComponent(entity1, CollisionComponent, new Map())
     addComponent(entity2, CollisionComponent, new Map())
 
-    addComponent(entity1, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity1),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity1),
-      scale: createVector3Proxy(TransformComponent.scale, entity1).setScalar(1)
-    })
-    addComponent(entity2, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity2),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity2),
-      scale: createVector3Proxy(TransformComponent.scale, entity2).setScalar(1)
-    })
+    setTransformComponent(entity1)
+    setTransformComponent(entity2)
 
     const physicsWorld = Physics.createWorld()
     const collisionEventQueue = Physics.createCollisionEventQueue()

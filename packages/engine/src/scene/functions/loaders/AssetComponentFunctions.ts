@@ -61,11 +61,6 @@ export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
 }
 
 export const deserializeAsset: ComponentDeserializeFunction = async (entity: Entity, data: AssetComponentType) => {
-  let obj3d = getComponent(entity, Object3DComponent)?.value
-  if (!obj3d) {
-    obj3d = new Object3D()
-    addComponent(entity, Object3DComponent, { value: obj3d })
-  }
   const props = parseAssetProperties(data)
   setComponent(entity, AssetComponent, props)
 }

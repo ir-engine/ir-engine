@@ -17,12 +17,21 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { BoundingBoxComponent } from '@xrengine/engine/src/interaction/components/BoundingBoxComponents'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
+import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import {
   SnapMode,
@@ -34,7 +43,10 @@ import {
   TransformPivotType
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import {
+  TransformComponent,
+  TransformComponentType
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
@@ -100,7 +112,7 @@ export default async function EditorControlSystem(_: World) {
   let selectedEntities: (Entity | string)[]
   let selectedParentEntities: (Entity | string)[]
   let selectionCounter: number = 0
-  let gizmoObj: TransformGizmo
+  // let gizmoObj: TransformGizmo
   let transformMode: TransformModeType
   let transformPivot: TransformPivotType
   let transformSpace: TransformSpace
@@ -130,13 +142,19 @@ export default async function EditorControlSystem(_: World) {
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
     const scene = Engine.instance.currentWorld.scene
-    const os = selectionState.selectedParentEntities.value.map((entity) =>
-      typeof entity === 'string'
-        ? scene.getObjectByProperty('uuid', entity as string)!
-        : getComponent(entity, Object3DComponent).value
-    )
 
-    findIntersectObjects(Engine.instance.currentWorld.scene, os, raycastIgnoreLayers)
+    const excludeObjects = [] as Object3D[]
+    for (const e of selectionState.selectedParentEntities.value) {
+      if (typeof e === 'string') {
+        const obj = scene.getObjectByProperty('uuid', e)
+        if (obj) excludeObjects.push(obj)
+      } else {
+        const group = getComponent(e, GroupComponent)
+        if (group) excludeObjects.push(...group)
+      }
+    }
+
+    findIntersectObjects(Engine.instance.currentWorld.scene, excludeObjects, raycastIgnoreLayers)
     findIntersectObjects(InfiniteGridHelper.instance)
 
     raycasterResults.sort((a, b) => a.distance - b.distance)
@@ -158,7 +176,7 @@ export default async function EditorControlSystem(_: World) {
 
       selectedParentEntities = selectionState.selectedParentEntities.value
       selectedEntities = selectionState.selectedEntities.value
-      gizmoObj = getComponent(SceneState.gizmoEntity, Object3DComponent)?.value as TransformGizmo
+      const gizmoObj = getComponent(SceneState.gizmoEntity, TransformGizmoComponent).gizmo
 
       transformModeChanged = transformMode === editorHelperState.transformMode.value
       transformMode = editorHelperState.transformMode.value
@@ -172,15 +190,16 @@ export default async function EditorControlSystem(_: World) {
       if (!gizmoObj) continue
 
       if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
-        gizmoObj.visible = false
+        removeComponent(SceneState.gizmoEntity, VisibleComponent)
       } else {
         const lastSelection = selectedEntities[selectedEntities.length - 1]
         const isUuid = typeof lastSelection === 'string'
-        const lastSelectedObj3d = isUuid
-          ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)!
-          : getComponent(lastSelection as Entity, Object3DComponent)?.value
-        if (lastSelectedObj3d) {
-          lastSelectedObj3d.updateMatrixWorld(true)
+
+        const lastSelectedTransform = isUuid
+          ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)
+          : getComponent(lastSelection as Entity, TransformComponent)
+
+        if (lastSelectedTransform) {
           const isChanged =
             selectionCounter !== selectionState.selectionCounter.value ||
             transformModeChanged ||
@@ -188,7 +207,7 @@ export default async function EditorControlSystem(_: World) {
 
           if (isChanged || transformPivotChanged) {
             if (transformPivot === TransformPivot.Selection) {
-              lastSelectedObj3d.getWorldPosition(gizmoObj.position)
+              gizmoObj.position.copy(lastSelectedTransform.position)
             } else {
               box.makeEmpty()
 
@@ -211,7 +230,11 @@ export default async function EditorControlSystem(_: World) {
 
           if (isChanged || transformSpaceChanged) {
             if (transformSpace === TransformSpace.LocalSelection) {
-              lastSelectedObj3d.getWorldQuaternion(gizmoObj.quaternion)
+              gizmoObj.quaternion.copy(
+                'quaternion' in lastSelectedTransform
+                  ? lastSelectedTransform.quaternion
+                  : lastSelectedTransform.rotation
+              )
             } else {
               gizmoObj.rotation.set(0, 0, 0)
             }
@@ -223,7 +246,7 @@ export default async function EditorControlSystem(_: World) {
             gizmoObj.setLocalScaleHandlesVisible(transformSpace !== TransformSpace.World)
           }
 
-          gizmoObj.visible = true
+          setComponent(SceneState.gizmoEntity, VisibleComponent, true)
         }
       }
 
@@ -246,7 +269,7 @@ export default async function EditorControlSystem(_: World) {
             dragging = false
           }
         }
-      } else if (gizmoObj.activeControls && !dragging) {
+      } else if (gizmoObj.activeControls && !dragging && cursorPosition) {
         gizmoObj.highlightHoveredAxis(cursorPosition)
       }
 

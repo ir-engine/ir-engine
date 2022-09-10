@@ -1,5 +1,5 @@
 import { strictEqual } from 'assert'
-import { Group, Quaternion, Vector3 } from 'three'
+import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -201,7 +201,8 @@ describe('DataWriter', () => {
     addComponent(entity, TransformComponent, {
       position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
       rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
-      scale: new Vector3(1, 1, 1)
+      scale: new Vector3(1, 1, 1),
+      matrix: new Matrix4()
     })
 
     writeTransform(writeView, entity)
@@ -342,7 +343,8 @@ describe('DataWriter', () => {
     addComponent(entity, TransformComponent, {
       position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
       rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
-      scale: new Vector3(1, 1, 1)
+      scale: new Vector3(1, 1, 1),
+      matrix: new Matrix4()
     })
 
     addComponent(entity, NetworkObjectComponent, {
@@ -412,7 +414,8 @@ describe('DataWriter', () => {
       addComponent(entity, TransformComponent, {
         position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
         rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
-        scale: new Vector3(1, 1, 1)
+        scale: new Vector3(1, 1, 1),
+        matrix: new Matrix4()
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
@@ -490,7 +493,8 @@ describe('DataWriter', () => {
       addComponent(entity, TransformComponent, {
         position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
         rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
-        scale: new Vector3(1, 1, 1)
+        scale: new Vector3(1, 1, 1),
+        matrix: new Matrix4()
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,

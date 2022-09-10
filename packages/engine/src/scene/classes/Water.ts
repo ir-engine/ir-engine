@@ -2,12 +2,11 @@ import { Color, Mesh, PlaneBufferGeometry, ShaderMaterial, sRGBEncoding, WebGLRe
 import { Vector3 } from 'three'
 
 import { loadCubeMapTexture } from '../constants/Util'
-import { Updatable } from '../interfaces/Updatable'
 import fragmentShader from './water/shaders/surface/fragment'
 import vertexShader from './water/shaders/surface/vertex'
 import { WaveSimulator } from './water/WaveSimulator'
 
-export class Water extends Mesh implements Updatable {
+export class Water extends Mesh {
   waveSimulator: WaveSimulator
   firstRun: boolean
   timer: number

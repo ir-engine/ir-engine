@@ -1,6 +1,7 @@
 import { Color, Vector2 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { Ocean } from '../classes/Ocean'
 
 export type OceanComponentType = {
   normalMap: string
@@ -24,6 +25,7 @@ export type OceanComponentType = {
   foamSpeed: Vector2
   foamTiling: number
   foamColor: Color
+  ocean?: Ocean
 }
 
 export const OceanComponent = createMappedComponent<OceanComponentType>('OceanComponent')

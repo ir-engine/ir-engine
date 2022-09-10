@@ -1,185 +1,136 @@
-import { Box3 } from 'three'
+import type VolumetricPlayer from '@xrfoundation/volumetric/player'
+import { Box3, Group, Material, Mesh, Object3D } from 'three'
 
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
 
-import { AudioComponent } from '../../../audio/components/AudioComponent'
-import {
-  ComponentDeserializeFunction,
-  ComponentPrepareForGLTFExportFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
-import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
-import { CallbackComponent } from '../../components/CallbackComponent'
-import { MediaComponent } from '../../components/MediaComponent'
-import { MediaElementComponent } from '../../components/MediaElementComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { UpdatableComponent } from '../../components/UpdatableComponent'
 import {
-  SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES,
-  VolumetricComponent,
-  VolumetricComponentType
-} from '../../components/VolumetricComponent'
-import { addError, removeError } from '../ErrorFunctions'
-import { createAudioNode } from './AudioFunctions'
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  serializeComponent,
+  SerializedComponentType
+} from '../../../ecs/functions/ComponentFunctions'
+import { createEntity, entityExists } from '../../../ecs/functions/EntityFunctions'
+import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
+import { MediaElementComponent } from '../../components/MediaComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { VolumetricComponent } from '../../components/VolumetricComponent'
+import { PlayMode } from '../../constants/PlayMode'
 
-type VolumetricObject3D = UpdateableObject3D & {
-  userData: {
-    isEffect: boolean
-    time: number
-  }
-  autoplay: boolean
-  controls: boolean
-}
-
-let DracosisPlayer = null! as typeof import('@xrfoundation/volumetric/player').default
+let VolumetricPlayerPromise = null! as Promise<typeof import('@xrfoundation/volumetric/player').default>
 
 if (isClient) {
-  Promise.all([import('@xrfoundation/volumetric/player')]).then(([module1]) => {
-    DracosisPlayer = module1.default
-  })
+  // todo: add top-level await here to ensure it's loaded when component is created
+  VolumetricPlayerPromise = import('@xrfoundation/volumetric/player').then((module) => module.default)
 }
 
-export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, data: VolumetricComponentType) => {
-  const mediaComponent = getComponent(entity, MediaComponent)
-  const properties = parseVolumetricProperties(data)
-  const player = new DracosisPlayer({
-    renderer: EngineRenderer.instance.renderer,
-    // https://github.com/XRFoundation/Universal-Volumetric/issues/117
-    paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
-    playMode: mediaComponent.playMode as any
-  })
-  addComponent(entity, VolumetricComponent, {
-    player,
-    ...properties
-  })
-}
-
-export const addVolumetricComponent = (entity: Entity) => {
-  if (!isClient) return
-
-  const obj3d = new UpdateableObject3D()
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, UpdatableComponent, true)
-  const audioComponent = getComponent(entity, AudioComponent)
-
-  let height = 0
-  let step = 0.001
-
-  const player = getComponent(entity, VolumetricComponent).player
-  const mediaComponent = getComponent(entity, MediaComponent)
-
-  player.video.addEventListener('play', () => {
-    height = calculateHeight(obj3d)
-    height = height * obj3d.scale.y + 1
-    step = height / 150
-    setupLoadingEffect(entity, obj3d)
-    obj3d.userData.isEffect = true
-    obj3d.userData.time = 0
-  })
-
-  obj3d.add(player.mesh)
-
-  // TODO: move to CallbackComponent
-  obj3d.update = () => {
-    if (!getEngineState().userHasInteracted.value) return
-    player?.update()
-    if (obj3d.userData.isEffect) {
-      if (obj3d.userData.time <= height) {
-        obj3d.traverse((child: any) => {
-          if (child['material']) {
-            if (child.material.uniforms) child.material.uniforms.time.value = obj3d.userData.time
-          }
-        })
-
-        obj3d.userData.time += step
-      } else {
-        obj3d.userData.isEffect = false
-        endLoadingEffect(entity, obj3d)
-        player.video.play()
-      }
-    }
-  }
-
-  addComponent(entity, CallbackComponent, {
-    play: () => player.video.play(),
-    pause: () => player.video.pause()
-  })
-
-  const el = player.video
-  el.autoplay = mediaComponent.autoplay
-
-  el.addEventListener('playing', () => {
-    mediaComponent.playing = true
-  })
-
-  el.addEventListener('pause', () => {
-    mediaComponent.playing = false
-  })
-
-  if (el.autoplay) {
-    if (getEngineState().userHasInteracted.value) {
-      player.video.play()
-    }
-  }
-
-  addComponent(entity, MediaElementComponent, el)
-
-  createAudioNode(
-    el,
-    Engine.instance.audioContext.createMediaElementSource(el),
-    audioComponent.isMusic ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
-  )
-}
-
-export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
-  try {
-    if (!hasComponent(entity, Object3DComponent)) addVolumetricComponent(entity)
-    removeError(entity, 'error')
-  } catch (error) {
-    console.error(error)
-    addError(entity, 'error', error.message)
-  }
-
-  const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
-  const { player } = getComponent(entity, VolumetricComponent)
-  const mediaComponent = getComponent(entity, MediaComponent)
-
-  const paths = mediaComponent.paths.filter((p) => p)
-
-  if (paths.length && JSON.stringify(player.paths) !== JSON.stringify(paths)) {
-    player.paths = paths
-  }
-
-  obj3d.autoplay = mediaComponent.autoplay
-  obj3d.controls = mediaComponent.controls
+export const deserializeVolumetric: ComponentDeserializeFunction = (
+  entity: Entity,
+  data: SerializedComponentType<typeof VolumetricComponent>
+) => {
+  addComponent(entity, VolumetricComponent, data)
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
-  const vol = getComponent(entity, VolumetricComponent)
-  return {
-    useLoadingEffect: vol.useLoadingEffect
+  return serializeComponent(entity, VolumetricComponent)
+}
+
+const Volumetric = new WeakMap<
+  HTMLMediaElement,
+  {
+    entity: Entity
+    player: VolumetricPlayer
+    height: number
+    loadingEffectActive: boolean
+    loadingEffectTime: number
+  }
+>()
+
+export const enterVolumetric = async (entity: Entity) => {
+  const VolumetricPlayer = await VolumetricPlayerPromise
+  if (!entityExists(entity)) return
+
+  const mediaElement = getComponent(entity, MediaElementComponent)
+  const volumetricComponent = getComponent(entity, VolumetricComponent)
+  if (!mediaElement || !volumetricComponent) return
+
+  if (mediaElement.element instanceof HTMLVideoElement == false) {
+    throw new Error('expected video media')
+  }
+
+  const player = new VolumetricPlayer({
+    renderer: EngineRenderer.instance.renderer,
+    video: mediaElement.element as HTMLVideoElement,
+    paths: [],
+    playMode: PlayMode.single
+  })
+
+  const volumetric = {
+    entity,
+    player,
+    height: 1.6,
+    loadingEffectActive: volumetricComponent.useLoadingEffect.value,
+    loadingEffectTime: 0
+  }
+  Volumetric.set(mediaElement.element, volumetric)
+
+  addObjectToGroup(entity, volumetric.player.mesh)
+
+  player.video.addEventListener(
+    'playing',
+    () => {
+      const transform = getComponent(entity, TransformComponent)
+      if (!transform) return
+      volumetric.height = calculateHeight(player.mesh) * transform.scale.y
+      if (volumetric.loadingEffectTime === 0) setupLoadingEffect(entity, player!.mesh)
+    },
+    { signal: mediaElement.abortController.signal }
+  )
+
+  player.video.addEventListener(
+    'ended',
+    () => {
+      volumetric.loadingEffectActive = volumetricComponent.useLoadingEffect.value
+      volumetric.loadingEffectTime = 0
+    },
+    { signal: mediaElement.abortController.signal }
+  )
+}
+
+export const updateVolumetric = async (entity: Entity) => {
+  const mediaElement = getComponent(entity, MediaElementComponent)
+  const volumetric = Volumetric.get(mediaElement.element)
+  if (volumetric) {
+    volumetric.player.update()
+    updateLoadingEffect(volumetric)
   }
 }
 
-export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFunction = (video) => {
-  if (video.userData.player) {
-    video.userData.player.dispose()
-    delete video.userData.player
-  }
-}
-
-const parseVolumetricProperties = (props: Partial<VolumetricComponentType>) => {
-  return {
-    useLoadingEffect: props.useLoadingEffect ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.useLoadingEffect
+export const updateLoadingEffect = (volumetric: NonNullable<ReturnType<typeof Volumetric.get>>) => {
+  const player = volumetric.player
+  const height = volumetric.height
+  const step = volumetric.height / 150
+  if (volumetric.loadingEffectActive) {
+    if (volumetric.loadingEffectTime <= height) {
+      player.mesh.traverse((child: any) => {
+        if (child['material']) {
+          if (child.material.uniforms) child.material.uniforms.time.value = volumetric.loadingEffectTime
+        }
+      })
+      volumetric.loadingEffectTime += step
+    } else {
+      volumetric.loadingEffectActive = false
+      endLoadingEffect(volumetric.entity, player.mesh)
+      player.video.play()
+    }
   }
 }
 
@@ -222,9 +173,9 @@ const endLoadingEffect = (entity, object) => {
   removeComponent(entity, AvatarEffectComponent)
 }
 
-const setupLoadingEffect = (entity, obj) => {
+const setupLoadingEffect = (entity: Entity, obj: Object3D) => {
   const materialList: Array<MaterialMap> = []
-  obj.traverse((object) => {
+  obj.traverse((object: Mesh<any, Material>) => {
     if (object.material && object.material.clone) {
       // Transparency fix
       const material = object.material.clone()
@@ -236,24 +187,18 @@ const setupLoadingEffect = (entity, obj) => {
     }
   })
   if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
-  addComponent(entity, AvatarEffectComponent, {
+  const effectEntity = createEntity()
+  addComponent(effectEntity, AvatarEffectComponent, {
     sourceEntity: entity,
     opacityMultiplier: 0,
     originMaterials: materialList
   })
 }
 
-const calculateHeight = (obj3d) => {
-  let childObject
-  obj3d.children.forEach((child) => {
-    if (!childObject && (child.type == 'Group' || child.type == 'Object3D' || child.type == 'Mesh')) {
-      childObject = child
-    }
-  })
-
+const calculateHeight = (obj: Object3D) => {
   //calculate the uvol model height
-  const bbox = new Box3().setFromObject(childObject)
-  let height = 1
+  const bbox = new Box3().setFromObject(obj)
+  let height = 1.5
   if (bbox.max.y != undefined && bbox.min.y != undefined) {
     height = bbox.max.y - bbox.min.y
   }

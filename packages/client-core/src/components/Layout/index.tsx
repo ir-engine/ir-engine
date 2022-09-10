@@ -9,7 +9,7 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 
 import { Close, FullscreenExit, ZoomOutMap } from '@mui/icons-material'

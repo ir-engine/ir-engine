@@ -7,6 +7,7 @@ import { addComponent, createMappedComponent, defineQuery, getComponent } from '
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -27,11 +28,6 @@ describe('loadGLTFModel', () => {
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
 
     const entity = createEntity()
-    addComponent(entity, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3(1, 1, 1)
-    })
     addComponent(entity, ModelComponent, {
       ...SCENE_COMPONENT_MODEL_DEFAULT_VALUE,
       ...mockComponentData
@@ -44,7 +40,7 @@ describe('loadGLTFModel', () => {
       // 'xrengine.spawn-point': '',
       'xrengine.CustomComponent.value': number
     }
-    addComponent(entity, Object3DComponent, { value: mesh })
+    addObjectToGroup(entity, mesh)
     const modelQuery = defineQuery([TransformComponent, Object3DComponent])
     const childQuery = defineQuery([
       NameComponent,
@@ -73,11 +69,6 @@ describe('loadGLTFModel', () => {
   // TODO
   it.skip('Can load physics objects from gltf metadata', async () => {
     const entity = createEntity()
-    addComponent(entity, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3(1, 1, 1)
-    })
     const entityName = 'physics test entity'
     const parentGroup = new Group()
     parentGroup.userData = {

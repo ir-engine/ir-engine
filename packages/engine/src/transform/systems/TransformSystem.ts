@@ -1,5 +1,5 @@
-import { entityExists } from 'bitecs'
-import { Mesh, Quaternion, Vector3 } from 'three'
+import { addComponent, entityExists } from 'bitecs'
+import { Camera, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
@@ -7,6 +7,7 @@ import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -15,6 +16,7 @@ import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/c
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import {
@@ -29,6 +31,7 @@ import { LocalTransformComponent } from '../components/LocalTransformComponent'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  setTransformComponent,
   TransformComponent
 } from '../components/TransformComponent'
 
@@ -42,7 +45,8 @@ const ownedDynamicRigidBodyQuery = defineQuery([
   TransformComponent,
   VelocityComponent
 ])
-const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
+
+const groupQuery = defineQuery([GroupComponent])
 const localTransformQuery = defineQuery([LocalTransformComponent])
 const transformQuery = defineQuery([TransformComponent])
 const spawnPointQuery = defineQuery([SpawnPointComponent])
@@ -77,7 +81,7 @@ const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) =
 }
 
 export default async function TransformSystem(world: World) {
-  world.sceneComponentRegistry.set(TransformComponent._name, SCENE_COMPONENT_TRANSFORM)
+  world.sceneComponentRegistry.set(TransformComponent.name, SCENE_COMPONENT_TRANSFORM)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
     defaultData: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
     deserialize: deserializeTransform,
@@ -120,48 +124,41 @@ export default async function TransformSystem(world: World) {
 
   const computeBoundingBox = (entity: Entity) => {
     const box = getComponent(entity, BoundingBoxComponent).box
-    const obj = getComponent(entity, Object3DComponent).value
-    obj.traverse((child) => {
-      const mesh = child as Mesh
-      if (mesh.isMesh) {
-        mesh.geometry.computeBoundingBox()
-      }
-    })
-    box.setFromObject(obj)
+    const group = getComponent(entity, GroupComponent)
+
+    box.makeEmpty()
+
+    for (const obj of group) {
+      obj.traverse((child) => {
+        const mesh = child as Mesh
+        if (mesh.isMesh) {
+          mesh.geometry.computeBoundingBox()
+        }
+      })
+
+      box.expandByObject(obj)
+    }
   }
 
   const updateBoundingBox = (entity: Entity) => {
     const box = getComponent(entity, BoundingBoxComponent).box
-    const obj = getComponent(entity, Object3DComponent).value
-    box.setFromObject(obj)
+    const group = getComponent(entity, GroupComponent)
+    box.makeEmpty()
+    for (const obj of group) box.expandByObject(obj)
   }
 
   return () => {
     for (const entity of localTransformQuery.enter()) {
-      const parentEntity = world.entityTree.entityNodeMap.get(entity)?.parentEntity!
-      setComputedTransformComponent(entity, parentEntity, (childEntity, parentEntity) => {
-        const transform = getComponent(childEntity, TransformComponent)
-        const localTransform = getComponent(childEntity, LocalTransformComponent)
+      const parentEntity = getComponent(entity, LocalTransformComponent).parentEntity
+      setComputedTransformComponent(entity, parentEntity, () => {
+        const transform = getComponent(entity, TransformComponent)
+        const localTransform = getComponent(entity, LocalTransformComponent)
         const parentTransform = getComponent(parentEntity, TransformComponent)
-        applyTransformPositionOffset(transform, parentTransform, localTransform.position)
-        applyTransformRotationOffset(transform, parentTransform, localTransform.rotation)
+        localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
+        transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
+        transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+        world.dirtyTransforms.delete(entity)
       })
-    }
-
-    // proxify all object3D components w/ a transform component
-
-    for (const entity of transformObjectQuery.enter()) {
-      const transform = getComponent(entity, TransformComponent)
-      const object3D = getComponent(entity, Object3DComponent).value
-      if (transform && object3D) {
-        object3D.matrixAutoUpdate = false
-        object3D.position.copy(transform.position)
-        object3D.quaternion.copy(transform.rotation)
-        object3D.scale.copy(transform.scale)
-        proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, object3D.position)
-        proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, object3D.quaternion)
-        proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, object3D.scale)
-      }
     }
 
     // update transform components from rigid body components,
@@ -181,27 +178,46 @@ export default async function TransformSystem(world: World) {
       transformsNeedSorting.set(false)
     }
 
-    // update transforms in order of reference depth
+    // IMPORTANT: update transforms in order of reference depth
     // Note: cyclic references will cause undefined behavior
 
     for (const entity of transformEntities) {
       const transform = getComponent(entity, TransformComponent)
       if (!transform) continue
+
       const computedTransform = getComponent(entity, ComputedTransformComponent)
-      const object3D = getComponent(entity, Object3DComponent)?.value
+      const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
 
       if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
         computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
       }
 
-      if (object3D) {
-        if (world.dirtyTransforms.has(entity)) {
-          // replace scale 0 with epsilon to prevent NaN errors
-          if (transform.scale.x === 0) transform.scale.x = 1e-10
-          if (transform.scale.y === 0) transform.scale.y = 1e-10
-          if (transform.scale.z === 0) transform.scale.z = 1e-10
-          object3D.updateMatrix()
-          world.dirtyTransforms.delete(entity)
+      let dirty = world.dirtyTransforms.has(entity)
+
+      if (dirty) {
+        // replace scale 0 with epsilon to prevent NaN errors
+        if (transform.scale.x === 0) transform.scale.x = 1e-10
+        if (transform.scale.y === 0) transform.scale.y = 1e-10
+        if (transform.scale.z === 0) transform.scale.z = 1e-10
+        transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+        world.dirtyTransforms.delete(entity)
+
+        if (group) {
+          // root group objects are always going to have the exact same computed matrices
+          for (const root of group) {
+            root.matrix.copy(transform.matrix)
+            root.matrixWorld.copy(transform.matrix)
+            root.matrixWorldInverse?.copy(transform.matrix).invert()
+          }
+        }
+      }
+
+      if (group) {
+        // drop down one level and update children
+        for (const root of group) {
+          for (const obj of root.children) {
+            obj.updateMatrixWorld()
+          }
         }
       }
     }

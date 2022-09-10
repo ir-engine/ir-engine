@@ -33,12 +33,12 @@ import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
 
-const StyledNodeEditor = (styled as any).div``
+const StyledNodeEditor = styled.div``
 
 /**
  * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
  */
-const PropertiesHeader = (styled as any).div`
+const PropertiesHeader = styled.div`
   border: none !important;
   padding-bottom: 0 !important;
 `
@@ -48,11 +48,11 @@ const PropertiesHeader = (styled as any).div`
  *
  *  @type {Styled Component}
  */
-const NameInputGroupContainer = (styled as any).div``
+const NameInputGroupContainer = styled.div``
 /**
  * Styled component used to provide styles for visiblity checkbox.
  */
-const VisibleInputGroup = (styled as any)(InputGroup)`
+const VisibleInputGroup = styled(InputGroup)`
   & > label {
     width: auto !important;
   }
@@ -62,7 +62,7 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
  * PropertiesPanelContent used as container element contains content of editor view.
  * @type {Styled Component}
  */
-const PropertiesPanelContent = (styled as any).div`
+const PropertiesPanelContent = styled.div`
   overflow-y: auto;
   height: 100%;
 `
@@ -72,7 +72,7 @@ const PropertiesPanelContent = (styled as any).div`
  *
  * @type {Styled component}
  */
-const NoNodeSelectedMessage = (styled as any).div`
+const NoNodeSelectedMessage = styled.div`
   height: 100%;
   display: flex;
   justify-content: center;
@@ -195,7 +195,17 @@ export const PropertiesPanelContainer = () => {
         </div> */}
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
-          return <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} component={c} />
+          // nodeEntity is used as key here to signal to React when the entity has changed,
+          // and to prevent state from being recycled between editor instances, which
+          // can cause hookstate to throw errors.
+          return (
+            <Editor
+              key={`${nodeEntity}-${Editor.name}`}
+              multiEdit={multiEdit}
+              node={node as EntityTreeNode}
+              component={c}
+            />
+          )
         })}
       </StyledNodeEditor>
     )

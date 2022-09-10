@@ -19,14 +19,14 @@ import {
   SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { parseEnvMapBakeProperties } from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { accessEditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
-const query = defineQuery([ScenePreviewCameraTagComponent, TransformComponent])
+const query = defineQuery([ScenePreviewCameraComponent, TransformComponent])
 
 const getScenePositionForBake = (world: World, entity: Entity | null) => {
   if (entity) {

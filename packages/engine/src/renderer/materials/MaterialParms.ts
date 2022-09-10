@@ -52,7 +52,7 @@ export function assignMaterial(override: MaterialOverrideComponentType): [MatRen
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')
   }
-  const root = getComponent(override.targetEntity!, Object3DComponent).value as UpdateableObject3D
+  const root = getComponent(override.targetEntity!, Object3DComponent).value
   root.traverse((obj3d) => {
     let isMatch = false
     switch (override.patternTarget) {

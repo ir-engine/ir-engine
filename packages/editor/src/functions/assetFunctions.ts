@@ -11,16 +11,13 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
+  ComponentType,
   getComponent,
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
-import {
-  Object3DComponent,
-  Object3DComponentType,
-  Object3DWithEntity
-} from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 
 import { accessEditorState } from '../services/EditorServices'
@@ -32,25 +29,19 @@ export const exportAsset = async (node: EntityTreeNode) => {
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }
-  let dudObjs = new Array<[Entity, Object3DComponentType]>()
-  const obj3ds = node.children
-    ? node.children!.map((root) => {
-        if (!hasComponent(root, Object3DComponent)) {
-          const dudObj3d = new Object3D() as Object3DWithEntity
-          dudObj3d.entity = root
-          dudObjs.push([root, addComponent(root, Object3DComponent, { value: dudObj3d })])
-        }
-        return getComponent(root, Object3DComponent).value!
-      })
-    : []
+  const dudEntities = new Array<Entity>()
+  const obj3ds = new Array<Object3DWithEntity>()
 
-  const exportable = sceneToGLTF(obj3ds as Object3DWithEntity[])
-  const uploadable = new File([JSON.stringify(exportable)], `${assetName}.xre.gltf`)
-  for (const [entity, dud] of dudObjs) {
-    dud.value.removeFromParent()
-    removeComponent(entity, Object3DComponent)
+  for (const entity of node.children) {
+    if (!getComponent(entity, GroupComponent)) dudEntities.push(entity)
+    else obj3ds.push(...getComponent(entity, GroupComponent))
   }
-  dudObjs = []
+
+  const exportable = sceneToGLTF(obj3ds)
+  const uploadable = new File([JSON.stringify(exportable)], `${assetName}.xre.gltf`)
+  for (const entity of dudEntities) {
+    removeComponent(entity, GroupComponent)
+  }
   return uploadProjectFiles(projectName, [uploadable], true).promises[0]
 }
 

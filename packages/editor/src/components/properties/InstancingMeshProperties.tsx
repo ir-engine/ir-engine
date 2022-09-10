@@ -1,10 +1,8 @@
-import React, { Fragment, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Mesh, Object3D } from 'three'
+import { Mesh } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { MeshProperties } from '@xrengine/engine/src/scene/components/InstancingComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
