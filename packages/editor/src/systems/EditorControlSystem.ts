@@ -43,7 +43,10 @@ import {
   TransformPivotType
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import {
+  TransformComponent,
+  TransformComponentType
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
@@ -139,13 +142,19 @@ export default async function EditorControlSystem(_: World) {
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
     const scene = Engine.instance.currentWorld.scene
-    const os = selectionState.selectedParentEntities.value.map((entity) =>
-      typeof entity === 'string'
-        ? scene.getObjectByProperty('uuid', entity as string)!
-        : getComponent(entity, Object3DComponent).value
-    )
 
-    findIntersectObjects(Engine.instance.currentWorld.scene, os, raycastIgnoreLayers)
+    const excludeObjects = [] as Object3D[]
+    for (const e of selectionState.selectedParentEntities.value) {
+      if (typeof e === 'string') {
+        const obj = scene.getObjectByProperty('uuid', e)
+        if (obj) excludeObjects.push(obj)
+      } else {
+        const group = getComponent(e, GroupComponent)
+        if (group) excludeObjects.push(...group)
+      }
+    }
+
+    findIntersectObjects(Engine.instance.currentWorld.scene, excludeObjects, raycastIgnoreLayers)
     findIntersectObjects(InfiniteGridHelper.instance)
 
     raycasterResults.sort((a, b) => a.distance - b.distance)
@@ -168,7 +177,6 @@ export default async function EditorControlSystem(_: World) {
       selectedParentEntities = selectionState.selectedParentEntities.value
       selectedEntities = selectionState.selectedEntities.value
       const gizmoObj = getComponent(SceneState.gizmoEntity, TransformGizmoComponent).gizmo
-      const gizmoGroup = getComponent(SceneState.gizmoEntity, GroupComponent).value
 
       transformModeChanged = transformMode === editorHelperState.transformMode.value
       transformMode = editorHelperState.transformMode.value
@@ -179,18 +187,19 @@ export default async function EditorControlSystem(_: World) {
       transformSpaceChanged = transformSpace === editorHelperState.transformSpace.value
       transformSpace = editorHelperState.transformSpace.value
 
-      if (!gizmoObj || !gizmoGroup) continue
+      if (!gizmoObj) continue
 
       if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
         removeComponent(SceneState.gizmoEntity, VisibleComponent)
       } else {
         const lastSelection = selectedEntities[selectedEntities.length - 1]
         const isUuid = typeof lastSelection === 'string'
-        const lastSelectedObj3d = isUuid
-          ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)!
-          : getComponent(lastSelection as Entity, Object3DComponent)?.value
-        if (lastSelectedObj3d) {
-          lastSelectedObj3d.updateMatrixWorld(true)
+
+        const lastSelectedTransform = isUuid
+          ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)
+          : getComponent(lastSelection as Entity, TransformComponent)
+
+        if (lastSelectedTransform) {
           const isChanged =
             selectionCounter !== selectionState.selectionCounter.value ||
             transformModeChanged ||
@@ -198,7 +207,7 @@ export default async function EditorControlSystem(_: World) {
 
           if (isChanged || transformPivotChanged) {
             if (transformPivot === TransformPivot.Selection) {
-              lastSelectedObj3d.getWorldPosition(gizmoGroup.position)
+              gizmoObj.position.copy(lastSelectedTransform.position)
             } else {
               box.makeEmpty()
 
@@ -212,21 +221,25 @@ export default async function EditorControlSystem(_: World) {
                 }
               }
 
-              box.getCenter(gizmoGroup.position)
+              box.getCenter(gizmoObj.position)
               if (transformPivot === TransformPivot.Bottom) {
-                gizmoGroup.position.y = box.min.y
+                gizmoObj.position.y = box.min.y
               }
             }
           }
 
           if (isChanged || transformSpaceChanged) {
             if (transformSpace === TransformSpace.LocalSelection) {
-              lastSelectedObj3d.getWorldQuaternion(gizmoGroup.quaternion)
+              gizmoObj.quaternion.copy(
+                'quaternion' in lastSelectedTransform
+                  ? lastSelectedTransform.quaternion
+                  : lastSelectedTransform.rotation
+              )
             } else {
-              gizmoGroup.rotation.set(0, 0, 0)
+              gizmoObj.rotation.set(0, 0, 0)
             }
 
-            inverseGizmoQuaternion.copy(gizmoGroup.quaternion).invert()
+            inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
           }
 
           if ((transformModeChanged || transformSpaceChanged) && transformMode === TransformMode.Scale) {

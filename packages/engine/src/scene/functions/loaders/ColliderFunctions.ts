@@ -21,6 +21,7 @@ import {
 } from '../../components/ColliderComponent'
 import { GroupComponent } from '../../components/GroupComponent'
 import { ModelComponent } from '../../components/ModelComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
@@ -107,7 +108,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
 
 export const updateMeshCollider = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
-  const object3d = getComponent(entity, GroupComponent)
+  const object3d = getComponent(entity, Object3DComponent)
   if (!object3d?.value?.children[0]) return
 
   if (hasComponent(entity, RigidBodyComponent)) {

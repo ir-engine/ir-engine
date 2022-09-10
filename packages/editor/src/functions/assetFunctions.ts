@@ -1,3 +1,5 @@
+import { Object3D } from 'three'
+
 import { API } from '@xrengine/client-core/src/API'
 import {
   CancelableUploadPromiseArrayReturnType,
@@ -15,7 +17,7 @@ import {
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
-import { GroupComponent, GroupWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 
 import { accessEditorState } from '../services/EditorServices'
@@ -27,23 +29,19 @@ export const exportAsset = async (node: EntityTreeNode) => {
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }
-  let dudObjs = new Array<[Entity, ComponentType<typeof GroupComponent>]>()
-  const obj3ds = node.children
-    ? node.children!.map((root) => {
-        if (!hasComponent(root, GroupComponent)) {
-          dudObjs.push([root, addComponent(root, GroupComponent, {})])
-        }
-        return getComponent(root, GroupComponent).value
-      })
-    : []
+  const dudEntities = new Array<Entity>()
+  const obj3ds = new Array<Object3DWithEntity>()
 
-  const exportable = sceneToGLTF(obj3ds as GroupWithEntity[])
+  for (const entity of node.children) {
+    if (!getComponent(entity, GroupComponent)) dudEntities.push(entity)
+    else obj3ds.push(...getComponent(entity, GroupComponent))
+  }
+
+  const exportable = sceneToGLTF(obj3ds)
   const uploadable = new File([JSON.stringify(exportable)], `${assetName}.xre.gltf`)
-  for (const [entity, dud] of dudObjs) {
-    dud.value.removeFromParent()
+  for (const entity of dudEntities) {
     removeComponent(entity, GroupComponent)
   }
-  dudObjs = []
   return uploadProjectFiles(projectName, [uploadable], true).promises[0]
 }
 

@@ -2,8 +2,7 @@ import { Matrix4 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { accessSelectionState } from '../services/SelectionServices'
 
@@ -16,15 +15,10 @@ export function getSpaceMatrix() {
 
   const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
   const isUuid = typeof lastSelectedEntity === 'string'
-  const obj3d = isUuid
-    ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelectedEntity)!
-    : getComponent(lastSelectedEntity, GroupComponent)?.value
+  const matrix = isUuid
+    ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelectedEntity)?.parent?.matrixWorld!
+    : getComponent(lastSelectedEntity, TransformComponent)?.matrix
 
-  if (!obj3d) return IDENTITY_MAT_4
-
-  obj3d.updateMatrixWorld()
-
-  if (!obj3d.parent) return IDENTITY_MAT_4
-
-  return obj3d.parent.matrixWorld
+  if (!matrix) return IDENTITY_MAT_4
+  return matrix
 }

@@ -1,5 +1,6 @@
 import { PerspectiveCamera } from 'three'
 
+import { CameraComponent } from '@xrengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -43,11 +44,9 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     scenePreviewCamera = addComponent(entity, ScenePreviewCameraComponent, null).camera
     const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
     addObjectToGroup(entity, scenePreviewCamera)
-    setTransformComponent(entity)
-    const scenePreviewGroup = getComponent(Engine.instance.currentWorld.cameraEntity, GroupComponent).value
-    scenePreviewGroup.position.copy(position)
-    scenePreviewGroup.quaternion.copy(rotation)
-    scenePreviewGroup.updateMatrixWorld(true)
+    scenePreviewCamera.position.copy(position)
+    scenePreviewCamera.quaternion.copy(rotation)
+    scenePreviewCamera.updateMatrixWorld(true)
   }
 
   const prevAspect = scenePreviewCamera.aspect

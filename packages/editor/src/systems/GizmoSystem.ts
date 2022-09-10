@@ -12,8 +12,7 @@ export default async function GizmoSystem(_: World) {
   return () => {
     for (const entity of gizmoQuery()) {
       const gizmoTransform = getComponent(entity, TransformComponent)
-      const eyeDistance =
-        gizmoTransform.position.distanceTo(Engine.instance.currentWorld.cameraGroup.position) / GIZMO_SIZE
+      const eyeDistance = gizmoTransform.position.distanceTo(Engine.instance.currentWorld.camera.position) / GIZMO_SIZE
       gizmoTransform.scale.set(eyeDistance, eyeDistance, eyeDistance)
     }
   }

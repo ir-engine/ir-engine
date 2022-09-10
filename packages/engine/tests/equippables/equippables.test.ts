@@ -1,6 +1,6 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
-import { Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
+import { Matrix4, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -47,7 +47,8 @@ describe.skip('Equippables Integration Tests', () => {
     const transform = addComponent(equippableEntity, TransformComponent, {
       position: new Vector3(),
       rotation: new Quaternion(),
-      scale: new Vector3()
+      scale: new Vector3(),
+      matrix: new Matrix4()
     })
 
     // physics mock stuff
@@ -76,7 +77,8 @@ describe.skip('Equippables Integration Tests', () => {
     addComponent(equipperEntity, TransformComponent, {
       position: new Vector3(2, 0, 0),
       rotation: new Quaternion(),
-      scale: new Vector3()
+      scale: new Vector3(),
+      matrix: new Matrix4()
     })
 
     equipEntity(equipperEntity, equippableEntity, undefined)

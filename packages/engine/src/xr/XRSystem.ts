@@ -115,21 +115,12 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
 
 export const updateXRCamera = () => {
   const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
-  const cameraGroup = Engine.instance.currentWorld.cameraGroup
-  cameraGroup.position.set(0, 0, 0)
-  cameraGroup.quaternion.set(0, 0, 0, 1)
-  cameraGroup.updateMatrixWorld(true)
   EngineRenderer.instance.xrManager.updateCamera(camera)
-  cameraGroup.position.copy(camera.position)
-  cameraGroup.quaternion.copy(camera.quaternion)
-  camera.position.set(0, 0, 0)
-  camera.quaternion.set(0, 0, 0, 1)
-  cameraGroup.updateMatrixWorld(true)
 
   const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
   const head = xrInputSourceComponent.head
-  head.quaternion.copy(cameraGroup.quaternion)
-  head.position.copy(cameraGroup.position)
+  head.quaternion.copy(camera.quaternion)
+  head.position.copy(camera.position)
 }
 /**
  * System for XR session and input handling

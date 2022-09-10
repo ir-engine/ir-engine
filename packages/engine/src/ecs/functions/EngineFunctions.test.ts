@@ -17,16 +17,12 @@ describe('EngineFunctions', () => {
       const sceneObjectQuery = defineQuery([SceneObjectComponent])
 
       // create a bunch of entities
-      addComponent(createEntity(), GroupComponent, {})
+      addComponent(createEntity(), GroupComponent, [])
       const sceneEntity = createEntity()
-      addComponent(sceneEntity, GroupComponent, {})
+      addComponent(sceneEntity, GroupComponent, [])
       addComponent(sceneEntity, SceneObjectComponent, true)
 
       const groupEntities = groupQuery(world)
-
-      // add objects to scene
-      for (const entity of groupEntities)
-        Engine.instance.currentWorld.scene.add(getComponent(entity, GroupComponent).value)
 
       // camera entity will have Object3DComponent, so 3
       assert.equal(groupEntities.length, 3)

@@ -4,9 +4,9 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
-import { GroupComponent } from '../components/GroupComponent'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -38,7 +38,7 @@ export default async function HyperspacePortalSystem(world: World) {
   return () => {
     if (isNaN(world.localClientEntity)) return
 
-    const playerGroup = getComponent(world.localClientEntity, GroupComponent).value
+    const playerTransform = getComponent(world.localClientEntity, TransformComponent)
     const sceneLoaded = !sceneAssetPendingTagQuery().length
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
@@ -46,8 +46,8 @@ export default async function HyperspacePortalSystem(world: World) {
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       transition.setState('IN')
 
-      hyperspaceEffect.position.copy(playerGroup.position)
-      hyperspaceEffect.quaternion.copy(playerGroup.quaternion)
+      hyperspaceEffect.position.copy(playerTransform.position)
+      hyperspaceEffect.quaternion.copy(playerTransform.rotation)
       Engine.instance.currentWorld.camera.zoom = 1.5
 
       Engine.instance.currentWorld.scene.add(light)
@@ -84,8 +84,8 @@ export default async function HyperspacePortalSystem(world: World) {
         }
       })
 
-      hyperspaceEffect.position.copy(playerGroup.position)
-      hyperspaceEffect.quaternion.copy(playerGroup.quaternion)
+      hyperspaceEffect.position.copy(playerTransform.position)
+      hyperspaceEffect.quaternion.copy(playerTransform.rotation)
 
       if (Engine.instance.currentWorld.camera.zoom > 0.75) {
         Engine.instance.currentWorld.camera.zoom -= world.deltaSeconds

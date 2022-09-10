@@ -194,13 +194,6 @@ export class World {
   }
 
   /**
-   * Reference to the camera group.
-   */
-  get cameraGroup() {
-    return getComponent(this.cameraEntity, GroupComponent).value
-  }
-
-  /**
    * The local client entity
    */
   get localClientEntity() {

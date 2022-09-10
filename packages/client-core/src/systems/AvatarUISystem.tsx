@@ -14,6 +14,7 @@ import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
+import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -75,12 +76,11 @@ export default async function AvatarUISystem(world: World) {
       }
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
       const ui = createAvatarDetailView(userId)
-      const uiObject = getComponent(ui.entity, Object3DComponent)
       const transition = createTransitionState(1, 'IN')
       AvatarUITransitions.set(userEntity, transition)
       ui.state.videoPreviewMesh.value.position.y += 0.3
       ui.state.videoPreviewMesh.value.visible = false
-      uiObject.value.add(ui.state.videoPreviewMesh.value)
+      addObjectToGroup(ui.entity, ui.state.videoPreviewMesh.value)
       AvatarUI.set(userEntity, ui)
     }
 

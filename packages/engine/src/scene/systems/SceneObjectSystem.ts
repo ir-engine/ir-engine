@@ -1,4 +1,4 @@
-import { BufferGeometry, Material, Mesh, Vector3 } from 'three'
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -10,11 +10,9 @@ import { EngineActions, EngineState, getEngineState } from '../../ecs/classes/En
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent } from '../components/GroupComponent'
-import { NameComponent } from '../components/NameComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
@@ -38,11 +36,10 @@ export class SceneOptions {
 const processObject3d = (entity: Entity) => {
   if (!isClient) return
 
-  const group = getComponent(entity, GroupComponent).value
+  const group = getComponent(entity, GroupComponent) as any as Mesh<any, MeshBasicMaterial>[]
   const shadowComponent = getComponent(entity, ShadowComponent)
-  group.name = getComponent(entity, NameComponent)?.name ?? ''
 
-  group.traverse((obj: Mesh<any, Material>) => {
+  for (const obj of group) {
     const material = obj.material
     if (typeof material !== 'undefined') material.dithering = true
 
@@ -50,14 +47,14 @@ const processObject3d = (entity: Entity) => {
       obj.receiveShadow = shadowComponent.receive
       obj.castShadow = shadowComponent.cast
     }
-  })
+  }
 
   updateSimpleMaterials([entity])
 }
 
 const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
   for (const entity of sceneObjectEntities) {
-    const group = getComponent(entity, GroupComponent).value
+    const group = getComponent(entity, GroupComponent)
     if (hasComponent(entity, XRUIComponent)) return
 
     const simpleMaterials =
@@ -65,17 +62,17 @@ const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
 
     let abort = false
 
-    group.traverse((obj: any) => {
+    for (const obj of group) {
       if (abort || (obj.entity && hasComponent(entity, XRUIComponent))) {
         abort = true
         return
       }
       if (simpleMaterials) {
-        useSimpleMaterial(obj)
+        useSimpleMaterial(obj as any)
       } else {
-        useStandardMaterial(obj)
+        useStandardMaterial(obj as any)
       }
-    })
+    }
   }
 }
 
@@ -92,28 +89,18 @@ export default async function SceneObjectSystem(world: World) {
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
-      const obj3d = getComponent(entity, GroupComponent, true).value
+      const group = getComponent(entity, GroupComponent, true)
       const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
-      for (const layer of layers) {
-        if (layer.has(obj3d)) layer.delete(obj3d)
+      for (const obj of group) {
+        for (const layer of layers) {
+          if (layer.has(obj)) layer.delete(obj)
+        }
       }
-      obj3d.traverse((mesh: Mesh) => {
-        if (typeof (mesh.material as Material)?.dispose === 'function') (mesh.material as Material)?.dispose()
-        if (typeof (mesh.geometry as BufferGeometry)?.dispose === 'function')
-          (mesh.geometry as BufferGeometry)?.dispose()
-      })
     }
 
-    for (const entity of sceneObjectQuery.enter()) {
-      const group = getComponent(entity, GroupComponent).value
-      group.entity = entity
-      Engine.instance.currentWorld.scene.add(group)
+    // todo: refactor this processing by making all the changes reactive
+    for (const entity of sceneObjectQuery()) {
       processObject3d(entity)
-    }
-
-    for (const action of useSimpleMaterialsActionQueue()) {
-      const sceneObjectEntities = sceneObjectQuery()
-      updateSimpleMaterials(sceneObjectEntities)
     }
 
     const delta = getState(EngineState).deltaSeconds.value

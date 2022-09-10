@@ -817,9 +817,9 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       break
   }
 
-  let obj3d = getComponent(entity, GroupComponent).value as unknown as UpdateableObject3D
+  let obj3d = getComponent(entity, Object3DComponent).value as unknown as UpdateableObject3D
   if (!obj3d) {
-    obj3d = addComponent(entity, GroupComponent, {}).value as unknown as UpdateableObject3D
+    obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value as unknown as UpdateableObject3D
   }
   obj3d.name = `${result.name} Base`
   const updates: ((dt: number) => void)[] = []

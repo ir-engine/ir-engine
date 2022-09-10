@@ -1,16 +1,13 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
-import { Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { ScenePreviewCameraComponent } from '../../components/ScenePreviewCamera'
 
 const EPSILON = 10e-8
 
@@ -27,7 +24,8 @@ describe('ScenePreviewCameraFunctions', () => {
     addComponent(entity, TransformComponent, {
       position: new Vector3(Math.random(), Math.random(), Math.random()),
       rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
-      scale: new Vector3(Math.random(), Math.random(), Math.random())
+      scale: new Vector3(Math.random(), Math.random(), Math.random()),
+      matrix: new Matrix4()
     })
   })
 

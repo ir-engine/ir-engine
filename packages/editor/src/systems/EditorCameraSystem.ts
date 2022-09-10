@@ -27,16 +27,16 @@ export default async function EditorCameraSystem(world: World) {
 
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
-      const cameraGroup = getComponent(entity, GroupComponent).value
+      const camera = getComponent(entity, CameraComponent).camera
 
       if (cameraComponent.zoomDelta) {
-        const distance = cameraGroup.position.distanceTo(cameraComponent.center)
+        const distance = camera.position.distanceTo(cameraComponent.center)
         delta.set(0, 0, cameraComponent.zoomDelta * distance * ZOOM_SPEED)
 
         if (delta.length() > distance) return
 
-        delta.applyMatrix3(normalMatrix.getNormalMatrix(cameraGroup.matrix))
-        cameraGroup.position.add(delta)
+        delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
+        camera.position.add(delta)
 
         cameraComponent.zoomDelta = 0
       }
@@ -72,38 +72,36 @@ export default async function EditorCameraSystem(world: World) {
 
         delta
           .set(0, 0, 1)
-          .applyQuaternion(cameraGroup.quaternion)
+          .applyQuaternion(camera.quaternion)
           .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
-        cameraGroup.position.copy(cameraComponent.center).add(delta)
+        camera.position.copy(cameraComponent.center).add(delta)
 
         cameraComponent.focusedObjects = null!
         cameraComponent.refocus = false
       }
 
       if (cameraComponent.isPanning) {
-        const distance = cameraGroup.position.distanceTo(cameraComponent.center)
+        const distance = camera.position.distanceTo(cameraComponent.center)
         delta
           .set(cameraComponent.cursorDeltaX, -cameraComponent.cursorDeltaY, 0)
           .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
-          .applyMatrix3(normalMatrix.getNormalMatrix(cameraGroup.matrix))
-        cameraGroup.position.add(delta)
+          .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
+        camera.position.add(delta)
         cameraComponent.center.add(delta)
 
         cameraComponent.isPanning = false
       }
 
       if (cameraComponent.isOrbiting) {
-        delta.copy(cameraGroup.position).sub(cameraComponent.center)
+        delta.copy(camera.position).sub(cameraComponent.center)
         spherical.setFromVector3(delta)
         spherical.theta += cameraComponent.cursorDeltaX * ORBIT_SPEED
         spherical.phi += cameraComponent.cursorDeltaY * ORBIT_SPEED
         spherical.makeSafe()
         delta.setFromSpherical(spherical)
 
-        cameraGroup.position.copy(cameraComponent.center).add(delta)
-        // @ts-ignore; lookAt changes behavior based on whether or not object has this flag
-        cameraGroup.isCamera = true
-        cameraGroup.lookAt(cameraComponent.center)
+        camera.position.copy(cameraComponent.center).add(delta)
+        camera.lookAt(cameraComponent.center)
 
         cameraComponent.isOrbiting = false
       }

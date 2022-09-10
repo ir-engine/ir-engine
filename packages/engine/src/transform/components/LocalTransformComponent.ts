@@ -25,7 +25,8 @@ export function setLocalTransformComponent(
     parentEntity,
     position: createVector3Proxy(LocalTransformComponent.position, entity, dirtyTransforms).copy(position),
     rotation: createQuaternionProxy(LocalTransformComponent.rotation, entity, dirtyTransforms).copy(rotation),
-    scale: createVector3Proxy(LocalTransformComponent.scale, entity, dirtyTransforms).copy(scale)
+    scale: createVector3Proxy(LocalTransformComponent.scale, entity, dirtyTransforms).copy(scale),
+    matrix: new Matrix4()
   })
 }
 
