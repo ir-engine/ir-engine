@@ -2,6 +2,7 @@ import { Params } from '@feathersjs/feathers'
 import express from 'express'
 import multer from 'multer'
 import { Op } from 'sequelize'
+import { MathUtils } from 'three'
 
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
@@ -140,6 +141,19 @@ export default (app: Application): void => {
         } else if (data.type === 'admin-file-upload') {
           if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
+
+          if (argsData.key && argsData.key.startsWith('static-resources/') === false) {
+            const splits = argsData.key.split('.')
+            let ext = ''
+            let name = argsData.key
+            if (splits.length > 1) {
+              ext = `.${splits.pop()}`
+              name = splits.join('.')
+            }
+
+            argsData.key = `static-resources/${name}_${MathUtils.generateUUID()}${ext}`
+          }
+
           if (files && files.length > 0) {
             return Promise.all(
               files.map((file, i) =>

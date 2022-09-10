@@ -46,13 +46,14 @@ interface Props {
 
 const defaultState = {
   key: '',
+  name: '',
   mimeType: '',
   staticResourceType: '',
   source: 'file',
   resourceUrl: '',
   resourceFile: undefined as File | undefined,
   formErrors: {
-    key: '',
+    name: '',
     staticResourceType: '',
     resourceUrl: '',
     resourceFile: ''
@@ -186,8 +187,8 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     let tempErrors = { ...state.formErrors }
 
     switch (name) {
-      case 'key':
-        tempErrors.key = value.length < 2 ? t('admin:components.resources.keyRequired') : ''
+      case 'name':
+        tempErrors.name = value.length < 2 ? t('admin:components.resources.nameRequired') : ''
         break
       case 'staticResourceType':
         tempErrors.staticResourceType = value.length < 2 ? t('admin:components.resources.resourceTypeRequired') : ''
@@ -208,7 +209,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
 
     let tempErrors = {
       ...state.formErrors,
-      key: state.key ? '' : t('admin:components.resources.keyCantEmpty'),
+      name: '',
       staticResourceType: state.staticResourceType ? '' : t('admin:components.resources.resourceTypeCantEmpty'),
       resourceUrl:
         state.source === 'url' && state.resourceUrl ? '' : t('admin:components.resources.resourceUrlCantEmpty'),
@@ -216,12 +217,16 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         state.source === 'file' && state.resourceFile ? '' : t('admin:components.resources.resourceFileCantEmpty')
     }
 
+    if (mode === ResourceDrawerMode.Create) {
+      tempErrors.name = state.name ? '' : t('admin:components.resources.nameCantEmpty')
+    }
+
     setState({ ...state, formErrors: tempErrors })
 
     if ((state.source === 'file' && tempErrors.resourceFile) || (state.source === 'url' && tempErrors.resourceUrl)) {
       NotificationService.dispatchNotify(t('admin:components.common.fixErrorFields'), { variant: 'error' })
       return
-    } else if (tempErrors.key || tempErrors.staticResourceType) {
+    } else if (tempErrors.name || tempErrors.staticResourceType) {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
       return
     } else if (state.source === 'file' && state.resourceFile) {
@@ -237,7 +242,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
 
     const data = {
       id: selectedResource ? selectedResource.id : '',
-      key: state.key,
+      key: mode === ResourceDrawerMode.Create ? state.name : state.key,
       staticResourceType: state.staticResourceType
     }
 
@@ -262,14 +267,19 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         {mode === ResourceDrawerMode.ViewEdit && !editMode && selectedResource?.key}
       </DialogTitle>
 
-      <InputText
-        name="key"
-        label={t('admin:components.resources.key')}
-        value={state.key}
-        error={state.formErrors.key}
-        disabled={viewMode}
-        onChange={handleChange}
-      />
+      {mode === ResourceDrawerMode.Create && (
+        <InputText
+          name="name"
+          label={t('admin:components.resources.name')}
+          value={state.name}
+          error={state.formErrors.name}
+          onChange={handleChange}
+        />
+      )}
+
+      {mode !== ResourceDrawerMode.Create && (
+        <InputText name="key" label={t('admin:components.resources.key')} value={state.key} disabled />
+      )}
 
       <InputText name="mimeType" label={t('admin:components.resources.mimeType')} value={state.mimeType} disabled />
 
