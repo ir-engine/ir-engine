@@ -85,24 +85,25 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    * This component only supports one collider, always at index 0
    */
   const colliderTypeChanged =
-    rigidbody.numColliders() === 0 || rigidbody.collider(0).shape.type !== colliderComponent.shapeType
+    rigidbody.numColliders() > 0 && rigidbody.collider(0).shape.type !== colliderComponent.shapeType
+
   if (colliderTypeChanged) {
-    rigidbody.numColliders() > 0 &&
-      Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
-    const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
-    colliderDesc.setSensor(colliderComponent.isTrigger)
-    Physics.applyDescToCollider(
-      colliderDesc,
-      {
-        type: colliderComponent.shapeType,
-        isTrigger: colliderComponent.isTrigger,
-        collisionLayer: colliderComponent.collisionLayer,
-        collisionMask: colliderComponent.collisionMask
-      },
-      new Vector3(),
-      new Quaternion()
-    )
-    Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
+    // rigidbody.numColliders() > 0 &&
+    //   Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
+    // const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
+    // colliderDesc.setSensor(colliderComponent.isTrigger)
+    // Physics.applyDescToCollider(
+    //   colliderDesc,
+    //   {
+    //     type: colliderComponent.shapeType,
+    //     isTrigger: colliderComponent.isTrigger,
+    //     collisionLayer: colliderComponent.collisionLayer,
+    //     collisionMask: colliderComponent.collisionMask
+    //   },
+    //   new Vector3(),
+    //   new Quaternion()
+    // )
+    // Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
   }
 }
 
