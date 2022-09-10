@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import Box from '@mui/material/Box'
+import Checkbox from '@mui/material/Checkbox'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
-import { avatarColumns, AvatarData } from '../../common/variables/avatar'
+import { AvatarColumn, avatarColumns, AvatarData } from '../../common/variables/avatar'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import { useAdminAvatarState } from '../../services/AvatarService'
 import { AdminAvatarService } from '../../services/AvatarService'
@@ -19,9 +19,11 @@ import AvatarDrawer, { AvatarDrawerMode } from './AvatarDrawer'
 interface Props {
   className?: string
   search: string
+  selectedAvatarIds: Set<string>
+  setSelectedAvatarIds: any
 }
 
-const AvatarTable = ({ className, search }: Props) => {
+const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarIds }: Props) => {
   const { t } = useTranslation()
   const { user } = useAuthState().value
   const adminAvatarState = useAdminAvatarState()
@@ -49,18 +51,41 @@ const AvatarTable = ({ className, search }: Props) => {
     }
   }, [fieldOrder])
 
+  useEffect(() => {
+    AdminAvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
+  }, [user?.id, search, adminAvatarState.updateNeeded.value])
+
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
 
-  useEffect(() => {
-    AdminAvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
-  }, [user?.id, search, adminAvatarState.updateNeeded.value])
+  const toggleSelection = (id: string) => {
+    if (selectedAvatarIds.has(id)) {
+      setSelectedAvatarIds((current) => {
+        const newSet = new Set(current)
+        newSet.delete(id)
+        return newSet
+      })
+    } else {
+      setSelectedAvatarIds((current) => new Set(current).add(id))
+    }
+  }
 
   const createData = (el: AvatarInterface): AvatarData => {
     return {
       el,
+      select: (
+        <>
+          <Checkbox
+            className={styles.checkbox}
+            checked={selectedAvatarIds.has(el.id)}
+            onChange={() => {
+              toggleSelection(el.id)
+            }}
+          />
+        </>
+      ),
       id: el.id,
       name: el.name as string,
       thumbnail: (
@@ -94,24 +119,56 @@ const AvatarTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = adminAvatars.value.map((el) => {
-    return createData(el)
-  })
-
   const submitRemoveAvatar = async () => {
     await AdminAvatarService.removeAdminAvatar(avatarId)
     setOpenConfirm(false)
   }
+
+  const rows = adminAvatars.value.map((el) => {
+    return createData(el)
+  })
+
+  let allSelected: boolean | undefined = undefined
+  if (adminAvatars.value.length === selectedAvatarIds.size) {
+    allSelected = true
+  } else if (selectedAvatarIds.size === 0) {
+    allSelected = false
+  }
+
+  const columns: AvatarColumn[] = [
+    {
+      id: 'select',
+      label: (
+        <Checkbox
+          className={styles.checkbox}
+          checked={allSelected === true}
+          indeterminate={allSelected === undefined}
+          onChange={(_event, checked) => {
+            if (checked || allSelected === undefined) {
+              const set = new Set<string>()
+              adminAvatars.value.map((item) => set.add(item.id))
+              setSelectedAvatarIds(set)
+            } else {
+              setSelectedAvatarIds(new Set<string>())
+            }
+          }}
+        />
+      ),
+      minWidth: 65
+    },
+    ...avatarColumns
+  ]
 
   return (
     <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
+        fieldOrderBy="id"
         setSortField={setSortField}
         setFieldOrder={setFieldOrder}
         rows={rows}
-        column={avatarColumns}
+        column={columns}
         page={page}
         rowsPerPage={rowsPerPage}
         count={adminAvatarCount.value}

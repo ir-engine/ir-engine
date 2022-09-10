@@ -1,6 +1,8 @@
+import React from 'react'
+
 export interface InviteColumn {
   id: 'id' | 'name' | 'passcode' | 'type' | 'action' | 'select' | 'spawnType' | 'spawnDetails' | 'targetObjectId'
-  label: string
+  label: string | React.ReactElement
   minWidth?: number
   align?: 'right' | 'center'
 }
@@ -46,11 +48,6 @@ export const inviteColumns: InviteColumn[] = [
     label: 'Spawn Details',
     minWidth: 65,
     align: 'center'
-  },
-  {
-    id: 'select',
-    label: 'Select',
-    minWidth: 65
   },
   {
     id: 'action',

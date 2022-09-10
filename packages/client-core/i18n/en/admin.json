@@ -302,7 +302,9 @@
       "rightClick": "Right Click",
       "scroll": "Scroll",
       "loading": "Loading",
-      "confirmAvatarDelete": "Do you want to delete avatar"
+      "confirmAvatarDelete": "Do you want to delete avatar",
+      "confirmMultiDelete": "Do you want to delete all of the selected avatars?",
+      "deleteSelected": "Delete selected avatars"
     },
     "dialog": {
       "noAccess": "No access",
