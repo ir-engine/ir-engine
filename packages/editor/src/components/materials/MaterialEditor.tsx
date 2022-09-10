@@ -4,13 +4,13 @@ import { Color, Material, Mesh, MeshBasicMaterial, MeshMatcapMaterial, MeshStand
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import {
   extractDefaults,
   materialToDefaultArgs,
   materialTypeToDefaultArgs,
-  materialTypeToLibraryName
-} from '@xrengine/engine/src/renderer/materials/Utilities'
+  materialTypeToFactory
+} from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { executeCommandWithHistory } from '../../classes/History'
@@ -94,7 +94,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     const overlap = allKeys.filter((key) => oldParmKeys.has(key) && newParmKeys.has(key))
     const overlapParms = Object.fromEntries(overlap.map((k) => [k, material[k]]))
     const newParms = { ...extractDefaults(newDefaultArgs), ...overlapParms }
-    const newMaterial = MaterialLibrary[materialTypeToLibraryName(nuType)](newParms).material
+    const newMaterial = materialTypeToFactory(nuType)(newParms)
     const scene = Engine.instance.currentWorld.scene
     scene.traverse((child: Mesh) => {
       if (!child?.isMesh) return

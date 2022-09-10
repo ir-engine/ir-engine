@@ -37,7 +37,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
-import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
+import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import {
   GrassProperties,

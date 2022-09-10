@@ -1,6 +1,6 @@
 import { Material } from 'three'
 
-import { extractDefaults, materialToDefaultArgs } from '../../../../renderer/materials/Utilities'
+import { extractDefaults, materialToDefaultArgs } from '../../../../renderer/materials/functions/Utilities'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

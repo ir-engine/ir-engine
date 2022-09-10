@@ -1,27 +1,38 @@
-import Basic, { DefaultArgs as BasicDefaultArgs } from './constants/Basic.mat'
-import Lambert, { DefaultArgs as LambertDefaultArgs } from './constants/Lambert.mat'
-import Matcap, { DefaultArgs as MatcapDefaultArgs } from './constants/Matcap.mat'
-import Phong, { DefaultArgs as PhongDefaultArgs } from './constants/Phong.mat'
-import Physical, { DefaultArgs as PhysicalDefaultArgs } from './constants/Physical.mat'
-import Standard, { DefaultArgs as StandardDefaultArgs } from './constants/Standard.mat'
-import Toon, { DefaultArgs as ToonDefaultArgs } from './constants/Toon.mat'
+import { MaterialComponentType } from './components/MaterialComponent'
+import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
+import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
+import MeshLambertMaterial from './constants/material-prototypes/MeshLambertMaterial.mat'
+import MeshMatcapMaterial from './constants/material-prototypes/MeshMatcapMaterial.mat'
+import MeshPhongMaterial from './constants/material-prototypes/MeshPhongMaterial.mat'
+import MeshPhysicalMaterial from './constants/material-prototypes/MeshPhysicalMaterial.mat'
+import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMaterial.mat'
+import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
+import { extractDefaults, formatMaterialArgs } from './functions/Utilities'
 
 export const MaterialLibrary = {
-  Basic: Basic,
-  Lambert: Lambert,
-  Matcap: Matcap,
-  Phong: Phong,
-  Physical: Physical,
-  Standard: Standard,
-  Toon: Toon
+  prototypes: new Map<string, MaterialPrototypeComponentType>(),
+  materials: new Map<string, MaterialComponentType>()
 }
 
-export const DefaultArguments = {
-  Basic: BasicDefaultArgs,
-  Lambert: LambertDefaultArgs,
-  Matcap: MatcapDefaultArgs,
-  Phong: PhongDefaultArgs,
-  Physical: PhysicalDefaultArgs,
-  Standard: StandardDefaultArgs,
-  Toon: ToonDefaultArgs
+export function initializeMaterialLibrary() {
+  //load default prototypes from source
+  ;[
+    MeshBasicMaterial,
+    MeshStandardMaterial,
+    MeshMatcapMaterial,
+    MeshPhysicalMaterial,
+    MeshLambertMaterial,
+    MeshPhongMaterial,
+    MeshToonMaterial
+  ].map((prototype) => {
+    MaterialLibrary.prototypes.set(prototype.baseMaterial.name, prototype)
+    //create default material from prototype
+    const parameters = extractDefaults(prototype.arguments)
+    const material = new prototype.baseMaterial(parameters)
+    MaterialLibrary.materials.set(prototype.baseMaterial.name, {
+      material,
+      parameters,
+      prototype: prototype.baseMaterial.name
+    })
+  })
 }

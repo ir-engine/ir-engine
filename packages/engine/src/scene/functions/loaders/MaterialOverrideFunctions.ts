@@ -2,8 +2,8 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { DefaultArguments } from '../../../renderer/materials/MaterialLibrary'
-import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
+import { formatMaterialArgs, materialTypeToDefaultArgs } from '../../../renderer/materials/functions/Utilities'
+import { MaterialLibrary } from '../../../renderer/materials/MaterialLibrary'
 import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { SceneObjectComponent } from '../../components/SceneObjectComponent'
@@ -16,7 +16,7 @@ import { SceneObjectComponent } from '../../components/SceneObjectComponent'
  */
 export function initializeOverride(target: Entity, override: MaterialOverrideComponentType) {
   const nuOR: MaterialOverrideComponentType = { ...override }
-  if (!Object.keys(DefaultArguments).includes(nuOR.materialID)) {
+  if (!MaterialLibrary.materials.has(override.materialID)) {
     console.warn('unrecognized material ID ' + nuOR.materialID + ' on entity ' + target)
     return undefined
   }
@@ -26,10 +26,10 @@ export function initializeOverride(target: Entity, override: MaterialOverrideCom
   nuOR.targetEntity = target
   return async () => {
     if (nuOR.args) {
-      const defaultArgs = DefaultArguments[nuOR.materialID]
+      const defaultArgs = materialTypeToDefaultArgs(nuOR.materialID)
       nuOR.args = formatMaterialArgs({ ...nuOR.args }, defaultArgs)
       await Promise.all(
-        Object.entries(nuOR.args).map(async ([k, v], idx) => {
+        Object.entries(nuOR.args).map(async ([k, v]) => {
           if (defaultArgs[k]?.type === 'texture' && typeof v === 'string') {
             const nuTxr = await AssetLoader.loadAsync(v)
             nuOR.args[k] = nuTxr

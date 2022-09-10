@@ -4,9 +4,13 @@ import styled from 'styled-components'
 import { Color, MathUtils, Texture } from 'three'
 
 import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { DefaultArguments, MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import {
+  extractDefaults,
+  formatMaterialArgs,
+  materialTypeToDefaultArgs
+} from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialParms'
-import { extractDefaults, formatMaterialArgs } from '@xrengine/engine/src/renderer/materials/Utilities'
 import { MaterialOverrideComponent } from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
 import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/MaterialOverrideFunctions'
 
@@ -129,7 +133,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     }
 
     function getArguments(materialID) {
-      const defaultArguments = DefaultArguments[materialID]
+      const defaultArguments = materialTypeToDefaultArgs(materialID)
       if (!defaultArguments) return
       const defaultValues = extractDefaults(defaultArguments)
       const argStructure = defaultArguments

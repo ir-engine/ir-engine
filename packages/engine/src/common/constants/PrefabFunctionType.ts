@@ -5,6 +5,7 @@ import { Entity } from '../../ecs/classes/Entity'
 export type ComponentDeserializeFunction = (entity: Entity, componentData: any) => void
 export type ComponentSerializeFunction = (entity: Entity) => any | undefined
 /** @todo: deprecate & replace with just `(entity: Entity) => ...` to enable functions to be reactive to data changes, rather than passing properties in */
+export type ComponentInitializeFunction = (entity: Entity) => void
 export type ComponentUpdateFunction = (entity: Entity) => void
 export type ComponentShouldDeserializeFunction = () => boolean
 export type ComponentPrepareForGLTFExportFunction = (object: Object3D) => void
