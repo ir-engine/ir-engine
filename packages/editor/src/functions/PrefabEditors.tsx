@@ -43,7 +43,6 @@ import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
-import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
@@ -64,6 +63,7 @@ import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
+import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
 import PostProcessingNodeEditor from '../components/properties/PostProcessingNodeEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
@@ -101,7 +101,7 @@ EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)
 EntityNodeEditor.set(SpawnPointComponent, SpawnPointNodeEditor)
 EntityNodeEditor.set(MediaComponent, MediaNodeEditor)
 EntityNodeEditor.set(ImageComponent, ImageNodeEditor)
-EntityNodeEditor.set(PositionalAudioComponent, AudioNodeEditor)
+EntityNodeEditor.set(PositionalAudioComponent, PositionalAudioNodeEditor)
 EntityNodeEditor.set(VideoComponent, VideoNodeEditor)
 EntityNodeEditor.set(VolumetricComponent, VolumetricNodeEditor)
 EntityNodeEditor.set(CloudComponent, CloudsNodeEditor)
@@ -136,7 +136,7 @@ export const prefabIcons = {
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
-  [MediaPrefabs.audio]: AudioNodeEditor.iconComponent,
+  [MediaPrefabs.audio]: PositionalAudioNodeEditor.iconComponent,
   [MediaPrefabs.video]: VideoNodeEditor.iconComponent,
   [MediaPrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
   [ScenePrefabs.cloud]: CloudsNodeEditor.iconComponent,

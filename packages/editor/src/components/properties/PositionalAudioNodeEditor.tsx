@@ -15,18 +15,13 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
-const AudioTypeOptions = [
-  { label: AudioType.Stereo, value: AudioType.Stereo },
-  { label: AudioType.Positional, value: AudioType.Positional }
-]
-
 /**
  * AudioNodeEditor used to customize audio element on the scene.
  *
  * @param       {Object} props
  * @constructor
  */
-export const AudioNodeEditor: EditorComponentType = (props) => {
+export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const audioComponent = useHookstate(getComponent(props.node.entity, PositionalAudioComponent)).value
 
@@ -146,6 +141,6 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
 }
 
 //setting icon component name
-AudioNodeEditor.iconComponent = VolumeUpIcon
+PositionalAudioNodeEditor.iconComponent = VolumeUpIcon
 
-export default AudioNodeEditor
+export default PositionalAudioNodeEditor

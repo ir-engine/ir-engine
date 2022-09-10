@@ -63,7 +63,7 @@ describe.skip('Equippables Integration Tests', () => {
     mesh.userData = bodyOptions
 
     addObjectToGroup(equippableEntity, mesh)
-    Physics.createRigidBodyForObject(equippableEntity, world.physicsWorld, mesh, bodyOptions)
+    Physics.createRigidBodyForGroup(equippableEntity, world.physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
     const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {

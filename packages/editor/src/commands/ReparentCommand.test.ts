@@ -13,7 +13,7 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -57,7 +57,8 @@ describe('ReparentCommand', () => {
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
     Engine.instance.currentWorld.entityTree.entityNodeMap.forEach((node) => {
       addObjectToGroup(node.entity, new Object3D())
-      addComponent(node.entity, TransformComponent, getRandomTransform())
+      const transform = getRandomTransform()
+      setTransformComponent(node.entity, transform.position, transform.rotation, transform.scale)
     })
 
     command = {

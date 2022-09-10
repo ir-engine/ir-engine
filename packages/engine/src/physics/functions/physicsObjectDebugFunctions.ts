@@ -158,7 +158,7 @@ export const generatePhysicsObject = (
 
   addObjectToGroup(entity, mesh)
 
-  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, mesh, mesh.userData)
+  Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, mesh.userData)
 
   const world = Engine.instance.currentWorld
 

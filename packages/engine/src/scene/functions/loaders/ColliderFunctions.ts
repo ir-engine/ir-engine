@@ -104,19 +104,20 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
     )
     Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
   }
+
+  rigidbody.setTranslation(transform.position, true)
+  rigidbody.setRotation(transform.rotation, true)
 }
 
-export const updateMeshCollider = (entity: Entity) => {
+export const updateMeshCollider = (entity: Entity, forceRebuild = false) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
-  const object3d = getComponent(entity, Object3DComponent)
-
-  if (!object3d?.value) return
 
   if (hasComponent(entity, RigidBodyComponent)) {
     Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
     Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
   }
-  const body = Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, object3d.value, {
+
+  const rigidbody = Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, {
     bodyType: colliderComponent.bodyType,
     isTrigger: colliderComponent.isTrigger,
     removeMesh: colliderComponent.removeMesh,
@@ -125,8 +126,8 @@ export const updateMeshCollider = (entity: Entity) => {
   })
 
   const transform = getComponent(entity, TransformComponent)
-  body.setTranslation(transform.position, true)
-  body.setRotation(transform.rotation, true)
+  rigidbody.setTranslation(transform.position, true)
+  rigidbody.setRotation(transform.rotation, true)
 }
 
 /**

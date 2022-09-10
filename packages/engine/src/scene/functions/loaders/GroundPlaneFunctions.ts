@@ -68,7 +68,7 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
       collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
     } as ColliderDescOptions
 
-    Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, mesh, colliderDescOptions)
+    Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, colliderDescOptions)
 
     // rotation needs to be applied so the object3d lines up with the physics collider
     mesh.rotation.x = -Math.PI / 2

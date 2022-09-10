@@ -39,6 +39,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { Vec3Arg } from '../../renderer/materials/constants/DefaultArgs'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { getTagComponentForRigidBody, RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -218,24 +219,25 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
   return colliderDesc
 }
 
-function createRigidBodyForObject(
-  entity: Entity,
-  world: World,
-  object: Object3D,
-  colliderDescOptions: ColliderDescOptions
-): RigidBody {
-  if (!object) return undefined!
+function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptions: ColliderDescOptions): RigidBody {
+  const group = getComponent(entity, GroupComponent)
+  if (!group) return undefined!
+
   const colliderDescs = [] as ColliderDesc[]
-  const meshes = [] as Mesh[]
+  const meshesToRemove = [] as Mesh[]
+
   // create collider desc using userdata of each child mesh
-  object.traverse((mesh: Mesh) => {
-    const args = mesh === object ? { ...colliderDescOptions, ...mesh.userData } : (mesh.userData as ColliderDescOptions)
-    const colliderDesc = createColliderDesc(mesh, args)
-    if (colliderDesc) {
-      if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshes.push(mesh)
-      colliderDescs.push(colliderDesc)
-    }
-  })
+  for (const obj of group) {
+    obj.traverse((mesh: Mesh) => {
+      // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
+      const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
+      const colliderDesc = createColliderDesc(mesh, args)
+      if (colliderDesc) {
+        if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)
+        colliderDescs.push(colliderDesc)
+      }
+    })
+  }
 
   const rigidBodyType =
     typeof colliderDescOptions.bodyType === 'string'
@@ -265,7 +267,7 @@ function createRigidBodyForObject(
   const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 
   if (!Engine.instance.isEditor)
-    for (const mesh of meshes) {
+    for (const mesh of meshesToRemove) {
       mesh.removeFromParent()
       cleanupAllMeshData(mesh, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
     }
@@ -485,7 +487,7 @@ export const Physics = {
   createRigidBody,
   createColliderDesc,
   applyDescToCollider,
-  createRigidBodyForObject,
+  createRigidBodyForGroup,
   createColliderAndAttachToRigidBody,
   removeCollidersFromRigidBody,
   removeRigidBody,

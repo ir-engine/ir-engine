@@ -11,10 +11,10 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -47,12 +47,10 @@ describe('RotationCommand', () => {
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
 
     nodes.forEach((node: EntityTreeNode) => {
-      const group = addComponent(node.entity, GroupComponent, {}).value
+      const obj3d = new Object3D()
+      addObjectToGroup(node.entity, obj3d)
       const transform = getRandomTransform()
-      group.quaternion.copy(transform.rotation)
-      Engine.instance.currentWorld.scene.add(group)
-      addComponent(node.entity, TransformComponent, transform)
-      addComponent(node.entity, GroupComponent, {})
+      setTransformComponent(node.entity, transform.position, transform.rotation, transform.scale)
     })
 
     command = {

@@ -122,7 +122,6 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    // TODO: this seems like a separate concern; should probably be handled elsewhere
     if (typeof node !== 'string' && hasComponent(node.entity, ColliderComponent)) {
       if (hasComponent(node.entity, ModelColliderComponent)) {
         updateMeshCollider(node.entity)
