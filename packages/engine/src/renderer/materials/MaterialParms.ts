@@ -51,12 +51,12 @@ export function assignMaterial(override: MaterialOverrideComponentType): [MatRen
   const defaultArgs = materialTypeToDefaultArgs(override.materialID)
   const formattedArgs = formatMaterialArgs(override.args, defaultArgs)
   material = factory(formattedArgs)
-  /* MaterialLibrary.materials.set(material.type, {
-      material,
-      parameters: formattedArgs,
-      prototype: material.type
-    })
-  }*/
+  MaterialLibrary.materials.set(material.uuid, {
+    material,
+    parameters: formattedArgs,
+    prototype: material.type
+  })
+
   const target = getComponent(override.targetEntity!, Object3DComponent)?.value
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')

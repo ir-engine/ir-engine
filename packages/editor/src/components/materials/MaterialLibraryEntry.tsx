@@ -1,4 +1,5 @@
 import React, { StyleHTMLAttributes } from 'react'
+import { Material } from 'three'
 
 import MaterialLibraryEntryIcon from '@mui/icons-material/LocalFloristOutlined'
 import { Grid } from '@mui/material'
@@ -6,7 +7,7 @@ import { Grid } from '@mui/material'
 import styles from '../hierarchy/styles.module.scss'
 
 export type MaterialLibraryEntryType = {
-  type: string
+  material: Material
   prototype: string
 }
 
@@ -31,10 +32,10 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
           </div>
         </Grid>
         <Grid item xs={4}>
-          <div className={styles.nodeContent}>{node.type}</div>
+          <div className={styles.nodeContent}>{node.prototype}</div>
         </Grid>
         <Grid item xs={4}>
-          <div className={styles.nodeContent}>{node.prototype}</div>
+          <div className={styles.nodeContent}>{node.material.uuid}</div>
         </Grid>
       </Grid>
     </li>
