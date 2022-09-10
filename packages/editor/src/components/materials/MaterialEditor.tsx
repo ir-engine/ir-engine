@@ -1,4 +1,3 @@
-import { useHookEffect, useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect } from 'react'
 import { Color, Material, Mesh, MeshBasicMaterial, MeshMatcapMaterial, MeshStandardMaterial, Texture } from 'three'
 
@@ -12,11 +11,10 @@ import {
   materialTypeToDefaultArgs,
   materialTypeToLibraryName
 } from '@xrengine/engine/src/renderer/materials/Utilities'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { executeCommandWithHistory } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
-import { EditorAction } from '../../services/EditorServices'
 import { accessSelectionState } from '../../services/SelectionServices'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'

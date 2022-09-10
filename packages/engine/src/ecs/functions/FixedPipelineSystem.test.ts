@@ -13,7 +13,7 @@ const MockState = defineState({
   initial: { count: 0 }
 })
 
-const MockSystemModulePromise = async () => {
+const MocksystemLoader = async () => {
   return {
     default: async (world: World) => {
       return () => {
@@ -29,13 +29,14 @@ describe('FixedPipelineSystem', () => {
     setupEngineActionSystems()
     const world = Engine.instance.currentWorld
 
-    Engine.instance.injectedSystems = [
+    const injectedSystems = [
       {
-        systemModulePromise: MockSystemModulePromise(),
+        uuid: 'Mock',
+        systemLoader: () => MocksystemLoader(),
         type: SystemUpdateType.FIXED
       }
     ]
-    await initSystems(world, Engine.instance.injectedSystems)
+    await initSystems(world, injectedSystems)
 
     const mockState = getState(MockState)
 
@@ -58,13 +59,14 @@ describe('FixedPipelineSystem', () => {
     setupEngineActionSystems()
     const world = Engine.instance.currentWorld
 
-    Engine.instance.injectedSystems = [
+    const injectedSystems = [
       {
-        systemModulePromise: MockSystemModulePromise(),
+        uuid: 'Mock',
+        systemLoader: () => MocksystemLoader(),
         type: SystemUpdateType.FIXED
       }
     ]
-    await initSystems(world, Engine.instance.injectedSystems)
+    await initSystems(world, injectedSystems)
 
     const mockState = getState(MockState)
 

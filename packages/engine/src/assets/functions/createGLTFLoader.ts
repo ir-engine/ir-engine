@@ -3,6 +3,7 @@ import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 import { isClient } from '../../common/functions/isClient'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
+import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMaterialImporterExtension'
 import { GPUInstancingExtension } from '../loaders/gltf/extensions/GPUInstancingExtension'
 import { HubsComponentsExtension } from '../loaders/gltf/extensions/HubsComponentsExtension'
 import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtension'
@@ -30,6 +31,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new HubsLightMapExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser))
+  loader.register((parser) => new EEMaterialImporterExtension(parser))
 
   loader.setMeshoptDecoder(MeshoptDecoder)
 

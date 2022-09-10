@@ -5,10 +5,6 @@ import dotenv from 'dotenv-flow'
 import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/projects/scene/scene-parser'
 
 import sceneJson from '../../../projects/default-project/default.scene.json'
-import { Engine } from '../../src/ecs/classes/Engine'
-import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
-import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import { loadSceneFromJSON } from '../../src/scene/systems/SceneLoadingSystem'
 
 dotenv.config({
   path: appRootPath.path,
@@ -24,7 +20,7 @@ describe.skip('Portal', () => {
   // })
   // it('Can load scene', async () => {
   //   const world = useWorld()
-  //   await loadSceneFromJSON(sceneData)
+  //   await updateSceneFromJSON(sceneData)
   //   assert.equal(world.entityQuery().length, 10)
   //   // TODO: test scene actor removal directly
   //   assert.equal(world.physics.bodies.size, 1)
@@ -38,7 +34,7 @@ describe.skip('Portal', () => {
   //   assert.equal(world.physics.bodies.size, 0)
   // })
   // it('Can load new scene', async () => {
-  //   await loadSceneFromJSON(sceneData)
+  //   await updateSceneFromJSON(sceneData)
   //   const world = useWorld()
   //   assert.equal(world.entityQuery().length, 10)
   //   assert.equal(world.physics.bodies.size, 1)

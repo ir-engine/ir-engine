@@ -16,7 +16,7 @@ const ProgressBarContainer = (styled as any).div`
     overflow: hidden;
 
     &:after {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
@@ -41,7 +41,7 @@ const ProgressBarContainer = (styled as any).div`
   }
 
   & > span > span {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;

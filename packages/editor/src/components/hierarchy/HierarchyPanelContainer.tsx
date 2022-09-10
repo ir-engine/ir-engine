@@ -119,7 +119,9 @@ export default function HierarchyPanel() {
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
   const nodeSearch: HeirarchyTreeNodeType[] = []
-  const [selectedNode, setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
+  const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
+  const editorState = useEditorState()
+  const setSelectedNode = (selection) => !editorState.lockPropertiesPanel.value && _setSelectedNode(selection)
   const { searchHierarchy } = useContext(AppContext)
   const showObject3DInHierarchy = useEditorState().showObject3DInHierarchy
 

@@ -97,22 +97,28 @@ export default async function DebugHelpersSystem(world: World) {
     navpath: new Map(),
     positionalAudioHelper: new Map()
   }
-  const directionalLightQuery = defineQuery([DirectionalLightComponent, Object3DComponent])
-  const pointLightQuery = defineQuery([PointLightComponent, Object3DComponent])
-  const spotLightQuery = defineQuery([SpotLightComponent, Object3DComponent])
-  const portalQuery = defineQuery([PortalComponent])
-  const splineQuery = defineQuery([SplineComponent])
-  const spawnPointQuery = defineQuery([SpawnPointComponent])
-  const mountPointQuery = defineQuery([MountPointComponent])
-  const envMapBakeQuery = defineQuery([EnvMapBakeComponent])
-  const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, Object3DComponent, SelectTagComponent])
+  const directionalLightQuery = defineQuery([TransformComponent, DirectionalLightComponent, Object3DComponent])
+  const pointLightQuery = defineQuery([TransformComponent, PointLightComponent, Object3DComponent])
+  const spotLightQuery = defineQuery([TransformComponent, SpotLightComponent, Object3DComponent])
+  const portalQuery = defineQuery([TransformComponent, PortalComponent])
+  const splineQuery = defineQuery([TransformComponent, SplineComponent])
+  const spawnPointQuery = defineQuery([TransformComponent, SpawnPointComponent])
+  const mountPointQuery = defineQuery([TransformComponent, MountPointComponent])
+  const envMapBakeQuery = defineQuery([TransformComponent, EnvMapBakeComponent])
+  const directionalLightSelectQuery = defineQuery([
+    TransformComponent,
+    DirectionalLightComponent,
+    Object3DComponent,
+    SelectTagComponent
+  ])
   const scenePreviewCameraSelectQuery = defineQuery([
+    TransformComponent,
     ScenePreviewCameraTagComponent,
     Object3DComponent,
     SelectTagComponent
   ])
 
-  const boundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
+  const boundingBoxQuery = defineQuery([TransformComponent, Object3DComponent, BoundingBoxComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const avatarAnimationQuery = defineQuery([Object3DComponent, AvatarAnimationComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])

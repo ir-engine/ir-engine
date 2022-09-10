@@ -67,6 +67,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
+      component={EnvmapComponent}
       name={t('editor:properties.envmap.name')}
       description={t('editor:properties.envmap.description')}
     >

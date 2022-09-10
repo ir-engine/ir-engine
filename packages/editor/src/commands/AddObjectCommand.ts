@@ -110,6 +110,7 @@ function addObject(command: AddObjectCommandParams) {
         const data = command.sceneData[i] ?? command.sceneData[0]
 
         traverseEntityNode(object, (node) => {
+          if (!data.entities[node.uuid]) return
           node.entity = createEntity()
           loadSceneEntity(node, data.entities[node.uuid])
 

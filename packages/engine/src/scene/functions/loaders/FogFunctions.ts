@@ -87,11 +87,16 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity) => {
 
     if (fogComponent.type !== FogType.Exponential) {
       // For Brownian and Hieght fog
-      fogComponent.shaders?.forEach((s) => (s.uniforms.heightFactor.value = fogComponent.height))
+      if (fogComponent.shaders)
+        for (const s of fogComponent.shaders) s.uniforms.heightFactor.value = fogComponent.height
     }
 
     if (fogComponent.type === FogType.Brownian) {
-      fogComponent.shaders?.forEach((s) => (s.uniforms.fogTimeScale.value = fogComponent.timeScale))
+      if (fogComponent.shaders)
+        for (const s of fogComponent.shaders) {
+          s.uniforms.fogTimeScale.value = fogComponent.timeScale
+          s.uniforms.fogTime.value = Engine.instance.currentWorld.fixedElapsedSeconds
+        }
     }
   }
 }

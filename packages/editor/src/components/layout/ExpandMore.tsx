@@ -8,8 +8,8 @@ interface ExpandMoreProps extends IconButtonProps {
 }
 
 const ExpandMoreContainer = (styled as any).div`
-background-color: var(--inputBackground);
-border-radius: 24px;
+  background-color: var(--inputBackground);
+  border-radius: 24px;
 `
 
 const _expandMore = styled((props: ExpandMoreProps) => {

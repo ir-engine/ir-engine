@@ -19,7 +19,7 @@ export const ShadowProperties: EditorComponentType = (props) => {
   const shadowComponent = getComponent(props.node.entity, ShadowComponent)
 
   return (
-    <NodeEditor description={t('editor:properties.model.description')} {...props}>
+    <NodeEditor component={ShadowComponent} description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Cast Shadow" label={t('editor:properties.model.lbl-castShadow')}>
         <BooleanInput value={shadowComponent.cast} onChange={updateProperty(ShadowComponent, 'cast')} />
       </InputGroup>
