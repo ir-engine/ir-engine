@@ -9,6 +9,8 @@ import { useState } from '@xrengine/hyperflux'
 
 import { Divider, Grid } from '@mui/material'
 
+import { executeCommandWithHistory } from '../../classes/History'
+import EditorCommands from '../../constants/EditorCommands'
 import { useEditorState } from '../../services/EditorServices'
 import { HeirarchyTreeCollapsedNodeType } from '../hierarchy/HeirarchyTreeWalker'
 import styles from '../hierarchy/styles.module.scss'
@@ -17,10 +19,15 @@ import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibrar
 export default function MaterialLibraryPanel() {
   const { t } = useTranslation()
   const materials = MaterialLibrary.materials
-
   const editorState = useEditorState()
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
-
+  const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
+    !editorState.lockPropertiesPanel.get() &&
+      executeCommandWithHistory({
+        type: EditorCommands.REPLACE_SELECTION,
+        affectedNodes: [node.material.uuid]
+      })
+  }, [])
   return (
     <>
       <div className={styles.panelContainer}>
@@ -45,7 +52,8 @@ export default function MaterialLibraryPanel() {
                 nodes: [...MaterialLibrary.materials.values()].map(({ material, prototype }) => ({
                   material,
                   prototype
-                }))
+                })),
+                onClick
               }}
               itemKey={(index, _) => index}
               innerElementType="ul"

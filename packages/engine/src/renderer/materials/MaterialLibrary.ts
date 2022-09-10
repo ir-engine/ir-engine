@@ -31,7 +31,7 @@ export function initializeMaterialLibrary() {
     //create default material from prototype
     const parameters = extractDefaults(prototype.arguments)
     const material = new prototype.baseMaterial(parameters)
-    MaterialLibrary.materials.set(prototype.baseMaterial.name, {
+    MaterialLibrary.materials.set(material.type, {
       material,
       parameters,
       prototype: prototype.baseMaterial.name

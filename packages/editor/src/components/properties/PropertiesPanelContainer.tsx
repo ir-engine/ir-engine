@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
@@ -11,6 +12,8 @@ import {
   hasComponent,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import {
   PreventBakeTagComponent,
   SCENE_COMPONENT_PREVENT_BAKE
@@ -30,6 +33,7 @@ import { useSelectionState } from '../../services/SelectionServices'
 import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import MaterialEditor from '../materials/MaterialEditor'
 import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
 
@@ -127,13 +131,20 @@ export const PropertiesPanelContainer = () => {
   const world = Engine.instance.currentWorld
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
-  const nodeEntity = lockedNode
+  let nodeEntity = lockedNode
     ? world.entityTree.uuidNodeMap.get(lockedNode)!.entity
     : selectedEntities[selectedEntities.length - 1]
-  const isObject3D = typeof nodeEntity === 'string'
-  const node = isObject3D
-    ? world.scene.getObjectByProperty('uuid', nodeEntity)
-    : world.entityTree.entityNodeMap.get(nodeEntity)
+  const isMaterial =
+    typeof nodeEntity === 'string' &&
+    (MaterialLibrary.materials.has(nodeEntity) ||
+      [...MaterialLibrary.materials.values()].map(({ material }) => material.uuid).includes(nodeEntity))
+  const isObject3D = typeof nodeEntity === 'string' && !isMaterial
+  const node = isMaterial
+    ? MaterialLibrary.materials.get(nodeEntity as string) ??
+      [...MaterialLibrary.materials.values()].find(({ material }) => material.uuid === nodeEntity)
+    : isObject3D
+    ? world.scene.getObjectByProperty('uuid', nodeEntity as string)
+    : world.entityTree.entityNodeMap.get(nodeEntity as Entity)
 
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
@@ -143,8 +154,15 @@ export const PropertiesPanelContainer = () => {
         <Object3DNodeEditor multiEdit={multiEdit} node={node as EntityTreeNode} />
       </StyledNodeEditor>
     )
+  } else if (isMaterial) {
+    content = (
+      <StyledNodeEditor>
+        <MaterialEditor material={(node as MaterialComponentType).material} />
+      </StyledNodeEditor>
+    )
   } else {
-    const components = getAllComponents(nodeEntity).filter((c) => EntityNodeEditor.has(c))
+    nodeEntity = nodeEntity as Entity
+    const components = getAllComponents(nodeEntity as Entity).filter((c) => EntityNodeEditor.has(c))
     // todo - still WIP
     // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry)
 
