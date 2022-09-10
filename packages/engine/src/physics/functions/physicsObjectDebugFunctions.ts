@@ -22,7 +22,7 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFModel'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { createVector3Proxy } from '../../common/proxies/three'
@@ -143,29 +143,24 @@ export const generatePhysicsObject = (
   const color = 0x00ff00 //getColorForBodyType(config.bodyType ? config.bodyType : 0)
   const material = new MeshBasicMaterial({ color: color })
   const mesh = new Mesh(geometry, material)
+  mesh.userData = config
 
-  mesh.userData['xrengine.collider.type'] = config.type
-  mesh.userData['xrengine.collider.bodyType'] = config.bodyType
-  mesh.userData['xrengine.collider.collisionLayer'] = config.collisionLayer
-  mesh.userData['xrengine.collider.collisionMask'] = config.collisionMask
-  mesh.userData['xrengine.collider.friction'] = config.friction
-  mesh.userData['xrengine.collider.restitution'] = config.restitution
+  const entity = createEntity()
+  setTransformComponent(entity)
 
   // Add empty model node
-  const entity = createEntity()
-  const uuid = getUUID()
-  let entityTreeNode = createEntityNode(entity, uuid)
-  createNewEditorNode(entityTreeNode, ScenePrefabs.model)
+  // const uuid = getUUID()
+  // let entityTreeNode = createEntityNode(entity, uuid)
+  // createNewEditorNode(entityTreeNode, ScenePrefabs.model)
 
-  const nameComponent = getComponent(entity, NameComponent)
-  nameComponent.name = 'physics_debug_' + uuid
+  // const nameComponent = getComponent(entity, NameComponent)
+  // nameComponent.name = 'physics_debug_' + uuid
 
   addObjectToGroup(entity, mesh)
 
-  parseGLTFModel(entity)
+  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, mesh, mesh.userData)
 
   const world = Engine.instance.currentWorld
-  addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
 
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)

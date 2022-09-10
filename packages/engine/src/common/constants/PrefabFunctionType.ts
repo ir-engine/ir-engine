@@ -13,7 +13,7 @@ export type SceneLoaderType = {
   defaultData?: any
   /**
    * An override function to specify custom transformations from ECS to JSON
-   * - if no function is set, data will be copied from the component
+   * - if no function is set, data will be copied from the component via JSON serialization
    * - a function returning null or undefined will not add the component to JSON
    */
   serialize?: ComponentSerializeFunction

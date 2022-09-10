@@ -389,7 +389,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(GroupComponent._name, SCENE_COMPONENT_GROUP)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-    deserialize: deserializeGroup
+    deserialize: deserializeGroup,
+    serialize: () => undefined!
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.groundPlane, [

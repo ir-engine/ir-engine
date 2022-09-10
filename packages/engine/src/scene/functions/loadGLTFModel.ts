@@ -19,7 +19,7 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { addObjectToGroup } from '../components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -119,7 +119,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     )
     addObjectToGroup(e, mesh)
 
-    addComponent(e, GLTFLoadedComponent, ['entity', TransformComponent._name])
+    addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent._name])
     createObjectEntityFromGLTF(e, mesh)
   }
 }

@@ -116,7 +116,6 @@ export const updateMeshCollider = (entity: Entity) => {
   }
   Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, object3d?.value?.children[0], {
     bodyType: colliderComponent.bodyType,
-    shapeType: colliderComponent.shapeType,
     isTrigger: colliderComponent.isTrigger,
     removeMesh: colliderComponent.removeMesh,
     collisionLayer: colliderComponent.collisionLayer,
