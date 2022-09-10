@@ -36,13 +36,14 @@ export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene
     const obj3d = getComponent(node.entity, GroupComponent)?.value as unknown as Mesh<any, MeshStandardMaterial>
 
     if (obj3d) {
-      const newObj = obj3d.clone(false)
-      if (newObj.material) {
-        newObj.material = obj3d.material.clone()
-        newObj.material.roughness = 1
-      }
+      const newObj = obj3d.clone(true)
       if (node.parentEntity) parents[node.parentEntity].add(newObj)
-      parents[node.entity] = newObj
+      newObj.traverse((o: any) => {
+        if (o.material) {
+          o.material = obj3d.material.clone()
+          o.material.roughness = 1
+        }
+      })
     }
   })
 

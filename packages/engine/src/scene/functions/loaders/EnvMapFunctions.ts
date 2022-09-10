@@ -24,6 +24,7 @@ import {
   EnvmapComponentType,
   SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
 } from '../../components/EnvmapComponent'
+import { ModelComponent } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../../constants/Util'
@@ -44,8 +45,8 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, 
 
 export const updateEnvMap = (entity: Entity) => {
   const component = getComponent(entity, EnvmapComponent)
-  const hasObj3d = hasComponent(entity, Object3DComponent)
-  const obj3d = hasObj3d ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
+  const hasObj3d = getComponent(entity, ModelComponent).scene
+  const obj3d = hasObj3d ? getComponent(entity, ModelComponent).scene! : Engine.instance.currentWorld.scene
 
   switch (component.type) {
     case EnvMapSourceType.Skybox:
