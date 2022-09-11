@@ -36,15 +36,16 @@ const quat = new Quaternion()
 const quat2 = new Quaternion()
 
 /**
+ * @param coformingBoneReference parent rerefence bone to conform to
  * @param conformingBone bone to conform to
  * @param targetBone target bone to derive angle from
  * @param {1 | -1} side 1 is left, -1 is right
  */
-const conformArmToTpose = (conformingBone: Bone, targetBone: Bone, side: 1 | -1) => {
+const conformArmToTpose = (coformingBoneReference: Bone, conformingBone: Bone, targetBone: Bone, side: 1 | -1) => {
   conformingBone.getWorldPosition(vec1)
   targetBone.getWorldPosition(vec2)
   vec2.sub(vec1).normalize()
-  conformingBone.parent!.getWorldQuaternion(quat2)
+  coformingBoneReference!.getWorldQuaternion(quat2)
   quat2.invert()
   vec2.applyQuaternion(quat2)
   vec1.set(side, 0, 0).applyQuaternion(quat2)
@@ -65,11 +66,11 @@ export function makeTPose(rig: BoneStructure) {
 
   // conform from hips towards extremedies
 
-  conformArmToTpose(rig.LeftArm, rig.LeftForeArm, 1)
-  conformArmToTpose(rig.LeftForeArm, rig.LeftHand, 1)
+  conformArmToTpose(rig.LeftShoulder, rig.LeftArm, rig.LeftForeArm, 1)
+  conformArmToTpose(rig.LeftArm, rig.LeftForeArm, rig.LeftHand, 1)
 
-  conformArmToTpose(rig.RightArm, rig.RightForeArm, -1)
-  conformArmToTpose(rig.RightForeArm, rig.RightHand, -1)
+  conformArmToTpose(rig.RightShoulder, rig.RightArm, rig.RightForeArm, -1)
+  conformArmToTpose(rig.RightArm, rig.RightForeArm, rig.RightHand, -1)
 }
 
 /**

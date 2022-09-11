@@ -1,13 +1,22 @@
-import { Mesh, Object3D, ShaderLib, ShaderMaterial, UniformsLib, UniformsUtils } from 'three'
+import {
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  ShaderLib,
+  ShaderMaterial,
+  UniformsLib,
+  UniformsUtils
+} from 'three'
 
 import { Engine } from '../ecs/classes/Engine'
 
 export class DissolveEffect {
-  time = 0
-  object
-  maxHeight = 1
-  minHeight = 0
-  step = 0.001
+  time: number
+  object: Object3D
+  maxHeight: number
+  minHeight: number
+  step: number
 
   constructor(object: Object3D, minHeight: number, maxHeight: number) {
     object.traverse((child) => {
@@ -26,7 +35,7 @@ export class DissolveEffect {
 
   update(dt) {
     if (this.time <= this.maxHeight) {
-      this.object.traverse((child) => {
+      this.object.traverse((child: Mesh<any, any>) => {
         if (child['material'] && child.name !== 'light_obj' && child.name !== 'plate_obj') {
           if (child.material.uniforms && child.material.uniforms.time) {
             child.material.uniforms.time.value = this.time
@@ -41,12 +50,12 @@ export class DissolveEffect {
     return true
   }
 
-  static getDissolveTexture(object: Mesh): any {
+  static getDissolveTexture(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>): any {
     const hasUV = object.geometry.hasAttribute('uv')
-    const material = object.material as any
+    const isShaderMaterial = object.material.type == 'ShaderMaterial'
+    const isPhysicalMaterial = object.material.type == 'MeshStandardMaterial'
+    const material = object.material.clone()
     const hasTexture = !!material.map
-    const isShaderMaterial = material.type == 'ShaderMaterial'
-    const isPhysicMaterial = material.type == 'MeshStandardMaterial'
 
     const shaderNameMapping = {
       MeshLambertMaterial: 'lambert',
@@ -195,7 +204,7 @@ export class DissolveEffect {
       myMaterial.uniforms.origin_texture = {
         value: (material as any).map
       }
-      if (isPhysicMaterial) {
+      if (isPhysicalMaterial) {
         //@ts-ignore
         myMaterial.envMap = Engine.instance.currentWorld.scene?.environment
         //@ts-ignore
@@ -207,6 +216,7 @@ export class DissolveEffect {
       }
 
       myMaterial.needsUpdate = true
+      myMaterial.visible = material.visible
       return myMaterial
     }
   }
