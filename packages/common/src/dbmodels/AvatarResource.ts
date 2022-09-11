@@ -4,4 +4,6 @@ export interface AvatarInterface {
   identifierName: string
   modelResourceId: string
   thumbnailResourceId: string
+  isPublic: boolean
+  userId: string
 }

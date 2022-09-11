@@ -4,7 +4,7 @@ export type AvatarUploadType = {
   userId?: string
   args: {
     avatarName: string
-    isPublicAvatar: boolean
+    isPublic: boolean
   }
 }
 
