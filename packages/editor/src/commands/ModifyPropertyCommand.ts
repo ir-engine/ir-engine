@@ -1,6 +1,12 @@
+import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { Component, getComponent, SerializedComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  Component,
+  getComponent,
+  SerializedComponentType,
+  updateComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
@@ -82,7 +88,7 @@ function undo<C extends Component<any, any>>(command: ModifyPropertyCommandParam
   updateProperty(command, true)
 }
 
-function updateProperty<C extends Component<any, any>>(command: ModifyPropertyCommandParams<C>, isUndo?: boolean) {
+function updateProperty<C extends Component>(command: ModifyPropertyCommandParams<C>, isUndo?: boolean) {
   const properties = isUndo && command.undo ? command.undo.properties : command.properties
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
@@ -90,29 +96,7 @@ function updateProperty<C extends Component<any, any>>(command: ModifyPropertyCo
     if (typeof node === 'string') continue
     const entity = node.entity
     const props = properties[i] ?? properties[0]
-
-    const comp = getComponent(entity, command.component)
-    if (comp) {
-      for (const propertyName of Object.keys(props)) {
-        const value = props[propertyName]
-        const { result, finalProp } = getNestedObject(comp, propertyName)
-
-        if (value && value.copy) {
-          if (!result[finalProp]) result[finalProp] = new value.constructor()
-          result[finalProp].copy(value)
-        } else if (
-          typeof value !== 'undefined' &&
-          typeof result[finalProp] === 'object' &&
-          typeof result[finalProp].set === 'function'
-        ) {
-          result[finalProp].set(value)
-        } else {
-          result[finalProp] = value
-        }
-
-        dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName }))
-      }
-    }
+    updateComponent(entity, command.component, props)
   }
 
   dispatchAction(
@@ -138,16 +122,4 @@ export const ModifyPropertyCommand: CommandFuncType = {
   shouldUpdate,
   update,
   toString
-}
-
-export function getNestedObject(object: any, propertyName: string): { result: any; finalProp: string } {
-  const props = propertyName.split('.')
-  let result = object
-
-  for (let i = 0; i < props.length - 1; i++) {
-    if (typeof result[props[i]] === 'undefined') result[props[i]] = {}
-    result = result[props[i]]
-  }
-
-  return { result, finalProp: props[props.length - 1] }
 }

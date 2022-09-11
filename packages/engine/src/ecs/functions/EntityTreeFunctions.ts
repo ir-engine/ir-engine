@@ -10,11 +10,12 @@ import { SceneObjectComponent } from '../../scene/components/SceneObjectComponen
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
-import { addComponent, removeAllComponents } from './ComponentFunctions'
+import { addComponent, getComponent } from './ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from './EntityFunctions'
 
 // ========== Entity Tree Functions ========== //
@@ -164,6 +165,12 @@ export function addEntityNodeChild(node: EntityTreeNode, child: EntityTreeNode, 
 
   child.parentEntity = node.entity
   addToEntityTreeMaps(child)
+
+  const parentTransform = getComponent(node.entity, TransformComponent)
+  const childTransform = getComponent(child.entity, TransformComponent)
+  const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
+  const localTransform = setLocalTransformComponent(child.entity, node.entity)
+  childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
 }
 
 /**

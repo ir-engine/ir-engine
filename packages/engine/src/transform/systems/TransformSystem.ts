@@ -151,13 +151,13 @@ export default async function TransformSystem(world: World) {
     for (const entity of localTransformQuery.enter()) {
       const parentEntity = getComponent(entity, LocalTransformComponent).parentEntity
       setComputedTransformComponent(entity, parentEntity, () => {
+        if (!world.dirtyTransforms.has(entity) && !world.dirtyTransforms.has(parentEntity)) return
         const transform = getComponent(entity, TransformComponent)
         const localTransform = getComponent(entity, LocalTransformComponent)
         const parentTransform = getComponent(parentEntity, TransformComponent)
         localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
         transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
         transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-        world.dirtyTransforms.delete(entity)
       })
     }
 
@@ -168,7 +168,6 @@ export default async function TransformSystem(world: World) {
     for (const entity of ownedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
 
     // if transform order is dirty, sort by reference depth
-
     const { transformsNeedSorting } = getState(EngineState)
     const transformEntities = transformQuery()
 
@@ -192,24 +191,13 @@ export default async function TransformSystem(world: World) {
         computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
       }
 
-      let dirty = world.dirtyTransforms.has(entity)
-
-      if (dirty) {
-        // replace scale 0 with epsilon to prevent NaN errors
-        if (transform.scale.x === 0) transform.scale.x = 1e-10
-        if (transform.scale.y === 0) transform.scale.y = 1e-10
-        if (transform.scale.z === 0) transform.scale.z = 1e-10
+      if (world.dirtyTransforms.has(entity)) {
+        // avoid scale 0 to prevent NaN errors
+        transform.scale.x = Math.max(1e-10, transform.scale.x)
+        transform.scale.y = Math.max(1e-10, transform.scale.y)
+        transform.scale.z = Math.max(1e-10, transform.scale.z)
         transform.matrix.compose(transform.position, transform.rotation, transform.scale)
-        world.dirtyTransforms.delete(entity)
-
-        if (group) {
-          // root group objects are always going to have the exact same computed matrices
-          for (const root of group) {
-            root.matrix.copy(transform.matrix)
-            root.matrixWorld.copy(transform.matrix)
-            root.matrixWorldInverse?.copy(transform.matrix).invert()
-          }
-        }
+        transform.matrixInverse.copy(transform.matrix).invert()
       }
 
       if (group) {
@@ -221,6 +209,8 @@ export default async function TransformSystem(world: World) {
         }
       }
     }
+
+    world.dirtyTransforms.clear()
 
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)

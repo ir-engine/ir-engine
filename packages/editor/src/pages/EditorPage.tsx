@@ -45,12 +45,6 @@ const systems = [
     args: { enabled: true }
   },
   {
-    uuid: 'core.editor.EditorLocalTransformUpdateSystem',
-    systemLoader: () => import('../systems/EditorLocalTransformUpdateSystem'),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
     uuid: 'core.editor.EditorCameraSystem',
     systemLoader: () => import('../systems/EditorCameraSystem'),
     type: SystemUpdateType.PRE_RENDER,

@@ -1,9 +1,15 @@
-import { BufferGeometry, Material, Mesh, Object3D } from 'three'
+import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, defineComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineComponent,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from './Object3DComponent'
 
@@ -32,10 +38,10 @@ export const GroupComponent = defineComponent({
 })
 
 export function addObjectToGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity
+  const obj = object as Object3DWithEntity & Camera
   obj.entity = entity
 
-  if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: obj })
+  setComponent(entity, Object3DComponent, { value: obj }) // backwards-compat
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
 
   getComponent(entity, GroupComponent).push(obj)
@@ -48,10 +54,16 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.position.copy(transform.position)
   obj.quaternion.copy(transform.rotation)
   obj.scale.copy(transform.scale)
+  obj.matrix = transform.matrix
+  obj.matrixWorld = transform.matrix
+  obj.matrixWorldInverse = transform.matrixInverse
+  Engine.instance.currentWorld.scene.add(object)
+
+  // sometimes it's convenient to update the entity transform via the Object3D,
+  // so allow people to do that via proxies
   proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, obj.position)
   proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, obj.quaternion)
   proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, obj.scale)
-  Engine.instance.currentWorld.scene.add(object)
 }
 
 export const SCENE_COMPONENT_GROUP = 'group'

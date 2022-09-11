@@ -86,9 +86,24 @@ function updateRotation(command: RotationCommandParams, isUndo: boolean): void {
   for (let i = 0; i < command.affectedNodes.length; i++) {
     // const node =
     const node = command.affectedNodes[i]
-    /** @todo figure out native local transform support */
-    // const transformComponent = hasComponent(node.entity, LocalTransformComponent) ? getComponent(node.entity, LocalTransformComponent) : getComponent(node.entity, TransformComponent)
-    if (typeof node !== 'string') {
+
+    if (typeof node === 'string') {
+      const obj3d = obj3dFromUuid(node)
+      T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
+
+      if (space === TransformSpace.Local) {
+        obj3d.quaternion.copy(T_QUAT_1)
+        obj3d.updateMatrix()
+      } else {
+        obj3d.updateMatrixWorld()
+        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
+
+        const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
+        const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
+
+        obj3d.quaternion.copy(newLocalQuaternion)
+      }
+    } else {
       const transformComponent = getComponent(node.entity, TransformComponent)
       const parentTransformComponent = node.parentEntity
         ? getComponent(node.parentEntity, TransformComponent)
@@ -109,22 +124,6 @@ function updateRotation(command: RotationCommandParams, isUndo: boolean): void {
 
       if (hasComponent(node.entity, RigidBodyComponent)) {
         getComponent(node.entity, RigidBodyComponent).body?.setRotation(transformComponent.rotation, true)
-      }
-    } else {
-      const obj3d = obj3dFromUuid(node)
-      T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
-
-      if (space === TransformSpace.Local) {
-        obj3d.quaternion.copy(T_QUAT_1)
-        obj3d.updateMatrix()
-      } else {
-        obj3d.updateMatrixWorld()
-        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
-
-        const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
-        const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
-
-        obj3d.quaternion.copy(newLocalQuaternion)
       }
     }
   }
