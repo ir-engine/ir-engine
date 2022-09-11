@@ -320,7 +320,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         const uploadResponse = await AvatarService.uploadAvatarModel(
           avatarBlob,
           thumbnailBlob,
-          state.name + '_' + selectedAvatar.id
+          state.name + '_' + selectedAvatar.id,
+          selectedAvatar.isPublic
         )
         const removalPromises = [] as any
         if (uploadResponse[0].id !== selectedAvatar.modelResourceId)
@@ -329,7 +330,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
           removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.thumbnailResourceId))
         await Promise.all(removalPromises)
         await AvatarService.patchAvatar(selectedAvatar.id, uploadResponse[0].id, uploadResponse[1].id, state.name)
-      } else await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name)
+      } else await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, true)
       dispatchAction(AdminAvatarActions.avatarUpdated({}))
 
       onClose()
