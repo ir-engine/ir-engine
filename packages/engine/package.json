@@ -42,7 +42,7 @@
     "@vladmandic/face-api": "^1.6.1",
     "@xrengine/common": "^0.5.6",
     "@xrengine/hyperflux": "^0.5.6",
-    "@xrfoundation/volumetric": "1.0.0",
+    "@xrfoundation/volumetric": "1.0.3",
     "bitecs": "^0.3.38",
     "browserfs": "^1.4.3",
     "comlink": "4.3.1", 
