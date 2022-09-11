@@ -6,7 +6,7 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 
 import { MaterialOverrideComponentType } from '../../scene/components/MaterialOverrideComponent'
 import { MatRend } from '../../scene/systems/MaterialOverrideSystem'
-import { formatMaterialArgs, materialTypeToDefaultArgs, materialTypeToFactory } from './functions/Utilities'
+import { formatMaterialArgs, materialIdToDefaultArgs, materialIdToFactory } from './functions/Utilities'
 import { MaterialLibrary } from './MaterialLibrary'
 
 export type MaterialParms = {
@@ -43,20 +43,14 @@ export function assignMaterial(override: MaterialOverrideComponentType): [MatRen
   /*if (MaterialLibrary.materials.has(override.materialID)) {
     material = MaterialLibrary.materials.get(override.materialID)!.material
   } else {*/
-  const factory = materialTypeToFactory(override.materialID)
+  const factory = materialIdToFactory(override.materialID)
   if (!factory) {
     console.warn('Could not find factory function for material' + override.materialID)
     return [result, new Material()]
   }
-  const defaultArgs = materialTypeToDefaultArgs(override.materialID)
+  const defaultArgs = materialIdToDefaultArgs(override.materialID)
   const formattedArgs = formatMaterialArgs(override.args, defaultArgs)
   material = factory(formattedArgs)
-  MaterialLibrary.materials.set(material.uuid, {
-    material,
-    parameters: formattedArgs,
-    prototype: material.type
-  })
-
   const target = getComponent(override.targetEntity!, Object3DComponent)?.value
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')

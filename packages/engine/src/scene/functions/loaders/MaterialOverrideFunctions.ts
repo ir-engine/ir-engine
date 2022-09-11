@@ -2,7 +2,7 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { formatMaterialArgs, materialTypeToDefaultArgs } from '../../../renderer/materials/functions/Utilities'
+import { formatMaterialArgs, materialIdToDefaultArgs } from '../../../renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '../../../renderer/materials/MaterialLibrary'
 import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -26,7 +26,7 @@ export function initializeOverride(target: Entity, override: MaterialOverrideCom
   nuOR.targetEntity = target
   return async () => {
     if (nuOR.args) {
-      const defaultArgs = materialTypeToDefaultArgs(nuOR.materialID)
+      const defaultArgs = materialIdToDefaultArgs(nuOR.materialID)
       nuOR.args = formatMaterialArgs({ ...nuOR.args }, defaultArgs)
       await Promise.all(
         Object.entries(nuOR.args).map(async ([k, v]) => {

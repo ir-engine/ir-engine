@@ -8,6 +8,8 @@ import {
   Texture
 } from 'three'
 
+import { MaterialComponentType } from '../components/MaterialComponent'
+import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialLibrary } from '../MaterialLibrary'
 
 export function extractDefaults(defaultArgs) {
@@ -48,29 +50,62 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
   )
 }
 
-export function materialTypeToDefaultArgs(type: string): Object {
-  const material = MaterialLibrary.materials.get(type)
-  if (!material) throw new Error('could not find Material ' + type)
-  const prototype = MaterialLibrary.prototypes.get(material.prototype)
-  if (!prototype) throw new Error('could not find Material Prototype for Material ' + material)
+export function materialFromId(matId: string): MaterialComponentType {
+  const material = MaterialLibrary.materials.get(matId)
+  if (!material) throw new Error('could not find Material ' + matId)
+  return material
+}
+
+export function prototypeFromId(protoId: string): MaterialPrototypeComponentType {
+  const prototype = MaterialLibrary.prototypes.get(protoId)
+  if (!prototype) throw new Error('could not find Material Prototype for ID ' + protoId)
+  return prototype
+}
+
+export function materialIdToDefaultArgs(matId: string): Object {
+  const material = materialFromId(matId)
+  const prototype = prototypeFromId(material.prototype)
   return injectDefaults(prototype.arguments, material.parameters)
 }
 
-export function materialTypeToFactory(type: string): (parms: any) => Material {
-  const material = MaterialLibrary.materials.get(type)
-  if (!material) throw new Error('could not find Material ' + type)
-  const prototype = MaterialLibrary.prototypes.get(material.prototype)
-  if (!prototype) throw new Error('could not find Material Prototype for Material ' + material)
+export function materialIdToFactory(matId: string): (parms: any) => Material {
+  const material = materialFromId(matId)
+  const prototype = prototypeFromId(material.prototype)
   return (parms) => {
-    const result = new prototype.baseMaterial({ ...material.parameters, ...parms })
+    const formattedParms = { ...material.parameters, ...parms }
+    const result = new prototype.baseMaterial(formattedParms)
     if (prototype.onBeforeCompile) {
       result.onBeforeCompile = prototype.onBeforeCompile
       result.needsUpdate = true
     }
+    MaterialLibrary.materials.set(result.uuid, {
+      material: result,
+      parameters: formattedParms,
+      prototype: material.prototype
+    })
     return result
   }
 }
 
+export function materialIdToPrototype(matId: string): MaterialPrototypeComponentType {
+  return prototypeFromId(materialFromId(matId).prototype)
+}
+
 export function materialToDefaultArgs(material: Material): Object {
-  return materialTypeToDefaultArgs(material.type)
+  try {
+    return materialIdToDefaultArgs(material.uuid)
+  } catch (e) {
+    console.warn('Unregistered material', material, 'being added to library')
+    const similarMaterial = [...MaterialLibrary.materials.values()].find(
+      (matComp) => matComp.material.type === material.type
+    )
+    if (!similarMaterial) throw Error('unrecognized material prototype ' + material.type)
+    const parameters = Object.fromEntries(Object.keys(similarMaterial.parameters).map((k) => [k, material[k]]))
+    MaterialLibrary.materials.set(material.uuid, {
+      material,
+      parameters,
+      prototype: similarMaterial.prototype
+    })
+    return materialIdToDefaultArgs(material.uuid)
+  }
 }

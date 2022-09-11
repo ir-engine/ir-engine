@@ -6,9 +6,9 @@ import createReadableTexture from '@xrengine/engine/src/assets/functions/createR
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   extractDefaults,
-  materialToDefaultArgs,
-  materialTypeToDefaultArgs,
-  materialTypeToFactory
+  materialIdToDefaultArgs,
+  materialIdToFactory,
+  materialToDefaultArgs
 } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
@@ -87,14 +87,14 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   })
 
   function onChangeMaterialType(nuType) {
-    const newDefaultArgs = materialTypeToDefaultArgs(nuType)!
+    const newDefaultArgs = materialIdToDefaultArgs(nuType)!
     const oldParmKeys = new Set(Object.keys(materialToDefaultArgs(material)!))
     const newParmKeys = new Set(Object.keys(newDefaultArgs))
     const allKeys = [...oldParmKeys.values(), ...newParmKeys.values()].filter((x, i, arr) => arr.indexOf(x) === i)
     const overlap = allKeys.filter((key) => oldParmKeys.has(key) && newParmKeys.has(key))
     const overlapParms = Object.fromEntries(overlap.map((k) => [k, material[k]]))
     const newParms = { ...extractDefaults(newDefaultArgs), ...overlapParms }
-    const newMaterial = materialTypeToFactory(nuType)(newParms)
+    const newMaterial = materialIdToFactory(nuType)(newParms)
     const scene = Engine.instance.currentWorld.scene
     scene.traverse((child: Mesh) => {
       if (!child?.isMesh) return
@@ -125,20 +125,10 @@ export default function MaterialEditor({ material }: { ['material']: Material })
       <Well>
         <InputGroup name="Material Type" label="Material Type">
           <SelectInput
-            options={[
-              {
-                label: 'Basic',
-                value: 'MeshBasicMaterial'
-              },
-              {
-                label: 'Standard',
-                value: 'MeshStandardMaterial'
-              },
-              {
-                label: 'Matcap',
-                value: 'MeshMatcapMaterial'
-              }
-            ]}
+            options={[...MaterialLibrary.materials.entries()].map(([k, v]) => ({
+              label: v.material.name ? v.material.name : '[NO NAME]',
+              value: k
+            }))}
             value={material.type}
             onChange={onChangeMaterialType}
           />

@@ -1,3 +1,4 @@
+import { SeedRandom, stringHash } from '../../common/functions/MathFunctions'
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
 import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
@@ -31,7 +32,11 @@ export function initializeMaterialLibrary() {
     //create default material from prototype
     const parameters = extractDefaults(prototype.arguments)
     const material = new prototype.baseMaterial(parameters)
-    MaterialLibrary.materials.set(material.type, {
+    //set material name to prototype
+    material.name = prototype.baseMaterial.name
+    //set uuid to pseudorandom value based on name
+    material.uuid = `${SeedRandom(stringHash(material.name))}`
+    MaterialLibrary.materials.set(material.uuid, {
       material,
       parameters,
       prototype: prototype.baseMaterial.name

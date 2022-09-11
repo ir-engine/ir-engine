@@ -33,10 +33,13 @@ export default function MaterialLibraryPanel() {
       <div className={styles.panelContainer}>
         <Grid container spacing={1}>
           <Grid item xs={1}></Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
+            <b>Name</b>
+          </Grid>
+          <Grid item xs={3}>
             <b>Prototype</b>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <b>Uuid</b>
           </Grid>
         </Grid>

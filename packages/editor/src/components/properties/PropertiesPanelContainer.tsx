@@ -132,7 +132,7 @@ export const PropertiesPanelContainer = () => {
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
   let nodeEntity = lockedNode
-    ? world.entityTree.uuidNodeMap.get(lockedNode)!.entity
+    ? world.entityTree.uuidNodeMap.get(lockedNode)?.entity ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
   const isMaterial =
     typeof nodeEntity === 'string' &&

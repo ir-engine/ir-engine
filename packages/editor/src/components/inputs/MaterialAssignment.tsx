@@ -7,7 +7,7 @@ import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFun
 import {
   extractDefaults,
   formatMaterialArgs,
-  materialTypeToDefaultArgs
+  materialIdToDefaultArgs
 } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialParms'
@@ -33,8 +33,8 @@ import { TexturePreviewInputGroup } from './TexturePreviewInput'
 export default function MaterialAssignment({ entity, node, modelComponent, values, onChange }) {
   let [count, setCount] = useState(values.length)
   let [materialIDs, setMaterialIDs] = useState<any[]>(
-    [...MaterialLibrary.materials.keys()].map((k) => {
-      return { label: k, value: k }
+    [...MaterialLibrary.materials.entries()].map(([k, v]) => {
+      return { label: v.material.name, value: k }
     })
   )
 
@@ -134,7 +134,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
     function getArguments(materialID) {
       try {
-        const defaultArguments = materialTypeToDefaultArgs(materialID)
+        const defaultArguments = materialIdToDefaultArgs(materialID)
         const defaultValues = extractDefaults(defaultArguments)
         const argStructure = defaultArguments
         const argValues = formatMaterialArgs(

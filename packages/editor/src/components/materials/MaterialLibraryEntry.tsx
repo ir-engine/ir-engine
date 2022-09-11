@@ -72,10 +72,13 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
               <MaterialLibraryEntryIcon className={styles.nodeIcon} />
             </div>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
+            <div className={styles.nodeContent}>{material.name ? material.name : '[NO NAME]'}</div>
+          </Grid>
+          <Grid item xs={3}>
             <div className={styles.nodeContent}>{node.prototype}</div>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className={styles.nodeContent}>{material.uuid}</div>
           </Grid>
         </Grid>
