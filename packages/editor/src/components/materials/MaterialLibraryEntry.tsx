@@ -62,7 +62,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
 
   return (
     <li
-      style={{ ...props.style, ...(data.nodes.length - 1 === props.index ? { scrollMarginBottom: '32px' } : {}) }}
+      style={props.style}
       ref={drag}
       id={getNodeElId(node)}
       onClick={onClickNode}

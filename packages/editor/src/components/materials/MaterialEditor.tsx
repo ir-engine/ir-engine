@@ -3,7 +3,12 @@ import { Color, Material, Texture } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
-import { materialToDefaultArgs } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import {
+  changeMaterialPrototype,
+  materialFromId,
+  materialToDefaultArgs
+} from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { executeCommandWithHistory } from '../../classes/History'
@@ -11,12 +16,14 @@ import EditorCommands from '../../constants/EditorCommands'
 import { accessSelectionState } from '../../services/SelectionServices'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
+import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 
 export default function MaterialEditor({ material }: { ['material']: Material }) {
   if (material === undefined) return <></>
   const matId = useHookstate(material.uuid)
   const matName = useHookstate(material.name)
+  const matPrototype = useHookstate(materialFromId(material.uuid).prototype)
 
   const createThumbnails = async () => {
     const result = new Map<string, string>()
@@ -50,6 +57,12 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     return result
   }
 
+  const prototypes = useHookstate(
+    [...MaterialLibrary.prototypes.values()].map((prototype) => ({
+      label: prototype.baseMaterial.name,
+      value: prototype.baseMaterial.name
+    }))
+  )
   const thumbnails = useHookstate(new Map<string, string>())
   const defaults = useHookstate(new Object())
 
@@ -62,18 +75,25 @@ export default function MaterialEditor({ material }: { ['material']: Material })
 
   useHookEffect(() => {
     clearThumbs().then(() => {
-      thumbnails.set(createThumbnails())
-      defaults.set(createDefaults())
       matName.set(material.name)
+      matPrototype.set(materialFromId(material.uuid).prototype)
     })
     return () => {
       clearThumbs()
     }
   }, [matId])
 
+  useHookEffect(() => {
+    clearThumbs().then(() => {
+      thumbnails.set(createThumbnails())
+      defaults.set(createDefaults())
+    })
+  }, [matPrototype])
+
   useEffect(() => {
     if (matId.value !== material.uuid) {
       matId.set(material.uuid)
+      matPrototype.set(materialFromId(material.uuid).prototype)
     }
   })
 
@@ -88,6 +108,18 @@ export default function MaterialEditor({ material }: { ['material']: Material })
           }}
         />
       </InputGroup>
+      {!(thumbnails.promised || defaults.promised) && (
+        <InputGroup name="Prototype" label="Prototype">
+          <SelectInput
+            value={matPrototype.value}
+            options={prototypes.value}
+            onChange={(protoId) => {
+              changeMaterialPrototype(material, protoId)
+              matPrototype.set(protoId)
+            }}
+          />
+        </InputGroup>
+      )}
       <ParameterInput
         entity={material.uuid}
         values={thumbnails.promised ? {} : material}
@@ -100,7 +132,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
               prop = undefined
             }
             URL.revokeObjectURL(defaults.value[k].preview)
-            const preview = (await createReadableTexture(material[k], { url: true })) as string
+            const preview = (await createReadableTexture(prop, { url: true })) as string
             defaults.merge((_defaults) => {
               delete _defaults[k].preview
               _defaults[k].preview = preview

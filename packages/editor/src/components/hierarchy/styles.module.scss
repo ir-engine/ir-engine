@@ -9,6 +9,15 @@
   color: var(--textColor);
 }
 
+.panelSection {
+  outline: 1px solid var(--borderStyleLight);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
 .nodeContent {
   outline: none;
   display: flex;
