@@ -39,7 +39,6 @@ const logger = multiLogger.child({ component: 'client-core:AvatarSelectMenu' })
 
 interface Props {
   avatarData?: StaticResourceInterface
-  isPublicAvatar?: boolean
   changeActiveMenu: Function
   onAvatarUpload?: () => void
 }
@@ -79,7 +78,7 @@ function TabPanel({ children, value, index }: TabPanelProps) {
   )
 }
 
-export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu, onAvatarUpload }: Props) => {
+export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload }: Props) => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
   const [avatarName, setAvatarName] = useState('')
@@ -233,11 +232,11 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.domElement, 0, 0)
         canvas.toBlob((blob) => {
-          AvatarService.createAvatar(avatarBlob, blob!, avatarName, isPublicAvatar)
+          AvatarService.createAvatar(avatarBlob, blob!, avatarName, false)
         })
       })
     } else {
-      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
+      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, false)
     }
 
     onAvatarUpload && onAvatarUpload()
