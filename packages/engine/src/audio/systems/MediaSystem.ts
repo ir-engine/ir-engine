@@ -73,29 +73,6 @@ export const MediaPrefabs = {
   volumetric: 'Volumetric' as const
 }
 
-export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
-
-export type AudioNodeGroup = {
-  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
-  gain: GainNode
-  panner?: PannerNode
-  mixbus: GainNode
-}
-
-export const createAudioNodeGroup = (
-  el: HTMLMediaElement | MediaStream,
-  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode,
-  mixbus: GainNode
-) => {
-  const gain = Engine.instance.audioContext.createGain()
-  source.connect(gain)
-  gain.connect(mixbus)
-  const panner = Engine.instance.audioContext.createPanner()
-  const group = { source, gain, mixbus, panner } as AudioNodeGroup
-  AudioNodeGroups.set(el, group)
-  return group
-}
-
 // TODO: move this into system initializer once we have system destroy callbacks
 if (isClient) {
   const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])

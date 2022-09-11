@@ -64,6 +64,13 @@ const updateTransformFromBody = (world: World, entity: Entity) => {
   )
   const { position, rotation } = getComponent(entity, TransformComponent)
   const { linear, angular } = getComponent(entity, VelocityComponent)
+
+  // if transforms have been changed outside of this function, perform physics teleportation
+  if (world.dirtyTransforms.has(entity)) {
+    body.setTranslation(position, true)
+    body.setRotation(rotation, true)
+    return
+  }
   /*
   Interpolate the remaining time after the fixed pipeline is complete.
   See https://gafferongames.com/post/fix_your_timestep/#the-final-touch

@@ -19,7 +19,7 @@ export interface NumericInputGroupProp {
   min?: number
   max?: number
   value?: any
-  onChange: Function
+  onChange: (value: number) => void
   unit?: string
   convertFrom?: any
   convertTo?: any

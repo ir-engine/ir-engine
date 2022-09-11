@@ -96,8 +96,6 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
     const node = command.affectedNodes[i]
     const pos = positions[i] ?? positions[0]
 
-    /** @todo figure out native local transform support */
-    // const transformComponent = hasComponent(node.entity, LocalTransformComponent) ? getComponent(node.entity, LocalTransformComponent) : getComponent(node.entity, TransformComponent)
     const isObj3d = typeof node === 'string'
 
     if (isObj3d) {
@@ -137,10 +135,6 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
         localTransform.position.copy(tempVector)
-      }
-
-      if (hasComponent(node.entity, RigidBodyComponent)) {
-        getComponent(node.entity, RigidBodyComponent).body?.setTranslation(transform.position, true)
       }
     }
   }

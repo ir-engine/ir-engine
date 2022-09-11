@@ -125,9 +125,11 @@ export const updateMeshCollider = (entity: Entity, forceRebuild = false) => {
     collisionMask: colliderComponent.collisionMask
   })
 
-  const transform = getComponent(entity, TransformComponent)
-  rigidbody.setTranslation(transform.position, true)
-  rigidbody.setRotation(transform.rotation, true)
+  if (rigidbody) {
+    const transform = getComponent(entity, TransformComponent)
+    rigidbody.setTranslation(transform.position, true)
+    rigidbody.setRotation(transform.rotation, true)
+  }
 }
 
 /**

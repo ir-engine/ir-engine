@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -25,7 +25,9 @@ export function getRandomTransform() {
   return {
     position: new Vector3(Math.random(), Math.random(), Math.random()),
     rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
-    scale: new Vector3(Math.random(), Math.random(), Math.random())
+    scale: new Vector3(Math.random(), Math.random(), Math.random()),
+    matrix: new Matrix4(),
+    matrixInverse: new Matrix4()
   }
 }
 

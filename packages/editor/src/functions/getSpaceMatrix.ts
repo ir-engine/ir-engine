@@ -15,10 +15,15 @@ export function getSpaceMatrix() {
 
   const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
   const isUuid = typeof lastSelectedEntity === 'string'
-  const matrix = isUuid
-    ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelectedEntity)?.parent?.matrixWorld!
-    : getComponent(lastSelectedEntity, TransformComponent)?.matrix
 
-  if (!matrix) return IDENTITY_MAT_4
-  return matrix
+  if (isUuid) {
+    return (
+      Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelectedEntity)?.parent?.matrixWorld ||
+      IDENTITY_MAT_4
+    )
+  } else {
+    const entityNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(lastSelectedEntity)
+    const parentEntity = entityNode?.parentEntity || lastSelectedEntity
+    return getComponent(parentEntity, TransformComponent).matrix
+  }
 }

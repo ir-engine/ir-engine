@@ -50,28 +50,27 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
    * Create mesh & collider if it doesnt exist
    */
   if (!component.mesh) {
-    const planeSize = new Vector3(1000, 0.1, 1000)
-    const mesh = (component.mesh = new Mesh(new CircleGeometry(planeSize.x, 32), new MeshBasicMaterial()))
+    const radius = 1000
 
+    const mesh = (component.mesh = new Mesh(new CircleGeometry(radius, 32), new MeshBasicMaterial()))
     mesh.name = 'GroundPlaneMesh'
     mesh.position.y = -0.05
+    mesh.rotation.x = -Math.PI / 2
     mesh.traverse(generateMeshBVH)
+
     enableObjectLayer(mesh, ObjectLayers.Camera, true)
     addObjectToGroup(entity, mesh)
 
     const colliderDescOptions = {
       bodyType: RigidBodyType.Fixed,
       shapeType: ShapeType.Cuboid,
-      size: planeSize,
+      size: new Vector3(radius * 2, radius * 2, 0.001),
       removeMesh: false,
       collisionLayer: CollisionGroups.Ground,
       collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
     } as ColliderDescOptions
 
     Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, colliderDescOptions)
-
-    // rotation needs to be applied so the object3d lines up with the physics collider
-    mesh.rotation.x = -Math.PI / 2
   }
 
   /**

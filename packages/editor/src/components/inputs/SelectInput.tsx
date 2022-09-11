@@ -10,9 +10,9 @@ import TextField from '@mui/material/TextField'
 import styles from './selectInput.module.scss'
 
 interface SelectInputProp {
-  value: any
+  value: string
   options: Array<{ label: string; value: any }>
-  onChange?: Function
+  onChange?: (value: string) => void
   placeholder?: string
   disabled?: boolean
   error?: any
