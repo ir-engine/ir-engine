@@ -1,16 +1,9 @@
-import React, { Fragment, useEffect } from 'react'
-import { Color, Material, Mesh, MeshBasicMaterial, MeshMatcapMaterial, MeshStandardMaterial, Texture } from 'three'
+import React, { Fragment, useCallback, useEffect } from 'react'
+import { Color, Material, Texture } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import {
-  extractDefaults,
-  materialIdToDefaultArgs,
-  materialIdToFactory,
-  materialToDefaultArgs
-} from '@xrengine/engine/src/renderer/materials/functions/Utilities'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { materialToDefaultArgs } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { executeCommandWithHistory } from '../../classes/History'
@@ -18,12 +11,12 @@ import EditorCommands from '../../constants/EditorCommands'
 import { accessSelectionState } from '../../services/SelectionServices'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
-import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
-import Well from '../layout/Well'
 
 export default function MaterialEditor({ material }: { ['material']: Material }) {
   if (material === undefined) return <></>
+  const matId = useHookstate(material.uuid)
+  const matName = useHookstate(material.name)
 
   const createThumbnails = async () => {
     const result = new Map<string, string>()
@@ -56,23 +49,21 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     })
     return result
   }
+
   const thumbnails = useHookstate(new Map<string, string>())
   const defaults = useHookstate(new Object())
 
-  async function clearThumbs() {
+  const clearThumbs = async () => {
     thumbnails.promised && (await thumbnails.promise)
     defaults.promised && (await defaults.promise)
     ;[...thumbnails.value.values()].map(URL.revokeObjectURL)
     thumbnails.value.clear()
   }
 
-  const matId = useHookstate(material.uuid)
-  const matName = useHookstate(material.name)
-
   useHookEffect(() => {
-    clearThumbs().then(async () => {
-      thumbnails.set(await createThumbnails())
-      defaults.set(await createDefaults())
+    clearThumbs().then(() => {
+      thumbnails.set(createThumbnails())
+      defaults.set(createDefaults())
       matName.set(material.name)
     })
     return () => {
@@ -86,31 +77,6 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     }
   })
 
-  function onChangeMaterialType(nuType) {
-    const newDefaultArgs = materialIdToDefaultArgs(nuType)!
-    const oldParmKeys = new Set(Object.keys(materialToDefaultArgs(material)!))
-    const newParmKeys = new Set(Object.keys(newDefaultArgs))
-    const allKeys = [...oldParmKeys.values(), ...newParmKeys.values()].filter((x, i, arr) => arr.indexOf(x) === i)
-    const overlap = allKeys.filter((key) => oldParmKeys.has(key) && newParmKeys.has(key))
-    const overlapParms = Object.fromEntries(overlap.map((k) => [k, material[k]]))
-    const newParms = { ...extractDefaults(newDefaultArgs), ...overlapParms }
-    const newMaterial = materialIdToFactory(nuType)(newParms)
-    const scene = Engine.instance.currentWorld.scene
-    scene.traverse((child: Mesh) => {
-      if (!child?.isMesh) return
-      let childMats = child.material instanceof Material ? [child.material] : child.material
-      childMats.map((childMat, i) => {
-        if (childMat === material) {
-          if (childMats.length > 1) {
-            ;(child.material as Material[])[i] = newMaterial
-          } else {
-            child.material = newMaterial
-          }
-        }
-      })
-    })
-  }
-
   return (
     <Fragment>
       <InputGroup name="Name" label="Name">
@@ -122,18 +88,6 @@ export default function MaterialEditor({ material }: { ['material']: Material })
           }}
         />
       </InputGroup>
-      <Well>
-        <InputGroup name="Material Type" label="Material Type">
-          <SelectInput
-            options={[...MaterialLibrary.materials.entries()].map(([k, v]) => ({
-              label: v.material.name ? v.material.name : '[NO NAME]',
-              value: k
-            }))}
-            value={material.type}
-            onChange={onChangeMaterialType}
-          />
-        </InputGroup>
-      </Well>
       <ParameterInput
         entity={material.uuid}
         values={thumbnails.promised ? {} : material}

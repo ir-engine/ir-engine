@@ -10,9 +10,11 @@ import { useSelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
 
 export type MaterialLibraryEntryType = {
+  uuid: string
   material: Material
   prototype: string
   selected?: boolean
+  active?: boolean
   isCollapsed?: boolean
 }
 
@@ -59,13 +61,18 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   })
 
   return (
-    <li style={props.style}>
-      <div
-        ref={drag}
-        id={getNodeElId(node)}
-        onClick={onClickNode}
-        className={styles.treeNodeContainer + (node.selected ? ' ' + styles.selected : '')}
-      >
+    <li
+      style={{ ...props.style, ...(data.nodes.length - 1 === props.index ? { scrollMarginBottom: '32px' } : {}) }}
+      ref={drag}
+      id={getNodeElId(node)}
+      onClick={onClickNode}
+      className={
+        styles.treeNodeContainer +
+        (node.selected ? ' ' + styles.selected : '') +
+        (node.active ? ` ${styles.selected}` : '')
+      }
+    >
+      <div className={styles.nodeContent}>
         <Grid container spacing={1}>
           <Grid item xs={1}>
             <div className={styles.nodeIcon}>
@@ -73,13 +80,13 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
             </div>
           </Grid>
           <Grid item xs={3}>
-            <div className={styles.nodeContent}>{material.name ? material.name : '[NO NAME]'}</div>
+            <div>{material.name ? material.name : '[NO NAME]'}</div>
           </Grid>
           <Grid item xs={3}>
-            <div className={styles.nodeContent}>{node.prototype}</div>
+            <div>{node.prototype}</div>
           </Grid>
           <Grid item xs={3}>
-            <div className={styles.nodeContent}>{material.uuid}</div>
+            <div>{material.uuid}</div>
           </Grid>
         </Grid>
       </div>

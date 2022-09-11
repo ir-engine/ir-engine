@@ -78,11 +78,7 @@ export function materialIdToFactory(matId: string): (parms: any) => Material {
       result.onBeforeCompile = prototype.onBeforeCompile
       result.needsUpdate = true
     }
-    MaterialLibrary.materials.set(result.uuid, {
-      material: result,
-      parameters: formattedParms,
-      prototype: material.prototype
-    })
+
     return result
   }
 }
@@ -92,20 +88,19 @@ export function materialIdToPrototype(matId: string): MaterialPrototypeComponent
 }
 
 export function materialToDefaultArgs(material: Material): Object {
-  try {
-    return materialIdToDefaultArgs(material.uuid)
-  } catch (e) {
-    console.warn('Unregistered material', material, 'being added to library')
-    const similarMaterial = [...MaterialLibrary.materials.values()].find(
-      (matComp) => matComp.material.type === material.type
-    )
-    if (!similarMaterial) throw Error('unrecognized material prototype ' + material.type)
-    const parameters = Object.fromEntries(Object.keys(similarMaterial.parameters).map((k) => [k, material[k]]))
-    MaterialLibrary.materials.set(material.uuid, {
-      material,
-      parameters,
-      prototype: similarMaterial.prototype
-    })
-    return materialIdToDefaultArgs(material.uuid)
-  }
+  return materialIdToDefaultArgs(material.uuid)
+}
+
+export function registerMaterial(material: Material, src: any) {
+  const similarMaterial = [...MaterialLibrary.materials.values()].find(
+    (matComp) => prototypeFromId(matComp.prototype).baseMaterial.name === material.type
+  )
+  if (!similarMaterial) throw Error('unrecognized material prototype ' + material.type)
+  const parameters = Object.fromEntries(Object.keys(similarMaterial.parameters).map((k) => [k, material[k]]))
+  MaterialLibrary.materials.set(material.uuid, {
+    material,
+    parameters,
+    prototype: similarMaterial.prototype,
+    src
+  })
 }

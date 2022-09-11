@@ -21,21 +21,25 @@ export type ModifyMaterialCommandParams = CommandParams & {
   undo?: ModifyMaterialCommandUndoParams
 }
 
+function getMaterial(node: string, materialId: string) {
+  let material: Material | undefined
+  if (MaterialLibrary.materials.has(node)) {
+    material = MaterialLibrary.materials.get(node)!.material
+  } else {
+    const mesh = obj3dFromUuid(node) as Mesh
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+    material = materials.find((material) => material.uuid === materialId)
+  }
+  if (typeof material === 'undefined' || !material.isMaterial) throw new Error('Material is missing from host mesh')
+  return material
+}
+
 function prepare(command: ModifyMaterialCommandParams) {
   const props = command.affectedNodes.filter((node) => typeof node === 'string') as string[]
   if (command.keepHistory) {
     command.undo = {
       properties: props.map((node, i) => {
-        const mesh = obj3dFromUuid(node) as Mesh
-        let material: Material | undefined
-        if (!mesh?.isMesh) {
-          material = MaterialLibrary.materials.get(node)?.material
-        } else {
-          const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-          material = materials.find((material) => material.uuid === command.materialId)
-        }
-        if (typeof material === 'undefined' || !material.isMaterial)
-          throw new Error('Material is missing from host mesh')
+        const material = getMaterial(node, command.materialId)
         const oldProps = {} as any
         const propertyNames = Object.keys(command.properties[i] ?? command.properties[0])
         propertyNames.map((propertyName) => {
@@ -82,17 +86,7 @@ function updateMaterial(command: ModifyMaterialCommandParams, isUndo?: boolean) 
   const idCache = new Set<string>()
   command.affectedNodes.map((node, i) => {
     if (typeof node !== 'string') return
-    let material: Material | undefined
-    if (MaterialLibrary.materials.has(node)) {
-      material = MaterialLibrary.materials.get(node)!.material
-    } else {
-      const obj3d = obj3dFromUuid(node) as Mesh
-      const materials = Array.isArray(obj3d.material) ? obj3d.material : [obj3d.material]
-      material = materials.find((material) => material.uuid === command.materialId)
-    }
-    if (!material) throw new Error('Missing material')
-    if (idCache.has(material.uuid)) return
-    idCache.add(material.uuid)
+    const material = getMaterial(node, command.materialId)
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
       if (!material) throw new Error('Updating properties on undefined material')

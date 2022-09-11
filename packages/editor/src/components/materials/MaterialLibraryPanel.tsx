@@ -12,6 +12,7 @@ import { Divider, Grid } from '@mui/material'
 import { executeCommandWithHistory } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
 import { useEditorState } from '../../services/EditorServices'
+import { useSelectionState } from '../../services/SelectionServices'
 import { HeirarchyTreeCollapsedNodeType } from '../hierarchy/HeirarchyTreeWalker'
 import styles from '../hierarchy/styles.module.scss'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
@@ -20,6 +21,7 @@ export default function MaterialLibraryPanel() {
   const { t } = useTranslation()
   const materials = MaterialLibrary.materials
   const editorState = useEditorState()
+  const selectionState = useSelectionState()
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
     !editorState.lockPropertiesPanel.get() &&
@@ -31,19 +33,6 @@ export default function MaterialLibraryPanel() {
   return (
     <>
       <div className={styles.panelContainer}>
-        <Grid container spacing={1}>
-          <Grid item xs={1}></Grid>
-          <Grid item xs={3}>
-            <b>Name</b>
-          </Grid>
-          <Grid item xs={3}>
-            <b>Prototype</b>
-          </Grid>
-          <Grid item xs={3}>
-            <b>Uuid</b>
-          </Grid>
-        </Grid>
-        <div className={styles.divider} />
         <AutoSizer>
           {({ width, height }) => (
             <FixedSizeList
@@ -53,8 +42,15 @@ export default function MaterialLibraryPanel() {
               itemCount={materials.size}
               itemData={{
                 nodes: [...MaterialLibrary.materials.values()].map(({ material, prototype }) => ({
+                  uuid: material.uuid,
                   material,
-                  prototype
+                  prototype,
+                  selected: selectionState.selectedEntities.value.some(
+                    (selectedEntity) => typeof selectedEntity === 'string' && selectedEntity === material.uuid
+                  ),
+                  active:
+                    selectionState.selectedEntities.value.at(selectionState.selectedEntities.length - 1) ===
+                    material.uuid
                 })),
                 onClick
               }}

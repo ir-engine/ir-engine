@@ -39,7 +39,8 @@ export function initializeMaterialLibrary() {
     MaterialLibrary.materials.set(material.uuid, {
       material,
       parameters,
-      prototype: prototype.baseMaterial.name
+      prototype: prototype.baseMaterial.name,
+      src: { type: 'MATERIAL_LIBRARY' }
     })
   })
 }
