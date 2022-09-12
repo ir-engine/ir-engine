@@ -276,6 +276,3 @@ export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComp
 globalThis.XRE_getComponent = getComponent
 globalThis.XRE_getAllComponents = getAllComponents
 globalThis.XRE_getAllComponentData = getAllComponentData
-function resolveFromPropertyPath(comp: unknown, propertyName: string): { result: any; finalProp: any } {
-  throw new Error('Function not implemented.')
-}

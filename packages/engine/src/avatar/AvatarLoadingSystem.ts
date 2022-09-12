@@ -121,9 +121,12 @@ export default async function AvatarLoadingSystem(world: World) {
         transform.position.y = hits[0].position.y
       }
 
+      const group = new Group()
+
       const pillar = new Object3D()
       pillar.name = 'pillar_obj'
-      addObjectToGroup(entity, pillar)
+      addObjectToGroup(entity, group)
+      group.add(pillar)
 
       const R = 0.6 * plate.geometry.boundingSphere?.radius!
       for (let i = 0, n = 5 + 10 * R * Math.random(); i < n; i += 1) {
@@ -143,7 +146,7 @@ export default async function AvatarLoadingSystem(world: World) {
       pt.name = 'plate_obj'
       pt.material = (pt.material as any).clone()
       pt.rotation.x = -0.5 * Math.PI
-      addObjectToGroup(entity, pt)
+      group.add(pt)
 
       setComponent(entity, TweenComponent, {
         tween: new Tween<any>(effectComponent)

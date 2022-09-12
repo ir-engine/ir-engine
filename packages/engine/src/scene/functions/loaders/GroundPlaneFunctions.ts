@@ -1,5 +1,15 @@
-import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { CircleGeometry, Color, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
+import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import {
+  CircleGeometry,
+  Color,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  PlaneGeometry,
+  Vector3
+} from 'three'
 
 import {
   ComponentDeserializeFunction,
@@ -21,6 +31,7 @@ import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../../physics/functions/getInteractionGroups'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import {
@@ -52,25 +63,22 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
   if (!component.mesh) {
     const radius = 1000
 
-    const mesh = (component.mesh = new Mesh(new CircleGeometry(radius, 32), new MeshBasicMaterial()))
+    const mesh = (component.mesh = new Mesh(new PlaneGeometry(radius, radius), new MeshBasicMaterial()))
+    mesh.geometry.rotateX(-Math.PI / 2)
     mesh.name = 'GroundPlaneMesh'
-    mesh.position.y = -0.05
-    mesh.rotation.x = -Math.PI / 2
+    // mesh.position.y = -0.05
     mesh.traverse(generateMeshBVH)
 
     enableObjectLayer(mesh, ObjectLayers.Camera, true)
     addObjectToGroup(entity, mesh)
 
-    const colliderDescOptions = {
-      bodyType: RigidBodyType.Fixed,
-      shapeType: ShapeType.Cuboid,
-      size: new Vector3(radius * 2, radius * 2, 0.001),
-      removeMesh: false,
-      collisionLayer: CollisionGroups.Ground,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
-    } as ColliderDescOptions
+    const rigidBodyDesc = RigidBodyDesc.fixed()
+    const colliderDesc = ColliderDesc.cuboid(radius * 2, 0.001, radius * 2)
+    colliderDesc.setCollisionGroups(
+      getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default | CollisionGroups.Avatars)
+    )
 
-    Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, colliderDescOptions)
+    Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [colliderDesc])
   }
 
   /**
