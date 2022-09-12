@@ -16,10 +16,11 @@ import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/c
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { GroupColliderComponent } from '../../scene/components/ColliderComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
-import { updateCollider, updateMeshCollider } from '../../scene/functions/loaders/ColliderFunctions'
+import { updateCollider, updateGroupCollider } from '../../scene/functions/loaders/ColliderFunctions'
 import {
   applyTransformPositionOffset,
   applyTransformRotationOffset,
@@ -60,7 +61,20 @@ const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCam
 
 const prevRigidbodyScale = new Map<Entity, Vector3>()
 
-const updateRigidbodyTransforms = (entity: Entity) => {
+const updateTransformFromLocalTransform = (entity: Entity) => {
+  const world = Engine.instance.currentWorld
+  const localTransform = getComponent(entity, LocalTransformComponent)
+  if (localTransform && (world.dirtyTransforms.has(entity) || world.dirtyTransforms.has(localTransform.parentEntity))) {
+    const transform = getComponent(entity, TransformComponent)
+    const localTransform = getComponent(entity, LocalTransformComponent)
+    const parentTransform = getComponent(localTransform.parentEntity, TransformComponent)
+    localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
+    transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+  }
+}
+
+const updateTransformFromRigidbody = (entity: Entity) => {
   if (!hasComponent(entity, RigidBodyComponent)) return
 
   const world = Engine.instance.currentWorld
@@ -68,20 +82,24 @@ const updateRigidbodyTransforms = (entity: Entity) => {
     entity,
     RigidBodyComponent
   )
-  const { position, rotation, scale } = getComponent(entity, TransformComponent)
-  const { linear, angular } = getComponent(entity, VelocityComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const velocity = getComponent(entity, VelocityComponent)
 
-  // if transforms have been changed outside of this function, perform physics teleportation
+  // if transforms have been changed outside of the transform system, perform physics teleportation on the rigidbody
   if (world.dirtyTransforms.has(entity)) {
     const prevScale = prevRigidbodyScale.get(entity)
-    prevRigidbodyScale.set(entity, scale.clone())
+    prevRigidbodyScale.set(entity, transform.scale.clone())
 
-    body.setTranslation(position, true)
-    body.setRotation(rotation, true)
+    body.setTranslation(transform.position, true)
+    body.setRotation(transform.rotation, true)
 
     // if scale has changed, we have to recreate the collider
-    const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(scale) > 0.0001 : true
-    if (scaleChanged) updateCollider(entity) || updateMeshCollider(entity)
+    const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(transform.scale) > 0.0001 : true
+
+    if (scaleChanged) {
+      if (hasComponent(entity, GroupColliderComponent)) updateGroupCollider(entity)
+      else updateCollider(entity)
+    }
 
     return
   }
@@ -91,10 +109,19 @@ const updateRigidbodyTransforms = (entity: Entity) => {
   */
   const accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
   const alpha = accumulator / getState(EngineState).deltaSeconds.value
-  position.copy(previousPosition).lerp(scratchVector3.copy(body.translation() as Vector3), alpha)
-  rotation.copy(previousRotation).slerp(scratchQuaternion.copy(body.rotation() as Quaternion), alpha)
-  linear.copy(previousLinearVelocity).lerp(scratchVector3.copy(body.linvel() as Vector3), alpha)
-  angular.copy(previousAngularVelocity).lerp(scratchVector3.copy(body.angvel() as Vector3), alpha)
+  transform.position.copy(previousPosition).lerp(scratchVector3.copy(body.translation() as Vector3), alpha)
+  transform.rotation.copy(previousRotation).slerp(scratchQuaternion.copy(body.rotation() as Quaternion), alpha)
+  transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+  velocity.linear.copy(previousLinearVelocity).lerp(scratchVector3.copy(body.linvel() as Vector3), alpha)
+  velocity.angular.copy(previousAngularVelocity).lerp(scratchVector3.copy(body.angvel() as Vector3), alpha)
+
+  const localTransform = getComponent(entity, LocalTransformComponent)
+  if (localTransform) {
+    const parentTransform = getComponent(localTransform.parentEntity, TransformComponent) || transform
+    localTransform.matrix.multiplyMatrices(parentTransform.matrixInverse, transform.matrix)
+    localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+    updateTransformFromLocalTransform(entity)
+  }
 }
 
 const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
@@ -194,22 +221,11 @@ export default async function TransformSystem(world: World) {
       const transform = getComponent(entity, TransformComponent)
       if (!transform) continue
 
-      const localTransform = getComponent(entity, LocalTransformComponent)
       const computedTransform = getComponent(entity, ComputedTransformComponent)
       const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
 
-      if (
-        localTransform &&
-        (world.dirtyTransforms.has(entity) || world.dirtyTransforms.has(localTransform.parentEntity))
-      ) {
-        const transform = getComponent(entity, TransformComponent)
-        const localTransform = getComponent(entity, LocalTransformComponent)
-        const parentTransform = getComponent(localTransform.parentEntity, TransformComponent)
-        localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
-        transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
-        transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-        updateRigidbodyTransforms(entity)
-      }
+      updateTransformFromLocalTransform(entity)
+      updateTransformFromRigidbody(entity)
 
       if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
         computedTransform?.computeFunction(entity, computedTransform.referenceEntity)

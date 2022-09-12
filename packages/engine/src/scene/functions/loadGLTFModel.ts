@@ -111,7 +111,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     addObjectToGroup(e, mesh)
     setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
-
     addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent._name])
     createObjectEntityFromGLTF(e, mesh)
   }

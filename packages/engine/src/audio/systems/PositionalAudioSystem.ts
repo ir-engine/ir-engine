@@ -39,7 +39,7 @@ export const addPannerNode = (audioNodes: AudioNodeGroup, opts = Engine.instance
   panner.coneOuterAngle = opts.coneOuterAngle
   panner.coneOuterGain = opts.coneOuterGain
 
-  audioNodes.source.disconnect(audioNodes.gain)
+  audioNodes.source.disconnect()
   audioNodes.source.connect(panner)
   panner.connect(audioNodes.gain)
   audioNodes.panner = panner
@@ -73,8 +73,8 @@ const updateAudioPanner = (
 }
 
 export const removePannerNode = (audioNodes: AudioNodeGroup) => {
+  audioNodes.source.disconnect()
   audioNodes.source.connect(audioNodes.gain)
-  audioNodes.source.disconnect(audioNodes.panner!)
   audioNodes.panner!.disconnect(audioNodes.gain)
   audioNodes.panner = undefined
 }

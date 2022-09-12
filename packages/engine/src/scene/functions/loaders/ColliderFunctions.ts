@@ -16,32 +16,27 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import {
   ColliderComponent,
   ColliderComponentType,
-  ModelColliderComponent,
+  GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
-import { GroupComponent } from '../../components/GroupComponent'
-import { ModelComponent } from '../../components/ModelComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
-  if (hasComponent(entity, LocalTransformComponent)) setComponent(entity, ModelColliderComponent, true)
+  // todo: ColliderComponent needs to be refactored to support multiple colliders
   const colliderProps = parseColliderProperties(data)
   setComponent(entity, ColliderComponent, colliderProps)
+  if (data['xrengine.collider.bodyType']) {
+    setComponent(entity, GroupColliderComponent, {})
+  }
 }
 
-export const updateCollider = (entity: Entity): boolean => {
+export const updateCollider = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const colliderComponent = getComponent(entity, ColliderComponent)
-  /**
-   * @todo bitecs queues are needed to make this Object3DComponent check redundant
-   *   as currently adding PortalComponent and then Obejct3DComponent synchronously
-   *   will still trigger [PortalComponent, Not(Obejct3DComponent)] queries
-   */
-  if (hasComponent(entity, ModelColliderComponent)) return false
-  if (!colliderComponent) return false
+
+  if (!colliderComponent) return
 
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
@@ -107,12 +102,10 @@ export const updateCollider = (entity: Entity): boolean => {
 
   rigidbody.setTranslation(transform.position, true)
   rigidbody.setRotation(transform.rotation, true)
-
-  return true
 }
 
-export const updateMeshCollider = (entity: Entity) => {
-  if (!hasComponent(entity, ModelColliderComponent)) return true
+export const updateGroupCollider = (entity: Entity) => {
+  if (!hasComponent(entity, GroupColliderComponent)) return
 
   const colliderComponent = getComponent(entity, ColliderComponent)
 
