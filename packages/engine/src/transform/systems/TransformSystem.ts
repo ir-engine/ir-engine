@@ -87,8 +87,8 @@ const updateTransformFromRigidbody = (entity: Entity) => {
     const prevScale = prevRigidbodyScale.get(entity)
     prevRigidbodyScale.set(entity, transform.scale.clone())
 
-    rigidBody.body.setTranslation(transform.position, true)
-    rigidBody.body.setRotation(transform.rotation, true)
+    rigidBody.body.setTranslation(transform.position, !rigidBody.body.isSleeping())
+    rigidBody.body.setRotation(transform.rotation, !rigidBody.body.isSleeping())
 
     // if scale has changed, we have to recreate the collider
     const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(transform.scale) > 0.0001 : true
