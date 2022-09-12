@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
@@ -14,13 +15,15 @@ import styleString from './index.scss'
 
 export function createAvatarDetailView(id: string) {
   const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial())
-  return createXRUI(
+  const ui = createXRUI(
     AvatarDetailView,
     createState({
       id,
       videoPreviewMesh
     })
   )
+  addComponent(ui.entity, NameComponent, 'avatar-detail-ui-' + id)
+  return ui
 }
 
 interface AvatarDetailState {

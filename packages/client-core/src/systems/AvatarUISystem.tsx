@@ -15,6 +15,7 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
