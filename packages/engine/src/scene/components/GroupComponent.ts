@@ -50,10 +50,10 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
   const transform = getComponent(entity, TransformComponent)
-  transform.position.copy(obj.position)
-  transform.rotation.copy(obj.quaternion)
-  transform.scale.copy(obj.scale)
   const world = Engine.instance.currentWorld
+  obj.position.copy(transform.position)
+  obj.quaternion.copy(transform.rotation)
+  obj.scale.copy(transform.scale)
   obj.matrixAutoUpdate = false
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrix
