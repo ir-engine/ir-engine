@@ -44,8 +44,9 @@ describe('FileUtil functions', () => {
     })
 
     it('should make copy of given dirctory path recursively', () => {
-      const dirName = 'FileUtil_Copy_Dir_Test_' + Math.round(Math.random() * 100)
-      const newDirName = 'FileUtil_Copy_Dir_Test_' + Math.round(Math.random() * 1000)
+      const dirVersion = Math.round(Math.random() * 100)
+      const dirName = 'FileUtil_Copy_Dir_Test_' + dirVersion
+      const newDirName = 'FileUtil_Copy_Dir_Test_' + (dirVersion + 1)
       const subdirName = 'FileUtil_Copy_Dir_Subdir_Test_' + Math.round(Math.random() * 100)
       const fileName = 'FileUtil_Copy_File_Test_' + Math.round(Math.random() * 100) + '.txt'
       const dirPath = path.join(PROJECT_PATH, dirName)

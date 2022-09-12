@@ -22,17 +22,21 @@ const AssetHeading = (styled as any).div`
   color: #f1f1f1;
 `
 
+interface Props {
+  hideHeading?: boolean
+}
+
 export type AssetSelectionChangePropsType = {
   resourceUrl: string
   name: string
-  contentTypes: string
+  contentType: string
 }
 
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
  */
 
-export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
+export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref) => {
   useImperativeHandle(ref, () => ({ onLayoutChanged, onSelectionChanged }))
   const [previewPanel, usePreviewPanel] = useState({
     PreviewSource: null as any,
@@ -135,7 +139,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
 
   return (
     <>
-      <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
+      {!hideHeading && <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>}
 
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>

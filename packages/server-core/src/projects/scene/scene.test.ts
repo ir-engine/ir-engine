@@ -42,6 +42,7 @@ describe('scene.test', () => {
           },
           params
         )
+        console.log('scene-data data', data)
         assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
       })
     })

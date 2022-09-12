@@ -26,9 +26,9 @@ describe('ComponentFunctions', async () => {
     it('should create tag component', () => {
       const TagComponent = createMappedComponent('TagComponent')
 
-      assert.equal(TagComponent._name, 'TagComponent')
-      assert.equal(typeof (TagComponent as any)._schema, 'undefined')
-      assert.equal((TagComponent as any)._map.size, 0)
+      assert.equal(TagComponent.name, 'TagComponent')
+      assert.equal(typeof TagComponent.schema, 'undefined')
+      assert.equal(TagComponent.map.size, 0)
       assert.equal(ComponentMap.size, 1)
     })
 
@@ -45,9 +45,9 @@ describe('ComponentFunctions', async () => {
         Vector3Schema
       )
 
-      assert.equal(Vector3Component._name, 'Vector3Component')
-      assert.equal((Vector3Component as any)._schema, Vector3Schema)
-      assert.equal((Vector3Component as any)._map.size, 0)
+      assert.equal(Vector3Component.name, 'Vector3Component')
+      assert.equal(Vector3Component.schema, Vector3Schema)
+      assert.equal(Vector3Component.map.size, 0)
       assert.equal(ComponentMap.size, 1)
     })
   })
@@ -79,9 +79,7 @@ describe('ComponentFunctions', async () => {
       const TestComponent = createMappedComponent<{ value: number }, typeof ValueSchema>('TestComponent', ValueSchema)
 
       const entity = createEntity()
-      const component = addComponent(entity, TestComponent, { value: 3 })
-
-      assert.ok(component)
+      TestComponent.value[entity] = 3
       assert.equal(TestComponent.value[entity], 3)
     })
 
@@ -94,8 +92,8 @@ describe('ComponentFunctions', async () => {
     })
 
     it('should throw on null entity argument', () => {
-      assert.throws(() => addComponent(null!, null!, {}))
-      assert.throws(() => addComponent(undefined!, undefined!, {}))
+      assert.throws(() => addComponent(null!, null!, null!))
+      assert.throws(() => addComponent(undefined!, undefined!, null!))
     })
   })
 

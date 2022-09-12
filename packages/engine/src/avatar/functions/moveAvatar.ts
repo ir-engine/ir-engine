@@ -216,7 +216,7 @@ export const updateReferenceSpace = (entity: Entity) => {
     const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
     // maybe?
-    updateXRCamera(Engine.instance.currentWorld.camera as PerspectiveCamera)
+    updateXRCamera()
   }
 }
 

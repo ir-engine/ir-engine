@@ -1,5 +1,5 @@
-import React, { Fragment, useCallback, useEffect } from 'react'
-import { Color, Material, Texture } from 'three'
+import React, { Fragment, useEffect } from 'react'
+import { Color, Material, Mesh, Texture } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'

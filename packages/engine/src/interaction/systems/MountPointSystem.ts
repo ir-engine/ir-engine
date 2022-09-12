@@ -68,7 +68,6 @@ export default async function MountPointSystem(world: World) {
   return () => {
     for (const entity of mountPointQuery.enter()) {
       const mountPoint = getComponent(entity, MountPointComponent)
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
       addComponent(entity, BoundingBoxComponent, {
         box: new Box3().setFromCenterAndSize(
           getComponent(entity, TransformComponent).position,

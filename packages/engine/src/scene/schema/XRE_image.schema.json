@@ -6,7 +6,7 @@
   "description": "serialization extension for XREngine image components",
   "allOf": [{ "$ref": "glTFProperty.schema.json" }],
   "properties": {
-    "imageSource": {
+    "source": {
       "type": "string",
       "default": ""
     },

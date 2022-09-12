@@ -31,6 +31,7 @@ import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -58,7 +59,7 @@ const downwardGroundRaycast = {
 } as RaycastArgs
 
 export default async function AvatarLoadingSystem(world: World) {
-  const effectQuery = defineQuery([AvatarEffectComponent, Not(Object3DComponent)])
+  const effectQuery = defineQuery([AvatarEffectComponent])
   const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const dissolveQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarDissolveComponent])
@@ -110,7 +111,6 @@ export default async function AvatarLoadingSystem(world: World) {
         sourceTransform.rotation.clone(),
         sourceTransform.scale.clone()
       )
-      addComponent(entity, Object3DComponent, { value: new Group() })
       addComponent(entity, VisibleComponent, true)
       /**
        * cast ray to move this downward to be on the ground
@@ -120,15 +120,10 @@ export default async function AvatarLoadingSystem(world: World) {
       if (hits.length) {
         transform.position.y = hits[0].position.y
       }
-    }
-
-    for (const entity of growQuery.enter(world)) {
-      const object = getComponent(entity, Object3DComponent).value
-      const effectComponent = getComponent(entity, AvatarEffectComponent)
 
       const pillar = new Object3D()
       pillar.name = 'pillar_obj'
-      object.add(pillar)
+      addObjectToGroup(entity, pillar)
 
       const R = 0.6 * plate.geometry.boundingSphere?.radius!
       for (let i = 0, n = 5 + 10 * R * Math.random(); i < n; i += 1) {
@@ -147,8 +142,8 @@ export default async function AvatarLoadingSystem(world: World) {
       const pt = plate.clone()
       pt.name = 'plate_obj'
       pt.material = (pt.material as any).clone()
-      object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
+      addObjectToGroup(entity, pt)
 
       setComponent(entity, TweenComponent, {
         tween: new Tween<any>(effectComponent)
@@ -178,7 +173,6 @@ export default async function AvatarLoadingSystem(world: World) {
     for (const entity of growQuery(world)) {
       const object = getComponent(entity, Object3DComponent).value
       object.updateWorldMatrix(true, true)
-      object.updateMatrixWorld(true)
     }
 
     for (const entity of commonQuery(world)) {
@@ -212,6 +206,12 @@ export default async function AvatarLoadingSystem(world: World) {
       }
     }
 
+    for (const entity of dissolveQuery.enter(world)) {
+      const effectComponent = getComponent(entity, AvatarEffectComponent)
+      if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
+        getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
+    }
+
     for (const entity of dissolveQuery(world)) {
       const disolveEffect = getComponent(entity, AvatarDissolveComponent).effect
 
@@ -227,8 +227,6 @@ export default async function AvatarLoadingSystem(world: World) {
             }
           })
         })
-        if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
-          getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
 
         setComponent(entity, TweenComponent, {
           tween: new Tween<any>(effectComponent)

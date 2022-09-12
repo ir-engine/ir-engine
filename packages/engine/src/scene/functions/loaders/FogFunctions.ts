@@ -142,7 +142,7 @@ const setupMaterialForFog = (entity: Entity) => {
 const restoreMaterialForFog = (entity: Entity) => {
   Engine.instance.currentWorld.scene.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
     if (typeof obj.material === 'undefined') return
-    if (obj.material.userData.fogPlugin) {
+    if (obj.material.userData?.fogPlugin) {
       removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
       delete obj.material.userData.fogPlugin
     }

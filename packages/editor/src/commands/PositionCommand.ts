@@ -2,6 +2,7 @@ import { Matrix4, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
@@ -119,24 +120,27 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
       obj3d.updateMatrix()
     } else {
       const transformComponent = getComponent(node.entity, TransformComponent)
+
       if (space === TransformSpace.Local) {
         if (addToPosition) transformComponent.position.add(pos)
         else transformComponent.position.copy(pos)
       } else {
-        const obj3d = getComponent(node.entity, Object3DComponent)?.value
-        if (!obj3d) continue
-        obj3d.updateMatrixWorld() // Update parent world matrices
+        const transform = getComponent(node.entity, TransformComponent)
+        const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
 
         if (addToPosition) {
-          tempVector.setFromMatrixPosition(obj3d.matrixWorld)
+          tempVector.setFromMatrixPosition(transform.matrix)
           tempVector.add(pos)
         }
 
-        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
-
+        const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
         transformComponent.position.copy(tempVector)
+      }
+
+      if (hasComponent(node.entity, RigidBodyComponent)) {
+        getComponent(node.entity, RigidBodyComponent).body?.setTranslation(transformComponent.position, true)
       }
     }
   }

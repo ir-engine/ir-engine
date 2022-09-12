@@ -1,8 +1,17 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, createMappedComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type CallbackComponentType = {
-  [event: string]: (triggerEntity?: Entity) => void
+export const enum StandardCallbacks {
+  PLAY = 'xre.play',
+  PAUSE = 'xre.pause',
+  STOP = 'xre.stop'
 }
 
-export const CallbackComponent = createMappedComponent<CallbackComponentType>('CallbackComponent')
+export const CallbackComponent = createMappedComponent<Map<string, (...params: any) => void>>('CallbackComponent')
+
+export function setCallback(entity: Entity, key: string, callback: (...params: any) => void) {
+  if (!hasComponent(entity, CallbackComponent)) addComponent(entity, CallbackComponent, new Map())
+  const callbacks = getComponent(entity, CallbackComponent)
+  callbacks.set(key, callback)
+  callbacks[key] = key // for inspector
+}

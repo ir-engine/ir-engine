@@ -15,7 +15,7 @@ export const removeEntity = (entity: Entity, immediately = false, world = Engine
     bitECS.removeEntity(world, entity)
   } else {
     removeAllComponents(entity, world)
-    addComponent(entity, EntityRemovedComponent, {})
+    addComponent(entity, EntityRemovedComponent, null)
   }
 }
 

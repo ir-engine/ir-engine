@@ -1,14 +1,16 @@
 import { PerspectiveCamera } from 'three'
 
+import { CameraComponent } from '@xrengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { accessEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { getCanvasBlob } from './thumbnails'
 
@@ -31,22 +33,20 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
 export async function takeScreenshot(width: number, height: number): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   let scenePreviewCamera: PerspectiveCamera = null!
-  const query = defineQuery([ScenePreviewCameraTagComponent])
+  const query = defineQuery([ScenePreviewCameraComponent])
 
   for (const entity of query()) {
-    scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
+    scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
   }
 
   if (!scenePreviewCamera) {
     const entity = createEntity()
-    addComponent(entity, ScenePreviewCameraTagComponent, true)
-
-    scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
-    Engine.instance.currentWorld.camera.matrix.decompose(
-      scenePreviewCamera.position,
-      scenePreviewCamera.quaternion,
-      scenePreviewCamera.scale
-    )
+    scenePreviewCamera = addComponent(entity, ScenePreviewCameraComponent, null).camera
+    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    addObjectToGroup(entity, scenePreviewCamera)
+    scenePreviewCamera.position.copy(position)
+    scenePreviewCamera.quaternion.copy(rotation)
+    scenePreviewCamera.updateMatrixWorld(true)
   }
 
   const prevAspect = scenePreviewCamera.aspect

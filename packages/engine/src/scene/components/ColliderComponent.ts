@@ -33,7 +33,7 @@ export type ColliderComponentType = {
 }
 
 export const ColliderComponent = createMappedComponent<ColliderComponentType>('ColliderComponent')
-export const MeshColliderComponentTag = createMappedComponent<{}>('MeshColliderComponentTag')
+export const ModelColliderComponent = createMappedComponent<{}>('ModelColliderComponent')
 
 export const SCENE_COMPONENT_COLLIDER = 'collider'
 export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {

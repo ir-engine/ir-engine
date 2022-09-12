@@ -6,17 +6,27 @@ import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent, TransformComponentType, TransformSchema } from './TransformComponent'
 
-export const LocalTransformComponent = createMappedComponent<TransformComponentType, typeof TransformSchema>(
+type LocalTransformComponentType = TransformComponentType & { parentEntity: Entity }
+
+export const LocalTransformComponent = createMappedComponent<LocalTransformComponentType, typeof TransformSchema>(
   'LocalTransformComponent',
   TransformSchema
 )
 
-export function setLocalTransformComponent(entity: Entity, position: Vector3, rotation: Quaternion, scale: Vector3) {
+export function setLocalTransformComponent(
+  entity: Entity,
+  parentEntity: Entity,
+  position: Vector3,
+  rotation: Quaternion,
+  scale: Vector3
+) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
   return setComponent(entity, LocalTransformComponent, {
+    parentEntity,
     position: createVector3Proxy(LocalTransformComponent.position, entity, dirtyTransforms).copy(position),
     rotation: createQuaternionProxy(LocalTransformComponent.rotation, entity, dirtyTransforms).copy(rotation),
-    scale: createVector3Proxy(LocalTransformComponent.scale, entity, dirtyTransforms).copy(scale)
+    scale: createVector3Proxy(LocalTransformComponent.scale, entity, dirtyTransforms).copy(scale),
+    matrix: new Matrix4()
   })
 }
 

@@ -1,6 +1,7 @@
 import { OrthographicCamera, PerspectiveCamera } from 'three'
 
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { ProjectionType } from '../../camera/types/ProjectionType'
 import { Engine } from '../../ecs/classes/Engine'
@@ -9,10 +10,11 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraPropertiesComponentType } from '../components/CameraPropertiesComponent'
 
 export const setCameraProperties = (cameraEntity: Entity, data: CameraPropertiesComponentType): void => {
+  const camera = getComponent(cameraEntity, CameraComponent)
   const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
 
   if (data.projectionType === ProjectionType.Orthographic) {
-    Engine.instance.currentWorld.camera = new OrthographicCamera(
+    camera.camera = new OrthographicCamera(
       data.fov / -2,
       data.fov / 2,
       data.fov / 2,
@@ -20,8 +22,8 @@ export const setCameraProperties = (cameraEntity: Entity, data: CameraProperties
       data.cameraNearClip,
       data.cameraFarClip
     )
-  } else if ((Engine.instance.currentWorld.camera as PerspectiveCamera).fov) {
-    ;(Engine.instance.currentWorld.camera as PerspectiveCamera).fov = data.fov ?? 50
+  } else if ((camera.camera as PerspectiveCamera).fov) {
+    ;(camera.camera as PerspectiveCamera).fov = data.fov ?? 50
   }
 
   Engine.instance.currentWorld.camera.near = data.cameraNearClip

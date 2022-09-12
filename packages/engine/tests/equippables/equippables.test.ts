@@ -1,6 +1,6 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
-import { Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
+import { Matrix4, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -16,7 +16,7 @@ import { equipEntity, unequipEntity } from '../../src/interaction/functions/equi
 import { equipperQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
-import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
+import { addObjectToGroup } from '../../src/scene/components/GroupComponent'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
 import { createMockNetwork } from '../util/createMockNetwork'
 
@@ -47,7 +47,8 @@ describe.skip('Equippables Integration Tests', () => {
     const transform = addComponent(equippableEntity, TransformComponent, {
       position: new Vector3(),
       rotation: new Quaternion(),
-      scale: new Vector3()
+      scale: new Vector3(),
+      matrix: new Matrix4()
     })
 
     // physics mock stuff
@@ -61,10 +62,8 @@ describe.skip('Equippables Integration Tests', () => {
     }
     mesh.userData = bodyOptions
 
-    const object3d = addComponent(equippableEntity, Object3DComponent, {
-      value: mesh
-    })
-    Physics.createRigidBodyForObject(equippableEntity, world.physicsWorld, mesh, bodyOptions)
+    addObjectToGroup(equippableEntity, mesh)
+    Physics.createRigidBodyForGroup(equippableEntity, world.physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
     const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
@@ -78,7 +77,8 @@ describe.skip('Equippables Integration Tests', () => {
     addComponent(equipperEntity, TransformComponent, {
       position: new Vector3(2, 0, 0),
       rotation: new Quaternion(),
-      scale: new Vector3()
+      scale: new Vector3(),
+      matrix: new Matrix4()
     })
 
     equipEntity(equipperEntity, equippableEntity, undefined)

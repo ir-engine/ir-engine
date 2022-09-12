@@ -13,13 +13,13 @@ import { uploadToFeathersService } from '../../util/upload'
 import { accessAuthState, AuthAction } from './AuthService'
 
 export const AvatarService = {
-  async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) {
+  async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean) {
     const newAvatar = await API.instance.client.service('avatar').create({
       name: avatarName,
-      isPublicAvatar: isPublicAvatar
+      isPublic
     })
 
-    const uploadResponse = await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName)
+    const uploadResponse = await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName, isPublic)
 
     const patchedAvatar = (await AvatarService.patchAvatar(
       newAvatar.id,
@@ -28,7 +28,7 @@ export const AvatarService = {
       newAvatar.name
     )) as AvatarInterface
 
-    if (!isPublicAvatar) {
+    if (!isPublic) {
       const selfUser = accessAuthState().user
       const userId = selfUser.id.value!
       await AvatarService.updateUserAvatarId(
@@ -96,12 +96,12 @@ export const AvatarService = {
     dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
   },
 
-  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) {
+  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean) {
     return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
         avatarName,
-        isPublicAvatar: !!isPublicAvatar
+        isPublic
       }
     }).promise as Promise<StaticResourceInterface[]>
   }

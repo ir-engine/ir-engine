@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'

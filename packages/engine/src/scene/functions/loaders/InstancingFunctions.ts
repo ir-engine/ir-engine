@@ -39,6 +39,8 @@ import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { setCallback } from '../../components/CallbackComponent'
+import { GroupComponent } from '../../components/GroupComponent'
 import {
   GrassProperties,
   InstancingComponent,
@@ -55,7 +57,7 @@ import {
   VertexProperties
 } from '../../components/InstancingComponent'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
-import { UpdatableComponent } from '../../components/UpdatableComponent'
+import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
 
@@ -815,25 +817,11 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       break
   }
 
-  let obj3d = getComponent(entity, Object3DComponent)
+  let obj3d = getComponent(entity, Object3DComponent).value as unknown as UpdateableObject3D
   if (!obj3d) {
-    const val = new Object3D() as Object3DWithEntity
-    val.entity = entity
-    let parentEntity = world.entityTree.entityNodeMap.get(entity)?.parentEntity
-    let parent: Object3D = world.scene
-    while (parentEntity !== undefined) {
-      if (hasComponent(parentEntity, Object3DComponent)) {
-        parent = getComponent(parentEntity, Object3DComponent).value
-        break
-      } else {
-        parentEntity = world.entityTree.entityNodeMap.get(parentEntity)?.parentEntity
-      }
-    }
-    parent.add(val)
-    obj3d = addComponent(entity, Object3DComponent, { value: val })
+    obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value as unknown as UpdateableObject3D
   }
-  const val = obj3d.value as UpdateableObject3D
-  val.name = `${result.name} Base`
+  obj3d.name = `${result.name} Base`
   const updates: ((dt: number) => void)[] = []
   switch (scatter.mode) {
     case ScatterMode.GRASS:
@@ -870,10 +858,10 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     if (!hasComponent(entity, UpdatableComponent)) {
       addComponent(entity, UpdatableComponent, true)
     }
-    val.update = (dt) => updates.forEach((update) => update(dt))
+    setCallback(entity, UpdatableCallback, (dt) => updates.forEach((update) => update(dt)))
   }
   result.frustumCulled = false
-  val.add(result)
+  obj3d.add(result)
   scatter.state = ScatterState.STAGED
   const eNode = world.entityTree.entityNodeMap.get(entity)!
   dispatchAction(InstancingActions.instancingStaged({ uuid: eNode.uuid }))
