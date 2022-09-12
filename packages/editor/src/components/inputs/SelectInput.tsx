@@ -10,9 +10,9 @@ import TextField from '@mui/material/TextField'
 import styles from './selectInput.module.scss'
 
 interface SelectInputProp {
-  value: string
+  value: any
   options: Array<{ label: string; value: any }>
-  onChange?: (value: string) => void
+  onChange?: (value: any) => void
   placeholder?: string
   disabled?: boolean
   error?: any
@@ -123,7 +123,7 @@ export function SelectInput({
         IconComponent={ExpandMoreIcon}
       >
         {options.map((el, index) => (
-          <MenuItem value={el.value} key={el.value + index} classes={{ root: styles.menuItem }}>
+          <MenuItem value={el.value} key={el.value + String(index)} classes={{ root: styles.menuItem }}>
             {el.label}
           </MenuItem>
         ))}

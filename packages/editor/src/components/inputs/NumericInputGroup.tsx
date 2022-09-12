@@ -18,8 +18,8 @@ export interface NumericInputGroupProp {
   largeStep?: number
   min?: number
   max?: number
-  value?: any
-  onChange: (value: number) => void
+  value: any
+  onChange: (value: any) => void
   unit?: string
   convertFrom?: any
   convertTo?: any

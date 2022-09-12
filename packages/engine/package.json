@@ -65,7 +65,7 @@
     "three-nebula": "^10.0.3",
     "ts-matches": "^5.1.0-1",
     "twitch-m3u8": "^1.1.4",
-    "typescript": "4.7.4",
+    "typescript": "4.8.2",
     "url-polyfill": "1.1.12",
     "vite": "2.9.4",
     "web-worker": "1.2.0",
