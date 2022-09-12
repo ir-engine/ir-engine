@@ -24,16 +24,17 @@ export const initializeKTX2Loader = (loader: GLTFLoader) => {
 export const createGLTFLoader = (keepMaterials = false) => {
   const loader = new GLTFLoader()
 
-  if (!isClient && !keepMaterials) {
+  if (isClient || keepMaterials) {
+    loader.register((parser) => new GPUInstancingExtension(parser))
+    loader.register((parser) => new HubsLightMapExtension(parser))
+    loader.register((parser) => new EEMaterialImporterExtension(parser))
+    loader.register((parser) => new RegisterMaterialsExtension())
+  } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }
 
-  loader.register((parser) => new GPUInstancingExtension(parser))
-  loader.register((parser) => new HubsLightMapExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser))
-  loader.register((parser) => new EEMaterialImporterExtension(parser))
-  loader.register((parser) => new RegisterMaterialsExtension())
 
   loader.setMeshoptDecoder(MeshoptDecoder)
 

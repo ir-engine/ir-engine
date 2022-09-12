@@ -8,6 +8,7 @@ import {
   defineComponent,
   getComponent,
   hasComponent,
+  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
@@ -64,6 +65,21 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, obj.position)
   proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, obj.quaternion)
   proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, obj.scale)
+}
+
+export function removeObjectFromGroup(entity: Entity, object: Object3D) {
+  const obj = object as Object3DWithEntity & Camera
+
+  if (hasComponent(entity, Object3DComponent) && getComponent(entity, Object3DComponent).value === obj)
+    removeComponent(entity, Object3DComponent)
+
+  if (hasComponent(entity, GroupComponent)) {
+    const group = getComponent(entity, GroupComponent)
+    if (group.includes(obj)) group.splice(group.indexOf(obj), 1)
+    if (!group.length) removeComponent(entity, GroupComponent)
+  }
+
+  object.removeFromParent()
 }
 
 export const SCENE_COMPONENT_GROUP = 'group'
