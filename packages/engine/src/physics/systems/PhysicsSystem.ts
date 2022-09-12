@@ -148,7 +148,7 @@ export default async function PhysicsSystem(world: World) {
 
     for (const entity of rigidBodyQuery.exit()) {
       //Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
-      Physics.removeRigidBody(entity, world.physicsWorld, true)
+      Physics.removeRigidBody(entity, world.physicsWorld)
     }
 
     for (const entity of ownedRigidBodyQuery()) {

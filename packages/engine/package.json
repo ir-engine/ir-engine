@@ -41,7 +41,7 @@
     "@xrengine/common": "^0.5.8",
     "@xrengine/hyperflux": "^0.5.8",
     "@xrfoundation/volumetric": "1.0.3",
-    "bitecs": "https://github.com/NateTheGreatt/bitECS/commit/056c637e05327aab8e355ebf25e9ff202b67e495",
+    "bitecs": "git://github.com/NateTheGreatt/bitECS.git#056c637e05327aab8e355ebf25e9ff202b67e495",
     "browserfs": "^1.4.3",
     "comlink": "4.3.1",
     "cross-env": "7.0.3",

@@ -288,16 +288,17 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
   }
 }
 
-function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
-  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)?.body
-  if (rigidBody && world.bodies.contains(rigidBody.handle)) {
-    if (!hasBeenRemoved) {
-      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-      removeComponent(entity, RigidBodyTypeTagComponent)
-      removeComponent(entity, RigidBodyComponent)
-      removeComponent(entity, VelocityComponent)
+function removeRigidBody(entity: Entity, world: World) {
+  if (!hasComponent(entity, RigidBodyComponent)) return
+  const rigidBody = getComponent(entity, RigidBodyComponent, true)?.body
+  removeComponent(entity, RigidBodyComponent)
+  removeComponent(entity, VelocityComponent)
+  if (rigidBody) {
+    const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
+    if (world.bodies.contains(rigidBody.handle)) {
+      world.removeRigidBody(rigidBody)
     }
-    world.removeRigidBody(rigidBody)
+    removeComponent(entity, RigidBodyTypeTagComponent)
   }
 }
 

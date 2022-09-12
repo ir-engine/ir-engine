@@ -32,7 +32,7 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   setComponent(entity, ColliderComponent, colliderProps)
 }
 
-export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
+export const updateCollider = (entity: Entity): boolean => {
   const transform = getComponent(entity, TransformComponent)
   const colliderComponent = getComponent(entity, ColliderComponent)
   /**
@@ -40,8 +40,8 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    *   as currently adding PortalComponent and then Obejct3DComponent synchronously
    *   will still trigger [PortalComponent, Not(Obejct3DComponent)] queries
    */
-  if (hasComponent(entity, ModelColliderComponent)) return
-  if (!colliderComponent) return
+  if (hasComponent(entity, ModelColliderComponent)) return false
+  if (!colliderComponent) return false
 
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
@@ -107,9 +107,13 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
 
   rigidbody.setTranslation(transform.position, true)
   rigidbody.setRotation(transform.rotation, true)
+
+  return true
 }
 
-export const updateMeshCollider = (entity: Entity, forceRebuild = false) => {
+export const updateMeshCollider = (entity: Entity) => {
+  if (!hasComponent(entity, ModelColliderComponent)) return true
+
   const colliderComponent = getComponent(entity, ColliderComponent)
 
   if (hasComponent(entity, RigidBodyComponent)) {
