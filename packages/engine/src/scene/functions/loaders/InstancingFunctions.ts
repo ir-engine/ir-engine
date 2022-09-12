@@ -12,7 +12,7 @@ import {
   Mesh,
   MeshStandardMaterial,
   Object3D,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   Quaternion,
   RawShaderMaterial,
   Texture,
@@ -562,7 +562,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     const grassProps = props as GrassProperties
     await loadGrassTextures(grassProps)
     //samplers
-    grassGeometry = new PlaneBufferGeometry(grassProps.bladeWidth.mu, grassProps.bladeHeight.mu, 1, grassProps.joints)
+    grassGeometry = new PlaneGeometry(grassProps.bladeWidth.mu, grassProps.bladeHeight.mu, 1, grassProps.joints)
 
     grassGeometry.translate(0, grassProps.bladeHeight.mu / 2, 0)
 

@@ -73,7 +73,8 @@ export class World {
 
     initializeEntityTree(this)
 
-    // this.scene.autoUpdate = false
+    /** @todo */
+    // this.scene.matrixAutoUpdate = false
     this.scene.layers.set(ObjectLayers.Scene)
   }
 

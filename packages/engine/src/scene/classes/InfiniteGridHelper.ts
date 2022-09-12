@@ -1,4 +1,4 @@
-import { Color, DoubleSide, Mesh, Plane, PlaneBufferGeometry, ShaderMaterial, Vector3 } from 'three'
+import { Color, DoubleSide, Mesh, Plane, PlaneGeometry, ShaderMaterial, Vector3 } from 'three'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -71,7 +71,7 @@ export default class InfiniteGridHelper extends Mesh {
     size1 = size1 || 1
     size2 = size2 || 10
     distance = distance || 8000
-    const geometry = new PlaneBufferGeometry(2, 2, 1, 1)
+    const geometry = new PlaneGeometry(2, 2, 1, 1)
     const material = new ShaderMaterial({
       side: DoubleSide,
       uniforms: {
