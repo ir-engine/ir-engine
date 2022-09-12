@@ -2,7 +2,7 @@ import {
   CubeTexture,
   Mesh,
   PerspectiveCamera,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   Scene,
   ShaderMaterial,
   Texture,
@@ -24,7 +24,7 @@ export default async function createReadableTexture(
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
   }
-  const fullscreenQuadGeometry = new PlaneBufferGeometry(2, 2, 1, 1)
+  const fullscreenQuadGeometry = new PlaneGeometry(2, 2, 1, 1)
   const fullscreenQuadMaterial = new ShaderMaterial({
     uniforms: { blitTexture: new Uniform(blit) },
     vertexShader: `
