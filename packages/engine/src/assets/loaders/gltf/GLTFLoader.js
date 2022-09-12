@@ -3104,10 +3104,10 @@ class GLTFParser {
 
 				URL.revokeObjectURL( sourceURI );
 
+			} else {
+				texture.userData.src = sourceURI
 			}
-
 			texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType( sourceDef.uri );
-
 			return texture;
 
 		} ).catch( function ( error ) {

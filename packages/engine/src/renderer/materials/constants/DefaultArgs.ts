@@ -12,3 +12,7 @@ export const ColorArg = { default: new Color(), type: 'color' }
 export const TextureArg = { default: undefined, type: 'texture' }
 
 export const SelectArg = { default: '', options: [], type: 'select' }
+export const StringArg = { default: '', type: 'string' }
+export const ShaderArg = { default: '', type: 'shader' }
+
+export const ObjectArg = { default: {}, type: 'object' }

@@ -1,7 +1,7 @@
 import { VideoTexture } from 'three'
 
-import { isClient } from '../../common/functions/isClient'
-import { EngineRenderer } from '../WebGLRendererSystem'
+import { isClient } from '../../../common/functions/isClient'
+import { EngineRenderer } from '../../WebGLRendererSystem'
 
 export default function loadVideoTexture(src, onLoad = (result) => {}) {
   if (!isClient) return

@@ -5,7 +5,7 @@ import ReactJson from 'react-json-view'
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { formatMaterialArgs } from '@xrengine/engine/src/renderer/materials/Utilities'
+import { formatMaterialArgs } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
 import {
