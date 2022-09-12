@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import { requestVcForEvent } from '@xrengine/common/src/credentials/credentials'
+// import { requestVcForEvent } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -231,18 +231,17 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
    * some in-engine action, makes a payment, etc).
    */
   async function handleIssueCredentialClick() {
-    const signedVp = await requestVcForEvent('EnteredVolumeEvent')
-    console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
-
-    const webCredentialType = 'VerifiablePresentation'
-    // @ts-ignore
-    const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
-      recommendedHandlerOrigins: ['https://uniwallet.cloud']
-    })
-
-    // Use Credential Handler API to store
-    const result = await navigator.credentials.store(webCredentialWrapper)
-    console.log('Result of receiving via store() request:', result)
+    /** @todo temporarily disabled for vite upgrade */
+    // const signedVp = await requestVcForEvent('EnteredVolumeEvent')
+    // console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
+    // const webCredentialType = 'VerifiablePresentation'
+    // // @ts-ignore
+    // const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
+    //   recommendedHandlerOrigins: ['https://uniwallet.cloud']
+    // })
+    // // Use Credential Handler API to store
+    // const result = await navigator.credentials.store(webCredentialWrapper)
+    // console.log('Result of receiving via store() request:', result)
   }
 
   /**
