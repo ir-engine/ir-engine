@@ -20,6 +20,7 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { CallbackComponent, setCallback } from '../../components/CallbackComponent'
 import { ColliderComponent } from '../../components/ColliderComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
@@ -106,8 +107,9 @@ export const revertAvatarToMovingStateFromTeleport = (world: World) => {
   controller.movementEnabled = true
 
   // teleport player to where the portal spawn position is
-  controller.body.setTranslation(world.activePortal!.remoteSpawnPosition, true)
-  controller.body.setRotation(world.activePortal!.remoteSpawnRotation, true)
+  const transform = getComponent(world.localClientEntity, TransformComponent)
+  transform.position.copy(world.activePortal!.remoteSpawnPosition)
+  transform.rotation.copy(world.activePortal!.remoteSpawnRotation)
 
   world.activePortal = null
   dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))

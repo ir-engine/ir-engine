@@ -8,8 +8,8 @@ import { Entity } from '../classes/Entity'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
-const INITIAL_COMPONENT_SIZE = 1000 // TODO set to 0 after next bitECS update
-bitECS.setDefaultSize(1000)
+const INITIAL_COMPONENT_SIZE = process.env['APP_ENV'] === 'test' ? 100000 : 1000 // TODO set to 0 after next bitECS update
+bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
 /**
  * @todo move this to engine scope

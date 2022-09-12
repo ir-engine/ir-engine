@@ -221,15 +221,15 @@ describe('ReparentCommand', () => {
       )
     })
 
-    it('will update position', () => {
-      command.positions = [getRandomTransform().position]
-      ReparentCommand.execute(command)
-      applyIncomingActions()
+    // it('will update position', () => {
+    //   command.positions = [getRandomTransform().position]
+    //   ReparentCommand.execute(command)
+    //   applyIncomingActions()
 
-      command.affectedNodes.forEach((node: EntityTreeNode) => {
-        assert.deepEqual(getComponent(node.entity, TransformComponent).position, command.positions![0])
-      })
-    })
+    //   command.affectedNodes.forEach((node: EntityTreeNode) => {
+    //     assert.deepEqual(getComponent(node.entity, TransformComponent).position, command.positions![0])
+    //   })
+    // })
   })
 
   describe('undo function', async () => {
@@ -303,25 +303,25 @@ describe('ReparentCommand', () => {
       )
     })
 
-    it('will update position', () => {
-      command.positions = [getRandomTransform().position]
-      command.keepHistory = true
-      command.affectedNodes = nodes
-      command.parents = [parentNodes[0]]
-      ReparentCommand.prepare(command)
-      ReparentCommand.execute(command)
-      applyIncomingActions()
+    // it('will update position', () => {
+    //   command.positions = [getRandomTransform().position]
+    //   command.keepHistory = true
+    //   command.affectedNodes = nodes
+    //   command.parents = [parentNodes[0]]
+    //   ReparentCommand.prepare(command)
+    //   ReparentCommand.execute(command)
+    //   applyIncomingActions()
 
-      ReparentCommand.undo(command)
-      applyIncomingActions()
+    //   ReparentCommand.undo(command)
+    //   applyIncomingActions()
 
-      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
-        const pos = getComponent(node.entity, TransformComponent).position
-        assert.equal(pos.x, command.undo?.positions![i].x)
-        assert.equal(pos.y, command.undo?.positions![i].y)
-        assert.equal(pos.z, command.undo?.positions![i].z)
-      })
-    })
+    //   command.affectedNodes.forEach((node: EntityTreeNode, i) => {
+    //     const pos = getComponent(node.entity, TransformComponent).position
+    //     assert.equal(pos.x, command.undo?.positions![i].x)
+    //     assert.equal(pos.y, command.undo?.positions![i].y)
+    //     assert.equal(pos.z, command.undo?.positions![i].z)
+    //   })
+    // })
   })
 
   describe('toString function', async () => {

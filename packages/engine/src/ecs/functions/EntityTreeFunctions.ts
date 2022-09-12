@@ -15,7 +15,7 @@ import { setTransformComponent, TransformComponent } from '../../transform/compo
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
-import { addComponent, getComponent } from './ComponentFunctions'
+import { addComponent, getComponent, setComponent } from './ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from './EntityFunctions'
 
 // ========== Entity Tree Functions ========== //
@@ -49,7 +49,6 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   world.sceneEntity = createEntity()
   addComponent(world.sceneEntity, NameComponent, { name: 'scene' })
   addComponent(world.sceneEntity, VisibleComponent, true)
-  setTransformComponent(world.sceneEntity)
   if (isMobile) addComponent(world.sceneEntity, SimpleMaterialTagComponent, true)
 
   world.entityTree = {
@@ -94,7 +93,7 @@ export function addEntityNodeInTree(
   const parent = tree.entityNodeMap.get(parentNode.entity)
 
   if (!parent) {
-    addComponent(tree.rootNode.entity, SceneTagComponent, true)
+    setComponent(tree.rootNode.entity, SceneTagComponent, true)
     addEntityNodeChild(tree.rootNode, parentNode)
   }
 
