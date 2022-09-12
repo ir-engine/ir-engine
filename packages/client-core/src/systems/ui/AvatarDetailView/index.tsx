@@ -2,7 +2,7 @@ import { createState } from '@hookstate/core'
 import { useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { CircleBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
+import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
@@ -13,7 +13,7 @@ import { useUserState } from '../../../user/services/UserService'
 import styleString from './index.scss'
 
 export function createAvatarDetailView(id: string) {
-  const videoPreviewMesh = new Mesh(new CircleBufferGeometry(0.25, 32), new MeshBasicMaterial())
+  const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial())
   return createXRUI(
     AvatarDetailView,
     createState({
