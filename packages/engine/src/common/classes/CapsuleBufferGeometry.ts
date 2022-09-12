@@ -6,7 +6,7 @@ import { BufferAttribute, BufferGeometry, Vector2, Vector3 } from 'three'
 /**
  * @author maximequiblier
  */
-export class CapsuleBufferGeometry extends BufferGeometry {
+export class CapsuleGeometry extends BufferGeometry {
   parameters
   radiusTop: number
   radiusBottom: number
@@ -42,7 +42,7 @@ export class CapsuleBufferGeometry extends BufferGeometry {
     thetaLength?: number
   ) {
     super()
-    this.type = 'CapsuleBufferGeometry'
+    this.type = 'CapsuleGeometry'
 
     this.parameters = {
       radiusTop: radiusTop,
