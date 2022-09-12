@@ -9,7 +9,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   OrthographicCamera,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   PMREMGenerator,
   RawShaderMaterial,
   RGBAFormat,
@@ -126,7 +126,7 @@ export const convertCubemapToEquiImageData = (
     side: DoubleSide,
     transparent: true
   })
-  const quad = new Mesh(new PlaneBufferGeometry(1, 1), material)
+  const quad = new Mesh(new PlaneGeometry(1, 1), material)
   scene.add(quad)
   const camera = new OrthographicCamera(1 / -2, 1 / 2, 1 / 2, 1 / -2, -10000, 10000)
 
