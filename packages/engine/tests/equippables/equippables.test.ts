@@ -1,6 +1,6 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
-import { Matrix4, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
+import { Matrix4, Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -53,7 +53,7 @@ describe.skip('Equippables Integration Tests', () => {
 
     // physics mock stuff
     const type = ShapeType.Cuboid
-    const geom = new SphereBufferGeometry()
+    const geom = new SphereGeometry()
 
     const mesh = new Mesh(geom, new MeshNormalMaterial())
     const bodyOptions = {
