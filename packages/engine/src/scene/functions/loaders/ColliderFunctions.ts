@@ -110,7 +110,7 @@ export const updateGroupCollider = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
 
   if (hasComponent(entity, RigidBodyComponent)) {
-    Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+    // Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
     Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
   }
 

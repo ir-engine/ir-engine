@@ -23,9 +23,10 @@ export function setLocalTransformComponent(
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
   return setComponent(entity, LocalTransformComponent, {
     parentEntity,
-    position: createVector3Proxy(LocalTransformComponent.position, entity, dirtyTransforms, position),
-    rotation: createQuaternionProxy(LocalTransformComponent.rotation, entity, dirtyTransforms, rotation),
-    scale: createVector3Proxy(LocalTransformComponent.scale, entity, dirtyTransforms, scale),
+    // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
+    position: createVector3Proxy(LocalTransformComponent.position, entity, dirtyTransforms, position.clone()),
+    rotation: createQuaternionProxy(LocalTransformComponent.rotation, entity, dirtyTransforms, rotation.clone()),
+    scale: createVector3Proxy(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()),
     matrix: new Matrix4()
   })
 }

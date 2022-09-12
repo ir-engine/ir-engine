@@ -109,8 +109,8 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
-    addObjectToGroup(e, mesh)
     setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
+    addObjectToGroup(e, mesh)
     addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent._name])
     createObjectEntityFromGLTF(e, mesh)
   }
