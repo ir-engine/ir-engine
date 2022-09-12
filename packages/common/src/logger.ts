@@ -192,7 +192,7 @@ function stringifyError(error, errorContextMessage?) {
   stack = trace.stack
 
   if (error.cause) {
-    cause = stringifyError(error)
+    // cause = stringifyError(error)
   }
 
   let message = error.message

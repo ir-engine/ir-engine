@@ -55,7 +55,7 @@
     "lodash": "4.17.21",
     "meshoptimizer": "^0.17.0",
     "postprocessing": "^6.26.3",
-    "react": "17.0.2",
+    "react": "18.2.0",
     "rewire": "^6.0.0",
     "sharp": "^0.30.7",
     "simplex-noise": "^3.0.0",
