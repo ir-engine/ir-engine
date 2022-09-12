@@ -259,20 +259,11 @@ export const MediaComponent = defineComponent({
     const updatePlay = () => {
       const element = getComponent(entity, MediaElementComponent)?.element
       if (element) {
-        const doUpdate = () => {
-          if (state.paused.value) {
-            element.pause()
-          } else {
-            element.play()
-          }
+        if (state.paused.value) {
+          element.pause()
+        } else {
+          element.play()
         }
-        if (!getEngineState().userHasInteracted.get()) {
-          new Promise<void>((resolve) =>
-            setInterval(() => {
-              if (getEngineState().userHasInteracted.get()) resolve()
-            }, 500)
-          ).then(doUpdate)
-        } else doUpdate()
       }
     }
 
@@ -291,7 +282,7 @@ export const MediaComponent = defineComponent({
     state.merge(json)
 
     // handle autoplay
-    if (state.autoplay.value) state.paused.set(false)
+    if (state.autoplay.value && getEngineState().userHasInteracted.value) state.paused.set(false)
 
     // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
     updateTrackMetadata()

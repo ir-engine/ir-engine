@@ -50,6 +50,9 @@ export function teleportObjectReceptor(
     body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
+  const transform = getComponent(entity, TransformComponent)
+  transform.position.copy(action.position)
+  transform.rotation.copy(action.rotation)
 }
 
 const processCollisions = (world: World, drainCollisions, drainContacts, collisionEntities: Entity[]) => {
