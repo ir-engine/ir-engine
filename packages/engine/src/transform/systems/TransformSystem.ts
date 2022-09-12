@@ -64,10 +64,15 @@ const prevRigidbodyScale = new Map<Entity, Vector3>()
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const world = Engine.instance.currentWorld
   const localTransform = getComponent(entity, LocalTransformComponent)
-  if (localTransform && (world.dirtyTransforms.has(entity) || world.dirtyTransforms.has(localTransform.parentEntity))) {
+  const parentTransform = localTransform?.parentEntity
+    ? getComponent(localTransform.parentEntity, TransformComponent)
+    : undefined
+  if (
+    localTransform &&
+    parentTransform &&
+    (world.dirtyTransforms.has(entity) || world.dirtyTransforms.has(localTransform.parentEntity))
+  ) {
     const transform = getComponent(entity, TransformComponent)
-    const localTransform = getComponent(entity, LocalTransformComponent)
-    const parentTransform = getComponent(localTransform.parentEntity, TransformComponent)
     localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
     transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
     transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
