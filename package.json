@@ -36,7 +36,6 @@
   },
   "npmClient": "npm",
   "scripts": {
-    "build-publish": "lerna run build-publish --parallel",
     "build-client": "cd packages/client && npm run build",
     "check": "npm run lint && npm run check-errors && npm run test && npm run test-e2e && npm run build-client",
     "check-db-exists": "cross-env ts-node --swc scripts/check-db-exists.ts",

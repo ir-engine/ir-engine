@@ -22,7 +22,6 @@
     "check-errors": "tsc --noemit",
     "cross-env": "7.0.3",
     "dev": "vite",
-    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
     "test": "mocha --config .mocharc.json",
     "validate": "npm run test",
     "local-minikube-start": "minikube start",
@@ -39,7 +38,6 @@
   },
   "devDependencies": {
     "@types/mocha": "9.1.0",
-    "create-ts-index": "1.14.0",
     "mocha": "9.2.2",
     "nock": "13.2.4",
     "vite": "2.9.4"
