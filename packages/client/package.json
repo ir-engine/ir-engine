@@ -38,7 +38,6 @@
     "@mui/material": "5.10.0",
     "@mui/styled-engine-sc": "5.10.0",
     "@mui/styles": "5.9.3",
-    "@rollup/plugin-inject": "4.0.4",
     "@swc/core": "^1.2.210",
     "@xrengine/client-core": "^0.5.8",
     "@xrengine/common": "^0.5.8",
