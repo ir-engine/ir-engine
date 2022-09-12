@@ -33,7 +33,6 @@ describe('FogFunctions', () => {
     assert.equal(density, 2)
     assert.equal(near, 0.1)
     assert.equal(far, 1000)
-    console.log(Engine.instance.currentWorld.scene.fog)
     assert(Engine.instance.currentWorld.scene.fog instanceof Fog)
   })
 })
