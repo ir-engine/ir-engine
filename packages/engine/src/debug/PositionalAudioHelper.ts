@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, MathUtils } from 'three'
 
-import { AudioNodeGroup } from '../audio/systems/MediaSystem'
+import { AudioNodeGroup } from '../scene/components/MediaComponent'
 
 class PositionalAudioHelper extends Line {
   audio: AudioNodeGroup

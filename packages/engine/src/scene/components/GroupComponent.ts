@@ -1,9 +1,16 @@
-import { BufferGeometry, Material, Mesh, Object3D } from 'three'
+import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, defineComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from './Object3DComponent'
 
@@ -32,26 +39,47 @@ export const GroupComponent = defineComponent({
 })
 
 export function addObjectToGroup(entity: Entity, object: Object3D) {
-  const obj = object as Object3DWithEntity
+  const obj = object as Object3DWithEntity & Camera
   obj.entity = entity
 
-  if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: obj })
+  setComponent(entity, Object3DComponent, { value: obj }) // backwards-compat
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
 
   getComponent(entity, GroupComponent).push(obj)
 
-  if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity, obj.position, obj.quaternion, obj.scale)
+  if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
-  const world = Engine.instance.currentWorld
   const transform = getComponent(entity, TransformComponent)
-  obj.matrixAutoUpdate = false
+  const world = Engine.instance.currentWorld
   obj.position.copy(transform.position)
   obj.quaternion.copy(transform.rotation)
   obj.scale.copy(transform.scale)
+  obj.matrixAutoUpdate = false
+  obj.matrix = transform.matrix
+  obj.matrixWorld = transform.matrix
+  obj.matrixWorldInverse = transform.matrixInverse
+  Engine.instance.currentWorld.scene.add(object)
+
+  // sometimes it's convenient to update the entity transform via the Object3D,
+  // so allow people to do that via proxies
   proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, obj.position)
   proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, obj.quaternion)
   proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, obj.scale)
-  Engine.instance.currentWorld.scene.add(object)
+}
+
+export function removeObjectFromGroup(entity: Entity, object: Object3D) {
+  const obj = object as Object3DWithEntity & Camera
+
+  if (hasComponent(entity, Object3DComponent) && getComponent(entity, Object3DComponent).value === obj)
+    removeComponent(entity, Object3DComponent)
+
+  if (hasComponent(entity, GroupComponent)) {
+    const group = getComponent(entity, GroupComponent)
+    if (group.includes(obj)) group.splice(group.indexOf(obj), 1)
+    if (!group.length) removeComponent(entity, GroupComponent)
+  }
+
+  object.removeFromParent()
 }
 
 export const SCENE_COMPONENT_GROUP = 'group'

@@ -96,8 +96,6 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
     const node = command.affectedNodes[i]
     const pos = positions[i] ?? positions[0]
 
-    /** @todo figure out native local transform support */
-    // const transformComponent = hasComponent(node.entity, LocalTransformComponent) ? getComponent(node.entity, LocalTransformComponent) : getComponent(node.entity, TransformComponent)
     const isObj3d = typeof node === 'string'
 
     if (isObj3d) {
@@ -119,13 +117,13 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
       }
       obj3d.updateMatrix()
     } else {
-      const transformComponent = getComponent(node.entity, TransformComponent)
+      const transform = getComponent(node.entity, TransformComponent)
+      const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
 
       if (space === TransformSpace.Local) {
-        if (addToPosition) transformComponent.position.add(pos)
-        else transformComponent.position.copy(pos)
+        if (addToPosition) localTransform.position.add(pos)
+        else localTransform.position.copy(pos)
       } else {
-        const transform = getComponent(node.entity, TransformComponent)
         const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
 
         if (addToPosition) {
@@ -136,11 +134,7 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
         const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
-        transformComponent.position.copy(tempVector)
-      }
-
-      if (hasComponent(node.entity, RigidBodyComponent)) {
-        getComponent(node.entity, RigidBodyComponent).body?.setTranslation(transformComponent.position, true)
+        localTransform.position.copy(tempVector)
       }
     }
   }

@@ -1,12 +1,11 @@
 import {
   ArrowHelper,
   Box3Helper,
-  BoxBufferGeometry,
+  BoxGeometry,
   BoxHelper,
   Camera,
   CameraHelper,
   Color,
-  ConeBufferGeometry,
   ConeGeometry,
   CylinderGeometry,
   DoubleSide,
@@ -16,7 +15,7 @@ import {
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   Object3D,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   Quaternion,
   SkeletonHelper,
   SphereGeometry,
@@ -28,7 +27,6 @@ import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
-import { AudioNodeGroups } from '../../audio/systems/MediaSystem'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -45,7 +43,7 @@ import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import Spline from '../../scene/classes/Spline'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
-import { MediaElementComponent } from '../../scene/components/MediaComponent'
+import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
@@ -65,7 +63,7 @@ import { DebugRenderer } from './DebugRenderer'
 const vector3 = new Vector3()
 const quat = new Quaternion()
 
-const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
+const cubeGeometry = new ConeGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
@@ -253,10 +251,7 @@ export default async function DebugHelpersSystem(world: World) {
        */
 
       for (const entity of audioHelper.enter()) {
-        const helper = new Mesh(
-          new PlaneBufferGeometry(),
-          new MeshBasicMaterial({ transparent: true, side: DoubleSide })
-        )
+        const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
         helper.material.map = AUDIO_HELPER_TEXTURE
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -282,7 +277,7 @@ export default async function DebugHelpersSystem(world: World) {
         )
         helper.add(helper.userData.centerBall)
 
-        helper.userData.gizmo = new BoxHelper(new Mesh(new BoxBufferGeometry()), 0xff0000)
+        helper.userData.gizmo = new BoxHelper(new Mesh(new BoxGeometry()), 0xff0000)
         helper.add(helper.userData.gizmo)
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
@@ -364,7 +359,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of spawnPointQuery.enter()) {
         const helper = spawnPointHelperModel.clone()
-        const helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1)), 0xffffff)
+        const helperBox = new BoxHelper(new Mesh(new BoxGeometry(1, 0, 1)), 0xffffff)
         helper.userData.helperBox = helperBox
         helper.add(helperBox)
         setObjectLayers(helper, ObjectLayers.NodeHelper)

@@ -93,15 +93,9 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
   const attachmentPoint = equippedComponent.attachmentPoint
   const { position, rotation } = getHandTransform(equipperEntity, getParity(attachmentPoint))
 
-  if (hasComponent(equippedEntity, RigidBodyComponent)) {
-    const body = getComponent(equippedEntity, RigidBodyComponent).body
-    body.setTranslation(position, true)
-    body.setRotation(rotation, true)
-  } else {
-    const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
-    equippableTransform.position.copy(position)
-    equippableTransform.rotation.copy(rotation)
-  }
+  const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
+  equippableTransform.position.copy(position)
+  equippableTransform.rotation.copy(rotation)
 }
 
 export function equipperQueryExit(entity: Entity, world = Engine.instance.currentWorld) {

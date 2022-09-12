@@ -22,10 +22,10 @@ export const TransformSchema = {
   scale: Vector3Schema
 }
 
-export const TransformComponent = createMappedComponent<TransformComponentType, typeof TransformSchema>(
-  'TransformComponent',
-  TransformSchema
-)
+export const TransformComponent = createMappedComponent<
+  TransformComponentType & { matrixInverse: Matrix4 },
+  typeof TransformSchema
+>('TransformComponent', TransformSchema)
 
 globalThis.TransformComponent = TransformComponent
 
@@ -40,7 +40,8 @@ export function setTransformComponent(
     position: createVector3Proxy(TransformComponent.position, entity, dirtyTransforms, position),
     rotation: createQuaternionProxy(TransformComponent.rotation, entity, dirtyTransforms, rotation),
     scale: createVector3Proxy(TransformComponent.scale, entity, dirtyTransforms, scale),
-    matrix: new Matrix4()
+    matrix: new Matrix4(),
+    matrixInverse: new Matrix4()
   })
 }
 

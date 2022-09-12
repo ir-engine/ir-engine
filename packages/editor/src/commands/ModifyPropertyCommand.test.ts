@@ -1,6 +1,7 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
 
+import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
@@ -21,7 +22,7 @@ import { applyIncomingActions } from '@xrengine/hyperflux'
 import EditorCommands from '../constants/EditorCommands'
 import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState } from '../services/SelectionServices'
-import { getNestedObject, ModifyPropertyCommand, ModifyPropertyCommandParams } from './ModifyPropertyCommand'
+import { ModifyPropertyCommand, ModifyPropertyCommandParams } from './ModifyPropertyCommand'
 
 class TempProp {
   data: number

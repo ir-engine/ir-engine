@@ -3,7 +3,7 @@ import {
   CompressedTexture,
   Mesh,
   PerspectiveCamera,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   Scene,
   ShaderMaterial,
   Texture,

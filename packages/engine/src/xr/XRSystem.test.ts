@@ -36,7 +36,7 @@ describe('XRSystem', () => {
     const lAxisState = Engine.instance.currentWorld.inputState.get(GamepadAxis.LTouchpad)!
     assert(lAxisState)
     assert.equal(lAxisState.type, InputType.TWODIM)
-    assert.equal(lAxisState.value[0], -1)
+    assert.equal(lAxisState.value[0], 1)
     assert.equal(lAxisState.value[1], 0)
     assert.equal(lAxisState.lifecycleState, LifecycleValue.Started)
   })

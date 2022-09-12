@@ -17,7 +17,7 @@ export class WaveSimulator {
   constructor(waterSize) {
     this._camera = new THREE.OrthographicCamera(0, 1, 1, 0, 0, 2000)
 
-    this._geometry = new THREE.PlaneBufferGeometry(2, 2)
+    this._geometry = new THREE.PlaneGeometry(2, 2)
 
     this._targetA = new THREE.WebGLRenderTarget(waterSize, waterSize, { type: THREE.FloatType })
     this._targetB = new THREE.WebGLRenderTarget(waterSize, waterSize, { type: THREE.FloatType })

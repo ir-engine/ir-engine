@@ -14,6 +14,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -33,6 +34,7 @@ describe('Physics', () => {
     createEngine()
     await Physics.load()
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.currentWorld.physicsWorld.timestep = 1 / 60
   })
 
   it('should create rapier world & event queue', async () => {
@@ -44,11 +46,10 @@ describe('Physics', () => {
 
   it('should create & remove rigidBody', async () => {
     const world = Engine.instance.currentWorld
+    const physicsWorld = world.physicsWorld
+
     const entity = createEntity(world)
-
     setTransformComponent(entity)
-
-    const physicsWorld = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.ball(1)
@@ -70,11 +71,10 @@ describe('Physics', () => {
 
   it('component type should match rigid body type', async () => {
     const world = Engine.instance.currentWorld
+    const physicsWorld = world.physicsWorld
     const entity = createEntity(world)
 
     setTransformComponent(entity)
-
-    const physicsWorld = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.fixed()
     const colliderDesc = ColliderDesc.ball(1)
@@ -86,11 +86,6 @@ describe('Physics', () => {
   })
 
   it('should create collider desc from input config data', async () => {
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-
-    const physicsWorld = Physics.createWorld()
-
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial()
     const mesh = new Mesh(geometry, material)
@@ -124,17 +119,17 @@ describe('Physics', () => {
 
   it('should create rigid body from input mesh & config data', async () => {
     const world = Engine.instance.currentWorld
+    const physicsWorld = world.physicsWorld
+
     const entity = createEntity(world)
-
     setTransformComponent(entity)
-
-    const physicsWorld = Physics.createWorld()
 
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial()
     const mesh = new Mesh(geometry, material)
     mesh.translateX(10)
     mesh.rotateX(3.1415918)
+    addObjectToGroup(entity, mesh)
 
     const collisionGroup = 0x0001
     const collisionMask = 0x0003
@@ -160,11 +155,10 @@ describe('Physics', () => {
 
   it('should change rigidBody type', async () => {
     const world = Engine.instance.currentWorld
+    const physicsWorld = world.physicsWorld
+
     const entity = createEntity(world)
-
     setTransformComponent(entity)
-
-    const physicsWorld = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.ball(1)
@@ -191,15 +185,13 @@ describe('Physics', () => {
 
   it('should cast ray and hit rigidbody', async () => {
     const world = Engine.instance.currentWorld
+    const physicsWorld = world.physicsWorld
+
     const entity = createEntity(world)
-
-    setTransformComponent(entity)
-
-    const physicsWorld = Physics.createWorld()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic().setTranslation(10, 0, 0)
     const colliderDesc = ColliderDesc.cylinder(5, 5).setCollisionGroups(
-      getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+      getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
     )
 
     const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
@@ -208,10 +200,10 @@ describe('Physics', () => {
 
     const raycastComponentData = {
       type: SceneQueryType.Closest,
-      origin: new Vector3().set(0, 1, 0),
+      origin: new Vector3().set(0, 0, 0),
       direction: AvatarDirection.Left,
       maxDistance: 20,
-      groups: getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+      groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
     }
     const hits = Physics.castRay(physicsWorld, raycastComponentData)
 
@@ -223,6 +215,8 @@ describe('Physics', () => {
 
   it('should generate a collision event', async () => {
     const world = Engine.instance.currentWorld
+    const physicsWorld = world.physicsWorld
+
     const entity1 = createEntity(world)
     const entity2 = createEntity(world)
 
@@ -232,7 +226,6 @@ describe('Physics', () => {
     setTransformComponent(entity1)
     setTransformComponent(entity2)
 
-    const physicsWorld = Physics.createWorld()
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
 
@@ -280,6 +273,8 @@ describe('Physics', () => {
 
   it('should generate a trigger event', async () => {
     const world = Engine.instance.currentWorld
+    const physicsWorld = world.physicsWorld
+
     const entity1 = createEntity(world)
     const entity2 = createEntity(world)
 
@@ -289,7 +284,6 @@ describe('Physics', () => {
     setTransformComponent(entity1)
     setTransformComponent(entity2)
 
-    const physicsWorld = Physics.createWorld()
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
 

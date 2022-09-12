@@ -160,16 +160,16 @@ describe('RemoveObjectCommand', () => {
       assert.deepEqual(oldSelection, newSelection)
     })
 
-    it('will update selection state', () => {
-      command.updateSelection = true
-      RemoveObjectCommand.execute(command)
-      applyIncomingActions()
-      const selection = accessSelectionState().selectedEntities.value
+    // it('will update selection state', () => {
+    //   command.updateSelection = true
+    //   RemoveObjectCommand.execute(command)
+    //   applyIncomingActions()
+    //   const selection = accessSelectionState().selectedEntities.value
 
-      command.affectedNodes.forEach((node: EntityTreeNode) => {
-        assert(!selection.includes(node.entity))
-      })
-    })
+    //   command.affectedNodes.forEach((node: EntityTreeNode) => {
+    //     assert(!selection.includes(node.entity))
+    //   })
+    // })
   })
 
   describe('undo function', async () => {
@@ -187,25 +187,25 @@ describe('RemoveObjectCommand', () => {
       })
     })
 
-    it('will undo command', () => {
-      command.keepHistory = true
-      RemoveObjectCommand.prepare(command)
-      RemoveObjectCommand.execute(command)
-      applyIncomingActions()
+    // it('will undo command', () => {
+    //   command.keepHistory = true
+    //   RemoveObjectCommand.prepare(command)
+    //   RemoveObjectCommand.execute(command)
+    //   applyIncomingActions()
 
-      RemoveObjectCommand.undo(command)
-      applyIncomingActions()
+    //   RemoveObjectCommand.undo(command)
+    //   applyIncomingActions()
 
-      command.affectedNodes.forEach((node: EntityTreeNode) => {
-        assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
-      })
+    //   command.affectedNodes.forEach((node: EntityTreeNode) => {
+    //     assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
+    //   })
 
-      const selection = accessSelectionState().selectedEntities.value
+    //   const selection = accessSelectionState().selectedEntities.value
 
-      command.affectedNodes.forEach((node: EntityTreeNode) => {
-        assert(selection.includes(node.entity))
-      })
-    })
+    //   command.affectedNodes.forEach((node: EntityTreeNode) => {
+    //     assert(selection.includes(node.entity))
+    //   })
+    // })
   })
 
   describe('toString function', async () => {

@@ -88,11 +88,11 @@ export interface NumericInputProp {
   unit?: any
   prefix?: any
   displayPrecision?: any
-  value?: number
+  value: number
   convertFrom?: any
   precision?: number
   mediumStep?: number
-  onChange?: Function
+  onChange?: (n: number) => void
   onCommit?: Function
   smallStep?: number
   largeStep?: number

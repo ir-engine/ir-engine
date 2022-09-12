@@ -3,8 +3,9 @@ import { Matrix4, Vector3 } from 'three'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { updateMeshCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
+import { updateGroupCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -105,30 +106,16 @@ function rotateAround(command: RotateAroundCommandParams, isUndo?: boolean) {
       obj3d.matrixWorld.copy(matrixWorld)
     } else {
       const transform = getComponent(node.entity, TransformComponent)
-      const parentTransformInv = node.parentEntity
-        ? getComponent(node.entity, TransformComponent)!.matrix.clone().invert()
-        : new Matrix4()
-
-      const prevScale = transform.scale.clone()
+      const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+      const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
 
       new Matrix4()
         .copy(transform.matrix)
         .premultiply(pivotToOriginMatrix)
         .premultiply(rotationMatrix)
         .premultiply(originToPivotMatrix)
-        .premultiply(parentTransformInv)
-        .decompose(transform.position, transform.rotation, transform.scale)
-
-      const scaleChanged = prevScale.manhattanDistanceTo(transform.scale) > 0.0001
-
-      if (hasComponent(node.entity, RigidBodyComponent)) {
-        if (!scaleChanged) {
-          getComponent(node.entity, RigidBodyComponent).body?.setTranslation(transform.position, true)
-          getComponent(node.entity, RigidBodyComponent).body?.setTranslation(transform.rotation, true)
-        } else {
-          updateMeshCollider(node.entity)
-        }
-      }
+        .premultiply(parentTransform.matrixInverse)
+        .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
     }
   }
 }

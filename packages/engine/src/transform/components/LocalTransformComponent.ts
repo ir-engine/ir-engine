@@ -3,8 +3,8 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { TransformComponent, TransformComponentType, TransformSchema } from './TransformComponent'
+import { createMappedComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponentType, TransformSchema } from './TransformComponent'
 
 type LocalTransformComponentType = TransformComponentType & { parentEntity: Entity }
 
@@ -16,45 +16,17 @@ export const LocalTransformComponent = createMappedComponent<LocalTransformCompo
 export function setLocalTransformComponent(
   entity: Entity,
   parentEntity: Entity,
-  position: Vector3,
-  rotation: Quaternion,
-  scale: Vector3
+  position = new Vector3(),
+  rotation = new Quaternion(),
+  scale = new Vector3(1, 1, 1)
 ) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
   return setComponent(entity, LocalTransformComponent, {
     parentEntity,
-    position: createVector3Proxy(LocalTransformComponent.position, entity, dirtyTransforms).copy(position),
-    rotation: createQuaternionProxy(LocalTransformComponent.rotation, entity, dirtyTransforms).copy(rotation),
-    scale: createVector3Proxy(LocalTransformComponent.scale, entity, dirtyTransforms).copy(scale),
+    // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
+    position: createVector3Proxy(LocalTransformComponent.position, entity, dirtyTransforms, position.clone()),
+    rotation: createQuaternionProxy(LocalTransformComponent.rotation, entity, dirtyTransforms, rotation.clone()),
+    scale: createVector3Proxy(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()),
     matrix: new Matrix4()
   })
-}
-
-const _scratchMatrixParent = new Matrix4()
-const _scratchMatrixChild = new Matrix4()
-
-/**
- * Update local transform based on the difference between the parent and child using matricies
- *   using `parent ^(-1) * child`
- */
-export function updateLocalTransformComponentFromParent(parentEntity: Entity, childEntity: Entity) {
-  const parentTransformComponent = getComponent(parentEntity, TransformComponent)
-  const transformComponent = getComponent(childEntity, TransformComponent)
-  const localTransformComponent = getComponent(childEntity, LocalTransformComponent)
-
-  _scratchMatrixParent.compose(
-    parentTransformComponent.position,
-    parentTransformComponent.rotation,
-    parentTransformComponent.scale
-  )
-  _scratchMatrixParent.invert()
-
-  _scratchMatrixChild.compose(transformComponent.position, transformComponent.rotation, transformComponent.scale)
-  _scratchMatrixParent.multiply(_scratchMatrixChild)
-
-  _scratchMatrixParent.decompose(
-    localTransformComponent.position,
-    localTransformComponent.rotation,
-    localTransformComponent.scale
-  )
 }

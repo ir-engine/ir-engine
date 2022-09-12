@@ -1,6 +1,6 @@
 import { Not } from 'bitecs'
 import { Consumer } from 'mediasoup-client/lib/Consumer'
-import { Vector3 } from 'three'
+import { Group, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -15,7 +15,6 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -78,9 +77,11 @@ export default async function AvatarUISystem(world: World) {
       const ui = createAvatarDetailView(userId)
       const transition = createTransitionState(1, 'IN')
       AvatarUITransitions.set(userEntity, transition)
+      const root = new Group()
       ui.state.videoPreviewMesh.value.position.y += 0.3
       ui.state.videoPreviewMesh.value.visible = false
-      addObjectToGroup(ui.entity, ui.state.videoPreviewMesh.value)
+      root.add(ui.state.videoPreviewMesh.value)
+      addObjectToGroup(ui.entity, root)
       AvatarUI.set(userEntity, ui)
     }
 

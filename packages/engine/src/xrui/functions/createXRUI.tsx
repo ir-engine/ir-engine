@@ -1,6 +1,7 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
 import { State } from '@hookstate/core'
 import React from 'react'
+import { Group } from 'three'
 
 import { isNode } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
@@ -43,7 +44,9 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
 
   container.raycaster.layers.enableAll()
 
-  addObjectToGroup(entity, container)
+  const root = new Group()
+  root.add(container)
+  addObjectToGroup(entity, root)
   setTransformComponent(entity)
   setObjectLayers(container, ObjectLayers.UI)
   addComponent(entity, XRUIComponent, { container, state })
