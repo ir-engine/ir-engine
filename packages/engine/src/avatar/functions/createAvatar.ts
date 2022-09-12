@@ -144,10 +144,9 @@ export const createAvatarController = (entity: Entity) => {
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   if (!hasComponent(entity, AvatarControllerComponent)) {
     getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
-    const rigidBody = createAvatarRigidBody(entity)
+    createAvatarRigidBody(entity)
     addComponent(entity, AvatarControllerComponent, {
       cameraEntity: Engine.instance.currentWorld.cameraEntity,
-      body: rigidBody,
       bodyCollider: undefined!,
       movementEnabled: true,
       isJumping: false,

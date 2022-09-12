@@ -15,7 +15,7 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -198,12 +198,12 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
-      scale: new Vector3(1, 1, 1),
-      matrix: new Matrix4()
-    })
+    setTransformComponent(
+      entity,
+      createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
+      createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      new Vector3(1, 1, 1)
+    )
 
     writeTransform(writeView, entity)
 
@@ -340,12 +340,12 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
-      scale: new Vector3(1, 1, 1),
-      matrix: new Matrix4()
-    })
+    setTransformComponent(
+      entity,
+      createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
+      createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      new Vector3(1, 1, 1)
+    )
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
@@ -411,12 +411,14 @@ describe('DataWriter', () => {
       const userId = entity as unknown as UserId
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
-      addComponent(entity, TransformComponent, {
-        position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
-        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
-        scale: new Vector3(1, 1, 1),
-        matrix: new Matrix4()
-      })
+
+      setTransformComponent(
+        entity,
+        createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
+        createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        new Vector3(1, 1, 1)
+      )
+
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         authorityUserId: userId,
@@ -490,12 +492,14 @@ describe('DataWriter', () => {
       const userId = entity as unknown as UserId
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
-      addComponent(entity, TransformComponent, {
-        position: createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
-        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
-        scale: new Vector3(1, 1, 1),
-        matrix: new Matrix4()
-      })
+
+      setTransformComponent(
+        entity,
+        createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
+        createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        new Vector3(1, 1, 1)
+      )
+
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         authorityUserId: userId,

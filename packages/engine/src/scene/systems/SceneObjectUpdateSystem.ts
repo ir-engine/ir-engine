@@ -1,3 +1,4 @@
+import { Not } from 'bitecs'
 import { Color } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -85,6 +86,7 @@ import {
   SCENE_COMPONENT_RENDERER_SETTINGS,
   SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES
 } from '../components/RenderSettingComponent'
+import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SCENE_COMPONENT_SCREENSHARETARGET, ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
@@ -490,7 +492,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
-  const loopableAnimationQuery = defineQuery([LoopAnimationComponent])
+  const loopableAnimationQuery = defineQuery([LoopAnimationComponent, Not(SceneAssetPendingTagComponent)])
   const skyboxQuery = defineQuery([SkyboxComponent])
   const portalQuery = defineQuery([PortalComponent])
   const modelQuery = defineQuery([ModelComponent])

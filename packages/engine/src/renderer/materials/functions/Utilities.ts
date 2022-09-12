@@ -108,7 +108,7 @@ export function materialToDefaultArgs(material: Material): Object {
 
 export function registerMaterial(material: Material, src: any) {
   const similarMaterial = [...MaterialLibrary.materials.values()].find(
-    (matComp) => prototypeFromId(matComp.prototype).baseMaterial.name === material.type
+    (matComp) => prototypeFromId(matComp.prototype).prototypeId === material.type
   )
   if (!similarMaterial) throw Error('unrecognized material prototype ' + material.type)
   const parameters = Object.fromEntries(Object.keys(similarMaterial.parameters).map((k) => [k, material[k]]))

@@ -11,6 +11,7 @@ import { spawnLocalAvatarInWorld } from '../networking/functions/receiveJoinWorl
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../networking/functions/WorldNetworkActionReceptor'
 import { Physics } from '../physics/classes/Physics'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { rotateBodyTowardsVector } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -29,9 +30,9 @@ describe('AvatarControllerSystem', async () => {
     const spawnAvatarAction = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatarAction)
     const avatarEntity = createAvatar(spawnAvatarAction)
-    const controller = getComponent(avatarEntity, AvatarControllerComponent)
+    const ridigbody = getComponent(avatarEntity, RigidBodyComponent)
 
-    const testRotation = new Quaternion().copy(controller.body.rotation() as Quaternion)
+    const testRotation = new Quaternion().copy(ridigbody.body.rotation() as Quaternion)
     const displace = new Vector3(1, 3, 1)
     const displaceXZ = new Vector3(displace.x, 0, displace.z)
     displaceXZ.applyQuaternion(new Quaternion().copy(testRotation).invert())
@@ -41,6 +42,6 @@ describe('AvatarControllerSystem', async () => {
 
     rotateBodyTowardsVector(avatarEntity, displace)
 
-    assert(quaternionEqualsEpsilon(testRotation, controller.body.rotation() as Quaternion))
+    assert(quaternionEqualsEpsilon(testRotation, ridigbody.body.rotation() as Quaternion))
   })
 })

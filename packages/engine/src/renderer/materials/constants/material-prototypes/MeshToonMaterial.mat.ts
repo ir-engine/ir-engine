@@ -22,6 +22,7 @@ export const DefaultArgs = {
 }
 
 export const MeshToonMaterial: MaterialPrototypeComponentType = {
+  prototypeId: 'MeshToonMaterial',
   baseMaterial: Toon,
   arguments: DefaultArgs
 }

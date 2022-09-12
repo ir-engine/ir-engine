@@ -15,6 +15,7 @@ export const DefaultArgs = {
 }
 
 export const ShaderMaterial: MaterialPrototypeComponentType = {
+  prototypeId: 'ShaderMaterial',
   baseMaterial: Shader,
   arguments: DefaultArgs
 }

@@ -7,7 +7,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../../transform/components/TransformComponent'
 
 const EPSILON = 10e-8
 
@@ -21,12 +21,12 @@ describe('ScenePreviewCameraFunctions', () => {
     createEngine()
     Engine.instance.isEditor = false
     entity = createEntity()
-    addComponent(entity, TransformComponent, {
-      position: new Vector3(Math.random(), Math.random(), Math.random()),
-      rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
-      scale: new Vector3(Math.random(), Math.random(), Math.random()),
-      matrix: new Matrix4()
-    })
+    setTransformComponent(
+      entity,
+      new Vector3(Math.random(), Math.random(), Math.random()),
+      new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
+      new Vector3(Math.random(), Math.random(), Math.random())
+    )
   })
 
   // describe('updateScenePreviewCamera()', () => {

@@ -16,31 +16,27 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import {
   ColliderComponent,
   ColliderComponentType,
-  ModelColliderComponent,
+  GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
-import { GroupComponent } from '../../components/GroupComponent'
-import { ModelComponent } from '../../components/ModelComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
-  if (hasComponent(entity, LocalTransformComponent)) setComponent(entity, ModelColliderComponent, true)
+  // todo: ColliderComponent needs to be refactored to support multiple colliders
   const colliderProps = parseColliderProperties(data)
   setComponent(entity, ColliderComponent, colliderProps)
+  if (data['xrengine.collider.bodyType']) {
+    setComponent(entity, GroupColliderComponent, {})
+  }
 }
 
-export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
+export const updateCollider = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const colliderComponent = getComponent(entity, ColliderComponent)
-  /**
-   * @todo bitecs queues are needed to make this Object3DComponent check redundant
-   *   as currently adding PortalComponent and then Obejct3DComponent synchronously
-   *   will still trigger [PortalComponent, Not(Obejct3DComponent)] queries
-   */
-  if (hasComponent(entity, ModelColliderComponent)) return
+  const world = Engine.instance.currentWorld
+
   if (!colliderComponent) return
 
   const rigidbodyTypeChanged =
@@ -75,7 +71,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
           bodyDesc = RigidBodyDesc.fixed()
           break
       }
-      Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, bodyDesc, [])
+      Physics.createRigidBody(entity, world.physicsWorld, bodyDesc, [])
     }
   }
 
@@ -84,36 +80,32 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
   /**
    * This component only supports one collider, always at index 0
    */
-  const colliderTypeChanged =
-    rigidbody.numColliders() === 0 || rigidbody.collider(0).shape.type !== colliderComponent.shapeType
-  if (colliderTypeChanged) {
-    rigidbody.numColliders() > 0 &&
-      Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
-    const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
-    colliderDesc.setSensor(colliderComponent.isTrigger)
-    Physics.applyDescToCollider(
-      colliderDesc,
-      {
-        type: colliderComponent.shapeType,
-        isTrigger: colliderComponent.isTrigger,
-        collisionLayer: colliderComponent.collisionLayer,
-        collisionMask: colliderComponent.collisionMask
-      },
-      new Vector3(),
-      new Quaternion()
-    )
-    Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
-  }
+  Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
+  const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
+  Physics.applyDescToCollider(
+    colliderDesc,
+    {
+      shapeType: colliderComponent.shapeType,
+      isTrigger: colliderComponent.isTrigger,
+      collisionLayer: colliderComponent.collisionLayer,
+      collisionMask: colliderComponent.collisionMask
+    },
+    new Vector3(),
+    new Quaternion()
+  )
+  world.physicsWorld.createCollider(colliderDesc, rigidbody)
 
   rigidbody.setTranslation(transform.position, true)
   rigidbody.setRotation(transform.rotation, true)
 }
 
-export const updateMeshCollider = (entity: Entity, forceRebuild = false) => {
+export const updateGroupCollider = (entity: Entity) => {
+  if (!hasComponent(entity, GroupColliderComponent)) return
+
   const colliderComponent = getComponent(entity, ColliderComponent)
 
   if (hasComponent(entity, RigidBodyComponent)) {
-    Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+    // Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
     Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
   }
 
@@ -125,9 +117,11 @@ export const updateMeshCollider = (entity: Entity, forceRebuild = false) => {
     collisionMask: colliderComponent.collisionMask
   })
 
-  const transform = getComponent(entity, TransformComponent)
-  rigidbody.setTranslation(transform.position, true)
-  rigidbody.setRotation(transform.rotation, true)
+  if (rigidbody) {
+    const transform = getComponent(entity, TransformComponent)
+    rigidbody.setTranslation(transform.position, true)
+    rigidbody.setRotation(transform.rotation, true)
+  }
 }
 
 /**

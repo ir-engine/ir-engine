@@ -1,14 +1,15 @@
 import * as bitECS from 'bitecs'
 
 import multiLogger from '@xrengine/common/src/logger'
+import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
-const INITIAL_COMPONENT_SIZE = 1000 // TODO set to 0 after next bitECS update
-bitECS.setDefaultSize(1000)
+const INITIAL_COMPONENT_SIZE = process.env['APP_ENV'] === 'test' ? 100000 : 1000 // TODO set to 0 after next bitECS update
+bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
 /**
  * @todo move this to engine scope
@@ -119,6 +120,39 @@ export const setComponent = <C extends Component>(
 }
 
 /**
+ * Experimental API
+ */
+export const updateComponent = <C extends Component>(
+  entity: Entity,
+  component: C,
+  props: Partial<SerializedComponentType<C>>
+) => {
+  const comp = getComponent(entity, component)
+
+  if (!comp) {
+    throw new Error('[updateComponent]: component does not exist')
+  }
+
+  for (const propertyName of Object.keys(props as any)) {
+    const value = props[propertyName]
+    const { result, finalProp } = getNestedObject(comp, propertyName)
+
+    if (value && value.copy) {
+      if (!result[finalProp]) result[finalProp] = new value.constructor()
+      result[finalProp].copy(value)
+    } else if (
+      typeof value !== 'undefined' &&
+      typeof result[finalProp] === 'object' &&
+      typeof result[finalProp].set === 'function'
+    ) {
+      result[finalProp].set(value)
+    } else {
+      result[finalProp] = value
+    }
+  }
+}
+
+/**
  * Like `setComponent`, but throws an error if the component already exists.
  * @param entity
  * @param component
@@ -170,7 +204,7 @@ export const removeComponent = <T, S, J>(
   if (typeof world === 'undefined' || world === null) {
     throw new Error('[removeComponent]: world is undefined')
   }
-  bitECS.removeComponent(world, component, entity)
+  bitECS.removeComponent(world, component, entity, false)
   const c = component.map.get(entity)!
   c && component.onRemove(entity, c)
 }

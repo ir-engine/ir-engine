@@ -8,7 +8,6 @@ import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
-import { getNestedObject } from './ModifyPropertyCommand'
 
 export type ModifyObj3DCommandUndoParams = {
   properties: { [_: string]: any }[]

@@ -73,47 +73,24 @@ export const MediaPrefabs = {
   volumetric: 'Volumetric' as const
 }
 
-export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
-
-export type AudioNodeGroup = {
-  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
-  gain: GainNode
-  panner?: PannerNode
-  mixbus: GainNode
-}
-
-export const createAudioNodeGroup = (
-  el: HTMLMediaElement | MediaStream,
-  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode,
-  mixbus: GainNode
-) => {
-  const gain = Engine.instance.audioContext.createGain()
-  source.connect(gain)
-  gain.connect(mixbus)
-  const panner = Engine.instance.audioContext.createPanner()
-  const group = { source, gain, mixbus, panner } as AudioNodeGroup
-  AudioNodeGroups.set(el, group)
-  return group
-}
-
 // TODO: move this into system initializer once we have system destroy callbacks
 if (isClient) {
   const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
-
-  // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
-  // in order to ensure media will play programmatically
-  function handleAutoplay() {
-    if (!Engine.instance)
+  if (!Engine.instance.isEditor) {
+    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+    // in order to ensure media will play programmatically
+    function handleAutoplay() {
       for (const entity of mediaQuery()) {
         const media = getComponent(entity, MediaComponent)
         if (media.playing.value) return
-        if (media.paused.value) return
+        if (media.paused.value && media.autoplay.value) media.paused.set(false)
+        // safari requires play() to be called in the DOM handle function
         getComponent(entity, MediaElementComponent)?.element.play()
       }
+    }
+    window.addEventListener('pointerdown', handleAutoplay)
+    window.addEventListener('keypress', handleAutoplay)
   }
-
-  window.addEventListener('pointerdown', handleAutoplay)
-  window.addEventListener('keypress', handleAutoplay)
 }
 
 export default async function MediaSystem(world: World) {

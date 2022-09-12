@@ -13,7 +13,12 @@ import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/Com
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
 import { MediaSettingAction, shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
-import { MediaElementComponent } from '../../scene/components/MediaComponent'
+import {
+  AudioNodeGroup,
+  AudioNodeGroups,
+  createAudioNodeGroup,
+  MediaElementComponent
+} from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioSettingAction } from '../AudioState'
 import { ImmersiveMediaTagComponent, SCENE_COMPONENT_MEDIA_SETTINGS } from '../components/ImmersiveMediaTagComponent'
@@ -23,7 +28,6 @@ import {
   SCENE_COMPONENT_AUDIO_SETTINGS,
   SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
 } from '../components/PositionalAudioSettingsComponent'
-import { AudioNodeGroup, AudioNodeGroups, createAudioNodeGroup } from './MediaSystem'
 
 export const addPannerNode = (audioNodes: AudioNodeGroup, opts = Engine.instance.spatialAudioSettings) => {
   const panner = Engine.instance.audioContext.createPanner()
@@ -35,7 +39,7 @@ export const addPannerNode = (audioNodes: AudioNodeGroup, opts = Engine.instance
   panner.coneOuterAngle = opts.coneOuterAngle
   panner.coneOuterGain = opts.coneOuterGain
 
-  audioNodes.source.disconnect(audioNodes.gain)
+  audioNodes.source.disconnect()
   audioNodes.source.connect(panner)
   panner.connect(audioNodes.gain)
   audioNodes.panner = panner
@@ -69,8 +73,8 @@ const updateAudioPanner = (
 }
 
 export const removePannerNode = (audioNodes: AudioNodeGroup) => {
+  audioNodes.source.disconnect()
   audioNodes.source.connect(audioNodes.gain)
-  audioNodes.source.disconnect(audioNodes.panner!)
   audioNodes.panner!.disconnect(audioNodes.gain)
   audioNodes.panner = undefined
 }

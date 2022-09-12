@@ -4,9 +4,9 @@ import Hls from 'hls.js'
 import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AudioNodeGroups, createAudioNodeGroup } from '../../audio/systems/MediaSystem'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -19,6 +19,29 @@ import {
 import { PlayMode } from '../constants/PlayMode'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
+
+export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
+
+export type AudioNodeGroup = {
+  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
+  gain: GainNode
+  panner?: PannerNode
+  mixbus: GainNode
+}
+
+export const createAudioNodeGroup = (
+  el: HTMLMediaElement | MediaStream,
+  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode,
+  mixbus: GainNode
+) => {
+  const gain = Engine.instance.audioContext.createGain()
+  source.connect(gain)
+  gain.connect(mixbus)
+  const panner = Engine.instance.audioContext.createPanner()
+  const group = { source, gain, mixbus, panner } as AudioNodeGroup
+  AudioNodeGroups.set(el, group)
+  return group
+}
 
 export const MediaElementComponent = defineComponent({
   name: 'MediaElement',
@@ -203,6 +226,7 @@ export const MediaComponent = defineComponent({
           if (prevVersion === metadataVersion && hasComponent(entity, MediaComponent))
             state.trackDurations[i].set(tempElement.duration)
         })
+        tempElement.crossOrigin = 'anonymous'
         tempElement.preload = 'metadata'
         tempElement.src = path
         tempElement.load()
@@ -259,7 +283,7 @@ export const MediaComponent = defineComponent({
     state.merge(json)
 
     // handle autoplay
-    if (state.autoplay.value) state.paused.set(false)
+    if (state.autoplay.value && getEngineState().userHasInteracted.value) state.paused.set(false)
 
     // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
     updateTrackMetadata()

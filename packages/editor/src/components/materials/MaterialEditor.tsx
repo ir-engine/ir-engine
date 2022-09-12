@@ -59,8 +59,8 @@ export default function MaterialEditor({ material }: { ['material']: Material })
 
   const prototypes = useHookstate(
     [...MaterialLibrary.prototypes.values()].map((prototype) => ({
-      label: prototype.baseMaterial.name,
-      value: prototype.baseMaterial.name
+      label: prototype.prototypeId,
+      value: prototype.prototypeId
     }))
   )
   const thumbnails = useHookstate(new Map<string, string>())

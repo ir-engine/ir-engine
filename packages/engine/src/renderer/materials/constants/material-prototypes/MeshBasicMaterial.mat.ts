@@ -10,6 +10,7 @@ export const DefaultArgs = {
 }
 
 export const MeshBasicMaterial: MaterialPrototypeComponentType = {
+  prototypeId: 'MeshBasicMaterial',
   baseMaterial: Basic,
   arguments: DefaultArgs
 }
