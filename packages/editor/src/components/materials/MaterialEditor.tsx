@@ -73,12 +73,6 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     thumbnails.value.clear()
   }
 
-  useEffect(() => {
-    if (matId.value !== material.uuid) {
-      matId.set(material.uuid)
-    }
-  })
-
   useHookEffect(() => {
     clearThumbs().then(() => {
       matName.set(material.name)
@@ -95,6 +89,12 @@ export default function MaterialEditor({ material }: { ['material']: Material })
       defaults.set(createDefaults())
     })
   }, [matPrototype])
+
+  useEffect(() => {
+    if (matId.value !== material.uuid) {
+      matId.set(material.uuid)
+    }
+  })
 
   return (
     <Fragment>
