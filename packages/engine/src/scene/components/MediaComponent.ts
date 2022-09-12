@@ -6,6 +6,7 @@ import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/St
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -258,11 +259,20 @@ export const MediaComponent = defineComponent({
     const updatePlay = () => {
       const element = getComponent(entity, MediaElementComponent)?.element
       if (element) {
-        if (state.paused.value) {
-          element.pause()
-        } else {
-          element.play()
+        const doUpdate = () => {
+          if (state.paused.value) {
+            element.pause()
+          } else {
+            element.play()
+          }
         }
+        if (!getEngineState().userHasInteracted.get()) {
+          new Promise<void>((resolve) =>
+            setInterval(() => {
+              if (getEngineState().userHasInteracted.get()) resolve()
+            }, 500)
+          ).then(doUpdate)
+        } else doUpdate()
       }
     }
 
