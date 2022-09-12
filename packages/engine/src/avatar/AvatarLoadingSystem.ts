@@ -31,7 +31,7 @@ import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -160,14 +160,18 @@ export default async function AvatarLoadingSystem(world: World) {
           .start()
           .onComplete(() => {
             removeComponent(entity, TweenComponent)
-            const avatarObject = getComponent(effectComponent.sourceEntity, Object3DComponent).value
-            const bbox = new Box3().setFromObject(avatarObject.children[0])
+            const avatarObjects = getComponent(effectComponent.sourceEntity, GroupComponent)
+            const bbox = new Box3()
             let scale = 1
-            if (avatarObject.userData?.scale) {
-              scale = avatarObject.userData.scale
+            for (const obj of avatarObjects) {
+              bbox.expandByObject(obj)
+              if (obj.userData?.scale) {
+                scale = obj.userData.scale
+              }
             }
             setComponent(entity, AvatarDissolveComponent, {
-              effect: new DissolveEffect(avatarObject, bbox.min.y / scale, bbox.max.y / scale)
+              /** @todo refactor to not be just the first index */
+              effect: new DissolveEffect(avatarObjects[0], bbox.min.y / scale, bbox.max.y / scale)
             })
           })
       })
@@ -241,14 +245,15 @@ export default async function AvatarLoadingSystem(world: World) {
             )
             .start()
             .onComplete(async () => {
-              const object = getComponent(entity, Object3DComponent).value
-              let pillar: any = null!
-              let plate: any = null!
-
-              const childrens = object.children
-              for (let i = 0; i < childrens.length; i++) {
-                if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
-                if (childrens[i].name === 'plate_obj') plate = childrens[i]
+              const objects = getComponent(entity, GroupComponent)
+              let pillar: Mesh = null!
+              let plate: Mesh = null!
+              for (const obj of objects) {
+                const childrens = obj.children as Mesh[]
+                for (let i = 0; i < childrens.length; i++) {
+                  if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+                  if (childrens[i].name === 'plate_obj') plate = childrens[i]
+                }
               }
 
               if (pillar !== null) {
@@ -256,7 +261,7 @@ export default async function AvatarLoadingSystem(world: World) {
                   if (child['material']) child['material'].dispose()
                 })
 
-                pillar.parent.remove(pillar)
+                pillar.removeFromParent()
               }
 
               if (plate !== null) {
@@ -264,7 +269,7 @@ export default async function AvatarLoadingSystem(world: World) {
                   if (child['material']) child['material'].dispose()
                 })
 
-                plate.parent.remove(plate)
+                plate.removeFromParent()
               }
 
               removeEntity(entity)
