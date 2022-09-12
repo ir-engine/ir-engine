@@ -78,10 +78,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   if (!hasComponent(entity, RigidBodyComponent)) return
 
   const world = Engine.instance.currentWorld
-  const { body, previousPosition, previousRotation, previousLinearVelocity, previousAngularVelocity } = getComponent(
-    entity,
-    RigidBodyComponent
-  )
+  const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   const velocity = getComponent(entity, VelocityComponent)
 
@@ -90,8 +87,8 @@ const updateTransformFromRigidbody = (entity: Entity) => {
     const prevScale = prevRigidbodyScale.get(entity)
     prevRigidbodyScale.set(entity, transform.scale.clone())
 
-    body.setTranslation(transform.position, true)
-    body.setRotation(transform.rotation, true)
+    rigidBody.body.setTranslation(transform.position, true)
+    rigidBody.body.setRotation(transform.rotation, true)
 
     // if scale has changed, we have to recreate the collider
     const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(transform.scale) > 0.0001 : true
@@ -109,11 +106,25 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   */
   const accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
   const alpha = accumulator / getState(EngineState).deltaSeconds.value
-  transform.position.copy(previousPosition).lerp(scratchVector3.copy(body.translation() as Vector3), alpha)
-  transform.rotation.copy(previousRotation).slerp(scratchQuaternion.copy(body.rotation() as Quaternion), alpha)
+
+  const bodyPosition = rigidBody.body.translation() as Vector3
+  const bodyRotation = rigidBody.body.rotation() as Quaternion
+
+  transform.position.copy(rigidBody.previousPosition).lerp(scratchVector3.copy(bodyPosition), alpha)
+  transform.rotation.copy(rigidBody.previousRotation).slerp(scratchQuaternion.copy(bodyRotation), alpha)
   transform.matrix.compose(transform.position, transform.rotation, transform.scale)
-  velocity.linear.copy(previousLinearVelocity).lerp(scratchVector3.copy(body.linvel() as Vector3), alpha)
-  velocity.angular.copy(previousAngularVelocity).lerp(scratchVector3.copy(body.angvel() as Vector3), alpha)
+
+  velocity.linear
+    .copy(rigidBody.previousLinearVelocity)
+    .lerp(scratchVector3.copy(rigidBody.body.linvel() as Vector3), alpha)
+  velocity.angular
+    .copy(rigidBody.previousAngularVelocity)
+    .lerp(scratchVector3.copy(rigidBody.body.angvel() as Vector3), alpha)
+
+  rigidBody.previousPosition.copy(bodyPosition)
+  rigidBody.previousRotation.copy(bodyRotation)
+  rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
+  rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
 
   const localTransform = getComponent(entity, LocalTransformComponent)
   if (localTransform) {
