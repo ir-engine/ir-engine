@@ -81,9 +81,10 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   const velocity = getComponent(entity, VelocityComponent)
+  const localTransform = getComponent(entity, LocalTransformComponent)
 
   // if transforms have been changed outside of the transform system, perform physics teleportation on the rigidbody
-  if (world.dirtyTransforms.has(entity)) {
+  if (world.dirtyTransforms.has(entity) || (localTransform && world.dirtyTransforms.has(localTransform.parentEntity))) {
     const prevScale = prevRigidbodyScale.get(entity)
     prevRigidbodyScale.set(entity, transform.scale.clone())
 
@@ -100,6 +101,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
 
     return
   }
+
   /*
   Interpolate the remaining time after the fixed pipeline is complete.
   See https://gafferongames.com/post/fix_your_timestep/#the-final-touch
@@ -126,7 +128,6 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
   rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
 
-  const localTransform = getComponent(entity, LocalTransformComponent)
   if (localTransform) {
     const parentTransform = getComponent(localTransform.parentEntity, TransformComponent) || transform
     localTransform.matrix.multiplyMatrices(parentTransform.matrixInverse, transform.matrix)
