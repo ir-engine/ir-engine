@@ -16,6 +16,7 @@ import {
 import { createMappedComponent } from '../../../ecs/functions/ComponentFunctions'
 
 export type MaterialPrototypeComponentType = {
+  prototypeId: string
   baseMaterial:
     | typeof MeshBasicMaterial
     | typeof MeshStandardMaterial
