@@ -17,7 +17,7 @@ export type MatRend = {
 
 export type OverrideEntry = {
   defaults: MatRend[]
-  matParm: MaterialParms
+  material: Material
 }
 
 type EntityEntry = Map<MaterialOverrideComponentType, OverrideEntry>
@@ -45,9 +45,9 @@ export default async function MaterialOverrideSystem(world: World) {
     if (tableEntry.has(override)) {
       remove(override)
     }
-    const [defaults, matParm] = assignMaterial(override)
+    const [defaults, material] = assignMaterial(override)
     if (defaults.length > 0) {
-      tableEntry.set(override, { matParm, defaults })
+      tableEntry.set(override, { material, defaults })
     }
   }
 
@@ -76,13 +76,13 @@ export default async function MaterialOverrideSystem(world: World) {
     }
 
     //Performs update functions for each override that is currently active in the scene
-    const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
+    /*const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
     for (const entity of overrideQuery()) {
       const override = getComponent(entity, MaterialOverrideComponent)
       const entityEntry = overrideTable.get(override.targetEntity!)!
       for (const overrideEntry of entityEntry.values()) {
         overrideEntry.matParm.update(fixedDelta)
       }
-    }
+    }*/
   }
 }

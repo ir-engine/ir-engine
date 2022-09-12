@@ -19,7 +19,7 @@ import {
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../../ecs/functions/EntityFunctions'
-import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
+import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { setCallback } from '../../components/CallbackComponent'

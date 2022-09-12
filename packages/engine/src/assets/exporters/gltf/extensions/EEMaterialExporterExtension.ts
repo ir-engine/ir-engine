@@ -1,6 +1,6 @@
 import { Material } from 'three'
 
-import { extractDefaults, materialToDefaultArgs } from '../../../../renderer/materials/Utilities'
+import { extractDefaults, materialToDefaultArgs } from '../../../../renderer/materials/functions/Utilities'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -35,8 +35,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
-      name: material.name,
-      type: material.type,
+      uuid: material.uuid,
       args: { ...result }
     }
     this.writer.extensionsUsed[this.name] = true
