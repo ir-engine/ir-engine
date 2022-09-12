@@ -10,6 +10,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
@@ -168,7 +169,8 @@ export default async function PhysicsSystem(world: World) {
       body.setTranslation(position, true)
       body.setRotation(rotation, true)
       body.setLinvel(linear, true)
-      body.setAngvel(angular, true)
+      // angular velocity is unneeded for avatars
+      // body.setAngvel(angular, true)
     }
 
     // step physics world
