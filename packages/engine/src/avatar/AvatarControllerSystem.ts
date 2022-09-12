@@ -20,6 +20,7 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { BaseInput } from '../input/enums/BaseInput'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/XRComponents'
@@ -133,17 +134,27 @@ export const rotateBodyTowardsCameraDirection = (entity: Entity) => {
 }
 
 const _velXZ = new Vector3()
+const prevVectors = new Map<Entity, Vector3>()
 export const rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
-  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
-  const controller = getComponent(entity, AvatarControllerComponent)
+  let prevVector = prevVectors.get(entity)!
+  if (!prevVector) {
+    prevVector = new Vector3(0, 0, 1)
+    prevVectors.set(entity, prevVector)
+  }
 
   _velXZ.set(vector.x, 0, vector.z)
-  if (_velXZ.length() <= 0.001) return
+  const isZero = _velXZ.distanceTo(V_000) < 0.01
+  if (isZero) _velXZ.copy(prevVector)
+  if (!isZero) prevVector.copy(_velXZ)
+
+  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
+  const controller = getComponent(entity, AvatarControllerComponent)
 
   rotMatrix.lookAt(_velXZ, V_000, V_010)
   targetOrientation.setFromRotationMatrix(rotMatrix)
 
-  finalOrientation.copy(controller.body.rotation() as Quaternion)
+  const prevRot = getComponent(entity, TransformComponent).rotation
+  finalOrientation.copy(prevRot)
   finalOrientation.slerp(
     targetOrientation,
     Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds)

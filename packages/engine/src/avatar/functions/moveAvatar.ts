@@ -1,5 +1,5 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -13,6 +13,7 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -156,10 +157,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       rotateBodyTowardsCameraDirection(entity)
     } else {
-      const displacement = _vec3
-        .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
-        .setComponent(1, 0)
-      rotateBodyTowardsVector(entity, displacement)
+      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
     }
   }
 
