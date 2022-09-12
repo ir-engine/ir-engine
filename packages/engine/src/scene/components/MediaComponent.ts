@@ -226,6 +226,7 @@ export const MediaComponent = defineComponent({
           if (prevVersion === metadataVersion && hasComponent(entity, MediaComponent))
             state.trackDurations[i].set(tempElement.duration)
         })
+        tempElement.crossOrigin = 'anonymous'
         tempElement.preload = 'metadata'
         tempElement.src = path
         tempElement.load()
