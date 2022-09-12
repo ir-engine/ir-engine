@@ -32,11 +32,9 @@ export const RigidBodyComponent = defineComponent<RigidBodyComponentType, typeof
     const rigidBody = component.body
     if (rigidBody) {
       const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-      console.log(world.bodies, rigidBody.handle)
       if (world.bodies.contains(rigidBody.handle)) {
         world.removeRigidBody(rigidBody)
       }
-      console.log(world.bodies)
       removeComponent(entity, RigidBodyTypeTagComponent)
     }
   }
