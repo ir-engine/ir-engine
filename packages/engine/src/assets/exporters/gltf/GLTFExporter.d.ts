@@ -94,6 +94,7 @@ export class GLTFWriter {
     buffers: any[]
     json: any
     cache: any
+    options: any
     pending: Promise<any>[]
     extensionsUsed : {[key:string] : any}
 
