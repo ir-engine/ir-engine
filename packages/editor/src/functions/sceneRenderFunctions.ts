@@ -5,7 +5,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { entityExists, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import {
@@ -230,8 +230,8 @@ export function disposeScene() {
   EngineRenderer.instance.activeCSMLightEntity = null
   EngineRenderer.instance.directionalLightEntities = []
 
-  if (SceneState.gizmoEntity) removeEntity(SceneState.gizmoEntity, true)
-  if (SceneState.editorEntity) removeEntity(SceneState.editorEntity, true)
+  if (entityExists(SceneState.gizmoEntity)) removeEntity(SceneState.gizmoEntity, true)
+  if (entityExists(SceneState.editorEntity)) removeEntity(SceneState.editorEntity, true)
 
   if (Engine.instance.currentWorld.scene) {
     // Empty existing scene

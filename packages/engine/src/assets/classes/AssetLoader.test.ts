@@ -73,7 +73,7 @@ describe('AssetLoader', async () => {
     it('should work for unsupported asset', async () => {
       const url = 'www.test.com/file.pdf'
       const type = AssetLoader.getAssetClass(url)
-      assert.equal(type, null)
+      assert.equal(type, AssetClass.Unknown)
     })
   })
 

@@ -14,8 +14,8 @@ export const proxifyVector3 = (store: Vector3Store, entity: Entity, dirty: Set<E
   store.z[entity] = vector3.z
   dirty.add(entity)
   return defineProperties(vector3, {
-    _eid: { value: entity },
-    _store: { value: store },
+    _eid: { value: entity, configurable: true },
+    _store: { value: store, configurable: true },
     x: {
       get() {
         return this._store.x[this._eid]
@@ -23,7 +23,8 @@ export const proxifyVector3 = (store: Vector3Store, entity: Entity, dirty: Set<E
       set(n) {
         dirty.add(this._eid)
         return (this._store.x[this._eid] = n)
-      }
+      },
+      configurable: true
     },
     y: {
       get() {
@@ -32,7 +33,8 @@ export const proxifyVector3 = (store: Vector3Store, entity: Entity, dirty: Set<E
       set(n) {
         dirty.add(this._eid)
         return (this._store.y[this._eid] = n)
-      }
+      },
+      configurable: true
     },
     z: {
       get() {
@@ -41,7 +43,8 @@ export const proxifyVector3 = (store: Vector3Store, entity: Entity, dirty: Set<E
       set(n) {
         dirty.add(this._eid)
         return (this._store.z[this._eid] = n)
-      }
+      },
+      configurable: true
     }
   })
 }
@@ -66,8 +69,8 @@ export const proxifyQuaternion = (
   store.w[entity] = quaternion.w
   dirty.add(entity)
   return defineProperties(quaternion, {
-    _eid: { value: entity },
-    _store: { value: store },
+    _eid: { value: entity, configurable: true },
+    _store: { value: store, configurable: true },
     _x: {
       get() {
         return this._store.x[this._eid]
@@ -75,7 +78,8 @@ export const proxifyQuaternion = (
       set(n) {
         dirty.add(this._eid)
         return (this._store.x[this._eid] = n)
-      }
+      },
+      configurable: true
     },
     _y: {
       get() {
@@ -84,7 +88,8 @@ export const proxifyQuaternion = (
       set(n) {
         dirty.add(this._eid)
         return (this._store.y[this._eid] = n)
-      }
+      },
+      configurable: true
     },
     _z: {
       get() {
@@ -93,7 +98,8 @@ export const proxifyQuaternion = (
       set(n) {
         dirty.add(this._eid)
         return (this._store.z[this._eid] = n)
-      }
+      },
+      configurable: true
     },
     _w: {
       get() {
@@ -102,7 +108,8 @@ export const proxifyQuaternion = (
       set(n) {
         dirty.add(this._eid)
         return (this._store.w[this._eid] = n)
-      }
+      },
+      configurable: true
     }
   })
 }

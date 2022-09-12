@@ -20,7 +20,7 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { setCallback } from '../../scene/components/CallbackComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -127,14 +127,14 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   animationComponent.rig = avatarBoneMatching(model)
-  const object3DComponent = getComponent(entity, Object3DComponent)
+  const groupComponent = getComponent(entity, GroupComponent)
 
   if (assetType == AssetType.FBX) {
     // TODO: Should probably be applied to vertexes in the modeling tool
     model.children[0].scale.setScalar(0.01)
-    object3DComponent.value!.userData.scale = 0.01
+    for (const obj of groupComponent) obj.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
-    if (model && object3DComponent.value && (model as UpdateableObject3D).update) {
+    if (model && (model as UpdateableObject3D).update) {
       addComponent(entity, UpdatableComponent, true)
       setCallback(entity, UpdatableCallback, (delta: number) => {
         ;(model as UpdateableObject3D).update(delta)

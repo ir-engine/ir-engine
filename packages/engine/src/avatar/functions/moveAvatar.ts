@@ -1,5 +1,5 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -13,6 +13,7 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -61,6 +62,7 @@ const avatarStepRaycast = {
  * @param entity
  */
 export const moveLocalAvatar = (entity: Entity) => {
+  const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   let onGround = false
@@ -93,7 +95,7 @@ export const moveLocalAvatar = (entity: Entity) => {
   else moveAvatarWithVelocity(entity)
 
   // TODO: implement scene lower bounds parameter
-  if (controller.body.translation().y < -10) respawnAvatar(entity)
+  if (rigidbody.body.translation().y < -10) respawnAvatar(entity)
 }
 
 /**
@@ -108,6 +110,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const isInVR = getControlMode() === 'attached'
 
+  const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   /**
@@ -124,7 +127,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   controller.currentSpeed =
     controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
 
-  const prevVelocity = controller.body.linvel()
+  const prevVelocity = rigidBody.body.linvel()
   const currentVelocity = _vec3
     .copy(velocitySpringDirection)
     .multiplyScalar(controller.currentSpeed)
@@ -145,7 +148,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
     }
   }
 
-  controller.body.setLinvel(currentVelocity, true)
+  rigidbody.body.setLinvel(currentVelocity, true)
 
   /**
    * Do rotation
@@ -156,10 +159,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       rotateBodyTowardsCameraDirection(entity)
     } else {
-      const displacement = _vec3
-        .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
-        .setComponent(1, 0)
-      rotateBodyTowardsVector(entity, displacement)
+      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
     }
   }
 
@@ -181,9 +181,9 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
       _vec3.copy(hits[0].normal as Vector3)
       const angle = _vec3.angleTo(V_010)
       if (angle < stepAngle) {
-        const pos = controller.body.translation()
+        const pos = rigidbody.body.translation()
         pos.y += stepHeight - hits[0].distance
-        controller.body.setTranslation(pos, true)
+        rigidbody.body.setTranslation(pos, true)
       }
     }
   }
@@ -238,6 +238,7 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
  * @param newPosition
  */
 export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void => {
+  const rigidbody = getComponent(entity, RigidBodyComponent)
   if (!hasComponent(entity, AvatarComponent)) {
     console.warn('Teleport avatar called on non-avatar entity')
     return
@@ -249,7 +250,7 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
     const avatar = getComponent(entity, AvatarComponent)
     const controller = getComponent(entity, AvatarControllerComponent)
     newPosition.y = newPosition.y + avatar.avatarHalfHeight
-    controller.body.setTranslation(newPosition, true)
+    rigidbody.body.setTranslation(newPosition, true)
   } else {
     console.log('invalid position', newPosition)
   }

@@ -84,33 +84,9 @@ function updateRotation(command: RotationCommandParams, isUndo: boolean): void {
   const space = undo ? command.undo!.space : command.space
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
-    // const node =
     const node = command.affectedNodes[i]
-    /** @todo figure out native local transform support */
-    // const transformComponent = hasComponent(node.entity, LocalTransformComponent) ? getComponent(node.entity, LocalTransformComponent) : getComponent(node.entity, TransformComponent)
-    if (typeof node !== 'string') {
-      const transformComponent = getComponent(node.entity, TransformComponent)
-      const parentTransformComponent = node.parentEntity
-        ? getComponent(node.parentEntity, TransformComponent)
-        : transformComponent
 
-      T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
-
-      if (space === TransformSpace.Local) {
-        transformComponent.rotation.copy(T_QUAT_1)
-      } else {
-        const _spaceMatrix = space === TransformSpace.World ? parentTransformComponent.matrix : getSpaceMatrix()
-
-        const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
-        const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
-
-        transformComponent.rotation.copy(newLocalQuaternion)
-      }
-
-      if (hasComponent(node.entity, RigidBodyComponent)) {
-        getComponent(node.entity, RigidBodyComponent).body?.setRotation(transformComponent.rotation, true)
-      }
-    } else {
+    if (typeof node === 'string') {
       const obj3d = obj3dFromUuid(node)
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
@@ -125,6 +101,24 @@ function updateRotation(command: RotationCommandParams, isUndo: boolean): void {
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
         obj3d.quaternion.copy(newLocalQuaternion)
+      }
+    } else {
+      const transform = getComponent(node.entity, TransformComponent)
+      const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+
+      T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
+
+      if (space === TransformSpace.Local) {
+        localTransform.rotation.copy(T_QUAT_1)
+      } else {
+        const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
+
+        const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
+
+        const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
+        const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
+
+        localTransform.rotation.copy(newLocalQuaternion)
       }
     }
   }

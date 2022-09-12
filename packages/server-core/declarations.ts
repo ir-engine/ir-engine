@@ -25,7 +25,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   k8BatchClient: k8s.BatchV1Api
   agonesSDK: any
   sync: any
-  io: SocketIO.Server
+  io: any //SocketIO.Server
   transport: SocketWebRTCServerNetwork
   seed: () => Application // function
   serverMode: ServerTypeMode

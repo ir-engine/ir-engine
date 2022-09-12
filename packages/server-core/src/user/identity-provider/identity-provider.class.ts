@@ -148,7 +148,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
           userId
         },
         params
-      )) as T
+      )) as T & { accessToken?: string }
     }
 
     // create with user association

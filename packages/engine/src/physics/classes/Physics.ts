@@ -71,40 +71,37 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   // apply the initial transform if there is one
   if (hasComponent(entity, TransformComponent)) {
     const { position, rotation } = getComponent(entity, TransformComponent)
-    rigidBodyDesc.setTranslation(
-      position.x + rigidBodyDesc.translation.x,
-      position.y + rigidBodyDesc.translation.y,
-      position.z + rigidBodyDesc.translation.z
-    )
-    rigidBodyDesc.setRotation(
-      new Quaternion().copy(rotation).multiply(new Quaternion().copy(rigidBodyDesc.rotation as Quaternion))
-    )
+    rigidBodyDesc.setTranslation(position.x, position.y, position.z)
+    rigidBodyDesc.setRotation(rotation)
   }
 
-  const rigidBody = world.createRigidBody(rigidBodyDesc)
-  colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))
+  const body = world.createRigidBody(rigidBodyDesc)
+  colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  addComponent(entity, RigidBodyComponent, {
-    body: rigidBody,
+  const rigidBody = addComponent(entity, RigidBodyComponent, {
+    body: body,
     previousPosition: createVector3Proxy(RigidBodyComponent.previousPosition, entity, new Set()),
     previousRotation: createQuaternionProxy(RigidBodyComponent.previousRotation, entity, new Set()),
     previousLinearVelocity: createVector3Proxy(RigidBodyComponent.previousLinearVelocity, entity, new Set()),
     previousAngularVelocity: createVector3Proxy(RigidBodyComponent.previousAngularVelocity, entity, new Set())
   })
 
-  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
+  rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
+  rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
+
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
   addComponent(entity, RigidBodyTypeTagComponent, true)
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }
-  rigidBody.userData = rigidBodyUserdata
+  body.userData = rigidBodyUserdata
 
   // TODO: Add only when dynamic or kinematic?
   const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity, new Set())
   const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity, new Set())
   addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
 
-  return rigidBody
+  return body
 }
 
 function applyDescToCollider(
@@ -288,17 +285,9 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
   }
 }
 
-function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
-  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)?.body
-  if (rigidBody && world.bodies.contains(rigidBody.handle)) {
-    if (!hasBeenRemoved) {
-      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-      removeComponent(entity, RigidBodyTypeTagComponent)
-      removeComponent(entity, RigidBodyComponent)
-      removeComponent(entity, VelocityComponent)
-    }
-    world.removeRigidBody(rigidBody)
-  }
+function removeRigidBody(entity: Entity, world: World) {
+  removeComponent(entity, RigidBodyComponent)
+  removeComponent(entity, VelocityComponent)
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {

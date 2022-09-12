@@ -17,7 +17,7 @@ import { equipperQueryExit } from '../../src/interaction/systems/EquippableSyste
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
 import { addObjectToGroup } from '../../src/scene/components/GroupComponent'
-import { TransformComponent } from '../../src/transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../src/transform/components/TransformComponent'
 import { createMockNetwork } from '../util/createMockNetwork'
 
 describe.skip('Equippables Integration Tests', () => {
@@ -44,12 +44,7 @@ describe.skip('Equippables Integration Tests', () => {
 
     const equippableEntity = createEntity()
 
-    const transform = addComponent(equippableEntity, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3(),
-      matrix: new Matrix4()
-    })
+    setTransformComponent(equippableEntity)
 
     // physics mock stuff
     const type = ShapeType.Cuboid
@@ -74,12 +69,7 @@ describe.skip('Equippables Integration Tests', () => {
 
     // Equipper
     const equipperEntity = createEntity()
-    addComponent(equipperEntity, TransformComponent, {
-      position: new Vector3(2, 0, 0),
-      rotation: new Quaternion(),
-      scale: new Vector3(),
-      matrix: new Matrix4()
-    })
+    setTransformComponent(equipperEntity)
 
     equipEntity(equipperEntity, equippableEntity, undefined)
 

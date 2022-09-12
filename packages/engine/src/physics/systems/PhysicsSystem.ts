@@ -14,7 +14,7 @@ import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObject
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
-  ModelColliderComponent,
+  GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../scene/components/ColliderComponent'
@@ -24,7 +24,7 @@ import {
   deserializeCollider,
   serializeCollider,
   updateCollider,
-  updateMeshCollider
+  updateGroupCollider
 } from '../../scene/functions/loaders/ColliderFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -106,9 +106,9 @@ export default async function PhysicsSystem(world: World) {
   ])
 
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
-  const colliderQuery = defineQuery([ColliderComponent, Not(ModelColliderComponent)])
-  const meshColliderQuery = defineQuery([ColliderComponent, ModelColliderComponent])
-  const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
+  const colliderQuery = defineQuery([ColliderComponent])
+  const groupColliderQuery = defineQuery([GroupColliderComponent])
+  const ownedRigidBodyQuery = defineQuery([RigidBodyComponent])
 
   const networkedAvatarBodyQuery = defineQuery([
     RigidBodyComponent,
@@ -132,7 +132,7 @@ export default async function PhysicsSystem(world: World) {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ColliderComponent)) {
-          if (hasComponent(entity, ModelColliderComponent)) {
+          if (hasComponent(entity, GroupColliderComponent)) {
             /** @todo we currently have no reason to support this, and it breaks live scene updates */
             // updateMeshCollider(entity)
           } else {
@@ -142,14 +142,9 @@ export default async function PhysicsSystem(world: World) {
       }
     }
     for (const action of colliderQuery.enter()) updateCollider(action)
-    for (const action of meshColliderQuery.enter()) updateMeshCollider(action)
+    for (const action of groupColliderQuery.enter()) updateGroupCollider(action)
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
-
-    for (const entity of rigidBodyQuery.exit()) {
-      //Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
-      Physics.removeRigidBody(entity, world.physicsWorld, true)
-    }
 
     for (const entity of ownedRigidBodyQuery()) {
       const rigidBody = getComponent(entity, RigidBodyComponent)
@@ -171,7 +166,6 @@ export default async function PhysicsSystem(world: World) {
       body.setRotation(rotation, true)
       body.setLinvel(linear, true)
       body.setAngvel(angular, true)
-      world.dirtyTransforms.add(entity)
     }
 
     // step physics world

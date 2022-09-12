@@ -132,6 +132,6 @@
     "react-json-view": "^1.21.3",
     "three": "0.144.0",
     "ts-node": "10.8.2",
-    "typescript": "4.7.4"
+    "typescript": "4.8.2"
   }
 }

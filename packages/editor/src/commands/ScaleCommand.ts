@@ -2,10 +2,10 @@ import { Matrix4, Vector3 } from 'three'
 
 import multiLogger from '@xrengine/common/src/logger'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ColliderComponent, ModelColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
+import { ColliderComponent, GroupColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { updateCollider, updateMeshCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
+import { updateCollider, updateGroupCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -123,8 +123,8 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
     )
 
     if (typeof node !== 'string' && hasComponent(node.entity, ColliderComponent)) {
-      if (hasComponent(node.entity, ModelColliderComponent)) {
-        updateMeshCollider(node.entity)
+      if (hasComponent(node.entity, GroupColliderComponent)) {
+        updateGroupCollider(node.entity)
       } else {
         updateCollider(node.entity)
       }

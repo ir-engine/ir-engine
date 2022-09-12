@@ -14,6 +14,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -135,6 +136,7 @@ describe('Physics', () => {
     const mesh = new Mesh(geometry, material)
     mesh.translateX(10)
     mesh.rotateX(3.1415918)
+    addObjectToGroup(entity, mesh)
 
     const collisionGroup = 0x0001
     const collisionMask = 0x0003
