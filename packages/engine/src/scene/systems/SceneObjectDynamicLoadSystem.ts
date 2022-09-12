@@ -2,18 +2,12 @@ import { defineAction, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { matches } from '../../common/functions/MatchesUtils'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeAllComponents } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import {
-  createEntityNode,
-  iterateEntityNode,
-  removeEntityNodeFromParent
-} from '../../ecs/functions/EntityTreeFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode, removeEntityNodeFromParent } from '../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import {
@@ -22,7 +16,7 @@ import {
   SceneDynamicLoadTagComponent
 } from '../components/SceneDynamicLoadTagComponent'
 import { serializeEntity } from '../functions/serializeWorld'
-import { createSceneEntity, loadSceneEntity } from '../systems/SceneLoadingSystem'
+import { createSceneEntity } from '../systems/SceneLoadingSystem'
 
 export class SceneDynamicLoadAction {
   static load = defineAction({

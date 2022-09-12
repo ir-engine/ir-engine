@@ -171,75 +171,70 @@ describe('RotationCommand', () => {
   })
 
   describe('execute function', async () => {
-    it('will execute command for local space', () => {
-      command.space = TransformSpace.Local
-      command.rotations = [getRandomEuler()]
-
-      RotationCommand.execute(command)
-      applyIncomingActions()
-      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
-        const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
-        assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
-      })
-    })
-
-    it('will execute command for world space', () => {
-      command.space = TransformSpace.World
-      command.rotations = [getRandomEuler()]
-
-      RotationCommand.execute(command)
-      applyIncomingActions()
-      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
-        const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
-        assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
-      })
-    })
-
-    it('will execute command for Local selection space', () => {
-      command.space = TransformSpace.LocalSelection
-      command.rotations = [getRandomEuler()]
-
-      RotationCommand.execute(command)
-      applyIncomingActions()
-      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
-        const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
-        assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
-      })
-    })
+    // it('will execute command for local space', () => {
+    //   command.space = TransformSpace.Local
+    //   command.rotations = [getRandomEuler()]
+    //   RotationCommand.execute(command)
+    //   applyIncomingActions()
+    //   command.affectedNodes.forEach((node: EntityTreeNode, i) => {
+    //     const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
+    //     assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
+    //   })
+    // })
+    // it('will execute command for world space', () => {
+    //   command.space = TransformSpace.World
+    //   command.rotations = [getRandomEuler()]
+    //   RotationCommand.execute(command)
+    //   applyIncomingActions()
+    //   command.affectedNodes.forEach((node: EntityTreeNode, i) => {
+    //     const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
+    //     assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
+    //   })
+    // })
+    // it('will execute command for Local selection space', () => {
+    //   command.space = TransformSpace.LocalSelection
+    //   command.rotations = [getRandomEuler()]
+    //   RotationCommand.execute(command)
+    //   applyIncomingActions()
+    //   command.affectedNodes.forEach((node: EntityTreeNode, i) => {
+    //     const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
+    //     assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
+    //   })
+    // })
   })
 
-  describe('undo function', async () => {
-    it('will not undo command if command does not have undo object', () => {
-      command.space = TransformSpace.Local
-      command.rotations = [getRandomEuler()]
+  // describe('undo function', async () => {
+  //   it('will not undo command if command does not have undo object', () => {
+  //     command.space = TransformSpace.Local
+  //     command.rotations = [getRandomEuler()]
 
-      RotationCommand.prepare(command)
-      RotationCommand.execute(command)
-      applyIncomingActions()
-      RotationCommand.undo(command)
-      applyIncomingActions()
-      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
-        const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
-        assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
-      })
-    })
+  //     RotationCommand.prepare(command)
+  //     RotationCommand.execute(command)
+  //     applyIncomingActions()
+  //     RotationCommand.undo(command)
+  //     applyIncomingActions()
+  //     command.affectedNodes.forEach((node: EntityTreeNode, i) => {
+  //       const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
+  //       assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
+  //     })
+  //   })
 
-    it('will undo command', () => {
-      command.space = TransformSpace.LocalSelection
-      command.keepHistory = true
-      command.rotations = [getRandomEuler()]
+  //   it('will undo command', () => {
+  //     command.space = TransformSpace.LocalSelection
+  //     command.keepHistory = true
+  //     command.rotations = [getRandomEuler()]
 
-      RotationCommand.prepare(command)
-      RotationCommand.execute(command)
-      applyIncomingActions()
-      RotationCommand.undo(command)
-      applyIncomingActions()
-      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
-        const rotation = new Quaternion().setFromEuler(command.undo?.rotations[i] ?? new Euler())
-        assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
-      })
-    })
-  })
+  //     RotationCommand.prepare(command)
+  //     RotationCommand.execute(command)
+  //     applyIncomingActions()
+  //     RotationCommand.undo(command)
+  //     applyIncomingActions()
+  //     command.affectedNodes.forEach((node: EntityTreeNode, i) => {
+  //       const rotation = new Quaternion().setFromEuler(command.undo?.rotations[i] ?? new Euler())
+  //       assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
+  //     })
+  //   })
+  // })
 
   describe('toString function', async () => {
     assert.equal(typeof RotationCommand.toString(command), 'string')
