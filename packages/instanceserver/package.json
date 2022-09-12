@@ -63,7 +63,7 @@
     "msgpackr": "1.5.5",
     "ps-list": "7.2.0",
     "serve-favicon": "2.5.0",
-    "socket.io": "4.4.1",
+    "socket.io": "4.5.2",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.8.2",
     "typescript": "4.7.4"
