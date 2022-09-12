@@ -41,7 +41,7 @@ export default function TexturePreviewInput({ value, onChange, ...rest }) {
     typeof value === 'string' && [AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(value))
   const showPreview = preview !== undefined || validSrcValue
   const previewSrc = validSrcValue ? value : preview
-  const inputSrc = validSrcValue ? value : value?.source?.data?.src ?? (preview ? 'BLOB' : '')
+  const inputSrc = validSrcValue ? value : value?.source?.data?.src ?? value?.userData?.src ?? (preview ? 'BLOB' : '')
   return (
     <ImageContainer>
       <Stack>

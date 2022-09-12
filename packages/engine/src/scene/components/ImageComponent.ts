@@ -6,8 +6,8 @@ import {
   LinearMipmapLinearFilter,
   Mesh,
   MeshBasicMaterial,
-  PlaneBufferGeometry,
-  SphereBufferGeometry,
+  PlaneGeometry,
+  SphereGeometry,
   sRGBEncoding,
   Texture
 } from 'three'
@@ -21,10 +21,10 @@ import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
-export const PLANE_GEO = new PlaneBufferGeometry(1, 1, 1, 1)
-export const SPHERE_GEO = new SphereBufferGeometry(1, 64, 32)
-export const PLANE_GEO_FLIPPED = flipNormals(new PlaneBufferGeometry(1, 1, 1, 1))
-export const SPHERE_GEO_FLIPPED = flipNormals(new SphereBufferGeometry(1, 64, 32))
+export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
+export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
+export const PLANE_GEO_FLIPPED = flipNormals(new PlaneGeometry(1, 1, 1, 1))
+export const SPHERE_GEO_FLIPPED = flipNormals(new SphereGeometry(1, 64, 32))
 
 export const ImageComponent = defineComponent({
   name: 'XRE_image',
@@ -38,7 +38,7 @@ export const ImageComponent = defineComponent({
         projection: ImageProjection.Flat as ImageProjectionType,
         side: DoubleSide,
         // runtime props
-        mesh: new Mesh(PLANE_GEO as PlaneBufferGeometry | SphereBufferGeometry, new MeshBasicMaterial())
+        mesh: new Mesh(PLANE_GEO as PlaneGeometry | SphereGeometry, new MeshBasicMaterial())
       },
       subscribable()
     )

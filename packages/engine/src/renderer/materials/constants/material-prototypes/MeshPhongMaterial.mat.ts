@@ -1,9 +1,10 @@
-import { Color, MeshPhongMaterial, MeshPhongMaterialParameters, Texture } from 'three'
+import { Color, MeshPhongMaterialParameters, MeshPhongMaterial as Phong, Texture } from 'three'
 
-import { MaterialParms } from '../MaterialParms'
-import { extractDefaults as format } from '../Utilities'
-import { BasicArgs } from './Basic.mat'
-import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from './DefaultArgs'
+import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
+import { extractDefaults as format } from '../../functions/Utilities'
+import { MaterialParms } from '../../MaterialParms'
+import { BasicArgs } from '../BasicArgs'
+import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   ...BasicArgs,
@@ -25,10 +26,9 @@ export const DefaultArgs = {
   shininess: { ...NormalizedFloatArg, default: 0.2 }
 }
 
-export default function Phong(args?: MeshPhongMaterialParameters): MaterialParms {
-  const _args = args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)
-  return {
-    material: new MeshPhongMaterial(_args),
-    update: (dt) => {}
-  }
+export const MeshPhongMaterial: MaterialPrototypeComponentType = {
+  baseMaterial: Phong,
+  arguments: DefaultArgs
 }
+
+export default MeshPhongMaterial

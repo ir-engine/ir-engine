@@ -1,4 +1,4 @@
-import { Mesh, PlaneBufferGeometry, ShaderMaterial, sRGBEncoding, Vector2 } from 'three'
+import { Mesh, PlaneGeometry, ShaderMaterial, sRGBEncoding, Vector2 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { loadCubeMapTexture, loadDDSTexture } from '../constants/Util'
@@ -53,7 +53,7 @@ void main()
     gl_FragColor = texture(cubemap, sampleDir);
 }`
 
-export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
+export class Interior extends Mesh<PlaneGeometry, ShaderMaterial> {
   _cubePath: string
   _size: Vector2
   entity: Entity
@@ -68,7 +68,7 @@ export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
       fragmentShader: fragmentShader
     })
 
-    const geometry = new PlaneBufferGeometry(1, 1)
+    const geometry = new PlaneGeometry(1, 1)
     geometry.computeTangents()
 
     super(geometry, material)
@@ -116,7 +116,7 @@ export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
   set size(value: Vector2) {
     this._size.copy(value)
 
-    const geometry = new PlaneBufferGeometry(this._size.x, this._size.y)
+    const geometry = new PlaneGeometry(this._size.x, this._size.y)
     geometry.computeTangents()
 
     this.geometry = geometry

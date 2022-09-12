@@ -7,6 +7,7 @@ import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMateri
 import { GPUInstancingExtension } from '../loaders/gltf/extensions/GPUInstancingExtension'
 import { HubsComponentsExtension } from '../loaders/gltf/extensions/HubsComponentsExtension'
 import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtension'
+import RegisterMaterialsExtension from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMaterialsExtension'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
@@ -32,6 +33,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser))
   loader.register((parser) => new EEMaterialImporterExtension(parser))
+  loader.register((parser) => new RegisterMaterialsExtension())
 
   loader.setMeshoptDecoder(MeshoptDecoder)
 

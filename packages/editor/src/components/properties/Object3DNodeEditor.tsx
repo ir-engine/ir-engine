@@ -9,6 +9,7 @@ import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
 import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
@@ -21,6 +22,7 @@ import { accessSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
+import { MaterialInput } from '../inputs/MaterialInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
@@ -261,6 +263,18 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     }}
                   />
                 </InputGroup>
+                <MaterialInput
+                  value={materials[currentMaterialId.value].uuid}
+                  onChange={(nuId) => {
+                    if (MaterialLibrary.materials.has(nuId)) {
+                      if (Array.isArray(mesh.material)) {
+                        mesh.material[currentMaterialId.value] = MaterialLibrary.materials.get(nuId)!.material
+                      } else {
+                        mesh.material = MaterialLibrary.materials.get(nuId)!.material
+                      }
+                    }
+                  }}
+                />
                 <MaterialEditor material={materials[currentMaterialId.value]} />
               </>
             )}

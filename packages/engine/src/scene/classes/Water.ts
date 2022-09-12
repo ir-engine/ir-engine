@@ -1,4 +1,4 @@
-import { Color, Mesh, PlaneBufferGeometry, ShaderMaterial, sRGBEncoding, WebGLRenderTarget } from 'three'
+import { Color, Mesh, PlaneGeometry, ShaderMaterial, sRGBEncoding, WebGLRenderTarget } from 'three'
 import { Vector3 } from 'three'
 
 import { loadCubeMapTexture } from '../constants/Util'
@@ -29,7 +29,7 @@ export class Water extends Mesh {
 
     const gridSize = 512
 
-    const waterGeometry = new PlaneBufferGeometry(2, 2, gridSize, gridSize)
+    const waterGeometry = new PlaneGeometry(2, 2, gridSize, gridSize)
     super(waterGeometry, material)
     this.rotation.x = -Math.PI * 0.5
 

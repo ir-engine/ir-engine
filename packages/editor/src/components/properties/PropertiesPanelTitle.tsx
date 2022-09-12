@@ -26,9 +26,7 @@ export const PropertiesPanelTitle = () => {
           {editorState.advancedMode.value && (
             <button
               onClick={() => {
-                const currentEntity = selectionState.selectedEntities.value.find(
-                  (selected) => typeof selected !== 'string'
-                ) as Entity | undefined
+                const currentEntity = selectionState.selectedEntities.value[0]
                 const currentState = editorState.lockPropertiesPanel.value
                 if (currentState) {
                   dispatchAction(
@@ -38,10 +36,12 @@ export const PropertiesPanelTitle = () => {
                   )
                 } else {
                   if (currentEntity) {
-                    const currentNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(currentEntity)!
                     dispatchAction(
                       EditorAction.lockPropertiesPanel({
-                        lockPropertiesPanel: currentNode.uuid
+                        lockPropertiesPanel:
+                          typeof currentEntity === 'string'
+                            ? currentEntity
+                            : Engine.instance.currentWorld.entityTree.entityNodeMap.get(currentEntity)!.uuid
                       })
                     )
                   }

@@ -9,7 +9,7 @@ import {
   getEntityNodeArrayFromEntities,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
@@ -129,7 +129,7 @@ function addObject(command: AddObjectCommandParams) {
       index =
         before && parent.children
           ? typeof before === 'string'
-            ? getComponent(parent.entity, GroupComponent).indexOf(obj3dFromUuid(before))
+            ? getComponent(parent.entity, GroupComponent).indexOf(obj3dFromUuid(before) as Object3DWithEntity)
             : parent.children.indexOf(before.entity)
           : undefined
     } else {
