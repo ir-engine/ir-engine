@@ -8,6 +8,7 @@ import {
   DirectionsRun,
   GroupAdd,
   NearMe,
+  PermMedia,
   PersonAdd,
   Settings,
   Shuffle,
@@ -66,6 +67,11 @@ export const SidebarItems = (allowedRoutes) => [
     name: 'user:dashboard.avatars',
     path: '/admin/avatars',
     icon: <Accessibility style={{ color: 'white' }} />
+  },
+  allowedRoutes.static_resource && {
+    name: 'user:dashboard.resources',
+    path: '/admin/resources',
+    icon: <PermMedia style={{ color: 'white' }} />
   },
   allowedRoutes.benchmarking && {
     name: 'user:dashboard.benchmarking',

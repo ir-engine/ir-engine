@@ -1,6 +1,8 @@
 import { Params } from '@feathersjs/feathers'
 import express from 'express'
 import multer from 'multer'
+import { Op } from 'sequelize'
+import { MathUtils } from 'three'
 
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
@@ -25,6 +27,7 @@ declare module '@xrengine/common/declarations' {
 export const addGenericAssetToS3AndStaticResources = async (
   app: Application,
   file: Buffer,
+  mimeType: string,
   args: AdminAssetUploadArgumentsType,
   storageProviderName?: string
 ) => {
@@ -34,9 +37,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   const key = processFileName(args.key)
   const existingAsset = await app.service('static-resource').Model.findAndCountAll({
     where: {
-      staticResourceType: args.staticResourceType || 'avatar',
-      ...{ key: key },
-      ...userIdQuery
+      [Op.or]: [{ key: key }, { id: args.id ?? '' }]
     }
   })
 
@@ -56,7 +57,7 @@ export const addGenericAssetToS3AndStaticResources = async (
         {
           Key: key,
           Body: file,
-          ContentType: args.contentType
+          ContentType: mimeType
         },
         {
           isDirectory: false
@@ -76,7 +77,9 @@ export const addGenericAssetToS3AndStaticResources = async (
           existingAsset.rows[0].id,
           {
             url: assetURL,
-            key: key
+            key: key,
+            mimeType: mimeType,
+            staticResourceType: args.staticResourceType
           },
           { isInternal: true }
         )
@@ -87,9 +90,10 @@ export const addGenericAssetToS3AndStaticResources = async (
           try {
             const newResource = await app.service('static-resource').create(
               {
-                mimeType: args.contentType,
                 url: assetURL,
                 key: key,
+                mimeType: mimeType,
+                staticResourceType: args.staticResourceType,
                 ...userIdQuery
               },
               { isInternal: true }
@@ -138,16 +142,29 @@ export default (app: Application): void => {
         } else if (data.type === 'admin-file-upload') {
           if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
+
+          if (argsData.key && argsData.key.startsWith('static-resources/') === false) {
+            const splits = argsData.key.split('.')
+            let ext = ''
+            let name = argsData.key
+            if (splits.length > 1) {
+              ext = `.${splits.pop()}`
+              name = splits.join('.')
+            }
+
+            argsData.key = `static-resources/${name}_${MathUtils.generateUUID()}${ext}`
+          }
+
           if (files && files.length > 0) {
             return Promise.all(
               files.map((file, i) =>
-                addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
+                addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, file.mimetype, { ...argsData })
               )
             )
           } else {
             return Promise.all(
               data?.files.map((file, i) =>
-                addGenericAssetToS3AndStaticResources(app, file as Buffer, { ...argsData[0] })
+                addGenericAssetToS3AndStaticResources(app, file as Buffer, (data.args as any).mimeType, { ...argsData })
               )
             )
           }

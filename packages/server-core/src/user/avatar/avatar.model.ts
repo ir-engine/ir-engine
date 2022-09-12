@@ -28,6 +28,13 @@ export default (app: Application) => {
       },
       thumbnailResourceId: {
         type: DataTypes.STRING
+      },
+      isPublic: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+      },
+      userId: {
+        type: DataTypes.UUID
       }
     },
     {

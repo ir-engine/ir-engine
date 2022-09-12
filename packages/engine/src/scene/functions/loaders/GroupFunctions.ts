@@ -4,5 +4,5 @@ import { addComponent, hasComponent } from '../../../ecs/functions/ComponentFunc
 import { GroupComponent } from '../../components/GroupComponent'
 
 export const deserializeGroup: ComponentDeserializeFunction = (entity: Entity) => {
-  if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, {})
+  if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
 }

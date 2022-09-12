@@ -283,3 +283,26 @@ export function easeOutElastic(x: number): number {
   const c4 = (2 * Math.PI) / 5
   return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1
 }
+
+export function PRNG(seed, modulo) {
+  //@ts-ignore
+  const str = `${((2 ** 31 - 1) & Math.imul(48271, seed)) / 2 ** 31}`.split('').slice(-10).join('') % modulo
+  return str
+}
+
+export function SeedRandom(seed) {
+  return PRNG(seed, Math.pow(2, 32))
+}
+
+export function stringHash(str: string) {
+  var hash = 0,
+    i,
+    chr
+  if (str.length === 0) return hash
+  for (i = 0; i < str.length; i++) {
+    chr = str.charCodeAt(i)
+    hash = (hash << 5) - hash + chr
+    hash |= 0 // Convert to 32bit integer
+  }
+  return hash
+}

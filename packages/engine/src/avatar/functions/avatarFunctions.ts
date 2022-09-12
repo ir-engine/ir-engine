@@ -210,7 +210,7 @@ export const setupAvatarMaterials = (entity, root) => {
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
-      const material = object.material.clone()
+      const material = object.material
       materialList.push({
         id: object.uuid,
         material: material

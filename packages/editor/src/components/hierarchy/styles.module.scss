@@ -9,6 +9,15 @@
   color: var(--textColor);
 }
 
+.panelSection {
+  outline: 1px solid var(--borderStyleLight);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
 .nodeContent {
   outline: none;
   display: flex;
@@ -125,4 +134,13 @@
 .spacer {
   width: 20px;
   flex-shrink: 0;
+}
+
+.divider {
+  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-left: 4px;
+  height: 1px;
+  width: 95%;
+  background-color: var(--inputBackground);
 }

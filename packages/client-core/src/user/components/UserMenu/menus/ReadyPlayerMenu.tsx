@@ -20,7 +20,6 @@ import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
 interface Props {
-  isPublicAvatar?: boolean
   changeActiveMenu: Function
 }
 
@@ -28,7 +27,7 @@ let scene: Scene
 let camera: PerspectiveCamera
 let renderer: WebGLRenderer = null!
 
-const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
+const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
@@ -116,7 +115,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
 
     canvas.toBlob(async (blob) => {
       setShowLoading(true)
-      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
+      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
       setShowLoading(false)
       changeActiveMenu(null)
     })

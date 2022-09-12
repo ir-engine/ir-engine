@@ -173,7 +173,6 @@ export default async function AvatarLoadingSystem(world: World) {
     for (const entity of growQuery(world)) {
       const object = getComponent(entity, Object3DComponent).value
       object.updateWorldMatrix(true, true)
-      object.updateMatrixWorld(true)
     }
 
     for (const entity of commonQuery(world)) {
@@ -207,6 +206,12 @@ export default async function AvatarLoadingSystem(world: World) {
       }
     }
 
+    for (const entity of dissolveQuery.enter(world)) {
+      const effectComponent = getComponent(entity, AvatarEffectComponent)
+      if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
+        getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
+    }
+
     for (const entity of dissolveQuery(world)) {
       const disolveEffect = getComponent(entity, AvatarDissolveComponent).effect
 
@@ -222,8 +227,6 @@ export default async function AvatarLoadingSystem(world: World) {
             }
           })
         })
-        if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
-          getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
 
         setComponent(entity, TweenComponent, {
           tween: new Tween<any>(effectComponent)

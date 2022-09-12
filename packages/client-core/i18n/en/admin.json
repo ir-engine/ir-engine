@@ -60,6 +60,7 @@
       "update": "Update",
       "enter": "Enter",
       "remove": "Remove",
+      "reset": "Reset",
       "delete": "Delete",
       "view": "View",
       "yes": "Yes",
@@ -162,6 +163,26 @@
     },
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance"
+    },
+    "resources": {
+      "resources": "resources",
+      "id": "Id",
+      "key": "Key",
+      "name": "Name",
+      "mimeType": "Mime Type",
+      "resourceType": "Resource Type",
+      "preview": "Preview",
+      "confirmResourceDelete": "Do you want to delete resource",
+      "nameCantEmpty": "Name can't be empty",
+      "resourceTypeCantEmpty": "Resource type can't be empty",
+      "resourceUrlCantEmpty": "Resource url can't be empty",
+      "resourceFileCantEmpty": "Resource file can't be empty",
+      "nameRequired": "Name is required",
+      "resourceTypeRequired": "Resource type is required",
+      "resourceUrlInvalid": "Resource url is not valid",
+      "resourceFileOversized": "Resource file size must be between {{minSize}} MB and {{maxSize}} MB",
+      "selectFile": "Select File",
+      "resourceUrl": "Resource Url"
     },
     "setting": {
       "authentication": "Authentication",
