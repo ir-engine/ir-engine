@@ -1,6 +1,6 @@
 import assert from 'assert'
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { act } from 'react-dom/test-utils'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -44,7 +44,8 @@ describe('Instance Chat Component', () => {
       } as any
     ])
     act(() => {
-      ReactDOM.render(<InstanceChat />, rootContainer)
+      const root = createRoot(rootContainer!)
+      root.render(<InstanceChat />)
     })
     const openButton = document.getElementById('openMessagesButton')!
     openButton.addEventListener('click', (e) => console.log(e))

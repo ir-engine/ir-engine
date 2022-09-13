@@ -2,6 +2,7 @@ import React, { Suspense, useEffect } from 'react'
 
 import { API } from '@xrengine/client-core/src/API'
 import { FullscreenContainer } from '@xrengine/client-core/src/components/FullscreenContainer'
+import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { createEngine, initializeBrowser, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import { initializei18n } from './util'
@@ -31,7 +32,9 @@ export default function () {
   return (
     <FullscreenContainer>
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
-      <AppPage />
+      <Suspense fallback={<LoadingCircle />}>
+        <AppPage />
+      </Suspense>
     </FullscreenContainer>
   )
 }
