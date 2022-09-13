@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle' //@ts-ignore
 
@@ -15,4 +15,6 @@ const App = () => {
   )
 }
 
-ReactDOM.render(<App />, document.getElementById('root'))
+const container = document.getElementById('root')
+const root = createRoot(container!)
+root.render(<App />)
