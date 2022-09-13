@@ -7,3 +7,10 @@ export interface ServiceTypes {
 
 // TODO: fix sequlize typings for this
 export interface Models {}
+
+declare global {
+    interface Window {
+        keplr: any;
+        Keplr: any;
+    }
+}

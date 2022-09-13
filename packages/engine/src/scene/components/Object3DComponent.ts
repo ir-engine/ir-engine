@@ -12,4 +12,6 @@ export type Object3DComponentType = {
   value: Object3D | Group
 }
 
+export const Object3DFunctions = ['value.removeFromParent', 'value.clear']
+
 export const Object3DComponent = createMappedComponent<Object3DComponentType>('Object3DComponent')

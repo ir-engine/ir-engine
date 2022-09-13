@@ -296,6 +296,13 @@
       "avatars": "Avatars",
       "benchmarking": "Benchmarking",
       "bots": "Bots"
+    },
+    "connect": {
+      "note": "Please connect with below methods",
+      "connect-with": "Connect With",
+      "connected-with": "Connected With",
+      "web3auth": "Web3Auth",
+      "wallet": "Keplr Wallet"
     }
   },
   "oauth": {

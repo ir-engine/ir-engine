@@ -1,3 +1,4 @@
+import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
@@ -8,6 +9,7 @@ import { defineConfig, loadEnv, UserConfig, UserConfigExport } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { injectHtml } from 'vite-plugin-html'
 import PkgConfig from 'vite-plugin-package-config'
+import vitePluginRequire from 'vite-plugin-require'
 
 import { getClientSetting } from './scripts/getClientSettings'
 import OptimizationPersist from './scripts/viteoptimizeplugin'
@@ -100,10 +102,33 @@ export default defineConfig(async () => {
     ...env
   }
 
+  const fallback = {}
+  Object.assign(fallback, {
+    crypto: require.resolve('crypto-browserify'),
+    stream: require.resolve('stream-browserify'),
+    assert: require.resolve('assert'),
+    http: require.resolve('stream-http'),
+    https: require.resolve('https-browserify'),
+    os: require.resolve('os-browserify'),
+    url: require.resolve('url'),
+    path: require.resolve('path-browserify')
+  })
+
   const returned = {
     optimizeDeps: {
       include: getDependenciesToOptimize(),
-      exclude: ['@xrfoundation/volumetric']
+      exclude: ['@xrfoundation/volumetric'],
+      esbuildOptions: {
+        define: {
+          global: 'globalThis'
+        },
+        plugins: [
+          GlobalPolyFill({
+            process: true,
+            buffer: true
+          })
+        ]
+      }
     },
     plugins: [
       PkgConfig(),
@@ -133,8 +158,17 @@ export default defineConfig(async () => {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         'socket.io-client': 'socket.io-client/dist/socket.io.js',
-        '@mui/styled-engine': '@mui/styled-engine-sc'
-      }
+        '@mui/styled-engine': '@mui/styled-engine-sc',
+        stream: 'rollup-plugin-node-polyfills/polyfills/stream',
+        path: 'rollup-plugin-node-polyfills/polyfills/path',
+        url: 'rollup-plugin-node-polyfills/polyfills/url',
+        http: 'rollup-plugin-node-polyfills/polyfills/http',
+        https: 'rollup-plugin-node-polyfills/polyfills/http',
+        os: 'rollup-plugin-node-polyfills/polyfills/os',
+        assert: 'rollup-plugin-node-polyfills/polyfills/assert',
+        util: 'rollup-plugin-node-polyfills/polyfills/util'
+      },
+      fallback: fallback
     },
     build: {
       target: 'esnext',

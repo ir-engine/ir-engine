@@ -2,6 +2,7 @@
 
 .primaryForeground {
   color: var(--textColor);
+  cursor: pointer;
 }
 
 .apiRefresh {
@@ -312,8 +313,9 @@
             background: transparent;
 
             input {
+              color: transparent;
+              text-shadow: 0 0 0 var(--textColor);
               font-size: 18px;
-              color: var(--textColor);
               border-color: var(--inputOutline);
             }
 
@@ -374,6 +376,34 @@
             }
           }
         }
+      }
+    }
+
+    .connectBlock {
+      margin-top: 20px;
+      .connectWeb3AuthButton {
+        background: var(--green);
+        margin-right: 10px;
+        &:hover {
+          cursor: pointer;
+          background: var(--lightGreen);
+        }
+      }
+      .connectWalletButton {
+        background: var(--green);
+        margin-right: 10px;
+        &:hover {
+          cursor: pointer;
+          background: var(--lightGreen);
+        }
+      }
+      .textBlock {
+        font-size: 14px;
+        color: var(--textColor);
+        font-weight: normal;
+        text-align: center;
+        display: block;
+        cursor: initial;
       }
     }
 
@@ -607,9 +637,11 @@
             background: transparent;
 
             input {
+              color: transparent;
+              text-shadow: 0 0 0 var(--textColor);
               font-size: 18px;
-              color: var(--textColor);
               border-color: var(--inputOutline);
+              user-select: none;
             }
 
             :global(.MuiFormLabel-root) {
@@ -668,6 +700,33 @@
               color: black;
             }
           }
+        }
+      }
+    }
+
+    .connectBlock {
+      margin-top: 20px;
+      .textBlock {
+        font-size: 14px;
+        color: var(--textColor);
+        font-weight: normal;
+        text-align: center;
+        display: block;
+        cursor: initial;
+      }
+      .connectWeb3AuthButton {
+        background: var(--green);
+        margin-right: 10px;
+        &:hover {
+          cursor: pointer;
+          background: var(--lightGreen);
+        }
+      }
+      .connectWalletButton {
+        background: var(--green);
+        &:hover {
+          cursor: pointer;
+          background: var(--lightGreen);
         }
       }
     }
@@ -2525,6 +2584,7 @@
       width: 24px;
       height: 24px;
       flex-shrink: 0;
+      cursor: pointer;
 
       svg {
         color: var(--buttonOutlined);
