@@ -59,5 +59,6 @@ npm install --save @cosmjs/crypto@^0.28.11 @cosmjs/encoding@^0.28.11 @cosmjs/lau
  - web3.ts (publicKeyToReduceString)
  - Icons / *.ts
  - Web3AuthService.ts
+ - ...
 
 > ...
