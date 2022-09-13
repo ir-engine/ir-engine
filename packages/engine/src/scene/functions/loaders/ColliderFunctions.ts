@@ -27,7 +27,7 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   // todo: ColliderComponent needs to be refactored to support multiple colliders
   const colliderProps = parseColliderProperties(data)
   setComponent(entity, ColliderComponent, colliderProps)
-  if (data['xrengine.collider.bodyType']) {
+  if (data.bodyType) {
     setComponent(entity, GroupColliderComponent, {})
   }
 }
