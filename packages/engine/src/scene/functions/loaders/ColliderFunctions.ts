@@ -19,6 +19,7 @@ import {
   GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
+import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
@@ -27,8 +28,16 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   // todo: ColliderComponent needs to be refactored to support multiple colliders
   const colliderProps = parseColliderProperties(data)
   setComponent(entity, ColliderComponent, colliderProps)
-  if (data.bodyType) {
+  if (data.bodyType !== undefined) {
+    //i think this always evaluates to true currently
     setComponent(entity, GroupColliderComponent, {})
+    if (!hasComponent(entity, GroupComponent)) {
+      //if this is a singleton collider,
+      const colliderObj = new Object3D() // create a singleton object with
+      colliderObj.matrixAutoUpdate = false // given shapeType and let updateGroupCollider
+      colliderObj.userData['shapeType'] = data.shapeType // initialize it
+      addObjectToGroup(entity, colliderObj)
+    }
   }
 }
 
