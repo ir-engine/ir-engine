@@ -75,7 +75,7 @@ const updateAudioPanner = (
 export const removePannerNode = (audioNodes: AudioNodeGroup) => {
   audioNodes.source.disconnect()
   audioNodes.source.connect(audioNodes.gain)
-  audioNodes.panner!.disconnect(audioNodes.gain)
+  audioNodes.panner?.disconnect()
   audioNodes.panner = undefined
 }
 

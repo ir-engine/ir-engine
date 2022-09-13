@@ -1212,7 +1212,8 @@ class GLTFWriter {
 		} else {
 			//only save urls without serializing any images into bufferviews
 			imageDef.uri = image.src
-			imageDef.mimeType = `image/${/(?<=\.)[\d\w]+$/.exec(image.src)[0]}`
+			const extension = image.src.split('.').at(-1)
+			imageDef.mimeType = `image/${extension}`
 			if (imageDef.mimeType === 'image/jpg') 
 				imageDef.mimeType = 'image/jpeg'
 		}

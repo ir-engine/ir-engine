@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
+import { useForceUpdate } from '@xrengine/client-core/src/util/useForceRender'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -97,8 +98,12 @@ export const PropertiesPanelContainer = () => {
 
   const [isMenuOpen, setMenuOpen] = useState(false)
 
-  // access state to detect the change
-  selectionState.objectChangeCounter.value
+  const forceUpdate = useForceUpdate()
+
+  // force react to re-render upon any object changing
+  useEffect(() => {
+    forceUpdate()
+  }, [selectionState.objectChangeCounter])
 
   const onChangeVisible = (value) => {
     executeCommandWithHistoryOnSelection({

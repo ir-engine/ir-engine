@@ -79,7 +79,6 @@ function emitEventAfter(command: PositionCommandParams) {
   if (command.preventEvents) return
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'position' }))
 }
 
 function updatePosition(command: PositionCommandParams, isUndo?: boolean) {

@@ -39,7 +39,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
 
   useEffect(() => {
     onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChangeCounter.value])
+  }, [selectionState.objectChangeCounter])
 
   const onObjectChange = (_: any, propertyName: string) => {
     if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent).name)
