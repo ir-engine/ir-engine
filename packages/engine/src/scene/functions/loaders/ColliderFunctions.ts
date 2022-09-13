@@ -28,17 +28,6 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   // todo: ColliderComponent needs to be refactored to support multiple colliders
   const colliderProps = parseColliderProperties(data)
   setComponent(entity, ColliderComponent, colliderProps)
-  if (data.bodyType !== undefined) {
-    //i think this always evaluates to true currently
-    setComponent(entity, GroupColliderComponent, {})
-    if (!hasComponent(entity, GroupComponent)) {
-      //if this is a singleton collider, create a singleton object and let updateGroupCollider initialize things
-      const colliderObj = new Object3D()
-      colliderObj.matrixAutoUpdate = false
-      colliderObj.userData['shapeType'] = data.shapeType
-      addObjectToGroup(entity, colliderObj)
-    }
-  }
 }
 
 export const updateCollider = (entity: Entity) => {
@@ -46,7 +35,18 @@ export const updateCollider = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
 
   if (!colliderComponent) return
-
+  if (colliderComponent.bodyType !== undefined) {
+    //i think this always evaluates to true currently
+    setComponent(entity, GroupColliderComponent, {})
+    if (!hasComponent(entity, GroupComponent)) {
+      //if this is a singleton collider, create a singleton object and let updateGroupCollider initialize things
+      const colliderObj = new Object3D()
+      colliderObj.matrixAutoUpdate = false
+      colliderObj.userData['shapeType'] = colliderComponent.shapeType
+      addObjectToGroup(entity, colliderObj)
+      return
+    }
+  }
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
     colliderComponent.bodyType !== getComponent(entity, RigidBodyComponent).body.bodyType()
