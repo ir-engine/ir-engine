@@ -11,8 +11,6 @@ import PkgConfig from 'vite-plugin-package-config'
 
 import { getClientSetting } from './scripts/getClientSettings'
 
-// import OptimizationPersist from './scripts/viteoptimizeplugin'
-
 const merge = (src, dest) =>
   mergeWith({}, src, dest, function (a, b) {
     if (isArray(a)) {
