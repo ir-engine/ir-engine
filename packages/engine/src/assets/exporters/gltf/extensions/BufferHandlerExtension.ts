@@ -28,7 +28,7 @@ export default class BufferHandlerExtension extends ExporterExtension {
     const writer = this.writer
     const json = writer.json
     const buffers = writer.buffers
-    const options = this.options
+    const options = writer.options
     if (!options?.binary) {
       writer.buffers.map((buffer, index) => {
         const name = generateUUID()

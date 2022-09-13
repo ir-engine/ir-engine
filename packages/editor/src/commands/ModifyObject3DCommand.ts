@@ -84,7 +84,6 @@ function updateProperty(command: ModifyObj3DCommandParams, isUndo?: boolean) {
       } else {
         obj3d[k] = value
       }
-      dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: k }))
     })
   })
   dispatchAction(EditorAction.sceneModified({ modified: true }))

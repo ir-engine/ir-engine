@@ -62,7 +62,6 @@ const avatarStepRaycast = {
  * @param entity
  */
 export const moveLocalAvatar = (entity: Entity) => {
-  const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   let onGround = false
@@ -93,9 +92,6 @@ export const moveLocalAvatar = (entity: Entity) => {
   const avatarInputState = getState(AvatarInputSettingsState)
   if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) moveAvatarWithTeleport(entity)
   else moveAvatarWithVelocity(entity)
-
-  // TODO: implement scene lower bounds parameter
-  if (rigidbody.body.translation().y < -10) respawnAvatar(entity)
 }
 
 /**

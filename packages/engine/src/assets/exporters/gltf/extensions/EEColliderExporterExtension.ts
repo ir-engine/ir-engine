@@ -5,7 +5,7 @@ import { ExporterExtension } from './ExporterExtension'
 
 export default class EEColliderExporterExtension extends ExporterExtension {
   constructor(writer: GLTFWriter) {
-    super(writer, {})
+    super(writer)
     this.name = 'EE_collider'
   }
 

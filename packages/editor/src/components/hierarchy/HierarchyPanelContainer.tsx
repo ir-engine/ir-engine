@@ -206,7 +206,7 @@ export default function HierarchyPanel() {
 
   useEffect(() => {
     onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChangeCounter.value])
+  }, [selectionState.objectChangeCounter])
 
   /* Event handlers */
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {

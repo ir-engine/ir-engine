@@ -7,6 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
 import EditorCommands, {
@@ -16,7 +17,7 @@ import EditorCommands, {
   CommandParamsType
 } from '../constants/EditorCommands'
 import { accessEditorState } from '../services/EditorServices'
-import { accessSelectionState } from '../services/SelectionServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 const logger = multiLogger.child({ component: 'editor:History' })
 
@@ -50,6 +51,8 @@ export function executeCommand(command: CommandParamsType): void {
   const commandFunctions = CommandFuncs[command.type]
   commandFunctions.prepare(command)
   commandFunctions.execute(command)
+
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 
 /**
@@ -92,6 +95,8 @@ export function executeCommandWithHistory(command: CommandParamsType): void {
 
   // clearing all the redo-commands
   EditorHistory.redos = []
+
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 
 /**

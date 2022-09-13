@@ -6,6 +6,7 @@ import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/St
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -225,6 +226,7 @@ export const MediaComponent = defineComponent({
           if (prevVersion === metadataVersion && hasComponent(entity, MediaComponent))
             state.trackDurations[i].set(tempElement.duration)
         })
+        tempElement.crossOrigin = 'anonymous'
         tempElement.preload = 'metadata'
         tempElement.src = path
         tempElement.load()
@@ -281,7 +283,7 @@ export const MediaComponent = defineComponent({
     state.merge(json)
 
     // handle autoplay
-    if (state.autoplay.value) state.paused.set(false)
+    if (state.autoplay.value && getEngineState().userHasInteracted.value) state.paused.set(false)
 
     // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
     updateTrackMetadata()

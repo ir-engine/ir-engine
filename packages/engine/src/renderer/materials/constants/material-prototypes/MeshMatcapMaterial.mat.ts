@@ -20,6 +20,7 @@ export const DefaultArgs = {
 }
 
 export const MeshMatcapMaterial: MaterialPrototypeComponentType = {
+  prototypeId: 'MeshMatcapMaterial',
   baseMaterial: Matcap,
   arguments: DefaultArgs,
   onBeforeCompile: (shader, renderer) => {

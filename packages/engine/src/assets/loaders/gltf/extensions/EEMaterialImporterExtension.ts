@@ -1,6 +1,10 @@
 import { Material } from 'three'
 
-import { materialIdToDefaultArgs, materialIdToFactory } from '../../../../renderer/materials/functions/Utilities'
+import {
+  materialIdToDefaultArgs,
+  materialIdToFactory,
+  prototypeFromId
+} from '../../../../renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
 import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
 
@@ -21,6 +25,7 @@ export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
     return factory
       ? (function (args) {
           const material = factory(args)
+          material.uuid = eeMaterial.uuid
           return material
         } as unknown as typeof Material)
       : null
@@ -32,7 +37,9 @@ export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
     const pending = []
     const extension = materialDef.extensions[this.name]
-    const defaultArgs = materialIdToDefaultArgs(extension.type)!
+    const defaultArgs = MaterialLibrary.materials.has(extension.uuid)
+      ? materialIdToDefaultArgs(extension.uuid)!
+      : prototypeFromId(extension.type).arguments
     Object.entries(extension.args).map(async ([k, v]) => {
       materialParams[k] = v
     })

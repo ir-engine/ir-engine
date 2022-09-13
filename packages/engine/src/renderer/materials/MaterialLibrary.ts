@@ -28,18 +28,18 @@ export function initializeMaterialLibrary() {
     MeshToonMaterial,
     ShaderMaterial
   ].map((prototype) => {
-    MaterialLibrary.prototypes.set(prototype.baseMaterial.name, prototype)
+    MaterialLibrary.prototypes.set(prototype.prototypeId, prototype)
     //create default material from prototype
     const parameters = extractDefaults(prototype.arguments)
     const material = new prototype.baseMaterial(parameters)
     //set material name to prototype
-    material.name = prototype.baseMaterial.name
+    material.name = prototype.prototypeId
     //set uuid to pseudorandom value based on name
     material.uuid = `${SeedRandom(stringHash(material.name))}`
     MaterialLibrary.materials.set(material.uuid, {
       material,
       parameters,
-      prototype: prototype.baseMaterial.name,
+      prototype: prototype.prototypeId,
       src: { type: 'MATERIAL_LIBRARY' }
     })
   })
