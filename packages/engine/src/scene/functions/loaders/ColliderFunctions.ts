@@ -32,10 +32,10 @@ export const deserializeCollider: ComponentDeserializeFunction = (
     //i think this always evaluates to true currently
     setComponent(entity, GroupColliderComponent, {})
     if (!hasComponent(entity, GroupComponent)) {
-      //if this is a singleton collider,
-      const colliderObj = new Object3D() // create a singleton object with
-      colliderObj.matrixAutoUpdate = false // given shapeType and let updateGroupCollider
-      colliderObj.userData['shapeType'] = data.shapeType // initialize it
+      //if this is a singleton collider, create a singleton object and let updateGroupCollider initialize things
+      const colliderObj = new Object3D()
+      colliderObj.matrixAutoUpdate = false
+      colliderObj.userData['shapeType'] = data.shapeType
       addObjectToGroup(entity, colliderObj)
     }
   }
