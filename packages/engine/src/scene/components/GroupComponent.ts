@@ -1,6 +1,11 @@
 import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
 
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
+import {
+  proxifyQuaternion,
+  proxifyQuaternionWithDirty,
+  proxifyVector3,
+  proxifyVector3WithDirty
+} from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -62,9 +67,9 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
-  proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, obj.position)
-  proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, obj.quaternion)
-  proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, obj.scale)
+  proxifyVector3WithDirty(TransformComponent.position, entity, world.dirtyTransforms, obj.position)
+  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, world.dirtyTransforms, obj.quaternion)
+  proxifyVector3WithDirty(TransformComponent.scale, entity, world.dirtyTransforms, obj.scale)
 }
 
 export function removeObjectFromGroup(entity: Entity, object: Object3D) {

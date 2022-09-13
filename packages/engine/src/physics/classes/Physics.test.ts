@@ -9,7 +9,7 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { AvatarDirection } from '../../common/constants/Axis3D'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'

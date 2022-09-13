@@ -1,12 +1,11 @@
-import { addComponent, entityExists } from 'bitecs'
-import { Camera, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { entityExists } from 'bitecs'
+import { Camera, Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -21,19 +20,13 @@ import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { updateCollider, updateGroupCollider } from '../../scene/functions/loaders/ColliderFunctions'
-import {
-  applyTransformPositionOffset,
-  applyTransformRotationOffset,
-  deserializeTransform,
-  serializeTransform
-} from '../../scene/functions/loaders/TransformFunctions'
-import { ComputedTransformComponent, setComputedTransformComponent } from '../components/ComputedTransformComponent'
+import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
+import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
 import { LocalTransformComponent } from '../components/LocalTransformComponent'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  setTransformComponent,
   TransformComponent
 } from '../components/TransformComponent'
 
