@@ -28,7 +28,7 @@ import {
 } from 'three'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -80,10 +80,10 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
 
   const rigidBody = addComponent(entity, RigidBodyComponent, {
     body: body,
-    previousPosition: createVector3Proxy(RigidBodyComponent.previousPosition, entity, new Set()),
-    previousRotation: createQuaternionProxy(RigidBodyComponent.previousRotation, entity, new Set()),
-    previousLinearVelocity: createVector3Proxy(RigidBodyComponent.previousLinearVelocity, entity, new Set()),
-    previousAngularVelocity: createVector3Proxy(RigidBodyComponent.previousAngularVelocity, entity, new Set())
+    previousPosition: proxifyVector3(RigidBodyComponent.previousPosition, entity),
+    previousRotation: proxifyQuaternion(RigidBodyComponent.previousRotation, entity),
+    previousLinearVelocity: proxifyVector3(RigidBodyComponent.previousLinearVelocity, entity),
+    previousAngularVelocity: proxifyVector3(RigidBodyComponent.previousAngularVelocity, entity)
   })
 
   rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
@@ -97,8 +97,8 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   body.userData = rigidBodyUserdata
 
   // TODO: Add only when dynamic or kinematic?
-  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity, new Set())
-  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity, new Set())
+  const linearVelocity = proxifyVector3(VelocityComponent.linear, entity)
+  const angularVelocity = proxifyVector3(VelocityComponent.angular, entity)
   addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
 
   return body

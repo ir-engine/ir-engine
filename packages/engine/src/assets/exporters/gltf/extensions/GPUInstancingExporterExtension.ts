@@ -9,7 +9,7 @@ import { ExporterExtension } from './ExporterExtension'
  */
 export default class GPUInstancingExporterExtension extends ExporterExtension {
   constructor(writer) {
-    super(writer, {})
+    super(writer)
     this.name = 'EXT_mesh_gpu_instancing'
   }
 

@@ -5,7 +5,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { BoneNames } from '../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../avatar/components/AvatarAnimationComponent'
 import { ParityValue } from '../common/enums/ParityValue'
-import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/three'
+import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
@@ -50,23 +50,13 @@ export const setupLocalXRInputs = () => {
       if (data.handedness === 'left') {
         controller.add(input.controllerLeft)
         assignController(input, 'controllerLeftParent', controller)
-        proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, new Set(), controller.position)
-        proxifyQuaternion(
-          XRInputSourceComponent.controllerLeftParent.quaternion,
-          entity,
-          new Set(),
-          controller.quaternion
-        )
+        proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, controller.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerLeftParent.quaternion, entity, controller.quaternion)
       } else if (data.handedness === 'right') {
         controller.add(input.controllerRight)
         assignController(input, 'controllerRightParent', controller)
-        proxifyVector3(XRInputSourceComponent.controllerRightParent.position, entity, new Set(), controller.position)
-        proxifyQuaternion(
-          XRInputSourceComponent.controllerRightParent.quaternion,
-          entity,
-          new Set(),
-          controller.quaternion
-        )
+        proxifyVector3(XRInputSourceComponent.controllerRightParent.position, entity, controller.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerRightParent.quaternion, entity, controller.quaternion)
       }
     })
 
@@ -81,23 +71,13 @@ export const setupLocalXRInputs = () => {
       if (data.handedness === 'left') {
         grip.add(input.controllerGripLeft)
         assignController(input, 'controllerGripLeftParent', grip)
-        proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, new Set(), grip.position)
-        proxifyQuaternion(
-          XRInputSourceComponent.controllerGripLeftParent.quaternion,
-          entity,
-          new Set(),
-          grip.quaternion
-        )
+        proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, grip.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerGripLeftParent.quaternion, entity, grip.quaternion)
       } else if (data.handedness === 'right') {
         grip.add(input.controllerGripRight)
         assignController(input, 'controllerGripRightParent', grip)
-        proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, new Set(), grip.position)
-        proxifyQuaternion(
-          XRInputSourceComponent.controllerGripRightParent.quaternion,
-          entity,
-          new Set(),
-          grip.quaternion
-        )
+        proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, grip.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerGripRightParent.quaternion, entity, grip.quaternion)
       }
     })
 
@@ -132,12 +112,11 @@ export const setupLocalXRInputs = () => {
 }
 
 export const proxifyXRHeadAndContainer = (entity: Entity) => {
-  const world = Engine.instance.currentWorld
   const { head, container } = getComponent(entity, XRInputSourceComponent)
-  proxifyVector3(XRInputSourceComponent.head.position, entity, new Set(), head.position)
-  proxifyQuaternion(XRInputSourceComponent.head.quaternion, entity, new Set(), head.quaternion)
-  proxifyVector3(XRInputSourceComponent.container.position, entity, new Set(), container.position)
-  proxifyQuaternion(XRInputSourceComponent.container.quaternion, entity, new Set(), container.quaternion)
+  proxifyVector3(XRInputSourceComponent.head.position, entity, head.position)
+  proxifyQuaternion(XRInputSourceComponent.head.quaternion, entity, head.quaternion)
+  proxifyVector3(XRInputSourceComponent.container.position, entity, container.position)
+  proxifyQuaternion(XRInputSourceComponent.container.quaternion, entity, container.quaternion)
 }
 
 export const proxifyXRInputs = (entity: Entity) => {
@@ -146,48 +125,20 @@ export const proxifyXRInputs = (entity: Entity) => {
 
   proxifyXRHeadAndContainer(entity)
 
-  const world = Engine.instance.currentWorld
-  proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, new Set(), controllerLeftParent.position)
-  proxifyVector3(
-    XRInputSourceComponent.controllerRightParent.position,
-    entity,
-    new Set(),
-    controllerRightParent.position
-  )
-  proxifyVector3(
-    XRInputSourceComponent.controllerGripLeftParent.position,
-    entity,
-    new Set(),
-    controllerGripLeftParent.position
-  )
-  proxifyVector3(
-    XRInputSourceComponent.controllerGripRightParent.position,
-    entity,
-    new Set(),
-    controllerGripRightParent.position
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.controllerLeftParent.quaternion,
-    entity,
-    new Set(),
-    controllerLeftParent.quaternion
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.controllerRightParent.quaternion,
-    entity,
-    new Set(),
-    controllerRightParent.quaternion
-  )
+  proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, controllerLeftParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerRightParent.position, entity, controllerRightParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, controllerGripLeftParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, controllerGripRightParent.position)
+  proxifyQuaternion(XRInputSourceComponent.controllerLeftParent.quaternion, entity, controllerLeftParent.quaternion)
+  proxifyQuaternion(XRInputSourceComponent.controllerRightParent.quaternion, entity, controllerRightParent.quaternion)
   proxifyQuaternion(
     XRInputSourceComponent.controllerGripLeftParent.quaternion,
     entity,
-    new Set(),
     controllerGripLeftParent.quaternion
   )
   proxifyQuaternion(
     XRInputSourceComponent.controllerGripRightParent.quaternion,
     entity,
-    new Set(),
     controllerGripRightParent.quaternion
   )
 }
