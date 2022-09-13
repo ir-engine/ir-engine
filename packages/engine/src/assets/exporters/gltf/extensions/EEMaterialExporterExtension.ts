@@ -7,7 +7,7 @@ import { ExporterExtension } from './ExporterExtension'
 
 export default class EEMaterialExporterExtension extends ExporterExtension {
   constructor(writer: GLTFWriter) {
-    super(writer, {})
+    super(writer)
     this.name = 'EE_material'
     this.matCache = new Map()
   }

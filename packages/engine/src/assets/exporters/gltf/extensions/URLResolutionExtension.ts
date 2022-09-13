@@ -8,7 +8,7 @@ export default class URLResolutionExtension extends ExporterExtension {
   cacheRe: RegExp
 
   constructor(writer: GLTFWriter) {
-    super(writer, {})
+    super(writer)
     const hostPath = Engine.instance.publicPath.replace(/:\d{4}$/, '')
     this.cacheRe = new RegExp(`${hostPath}:\\d{4}\/projects\/[^\/]+\/assets\/`)
   }
