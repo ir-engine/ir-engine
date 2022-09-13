@@ -7,7 +7,7 @@ import { getState } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -200,8 +200,8 @@ describe('DataWriter', () => {
 
     setTransformComponent(
       entity,
-      createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
-      createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
+      proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
       new Vector3(1, 1, 1)
     )
 
@@ -257,13 +257,8 @@ describe('DataWriter', () => {
 
       // proxify and copy values
       joints.forEach((jointName) => {
-        createVector3Proxy(XRHandsInputComponent[handedness][jointName].position, entity).set(posX, posY, posZ)
-        createQuaternionProxy(XRHandsInputComponent[handedness][jointName].quaternion, entity).set(
-          rotX,
-          rotY,
-          rotZ,
-          rotW
-        )
+        proxifyVector3(XRHandsInputComponent[handedness][jointName].position, entity).set(posX, posY, posZ)
+        proxifyQuaternion(XRHandsInputComponent[handedness][jointName].quaternion, entity).set(rotX, rotY, rotZ, rotW)
       })
     })
 
@@ -342,8 +337,8 @@ describe('DataWriter', () => {
 
     setTransformComponent(
       entity,
-      createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
-      createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
+      proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
       new Vector3(1, 1, 1)
     )
 
@@ -414,8 +409,8 @@ describe('DataWriter', () => {
 
       setTransformComponent(
         entity,
-        createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
-        createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
+        proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
         new Vector3(1, 1, 1)
       )
 
@@ -495,8 +490,8 @@ describe('DataWriter', () => {
 
       setTransformComponent(
         entity,
-        createVector3Proxy(TransformComponent.position, entity).set(posX, posY, posZ),
-        createQuaternionProxy(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
+        proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
         new Vector3(1, 1, 1)
       )
 

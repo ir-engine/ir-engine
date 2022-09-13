@@ -13,7 +13,6 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
-import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
@@ -28,11 +27,7 @@ import { EditorComponentType, updateProperty } from './Util'
  * @type {class component}
  */
 export const TransformPropertyGroup: EditorComponentType = (props) => {
-  const selectionState = useSelectionState()
   const { t } = useTranslation()
-
-  // access state to detect the change
-  selectionState.objectChangeCounter.value
 
   const onChangeDynamicLoad = (value) => {
     executeCommandWithHistoryOnSelection({

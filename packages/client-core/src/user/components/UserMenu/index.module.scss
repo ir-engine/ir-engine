@@ -75,10 +75,6 @@
       width: 50px;
       background-color: var(--iconButtonBackground);
 
-      @media (max-width: 500px) {
-        padding: 8px;
-      }
-
       svg {
         color: var(--iconButtonColor);
       }

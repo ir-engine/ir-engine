@@ -25,7 +25,6 @@ import { createNewEditorNode } from '@xrengine/engine/src/scene/systems/SceneLoa
 import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { createVector3Proxy } from '../../common/proxies/three'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'

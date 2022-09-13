@@ -19,6 +19,7 @@ import {
   GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
+import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
@@ -27,17 +28,26 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   // todo: ColliderComponent needs to be refactored to support multiple colliders
   const colliderProps = parseColliderProperties(data)
   setComponent(entity, ColliderComponent, colliderProps)
-  if (data['xrengine.collider.bodyType']) {
-    setComponent(entity, GroupColliderComponent, {})
-  }
 }
 
 export const updateCollider = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const colliderComponent = getComponent(entity, ColliderComponent)
+  const world = Engine.instance.currentWorld
 
   if (!colliderComponent) return
-
+  if (colliderComponent.bodyType !== undefined) {
+    //i think this always evaluates to true currently
+    setComponent(entity, GroupColliderComponent, {})
+    if (!hasComponent(entity, GroupComponent)) {
+      //if this is a singleton collider, create a singleton object and let updateGroupCollider initialize things
+      const colliderObj = new Object3D()
+      colliderObj.matrixAutoUpdate = false
+      colliderObj.userData['shapeType'] = colliderComponent.shapeType
+      addObjectToGroup(entity, colliderObj)
+      return
+    }
+  }
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
     colliderComponent.bodyType !== getComponent(entity, RigidBodyComponent).body.bodyType()
@@ -70,7 +80,7 @@ export const updateCollider = (entity: Entity) => {
           bodyDesc = RigidBodyDesc.fixed()
           break
       }
-      Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, bodyDesc, [])
+      Physics.createRigidBody(entity, world.physicsWorld, bodyDesc, [])
     }
   }
 
@@ -79,26 +89,20 @@ export const updateCollider = (entity: Entity) => {
   /**
    * This component only supports one collider, always at index 0
    */
-  const colliderTypeChanged =
-    rigidbody.numColliders() === 0 || rigidbody.collider(0).shape.type !== colliderComponent.shapeType
-  if (colliderTypeChanged) {
-    rigidbody.numColliders() > 0 &&
-      Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
-    const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
-    colliderDesc.setSensor(colliderComponent.isTrigger)
-    Physics.applyDescToCollider(
-      colliderDesc,
-      {
-        type: colliderComponent.shapeType,
-        isTrigger: colliderComponent.isTrigger,
-        collisionLayer: colliderComponent.collisionLayer,
-        collisionMask: colliderComponent.collisionMask
-      },
-      new Vector3(),
-      new Quaternion()
-    )
-    Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
-  }
+  Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
+  const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
+  Physics.applyDescToCollider(
+    colliderDesc,
+    {
+      shapeType: colliderComponent.shapeType,
+      isTrigger: colliderComponent.isTrigger,
+      collisionLayer: colliderComponent.collisionLayer,
+      collisionMask: colliderComponent.collisionMask
+    },
+    new Vector3(),
+    new Quaternion()
+  )
+  world.physicsWorld.createCollider(colliderDesc, rigidbody)
 
   rigidbody.setTranslation(transform.position, true)
   rigidbody.setRotation(transform.rotation, true)

@@ -38,11 +38,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
         const componentExists = ComponentMap.has(parts[1])
         const _toLoad = componentExists ? components : prefabs
         if (typeof _toLoad[parts[1]] === 'undefined') {
-          _toLoad[parts[1]] = {
-            [parts[2]]: value,
-            ...obj3d.userData
-          }
-          obj3d.userData[parts[2]] = value
+          _toLoad[parts[1]] = {}
         }
         if (parts.length > 2) {
           _toLoad[parts[1]][parts[2]] = value
@@ -57,7 +53,15 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      addComponent(entity, component, value, Engine.instance.currentWorld)
+      const world = Engine.instance.currentWorld
+      const componentId = world.sceneComponentRegistry.get(key)
+      if (typeof componentId === 'string') {
+        const deserialize = Engine.instance.currentWorld.sceneLoadingRegistry.get(componentId)?.deserialize
+        if (typeof deserialize === 'function') deserialize(entity, value)
+        else addComponent(entity, component, value, Engine.instance.currentWorld)
+      } else {
+        addComponent(entity, component, value, Engine.instance.currentWorld)
+      }
       getComponent(entity, GLTFLoadedComponent).push(component)
     }
   }

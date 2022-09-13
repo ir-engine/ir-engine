@@ -29,6 +29,7 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import { moveLocalAvatar } from './functions/moveAvatar'
+import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 /**
@@ -97,9 +98,16 @@ export default async function AvatarControllerSystem(world: World) {
       }
     }
 
-    const controller = getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
-    if (controller?.movementEnabled) {
-      moveLocalAvatar(Engine.instance.currentWorld.localClientEntity)
+    const controlledEntity = Engine.instance.currentWorld.localClientEntity
+
+    const controller = getComponent(controlledEntity, AvatarControllerComponent)
+    if (hasComponent(controlledEntity, AvatarControllerComponent)) {
+      if (controller?.movementEnabled) {
+        moveLocalAvatar(controlledEntity)
+      }
+
+      const rigidbody = getComponent(controlledEntity, RigidBodyComponent)
+      if (rigidbody.body.translation().y < -10) respawnAvatar(controlledEntity)
     }
 
     return world

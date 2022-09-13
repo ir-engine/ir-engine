@@ -1,5 +1,7 @@
+import logger from '@xrengine/common/src/logger'
 import { addActionReceptor, createActionQueue, getState } from '@xrengine/hyperflux'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -44,24 +46,40 @@ export class AudioEffectPlayer {
     ui: '/sfx/ui.mp3'
   }
 
+  bufferMap = {} as { [path: string]: AudioBuffer }
+
+  loadBuffer = async (path: string) => {
+    const buffer = await AssetLoader.loadAsync(path)
+    this.bufferMap[path] = buffer
+  }
+
   // pool of elements
   #els: HTMLAudioElement[] = []
 
   _init() {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 20; i++) {
       const audioElement = document.createElement('audio')
       audioElement.loop = false
       this.#els.push(audioElement)
     }
   }
 
-  play(sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) {
+  play = (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
     if (!this.#els.length) return
+
+    if (!this.bufferMap[sound]) {
+      logger.error('[AudioEffectPlayer]: Buffer not found for source: ', sound)
+      return
+    }
+
+    const source = Engine.instance.audioContext.createBufferSource()
+    source.buffer = this.bufferMap[sound]
     const el = this.#els.find((el) => el.paused) ?? this.#els[0]
     el.volume = accessAudioState().masterVolume.value * volumeMultiplier
     if (el.src !== sound) el.src = sound
     el.currentTime = 0
-    el.play()
+    source.start()
+    source.connect(Engine.instance.audioContext.destination)
   }
 }
 
@@ -76,21 +94,21 @@ export const MediaPrefabs = {
 // TODO: move this into system initializer once we have system destroy callbacks
 if (isClient) {
   const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
-
-  // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
-  // in order to ensure media will play programmatically
-  function handleAutoplay() {
-    if (!Engine.instance)
+  if (!Engine.instance.isEditor) {
+    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+    // in order to ensure media will play programmatically
+    function handleAutoplay() {
       for (const entity of mediaQuery()) {
         const media = getComponent(entity, MediaComponent)
         if (media.playing.value) return
-        if (media.paused.value) return
+        if (media.paused.value && media.autoplay.value) media.paused.set(false)
+        // safari requires play() to be called in the DOM handle function
         getComponent(entity, MediaElementComponent)?.element.play()
       }
+    }
+    window.addEventListener('pointerdown', handleAutoplay)
+    window.addEventListener('keypress', handleAutoplay)
   }
-
-  window.addEventListener('pointerdown', handleAutoplay)
-  window.addEventListener('keypress', handleAutoplay)
 }
 
 export default async function MediaSystem(world: World) {
@@ -164,6 +182,10 @@ export default async function MediaSystem(world: World) {
   const mediaQuery = defineQuery([MediaComponent])
   const videoQuery = defineQuery([MediaElementComponent, VideoComponent])
   const volumetricQuery = defineQuery([MediaElementComponent, VolumetricComponent])
+
+  await Promise.all(
+    Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
+  )
 
   const enableAudioContext = () => {
     if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
