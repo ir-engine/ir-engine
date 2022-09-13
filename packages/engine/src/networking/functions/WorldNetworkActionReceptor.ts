@@ -2,7 +2,7 @@ import { none } from '@hookstate/core'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
