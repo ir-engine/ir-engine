@@ -71,7 +71,6 @@ function emitEventAfter(command: RotationCommandParams) {
   if (command.preventEvents) return
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'rotation' }))
 }
 
 function updateRotation(command: RotationCommandParams, isUndo: boolean): void {

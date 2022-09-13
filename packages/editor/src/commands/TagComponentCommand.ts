@@ -67,7 +67,6 @@ function emitEventAfter(command: TagComponentCommandParams) {
   if (command.preventEvents) return
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 
 function update(command: TagComponentCommandParams, isUndo?: boolean) {
