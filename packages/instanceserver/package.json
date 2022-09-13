@@ -56,7 +56,7 @@
     "compression": "1.7.4",
     "cors": "2.8.5",
     "cross-env": "7.0.3",
-    "feathers-sync": "2.4.0",
+    "feathers-sync": "3.0.1",
     "helmet": "5.0.2",
     "mediasoup": "3.10.3",
     "msgpackr": "1.5.5",

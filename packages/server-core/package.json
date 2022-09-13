@@ -69,7 +69,7 @@
     "feathers-mailer": "^3.0.1",
     "feathers-sequelize": "6.3.2",
     "feathers-swagger": "1.2.1",
-    "feathers-sync": "2.4.0",
+    "feathers-sync": "3.0.1",
     "fs-blob-store": "6.0.0",
     "internal-ip": "^6.1.0",
     "ipfs-http-client": "^56.0.3",
