@@ -9,13 +9,12 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { AvatarDirection } from '../../common/constants/Axis3D'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   getTagComponentForRigidBody,
@@ -26,7 +25,7 @@ import {
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { boxDynamicConfig } from '../functions/physicsObjectDebugFunctions'
-import { CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
+import { CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
 describe('Physics', () => {

@@ -1,7 +1,7 @@
 import assert from 'assert'
 import { Matrix4, Vector3 } from 'three'
 
-import { createQuaternionProxy, createVector3Proxy } from '../src/common/proxies/three'
+import { proxifyQuaternion, proxifyVector3 } from '../src/common/proxies/createThreejsProxy'
 import { addComponent } from '../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../src/initializeEngine'
@@ -15,8 +15,8 @@ describe('Structure of Array Synchronization', () => {
     const entity = createEntity()
     const transform = setTransformComponent(
       entity,
-      createVector3Proxy(TransformComponent.position, entity).set(1, 2, 3),
-      createQuaternionProxy(TransformComponent.rotation, entity).set(1, 2, 3, 4)
+      proxifyVector3(TransformComponent.position, entity).set(1, 2, 3),
+      proxifyQuaternion(TransformComponent.rotation, entity).set(1, 2, 3, 4)
     )
 
     /* assert */

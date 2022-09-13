@@ -6,7 +6,6 @@ import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createMediaControlsUI } from '../functions/mediaControlsUI'
@@ -45,7 +44,7 @@ export default async function MediaControlSystem(world: World) {
 
   return () => {
     for (const entity of mediaQuery.enter(world)) {
-      if (!getComponent(entity, MediaComponent).controls) return
+      if (!getComponent(entity, MediaComponent).controls.value) continue
       addInteractableUI(entity, createMediaControlsUI(entity), update)
       const transition = createTransitionState(0.25)
       transition.setState('OUT')

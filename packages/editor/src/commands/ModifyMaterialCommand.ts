@@ -98,7 +98,6 @@ function updateMaterial(command: ModifyMaterialCommandParams, isUndo?: boolean) 
       } else {
         material[k] = v
       }
-      dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: `material.${k}` }))
     })
     material.needsUpdate = true
   })
