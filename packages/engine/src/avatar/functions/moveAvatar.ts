@@ -1,5 +1,5 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -14,7 +14,7 @@ import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -28,7 +28,6 @@ import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent
 import { AvatarTeleportTagComponent } from '../components/AvatarTeleportTagComponent'
 import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './createAvatar'
-import { respawnAvatar } from './respawnAvatar'
 
 const _vec3 = new Vector3()
 const _quat = new Quaternion()
@@ -151,7 +150,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
    * - if we are in attached mode, we dont need to do any extra rotation
    *     as this is done via the webxr camera automatically
    */
-  if (getControlMode() !== 'attached') {
+  if (!isInVR) {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       rotateBodyTowardsCameraDirection(entity)
     } else {
@@ -234,7 +233,6 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
  * @param newPosition
  */
 export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void => {
-  const rigidbody = getComponent(entity, RigidBodyComponent)
   if (!hasComponent(entity, AvatarComponent)) {
     console.warn('Teleport avatar called on non-avatar entity')
     return
@@ -244,8 +242,8 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
 
   if (checkPositionIsValid(newPosition, false)) {
     const avatar = getComponent(entity, AvatarComponent)
-    const controller = getComponent(entity, AvatarControllerComponent)
-    newPosition.y = newPosition.y + avatar.avatarHalfHeight
+    newPosition.y += avatar.avatarHalfHeight
+    const rigidbody = getComponent(entity, RigidBodyComponent)
     rigidbody.body.setTranslation(newPosition, true)
   } else {
     console.log('invalid position', newPosition)
