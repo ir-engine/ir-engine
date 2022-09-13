@@ -67,7 +67,7 @@
     "feathers-blob": "^2.2.0",
     "feathers-hooks-common": "^5.0.3",
     "feathers-mailer": "^3.0.1",
-    "feathers-sequelize": "6.3.2",
+    "feathers-sequelize": "6.3.4",
     "feathers-swagger": "1.2.1",
     "feathers-sync": "3.0.1",
     "fs-blob-store": "6.0.0",
