@@ -1,5 +1,4 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { Object3D } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -8,6 +7,10 @@ export type ColliderComponentType = {
   bodyType: RigidBodyType
   shapeType: ShapeType
   isTrigger: boolean
+  /**
+   * removeMesh will clean up any objects in the scene hierarchy after the collider bodies have been processed.
+   *   This can be used to reduce CPU load by only persisting colliders in the physics simulation.
+   */
   removeMesh: boolean
   collisionLayer: number
   collisionMask: number
@@ -30,7 +33,7 @@ export type ColliderComponentType = {
 }
 
 export const ColliderComponent = createMappedComponent<ColliderComponentType>('ColliderComponent')
-export const MeshColliderComponentTag = createMappedComponent<{}>('MeshColliderComponentTag')
+export const GroupColliderComponent = createMappedComponent<{}>('GroupColliderComponent')
 
 export const SCENE_COMPONENT_COLLIDER = 'collider'
 export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {

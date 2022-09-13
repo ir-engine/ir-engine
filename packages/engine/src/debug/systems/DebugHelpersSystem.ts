@@ -1,15 +1,13 @@
 import {
   ArrowHelper,
   Box3Helper,
-  BoxBufferGeometry,
+  BoxGeometry,
   BoxHelper,
   Camera,
   CameraHelper,
   Color,
-  ConeBufferGeometry,
   ConeGeometry,
   CylinderGeometry,
-  DirectionalLight,
   DoubleSide,
   Group,
   IcosahedronGeometry,
@@ -17,8 +15,9 @@ import {
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   Object3D,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   Quaternion,
+  SkeletonHelper,
   SphereGeometry,
   TorusGeometry,
   Vector3
@@ -27,32 +26,28 @@ import {
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AudioComponent } from '../../audio/components/AudioComponent'
-import { AudioElementNodes } from '../../audio/systems/AudioSystem'
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
-import {
-  accessEngineRendererState,
-  EngineRendererAction,
-  EngineRendererState
-} from '../../renderer/EngineRendererState'
+import { EngineRendererAction, EngineRendererState } from '../../renderer/EngineRendererState'
 import EditorDirectionalLightHelper from '../../scene/classes/EditorDirectionalLightHelper'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import Spline from '../../scene/classes/Spline'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
-import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { ScenePreviewCameraTagComponent } from '../../scene/components/ScenePreviewCamera'
+import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
 import { SelectTagComponent } from '../../scene/components/SelectTagComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { SplineComponent } from '../../scene/components/SplineComponent'
@@ -68,7 +63,7 @@ import { DebugRenderer } from './DebugRenderer'
 const vector3 = new Vector3()
 const quat = new Quaternion()
 
-const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
+const cubeGeometry = new ConeGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
@@ -91,71 +86,48 @@ export default async function DebugHelpersSystem(world: World) {
   const editorStaticHelpers = new Map<Entity, Object3D>()
 
   const helpersByEntity = {
-    viewVector: new Map(),
+    skeletonHelpers: new Map(),
     ikExtents: new Map(),
     box: new Map<Entity, Box3Helper>(),
-    helperArrow: new Map(),
-    velocityArrow: new Map(),
     navmesh: new Map(),
     navpath: new Map(),
-    positionalAudioHelper: new Map(),
-    interactorFrustum: new Map()
+    positionalAudioHelper: new Map()
   }
-  const directionalLightQuery = defineQuery([DirectionalLightComponent, Object3DComponent])
-  const pointLightQuery = defineQuery([PointLightComponent, Object3DComponent])
-  const spotLightQuery = defineQuery([SpotLightComponent, Object3DComponent])
-  const portalQuery = defineQuery([PortalComponent])
-  const splineQuery = defineQuery([SplineComponent])
-  const spawnPointQuery = defineQuery([SpawnPointComponent])
-  const mountPointQuery = defineQuery([MountPointComponent])
-  const envMapBakeQuery = defineQuery([EnvMapBakeComponent])
-  const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, Object3DComponent, SelectTagComponent])
+  const directionalLightQuery = defineQuery([TransformComponent, DirectionalLightComponent])
+  const pointLightQuery = defineQuery([TransformComponent, PointLightComponent])
+  const spotLightQuery = defineQuery([TransformComponent, SpotLightComponent])
+  const portalQuery = defineQuery([TransformComponent, PortalComponent])
+  const splineQuery = defineQuery([TransformComponent, SplineComponent])
+  const spawnPointQuery = defineQuery([TransformComponent, SpawnPointComponent])
+  const mountPointQuery = defineQuery([TransformComponent, MountPointComponent])
+  const envMapBakeQuery = defineQuery([TransformComponent, EnvMapBakeComponent])
+  const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
   const scenePreviewCameraSelectQuery = defineQuery([
-    ScenePreviewCameraTagComponent,
-    Object3DComponent,
+    TransformComponent,
+    ScenePreviewCameraComponent,
     SelectTagComponent
   ])
 
-  const boundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
+  const boundingBoxQuery = defineQuery([TransformComponent, BoundingBoxComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
+  const avatarAnimationQuery = defineQuery([AvatarAnimationComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
-  const audioHelper = defineQuery([AudioComponent])
+  const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
 
-  function avatarDebugUpdate(avatarDebugEnable: boolean) {
-    helpersByEntity.viewVector.forEach((obj: Object3D) => {
-      obj.visible = avatarDebugEnable
-    })
-    helpersByEntity.velocityArrow.forEach((obj: Object3D) => {
-      obj.visible = avatarDebugEnable
-    })
-    helpersByEntity.interactorFrustum.forEach((obj: Object3D) => {
-      obj.visible = avatarDebugEnable
-    })
-    helpersByEntity.ikExtents.forEach((entry: Object3D[]) => {
-      entry.forEach((obj) => (obj.visible = avatarDebugEnable))
-    })
-  }
-
   function physicsDebugUpdate(physicsDebugEnable: boolean) {
-    helpersByEntity.helperArrow.forEach((obj: Object3D) => {
-      obj.visible = physicsDebugEnable
-    })
-
     for (const [_entity, helper] of helpersByEntity.box) {
       helper.visible = physicsDebugEnable
     }
   }
 
-  const physicsDebugActionQueue = createActionQueue(EngineRendererAction.setPhysicsDebug.matches)
-  const avatarDebugActionQueue = createActionQueue(EngineRendererAction.setAvatarDebug.matches)
+  const debugActionQueue = createActionQueue(EngineRendererAction.setDebug.matches)
 
   return () => {
-    for (const action of physicsDebugActionQueue()) physicsDebugUpdate(action.physicsDebugEnable)
-    for (const action of avatarDebugActionQueue()) avatarDebugUpdate(action.avatarDebugEnable)
-    const debugEnabled = getState(EngineRendererState).avatarDebugEnable.value
+    for (const action of debugActionQueue()) physicsDebugUpdate(action.debugEnable)
+    const debugEnabled = getState(EngineRendererState).debugEnable.value
 
     /**
      * EDITOR GIZMOS
@@ -166,9 +138,7 @@ export default async function DebugHelpersSystem(world: World) {
        * Directional Light
        */
       for (const entity of directionalLightQuery.enter()) {
-        const helper = new EditorDirectionalLightHelper(
-          getComponent(entity, Object3DComponent).value as DirectionalLight
-        )
+        const helper = new EditorDirectionalLightHelper(getComponent(entity, DirectionalLightComponent).light)
         helper.visible = true
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -187,7 +157,7 @@ export default async function DebugHelpersSystem(world: World) {
       }
 
       for (const entity of directionalLightSelectQuery.exit()) {
-        const light = getComponent(entity, Object3DComponent)?.value as DirectionalLight
+        const light = getComponent(entity, DirectionalLightComponent)?.light
         if (light) light.userData.cameraHelper.visible = false
       }
 
@@ -263,8 +233,8 @@ export default async function DebugHelpersSystem(world: World) {
        */
 
       for (const entity of scenePreviewCameraSelectQuery.enter()) {
-        const camera = getComponent(entity, Object3DComponent)?.value as Camera
-        const helper = new CameraHelper(camera)
+        const scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
+        const helper = new CameraHelper(scenePreviewCamera)
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         editorHelpers.set(entity, helper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -272,7 +242,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of scenePreviewCameraSelectQuery.exit()) {
         const helper = editorHelpers.get(entity)!
-        Engine.instance.currentWorld.scene.remove(helper)
+        helper.removeFromParent()
         editorHelpers.delete(entity)
       }
 
@@ -281,10 +251,7 @@ export default async function DebugHelpersSystem(world: World) {
        */
 
       for (const entity of audioHelper.enter()) {
-        const helper = new Mesh(
-          new PlaneBufferGeometry(),
-          new MeshBasicMaterial({ transparent: true, side: DoubleSide })
-        )
+        const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
         helper.material.map = AUDIO_HELPER_TEXTURE
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -310,7 +277,7 @@ export default async function DebugHelpersSystem(world: World) {
         )
         helper.add(helper.userData.centerBall)
 
-        helper.userData.gizmo = new BoxHelper(new Mesh(new BoxBufferGeometry()), 0xff0000)
+        helper.userData.gizmo = new BoxHelper(new Mesh(new BoxGeometry()), 0xff0000)
         helper.add(helper.userData.gizmo)
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
@@ -392,7 +359,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of spawnPointQuery.enter()) {
         const helper = spawnPointHelperModel.clone()
-        const helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1)), 0xffffff)
+        const helperBox = new BoxHelper(new Mesh(new BoxGeometry(1, 0, 1)), 0xffffff)
         helper.userData.helperBox = helperBox
         helper.add(helperBox)
         setObjectLayers(helper, ObjectLayers.NodeHelper)
@@ -447,23 +414,50 @@ export default async function DebugHelpersSystem(world: World) {
     /**
      * AVATAR HELPERS
      */
-
-    for (const entity of ikAvatarQuery.enter()) {
-      const engineRendererState = accessEngineRendererState()
-      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
-      const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
-      const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
-      debugHead.visible = engineRendererState.avatarDebugEnable.value
-      debugLeft.visible = engineRendererState.avatarDebugEnable.value
-      debugRight.visible = engineRendererState.avatarDebugEnable.value
-      Engine.instance.currentWorld.scene.add(debugHead)
-      Engine.instance.currentWorld.scene.add(debugLeft)
-      Engine.instance.currentWorld.scene.add(debugRight)
-      helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
+    for (const entity of avatarAnimationQuery()) {
+      const anim = getComponent(entity, AvatarAnimationComponent)
+      if (
+        !helpersByEntity.skeletonHelpers.has(entity) &&
+        debugEnabled &&
+        !hasComponent(entity, AvatarPendingComponent) &&
+        anim.rig.Hips
+      ) {
+        const helper = new SkeletonHelper(anim.rig.Hips)
+        Engine.instance.currentWorld.scene.add(helper)
+        helpersByEntity.skeletonHelpers.set(entity, helper)
+      }
+      if (
+        helpersByEntity.skeletonHelpers.has(entity) &&
+        (!debugEnabled || hasComponent(entity, AvatarPendingComponent))
+      ) {
+        const helper = helpersByEntity.skeletonHelpers.get(entity) as SkeletonHelper
+        Engine.instance.currentWorld.scene.remove(helper)
+        helpersByEntity.skeletonHelpers.delete(entity)
+      }
     }
 
-    if (debugEnabled)
-      for (const entity of ikAvatarQuery()) {
+    for (const entity of avatarAnimationQuery.exit()) {
+      const helper = helpersByEntity.skeletonHelpers.get(entity) as SkeletonHelper
+      if (helper) {
+        Engine.instance.currentWorld.scene.remove(helper)
+        helpersByEntity.skeletonHelpers.delete(entity)
+      }
+    }
+
+    for (const entity of ikAvatarQuery()) {
+      if (debugEnabled) {
+        if (!helpersByEntity.ikExtents.has(entity)) {
+          const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
+          const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
+          const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
+          debugHead.visible = debugEnabled
+          debugLeft.visible = debugEnabled
+          debugRight.visible = debugEnabled
+          Engine.instance.currentWorld.scene.add(debugHead)
+          Engine.instance.currentWorld.scene.add(debugLeft)
+          Engine.instance.currentWorld.scene.add(debugRight)
+          helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
+        }
         const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
         const [debugHead, debugLeft, debugRight] = helpersByEntity.ikExtents.get(entity) as Object3D[]
         debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
@@ -472,13 +466,23 @@ export default async function DebugHelpersSystem(world: World) {
         debugLeft.quaternion.copy(xrInputSourceComponent.controllerLeft.getWorldQuaternion(quat))
         debugRight.position.copy(xrInputSourceComponent.controllerRight.getWorldPosition(vector3))
         debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
+      } else {
+        if (helpersByEntity.ikExtents.has(entity)) {
+          ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
+            obj.removeFromParent()
+          })
+          helpersByEntity.ikExtents.delete(entity)
+        }
       }
+    }
 
     for (const entity of ikAvatarQuery.exit()) {
-      ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
-        obj.removeFromParent()
-      })
-      helpersByEntity.ikExtents.delete(entity)
+      if (helpersByEntity.ikExtents.has(entity)) {
+        ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
+          obj.removeFromParent()
+        })
+        helpersByEntity.ikExtents.delete(entity)
+      }
     }
 
     /**
@@ -497,34 +501,8 @@ export default async function DebugHelpersSystem(world: World) {
       setObjectLayers(helper, ObjectLayers.NodeHelper)
       helpersByEntity.box.set(entity, helper)
       Engine.instance.currentWorld.scene.add(helper)
-      helper.visible = accessEngineRendererState().physicsDebugEnable.value
+      helper.visible = debugEnabled
     }
-
-    // ===== CUSTOM ===== //
-
-    // for (const entity of arrowHelperQuery.enter()) {
-    //   const arrow = getComponent(entity, DebugArrowComponent)
-    //   const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, arrow.color)
-    //   arrowHelper.visible = accessEngineRendererState().physicsDebugEnable.value
-    //   Engine.instance.currentWorld.scene.add(arrowHelper)
-    //   helpersByEntity.helperArrow.set(entity, arrowHelper)
-    // }
-
-    // for (const entity of arrowHelperQuery.exit()) {
-    //   const arrowHelper = helpersByEntity.helperArrow.get(entity) as Object3D
-    //   Engine.instance.currentWorld.scene.remove(arrowHelper)
-    //   helpersByEntity.helperArrow.delete(entity)
-    // }
-
-    // if(debugEnabled)
-    //   for (const entity of arrowHelperQuery()) {
-    //     const arrow = getComponent(entity, DebugArrowComponent)
-    //     const arrowHelper = helpersByEntity.helperArrow.get(entity) as ArrowHelper
-    //     if (arrowHelper != null) {
-    //       arrowHelper.setDirection(arrow.direction.clone().normalize())
-    //       arrowHelper.position.copy(arrow.position)
-    //     }
-    //   }
 
     // ===== NAVMESH Helper ===== //
     for (const entity of navmeshQuery.enter()) {
@@ -568,23 +546,23 @@ export default async function DebugHelpersSystem(world: World) {
 
       if (debugEnabled)
         for (const entity of audioHelper()) {
-          const mediaComponent = getComponent(entity, MediaElementComponent)
-          const audioEl = AudioElementNodes.get(mediaComponent)
-          if (!audioEl) continue
+          const mediaElement = getComponent(entity, MediaElementComponent)
+          const audioNodes = AudioNodeGroups.get(mediaElement.element)
+          if (!audioNodes) continue
 
           if (!helpersByEntity.positionalAudioHelper.has(entity)) {
-            const helper = new PositionalAudioHelper(audioEl)
+            const helper = new PositionalAudioHelper(audioNodes)
             // helper.visible = false
             helpersByEntity.positionalAudioHelper.set(entity, helper)
             Engine.instance.currentWorld.scene.add(helper)
           }
 
           const helper = helpersByEntity.positionalAudioHelper.get(entity)
-          audioEl.panner && helper?.update()
+          audioNodes.panner && helper?.update()
           helper?.position.copy(getComponent(entity, TransformComponent).position)
         }
     }
 
-    physicsDebugRenderer(world, accessEngineRendererState().physicsDebugEnable.value)
+    physicsDebugRenderer(world, debugEnabled)
   }
 }

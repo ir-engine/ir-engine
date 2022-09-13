@@ -1,3 +1,6 @@
+import { Not } from 'bitecs'
+import { Color } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -6,6 +9,9 @@ import {
   SCENE_COMPONENT_LOOP_ANIMATION,
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
 } from '../../avatar/components/LoopAnimationComponent'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -45,12 +51,8 @@ import {
   SCENE_COMPONENT_GROUND_PLANE,
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
 } from '../components/GroundPlaneComponent'
-import { GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
-import {
-  ImageComponent,
-  SCENE_COMPONENT_IMAGE,
-  SCENE_COMPONENT_IMAGE_DEFAULT_VALUES
-} from '../components/ImageComponent'
+import { addObjectToGroup, GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
+import { ImageComponent, SCENE_COMPONENT_IMAGE } from '../components/ImageComponent'
 import {
   InteriorComponent,
   SCENE_COMPONENT_INTERIOR,
@@ -84,7 +86,8 @@ import {
   SCENE_COMPONENT_RENDERER_SETTINGS,
   SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES
 } from '../components/RenderSettingComponent'
-import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
+import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SCENE_COMPONENT_SCREENSHARETARGET, ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import {
@@ -114,12 +117,19 @@ import {
 } from '../components/SystemComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
+import { FogType } from '../constants/FogType'
 import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
 import { deserializeCameraProperties, updateCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
-import { deserializeFog, serializeFog, shouldDeserializeFog, updateFog } from '../functions/loaders/FogFunctions'
+import {
+  createFogFromSceneNode,
+  deserializeFog,
+  serializeFog,
+  shouldDeserializeFog,
+  updateFog
+} from '../functions/loaders/FogFunctions'
 import {
   deserializeGround,
   serializeGroundPlane,
@@ -127,12 +137,7 @@ import {
   updateGroundPlane
 } from '../functions/loaders/GroundPlaneFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
-import {
-  deserializeImage,
-  prepareImageForGLTFExport,
-  serializeImage,
-  updateImage
-} from '../functions/loaders/ImageFunctions'
+import { deserializeImage, enterImage, serializeImage } from '../functions/loaders/ImageFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
@@ -145,12 +150,13 @@ import {
 } from '../functions/loaders/PostprocessingFunctions'
 import {
   deserializeRenderSetting,
+  resetEngineRenderer,
   serializeRenderSettings,
   updateRenderSetting
 } from '../functions/loaders/RenderSettingsFunction'
 import {
-  shouldDeserializeScenePreviewCamera,
-  updateCameraTransform
+  enterScenePreviewCamera,
+  shouldDeserializeScenePreviewCamera
 } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
@@ -190,7 +196,8 @@ export const ScenePrefabs = {
   spline: 'Spline' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
-  fog: 'Fog' as const
+  fog: 'Fog' as const,
+  loadVolume: 'Load Volume' as const
 }
 
 export default async function SceneObjectUpdateSystem(world: World) {
@@ -228,7 +235,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, props: true }
   ])
 
-  world.sceneComponentRegistry.set(ScenePreviewCameraTagComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
+  world.sceneComponentRegistry.set(ScenePreviewCameraComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
     shouldDeserialize: shouldDeserializeScenePreviewCamera
   })
@@ -384,7 +391,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(GroupComponent._name, SCENE_COMPONENT_GROUP)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-    deserialize: deserializeGroup
+    deserialize: deserializeGroup,
+    serialize: () => undefined!
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.groundPlane, [
@@ -402,15 +410,17 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.image, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_IMAGE, props: SCENE_COMPONENT_IMAGE_DEFAULT_VALUES }
+    {
+      name: SCENE_COMPONENT_IMAGE,
+      props: { source: '__$project$__/default-project/assets/sample_etc1s.ktx2' }
+    }
   ])
 
   world.sceneComponentRegistry.set(ImageComponent._name, SCENE_COMPONENT_IMAGE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {
-    defaultData: SCENE_COMPONENT_IMAGE_DEFAULT_VALUES,
+    defaultData: {},
     deserialize: deserializeImage,
-    serialize: serializeImage,
-    prepareForGLTFExport: prepareImageForGLTFExport
+    serialize: serializeImage
   })
 
   world.sceneComponentRegistry.set(LoopAnimationComponent._name, SCENE_COMPONENT_LOOP_ANIMATION)
@@ -475,13 +485,14 @@ export default async function SceneObjectUpdateSystem(world: World) {
     serialize: serializeSpline
   })
 
+  const cameraQuery = defineQuery([CameraComponent])
   const obj3dQuery = defineQuery([Object3DComponent])
   const fogQuery = defineQuery([Object3DComponent, FogComponent])
   const shadowQuery = defineQuery([Object3DComponent, ShadowComponent])
   const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
-  const imageQuery = defineQuery([Object3DComponent, ImageComponent])
+  const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
-  const loopableAnimationQuery = defineQuery([Object3DComponent, LoopAnimationComponent])
+  const loopableAnimationQuery = defineQuery([LoopAnimationComponent, Not(SceneAssetPendingTagComponent)])
   const skyboxQuery = defineQuery([SkyboxComponent])
   const portalQuery = defineQuery([PortalComponent])
   const modelQuery = defineQuery([ModelComponent])
@@ -491,8 +502,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const interiorQuery = defineQuery([InteriorComponent])
   const renderSettingsQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
-  const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent])
-  const scenePreviewCameraTagQuery = defineQuery([ScenePreviewCameraTagComponent])
+  const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent, FollowCameraComponent, CameraComponent])
+  const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
@@ -503,7 +514,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ShadowComponent) && hasComponent(entity, Object3DComponent)) updateShadow(entity)
-        if (hasComponent(entity, ImageComponent)) updateImage(entity)
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
         if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
@@ -517,17 +527,31 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, RenderSettingComponent)) updateRenderSetting(entity)
         if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
         if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
-        if (hasComponent(entity, ScenePreviewCameraTagComponent)) updateCameraTransform(entity)
       }
     }
 
+    for (const entity of fogQuery.enter()) {
+      if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) {
+        createFogFromSceneNode(entity)
+      } else {
+        updateFog(entity)
+      }
+    }
+
+    for (const entity of fogQuery.exit()) {
+      if (entity !== Engine.instance.currentWorld.entityTree.rootNode.entity) {
+        Engine.instance.currentWorld.scene.fog = null
+      }
+    }
+
+    for (const entity of cameraQuery.enter()) addObjectToGroup(entity, getComponent(entity, CameraComponent).camera)
+    for (const entity of imageQuery.enter()) enterImage(entity)
     for (const entity of shadowQuery.enter()) updateShadow(entity)
-    for (const entity of imageQuery.enter()) updateImage(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
-    for (const entity of fogQuery.enter()) updateFog(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
+    for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')
     for (const entity of portalQuery.enter()) updatePortal(entity)
     for (const entity of modelQuery.enter()) updateModel(entity)
     for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
@@ -535,8 +559,10 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)
     for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
+    for (const entity of renderSettingsQuery.exit()) if (!renderSettingsQuery().length) resetEngineRenderer(true)
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
+    for (const entity of postProcessingQuery.exit()) configureEffectComposer()
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
-    for (const entity of scenePreviewCameraTagQuery.enter()) updateCameraTransform(entity)
+    for (const entity of scenePreviewCameraQuery.enter()) enterScenePreviewCamera(entity)
   }
 }

@@ -2,10 +2,10 @@ import { Matrix4, Vector3 } from 'three'
 
 import multiLogger from '@xrengine/common/src/logger'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ColliderComponent, MeshColliderComponentTag } from '@xrengine/engine/src/scene/components/ColliderComponent'
+import { ColliderComponent, GroupColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { updateCollider, updateMeshCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
+import { updateCollider, updateGroupCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -89,7 +89,6 @@ function emitEventAfter(command: ScaleCommandParams) {
   if (command.preventEvents) return
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'scale' }))
 }
 
 function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
@@ -99,62 +98,32 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
   const space = undo ? command.undo!.space : command.space
   const overrideScale = undo ? command.undo!.overrideScale : command.overrideScale
 
-  if (!overrideScale) {
-    for (let i = 0; i < command.affectedNodes.length; i++) {
-      const node = command.affectedNodes[i]
-      const scale = scales[i] ?? scales[0]
-
-      if (space === TransformSpace.World && (scale.x !== scale.y || scale.x !== scale.z || scale.y !== scale.z)) {
-        logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
-      }
-      if (typeof node === 'string') {
-        obj3dFromUuid(node).scale.copy(scale)
-      } else {
-        getComponent(node.entity, TransformComponent).scale.copy(scale)
-      }
-    }
-
-    return
-  }
-
-  const tempMatrix = new Matrix4()
-  const tempVector = new Vector3()
-
   for (let i = 0; i < command.affectedNodes.length; i++) {
     const node = command.affectedNodes[i]
-
     const scale = scales[i] ?? scales[0]
-    const obj3d = typeof node === 'string' ? obj3dFromUuid(node) : getComponent(node.entity, Object3DComponent).value
-    /** @todo figure out native local transform support */
-    // const transformComponent = hasComponent(node.entity, LocalTransformComponent) ? getComponent(node.entity, LocalTransformComponent) : getComponent(node.entity, TransformComponent)
-    const transformComponent = typeof node === 'string' ? obj3d : getComponent(node.entity, TransformComponent)
 
-    if (space === TransformSpace.Local) {
-      transformComponent.scale.x = scale.x === 0 ? Number.EPSILON : scale.x
-      transformComponent.scale.y = scale.y === 0 ? Number.EPSILON : scale.y
-      transformComponent.scale.z = scale.z === 0 ? Number.EPSILON : scale.z
-    } else {
-      obj3d?.updateMatrixWorld() // Update parent world matrices
-
-      tempVector.copy(scale)
-
-      let _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
-
-      tempMatrix.copy(_spaceMatrix).invert()
-      tempVector.applyMatrix4(tempMatrix)
-
-      tempVector.set(
-        tempVector.x === 0 ? Number.EPSILON : tempVector.x,
-        tempVector.y === 0 ? Number.EPSILON : tempVector.y,
-        tempVector.z === 0 ? Number.EPSILON : tempVector.z
-      )
-
-      transformComponent.scale.copy(tempVector)
+    if (space === TransformSpace.World && (scale.x !== scale.y || scale.x !== scale.z || scale.y !== scale.z)) {
+      logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
     }
-    obj3d.updateMatrix()
+
+    const transformComponent =
+      typeof node === 'string' ? obj3dFromUuid(node) : getComponent(node.entity, TransformComponent)
+
+    if (overrideScale) {
+      transformComponent.scale.copy(scale)
+    } else {
+      transformComponent.scale.multiply(scale)
+    }
+
+    transformComponent.scale.set(
+      transformComponent.scale.x === 0 ? Number.EPSILON : transformComponent.scale.x,
+      transformComponent.scale.y === 0 ? Number.EPSILON : transformComponent.scale.y,
+      transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
+    )
+
     if (typeof node !== 'string' && hasComponent(node.entity, ColliderComponent)) {
-      if (hasComponent(node.entity, MeshColliderComponentTag)) {
-        updateMeshCollider(node.entity)
+      if (hasComponent(node.entity, GroupColliderComponent)) {
+        updateGroupCollider(node.entity)
       } else {
         updateCollider(node.entity)
       }

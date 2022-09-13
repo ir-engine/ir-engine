@@ -8,10 +8,9 @@ import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
-import { getNestedObject } from './ModifyPropertyCommand'
 
 export type ModifyObj3DCommandUndoParams = {
-  properties: { [_: string]: any }
+  properties: { [_: string]: any }[]
 }
 
 export type ModifyObj3DCommandParams = CommandParams & {
@@ -42,7 +41,7 @@ function prepare(command: ModifyObj3DCommandParams) {
 
 function shouldUpdate(currentCommand: ModifyObj3DCommandParams, newCommand: ModifyObj3DCommandParams): boolean {
   if (
-    currentCommand.properties.length !== currentCommand.properties.length ||
+    currentCommand.properties.length !== newCommand.properties.length ||
     !arrayShallowEqual(currentCommand.affectedNodes, newCommand.affectedNodes)
   )
     return false
@@ -85,8 +84,6 @@ function updateProperty(command: ModifyObj3DCommandParams, isUndo?: boolean) {
       } else {
         obj3d[k] = value
       }
-
-      dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: k }))
     })
   })
   dispatchAction(EditorAction.sceneModified({ modified: true }))

@@ -14,7 +14,7 @@ const euler = new Euler()
  */
 type EulerInputProps = {
   quaternion: Quaternion
-  onChange?: (...args: any[]) => any
+  onChange?: (euler: Euler) => any
   unit?: string
 }
 
@@ -24,7 +24,8 @@ type EulerInputProps = {
  * @type {Object}
  */
 export const EulerInput = (props: EulerInputProps) => {
-  const onChange = (x, y, z) => props.onChange?.(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
+  const onChange = (x: number, y: number, z: number) =>
+    props.onChange?.(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
   euler.setFromQuaternion(props.quaternion)
 
   // creating view for component

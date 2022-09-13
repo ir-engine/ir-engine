@@ -24,13 +24,12 @@ const LocationPage = () => {
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName: `${params.projectName}/${params.sceneName}` }))
     loadSceneJsonOffline(params.projectName, params.sceneName)
-    Engine.instance.injectedSystems.push(...DefaultLocationSystems)
   }, [])
 
   return (
     <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
       {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
-      <LoadEngineWithScene />
+      <LoadEngineWithScene injectedSystems={DefaultLocationSystems} />
       <OfflineLocation />
     </Layout>
   )

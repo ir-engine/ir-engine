@@ -1,5 +1,5 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import { useParams } from 'react-router-dom'
 
@@ -21,6 +21,7 @@ import { teleportAvatar } from '@xrengine/engine/src/avatar/functions/moveAvatar
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   PortalEffects,
@@ -36,18 +37,11 @@ import { initClient, loadScene } from './LocationLoadHelper'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
-export const LoadEngineWithScene = () => {
-  const history = useHistory()
-  const engineState = useEngineState()
-  const sceneState = useSceneState()
-  const loadingState = useLoadingState()
-  const locationState = useLocationState()
-  const authState = useAuthState()
-  const [clientReady, setClientReady] = useState(false)
+type LoadEngineProps = {
+  setClientReady: (ready: boolean) => void
+}
 
-  /**
-   * initialise the client
-   */
+export const useLoadEngine = ({ setClientReady }: LoadEngineProps) => {
   useHookEffect(() => {
     initClient().then(() => {
       setClientReady(true)
@@ -61,28 +55,20 @@ export const LoadEngineWithScene = () => {
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
     }
   }, [])
+}
 
-  /**
-   * load the scene whenever it changes
-   */
-  useHookEffect(() => {
-    const sceneData = sceneState.currentScene.value
-    if (clientReady && sceneData) {
-      AvatarService.fetchAvatarList()
-      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
-      loadScene(sceneData).then(() => {
-        if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
-      })
-    }
-  }, [clientReady, sceneState.currentScene])
-
+export const useLocationSpawnAvatar = () => {
+  const engineState = useEngineState()
+  const authState = useAuthState()
   const didSpawn = useHookstate(false)
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
-  useHookEffect(async () => {
+  useEffect(() => {
+    AvatarService.fetchAvatarList()
+  }, [])
+
+  useHookEffect(() => {
     if (
       didSpawn.value ||
       Engine.instance.currentWorld.localClientEntity ||
@@ -112,16 +98,13 @@ export const LoadEngineWithScene = () => {
       name: user.name
     })
   }, [engineState.sceneLoaded, authState.user, authState.avatarList, spectateParam])
+}
 
-  useHookEffect(() => {
-    if (engineState.sceneLoaded.value) {
-      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
-      if (engineState.isTeleporting.value) {
-        revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
-      }
-    }
-  }, [engineState.sceneLoaded])
+export const usePortalTeleport = () => {
+  const history = useHistory()
+  const engineState = useEngineState()
+  const locationState = useLocationState()
+  const authState = useAuthState()
 
   useHookEffect(() => {
     if (engineState.isTeleporting.value) {
@@ -148,7 +131,6 @@ export const LoadEngineWithScene = () => {
         return
       }
 
-      dispatchAction(SceneActions.unloadCurrentScene({}))
       history.push('/location/' + world.activePortal!.location)
       LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
 
@@ -157,14 +139,63 @@ export const LoadEngineWithScene = () => {
       leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
       setAvatarToLocationTeleportingState(world)
-
       if (activePortal.effectType !== 'None') {
-        addComponent(world.sceneEntity, PortalEffects.get(activePortal.effectType), true)
+        addComponent(world.localClientEntity, PortalEffects.get(activePortal.effectType), true)
       } else {
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.START_STATE }))
       }
     }
   }, [engineState.isTeleporting])
+}
+
+type Props = {
+  injectedSystems?: SystemModuleType<any>[]
+}
+
+export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
+  const engineState = useEngineState()
+  const sceneState = useSceneState()
+  const loadingState = useLoadingState()
+  const [clientReady, setClientReady] = useState(false)
+
+  useLocationSpawnAvatar()
+  usePortalTeleport()
+
+  /**
+   * initialise the client
+   */
+  useHookEffect(() => {
+    initClient(injectedSystems).then(() => {
+      setClientReady(true)
+    })
+
+    addActionReceptor(SceneServiceReceptor)
+    addActionReceptor(LocationInstanceConnectionServiceReceptor)
+
+    return () => {
+      removeActionReceptor(SceneServiceReceptor)
+      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
+    }
+  }, [])
+
+  /**
+   * load the scene whenever it changes
+   */
+  useHookEffect(() => {
+    // loadScene() deserializes the scene data, and deserializers sometimes mutate/update that data for backwards compatability.
+    // Since hookstate throws errors when mutating proxied values, we have to pass down the unproxied value here
+    const sceneData = sceneState.currentScene.get({ noproxy: true })
+    if (clientReady && sceneData) {
+      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
+      loadScene(sceneData)
+    }
+  }, [clientReady, sceneState.currentScene])
+
+  useHookEffect(() => {
+    if (engineState.sceneLoaded.value && loadingState.state.value !== AppLoadingStates.SUCCESS)
+      dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+  }, [engineState.sceneLoaded, engineState.loadingProgress])
 
   return <></>
 }

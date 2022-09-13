@@ -2,14 +2,13 @@ import { useEffect } from 'react'
 
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
-import { loadScene } from '../../components/World/LocationLoadHelper'
 import { accessLocationState } from '../../social/services/LocationService'
 
-const SceneState = defineState({
+export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
     currentScene: null as SceneData | null
@@ -49,11 +48,12 @@ export const SceneService = {
         const sceneData = await API.instance.client
           .service('scene')
           .get({ projectName, sceneName, metadataOnly: null }, {})
-        loadScene(sceneData.data)
+        updateSceneFromJSON(sceneData.data)
+        // ;(getState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
       }
       // for testing
       // window.addEventListener('keydown', (ev) => {
-      //   if(ev.code === 'KeyN') sceneUpdatedListener()
+      //   if (ev.code === 'KeyN') sceneUpdatedListener()
       // })
 
       API.instance.client.service('scene').on('updated', sceneUpdatedListener)
@@ -68,7 +68,7 @@ export const SceneService = {
 export class SceneActions {
   static currentSceneChanged = defineAction({
     type: 'location.CURRENT_SCENE_CHANGED',
-    sceneData: matches.object as Validator<unknown, SceneData | null>
+    sceneData: matches.object as Validator<unknown, SceneData>
   })
 
   static unloadCurrentScene = defineAction({

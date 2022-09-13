@@ -54,9 +54,6 @@ export default async function FlyControlSystem(world: World) {
 
       if (!editorHelperState.isFlyModeEnabled.value) return
 
-      // assume that Engine.instance.currentWorld.camera[position,quaterion/rotation,scale] are authority
-      camera.updateMatrix()
-      camera.updateMatrixWorld()
       camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
 
       // rotate about the camera's local x axis

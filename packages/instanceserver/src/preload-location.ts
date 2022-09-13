@@ -42,7 +42,7 @@ export default async function (locationName, app: Application) {
     }
   }, 1000)
 
-  await loadSceneFromJSON(result, (left) => {
+  await updateSceneFromJSON(result, (left) => {
     entitiesLeft = left
   })
 

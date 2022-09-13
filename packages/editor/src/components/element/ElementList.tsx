@@ -9,6 +9,7 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { IconButton, Tooltip } from '@mui/material'
@@ -144,6 +145,10 @@ export function ElementList() {
       const transformComponent = getComponent(node.entity, TransformComponent)
       if (transformComponent) {
         getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
+        const localTransformComponent = getComponent(node.entity, LocalTransformComponent)
+        if (localTransformComponent) {
+          localTransformComponent.position.copy(transformComponent.position)
+        }
       }
     }
   })

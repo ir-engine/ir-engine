@@ -1,73 +1,82 @@
 import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
-import { MediaSettingAction, MediaSettingsState, shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
-import { MediaComponent } from '../../scene/components/MediaComponent'
-import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
-import { createAudioNode } from '../../scene/functions/loaders/AudioFunctions'
+import { MediaSettingAction, shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
+import {
+  AudioNodeGroup,
+  AudioNodeGroups,
+  createAudioNodeGroup,
+  MediaElementComponent
+} from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRState } from '../../xr/XRState'
-import { AudioSettingAction, AudioState } from '../AudioState'
-import { AudioComponent } from '../components/AudioComponent'
+import { AudioSettingAction } from '../AudioState'
 import { ImmersiveMediaTagComponent, SCENE_COMPONENT_MEDIA_SETTINGS } from '../components/ImmersiveMediaTagComponent'
+import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import {
   PositionalAudioSettingsComponent,
   SCENE_COMPONENT_AUDIO_SETTINGS,
   SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
 } from '../components/PositionalAudioSettingsComponent'
-import { PositionalAudioTagComponent } from '../components/PositionalAudioTagComponent'
-import { AudioType } from '../constants/AudioConstants'
-import { AudioElementNode, AudioElementNodes } from './AudioSystem'
 
-export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.instance.spatialAudioSettings) => {
+export const addPannerNode = (audioNodes: AudioNodeGroup, opts = Engine.instance.spatialAudioSettings) => {
   const panner = Engine.instance.audioContext.createPanner()
-  audioObject.source.disconnect(audioObject.gain)
-  audioObject.source.connect(panner)
-  panner.connect(audioObject.gain)
-  audioObject.panner = panner
-
   panner.refDistance = opts.refDistance
   panner.rolloffFactor = opts.rolloffFactor
   panner.maxDistance = opts.maxDistance
   panner.distanceModel = opts.distanceModel
-
   panner.coneInnerAngle = opts.coneInnerAngle
   panner.coneOuterAngle = opts.coneOuterAngle
   panner.coneOuterGain = opts.coneOuterGain
 
+  audioNodes.source.disconnect()
+  audioNodes.source.connect(panner)
+  panner.connect(audioNodes.gain)
+  audioNodes.panner = panner
+
   return panner
 }
 
-export const removePannerNode = (audioObject: AudioElementNode) => {
-  audioObject.source.connect(audioObject.gain)
-  audioObject.source.disconnect(audioObject.panner!)
-  audioObject.panner!.disconnect(audioObject.gain)
-  audioObject.panner = undefined
+const _rot = new Vector3()
+
+const updateAudioPanner = (
+  panner: PannerNode,
+  position: Vector3,
+  rotation: Quaternion,
+  endTime: number,
+  settings = Engine.instance.spatialAudioSettings
+) => {
+  _rot.set(0, 0, 1).applyQuaternion(rotation)
+  panner.positionX.linearRampToValueAtTime(position.x, endTime)
+  panner.positionY.linearRampToValueAtTime(position.y, endTime)
+  panner.positionZ.linearRampToValueAtTime(position.z, endTime)
+  panner.orientationX.linearRampToValueAtTime(_rot.x, endTime)
+  panner.orientationY.linearRampToValueAtTime(_rot.y, endTime)
+  panner.orientationZ.linearRampToValueAtTime(_rot.z, endTime)
+  panner.refDistance = settings.refDistance
+  panner.rolloffFactor = settings.rolloffFactor
+  panner.maxDistance = settings.maxDistance
+  panner.distanceModel = settings.distanceModel
+  panner.coneInnerAngle = settings.coneInnerAngle
+  panner.coneOuterAngle = settings.coneOuterAngle
+  panner.coneOuterGain = settings.coneOuterGain
 }
 
-export const updatePositionalAudioTag = (entity: Entity) => {
-  const audioComponent = getComponent(entity, AudioComponent)
-  if (audioComponent.audioType === AudioType.Stereo && hasComponent(entity, PositionalAudioTagComponent))
-    removeComponent(entity, PositionalAudioTagComponent)
-  if (audioComponent.audioType === AudioType.Positional && !hasComponent(entity, PositionalAudioTagComponent))
-    addComponent(entity, PositionalAudioTagComponent, true)
+export const removePannerNode = (audioNodes: AudioNodeGroup) => {
+  audioNodes.source.disconnect()
+  audioNodes.source.connect(audioNodes.gain)
+  audioNodes.panner?.disconnect()
+  audioNodes.panner = undefined
 }
 
 export const updatePositionalAudioSettings = (entity: Entity) => {
@@ -78,17 +87,6 @@ export const updatePositionalAudioSettings = (entity: Entity) => {
 /** System class which provides methods for Positional Audio system. */
 
 export default async function PositionalAudioSystem(world: World) {
-  const _rot = new Vector3()
-  const updateAudioPanner = (panner: PannerNode, position: Vector3, rotation: Quaternion, endTime: number) => {
-    _rot.set(0, 0, 1).applyQuaternion(rotation)
-    panner.positionX.linearRampToValueAtTime(position.x, endTime)
-    panner.positionY.linearRampToValueAtTime(position.y, endTime)
-    panner.positionZ.linearRampToValueAtTime(position.z, endTime)
-    panner.orientationX.linearRampToValueAtTime(_rot.x, endTime)
-    panner.orientationY.linearRampToValueAtTime(_rot.y, endTime)
-    panner.orientationZ.linearRampToValueAtTime(_rot.z, endTime)
-  }
-
   const _vec3 = new Vector3()
 
   const positionalAudioSettingsQuery = defineQuery([PositionalAudioSettingsComponent])
@@ -105,13 +103,8 @@ export default async function PositionalAudioSystem(world: World) {
    * Scene Objects
    */
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
-  const audioQuery = defineQuery([AudioComponent, MediaComponent])
-  const positionalAudioSceneObjectQuery = defineQuery([
-    AudioComponent,
-    MediaComponent,
-    PositionalAudioTagComponent,
-    TransformComponent
-  ])
+
+  const positionalAudioQuery = defineQuery([PositionalAudioComponent, MediaElementComponent, TransformComponent])
 
   const immersiveMediaQuery = defineQuery([ImmersiveMediaTagComponent])
 
@@ -123,7 +116,7 @@ export default async function PositionalAudioSystem(world: World) {
   const setMediaStreamVolumeActionQueue = createActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
 
   /** Weak map entry is automatically GC'd when network object is removed */
-  const avatarAudioObjs: WeakMap<NetworkObjectComponentType, MediaStream> = new WeakMap()
+  const avatarAudioStreams: WeakMap<NetworkObjectComponentType, MediaStream> = new WeakMap()
 
   return () => {
     const audioContext = Engine.instance.audioContext
@@ -138,24 +131,22 @@ export default async function PositionalAudioSystem(world: World) {
     /**
      * Scene Objects
      */
-    const audioEntities = audioQuery()
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (audioEntities.includes(entity)) updatePositionalAudioTag(entity)
         if (hasComponent(entity, PositionalAudioSettingsComponent)) updatePositionalAudioSettings(entity)
       }
     }
 
-    for (const entity of positionalAudioSceneObjectQuery.enter()) {
-      const el = getComponent(entity, MediaElementComponent)
-      const audioObject = AudioElementNodes.get(el)!
-      addPannerNode(audioObject, getComponent(entity, AudioComponent))
+    for (const entity of positionalAudioQuery.enter()) {
+      const el = getComponent(entity, MediaElementComponent).element
+      const audioGroup = AudioNodeGroups.get(el)!
+      addPannerNode(audioGroup, getComponent(entity, PositionalAudioComponent).value)
     }
 
-    for (const entity of positionalAudioSceneObjectQuery.exit()) {
-      const el = getComponent(entity, MediaElementComponent, true)
-      const audioObject = AudioElementNodes.get(el)!
-      removePannerNode(audioObject)
+    for (const entity of positionalAudioQuery.exit()) {
+      const el = getComponent(entity, MediaElementComponent, true).element
+      const audioGroup = AudioNodeGroups.get(el)!
+      removePannerNode(audioGroup)
     }
 
     /**
@@ -177,17 +168,17 @@ export default async function PositionalAudioSystem(world: World) {
 
       // avatar still exists but audio stream does not
       if (!consumer) {
-        if (avatarAudioObjs.has(networkObject)) avatarAudioObjs.delete(networkObject)
+        if (avatarAudioStreams.has(networkObject)) avatarAudioStreams.delete(networkObject)
         continue
       }
 
-      const existingAudioObj = avatarAudioObjs.get(networkObject)
+      const existingAudioObj = avatarAudioStreams.get(networkObject)
 
       if (existingAudioObj) {
         // only force positional audio for avatar media streams in XR
-        const audioEl = AudioElementNodes.get(existingAudioObj)!
-        if (audioEl.panner && !immersiveMedia) removePannerNode(audioEl)
-        else if (!audioEl.panner && immersiveMedia) addPannerNode(audioEl)
+        const audioNodes = AudioNodeGroups.get(existingAudioObj)!
+        if (audioNodes.panner && !immersiveMedia) removePannerNode(audioNodes)
+        else if (!audioNodes.panner && immersiveMedia) addPannerNode(audioNodes)
 
         // audio stream exists and has already been handled
         continue
@@ -201,23 +192,23 @@ export default async function PositionalAudioSystem(world: World) {
       existingAudioObject.muted = true
       // todo, refactor this out of event listener
       existingAudioObject.addEventListener('volumechange', () => {
-        audioObject.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
+        audioNodes.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
       })
 
       // audio streams exists but has not been handled
       const mediaTrack = consumer.track as MediaStreamTrack
       const stream = new MediaStream([mediaTrack.clone()])
 
-      const audioObject = createAudioNode(
+      const audioNodes = createAudioNodeGroup(
         stream,
         audioContext.createMediaStreamSource(stream),
         Engine.instance.gainNodeMixBuses.mediaStreams
       )
-      audioObject.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
+      audioNodes.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
 
-      if (immersiveMedia) addPannerNode(audioObject)
+      if (immersiveMedia) addPannerNode(audioNodes)
 
-      avatarAudioObjs.set(networkObject, stream)
+      avatarAudioStreams.set(networkObject, stream)
     }
 
     /**
@@ -226,9 +217,9 @@ export default async function PositionalAudioSystem(world: World) {
     for (const action of setMediaStreamVolumeActionQueue()) {
       for (const entity of networkedAvatarAudioEntities) {
         const networkObject = getComponent(entity, NetworkObjectComponent)
-        const audioObj = avatarAudioObjs.get(networkObject)!
+        const audioObj = avatarAudioStreams.get(networkObject)!
         if (!audioObj) continue
-        const gain = AudioElementNodes.get(audioObj)?.gain!
+        const gain = AudioNodeGroups.get(audioObj)?.gain!
         if (gain) gain.gain.setTargetAtTime(action.value, audioContext.currentTime, 0.01)
       }
     }
@@ -238,15 +229,12 @@ export default async function PositionalAudioSystem(world: World) {
     /**
      * Update panner nodes
      */
-    for (const entity of positionalAudioSceneObjectQuery()) {
-      const mediaComponent = getComponent(entity, MediaComponent)
-      const mediaElementComponent = getComponent(entity, MediaElementComponent)
-      if (mediaComponent && !mediaComponent.playing) continue
-
+    for (const entity of positionalAudioQuery()) {
+      const element = getComponent(entity, MediaElementComponent).element
       const { position, rotation } = getComponent(entity, TransformComponent)
-      const audioObject = AudioElementNodes.get(mediaElementComponent)!
-
-      updateAudioPanner(audioObject.panner!, position, rotation, endTime)
+      const positionalAudio = getComponent(entity, PositionalAudioComponent)
+      const audioObject = AudioNodeGroups.get(element)!
+      audioObject.panner && updateAudioPanner(audioObject.panner, position, rotation, endTime, positionalAudio.value)
     }
 
     /** @todo, only apply this to closest 8 (configurable) avatars */
@@ -254,10 +242,10 @@ export default async function PositionalAudioSystem(world: World) {
     for (const entity of networkedAvatarAudioEntities) {
       const networkObject = getComponent(entity, NetworkObjectComponent)
 
-      const audioObj = avatarAudioObjs.get(networkObject)!
+      const audioObj = avatarAudioStreams.get(networkObject)!
       if (!audioObj) continue
 
-      const panner = AudioElementNodes.get(audioObj)?.panner!
+      const panner = AudioNodeGroups.get(audioObj)?.panner!
       if (!panner) continue
 
       getAvatarBoneWorldPosition(entity, 'Head', _vec3)

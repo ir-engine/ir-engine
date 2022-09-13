@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/common",
-  "version": "0.5.8",
+  "version": "1.0.0-rc1",
   "main": "lib/common.umd.js",
   "module": "lib/common.es.js",
   "types": "lib/index.d.ts",
@@ -10,7 +10,6 @@
   "description": "Shared types for other XREngine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=4096 APP_ENV=production vite build --config vite.build.js",
     "test": "mocha --jobs 1",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
@@ -29,21 +28,9 @@
     "crypto-ld": "^6.0.0"
   },
   "devDependencies": {
-    "@rollup/plugin-alias": "3.1.9",
-    "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-node-resolve": "13.2.0",
-    "@rollup/plugin-replace": "4.0.0",
     "@types/mocha": "^9.1.1",
-    "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
-    "lodash.camelcase": "4.3.0",
-    "rimraf": "3.0.2",
-    "rollup": "2.70.1",
-    "rollup-plugin-livereload": "2.0.5",
-    "rollup-plugin-node-polyfills": "0.2.1",
-    "rollup-plugin-sass": "1.2.10",
-    "rollup-plugin-terser": "7.0.2",
-    "rollup-plugin-typescript2": "0.31.2"
+    "rimraf": "3.0.2"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

@@ -9,7 +9,7 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 
 import { Close, FullscreenExit, ZoomOutMap } from '@mui/icons-material'
@@ -39,15 +39,7 @@ interface Props {
 
 const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideFullscreen }: Props): any => {
   const clientSettingState = useClientSettingState()
-  const coilSettingState = useCoilSettingState()
-  const [clientSetting] = clientSettingState?.client?.value || []
-  const [coilSetting] = coilSettingState?.coil?.value || []
   const [fullScreenActive, setFullScreenActive] = useFullscreen()
-  const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
-  const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
-  const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
-  const [paymentPointer, setPaymentPointer] = useState(coilSetting?.paymentPointer)
-  const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [showMediaIcons, setShowMediaIcons] = useState(true)
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
@@ -57,7 +49,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const { t } = useTranslation()
 
   useEffect(() => {
-    !coilSetting && AdminCoilSettingService.fetchCoil()
     const topButtonsState = localStorage.getItem('isTopButtonsShown')
     const bottomButtonsState = localStorage.getItem('isBottomButtonsShown')
     if (!topButtonsState) {
@@ -71,18 +62,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
       setShowBottomIcons(JSON.parse(bottomButtonsState))
     }
   }, [])
-
-  useEffect(() => {
-    if (clientSetting) {
-      setTitle(clientSetting?.title)
-      setFavicon16(clientSetting?.favicon16px)
-      setFavicon32(clientSetting?.favicon32px)
-      setDescription(clientSetting?.siteDescription)
-    }
-    if (coilSetting) {
-      setPaymentPointer(coilSetting?.paymentPointer)
-    }
-  }, [clientSettingState?.updateNeeded?.value, coilSettingState?.updateNeeded?.value])
 
   const iOS = (): boolean => {
     return (
@@ -119,16 +98,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   return (
     <div style={{ pointerEvents: 'auto' }}>
       <section>
-        <Helmet>
-          <title>
-            {ctitle} | {pageTitle}
-          </title>
-          {description && <meta name="description" content={description}></meta>}
-          {paymentPointer && <meta name="monetization" content={paymentPointer} />}
-          {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
-          {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
-        </Helmet>
-
         {conferenceMode && (
           <div className={styles.conferenceModeContainer}>
             <div className={styles.toolbar}>

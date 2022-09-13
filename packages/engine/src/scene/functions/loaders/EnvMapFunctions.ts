@@ -18,12 +18,13 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   EnvmapComponent,
   EnvmapComponentType,
   SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
 } from '../../components/EnvmapComponent'
+import { ModelComponent } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../../constants/Util'
@@ -39,13 +40,13 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, 
   if (!isClient) return
 
   const props = parseEnvMapProperties(data)
-  addComponent(entity, EnvmapComponent, props)
+  setComponent(entity, EnvmapComponent, props)
 }
 
 export const updateEnvMap = (entity: Entity) => {
   const component = getComponent(entity, EnvmapComponent)
-  const hasObj3d = hasComponent(entity, Object3DComponent)
-  const obj3d = hasObj3d ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
+  const hasObj3d = getComponent(entity, ModelComponent).scene
+  const obj3d = hasObj3d ? getComponent(entity, ModelComponent).scene! : Engine.instance.currentWorld.scene
 
   switch (component.type) {
     case EnvMapSourceType.Skybox:

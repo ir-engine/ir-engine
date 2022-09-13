@@ -70,6 +70,15 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
     .when(LocationInstanceConnectionAction.disconnect.matches, (action) => {
       return s.instances[action.instanceId].set(none)
     })
+    .when(LocationInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
+      const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
+      Engine.instance.currentWorld.worldNetwork.hostId = action.newInstanceId as UserId
+      Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.worldNetwork)
+      Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
+      Engine.instance.currentWorld._worldHostId = action.newInstanceId as UserId
+      s.instances.merge({ [action.newInstanceId]: currentNetwork })
+      s.instances[action.currentInstanceId].set(none)
+    })
 }
 
 export const accessLocationInstanceConnectionState = () => getState(LocationInstanceState)
@@ -173,5 +182,11 @@ export class LocationInstanceConnectionAction {
   static disconnect = defineAction({
     type: 'LOCATION_INSTANCE_SERVER_DISCONNECT' as const,
     instanceId: matches.string
+  })
+
+  static changeActiveConnectionHostId = defineAction({
+    type: 'LOCATION_INSTANCE_SERVER_CHANGE_HOST_ID' as const,
+    currentInstanceId: matchesUserId,
+    newInstanceId: matchesUserId
   })
 }

@@ -28,6 +28,7 @@ export const EngineState = defineState({
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
     usersTyping: {} as { [key: string]: true },
+    avatarLoadingEffect: true,
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
@@ -123,11 +124,6 @@ export class EngineActions {
     progress: matches.number
   })
 
-  static connect = defineAction({
-    type: 'xre.engine.CONNECT' as const,
-    id: matches.string
-  })
-
   static browserNotSupported = defineAction({
     type: 'xre.engine.BROWSER_NOT_SUPPORTED' as const,
     msg: matches.string
@@ -177,5 +173,10 @@ export class EngineActions {
   static useSimpleMaterials = defineAction({
     type: 'xre.engine.SIMPLE_MATERIALS' as const,
     useSimpleMaterials: matches.boolean
+  })
+
+  static avatarModelChanged = defineAction({
+    type: 'xre.engine.AVATAR_MODEL_CHANGED' as const,
+    entity: matchesEntity
   })
 }

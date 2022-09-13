@@ -58,8 +58,8 @@ export const InputGroupContent = (styled as any).div`
   justify-content: space-between;
   margin-left: 5px;
 
-  &>*:first-child {
-    max-width: calc(100% - 2px)
+  & > *:first-child {
+    max-width: calc(100% - 2px);
   }
 
   & > label {
@@ -72,7 +72,6 @@ export const InputGroupContent = (styled as any).div`
 `
 
 export const InputGroupVerticalContainer = (styled as any).div`
-
   ${(props) =>
     props.disabled &&
     `
@@ -90,7 +89,6 @@ export const InputGroupVerticalContainer = (styled as any).div`
 `
 
 export const InputGroupVerticalContainerWide = (styled as any).div`
-
   ${(props) =>
     props.disabled &&
     `

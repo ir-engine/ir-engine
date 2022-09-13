@@ -1,7 +1,8 @@
 import {
+  CubeTexture,
   Mesh,
   PerspectiveCamera,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   Scene,
   ShaderMaterial,
   Texture,
@@ -9,19 +10,23 @@ import {
   WebGLRenderer
 } from 'three'
 
-export default function createReadableTexture(
+export default async function createReadableTexture(
   map: Texture,
   options?: {
     maxDimensions?: { width: number; height: number }
     url?: boolean
   }
-): Texture | string {
+): Promise<Texture | string> {
   if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
     return options?.url ? map.source.data.src : map
   }
-  const fullscreenQuadGeometry = new PlaneBufferGeometry(2, 2, 1, 1)
+  let blit: Texture = map
+  if ((map as CubeTexture).isCubeTexture) {
+    blit = new Texture(map.source.data[0])
+  }
+  const fullscreenQuadGeometry = new PlaneGeometry(2, 2, 1, 1)
   const fullscreenQuadMaterial = new ShaderMaterial({
-    uniforms: { blitTexture: new Uniform(map) },
+    uniforms: { blitTexture: new Uniform(blit) },
     vertexShader: `
             varying vec2 vUv;
             void main(){
@@ -56,11 +61,17 @@ export default function createReadableTexture(
   }
   temporaryRenderer.clear()
   temporaryRenderer.render(temporaryScene, temporaryCam)
-  if (!options?.url) return new Texture(temporaryRenderer.domElement)
-  else {
-    const result = temporaryRenderer.domElement.getContext('webgl2')!.canvas.toDataURL()
-    temporaryRenderer.domElement.remove()
-    temporaryRenderer.dispose()
-    return result
+  if (blit !== map) {
+    blit.dispose()
   }
+  const result = await new Promise<Blob | null>((resolve) =>
+    temporaryRenderer.domElement.getContext('webgl2')!.canvas.toBlob(resolve)
+  )
+  temporaryRenderer.domElement.remove()
+  temporaryRenderer.dispose()
+  if (!result) throw new Error('Error creating blob')
+  const image = new Image(map.image.width, map.image.height)
+  image.src = URL.createObjectURL(result)
+  if (!options?.url) return new Texture(image)
+  else return image.src
 }

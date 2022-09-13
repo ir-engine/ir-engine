@@ -3,6 +3,7 @@ import { createActionQueue } from '@xrengine/hyperflux'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
@@ -102,6 +103,7 @@ export default async function LightSystem(world: World) {
 
   world.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES }
   ])
 
@@ -147,6 +149,11 @@ export default async function LightSystem(world: World) {
 
     for (const entity of ambientLightQuery.enter()) updateAmbientLight(entity)
     for (const entity of directionalLightQuery.enter()) updateDirectionalLight(entity)
+    for (const entity of directionalLightQuery.exit())
+      EngineRenderer.instance.directionalLightEntities.splice(
+        EngineRenderer.instance.directionalLightEntities.indexOf(entity),
+        1
+      )
     for (const entity of hemisphereLightQuery.enter()) updateHemisphereLight(entity)
     for (const entity of pointLightQuery.enter()) updatePointLight(entity)
     for (const entity of spotLightQuery.enter()) updateSpotLight(entity)

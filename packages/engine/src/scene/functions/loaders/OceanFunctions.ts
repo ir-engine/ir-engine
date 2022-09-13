@@ -5,29 +5,33 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Ocean } from '../../classes/Ocean'
+import { setCallback } from '../../components/CallbackComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   OceanComponent,
   OceanComponentType,
   SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
 } from '../../components/OceanComponent'
-import { UpdatableComponent } from '../../components/UpdatableComponent'
+import { UpdatableCallback } from '../../components/UpdatableComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeOcean: ComponentDeserializeFunction = (entity: Entity, data: OceanComponentType) => {
-  const obj3d = new Ocean(entity)
   const props = parseOceanProperties(data)
-
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, OceanComponent, props)
-  addComponent(entity, UpdatableComponent, true)
+  setComponent(entity, OceanComponent, props)
+  const ocean = new Ocean(entity)
+  addObjectToGroup(entity, ocean)
+  setCallback(entity, UpdatableCallback, (dt: number) => {
+    ocean.update(dt)
+  })
 }
 
 export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {
-  const obj3d = getComponent(entity, Object3DComponent).value as Ocean
+  const obj3d = getComponent(entity, OceanComponent).ocean!
   const component = getComponent(entity, OceanComponent)
 
   if (obj3d.normalMap !== component.normalMap) {

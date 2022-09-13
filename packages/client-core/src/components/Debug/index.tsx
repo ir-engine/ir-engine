@@ -1,4 +1,3 @@
-import { Downgraded } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,9 +10,9 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
+  Component,
   getComponent,
   hasComponent,
-  MappedComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemInstanceType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
@@ -73,16 +72,8 @@ export const Debug = () => {
     respawnAvatar(Engine.instance.currentWorld.localClientEntity)
   }
 
-  const togglePhysicsDebug = () => {
-    dispatchAction(
-      EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: !engineRendererState.physicsDebugEnable.value })
-    )
-  }
-
-  const toggleAvatarDebug = () => {
-    dispatchAction(
-      EngineRendererAction.setAvatarDebug({ avatarDebugEnable: !engineRendererState.avatarDebugEnable.value })
-    )
+  const toggleDebug = () => {
+    dispatchAction(EngineRendererAction.setDebug({ debugEnable: !engineRendererState.debugEnable.value }))
   }
 
   const renderAllEntities = () => {
@@ -93,12 +84,15 @@ export const Debug = () => {
             const name = getComponent(eid, NameComponent)?.name
             try {
               return [
-                '(eid:' + eid + ') ' + (name ?? ''),
+                '(eid:' +
+                  eid +
+                  ') ' +
+                  (name ?? Engine.instance.currentWorld.entityTree.entityNodeMap.get(eid)?.uuid ?? ''),
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
-                    (components, C: MappedComponent<any, any>) => {
+                    (components, C: Component<any, any>) => {
                       if (C !== NameComponent) {
-                        const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
+                        const component = getComponent(eid, C)
                         components.push([C._name, { ...component }])
                       }
                       return components
@@ -155,19 +149,11 @@ export const Debug = () => {
             <div className={styles.flagContainer}>
               <button
                 type="button"
-                onClick={togglePhysicsDebug}
-                className={styles.flagBtn + (engineRendererState.physicsDebugEnable.value ? ' ' + styles.active : '')}
-                title={t('common:debug.physicsDebug')}
+                onClick={toggleDebug}
+                className={styles.flagBtn + (engineRendererState.debugEnable.value ? ' ' + styles.active : '')}
+                title={t('common:debug.debug')}
               >
                 <SquareFootIcon fontSize="small" />
-              </button>
-              <button
-                type="button"
-                onClick={toggleAvatarDebug}
-                className={styles.flagBtn + (engineRendererState.avatarDebugEnable.value ? ' ' + styles.active : '')}
-                title={t('common:debug.avatarDebug')}
-              >
-                <ManIcon fontSize="small" />
               </button>
               <button
                 type="button"

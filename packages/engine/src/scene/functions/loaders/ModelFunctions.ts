@@ -7,15 +7,22 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
 import { GLTFLoadedComponent } from '../../components/GLTFLoadedComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
+import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import {
   ModelComponent,
   ModelComponentType,
   SCENE_COMPONENT_MODEL_DEFAULT_VALUE
 } from '../../components/ModelComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
@@ -27,19 +34,18 @@ import { initializeOverride } from './MaterialOverrideFunctions'
 
 export const deserializeModel: ComponentDeserializeFunction = (entity: Entity, data: ModelComponentType) => {
   const props = parseModelProperties(data)
-  addComponent(entity, ModelComponent, props)
+  setComponent(entity, ModelComponent, props)
 
   /**
    * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
    */
-  addComponent(entity, SceneAssetPendingTagComponent, true)
+  setComponent(entity, SceneAssetPendingTagComponent, true)
 }
 
 export const updateModel = async (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
   /** @todo replace userData usage with something else */
-  const sourceChanged =
-    !hasComponent(entity, Object3DComponent) || getComponent(entity, Object3DComponent).value.userData.src !== model.src
+  const sourceChanged = !model.scene || model.scene.userData.src !== model.src
   if (sourceChanged) {
     try {
       const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
@@ -63,8 +69,8 @@ export const updateModel = async (entity: Entity) => {
           break
       }
       scene.userData.src = model.src
-      hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
-      addComponent(entity, Object3DComponent, { value: scene })
+      model.scene = scene
+      addObjectToGroup(entity, scene)
       setBoundingBoxComponent(entity)
       parseGLTFModel(entity)
       if (model.generateBVH) {
@@ -78,8 +84,8 @@ export const updateModel = async (entity: Entity) => {
     }
   }
 
-  const obj3d = getComponent(entity, Object3DComponent).value
-  enableObjectLayer(obj3d, ObjectLayers.Camera, model.generateBVH)
+  const scene = model.scene!
+  enableObjectLayer(scene, ObjectLayers.Camera, model.generateBVH)
 
   const notUsingAndHasBasicMaterial = !hasComponent(entity, SimpleMaterialTagComponent) && model.useBasicMaterial
   const usingAndNotHasBasicMaterial = hasComponent(entity, SimpleMaterialTagComponent) && !model.useBasicMaterial
@@ -89,8 +95,8 @@ export const updateModel = async (entity: Entity) => {
 
   if (isClient && model.materialOverrides.length > 0) {
     const overrides = await Promise.all(
-      model.materialOverrides.map((override, i) => initializeOverride(entity, override)())
-    )
+      model.materialOverrides.map((override, i) => initializeOverride(entity, override)?.())
+    ).then((results) => results.filter((result) => typeof result !== 'undefined') as MaterialOverrideComponentType[])
     model.materialOverrides = overrides
   }
 

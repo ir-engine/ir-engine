@@ -11,7 +11,7 @@ import {
   useFileBrowserState
 } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
-import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 

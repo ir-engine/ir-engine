@@ -96,3 +96,23 @@
     margin-top: 30px;
   }
 }
+
+.dockableTab {
+  display: flex;
+
+  .dockableTabButtons {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    padding-left: 110px;
+    align-items: center;
+
+    button {
+      margin: auto;
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+    }
+  }
+}

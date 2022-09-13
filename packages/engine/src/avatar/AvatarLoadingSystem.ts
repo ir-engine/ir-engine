@@ -1,15 +1,45 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { Box3, Object3D } from 'three'
+import { Not } from 'bitecs'
+import {
+  AdditiveBlending,
+  Box3,
+  DoubleSide,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  PlaneGeometry,
+  sRGBEncoding,
+  Vector3
+} from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
+import { AvatarDirection } from '../common/constants/Axis3D'
+import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../ecs/functions/EntityFunctions'
+import { Physics, RaycastArgs } from '../physics/classes/Physics'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
+import { SceneQueryType } from '../physics/types/PhysicsTypes'
+import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { AvatarComponent } from './components/AvatarComponent'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
-import { AvatarPendingComponent } from './components/AvatarPendingComponent'
 import { DissolveEffect } from './DissolveEffect'
 
 const lightScale = (y, r) => {
@@ -20,33 +50,87 @@ const lightOpacity = (y, r) => {
   return Math.min(1, Math.max(0, 1 - (y - r) * 0.5))
 }
 
-export default async function AvatarLoadingSystem(world: World) {
-  // precache dissolve effects
-  await Promise.all([AssetLoader.loadAsync('/itemLight.png'), AssetLoader.loadAsync('/itemPlate.png')])
+const downwardGroundRaycast = {
+  type: SceneQueryType.Closest,
+  origin: new Vector3(),
+  direction: AvatarDirection.Down,
+  maxDistance: 10,
+  groups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+} as RaycastArgs
 
-  const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarPendingComponent])
+export default async function AvatarLoadingSystem(world: World) {
+  const effectQuery = defineQuery([AvatarEffectComponent])
+  const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
-  const dissolveQuery = defineQuery([AvatarComponent, Object3DComponent, AvatarDissolveComponent])
+  const dissolveQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarDissolveComponent])
+  const [textureLight, texturePlate] = await Promise.all([
+    AssetLoader.loadAsync('/itemLight.png'),
+    AssetLoader.loadAsync('/itemPlate.png')
+  ])
+
+  const light = new Mesh(
+    new PlaneGeometry(0.04, 3.2),
+    new MeshBasicMaterial({
+      transparent: true,
+      map: textureLight,
+      blending: AdditiveBlending,
+      depthWrite: false,
+      side: DoubleSide
+    })
+  )
+
+  const plate = new Mesh(
+    new PlaneGeometry(1.6, 1.6),
+    new MeshBasicMaterial({
+      transparent: false,
+      map: texturePlate,
+      blending: AdditiveBlending,
+      depthWrite: false
+    })
+  )
+
+  light.geometry.computeBoundingSphere()
+  plate.geometry.computeBoundingSphere()
+  light.name = 'light_obj'
+  plate.name = 'plate_obj'
+
+  textureLight.encoding = sRGBEncoding
+  textureLight.needsUpdate = true
+  texturePlate.encoding = sRGBEncoding
+  texturePlate.needsUpdate = true
 
   return () => {
     const { deltaSeconds: delta } = world
 
-    for (const entity of growQuery.enter(world)) {
-      const object = getComponent(entity, Object3DComponent).value
-      const plateComponent = getComponent(entity, AvatarEffectComponent)
+    for (const entity of effectQuery.enter()) {
+      const effectComponent = getComponent(entity, AvatarEffectComponent)
+      const sourceTransform = getComponent(effectComponent.sourceEntity, TransformComponent)
+      const transform = setTransformComponent(
+        entity,
+        sourceTransform.position.clone(),
+        sourceTransform.rotation.clone(),
+        sourceTransform.scale.clone()
+      )
+      addComponent(entity, VisibleComponent, true)
+      /**
+       * cast ray to move this downward to be on the ground
+       */
+      downwardGroundRaycast.origin.copy(sourceTransform.position)
+      const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, downwardGroundRaycast)
+      if (hits.length) {
+        transform.position.y = hits[0].position.y
+      }
+
+      const group = new Group()
 
       const pillar = new Object3D()
       pillar.name = 'pillar_obj'
-      object.add(pillar)
-
-      const apc = getComponent(entity, AvatarPendingComponent)
-      const light = apc.light
-      const plate = apc.plate
+      addObjectToGroup(entity, group)
+      group.add(pillar)
 
       const R = 0.6 * plate.geometry.boundingSphere?.radius!
       for (let i = 0, n = 5 + 10 * R * Math.random(); i < n; i += 1) {
         const ray = light.clone()
-        ray.material = (light.material as any).clone()
         ray.position.y -= 2 * ray.geometry.boundingSphere?.radius! * Math.random()
 
         var a = (2 * Math.PI * i) / n,
@@ -61,11 +145,11 @@ export default async function AvatarLoadingSystem(world: World) {
       const pt = plate.clone()
       pt.name = 'plate_obj'
       pt.material = (pt.material as any).clone()
-      object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
+      group.add(pt)
 
       setComponent(entity, TweenComponent, {
-        tween: new Tween<any>(plateComponent)
+        tween: new Tween<any>(effectComponent)
           .to(
             {
               opacityMultiplier: 1
@@ -76,36 +160,27 @@ export default async function AvatarLoadingSystem(world: World) {
           .start()
           .onComplete(() => {
             removeComponent(entity, TweenComponent)
-            // removeComponent(entity, AvatarPendingComponent)
-            const object = getComponent(entity, Object3DComponent).value
-            const bbox = new Box3().setFromObject(object.children[0])
+            const avatarObjects = getComponent(effectComponent.sourceEntity, GroupComponent)
+            const bbox = new Box3()
             let scale = 1
-            if (object.userData?.scale) {
-              scale = object.userData.scale
+            for (const obj of avatarObjects) {
+              bbox.expandByObject(obj)
+              if (obj.userData?.scale) {
+                scale = obj.userData.scale
+              }
             }
             setComponent(entity, AvatarDissolveComponent, {
-              effect: new DissolveEffect(object, bbox.min.y / scale, bbox.max.y / scale)
+              /** @todo refactor to not be just the first index */
+              effect: new DissolveEffect(avatarObjects[0], bbox.min.y / scale, bbox.max.y / scale)
             })
           })
       })
     }
 
-    // for (const entity of growQuery.exit(world)) {
-    //   const plateComponent = getComponent(entity, AvatarEffectComponent)
-    //   addComponent(entity, TweenComponent, {
-    //     tween: new Tween<any>(plateComponent)
-    //       .to(
-    //         {
-    //           opacityMultiplier: 0
-    //         },
-    //         2000
-    //       )
-    //       .start()
-    //       .onComplete(async () => {
-    //         removeComponent(entity, TweenComponent)
-    //       })
-    //   })
-    // }
+    for (const entity of growQuery(world)) {
+      const object = getComponent(entity, Object3DComponent).value
+      object.updateWorldMatrix(true, true)
+    }
 
     for (const entity of commonQuery(world)) {
       const object = getComponent(entity, Object3DComponent).value
@@ -138,18 +213,22 @@ export default async function AvatarLoadingSystem(world: World) {
       }
     }
 
+    for (const entity of dissolveQuery.enter(world)) {
+      const effectComponent = getComponent(entity, AvatarEffectComponent)
+      if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
+        getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
+    }
+
     for (const entity of dissolveQuery(world)) {
-      // console.log("dissolve")
-      const objecteffect = getComponent(entity, AvatarDissolveComponent).effect
+      const disolveEffect = getComponent(entity, AvatarDissolveComponent).effect
 
-      if (objecteffect.update(delta)) {
+      if (disolveEffect.update(delta)) {
         removeComponent(entity, AvatarDissolveComponent)
-        const object = getComponent(entity, Object3DComponent).value
-        const plateComponent = getComponent(entity, AvatarEffectComponent)
+        const effectComponent = getComponent(entity, AvatarEffectComponent)
+        const avatarObject = getComponent(effectComponent.sourceEntity, Object3DComponent).value
 
-        // console.log(object, plateComponent.originMaterials)
-        plateComponent.originMaterials.forEach(({ id, material }) => {
-          object.traverse((obj) => {
+        effectComponent.originMaterials.forEach(({ id, material }) => {
+          avatarObject.traverse((obj) => {
             if (obj.uuid === id) {
               obj['material'] = material
             }
@@ -157,7 +236,7 @@ export default async function AvatarLoadingSystem(world: World) {
         })
 
         setComponent(entity, TweenComponent, {
-          tween: new Tween<any>(plateComponent)
+          tween: new Tween<any>(effectComponent)
             .to(
               {
                 opacityMultiplier: 0
@@ -166,16 +245,15 @@ export default async function AvatarLoadingSystem(world: World) {
             )
             .start()
             .onComplete(async () => {
-              removeComponent(entity, TweenComponent)
-
-              const object = getComponent(entity, Object3DComponent).value
-              let pillar: any = null!
-              let plate: any = null!
-
-              const childrens = object.children
-              for (let i = 0; i < childrens.length; i++) {
-                if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
-                if (childrens[i].name === 'plate_obj') plate = childrens[i]
+              const objects = getComponent(entity, GroupComponent)
+              let pillar: Mesh = null!
+              let plate: Mesh = null!
+              for (const obj of objects) {
+                const childrens = obj.children as Mesh[]
+                for (let i = 0; i < childrens.length; i++) {
+                  if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+                  if (childrens[i].name === 'plate_obj') plate = childrens[i]
+                }
               }
 
               if (pillar !== null) {
@@ -183,7 +261,7 @@ export default async function AvatarLoadingSystem(world: World) {
                   if (child['material']) child['material'].dispose()
                 })
 
-                pillar.parent.remove(pillar)
+                pillar.removeFromParent()
               }
 
               if (plate !== null) {
@@ -191,14 +269,10 @@ export default async function AvatarLoadingSystem(world: World) {
                   if (child['material']) child['material'].dispose()
                 })
 
-                plate.parent.remove(plate)
+                plate.removeFromParent()
               }
 
-              removeComponent(entity, AvatarEffectComponent)
-
-              // if (isEntityLocalClient(entity)) {
-              //   addComponent(entity, LocalInputTagComponent, {})
-              // }
+              removeEntity(entity)
             })
         })
       }

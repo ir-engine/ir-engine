@@ -20,6 +20,7 @@ interface Props {
   rowsPerPage: number
   count: number
   fieldOrder?: string
+  fieldOrderBy?: string
   allowSort?: boolean
   setSortField?: (fueld: string) => void
   setFieldOrder?: (order: string) => void
@@ -100,7 +101,7 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedT
             className={styles.tableCellHeader}
             style={{ minWidth: headCell.minWidth }}
           >
-            {(headCell.id as any) === 'action' ? (
+            {(headCell.id as any) === 'action' || (headCell.id as any) === 'select' ? (
               <span>{headCell.label} </span>
             ) : (
               <TableSortLabel
@@ -131,6 +132,7 @@ const TableComponent = ({
   rowsPerPage,
   count,
   fieldOrder,
+  fieldOrderBy,
   allowSort,
   setSortField,
   setFieldOrder,
@@ -138,7 +140,7 @@ const TableComponent = ({
   handleRowsPerPageChange
 }: Props) => {
   const [order, setOrder] = React.useState<Order>(fieldOrder === 'desc' ? 'desc' : 'asc')
-  const [orderBy, setOrderBy] = React.useState<keyof Data>(column[0].id)
+  const [orderBy, setOrderBy] = React.useState<keyof Data>(fieldOrderBy ? fieldOrderBy : column[0].id)
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')

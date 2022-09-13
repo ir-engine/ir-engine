@@ -4,7 +4,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -20,7 +20,6 @@ import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
 interface Props {
-  isPublicAvatar?: boolean
   changeActiveMenu: Function
 }
 
@@ -28,13 +27,13 @@ let scene: Scene
 let camera: PerspectiveCamera
 let renderer: WebGLRenderer = null!
 
-const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
+const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [hover, setHover] = useState(false)
-  const [showLoading, setShowLoading] = useState(true)
+  const [showLoading, setShowLoading] = useState(false)
   const [error, setError] = useState('')
   const [obj, setObj] = useState<any>(null)
   const [entity, setEntity] = useState<Entity | undefined>()
@@ -68,7 +67,6 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     const url = event.data
 
     if (url && url.toString().toLowerCase().startsWith('http')) {
-      setShowLoading(true)
       setAvatarUrl(url)
       try {
         const assetType = AssetLoader.getAssetType(url)
@@ -87,7 +85,6 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
               setError(err.message)
               console.log(err.message)
             })
-            .finally(() => setShowLoading(false))
         }
       } catch (error) {
         console.error(error)
@@ -101,12 +98,6 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
   const openProfileMenu = (e) => {
     e.preventDefault()
     changeActiveMenu(Views.Profile)
-  }
-
-  const closeMenu = (e) => {
-    e.preventDefault()
-    changeActiveMenu(null)
-    uploadAvatar()
   }
 
   const uploadAvatar = () => {
@@ -123,8 +114,10 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
-      changeActiveMenu(Views.Profile)
+      setShowLoading(true)
+      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
+      setShowLoading(false)
+      changeActiveMenu(null)
     })
   }
 
@@ -185,7 +178,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
             width: '50px',
             background: hover ? '#5f5ff1' : '#fff'
           }}
-          onClick={closeMenu}
+          onClick={uploadAvatar}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >

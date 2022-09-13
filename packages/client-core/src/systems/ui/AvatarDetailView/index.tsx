@@ -2,9 +2,11 @@ import { createState } from '@hookstate/core'
 import { useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { CircleBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
+import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
@@ -13,14 +15,16 @@ import { useUserState } from '../../../user/services/UserService'
 import styleString from './index.scss'
 
 export function createAvatarDetailView(id: string) {
-  const videoPreviewMesh = new Mesh(new CircleBufferGeometry(0.25, 32), new MeshBasicMaterial())
-  return createXRUI(
+  const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial())
+  const ui = createXRUI(
     AvatarDetailView,
     createState({
       id,
       videoPreviewMesh
     })
   )
+  addComponent(ui.entity, NameComponent, { name: 'avatar-detail-ui-' + id })
+  return ui
 }
 
 interface AvatarDetailState {

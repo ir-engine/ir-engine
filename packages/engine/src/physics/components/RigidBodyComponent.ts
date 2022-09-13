@@ -1,7 +1,9 @@
 import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
+import { Types } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { createMappedComponent, defineComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 
 interface RigidBodyComponentType {
   body: RigidBody
@@ -11,7 +13,33 @@ interface RigidBodyComponentType {
   previousAngularVelocity: Vector3
 }
 
-export const RigidBodyComponent = createMappedComponent<RigidBodyComponentType>('RigidBodyComponent')
+const { f32 } = Types
+const Vector3Schema = { x: f32, y: f32, z: f32 }
+const QuaternionSchema = { x: f32, y: f32, z: f32, w: f32 }
+const SCHEMA = {
+  previousPosition: Vector3Schema,
+  previousRotation: QuaternionSchema,
+  previousLinearVelocity: Vector3Schema,
+  previousAngularVelocity: Vector3Schema
+}
+
+export const RigidBodyComponent = defineComponent<RigidBodyComponentType, typeof SCHEMA, RigidBodyComponentType>({
+  name: 'RigidBodyComponent',
+  schema: SCHEMA,
+
+  onRemove: (entity, component) => {
+    const world = Engine.instance.currentWorld.physicsWorld
+    const rigidBody = component.body
+    if (rigidBody) {
+      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
+      if (world.bodies.contains(rigidBody.handle)) {
+        world.removeRigidBody(rigidBody)
+      }
+      removeComponent(entity, RigidBodyTypeTagComponent)
+    }
+  }
+})
+
 export const RigidBodyDynamicTagComponent = createMappedComponent<true>('RigidBodyDynamicTagComponent')
 export const RigidBodyFixedTagComponent = createMappedComponent<true>('RigidBodyFixedTagComponent')
 export const RigidBodyKinematicPositionBasedTagComponent = createMappedComponent<true>(

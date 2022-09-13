@@ -8,11 +8,11 @@ export default function obj3dFromUuid(uuid, world: World = Engine.instance.curre
   if (!idMap.has(uuid)) {
     const result = world.scene.getObjectByProperty('uuid', uuid)
     if (result) return result
-    else console.error('Error finding entity node with uuid ' + uuid)
+    else throw Error('Error finding entity node with uuid ' + uuid)
   }
   const node = idMap.get(uuid)!
   if (!hasComponent(node.entity, Object3DComponent)) {
-    console.error('Entity Node', node, 'does not have an Object3DComponent')
+    throw Error('Entity Node' + node + 'does not have an Object3DComponent')
   }
   return getComponent(node.entity, Object3DComponent).value
 }

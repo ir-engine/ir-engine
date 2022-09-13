@@ -15,20 +15,6 @@ import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { EngineRenderer } from './WebGLRendererSystem'
 
-type EngineRendererStateType = {
-  qualityLevel: number
-  automatic: boolean
-  // usePBR: boolean,
-  usePostProcessing: boolean
-  useShadows: boolean
-  physicsDebugEnable: boolean
-  avatarDebugEnable: boolean
-  renderMode: RenderModesType
-  nodeHelperVisibility: boolean
-  gridVisibility: boolean
-  gridHeight: number
-}
-
 export const EngineRendererState = defineState({
   name: 'EngineRendererState',
   initial: () => ({
@@ -37,8 +23,7 @@ export const EngineRendererState = defineState({
     // usePBR: true,
     usePostProcessing: isMobile ? false : true,
     useShadows: isMobile ? false : true,
-    physicsDebugEnable: false,
-    avatarDebugEnable: false,
+    debugEnable: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
     gridVisibility: false,
@@ -47,52 +32,43 @@ export const EngineRendererState = defineState({
 })
 
 export function restoreEngineRendererData() {
-  if (Engine.instance.isEditor) {
-    ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v: boolean) => {
-      if (typeof v !== 'undefined')
-        dispatchAction(EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: Boolean(v) }))
-    })
-    ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v: boolean) => {
-      if (typeof v !== 'undefined')
-        dispatchAction(EngineRendererAction.setAvatarDebug({ avatarDebugEnable: Boolean(v) }))
-    })
-    ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v: RenderModesType) => {
-      if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.changedRenderMode({ renderMode: v }))
-    })
-    ClientStorage.get(RenderSettingKeys.NODE_HELPER_ENABLE).then((v: boolean) => {
-      if (typeof v !== 'undefined')
-        dispatchAction(EngineRendererAction.changeNodeHelperVisibility({ visibility: Boolean(v) }))
-    })
-    ClientStorage.get(RenderSettingKeys.GRID_VISIBLE).then((v: boolean) => {
-      if (typeof v !== 'undefined')
-        dispatchAction(EngineRendererAction.changeGridToolVisibility({ visibility: Boolean(v) }))
-    })
-    ClientStorage.get(RenderSettingKeys.GRID_HEIGHT).then((v: number) => {
-      if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.changeGridToolHeight({ gridHeight: v }))
-    })
-  } else {
-    ClientStorage.get(RenderSettingKeys.QUALITY_LEVEL).then((v: number) => {
-      if (typeof v !== 'undefined')
-        dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: MathUtils.clamp(v, 0, 5) }))
-    })
-    ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v: boolean) => {
-      if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.setAutomatic({ automatic: Boolean(v) }))
-    })
-    ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v: boolean) => {
-      if (typeof v !== 'undefined')
-        dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: Boolean(v) }))
-    })
-    ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v: boolean) => {
-      if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.setShadows({ useShadows: Boolean(v) }))
-    })
-  }
+  ClientStorage.get(RenderSettingKeys.DEBUG_ENABLE).then((v: boolean) => {
+    if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.setDebug({ debugEnable: Boolean(v) }))
+  })
+  ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v: RenderModesType) => {
+    if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.changedRenderMode({ renderMode: v }))
+  })
+  ClientStorage.get(RenderSettingKeys.NODE_HELPER_ENABLE).then((v: boolean) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(EngineRendererAction.changeNodeHelperVisibility({ visibility: Boolean(v) }))
+  })
+  ClientStorage.get(RenderSettingKeys.GRID_VISIBLE).then((v: boolean) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(EngineRendererAction.changeGridToolVisibility({ visibility: Boolean(v) }))
+  })
+  ClientStorage.get(RenderSettingKeys.GRID_HEIGHT).then((v: number) => {
+    if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.changeGridToolHeight({ gridHeight: v }))
+  })
+  ClientStorage.get(RenderSettingKeys.QUALITY_LEVEL).then((v: number) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: MathUtils.clamp(v, 0, 5) }))
+  })
+  ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v: boolean) => {
+    if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.setAutomatic({ automatic: Boolean(v) }))
+  })
+  ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v: boolean) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: Boolean(v) }))
+  })
+  ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v: boolean) => {
+    if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.setShadows({ useShadows: Boolean(v) }))
+  })
 }
 
 function updateState(): void {
   const state = getState(EngineRendererState)
 
-  dispatchAction(EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: state.physicsDebugEnable.value }))
-  dispatchAction(EngineRendererAction.setAvatarDebug({ avatarDebugEnable: state.avatarDebugEnable.value }))
+  dispatchAction(EngineRendererAction.setDebug({ debugEnable: state.debugEnable.value }))
 
   if (Engine.instance.isEditor) {
     changeRenderMode(state.renderMode.value)
@@ -158,16 +134,10 @@ export class EngineRendererReceptor {
     ClientStorage.set(RenderSettingKeys.USE_SHADOWS, action.useShadows)
   }
 
-  static setPhysicsDebug(action: typeof EngineRendererAction.setPhysicsDebug.matches._TYPE) {
+  static setDebug(action: typeof EngineRendererAction.setDebug.matches._TYPE) {
     const s = getState(EngineRendererState)
-    s.merge({ physicsDebugEnable: action.physicsDebugEnable })
-    ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, action.physicsDebugEnable)
-  }
-
-  static setAvatarDebug(action: typeof EngineRendererAction.setAvatarDebug.matches._TYPE) {
-    const s = getState(EngineRendererState)
-    s.merge({ avatarDebugEnable: action.avatarDebugEnable })
-    ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, action.avatarDebugEnable)
+    s.merge({ debugEnable: action.debugEnable })
+    ClientStorage.set(RenderSettingKeys.DEBUG_ENABLE, action.debugEnable)
   }
 
   static changedRenderMode(action: typeof EngineRendererAction.changedRenderMode.matches._TYPE) {
@@ -205,7 +175,7 @@ export class EngineRendererReceptor {
 export class EngineRendererAction {
   static restoreStorageData = defineAction({
     type: 'xre.renderer.RESTORE_ENGINE_RENDERER_STORAGE_DATA' as const,
-    state: matches.object as Validator<unknown, EngineRendererStateType>
+    state: matches.object
   })
 
   static setQualityLevel = defineAction({
@@ -233,14 +203,9 @@ export class EngineRendererAction {
     useShadows: matches.boolean
   })
 
-  static setPhysicsDebug = defineAction({
-    type: 'xre.renderer.PHYSICS_DEBUG_CHANGED' as const,
-    physicsDebugEnable: matches.boolean
-  })
-
-  static setAvatarDebug = defineAction({
-    type: 'xre.renderer.AVATAR_DEBUG_CHANGED' as const,
-    avatarDebugEnable: matches.boolean
+  static setDebug = defineAction({
+    type: 'xre.renderer.DEBUG_CHANGED' as const,
+    debugEnable: matches.boolean
   })
 
   static changedRenderMode = defineAction({

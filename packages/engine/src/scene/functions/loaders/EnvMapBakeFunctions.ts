@@ -3,19 +3,20 @@ import { Mesh, MeshStandardMaterial, Object3D, Scene, Vector3 } from 'three'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import {
   EnvMapBakeComponent,
   EnvMapBakeComponentType,
   SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '../../components/EnvMapBakeComponent'
+import { GroupComponent } from '../../components/GroupComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 
 export const deserializeEnvMapBake: ComponentDeserializeFunction = (entity: Entity, data: EnvMapBakeComponentType) => {
   const props = parseEnvMapBakeProperties(data)
-  addComponent(entity, EnvMapBakeComponent, props)
+  setComponent(entity, EnvMapBakeComponent, props)
 }
 
 export const serializeEnvMapBake: ComponentSerializeFunction = (entity) => {
@@ -32,16 +33,19 @@ export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene
   traverseEntityNode(world.entityTree.rootNode, (node) => {
     if (node === world.entityTree.rootNode || hasComponent(node.entity, PreventBakeTagComponent)) return
 
-    const obj3d = getComponent(node.entity, Object3DComponent)?.value as Mesh<any, MeshStandardMaterial>
+    const group = getComponent(node.entity, GroupComponent) as unknown as Mesh<any, MeshStandardMaterial>[]
 
-    if (obj3d) {
-      const newObj = obj3d.clone(false)
-      if (newObj.material) {
-        newObj.material = obj3d.material.clone()
-        newObj.material.roughness = 1
+    if (group) {
+      for (const obj of group) {
+        const newObj = obj.clone(true)
+        if (node.parentEntity) parents[node.parentEntity].add(newObj)
+        newObj.traverse((o: any) => {
+          if (o.material) {
+            o.material = obj.material.clone()
+            o.material.roughness = 1
+          }
+        })
       }
-      if (node.parentEntity) parents[node.parentEntity].add(newObj)
-      parents[node.entity] = newObj
     }
   })
 

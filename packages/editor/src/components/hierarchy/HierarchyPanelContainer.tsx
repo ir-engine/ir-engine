@@ -78,7 +78,7 @@ function getModelNodesFromTreeWalker(
     const isCollapsed = collapsedNodes[node.entityNode.entity]
     if (showObject3Ds && hasComponent(node.entityNode.entity, ModelComponent)) {
       const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
-      if (!obj3d || obj3d === Engine.instance.currentWorld.scene) continue
+      if (!obj3d) continue
       node.isLeaf = false
       if (isCollapsed) continue
       let childIndex = node.childIndex
@@ -119,7 +119,9 @@ export default function HierarchyPanel() {
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
   const nodeSearch: HeirarchyTreeNodeType[] = []
-  const [selectedNode, setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
+  const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
+  const editorState = useEditorState()
+  const setSelectedNode = (selection) => !editorState.lockPropertiesPanel.value && _setSelectedNode(selection)
   const { searchHierarchy } = useContext(AppContext)
   const showObject3DInHierarchy = useEditorState().showObject3DInHierarchy
 
@@ -204,7 +206,7 @@ export default function HierarchyPanel() {
 
   useEffect(() => {
     onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChangeCounter.value])
+  }, [selectionState.objectChangeCounter])
 
   /* Event handlers */
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {

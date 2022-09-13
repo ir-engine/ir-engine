@@ -12,7 +12,7 @@ import {
   Mesh,
   MeshStandardMaterial,
   Object3D,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   Quaternion,
   RawShaderMaterial,
   Texture,
@@ -26,15 +26,21 @@ import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../../assets/classes/DependencyTree'
 import { AssetClass } from '../../../assets/enum/AssetClass'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
-import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
+import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { setCallback } from '../../components/CallbackComponent'
+import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 import {
   GrassProperties,
   InstancingComponent,
@@ -51,7 +57,7 @@ import {
   VertexProperties
 } from '../../components/InstancingComponent'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
-import { UpdatableComponent } from '../../components/UpdatableComponent'
+import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
 
@@ -296,6 +302,14 @@ export const deserializeInstancing: ComponentDeserializeFunction = (entity: Enti
   if (scatterProps.state === ScatterState.STAGING) {
     scatterProps.state = ScatterState.UNSTAGED
   }
+  addComponent(entity, InstancingComponent, scatterProps)
+}
+
+export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
+  if (!getComponent(entity, GroupComponent)?.[0]) {
+    addObjectToGroup(entity, new Object3D())
+  }
+  const scatterProps = getComponent(entity, InstancingComponent)
   if (scatterProps.surface) {
     const eNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
     DependencyTree.add(
@@ -308,7 +322,7 @@ export const deserializeInstancing: ComponentDeserializeFunction = (entity: Enti
       })
     )
   }
-  addComponent(entity, InstancingComponent, scatterProps)
+
   if (scatterProps.state === ScatterState.STAGED) {
     const executeStaging = () => {
       addComponent(entity, InstancingStagingComponent, {})
@@ -548,7 +562,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     const grassProps = props as GrassProperties
     await loadGrassTextures(grassProps)
     //samplers
-    grassGeometry = new PlaneBufferGeometry(grassProps.bladeWidth.mu, grassProps.bladeHeight.mu, 1, grassProps.joints)
+    grassGeometry = new PlaneGeometry(grassProps.bladeWidth.mu, grassProps.bladeHeight.mu, 1, grassProps.joints)
 
     grassGeometry.translate(0, grassProps.bladeHeight.mu / 2, 0)
 
@@ -805,26 +819,9 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       result = new Mesh()
       break
   }
-
-  let obj3d = getComponent(entity, Object3DComponent)
-  if (!obj3d) {
-    const val = new Object3D() as Object3DWithEntity
-    val.entity = entity
-    let parentEntity = world.entityTree.entityNodeMap.get(entity)?.parentEntity
-    let parent: Object3D = world.scene
-    while (parentEntity !== undefined) {
-      if (hasComponent(parentEntity, Object3DComponent)) {
-        parent = getComponent(parentEntity, Object3DComponent).value
-        break
-      } else {
-        parentEntity = world.entityTree.entityNodeMap.get(parentEntity)?.parentEntity
-      }
-    }
-    parent.add(val)
-    obj3d = addComponent(entity, Object3DComponent, { value: val })
-  }
-  const val = obj3d.value as UpdateableObject3D
-  val.name = `${result.name} Base`
+  if (!getComponent(entity, GroupComponent)?.[0]) addObjectToGroup(entity, new Object3D())
+  const obj3d = getComponent(entity, GroupComponent)[0]
+  obj3d.name = `${result.name} Base`
   const updates: ((dt: number) => void)[] = []
   switch (scatter.mode) {
     case ScatterMode.GRASS:
@@ -845,11 +842,11 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
           iterateEntityNode(
             rootNode,
             (node) => {
-              const obj3d = getComponent(node.entity, Object3DComponent).value
+              const obj3d = getComponent(node.entity, GroupComponent)[0]
               ;(result as InstancedMesh).setMatrixAt(instanceIdx, obj3d.matrix)
               instanceIdx += 1
             },
-            (node) => node !== rootNode && hasComponent(node.entity, Object3DComponent, world)
+            (node) => node !== rootNode && hasComponent(node.entity, GroupComponent, world)
           )
           ;(result as InstancedMesh).instanceMatrix.needsUpdate = true
         }
@@ -861,10 +858,10 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     if (!hasComponent(entity, UpdatableComponent)) {
       addComponent(entity, UpdatableComponent, true)
     }
-    val.update = (dt) => updates.forEach((update) => update(dt))
+    setCallback(entity, UpdatableCallback, (dt) => updates.forEach((update) => update(dt)))
   }
   result.frustumCulled = false
-  val.add(result)
+  obj3d.add(result)
   scatter.state = ScatterState.STAGED
   const eNode = world.entityTree.entityNodeMap.get(entity)!
   dispatchAction(InstancingActions.instancingStaged({ uuid: eNode.uuid }))
@@ -872,8 +869,9 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
 
 export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
   const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
-  const obj3d = getComponent(entity, Object3DComponent)?.value
+  const group = getComponent(entity, GroupComponent)
+  const obj3d = group.pop()
   obj3d?.removeFromParent()
-  removeComponent(entity, Object3DComponent, world)
+  if (group.length === 0) removeComponent(entity, GroupComponent, world)
   comp.state = ScatterState.UNSTAGED
 }

@@ -10,6 +10,7 @@ import { getState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
@@ -19,10 +20,11 @@ import { InputAlias } from '../../input/types/InputAlias'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
+import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -30,12 +32,12 @@ import { setTransformComponent } from '../../transform/components/TransformCompo
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
+  Component,
   ComponentType,
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent,
-  MappedComponent
+  hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTreeFunctions'
@@ -55,31 +57,24 @@ const logger = multiLogger.child({ component: 'engine:ecs:World' })
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
-    bitecs.createWorld(this, 1000)
+    bitecs.createWorld(this)
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
-    // this.scene.autoUpdate = false
-    this.sceneEntity = createEntity()
-    addComponent(this.sceneEntity, NameComponent, { name: 'scene' })
-    addComponent(this.sceneEntity, PersistTagComponent, true)
-    addComponent(this.sceneEntity, VisibleComponent, true)
-    setTransformComponent(this.sceneEntity)
-    if (isMobile) addComponent(this.sceneEntity, SimpleMaterialTagComponent, true)
-
     this.localOriginEntity = createEntity()
     addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
-    addComponent(this.localOriginEntity, PersistTagComponent, true)
     setTransformComponent(this.localOriginEntity)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
-    addComponent(this.cameraEntity, PersistTagComponent, true)
     addComponent(this.cameraEntity, VisibleComponent, true)
-    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
     setTransformComponent(this.cameraEntity)
+    addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
 
     initializeEntityTree(this)
+
+    /** @todo */
+    // this.scene.matrixAutoUpdate = false
     this.scene.layers.set(ObjectLayers.Scene)
   }
 
@@ -178,11 +173,6 @@ export class World {
   >()
 
   /**
-   * Reference to the three.js perspective camera object.
-   */
-  camera: PerspectiveCamera | OrthographicCamera = new PerspectiveCamera(60, 1, 0.1, 10000)
-
-  /**
    * The scene entity
    */
   sceneEntity: Entity = NaN as Entity
@@ -196,6 +186,13 @@ export class World {
    * The camera entity
    */
   cameraEntity: Entity = NaN as Entity
+
+  /**
+   * Reference to the three.js camera object.
+   */
+  get camera() {
+    return getComponent(this.cameraEntity, CameraComponent).camera
+  }
 
   /**
    * The local client entity
@@ -217,7 +214,7 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  activePortal = null as ReturnType<typeof PortalComponent.get> | null
+  activePortal = null as ComponentType<typeof PortalComponent> | null
 
   /**
    * Custom systems injected into this world
@@ -316,7 +313,7 @@ export class World {
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
+  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
     return (
       this.getOwnedNetworkObjects(userId).find((eid) => {
         return hasComponent(eid, component, this)
@@ -372,6 +369,6 @@ export function createWorld() {
 }
 
 export function destroyWorld(world: World) {
-  bitecs.resetWorld(world)
-  bitecs.deleteWorld(world)
+  /** @todo this is broken - re-enable with next bitecs update */
+  // bitecs.deleteWorld(world)
 }

@@ -1,93 +1,40 @@
 import assert from 'assert'
-import { Object3D } from 'three'
 
 import { createEngine } from '../../initializeEngine'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
+import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { Engine } from '../classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './ComponentFunctions'
-import { unloadAllEntities, unloadScene } from './EngineFunctions'
+import { unloadScene } from './EngineFunctions'
 import { createEntity } from './EntityFunctions'
 
 describe('EngineFunctions', () => {
-  describe('unloadAllEntities', () => {
+  describe('unloadScene', () => {
     it('can unload all scene entities', () => {
       createEngine()
       const world = Engine.instance.currentWorld
-      const object3dQuery = defineQuery([Object3DComponent])
-      const persistQuery = defineQuery([PersistTagComponent])
+      const groupQuery = defineQuery([GroupComponent])
+      const sceneObjectQuery = defineQuery([SceneObjectComponent])
 
       // create a bunch of entities
-      addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
-      addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
-      addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
-      addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
-      const persistedEntity = createEntity()
-      addComponent(persistedEntity, Object3DComponent, { value: new Object3D() })
-      addComponent(persistedEntity, PersistTagComponent, true)
+      addComponent(createEntity(), GroupComponent, [])
+      const sceneEntity = createEntity()
+      addComponent(sceneEntity, GroupComponent, [])
+      addComponent(sceneEntity, SceneObjectComponent, true)
 
-      const objectEntities = object3dQuery(world)
+      const groupEntities = groupQuery(world)
 
-      // add obejcts to scene
-      for (const entity of objectEntities)
-        Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
+      // camera entity will have Object3DComponent, so 3
+      assert.equal(groupEntities.length, 3)
 
-      assert.equal(objectEntities.length, 6)
-
-      unloadAllEntities(world, true)
-
-      assert.equal(object3dQuery(world).length, 0)
+      unloadScene(world)
+      // camera entity and non scene entity shoulder persist
+      assert.equal(groupQuery(world).length, 2)
 
       // should clean up world entity too
-      assert.equal(hasComponent(world.sceneEntity, PersistTagComponent), false)
-      const persistedEntites = persistQuery(world)
+      assert.equal(hasComponent(world.sceneEntity, SceneObjectComponent), false)
+      const persistedEntites = sceneObjectQuery(world)
       assert.equal(persistedEntites.length, 0)
     })
-
-    it('can unload all non-persisted scene entities', () => {
-      createEngine()
-      const world = Engine.instance.currentWorld
-      const getEntities = defineQuery([Object3DComponent])
-      const persistQuery = defineQuery([PersistTagComponent])
-
-      // create a bunch of entities
-      addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
-      addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
-      addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
-      addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
-      const persistedEntity = createEntity()
-      addComponent(persistedEntity, Object3DComponent, { value: new Object3D() })
-      addComponent(persistedEntity, PersistTagComponent, true)
-
-      const objectEntities = getEntities(world)
-
-      // add obejcts to scene
-      for (const entity of objectEntities)
-        Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
-
-      assert.equal(objectEntities.length, 6)
-
-      unloadAllEntities(world, false)
-
-      const persistedObjectEntites = getEntities(world)
-      // should keep persisted entity
-      assert.equal(persistedObjectEntites.length, 2)
-      assert(hasComponent(persistedObjectEntites[0], Object3DComponent))
-      assert(hasComponent(persistedObjectEntites[0], PersistTagComponent))
-      assert(hasComponent(world.sceneEntity, PersistTagComponent))
-
-      const persistedEntites = persistQuery(world)
-      assert.equal(persistedEntites.length, 4)
-    })
   })
-
-  // describe('unloadScene', () => {
-
-  //   it('can unload scene while persisting', () => {
-
-  //     unloadScene()
-
-  //   })
-
-  // })
 })

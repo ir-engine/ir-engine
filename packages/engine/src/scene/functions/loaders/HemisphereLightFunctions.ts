@@ -11,8 +11,10 @@ import {
   addComponent,
   getComponent,
   getComponentCountOfType,
-  hasComponent
+  hasComponent,
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import {
   HemisphereLightComponent,
   HemisphereLightComponentType,
@@ -25,19 +27,18 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (
   data: HemisphereLightComponentType
 ) => {
   const props = parseHemisphereLightProperties(data)
-  addComponent(entity, HemisphereLightComponent, props)
+  setComponent(entity, HemisphereLightComponent, props)
 }
 
 export const updateHemisphereLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, HemisphereLightComponent)
 
-  if (!hasComponent(entity, Object3DComponent)) {
-    const light = new HemisphereLight()
-    addComponent(entity, Object3DComponent, { value: light })
+  if (!component.light) {
+    component.light = new HemisphereLight()
+    addObjectToGroup(entity, component.light)
   }
 
-  const light = getComponent(entity, Object3DComponent)?.value as HemisphereLight
-
+  const light = component.light
   light.groundColor = component.groundColor
   light.color = component.skyColor
   light.intensity = component.intensity

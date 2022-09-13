@@ -25,11 +25,17 @@ function createChatDetailState() {
 const ChatDetailView = () => {
   const [unreadMessages, setUnreadMessages] = useState(false)
 
-  const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
     chatWindowOpen: true,
     setUnreadMessages,
     messageRefInput: null!
   })
+
+  const sortedMessages = activeChannel?.messages?.get({ noproxy: true })?.length
+    ? [...activeChannel.messages.get({ noproxy: true })].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+    : []
 
   const user = useAuthState().user
 
@@ -47,7 +53,7 @@ const ChatDetailView = () => {
                   <div key={message.id} className="selfEnd noMargin">
                     <div className="dFlex">
                       <div className="msgNotification mx2">
-                        <p className="greyText">{message.text}</p>
+                        <p className="shadowText">{message.text}</p>
                       </div>
                     </div>
                   </div>

@@ -1,6 +1,7 @@
 import { Color, Vector2, Vector3 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { Clouds } from '../classes/Clouds'
 
 export type CloudComponentType = {
   texture: string
@@ -11,6 +12,7 @@ export type CloudComponentType = {
   spriteScaleRange: Vector2
   fogColor: Color
   fogRange: Vector2
+  clouds?: Clouds
 }
 
 export const CloudComponent = createMappedComponent<CloudComponentType>('CloudComponent')

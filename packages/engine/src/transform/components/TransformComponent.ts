@@ -1,7 +1,7 @@
 import { Types } from 'bitecs'
-import { Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -10,6 +10,7 @@ export type TransformComponentType = {
   position: Vector3
   rotation: Quaternion
   scale: Vector3
+  matrix: Matrix4
 }
 
 const { f32 } = Types
@@ -21,20 +22,26 @@ export const TransformSchema = {
   scale: Vector3Schema
 }
 
-export const TransformComponent = createMappedComponent<TransformComponentType, typeof TransformSchema>(
-  'TransformComponent',
-  TransformSchema
-)
-// createComponent('TransformComponent', SCHEMA).withMap<TransformComponentType>()
+export const TransformComponent = createMappedComponent<
+  TransformComponentType & { matrixInverse: Matrix4 },
+  typeof TransformSchema
+>('TransformComponent', TransformSchema)
 
 globalThis.TransformComponent = TransformComponent
 
-export function setTransformComponent(entity: Entity) {
+export function setTransformComponent(
+  entity: Entity,
+  position = new Vector3(),
+  rotation = new Quaternion(),
+  scale = new Vector3(1, 1, 1)
+) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
   return setComponent(entity, TransformComponent, {
-    position: createVector3Proxy(TransformComponent.position, entity, dirtyTransforms),
-    rotation: createQuaternionProxy(TransformComponent.rotation, entity, dirtyTransforms),
-    scale: createVector3Proxy(TransformComponent.scale, entity, dirtyTransforms).setScalar(1)
+    position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, position),
+    rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, rotation),
+    scale: proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, scale),
+    matrix: new Matrix4(),
+    matrixInverse: new Matrix4()
   })
 }
 

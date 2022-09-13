@@ -91,6 +91,7 @@ export default class EditorDirectionalLightHelper extends Object3D {
   }
 
   update() {
+    if (!this.directionalLight) return
     if (this.color !== undefined) {
       this.lightPlane.material.color.set(this.color)
       this.targetLine.material.color.set(this.color)

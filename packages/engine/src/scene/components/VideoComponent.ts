@@ -1,18 +1,21 @@
-import type Hls from 'hls.js'
+import { DoubleSide, Mesh, MeshBasicMaterial } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { PLANE_GEO } from './ImageComponent'
 
-export type VideoComponentType = {
-  elementId: string
-  maintainAspectRatio: boolean
-  hls?: Hls
-}
+export const VideoComponent = defineComponent({
+  name: 'XRE_video',
 
-export const VideoComponent = createMappedComponent<VideoComponentType>('VideoComponent')
+  onAdd: (entity, json) => {
+    const mesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
+    mesh.material.side = DoubleSide
+    return { mesh }
+  },
+
+  onRemove: (entity, component) => {
+    component.mesh.removeFromParent()
+    component.mesh.material.map?.dispose()
+  }
+})
 
 export const SCENE_COMPONENT_VIDEO = 'video'
-export const VIDEO_MESH_NAME = 'VideoMesh'
-export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
-  elementId: 'video-' + Date.now(),
-  maintainAspectRatio: true
-} as VideoComponentType

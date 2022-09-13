@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -241,7 +241,15 @@ const ShareMenu = (props: Props): JSX.Element => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            {t('user:usermenu.share.lbl-findFriends')}
+            {t('user:usermenu.share.party')}
+          </Button>
+          <Button
+            className={styles.friendsBtn}
+            onClick={() => props.changeActiveMenu(Views.Friends)}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
+            {t('user:usermenu.share.friends')}
           </Button>
         </div>
       </div>

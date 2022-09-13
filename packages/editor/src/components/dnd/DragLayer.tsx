@@ -68,7 +68,7 @@ export default function DragLayer() {
     if (item.multiple) {
       preview = <div>{t('editor:dnd.nodes', { count: item.value.length })}</div>
     } else {
-      preview = <div>{item.value.name}</div>
+      preview = <div>{item.value?.name || 'Node'}</div>
     }
   } else {
     // showing item type

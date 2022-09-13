@@ -6,35 +6,36 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../../classes/Clouds'
 import {
   CloudComponent,
   CloudComponentType,
   SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
 } from '../../components/CloudComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { UpdatableComponent } from '../../components/UpdatableComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 
 export const deserializeCloud: ComponentDeserializeFunction = (entity: Entity, data: CloudComponentType) => {
-  const obj3d = new Clouds(entity)
   const props = parseCloudProperties(data)
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, CloudComponent, props)
-  addComponent(entity, UpdatableComponent, true)
+  setComponent(entity, CloudComponent, props)
 }
 
 export const updateCloud: ComponentUpdateFunction = (entity: Entity) => {
-  const obj3d = getComponent(entity, Object3DComponent).value as Clouds
   const component = getComponent(entity, CloudComponent)
-  obj3d.texture = component.texture
-  obj3d.worldScale = component.worldScale
-  obj3d.dimensions = component.dimensions
-  obj3d.noiseZoom = component.noiseZoom
-  obj3d.noiseOffset = component.noiseOffset
-  obj3d.spriteScaleRange = component.spriteScaleRange
-  obj3d.fogRange = component.fogRange
-  obj3d.fogColor = component.fogColor
+  if (!component.clouds) {
+    component.clouds = new Clouds(entity)
+    addObjectToGroup(entity, component.clouds)
+  }
+  const clouds = component.clouds
+  clouds.texture = component.texture
+  clouds.worldScale = component.worldScale
+  clouds.dimensions = component.dimensions
+  clouds.noiseZoom = component.noiseZoom
+  clouds.noiseOffset = component.noiseOffset
+  clouds.spriteScaleRange = component.spriteScaleRange
+  clouds.fogRange = component.fogRange
+  clouds.fogColor = component.fogColor
+  clouds.update()
 }
 
 export const serializeCloud: ComponentSerializeFunction = (entity) => {

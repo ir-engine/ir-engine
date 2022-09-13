@@ -18,6 +18,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -68,7 +69,6 @@ export default async function MountPointSystem(world: World) {
   return () => {
     for (const entity of mountPointQuery.enter()) {
       const mountPoint = getComponent(entity, MountPointComponent)
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
       addComponent(entity, BoundingBoxComponent, {
         box: new Box3().setFromCenterAndSize(
           getComponent(entity, TransformComponent).position,
@@ -90,8 +90,8 @@ export default async function MountPointSystem(world: World) {
         if (hasComponent(avatarEntity, SittingComponent)) continue
 
         const transform = getComponent(action.targetEntity!, TransformComponent)
-        const controllerComponent = getComponent(avatarEntity, AvatarControllerComponent)
-        controllerComponent.body.setTranslation(
+        const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
+        rigidBody.body.setTranslation(
           {
             x: transform.position.x,
             y: transform.position.y + avatar.avatarHalfHeight,
@@ -99,7 +99,7 @@ export default async function MountPointSystem(world: World) {
           },
           true
         )
-        controllerComponent.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+        rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
         const sitting = addComponent(avatarEntity, SittingComponent, {
           mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
@@ -135,7 +135,7 @@ export default async function MountPointSystem(world: World) {
           origin: newPos,
           direction: new Vector3(0, -1, 0),
           maxDistance: 2,
-          flags: interactionGroups
+          groups: interactionGroups
         }
         const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 
@@ -149,8 +149,8 @@ export default async function MountPointSystem(world: World) {
           newPos.y += avatarComponent.avatarHalfHeight
         }
 
-        const controllerComponent = getComponent(entity, AvatarControllerComponent)
-        controllerComponent.body.setTranslation(newPos, true)
+        const rigidbody = getComponent(entity, RigidBodyComponent)
+        rigidbody.body.setTranslation(newPos, true)
 
         changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
         removeComponent(entity, SittingComponent)

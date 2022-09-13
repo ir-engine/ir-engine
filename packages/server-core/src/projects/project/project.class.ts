@@ -48,8 +48,8 @@ const getRemoteURLFromGitData = (project) => {
   return data.remote.origin.url
 }
 
-export const deleteProjectFilesInStorageProvider = async (projectName: string) => {
-  const storageProvider = getStorageProvider()
+export const deleteProjectFilesInStorageProvider = async (projectName: string, storageProviderName?: string) => {
+  const storageProvider = getStorageProvider(storageProviderName)
   try {
     const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
     if (existingFiles.length) {
@@ -66,10 +66,11 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
 /**
  * Updates the local storage provider with the project's current files
  * @param projectName
+ * @param storageProviderName
  * @param remove
  */
-export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
-  const storageProvider = getStorageProvider()
+export const uploadLocalProjectToProvider = async (projectName, remove = true, storageProviderName?: string) => {
+  const storageProvider = getStorageProvider(storageProviderName)
   const cacheDomain = getCacheDomain(storageProvider, true)
 
   // remove exiting storage provider files
@@ -280,10 +281,8 @@ export class Project extends Service {
       const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
       if (branchExists.length === 0) await git.checkoutLocalBranch(branchName)
       else {
-        if (data.reset) {
-          await git.branchLocal()
-        }
-        await git.checkout(branchName)
+        if (data.reset) await git.checkoutLocalBranch(branchName)
+        else await git.checkout(branchName)
       }
     } catch (err) {
       logger.error(err)

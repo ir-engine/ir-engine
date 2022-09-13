@@ -201,11 +201,11 @@ export const UploadAvatarMenu = () => {
           const uploadResponse = await AvatarService.uploadAvatarModel(avatarBlob, blob!, avatarName, false).then(
             resolve
           )
-          await AvatarService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
+          await AvatarService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName, false)
         })
       })
     } else {
-      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName)
+      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, false)
     }
 
     WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)

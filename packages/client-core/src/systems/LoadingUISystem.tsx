@@ -6,15 +6,14 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { createActionQueue } from '@xrengine/hyperflux'
 
 import { accessSceneState } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
@@ -34,7 +33,6 @@ export default async function LoadingUISystem(world: World) {
     new Promise<Texture | null>((resolve) => textureLoader.load(thumbnailUrl, resolve, null!, () => resolve(null)))
   ])
 
-  addComponent(ui.entity, PersistTagComponent, true)
   addComponent(ui.entity, NameComponent, { name: 'Loading XRUI' })
 
   const mesh = new Mesh(
@@ -50,13 +48,7 @@ export default async function LoadingUISystem(world: World) {
   setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
-    // const
-    for (const entity of localInputQuery.enter()) {
-      setTimeout(() => {
-        mesh.visible = false
-        transition.setState('OUT')
-      }, 250)
-    }
+    if (transition.state === 'OUT' && transition.alpha === 0) return
 
     mesh.quaternion.copy(Engine.instance.currentWorld.camera.quaternion).invert()
 

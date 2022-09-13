@@ -28,6 +28,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { MediaSettingsState } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
@@ -110,6 +111,11 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const channelConnectionState = useMediaInstanceConnectionState()
   const mediaHostID = Engine.instance.currentWorld.mediaNetwork?.hostId
   const currentChannelInstanceConnection = mediaHostID && channelConnectionState.instances[mediaHostID].ornull
+
+  const mediaSettingState = useHookstate(getState(MediaSettingsState))
+  const rendered =
+    mediaSettingState.immersiveMediaMode.value === 'off' ||
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaSettingState.useImmersiveMedia.value)
 
   const setVideoStream = (value) => {
     if (value?.track) setVideoTrackId(value.track.id)
@@ -332,16 +338,16 @@ export const useUserMediaWindowHook = ({ peerId }) => {
           if (videoStream.track.enabled) {
             clearInterval(originalTrackEnabledInterval)
 
-            if (!videoRef.current?.srcObject?.active || !videoRef.current?.srcObject?.getVideoTracks()[0].enabled) {
-              const newVideoTrack = videoStream.track.clone()
-              videoTrackClones.forEach((track) => track.stop())
-              setVideoTrackClones([newVideoTrack])
-              videoRef.current.srcObject = new MediaStream([newVideoTrack])
-              if (isScreen) {
-                applyScreenshareToTexture(videoRef.current)
-              }
-              setVideoDisplayReady(true)
+            // if (!videoRef.current?.srcObject?.active || !videoRef.current?.srcObject?.getVideoTracks()[0].enabled) {
+            const newVideoTrack = videoStream.track.clone()
+            videoTrackClones.forEach((track) => track.stop())
+            setVideoTrackClones([newVideoTrack])
+            videoRef.current.srcObject = new MediaStream([newVideoTrack])
+            if (isScreen) {
+              applyScreenshareToTexture(videoRef.current)
             }
+            setVideoDisplayReady(true)
+            // }
           }
         }, 100)
       }
@@ -587,7 +593,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     toggleAudio,
     toggleVideo,
     adjustVolume,
-    toggleGlobalMute
+    toggleGlobalMute,
+    rendered
   }
 }
 
@@ -619,7 +626,8 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
     toggleAudio,
     toggleVideo,
     adjustVolume,
-    toggleGlobalMute
+    toggleGlobalMute,
+    rendered
   } = useUserMediaWindowHook({ peerId })
 
   return (
@@ -637,6 +645,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
           [styles.pip]: isPiP && !isScreen,
           [styles.screenpip]: isPiP && isScreen
         })}
+        style={{ display: isSelfUser || rendered ? 'auto' : 'none' }}
         onClick={() => {
           if (isScreen && isPiP) togglePiP()
         }}

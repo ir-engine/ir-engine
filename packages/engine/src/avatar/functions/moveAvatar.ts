@@ -1,9 +1,9 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
-import { Direction } from '../../common/constants/Axis3D'
+import { AvatarDirection } from '../../common/constants/Axis3D'
 import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
@@ -13,7 +13,8 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -27,11 +28,11 @@ import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent
 import { AvatarTeleportTagComponent } from '../components/AvatarTeleportTagComponent'
 import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './createAvatar'
-import { respawnAvatar } from './respawnAvatar'
 
 const _vec3 = new Vector3()
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
+const quat180y = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 
@@ -50,9 +51,9 @@ const minimumStepSpeed = 0.1
 const avatarStepRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
-  direction: Direction.Down,
+  direction: AvatarDirection.Down,
   maxDistance: stepHeight,
-  flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+  groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
 }
 
 /**
@@ -90,9 +91,6 @@ export const moveLocalAvatar = (entity: Entity) => {
   const avatarInputState = getState(AvatarInputSettingsState)
   if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) moveAvatarWithTeleport(entity)
   else moveAvatarWithVelocity(entity)
-
-  // TODO: implement scene lower bounds parameter
-  if (controller.body.translation().y < -10) respawnAvatar(entity)
 }
 
 /**
@@ -107,13 +105,14 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const isInVR = getControlMode() === 'attached'
 
+  const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   /**
    * Do movement via velocity spring and collider velocity
    */
   const cameraDirection = camera.getWorldDirection(_vec3).setY(0).normalize()
-  const forwardOrientation = _quat.setFromUnitVectors(Direction.Forward, cameraDirection)
+  const forwardOrientation = _quat.setFromUnitVectors(AvatarDirection.Forward, cameraDirection)
 
   controller.velocitySimulator.target.copy(controller.localMovementDirection)
   controller.velocitySimulator.simulate(timeStep * (controller.isInAir ? 0.2 : 1))
@@ -123,7 +122,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   controller.currentSpeed =
     controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
 
-  const prevVelocity = controller.body.linvel()
+  const prevVelocity = rigidBody.body.linvel()
   const currentVelocity = _vec3
     .copy(velocitySpringDirection)
     .multiplyScalar(controller.currentSpeed)
@@ -144,21 +143,18 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
     }
   }
 
-  controller.body.setLinvel(currentVelocity, true)
+  rigidbody.body.setLinvel(currentVelocity, true)
 
   /**
    * Do rotation
    * - if we are in attached mode, we dont need to do any extra rotation
    *     as this is done via the webxr camera automatically
    */
-  if (getControlMode() !== 'attached') {
+  if (!isInVR) {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       rotateBodyTowardsCameraDirection(entity)
     } else {
-      const displacement = _vec3
-        .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
-        .setComponent(1, 0)
-      rotateBodyTowardsVector(entity, displacement)
+      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
     }
   }
 
@@ -170,21 +166,19 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   if (xzVelocitySqrMagnitude > minimumStepSpeed) {
     // TODO this can be improved by using a shapeCast with a plane instead of a line
     // set the raycast position to the egde of the bottom of the cylindical portion of the capsule collider in the direction of motion
-    const pos = new Vector3()
+    avatarStepRaycast.origin
       .copy(transform.position)
       .add(xzVelocity.normalize().multiplyScalar(expandedAvatarRadius).applyQuaternion(forwardOrientation))
-    pos.y += stepLowerBound + stepHeight
-    avatarStepRaycast.origin.copy(pos)
+    avatarStepRaycast.origin.y += stepLowerBound + stepHeight
 
     const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, avatarStepRaycast)
-
-    if (hits.length) {
+    if (hits.length && hits[0].collider !== controller.bodyCollider) {
       _vec3.copy(hits[0].normal as Vector3)
       const angle = _vec3.angleTo(V_010)
       if (angle < stepAngle) {
-        const pos = controller.body.translation()
+        const pos = rigidbody.body.translation()
         pos.y += stepHeight - hits[0].distance
-        controller.body.setTranslation(pos, true)
+        rigidbody.body.setTranslation(pos, true)
       }
     }
   }
@@ -202,6 +196,7 @@ export const moveAvatarWithTeleport = (entity: Entity) => {
   }
 }
 
+const quat = new Quaternion()
 /**
  * Updates the WebXR reference space, effectively moving the world to be in alignment with where the viewer should be seeing it.
  * @param entity
@@ -210,11 +205,13 @@ export const updateReferenceSpace = (entity: Entity) => {
   const refSpace = getState(XRState).originReferenceSpace.value
   if (getControlMode() === 'attached' && refSpace) {
     const avatarTransform = getComponent(entity, TransformComponent)
-    const xrRigidTransform = new XRRigidTransform(avatarTransform.position, avatarTransform.rotation)
+    // rotate 180 degrees as physics looks down +z, and webxr looks down -z
+    quat.copy(avatarTransform.rotation).multiply(quat180y)
+    const xrRigidTransform = new XRRigidTransform(avatarTransform.position, quat)
     const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
     // maybe?
-    updateXRCamera(Engine.instance.currentWorld.camera as PerspectiveCamera)
+    updateXRCamera()
   }
 }
 
@@ -245,9 +242,9 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
 
   if (checkPositionIsValid(newPosition, false)) {
     const avatar = getComponent(entity, AvatarComponent)
-    const controller = getComponent(entity, AvatarControllerComponent)
-    newPosition.y = newPosition.y + avatar.avatarHalfHeight
-    controller.body.setTranslation(newPosition, true)
+    newPosition.y += avatar.avatarHalfHeight
+    const rigidbody = getComponent(entity, RigidBodyComponent)
+    rigidbody.body.setTranslation(newPosition, true)
   } else {
     console.log('invalid position', newPosition)
   }

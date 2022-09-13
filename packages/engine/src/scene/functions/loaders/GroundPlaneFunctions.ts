@@ -1,5 +1,15 @@
-import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { CircleGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D, Vector3 } from 'three'
+import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import {
+  CircleGeometry,
+  Color,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  PlaneGeometry,
+  Vector3
+} from 'three'
 
 import {
   ComponentDeserializeFunction,
@@ -14,12 +24,14 @@ import {
   addComponent,
   getComponent,
   getComponentCountOfType,
-  hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
 import { Physics } from '../../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../../physics/functions/getInteractionGroups'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import {
@@ -27,7 +39,7 @@ import {
   GroundPlaneComponentType,
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
 } from '../../components/GroundPlaneComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { generateMeshBVH } from '../bvhWorkerPool'
 import { enableObjectLayer } from '../setObjectLayers'
@@ -37,7 +49,7 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   data: GroundPlaneComponentType
 ): Promise<void> {
   const props = parseGroundPlaneProperties(data)
-  addComponent(entity, GroundPlaneComponent, props)
+  setComponent(entity, GroundPlaneComponent, props)
 }
 
 let navigationRaycastTarget: Group
@@ -48,47 +60,33 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
   /**
    * Create mesh & collider if it doesnt exist
    */
-  if (!hasComponent(entity, Object3DComponent)) {
-    const planeSize = new Vector3(1000, 0.1, 1000)
-    const mesh = new Mesh(new CircleGeometry(planeSize.x, 32), new MeshStandardMaterial({ roughness: 1, metalness: 0 }))
+  if (!component.mesh) {
+    const radius = 1000
 
+    const mesh = (component.mesh = new Mesh(new PlaneGeometry(radius, radius), new MeshBasicMaterial()))
+    mesh.geometry.rotateX(-Math.PI / 2)
     mesh.name = 'GroundPlaneMesh'
-    mesh.position.y = -0.05
+    // mesh.position.y = -0.05
+    mesh.traverse(generateMeshBVH)
 
-    const colliderDescOptions = {
-      bodyType: RigidBodyType.Fixed,
-      type: ShapeType.Cuboid,
-      size: planeSize,
-      collisionLayer: CollisionGroups.Ground,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
-    } as ColliderDescOptions
+    enableObjectLayer(mesh, ObjectLayers.Camera, true)
+    addObjectToGroup(entity, mesh)
 
-    const groundPlane = new Object3D()
-    groundPlane.userData.mesh = mesh
-    groundPlane.add(mesh)
-
-    addComponent(entity, Object3DComponent, { value: groundPlane })
-
-    Physics.createRigidBodyForObject(
-      entity,
-      Engine.instance.currentWorld.physicsWorld,
-      groundPlane.userData.mesh,
-      colliderDescOptions
+    const rigidBodyDesc = RigidBodyDesc.fixed()
+    const colliderDesc = ColliderDesc.cuboid(radius * 2, 0.001, radius * 2)
+    colliderDesc.setCollisionGroups(
+      getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default | CollisionGroups.Avatars)
     )
 
-    mesh.rotation.x = -Math.PI / 2
-
-    groundPlane.traverse(generateMeshBVH)
-    enableObjectLayer(groundPlane, ObjectLayers.Camera, true)
+    Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [colliderDesc])
   }
 
   /**
    * Update settings
    */
 
-  const groundPlane = getComponent(entity, Object3DComponent).value
-
-  ;(groundPlane.userData.mesh.material as MeshStandardMaterial).color.set(component.color)
+  const mesh = component.mesh!
+  mesh.material.color.set(component.color)
 
   if (component.generateNavmesh === component.isNavmeshGenerated) return
 

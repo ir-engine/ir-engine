@@ -12,7 +12,13 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../../../scene/components/DirectionalLightComponent'
@@ -29,7 +35,7 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
   data: RenderSettingComponentType
 ) => {
   const props = parseRenderSettingsProperties(data)
-  addComponent(entity, RenderSettingComponent, props)
+  setComponent(entity, RenderSettingComponent, props)
 }
 
 export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => {
@@ -90,26 +96,23 @@ const enableCSM = () => {
 
 export const initializeCSM = () => {
   if (!Engine.instance.isHMD) {
-    let lights
-    let activeCSMLight
+    let activeCSMLight: DirectionalLight | undefined
     if (EngineRenderer.instance.activeCSMLightEntity) {
-      activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, Object3DComponent)
-        ?.value as DirectionalLight
-      lights = [activeCSMLight]
+      activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, DirectionalLightComponent).light
 
       if (hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent))
         removeComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)
     }
 
     for (const entity of EngineRenderer.instance.directionalLightEntities) {
-      const light = getComponent(entity, Object3DComponent)?.value
+      const light = getComponent(entity, DirectionalLightComponent)?.light
       if (light) light.castShadow = false
     }
 
     EngineRenderer.instance.csm = new CSM({
       camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
       parent: Engine.instance.currentWorld.scene,
-      lights
+      light: activeCSMLight
     })
 
     if (activeCSMLight) {
@@ -137,10 +140,10 @@ export const disposeCSM = () => {
     }
   }
 
-  EngineRenderer.instance.directionalLightEntities.forEach((entity) => {
-    const light = getComponent(entity, Object3DComponent)?.value
+  for (const entity of EngineRenderer.instance.directionalLightEntities) {
+    const light = getComponent(entity, DirectionalLightComponent)?.light
     if (light) light.castShadow = getComponent(entity, DirectionalLightComponent).castShadow
-  })
+  }
 
   EngineRenderer.instance.isCSMEnabled = false
 }

@@ -1,6 +1,6 @@
 import { Not } from 'bitecs'
 import { Consumer } from 'mediasoup-client/lib/Consumer'
-import { Vector3 } from 'three'
+import { Group, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -14,7 +14,7 @@ import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -36,16 +36,14 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
   if (!contextMenuXRUI) return
 
   const userTransform = getComponent(userEntity, TransformComponent)
+  const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
   const { avatarHeight } = getComponent(userEntity, AvatarComponent)
 
-  contextMenuXRUI.container.scale.setScalar(
-    Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(userTransform.position) / 3)
-  )
+  contextMenuXRUI.container.scale.setScalar(Math.max(1, cameraPosition.distanceTo(userTransform.position) / 3))
   contextMenuXRUI.container.position.copy(userTransform.position)
   contextMenuXRUI.container.position.y += avatarHeight - 0.3
   contextMenuXRUI.container.position.x += 0.1
-  contextMenuXRUI.container.position.z +=
-    contextMenuXRUI.container.position.z > Engine.instance.currentWorld.camera.position.z ? -0.4 : 0.4
+  contextMenuXRUI.container.position.z += contextMenuXRUI.container.position.z > cameraPosition.z ? -0.4 : 0.4
   contextMenuXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
 }
 
@@ -62,6 +60,8 @@ export default async function AvatarUISystem(world: World) {
 
   let videoPreviewTimer = 0
 
+  const applyingVideo = new Map()
+
   return () => {
     videoPreviewTimer += world.deltaSeconds
     if (videoPreviewTimer > 1) videoPreviewTimer = 0
@@ -75,12 +75,13 @@ export default async function AvatarUISystem(world: World) {
       }
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
       const ui = createAvatarDetailView(userId)
-      const uiObject = getComponent(ui.entity, Object3DComponent)
       const transition = createTransitionState(1, 'IN')
       AvatarUITransitions.set(userEntity, transition)
+      const root = new Group()
       ui.state.videoPreviewMesh.value.position.y += 0.3
       ui.state.videoPreviewMesh.value.visible = false
-      uiObject.value.add(ui.state.videoPreviewMesh.value)
+      root.add(ui.state.videoPreviewMesh.value)
+      addObjectToGroup(ui.entity, root)
       AvatarUI.set(userEntity, ui)
     }
 
@@ -94,7 +95,8 @@ export default async function AvatarUISystem(world: World) {
       const videoPreviewMesh = ui.state.videoPreviewMesh.value
       _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
 
-      const dist = Engine.instance.currentWorld.camera.position.distanceTo(_vector3)
+      const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
+      const dist = cameraPosition.distanceTo(_vector3)
 
       if (dist > 25) transition.setState('OUT')
       if (dist < 20) transition.setState('IN')
@@ -111,30 +113,45 @@ export default async function AvatarUISystem(world: World) {
 
       if (immersiveMedia && videoPreviewTimer === 0) {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-        const elId = ownerId + '_video'
-        const el = document.getElementById(elId) as HTMLVideoElement | null
         const consumer = world.mediaNetwork!.consumers.find(
-          (consumer) => consumer._appData.peerId === ownerId
+          (consumer) => consumer._appData.peerId === ownerId && consumer._appData.mediaTag === 'cam-video'
         ) as Consumer
         const paused = consumer && (consumer as any).producerPaused
         if (videoPreviewMesh.material.map) {
-          if (!el || paused) {
+          if (!consumer || paused) {
             videoPreviewMesh.material.map = null!
             videoPreviewMesh.visible = false
           }
         } else {
-          if (el && !paused) {
-            if (!el.readyState) {
-              el.onloadeddata = () => {
-                applyVideoToTexture(el, videoPreviewMesh, 'fill')
+          if (consumer && !paused && !applyingVideo.has(ownerId)) {
+            applyingVideo.set(ownerId, true)
+            const track = (consumer as any).track
+            const newVideoTrack = track.clone()
+            const newVideo = document.createElement('video')
+            newVideo.autoplay = true
+            newVideo.id = `${ownerId}_video_immersive`
+            newVideo.muted = true
+            newVideo.setAttribute('playsinline', 'true')
+            newVideo.srcObject = new MediaStream([newVideoTrack])
+            newVideo.play()
+            if (!newVideo.readyState) {
+              newVideo.onloadeddata = () => {
+                applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
                 videoPreviewMesh.visible = true
+                applyingVideo.delete(ownerId)
               }
             } else {
-              applyVideoToTexture(el, videoPreviewMesh, 'fill')
+              applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
               videoPreviewMesh.visible = true
+              applyingVideo.delete(ownerId)
             }
           }
         }
+      }
+
+      if (!immersiveMedia && videoPreviewMesh.material.map) {
+        videoPreviewMesh.material.map = null!
+        videoPreviewMesh.visible = false
       }
     }
 

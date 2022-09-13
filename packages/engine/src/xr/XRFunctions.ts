@@ -5,10 +5,10 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { BoneNames } from '../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../avatar/components/AvatarAnimationComponent'
 import { ParityValue } from '../common/enums/ParityValue'
-import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/three'
+import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -50,33 +50,13 @@ export const setupLocalXRInputs = () => {
       if (data.handedness === 'left') {
         controller.add(input.controllerLeft)
         assignController(input, 'controllerLeftParent', controller)
-        proxifyVector3(
-          XRInputSourceComponent.controllerLeftParent.position,
-          entity,
-          world.dirtyTransforms,
-          controller.position
-        )
-        proxifyQuaternion(
-          XRInputSourceComponent.controllerLeftParent.quaternion,
-          entity,
-          world.dirtyTransforms,
-          controller.quaternion
-        )
+        proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, controller.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerLeftParent.quaternion, entity, controller.quaternion)
       } else if (data.handedness === 'right') {
         controller.add(input.controllerRight)
         assignController(input, 'controllerRightParent', controller)
-        proxifyVector3(
-          XRInputSourceComponent.controllerRightParent.position,
-          entity,
-          world.dirtyTransforms,
-          controller.position
-        )
-        proxifyQuaternion(
-          XRInputSourceComponent.controllerRightParent.quaternion,
-          entity,
-          world.dirtyTransforms,
-          controller.quaternion
-        )
+        proxifyVector3(XRInputSourceComponent.controllerRightParent.position, entity, controller.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerRightParent.quaternion, entity, controller.quaternion)
       }
     })
 
@@ -91,33 +71,13 @@ export const setupLocalXRInputs = () => {
       if (data.handedness === 'left') {
         grip.add(input.controllerGripLeft)
         assignController(input, 'controllerGripLeftParent', grip)
-        proxifyVector3(
-          XRInputSourceComponent.controllerGripLeftParent.position,
-          entity,
-          world.dirtyTransforms,
-          grip.position
-        )
-        proxifyQuaternion(
-          XRInputSourceComponent.controllerGripLeftParent.quaternion,
-          entity,
-          world.dirtyTransforms,
-          grip.quaternion
-        )
+        proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, grip.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerGripLeftParent.quaternion, entity, grip.quaternion)
       } else if (data.handedness === 'right') {
         grip.add(input.controllerGripRight)
         assignController(input, 'controllerGripRightParent', grip)
-        proxifyVector3(
-          XRInputSourceComponent.controllerGripRightParent.position,
-          entity,
-          world.dirtyTransforms,
-          grip.position
-        )
-        proxifyQuaternion(
-          XRInputSourceComponent.controllerGripRightParent.quaternion,
-          entity,
-          world.dirtyTransforms,
-          grip.quaternion
-        )
+        proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, grip.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerGripRightParent.quaternion, entity, grip.quaternion)
       }
     })
 
@@ -152,12 +112,11 @@ export const setupLocalXRInputs = () => {
 }
 
 export const proxifyXRHeadAndContainer = (entity: Entity) => {
-  const world = Engine.instance.currentWorld
   const { head, container } = getComponent(entity, XRInputSourceComponent)
-  proxifyVector3(XRInputSourceComponent.head.position, entity, world.dirtyTransforms, head.position)
-  proxifyQuaternion(XRInputSourceComponent.head.quaternion, entity, world.dirtyTransforms, head.quaternion)
-  proxifyVector3(XRInputSourceComponent.container.position, entity, world.dirtyTransforms, container.position)
-  proxifyQuaternion(XRInputSourceComponent.container.quaternion, entity, world.dirtyTransforms, container.quaternion)
+  proxifyVector3(XRInputSourceComponent.head.position, entity, head.position)
+  proxifyQuaternion(XRInputSourceComponent.head.quaternion, entity, head.quaternion)
+  proxifyVector3(XRInputSourceComponent.container.position, entity, container.position)
+  proxifyQuaternion(XRInputSourceComponent.container.quaternion, entity, container.quaternion)
 }
 
 export const proxifyXRInputs = (entity: Entity) => {
@@ -166,53 +125,20 @@ export const proxifyXRInputs = (entity: Entity) => {
 
   proxifyXRHeadAndContainer(entity)
 
-  const world = Engine.instance.currentWorld
-  proxifyVector3(
-    XRInputSourceComponent.controllerLeftParent.position,
-    entity,
-    world.dirtyTransforms,
-    controllerLeftParent.position
-  )
-  proxifyVector3(
-    XRInputSourceComponent.controllerRightParent.position,
-    entity,
-    world.dirtyTransforms,
-    controllerRightParent.position
-  )
-  proxifyVector3(
-    XRInputSourceComponent.controllerGripLeftParent.position,
-    entity,
-    world.dirtyTransforms,
-    controllerGripLeftParent.position
-  )
-  proxifyVector3(
-    XRInputSourceComponent.controllerGripRightParent.position,
-    entity,
-    world.dirtyTransforms,
-    controllerGripRightParent.position
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.controllerLeftParent.quaternion,
-    entity,
-    world.dirtyTransforms,
-    controllerLeftParent.quaternion
-  )
-  proxifyQuaternion(
-    XRInputSourceComponent.controllerRightParent.quaternion,
-    entity,
-    world.dirtyTransforms,
-    controllerRightParent.quaternion
-  )
+  proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, controllerLeftParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerRightParent.position, entity, controllerRightParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, controllerGripLeftParent.position)
+  proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, controllerGripRightParent.position)
+  proxifyQuaternion(XRInputSourceComponent.controllerLeftParent.quaternion, entity, controllerLeftParent.quaternion)
+  proxifyQuaternion(XRInputSourceComponent.controllerRightParent.quaternion, entity, controllerRightParent.quaternion)
   proxifyQuaternion(
     XRInputSourceComponent.controllerGripLeftParent.quaternion,
     entity,
-    world.dirtyTransforms,
     controllerGripLeftParent.quaternion
   )
   proxifyQuaternion(
     XRInputSourceComponent.controllerGripRightParent.quaternion,
     entity,
-    world.dirtyTransforms,
     controllerGripRightParent.quaternion
   )
 }
@@ -284,7 +210,6 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
   }
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
   const { rig } = getComponent(entity, AvatarAnimationComponent)
-  rig[bone].updateWorldMatrix(true, false)
   const matWorld = rig[bone].matrixWorld
   return vec3.set(matWorld.elements[12], matWorld.elements[13], matWorld.elements[14])
 }
@@ -326,7 +251,6 @@ export const getHandTransform = (
     const rigHand: Object3D =
       hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight
     if (rigHand) {
-      rigHand.updateMatrixWorld(true)
       return {
         position: rigHand.getWorldPosition(vec3),
         rotation: rigHand.getWorldQuaternion(quat)
@@ -335,7 +259,6 @@ export const getHandTransform = (
   }
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
   const { rig } = getComponent(entity, AvatarAnimationComponent)
-  rig[bone].updateWorldMatrix(true, false)
   rig[bone].matrixWorld.decompose(vec3, quat, v3)
   return {
     position: vec3,

@@ -12,7 +12,8 @@ import {
   addComponent,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   AssetComponent,
@@ -60,13 +61,8 @@ export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
 }
 
 export const deserializeAsset: ComponentDeserializeFunction = async (entity: Entity, data: AssetComponentType) => {
-  let obj3d = getComponent(entity, Object3DComponent)?.value
-  if (!obj3d) {
-    obj3d = new Object3D()
-    addComponent(entity, Object3DComponent, { value: obj3d })
-  }
   const props = parseAssetProperties(data)
-  addComponent(entity, AssetComponent, props)
+  setComponent(entity, AssetComponent, props)
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {

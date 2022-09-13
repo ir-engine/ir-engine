@@ -11,12 +11,12 @@ import {
   Vector3,
   WebGLRenderer
 } from 'three'
+import { generateUUID } from 'three/src/math/MathUtils'
 
 import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
 import { BoneStructure } from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -70,11 +70,6 @@ export const addAnimationLogic = (
     animations: [],
     animationSpeed: 1
   })
-  addComponent(entity, LoopAnimationComponent, {
-    activeClipIndex: 0,
-    hasAvatarAnimations: true,
-    action: null!
-  })
   addComponent(entity, AvatarAnimationComponent, {
     animationGraph: {
       states: {},
@@ -100,8 +95,9 @@ export const addAnimationLogic = (
 
   initSystems(world, [
     {
+      uuid: generateUUID(),
       type: SystemUpdateType.POST_RENDER,
-      systemModulePromise: Promise.resolve({ default: AvatarSelectRenderSystem })
+      systemLoader: () => Promise.resolve({ default: AvatarSelectRenderSystem })
     }
   ])
 }

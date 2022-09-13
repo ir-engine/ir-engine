@@ -24,10 +24,12 @@ const party = React.lazy(() => import('./components/Party'))
 const botSetting = React.lazy(() => import('./components/Bots'))
 const projects = React.lazy(() => import('./components/Project'))
 const setting = React.lazy(() => import('./components/Setting'))
+const resources = React.lazy(() => import('./components/Resources'))
 
 const AdminSystemInjection = {
+  uuid: 'core.admin.AdminSystem',
   type: 'PRE_RENDER',
-  systemModulePromise: import('../systems/AdminSystem')
+  systemLoader: () => import('../systems/AdminSystem')
 } as const
 
 const ProtectedRoutes = () => {
@@ -44,6 +46,7 @@ const ProtectedRoutes = () => {
     instance: false,
     invite: false,
     globalAvatars: false,
+    static_resource: false,
     benchmarking: false,
     routes: false,
     projects: false,
@@ -52,8 +55,7 @@ const ProtectedRoutes = () => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    Engine.instance.injectedSystems.push(AdminSystemInjection)
-    initializeCoreSystems().then(async () => {
+    initializeCoreSystems([AdminSystemInjection]).then(async () => {
       await initializeSceneSystems()
     })
   }, [])
@@ -105,6 +107,7 @@ const ProtectedRoutes = () => {
             {allowedRoutes.bot && <PrivateRoute exact path="/admin/bots" component={botSetting} />}
             {allowedRoutes.projects && <PrivateRoute exact path="/admin/projects" component={projects} />}
             {allowedRoutes.settings && <PrivateRoute exact path="/admin/settings" component={setting} />}
+            {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
             {allowedRoutes.user && <PrivateRoute exact Path="/admin/users" component={users} />}
           </Switch>
         )}

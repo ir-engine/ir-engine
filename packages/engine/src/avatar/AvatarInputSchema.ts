@@ -15,7 +15,6 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
-import { useWorld } from '../ecs/functions/SystemHooks'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { PhysicsDebugInput } from '../input/enums/DebugEnum'
@@ -248,19 +247,20 @@ export const setCameraRotation: InputBehaviorType = (
   inputKey: InputAlias,
   inputValue: InputValue
 ): void => {
-  const { deltaSeconds: delta } = useWorld()
+  const { deltaSeconds: delta } = Engine.instance.currentWorld
 
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
   const followComponent = getComponent(cameraEntity, FollowCameraComponent)
 
   switch (inputKey) {
     case BaseInput.CAMERA_ROTATE_LEFT:
-      followComponent.theta += 50 * delta
+      followComponent.theta += 100 * delta
       break
     case BaseInput.CAMERA_ROTATE_RIGHT:
-      followComponent.theta -= 50 * delta
+      followComponent.theta -= 100 * delta
       break
   }
+  setTargetCameraRotation(cameraEntity, followComponent.phi, followComponent.theta)
 }
 
 const morphNameByInput = {
@@ -347,16 +347,16 @@ const setLocalMovementDirection: InputBehaviorType = (
       controller.localMovementDirection.y = hasEnded ? 0 : 1
       break
     case BaseInput.FORWARD:
-      controller.localMovementDirection.z = hasEnded ? 0 : 1
-      break
-    case BaseInput.BACKWARD:
       controller.localMovementDirection.z = hasEnded ? 0 : -1
       break
+    case BaseInput.BACKWARD:
+      controller.localMovementDirection.z = hasEnded ? 0 : 1
+      break
     case BaseInput.LEFT:
-      controller.localMovementDirection.x = hasEnded ? 0 : 1
+      controller.localMovementDirection.x = hasEnded ? 0 : -1
       break
     case BaseInput.RIGHT:
-      controller.localMovementDirection.x = hasEnded ? 0 : -1
+      controller.localMovementDirection.x = hasEnded ? 0 : 1
       break
   }
   controller.localMovementDirection.normalize()
@@ -384,7 +384,7 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias
 
   // if vr, rotate the avatar
   if (getControlMode() === 'attached' && inputValue.value[0] !== 0) {
-    rotateAvatar(entity, inputValue.value[0] * vrAxisLookSensitivity)
+    rotateAvatar(entity, -inputValue.value[0] * vrAxisLookSensitivity)
   }
 }
 
@@ -435,7 +435,7 @@ export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, input
     origin: new Vector3(),
     direction: new Vector3(),
     maxDistance: 20,
-    flags: interactionGroups
+    groups: interactionGroups
   } as RaycastArgs
 
   const input = getComponent(entity, InputComponent)
@@ -473,8 +473,8 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
     dispatchAction(
-      EngineRendererAction.setPhysicsDebug({
-        physicsDebugEnable: !accessEngineRendererState().physicsDebugEnable.value
+      EngineRendererAction.setDebug({
+        debugEnable: !accessEngineRendererState().debugEnable.value
       })
     )
   }

@@ -11,16 +11,25 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
+import { entityExists } from '../../../ecs/functions/EntityFunctions'
+import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { setCallback } from '../../components/CallbackComponent'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import {
   ParticleEmitterComponent,
   ParticleEmitterComponentType,
   SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES
 } from '../../components/ParticleEmitterComponent'
-import { UpdatableComponent } from '../../components/UpdatableComponent'
+import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
 import { ParticleSystemActions } from '../../systems/ParticleSystem'
 import { DefaultArguments, ParticleLibrary } from '../particles/ParticleLibrary'
 
@@ -35,15 +44,10 @@ export const disposeParticleSystem = (entity: Entity) => {
 }
 
 export const initializeParticleSystem = async (entity: Entity) => {
+  if (!entityExists(entity)) return
   const world = Engine.instance.currentWorld
   const ptcComp = getComponent(entity, ParticleEmitterComponent)
-  let obj3d = getComponent(entity, Object3DComponent)
-  if (!obj3d) {
-    const val = new Object3D() as Object3DWithEntity
-    val.entity = entity
-    world.scene.add(val)
-    obj3d = addComponent(entity, Object3DComponent, { value: val })
-  }
+  let transform = getComponent(entity, TransformComponent)
   let system
   switch (ptcComp.mode) {
     case 'LIBRARY':
@@ -63,12 +67,12 @@ export const initializeParticleSystem = async (entity: Entity) => {
       system.addRenderer(new SpriteRenderer(world.scene, THREE))
       break
   }
-  const val = obj3d.value as UpdateableObject3D
-  val.update = (dt) => {
-    system.emitters.map((emitter) => emitter.setPosition(obj3d.value.position))
-    system.update(dt)
-  }
+
   if (!hasComponent(entity, UpdatableComponent)) addComponent(entity, UpdatableComponent, true)
+  setCallback(entity, UpdatableCallback, (dt) => {
+    system.emitters.map((emitter) => emitter.setPosition(transform.position))
+    system.update(dt)
+  })
 
   return system
 }
@@ -78,7 +82,7 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   data: ParticleEmitterComponentType
 ) => {
   const comp = parseParticleEmitterProperties(data)
-  addComponent(entity, ParticleEmitterComponent, comp)
+  setComponent(entity, ParticleEmitterComponent, comp)
   dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))
   //initializeParticleSystem(entity)
   //updateParticleEmitter(entity, comp)

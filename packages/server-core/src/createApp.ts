@@ -9,39 +9,19 @@ import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
-import pinoHttp from 'pino-http'
 import { Socket } from 'socket.io'
+import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { pipe } from '@xrengine/common/src/utils/pipe'
 
 import { Application, ServerTypeMode } from '../declarations'
 import config from './appconfig'
-import logger from './logger'
+import { elasticOnlyLogger, logger } from './logger'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import sequelize from './sequelize'
 import services from './services'
 import authentication from './user/authentication'
-
-/**
- * Logs all Express API calls (except for the ones marked as 'silent').
- */
-const requestLogger = pinoHttp({
-  logger: logger.child({ component: 'api' }),
-
-  customLogLevel(req, res, err) {
-    if (res.req.url === '/api/log' || res.req.url === '/healthcheck') {
-      return 'silent'
-    } else if (res.statusCode === 404) {
-      return 'info'
-    } else if (res.statusCode >= 400 || err) {
-      return 'error'
-    } else if (res.statusCode >= 300 && res.statusCode < 400) {
-      return 'silent'
-    }
-    return 'info'
-  }
-})
 
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
@@ -96,7 +76,7 @@ export const configureSocketIO =
           io.use((socket, next) => {
             ;(socket as any).feathers.socketQuery = socket.handshake.query
             ;(socket as any).socketQuery = socket.handshake.query
-            onSocket(app, socket)
+            onSocket(app, socket as any)
             next()
           })
         }
@@ -109,10 +89,9 @@ export const configureRedis = () => (app: Application) => {
   if (config.redis.enabled) {
     app.configure(
       sync({
-        uri:
-          config.redis.password != null && config.redis.password !== ''
-            ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}`
-            : `redis://${config.redis.address}:${config.redis.port}`
+        uri: config.redis.password
+          ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}`
+          : `redis://${config.redis.address}:${config.redis.port}`
       })
     )
     app.sync.ready.then(() => {
@@ -178,10 +157,6 @@ export const createFeathersExpressApp = (
     }) as any
   )
 
-  // TODO: Investigate why this is letting healthcheck requests through
-  // Disabling for the moment
-  // app.use(requestLogger)
-
   app.use(compress())
   app.use(json())
   app.use(urlencoded({ extended: true }))
@@ -206,7 +181,7 @@ export const createFeathersExpressApp = (
   // Receive client-side log events (only active when APP_ENV != 'development')
   app.post('/api/log', (req, res) => {
     const { msg, ...mergeObject } = req.body
-    if (!isDev) logger.info({ user: req.params?.user, ...mergeObject }, msg)
+    if (!isDev) elasticOnlyLogger.info({ user: req.params?.user, ...mergeObject }, msg)
     return res.status(204).send()
   })
 

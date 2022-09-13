@@ -19,6 +19,7 @@ export const ItemTypes = {
   Text: [AssetType.PlainText, 'txt'],
   ECS: [AssetType.XRE, 'scene.json'],
   Node: 'Node',
+  Material: 'Material',
   Prefab: 'Prefab'
 }
 

@@ -1,5 +1,8 @@
-import { BufferGeometry, Euler, Mesh, Quaternion, Vector2, Vector3 } from 'three'
+import * as THREE from 'three'
+import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Vector2, Vector3 } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+
+import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
 //@ts-ignore
 Vector3.prototype.toJSON = function () {
@@ -24,4 +27,26 @@ Mesh.prototype.raycast = acceleratedRaycast
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
-globalThis.Quaternion = Quaternion
+/**
+ * Since we have complete control over matrix updates, we know that at any given point
+ *  in execution time if the matrix will be up to date or a frame late, and we can simply
+ *  grab the data we need from the world matrix
+ */
+Object3D.prototype.getWorldPosition = function (target) {
+  return Object3DUtils.getWorldPosition(this, target)
+}
+
+Object3D.prototype.getWorldQuaternion = function (target) {
+  return Object3DUtils.getWorldQuaternion(this, target)
+}
+
+Object3D.prototype.getWorldScale = function (target) {
+  return Object3DUtils.getWorldScale(this, target)
+}
+
+Object3D.prototype.getWorldDirection = function (target) {
+  const e = this.matrixWorld.elements
+  return target.set(e[8], e[9], e[10]).normalize()
+}
+
+globalThis.THREE = THREE

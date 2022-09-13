@@ -5,11 +5,13 @@ import RAPIER, {
   ColliderDesc,
   EventQueue,
   InteractionGroups,
+  QueryFilterFlags,
   Ray,
   RigidBody,
   RigidBodyDesc,
   RigidBodyType,
   ShapeType,
+  TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
 import {
@@ -25,7 +27,8 @@ import {
   Vector3
 } from 'three'
 
-import { createVector3Proxy } from '../../common/proxies/three'
+import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -36,6 +39,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { Vec3Arg } from '../../renderer/materials/constants/DefaultArgs'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { getTagComponentForRigidBody, RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -67,40 +71,37 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   // apply the initial transform if there is one
   if (hasComponent(entity, TransformComponent)) {
     const { position, rotation } = getComponent(entity, TransformComponent)
-    rigidBodyDesc.setTranslation(
-      position.x + rigidBodyDesc.translation.x,
-      position.y + rigidBodyDesc.translation.y,
-      position.z + rigidBodyDesc.translation.z
-    )
-    rigidBodyDesc.setRotation(
-      new Quaternion().copy(rotation).multiply(new Quaternion().copy(rigidBodyDesc.rotation as Quaternion))
-    )
+    rigidBodyDesc.setTranslation(position.x, position.y, position.z)
+    rigidBodyDesc.setRotation(rotation)
   }
 
-  const rigidBody = world.createRigidBody(rigidBodyDesc)
-  colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))
+  const body = world.createRigidBody(rigidBodyDesc)
+  colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  addComponent(entity, RigidBodyComponent, {
-    body: rigidBody,
-    previousPosition: new Vector3(),
-    previousRotation: new Quaternion(),
-    previousLinearVelocity: new Vector3(),
-    previousAngularVelocity: new Vector3()
+  const rigidBody = addComponent(entity, RigidBodyComponent, {
+    body: body,
+    previousPosition: proxifyVector3(RigidBodyComponent.previousPosition, entity),
+    previousRotation: proxifyQuaternion(RigidBodyComponent.previousRotation, entity),
+    previousLinearVelocity: proxifyVector3(RigidBodyComponent.previousLinearVelocity, entity),
+    previousAngularVelocity: proxifyVector3(RigidBodyComponent.previousAngularVelocity, entity)
   })
 
-  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
+  rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
+  rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
+
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
   addComponent(entity, RigidBodyTypeTagComponent, true)
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }
-  rigidBody.userData = rigidBodyUserdata
+  body.userData = rigidBodyUserdata
 
   // TODO: Add only when dynamic or kinematic?
-  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity, new Set())
-  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity, new Set())
+  const linearVelocity = proxifyVector3(VelocityComponent.linear, entity)
+  const angularVelocity = proxifyVector3(VelocityComponent.angular, entity)
   addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
 
-  return rigidBody
+  return body
 }
 
 function applyDescToCollider(
@@ -215,22 +216,25 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
   return colliderDesc
 }
 
-function createRigidBodyForObject(
-  entity: Entity,
-  world: World,
-  object: Object3D,
-  colliderDescOptions: ColliderDescOptions
-): RigidBody {
-  if (!object) return undefined!
+function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptions: ColliderDescOptions): RigidBody {
+  const group = getComponent(entity, GroupComponent)
+  if (!group) return undefined!
+
   const colliderDescs = [] as ColliderDesc[]
+  const meshesToRemove = [] as Mesh[]
+
   // create collider desc using userdata of each child mesh
-  object.traverse((mesh: Mesh) => {
-    const colliderDesc = createColliderDesc(
-      mesh,
-      mesh === object ? { ...colliderDescOptions, ...mesh.userData } : (mesh.userData as ColliderDescOptions)
-    )
-    if (colliderDesc) colliderDescs.push(colliderDesc)
-  })
+  for (const obj of group) {
+    obj.traverse((mesh: Mesh) => {
+      // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
+      const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
+      const colliderDesc = createColliderDesc(mesh, args)
+      if (colliderDesc) {
+        if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)
+        colliderDescs.push(colliderDesc)
+      }
+    })
+  }
 
   const rigidBodyType =
     typeof colliderDescOptions.bodyType === 'string'
@@ -257,7 +261,15 @@ function createRigidBodyForObject(
       break
   }
 
-  return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+  const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+
+  if (!Engine.instance.isEditor)
+    for (const mesh of meshesToRemove) {
+      mesh.removeFromParent()
+      cleanupAllMeshData(mesh, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
+    }
+
+  return body
 }
 
 function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
@@ -273,17 +285,9 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
   }
 }
 
-function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
-  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)?.body
-  if (rigidBody && world.bodies.contains(rigidBody.handle)) {
-    if (!hasBeenRemoved) {
-      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-      removeComponent(entity, RigidBodyTypeTagComponent)
-      removeComponent(entity, RigidBodyComponent)
-      removeComponent(entity, VelocityComponent)
-    }
-    world.removeRigidBody(rigidBody)
-  }
+function removeRigidBody(entity: Entity, world: World) {
+  removeComponent(entity, RigidBodyComponent)
+  removeComponent(entity, VelocityComponent)
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
@@ -304,19 +308,33 @@ export type RaycastArgs = {
   origin: Vector3
   direction: Vector3
   maxDistance: number
-  flags: number // TODO: rename to collision groups & type should be RAPIER.InteractionGroups
+  groups: InteractionGroups
+  flags?: QueryFilterFlags
+  excludeCollider?: Collider
+  excludeRigidBody?: RigidBody
 }
 
-function castRay(world: World, raycastQuery: RaycastArgs) {
+function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (collider: Collider) => boolean) {
   const ray = new Ray(raycastQuery.origin, raycastQuery.direction)
   const maxToi = raycastQuery.maxDistance
   const solid = true // TODO: Add option for this in args
-  const groups = raycastQuery.flags
+  const groups = raycastQuery.groups
+  const flags = raycastQuery.flags
 
   const hits = [] as RaycastHit[]
-  let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
+  let hitWithNormal = world.castRayAndGetNormal(
+    ray,
+    maxToi,
+    solid,
+    flags,
+    groups,
+    raycastQuery.excludeCollider,
+    raycastQuery.excludeRigidBody,
+    filterPredicate
+  )
   if (hitWithNormal != null) {
     hits.push({
+      collider: hitWithNormal.collider,
       distance: hitWithNormal.toi,
       position: ray.pointAt(hitWithNormal.toi),
       normal: hitWithNormal.normal,
@@ -333,7 +351,8 @@ function castRayFromCamera(
   camera: PerspectiveCamera | OrthographicCamera,
   coords: Vector2,
   world: World,
-  raycastQuery: RaycastArgs
+  raycastQuery: RaycastArgs,
+  filterPredicate?: (collider: Collider) => boolean
 ) {
   if ((camera as PerspectiveCamera).isPerspectiveCamera) {
     raycastQuery.origin.setFromMatrixPosition(camera.matrixWorld)
@@ -344,7 +363,7 @@ function castRayFromCamera(
       .unproject(camera)
     raycastQuery.direction.set(0, 0, -1).transformDirection(camera.matrixWorld)
   }
-  return Physics.castRay(world, raycastQuery)
+  return Physics.castRay(world, raycastQuery, filterPredicate)
 }
 
 export type ShapecastArgs = {
@@ -402,19 +421,52 @@ const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, hand
       bodySelf: rigidBody1 as RigidBody,
       bodyOther: rigidBody2 as RigidBody,
       shapeSelf: collider1 as Collider,
-      shapeOther: collider2 as Collider
+      shapeOther: collider2 as Collider,
+      maxForceDirection: null,
+      totalForce: null
     })
     collisionComponent2?.set(entity1, {
       type,
       bodySelf: rigidBody2 as RigidBody,
       bodyOther: rigidBody1 as RigidBody,
       shapeSelf: collider2 as Collider,
-      shapeOther: collider1 as Collider
+      shapeOther: collider1 as Collider,
+      maxForceDirection: null,
+      totalForce: null
     })
   } else {
     const type = isTriggerEvent ? CollisionEvents.TRIGGER_END : CollisionEvents.COLLISION_END
     if (collisionComponent1?.has(entity2)) collisionComponent1.get(entity2)!.type = type
     if (collisionComponent2?.has(entity1)) collisionComponent2.get(entity1)!.type = type
+  }
+}
+
+const drainContactEventQueue = (physicsWorld: World) => (event: TempContactForceEvent) => {
+  const collider1 = physicsWorld.getCollider(event.collider1())
+  const collider2 = physicsWorld.getCollider(event.collider2())
+
+  const rigidBody1 = collider1.parent()
+  const rigidBody2 = collider2.parent()
+  const entity1 = (rigidBody1?.userData as any)['entity']
+  const entity2 = (rigidBody2?.userData as any)['entity']
+
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
+
+  const collision1 = collisionComponent1?.get(entity2)
+  const collision2 = collisionComponent2?.get(entity1)
+
+  const maxForceDirection = event.maxForceDirection()
+  const totalForce = event.totalForce()
+
+  if (collision1) {
+    collision1.maxForceDirection = maxForceDirection
+    collision1.totalForce = totalForce
+  }
+
+  if (collision2) {
+    collision2.maxForceDirection = maxForceDirection
+    collision2.totalForce = totalForce
   }
 }
 
@@ -424,7 +476,7 @@ export const Physics = {
   createRigidBody,
   createColliderDesc,
   applyDescToCollider,
-  createRigidBodyForObject,
+  createRigidBodyForGroup,
   createColliderAndAttachToRigidBody,
   removeCollidersFromRigidBody,
   removeRigidBody,
@@ -433,5 +485,6 @@ export const Physics = {
   castRayFromCamera,
   castShape,
   createCollisionEventQueue,
-  drainCollisionEventQueue
+  drainCollisionEventQueue,
+  drainContactEventQueue
 }

@@ -1,11 +1,11 @@
-import { Downgraded, useHookstate } from '@hookstate/core'
+import { useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
@@ -52,17 +52,13 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
    * Message display logic
    */
 
-  const chatState = useChatState().value
+  const chatState = useChatState()
   const channels = chatState.channels.channels
-  const activeChannelMatch = Object.values(channels).find((channel) => channel.channelType === 'instance')
-  const activeChannel = activeChannelMatch?.messages ? activeChannelMatch.messages : []
-  const sortedMessages = [...activeChannel].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  )
+  const activeChannel = Object.values(channels).find((channel) => channel.channelType.value === 'instance')
 
   useEffect(() => {
-    if (activeChannel?.length > 0 && !chatWindowOpen) setUnreadMessages(true)
-  }, [activeChannel])
+    if (activeChannel?.messages?.length && !chatWindowOpen) setUnreadMessages(true)
+  }, [activeChannel?.messages])
 
   /**
    * Message composition logic
@@ -177,7 +173,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   return {
     dimensions,
-    sortedMessages,
+    activeChannel,
     handleComposingMessageChange,
     packageMessage,
     composingMessage
@@ -209,11 +205,17 @@ const InstanceChat = ({
   const [messageContainerVisible, setMessageContainerVisible] = useState(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
-  const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
     chatWindowOpen,
     setUnreadMessages,
     messageRefInput: messageRefInput as any
   })
+
+  const sortedMessages = activeChannel?.messages?.get({ noproxy: true })?.length
+    ? [...activeChannel.messages.get({ noproxy: true })].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+    : []
 
   const user = useAuthState().user
 
@@ -246,8 +248,7 @@ const InstanceChat = ({
 
   useEffect(() => {
     if (
-      sortedMessages &&
-      sortedMessages.length &&
+      sortedMessages?.length &&
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
       chatState.messageCreated.value
     ) {
@@ -260,7 +261,7 @@ const InstanceChat = ({
         clearInterval(messageRefCurrentRenderedInterval)
       }
     }, 5000)
-  }, [chatState.messageCreated, sortedMessages])
+  }, [chatState.messageCreated])
 
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
@@ -305,7 +306,7 @@ const InstanceChat = ({
                     <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
                       <div className={styles.dFlex}>
                         <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                          <p className={styles.greyText}>{message.text}</p>
+                          <p className={styles.shadowText}>{message.text}</p>
                         </div>
                       </div>
                     </div>

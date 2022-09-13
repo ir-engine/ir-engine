@@ -1,7 +1,7 @@
 {
   "version": 4,
   "entities": {
-    "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC": {
+    "1b731841-172a-4141-89cb-d1cceeec748f": {
       "components": [
         {
           "name": "audio-settings",
@@ -90,20 +90,20 @@
       ],
       "name": "sky-station"
     },
-    "1463EAC0-883F-493A-9A33-6757CC8FF48B": {
+    "1e8b1451-a87f-4cd4-8556-d0732f328a3c": {
       "components": [
         {
           "name": "transform",
           "props": {
             "position": {
-              "x": 75.83377075195312,
-              "y": 22.754915237426758,
-              "z": 18.400897979736328
+              "x": 0,
+              "y": 0,
+              "z": 0
             },
             "rotation": {
-              "x": -0.9238422251836271,
-              "y": 1.120849206026624,
-              "z": 0.87277845965938
+              "x": 0,
+              "y": 0,
+              "z": 0
             },
             "scale": {
               "x": 1,
@@ -121,11 +121,11 @@
           "props": {}
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 0,
       "name": "scene preview camera"
     },
-    "ED0888E7-4032-4DD9-9B43-59B02ECCCB7E": {
+    "35621369-7e83-4878-953c-f30bf81dc775": {
       "components": [
         {
           "name": "visible",
@@ -150,11 +150,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 1,
       "name": "skybox"
     },
-    "1B698483-C15A-4CEC-9247-03873520DF70": {
+    "2b68a123-8a48-4258-a985-69a36679b4ef": {
       "components": [
         {
           "name": "transform",
@@ -178,14 +178,16 @@
         },
         {
           "name": "spawn-point",
-          "props": {}
+          "props": {
+            "permissionedUsers": []
+          }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 2,
       "name": "spawn point"
     },
-    "1B698484-C15A-4CEC-9247-03873520DF70": {
+    "c0ac9351-7839-4d06-99bd-660f4575730a": {
       "components": [
         {
           "name": "visible",
@@ -278,11 +280,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 3,
       "name": "post processing"
     },
-    "B7094163-537F-4B23-8A5B-5285B333157C": {
+    "bd83d58b-80e4-40a2-9a1d-d45aaee0c76a": {
       "components": [
         {
           "name": "transform",
@@ -366,11 +368,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 4,
       "name": "Model"
     },
-    "F3080B3B-0FD2-4B29-BBC2-644F789F2BDA": {
+    "e29dce88-8f22-4f8d-ae5d-e7dd0d55c41a": {
       "components": [
         {
           "name": "visible",
@@ -384,11 +386,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 5,
       "name": "Ambient Light"
     },
-    "A7187B08-8E63-498D-9878-58A99D39C6EB": {
+    "5867cc3f-4c7d-47e6-9a7b-db77cdcf4e7c": {
       "components": [
         {
           "name": "transform",
@@ -451,7 +453,7 @@
         {
           "name": "image",
           "props": {
-            "imageSource": "",
+            "source": "",
             "alphaCutoff": 0.5,
             "alphaMode": "Opaque",
             "projection": "Flat",
@@ -466,11 +468,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 6,
       "name": "Video"
     },
-    "3CCDC88B-250C-4F26-9BE0-4AC39440EDAF": {
+    "03162202-1925-44e8-9d64-d8f5aba3a476": {
       "components": [
         {
           "name": "transform",
@@ -538,11 +540,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 7,
       "name": "Particle Emitter"
     },
-    "DC8DE746-6160-45EE-BF32-D828022E0FC7": {
+    "d7f168a2-450d-493f-bc6e-c1a1b015a06b": {
       "components": [
         {
           "name": "transform",
@@ -626,11 +628,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 8,
       "name": "Equippable"
     },
-    "2803BAE7-F4F7-42FC-A95E-BC0F028492F2": {
+    "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae": {
       "components": [
         {
           "name": "transform",
@@ -667,7 +669,7 @@
           "name": "portal",
           "props": {
             "location": "apartment",
-            "linkedPortalId": "5BF21A35-BECE-4C15-A261-DAF1BA2FEB39",
+            "linkedPortalId": "da8a8f5a-7a72-4dae-acef-9ef013cb31b6",
             "redirect": false,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
@@ -679,9 +681,9 @@
             },
             "spawnRotation": {
               "x": 0,
-              "y": -0.0000015278963671687337,
+              "y": 0,
               "z": 0,
-              "w": 0.9999999999988327
+              "w": 1
             }
           }
         },
@@ -699,11 +701,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 9,
       "name": "Portal - to Apartment"
     },
-    "65f5428e-6548-49aa-be22-bd5b65674743": {
+    "87df7b80-3c4f-4272-8e44-bc28315a99ad": {
       "components": [
         {
           "name": "transform",
@@ -757,11 +759,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 10,
       "name": "Audio"
     },
-    "a0658472-0a3f-426f-9e52-7a5294c64077": {
+    "dd1eafe4-dc87-4353-b3ae-567d4f81c032": {
       "components": [
         {
           "name": "transform",
@@ -798,7 +800,7 @@
           "name": "portal",
           "props": {
             "location": "",
-            "linkedPortalId": "e2e5f8c7-26f2-44bb-8c74-5a7a828d9400",
+            "linkedPortalId": "2d7f9f97-20a0-40e8-a504-682f650af501",
             "redirect": false,
             "effectType": "None",
             "previewType": "Spherical",
@@ -830,11 +832,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 11,
       "name": "Portal - Sky Station Interior"
     },
-    "e2e5f8c7-26f2-44bb-8c74-5a7a828d9400": {
+    "2d7f9f97-20a0-40e8-a504-682f650af501": {
       "components": [
         {
           "name": "transform",
@@ -871,7 +873,7 @@
           "name": "portal",
           "props": {
             "location": "",
-            "linkedPortalId": "a0658472-0a3f-426f-9e52-7a5294c64077",
+            "linkedPortalId": "dd1eafe4-dc87-4353-b3ae-567d4f81c032",
             "redirect": false,
             "effectType": "None",
             "previewType": "Spherical",
@@ -903,11 +905,11 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 12,
       "name": "Portal - Sky Station Exterior"
     },
-    "61912c25-8a83-4f28-bc42-7e132599cea9": {
+    "355eab21-0ac3-4c7e-841b-8eff4e02842c": {
       "components": [
         {
           "name": "transform",
@@ -961,10 +963,10 @@
           }
         }
       ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 13,
       "name": "Audio - Ambience"
     }
   },
-  "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
+  "root": "1b731841-172a-4141-89cb-d1cceeec748f"
 }

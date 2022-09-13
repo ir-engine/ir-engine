@@ -1,10 +1,13 @@
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { defineAction, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { matches } from '../../common/functions/MatchesUtils'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { iterateEntityNode, removeEntityNodeFromParent } from '../../ecs/functions/EntityTreeFunctions'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import {
@@ -12,11 +15,24 @@ import {
   SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES,
   SceneDynamicLoadTagComponent
 } from '../components/SceneDynamicLoadTagComponent'
+import { serializeEntity } from '../functions/serializeWorld'
 import { createSceneEntity } from '../systems/SceneLoadingSystem'
+
+export class SceneDynamicLoadAction {
+  static load = defineAction({
+    type: 'xre.engine.DYNAMIC_LOAD_OBJECT',
+    uuid: matches.string
+  })
+  static unload = defineAction({
+    type: 'xre.engine.DYNAMIC_UNLOAD_OBJECT',
+    uuid: matches.string
+  })
+}
 
 export default async function SceneObjectDynamicLoadSystem(world: World) {
   const sceneObjectQuery = defineQuery([Object3DComponent, SceneDynamicLoadTagComponent])
-
+  const uuidMap = world.entityTree.uuidNodeMap
+  const nodeMap = world.entityTree.entityNodeMap
   world.sceneComponentRegistry.set(SceneDynamicLoadTagComponent._name, SCENE_COMPONENT_DYNAMIC_LOAD)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {
     defaultData: SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES
@@ -39,7 +55,7 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
 
       for (const [uuid, data] of world.sceneDynamicallyUnloadedEntities) {
         if (data.position.distanceToSquared(avatarPosition) < data.distance * distanceMultiplier) {
-          const entity = createSceneEntity(world, uuid, data.json)
+          const entity = createSceneEntity(uuid, data.json, world)!
           world.sceneDynamicallyLoadedEntities.set(entity, {
             json: data.json,
             distance: data.distance,
@@ -47,6 +63,7 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
             position: data.position
           })
           world.sceneDynamicallyUnloadedEntities.delete(uuid)
+          dispatchAction(SceneDynamicLoadAction.load({ uuid }))
         }
       }
 
@@ -63,7 +80,29 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
             position: data.position
           })
 
-          removeEntity(entity)
+          const targetNode = nodeMap.get(entity)
+          if (targetNode) {
+            iterateEntityNode(targetNode, (node) => {
+              if (node !== targetNode) {
+                const data = { name: node.uuid, components: serializeEntity(node.entity) }
+                if (node.parentEntity) {
+                  const parentNode = nodeMap.get(node.parentEntity!)!
+                  data['parent'] = parentNode.uuid
+                }
+                matchActionOnce(
+                  SceneDynamicLoadAction.load.matches.validate((action) => action.uuid === targetNode.uuid, ''),
+                  () => {
+                    createSceneEntity(node.uuid, data)
+                  }
+                )
+              }
+              node.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
+              removeEntity(node.entity)
+            })
+            iterateEntityNode(targetNode, (node) => removeEntityNodeFromParent(node))
+          }
+          const uuid = data.uuid
+          dispatchAction(SceneDynamicLoadAction.unload({ uuid }))
         }
       }
     }

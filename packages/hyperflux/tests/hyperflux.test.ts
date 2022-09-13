@@ -64,14 +64,7 @@ describe('Hyperflux Unit Tests', () => {
     const action = test({ $cache: true })
     assert(action.type === 'TEST_OPTIONS')
     assert(test.matches.test(action))
-    assert(test.resolvedActionShape.$cache.test(true))
-    assert(test.resolvedActionShape.$cache.test(false) === false)
-    assert(
-      test.matches.test({
-        type: 'TEST',
-        $cache: false
-      }) === false
-    )
+    assert(test.matches.test({ type: 'TEST' }) === false)
   })
 
   it('should be able to define and create actions with default values', () => {
@@ -115,7 +108,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.history.length, 1)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 1)
-    clearOutgoingActions(store)
+    clearOutgoingActions(store.defaultTopic, store)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
   })
@@ -143,7 +136,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 1)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
-    clearOutgoingActions(store)
+    clearOutgoingActions(store.defaultTopic, store)
     assert.equal(store.actions.history.length, 1)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
@@ -171,7 +164,7 @@ describe('Hyperflux Unit Tests', () => {
     applyIncomingActions(store)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 1)
-    clearOutgoingActions(store)
+    clearOutgoingActions(store.defaultTopic, store)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
   })
@@ -314,7 +307,7 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greet({}), store)
     assert(greet.matches.test(store.actions.outgoing[store.defaultTopic].queue[0]))
     store.actions.incoming.push(...store.actions.outgoing[store.defaultTopic].queue)
-    clearOutgoingActions(store)
+    clearOutgoingActions(store.defaultTopic, store)
     assert(store.actions.outgoing[store.defaultTopic].queue.length === 0)
     assert(greet.matches.test(store.actions.incoming[0]))
     applyIncomingActions(store)
@@ -343,7 +336,7 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greet({}), store)
     assert.equal(receivedCount, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 4)
-    clearOutgoingActions(store)
+    clearOutgoingActions(store.defaultTopic, store)
     assert.equal(receivedCount, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
     assert.equal(store.actions.incoming.length, 4)
@@ -381,7 +374,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(receivedCount, 0)
     assert.equal(store.actions.incoming.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
-    clearOutgoingActions(store)
+    clearOutgoingActions(store.defaultTopic, store)
     assert.equal(receivedCount, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
@@ -393,7 +386,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
-    clearOutgoingActions(store)
+    clearOutgoingActions(store.defaultTopic, store)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     assert.equal(store.actions.history.length, 4)

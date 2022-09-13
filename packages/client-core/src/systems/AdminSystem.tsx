@@ -13,6 +13,7 @@ import { AdminInstanceActions, AdminInstanceReceptors } from '../admin/services/
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
+import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
@@ -59,6 +60,12 @@ export default async function AdminSystem(world: World) {
   const avatarCreatedQueue = createActionQueue(AdminAvatarActions.avatarCreated.matches)
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
   const avatarUpdatedQueue = createActionQueue(AdminAvatarActions.avatarUpdated.matches)
+  const resourceFiltersFetchedQueue = createActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
+  const resourcesFetchedQueue = createActionQueue(AdminResourceActions.resourcesFetched.matches)
+  const setSelectedMimeTypesQueue = createActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
+  const setSelectedResourceTypesQueue = createActionQueue(AdminResourceActions.setSelectedResourceTypes.matches)
+  const resourceNeedsUpdateQueue = createActionQueue(AdminResourceActions.resourceNeedsUpdated.matches)
+  const resourcesResetFilterQueue = createActionQueue(AdminResourceActions.resourcesResetFilter.matches)
   const scenesFetchedQueue = createActionQueue(AdminSceneActions.scenesFetched.matches)
   const sceneFetchedQueue = createActionQueue(AdminSceneActions.sceneFetched.matches)
   const locationsRetrievedQueue = createActionQueue(AdminLocationActions.locationsRetrieved.matches)
@@ -173,6 +180,24 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of avatarUpdatedQueue()) {
       AdminAvatarReceptors.avatarUpdatedReceptor(action)
+    }
+    for (const action of resourceFiltersFetchedQueue()) {
+      AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
+    }
+    for (const action of resourcesFetchedQueue()) {
+      AdminResourceReceptors.resourcesFetchedReceptor(action)
+    }
+    for (const action of setSelectedMimeTypesQueue()) {
+      AdminResourceReceptors.setSelectedMimeTypesReceptor(action)
+    }
+    for (const action of setSelectedResourceTypesQueue()) {
+      AdminResourceReceptors.setSelectedResourceTypesReceptor(action)
+    }
+    for (const action of resourceNeedsUpdateQueue()) {
+      AdminResourceReceptors.resourceNeedsUpdateReceptor(action)
+    }
+    for (const action of resourcesResetFilterQueue()) {
+      AdminResourceReceptors.resourcesResetFilterReceptor(action)
     }
     for (const action of scenesFetchedQueue()) {
       AdminSceneReceptors.scenesFetchedReceptor(action)

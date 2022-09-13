@@ -143,7 +143,6 @@
     },
     "share": {
       "lbl-share": "Share",
-      "lbl-findFriends": "Find Friends",
       "ph-phoneEmail": "Invite by email or phone number",
       "lbl-phoneEmail": "Send to email or phone number",
       "lbl-copy": "Copy",
@@ -151,7 +150,9 @@
       "lbl-spectator-mode": "Spectator Mode",
       "title": "Share this Location",
       "mobileTitle": "View this Item in AR on your Mobile Device",
-      "linkCopied": "Link copied to clipboard."
+      "linkCopied": "Link copied to clipboard.",
+      "friends": "Friends",
+      "party": "Party"
     },
     "party": {
       "title": "Party",
@@ -171,6 +172,7 @@
       "audio": "Audio",
       "lbl-volume": "Volume",
       "lbl-microphone": "Microphone",
+      "general": "General",
       "graphics": "Graphics",
       "controls": "Controls",
       "lbl-control-type": "Controller Type",
@@ -182,7 +184,7 @@
       "lbl-automatic": "Automatic",
       "xrusersetting": "XR",
       "other-audio-setting": "Other Audio Settings",
-      "use-positional-audio": "Spatial User Audio",
+      "use-positional-media": "Spatial User Audio and Video Above Avatar",
       "rotation": "Rotation",
       "rotation-smooth-speed": "Rotation Smooth Speed",
       "rotation-angle": "Rotation Angle",
@@ -256,7 +258,7 @@
         "resolution": "Resolution",
         "high": "High",
         "low": "Low",
-        "spatialAudio": "Use Spatial Audio",
+        "spatialMedia": "Use Spatial Media",
         "enterMuted": "Enter Room Muted"
       },
       "delete": {
@@ -321,9 +323,13 @@
     "content": "Content Packs",
     "scenes": "Scenes",
     "avatars": "Avatars",
+    "resources": "Resources",
     "benchmarking": "Benchmarking",
     "bots": "Bots",
     "setting": "Settings"
+  },
+  "resource": {
+    "createResource": "Create Resource"
   },
   "avatar": {
     "title": "Upload Avatar",
@@ -370,8 +376,13 @@
   "personMenu": {
     "inviteToParty": "Invite To Party",
     "addAsFriend": "Add As Friend",
+    "cancelRequest": "Cancel Request",
+    "unFriend": "Unfriend",
+    "acceptRequest": "Accept Request",
+    "declineRequest": "Decline Request",
     "mute": "Mute",
-    "block": "Block"
+    "block": "Block",
+    "unblock": "Unblock"
   },
   "person": {
     "you": "You",
@@ -385,5 +396,20 @@
     "openPictureInPicture": "Open Picture in Picture",
     "openConferenceMode": "Open Conference Mode",
     "closeConferenceMode": "Close Conference Mode"
+  },
+  "friends": {
+    "find": "Find",
+    "friends": "Friends",
+    "blocked": "Blocked",
+    "message": "Message",
+    "profile": "Profile",
+    "accept": "Accept",
+    "decline": "Decline",
+    "unblock": "Unblock",
+    "pending": "Pending",
+    "requested": "Requested",
+    "noUsers": "No users to display",
+    "requestReceived": "has requested to be your friend",
+    "requestAccepted": "has accepted your request to be friends"
   }
 }

@@ -7,6 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
@@ -38,9 +39,14 @@ export const userPatched = (params) => {
       let query = parsed.searchParams
       query.set('instanceId', patchedUser.instanceId || '')
       parsed.search = query.toString()
-      if (patchedUser.instanceId && Engine.instance.currentWorld._worldHostId !== patchedUser.instanceId)
-        Engine.instance.currentWorld._worldHostId = Engine.instance.currentWorld.worldNetwork.hostId =
-          patchedUser.instanceId as UserId
+      if (patchedUser.instanceId && Engine.instance.currentWorld._worldHostId !== patchedUser.instanceId) {
+        dispatchAction(
+          LocationInstanceConnectionAction.changeActiveConnectionHostId({
+            currentInstanceId: Engine.instance.currentWorld._worldHostId,
+            newInstanceId: patchedUser.instanceId as UserId
+          })
+        )
+      }
 
       if (typeof history.pushState !== 'undefined') {
         window.history.replaceState({}, '', parsed.toString())
