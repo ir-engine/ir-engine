@@ -195,8 +195,9 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   //   oldLoadedEntityNodesToRemove,
   //   oldUnloadedEntityNodesToRemove
   // })
+
   for (const [uuid, entityJson] of newUnloadedDynamicEntityNodes) {
-    addDynamicallyLoadedEntity(uuid, entityJson, world)
+    addDynamicallyLoadedEntity(uuid, entityJson, world, sceneData.scene)
   }
 
   for (const [uuid, entityJson] of newNonDynamicEntityNodes) {
@@ -236,10 +237,11 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
 export const addDynamicallyLoadedEntity = (
   uuid: string,
   entityJson: EntityJson,
-  world = Engine.instance.currentWorld
+  world = Engine.instance.currentWorld,
+  sceneJson?: SceneJson
 ) => {
   if (Engine.instance.isEditor) {
-    return createSceneEntity(uuid, entityJson, world)
+    return createSceneEntity(uuid, entityJson, world, sceneJson)
   }
   const transform = entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_TRANSFORM)
   const dynamicLoad = entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)!
@@ -265,8 +267,20 @@ export const createSceneEntity = (
 ) => {
   function creation() {
     const node = createEntityNode(createEntity(), uuid)
-    addEntityNodeInTree(node, entityJson.parent ? world.entityTree.uuidNodeMap.get(entityJson.parent) : undefined)
-    loadSceneEntity(node, entityJson)
+    if (entityJson.parent) {
+      new Promise<void>((resolve) =>
+        setInterval(() => {
+          if (world.entityTree.uuidNodeMap.has(entityJson.parent as string)) resolve(), 500
+        })
+      ).then(() => {
+        addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent as string)!)
+        loadSceneEntity(node, entityJson)
+      })
+    } else {
+      addEntityNodeInTree(node)
+      loadSceneEntity(node, entityJson)
+    }
+
     return node.entity
   }
   if (sceneJson === undefined || entityJson.parent === undefined) return creation()
