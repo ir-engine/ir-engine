@@ -228,7 +228,7 @@ export function FileBrowserItem({
           />
         </div>
 
-        <ContextMenu anchorEl={anchorEl} anchorPosition={anchorPosition} open={open} onClose={handleClose}>
+        <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
           {item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
           {item.isFolder && (
             <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
