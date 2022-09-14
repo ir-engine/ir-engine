@@ -42,11 +42,11 @@ export const updateCollider = (entity: Entity) => {
     if (!hasComponent(entity, GroupComponent)) {
       //if this is a singleton collider, create a singleton object and let updateGroupCollider initialize things
       const colliderObj = new Object3D()
-      colliderObj.matrixAutoUpdate = false
       colliderObj.userData['shapeType'] = colliderComponent.shapeType
+      colliderObj.userData['singleton'] = true
       addObjectToGroup(entity, colliderObj)
-      return
     }
+    return
   }
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
@@ -125,12 +125,12 @@ export const updateGroupCollider = (entity: Entity) => {
     collisionLayer: colliderComponent.collisionLayer,
     collisionMask: colliderComponent.collisionMask
   })
-
+  /*
   if (rigidbody) {
     const transform = getComponent(entity, TransformComponent)
     rigidbody.setTranslation(transform.position, true)
     rigidbody.setRotation(transform.rotation, true)
-  }
+  }*/
 }
 
 /**

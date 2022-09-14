@@ -73,11 +73,6 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
     const { position, rotation } = getComponent(entity, TransformComponent)
     rigidBodyDesc.setTranslation(position.x, position.y, position.z)
     rigidBodyDesc.setRotation(rotation)
-    colliderDesc.map((desc) => {
-      const dTranslate = desc.translation
-      const translation = new Vector3(dTranslate.x, dTranslate.y, dTranslate.z).add(position.clone().negate())
-      desc.setTranslation(...translation.toArray())
-    })
   }
 
   const body = world.createRigidBody(rigidBodyDesc)
@@ -135,7 +130,10 @@ function applyDescToCollider(
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 }
 
-function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
+function createColliderDesc(
+  mesh: Mesh,
+  colliderDescOptions: ColliderDescOptions & { singleton?: boolean }
+): ColliderDesc {
   if (!colliderDescOptions.shapeType && colliderDescOptions.type)
     colliderDescOptions.shapeType = colliderDescOptions.type
 
@@ -216,7 +214,10 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       return undefined!
   }
 
-  applyDescToCollider(colliderDesc, colliderDescOptions, mesh.position, mesh.quaternion)
+  const position = colliderDescOptions.singleton ? new Vector3() : mesh.position
+  const rotation = colliderDescOptions.singleton ? new Quaternion() : mesh.quaternion
+
+  applyDescToCollider(colliderDesc, colliderDescOptions, position, rotation)
 
   return colliderDesc
 }
