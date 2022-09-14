@@ -152,7 +152,6 @@ export class EngineRenderer {
     this.renderer.debug.checkShaderErrors = false //isDev
 
     this.xrManager = renderer.xr
-    //@ts-ignore
     renderer.xr.cameraAutoUpdate = false
     this.xrManager.enabled = true
 
