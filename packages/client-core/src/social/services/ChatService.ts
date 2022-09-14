@@ -445,34 +445,34 @@ export const ChatService = {
 
 export class ChatAction {
   static loadedChannelAction = defineAction({
-    type: 'LOADED_CHANNEL' as const,
+    type: 'xre.client.Chat.LOADED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>,
     channelType: matches.string
   })
 
   static loadedChannelsAction = defineAction({
-    type: 'LOADED_CHANNELS' as const,
+    type: 'xre.client.Chat.LOADED_CHANNELS' as const,
     channels: matches.any as Validator<unknown, Paginated<Channel>>
   })
 
   static createdMessageAction = defineAction({
-    type: 'CREATED_MESSAGE' as const,
+    type: 'xre.client.Chat.CREATED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>,
     selfUser: matches.object as Validator<unknown, UserInterface>
   })
 
   static patchedMessageAction = defineAction({
-    type: 'PATCHED_MESSAGE' as const,
+    type: 'xre.client.Chat.PATCHED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>
   })
 
   static removedMessageAction = defineAction({
-    type: 'REMOVED_MESSAGE' as const,
+    type: 'xre.client.Chat.REMOVED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>
   })
 
   static loadedMessagesAction = defineAction({
-    type: 'LOADED_MESSAGES' as const,
+    type: 'xre.client.Chat.LOADED_MESSAGES' as const,
     messages: matches.array as Validator<unknown, Message[]>,
     limit: matches.any,
     skip: matches.any,
@@ -481,50 +481,50 @@ export class ChatAction {
   })
 
   static setChatTargetAction = defineAction({
-    type: 'CHAT_TARGET_SET' as const,
+    type: 'xre.client.Chat.CHAT_TARGET_SET' as const,
     targetObjectType: matches.any,
     targetObject: matches.any,
     targetChannelId: matches.any
   })
 
   static setMessageScrollInitAction = defineAction({
-    type: 'SET_MESSAGE_SCROLL_INIT' as const,
+    type: 'xre.client.Chat.SET_MESSAGE_SCROLL_INIT' as const,
     value: matches.boolean
   })
 
   static createdChannelAction = defineAction({
-    type: 'CREATED_CHANNEL' as const,
+    type: 'xre.client.Chat.CREATED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static patchedChannelAction = defineAction({
-    type: 'PATCHED_CHANNEL' as const,
+    type: 'xre.client.Chat.PATCHED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static removedChannelAction = defineAction({
-    type: 'REMOVED_CHANNEL' as const,
+    type: 'xre.client.Chat.REMOVED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static fetchingInstanceChannelAction = defineAction({
-    type: 'FETCHING_INSTANCE_CHANNEL' as const
+    type: 'xre.client.Chat.FETCHING_INSTANCE_CHANNEL' as const
   })
 
   static fetchingPartyChannelAction = defineAction({
-    type: 'FETCHING_PARTY_CHANNEL' as const
+    type: 'xre.client.Chat.FETCHING_PARTY_CHANNEL' as const
   })
 
   static setUpdateMessageScrollAction = defineAction({
-    type: 'SET_UPDATE_MESSAGE_SCROLL' as const,
+    type: 'xre.client.Chat.SET_UPDATE_MESSAGE_SCROLL' as const,
     value: matches.boolean
   })
 
   static refetchPartyChannelAction = defineAction({
-    type: 'REFETCH_PARTY_CHANNEL' as const
+    type: 'xre.client.Chat.REFETCH_PARTY_CHANNEL' as const
   })
 
   static removePartyChannelAction = defineAction({
-    type: 'REMOVE_PARTY_CHANNEL' as const
+    type: 'xre.client.Chat.REMOVE_PARTY_CHANNEL' as const
   })
 }

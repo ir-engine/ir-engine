@@ -6,8 +6,6 @@ import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { useHookEffect, useState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -18,7 +16,7 @@ export const OfflineLocation = () => {
   const authState = useAuthState()
 
   /** OFFLINE */
-  useHookEffect(async () => {
+  useHookEffect(() => {
     if (engineState.sceneLoaded.value) {
       const world = Engine.instance.currentWorld
       const userId = Engine.instance.userId

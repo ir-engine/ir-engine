@@ -45,7 +45,7 @@ export const InstanceServerSettingService = {
 
 export class InstanceServerSettingActions {
   static fetchedInstanceServer = defineAction({
-    type: 'INSTANCE_SERVER_SETTING_DISPLAY',
+    type: 'xre.client.InstanceServerSetting.INSTANCE_SERVER_SETTING_DISPLAY',
     instanceServerSettings: matches.object as Validator<unknown, Paginated<InstanceServerSetting>>
   })
 }

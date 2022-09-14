@@ -105,7 +105,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   See https://gafferongames.com/post/fix_your_timestep/#the-final-touch
   */
   const accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
-  const alpha = accumulator / getState(EngineState).deltaSeconds.value
+  const alpha = accumulator / getState(EngineState).fixedDeltaSeconds.value
 
   const bodyPosition = rigidBody.body.translation() as Vector3
   const bodyRotation = rigidBody.body.rotation() as Quaternion
@@ -120,11 +120,6 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   velocity.angular
     .copy(rigidBody.previousAngularVelocity)
     .lerp(scratchVector3.copy(rigidBody.body.angvel() as Vector3), alpha)
-
-  rigidBody.previousPosition.copy(bodyPosition)
-  rigidBody.previousRotation.copy(bodyRotation)
-  rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
-  rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
 
   if (localTransform) {
     const parentTransform = getComponent(localTransform.parentEntity, TransformComponent) || transform

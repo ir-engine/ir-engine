@@ -201,41 +201,41 @@ export const AdminUserService = {
 //Action
 export class AdminUserActions {
   static fetchedSingleUser = defineAction({
-    type: 'SINGLE_USER_ADMIN_LOADED' as const,
+    type: 'xre.client.AdminUser.SINGLE_USER_ADMIN_LOADED' as const,
     data: matches.object as Validator<unknown, UserInterface>
   })
 
   static loadedUsers = defineAction({
-    type: 'ADMIN_LOADED_USERS' as const,
+    type: 'xre.client.AdminUser.ADMIN_LOADED_USERS' as const,
     userResult: matches.object as Validator<unknown, Paginated<UserInterface>>
   })
 
   static userCreated = defineAction({
-    type: 'USER_ADMIN_CREATED' as const,
+    type: 'xre.client.AdminUser.USER_ADMIN_CREATED' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static userPatched = defineAction({
-    type: 'USER_ADMIN_PATCHED' as const,
+    type: 'xre.client.AdminUser.USER_ADMIN_PATCHED' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static userAdminRemoved = defineAction({
-    type: 'USER_ADMIN_REMOVED' as const,
+    type: 'xre.client.AdminUser.USER_ADMIN_REMOVED' as const,
     data: matches.object as Validator<unknown, UserInterface>
   })
 
   static searchedUser = defineAction({
-    type: 'USER_SEARCH_ADMIN' as const,
+    type: 'xre.client.AdminUser.USER_SEARCH_ADMIN' as const,
     userResult: matches.object as Validator<unknown, Paginated<UserInterface>>
   })
 
   static setSkipGuests = defineAction({
-    type: 'SET_SKIP_GUESTS' as const,
+    type: 'xre.client.AdminUser.SET_SKIP_GUESTS' as const,
     skipGuests: matches.boolean
   })
 
   static resetFilter = defineAction({
-    type: 'RESET_USER_FILTER' as const
+    type: 'xre.client.AdminUser.RESET_USER_FILTER' as const
   })
 }

@@ -146,57 +146,57 @@ export const useEditorHelperState = (() => useHookstate(getState(EditorHelperSta
 //Action
 export class EditorHelperAction {
   static restoreStorageData = defineAction({
-    type: 'editorHelper.RESTORE_STORAGE_DATA' as const,
+    type: 'xre.editor.EditorHelper.RESTORE_STORAGE_DATA' as const,
     state: matches.any as Validator<unknown, EditorHelperStateType>
   })
 
   static changedPlayMode = defineAction({
-    type: 'editorHelper.PLAY_MODE_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.PLAY_MODE_CHANGED' as const,
     isPlayModeEnabled: matches.boolean
   })
 
   static changedFlyMode = defineAction({
-    type: 'editorHelper.FLY_MODE_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.FLY_MODE_CHANGED' as const,
     isFlyModeEnabled: matches.boolean
   })
 
   static changedTransformMode = defineAction({
-    type: 'editorHelper.TRANSFORM_MODE_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.TRANSFORM_MODE_CHANGED' as const,
     mode: matches.any as Validator<unknown, TransformModeType>
   })
 
   static changeTransformModeOnCancel = defineAction({
-    type: 'editorHelper.TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
     mode: matches.any as Validator<unknown, TransformModeType>
   })
 
   static changedTransformSpaceMode = defineAction({
-    type: 'editorHelper.TRANSFORM_SPACE_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.TRANSFORM_SPACE_CHANGED' as const,
     transformSpace: matches.any as Validator<unknown, TransformSpace>
   })
 
   static changedTransformPivotMode = defineAction({
-    type: 'editorHelper.TRANSFORM_PIVOT_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.TRANSFORM_PIVOT_CHANGED' as const,
     transformPivot: matches.any as Validator<unknown, TransformPivotType>
   })
 
   static changedSnapMode = defineAction({
-    type: 'editorHelper.SNAP_MODE_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.SNAP_MODE_CHANGED' as const,
     snapMode: matches.any as Validator<unknown, SnapModeType>
   })
 
   static changeTranslationSnap = defineAction({
-    type: 'editorHelper.TRANSLATION_SNAP_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.TRANSLATION_SNAP_CHANGED' as const,
     translationSnap: matches.number
   })
 
   static changeRotationSnap = defineAction({
-    type: 'editorHelper.ROTATION_SNAP_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.ROTATION_SNAP_CHANGED' as const,
     rotationSnap: matches.number
   })
 
   static changeScaleSnap = defineAction({
-    type: 'editorHelper.SCALE_SNAP_CHANGED' as const,
+    type: 'xre.editor.EditorHelper.SCALE_SNAP_CHANGED' as const,
     scaleSnap: matches.number
   })
 }

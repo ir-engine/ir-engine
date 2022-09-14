@@ -113,40 +113,40 @@ export const UserService = {
 //Action
 export class UserAction {
   static loadedLayerUsersAction = defineAction({
-    type: 'LOADED_LAYER_USERS' as const,
+    type: 'xre.client.User.LOADED_LAYER_USERS' as const,
     users: matches.array as Validator<unknown, UserInterface[]>
   })
 
   static clearLayerUsersAction = defineAction({
-    type: 'CLEAR_LAYER_USERS' as const
+    type: 'xre.client.User.CLEAR_LAYER_USERS' as const
   })
 
   static addedLayerUserAction = defineAction({
-    type: 'ADDED_LAYER_USER' as const,
+    type: 'xre.client.User.ADDED_LAYER_USER' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static removedLayerUserAction = defineAction({
-    type: 'REMOVED_LAYER_USER' as const,
+    type: 'xre.client.User.REMOVED_LAYER_USER' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static loadedChannelLayerUsersAction = defineAction({
-    type: 'LOADED_CHANNEL_LAYER_USERS' as const,
+    type: 'xre.client.User.LOADED_CHANNEL_LAYER_USERS' as const,
     users: matches.array as Validator<unknown, UserInterface[]>
   })
 
   static clearChannelLayerUsersAction = defineAction({
-    type: 'CLEAR_CHANNEL_LAYER_USERS' as const
+    type: 'xre.client.User.CLEAR_CHANNEL_LAYER_USERS' as const
   })
 
   static addedChannelLayerUserAction = defineAction({
-    type: 'ADDED_CHANNEL_LAYER_USER' as const,
+    type: 'xre.client.User.ADDED_CHANNEL_LAYER_USER' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static removedChannelLayerUserAction = defineAction({
-    type: 'REMOVED_CHANNEL_LAYER_USER' as const,
+    type: 'xre.client.User.REMOVED_CHANNEL_LAYER_USER' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 }

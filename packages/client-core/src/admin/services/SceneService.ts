@@ -67,12 +67,12 @@ export const AdminSceneService = {
 //Action
 export class AdminSceneActions {
   static scenesFetched = defineAction({
-    type: 'ADMIN_SCENES_RETRIEVED' as const,
+    type: 'xre.client.AdminScene.ADMIN_SCENES_RETRIEVED' as const,
     sceneData: matches.array as Validator<unknown, SceneMetadata[]>
   })
 
   static sceneFetched = defineAction({
-    type: 'ADMIN_SCENE_RETRIEVED' as const,
+    type: 'xre.client.AdminScene.ADMIN_SCENE_RETRIEVED' as const,
     sceneData: matches.object as Validator<unknown, SceneData>
   })
 }

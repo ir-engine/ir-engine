@@ -5,7 +5,7 @@ import { Engine } from '../ecs/classes/Engine'
 export default class WEBGL {
   static EVENTS = {
     webglDisconnected: defineAction({
-      type: 'WEBGL_DISCONNECTED' as const
+      type: 'xre.renderer.WEBGL.WEBGL_DISCONNECTED' as const
     })
   }
 
