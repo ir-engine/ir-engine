@@ -55,8 +55,6 @@ export const PrefabFileType = {
   'audio/mp3': MediaPrefabs.audio
 }
 
-const MemoFileGridItem = memo(FileBrowserItem)
-
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (AssetSelectionChangePropsType) => void
   disableDnD?: boolean
@@ -79,6 +77,7 @@ export function isFileDataType(value: any): value is FileDataType {
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
+  const anchorRef = React.useRef(null)
   const [isLoading, setLoading] = useState(true)
   const [selectedDirectory, setSelectedDirectory] = useState(
     `/projects/${props.selectedFile ? props.selectedFile + '/' : ''}`
@@ -87,7 +86,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const filesValue = fileState.files.attach(Downgraded).value
   const { skip, total, retrieving } = fileState.value
   const [fileProperties, setFileProperties] = useState<any>(null)
-  const [files, setFiles] = useState<FileDataType[]>([])
+  // const [files, setFiles] = useState<FileDataType[]>([])
   const [openProperties, setOpenPropertiesModal] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
   const [contentToDeletePath, setContentToDeletePath] = useState('')
@@ -145,24 +144,39 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     setLoading(false)
   }, [filesValue])
 
-  useEffect(() => {
-    setFiles(
-      fileState.files.value.map((file) => {
-        const prefabType = PrefabFileType[file.type]
-        const isFolder = file.type === 'folder'
-        const fullName = isFolder ? file.name : file.name + '.' + file.type
+  // useEffect(() => {
+  //   setFiles(
+  //     fileState.files.value.map((file) => {
+  //       const prefabType = PrefabFileType[file.type]
+  //       const isFolder = file.type === 'folder'
+  //       const fullName = isFolder ? file.name : file.name + '.' + file.type
 
-        return {
-          ...file,
-          path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
-          fullName,
-          isFolder,
-          prefabType,
-          Icon: prefabIcons[prefabType]
-        }
-      })
-    )
-  }, [fileState])
+  //       return {
+  //         ...file,
+  //         path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
+  //         fullName,
+  //         isFolder,
+  //         prefabType,
+  //         Icon: prefabIcons[prefabType]
+  //       }
+  //     })
+  //   )
+  // }, [fileState])
+
+  const files = fileState.files.value.map((file) => {
+    const prefabType = PrefabFileType[file.type]
+    const isFolder = file.type === 'folder'
+    const fullName = isFolder ? file.name : file.name + '.' + file.type
+
+    return {
+      ...file,
+      path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
+      fullName,
+      isFolder,
+      prefabType,
+      Icon: prefabIcons[prefabType]
+    }
+  })
 
   useEffect(() => {
     FileBrowserService.fetchFiles(selectedDirectory)
@@ -294,6 +308,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     setSelectedDirectory(newPath)
   }
 
+  // if (retrieving) {
+  //   return (
+  //     <LoadingView
+  //       className={styles.filesLoading}
+  //       title={t('editor:layout.filebrowser.loadingFiles')}
+  //       variant="body2"
+  //       titleColor="var(--textColor)"
+  //     />
+  //   )
+  // }
+
   return (
     <div className={styles.fileBrowserRoot}>
       <div style={headGrid}>
@@ -328,44 +353,43 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
 
-      <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>
-        <div id="file-browser-panel" className={styles.panelContainer}>
-          <div className={styles.contentContainer}>
-            {unique(files, (file) => file.key).map((file, i) => (
-              <MemoFileGridItem
-                key={file.key}
-                contextMenuId={i.toString()}
-                item={file}
-                disableDnD={props.disableDnD}
-                onClick={onSelect}
-                moveContent={moveContent}
-                deleteContent={handleConfirmDelete}
-                currentContent={currentContentRef}
-                setOpenPropertiesModal={setOpenPropertiesModal}
-                setFileProperties={setFileProperties}
-                dropItemsOnPanel={dropItemsOnPanel}
-              />
-            ))}
+      <div ref={anchorRef} id="file-browser-panel" className={styles.panelContainer}>
+        <div className={styles.contentContainer}>
+          {unique(files, (file) => file.key).map((file, i) => (
+            <FileBrowserItem
+              key={file.key}
+              contextMenuId={i.toString()}
+              item={file}
+              disableDnD={props.disableDnD}
+              onClick={onSelect}
+              moveContent={moveContent}
+              deleteContent={handleConfirmDelete}
+              currentContent={currentContentRef}
+              setOpenPropertiesModal={setOpenPropertiesModal}
+              setFileProperties={setFileProperties}
+              dropItemsOnPanel={dropItemsOnPanel}
+            />
+          ))}
 
-            {total > 0 && fileState.files.value.length < total && (
-              <TablePagination
-                className={styles.pagination}
-                component="div"
-                count={total}
-                page={page}
-                rowsPerPage={FILES_PAGE_LIMIT}
-                rowsPerPageOptions={[]}
-                onPageChange={handlePageChange}
-              />
-            )}
-          </div>
+          {total > 0 && fileState.files.value.length < total && (
+            <TablePagination
+              className={styles.pagination}
+              component="div"
+              count={total}
+              page={page}
+              rowsPerPage={FILES_PAGE_LIMIT}
+              rowsPerPageOptions={[]}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
-      </ContextMenuTrigger>
+      </div>
 
-      <ContextMenu id={'uniqueId_current'} hideOnLeave={true}>
+      <ContextMenu anchorEl={anchorRef.current}>
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>
+
       {openProperties && fileProperties && (
         <Dialog
           open={openProperties}

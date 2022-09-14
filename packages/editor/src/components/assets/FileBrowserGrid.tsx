@@ -94,52 +94,53 @@ export function FileBrowserItem({
   moveContent
 }: FileBrowserItemType) {
   const { t } = useTranslation()
+  const anchorRef = React.useRef(null)
   const [renamingAsset, setRenamingAsset] = useState(false)
 
   const onClickItem = (_) => onClick(item)
 
-  const placeObject = useCallback((_, trigger) => {
-    addMediaNode(trigger.item.url)
-  }, [])
+  const placeObject = () => {
+    addMediaNode(item.url)
+  }
 
-  const placeObjectAtOrigin = useCallback(async (_, trigger) => {
-    const node = await addMediaNode(trigger.item.url)
+  const placeObjectAtOrigin = async () => {
+    const node = await addMediaNode(item.url)
     const transformComponent = getComponent(node.entity, TransformComponent)
     if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
-  }, [])
+  }
 
-  const copyURL = useCallback((_, trigger) => {
+  const copyURL = () => {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(trigger.item.url)
+      navigator.clipboard.writeText(item.url)
     }
-  }, [])
+  }
 
-  const openURL = useCallback((_, trigger) => {
-    window.open(trigger.item.url)
-  }, [])
+  const openURL = () => {
+    window.open(item.url)
+  }
 
-  const Copy = useCallback((_, trigger) => {
-    currentContent.current = { item: trigger.item, isCopy: true }
-  }, [])
+  const Copy = () => {
+    currentContent.current = { item: item, isCopy: true }
+  }
 
-  const Cut = useCallback((_, trigger) => {
-    currentContent.current = { item: trigger.item, isCopy: false }
-  }, [])
+  const Cut = () => {
+    currentContent.current = { item: item, isCopy: false }
+  }
 
-  const viewAssetProperties = useCallback((_, trigger) => {
-    if (trigger.item.isFolder) {
+  const viewAssetProperties = () => {
+    if (item.isFolder) {
       setFileProperties({
-        ...trigger.item,
-        url: trigger.item.url + '/' + trigger.item.key
+        ...item,
+        url: item.url + '/' + item.key
       })
     } else {
-      setFileProperties(trigger.item)
+      setFileProperties(item)
     }
     setOpenPropertiesModal(true)
-  }, [])
+  }
 
-  const deleteContentCallback = (_, trigger) => {
-    deleteContent(trigger.item.key, trigger.item.type)
+  const deleteContentCallback = () => {
+    deleteContent(item.key, item.type)
   }
 
   const onNameChanged = async (fileName: string): Promise<void> => {
@@ -175,14 +176,10 @@ export function FileBrowserItem({
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const collectMenuProps = () => {
-    return { item }
-  }
-
   return (
     <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
       <div ref={drag}>
-        <ContextMenuTrigger id={contextMenuId} holdToDisplay={-1} collect={collectMenuProps}>
+        <div ref={anchorRef}>
           <FileListItem
             item={item}
             onClick={onClickItem}
@@ -190,16 +187,14 @@ export function FileBrowserItem({
             isRenaming={renamingAsset}
             onNameChanged={onNameChanged}
           />
-        </ContextMenuTrigger>
+        </div>
 
-        <ContextMenu id={contextMenuId} hideOnLeave={true}>
+        <ContextMenu anchorEl={anchorRef.current}>
+          {item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
           {item.isFolder && (
-            <>
-              <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
-              <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-              <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>
-            </>
+            <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
           )}
+          {item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
           <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
           <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
           <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>

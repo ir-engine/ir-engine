@@ -113,6 +113,7 @@ const MemoTreeNode = memo(HierarchyTreeNode, areEqual)
  */
 export default function HierarchyPanel() {
   const { t } = useTranslation()
+  const anchorRef = React.useRef(null)
   const onUpload = useUpload(uploadOptions)
   const selectionState = useSelectionState()
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
@@ -318,28 +319,28 @@ export default function HierarchyPanel() {
 
         case 'Delete':
         case 'Backspace':
-          if (selectedNode && !renamingNode) onDeleteNode(e, selectedNode)
+          if (selectedNode && !renamingNode) onDeleteNode(selectedNode!)
           break
       }
     },
     [nodes, expandNode, collapseNode, expandChildren, collapseChildren, renamingNode, selectedNode]
   )
 
-  const onDeleteNode = useCallback((_, node: HeirarchyTreeNodeType) => {
+  const onDeleteNode = useCallback((node: HeirarchyTreeNodeType) => {
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
     executeCommandWithHistory({ type: EditorCommands.REMOVE_OBJECTS, affectedNodes: objs })
   }, [])
 
-  const onDuplicateNode = useCallback((_, node: HeirarchyTreeNodeType) => {
+  const onDuplicateNode = useCallback((node: HeirarchyTreeNodeType) => {
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
     executeCommandWithHistory({ type: EditorCommands.DUPLICATE_OBJECTS, affectedNodes: objs })
   }, [])
 
-  const onGroupNodes = useCallback((_, node: HeirarchyTreeNodeType) => {
+  const onGroupNodes = useCallback((node: HeirarchyTreeNodeType) => {
     const objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
@@ -348,7 +349,7 @@ export default function HierarchyPanel() {
   /* Event handlers */
 
   /* Rename functions */
-  const onRenameNode = useCallback((_, node: HeirarchyTreeNodeType) => {
+  const onRenameNode = useCallback((node: HeirarchyTreeNodeType) => {
     if (node.entityNode) {
       const entity = node.entityNode.entity
       setRenamingNode({ entity, name: getComponent(entity, NameComponent).name })
@@ -460,17 +461,17 @@ export default function HierarchyPanel() {
           </AutoSizer>
         )}
       </div>
-      <ContextMenu id="hierarchy-node-menu">
-        <MenuItem onClick={onRenameNode}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
+      <ContextMenu anchorEl={anchorRef.current}>
+        <MenuItem onClick={() => onRenameNode(selectedNode!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <Hotkeys
           keyName={cmdOrCtrlString + '+d'}
           onKeyUp={(_, e) => {
             e.preventDefault()
             e.stopPropagation()
-            selectedNode && onDuplicateNode(e, selectedNode)
+            selectedNode && onDuplicateNode(selectedNode!)
           }}
         >
-          <MenuItem onClick={onDuplicateNode}>
+          <MenuItem onClick={() => onDuplicateNode}>
             {t('editor:hierarchy.lbl-duplicate')}
             <div>{cmdOrCtrlString + ' + d'}</div>
           </MenuItem>
@@ -480,21 +481,17 @@ export default function HierarchyPanel() {
           onKeyUp={(_, e) => {
             e.preventDefault()
             e.stopPropagation()
-            selectedNode && onGroupNodes(e, selectedNode)
+            selectedNode && onGroupNodes(selectedNode!!)
           }}
         >
-          <MenuItem onClick={onGroupNodes}>
+          <MenuItem onClick={() => onGroupNodes(selectedNode!)}>
             {t('editor:hierarchy.lbl-group')}
             <div>{cmdOrCtrlString + ' + g'}</div>
           </MenuItem>
         </Hotkeys>
-        <MenuItem onClick={onDeleteNode}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
-        <MenuItem onClick={(_, node: HeirarchyTreeNodeType) => expandChildren(node)}>
-          {t('editor:hierarchy.lbl-expandAll')}
-        </MenuItem>
-        <MenuItem onClick={(_, node: HeirarchyTreeNodeType) => collapseChildren(node)}>
-          {t('editor:hierarchy.lbl-collapseAll')}
-        </MenuItem>
+        <MenuItem onClick={() => onDeleteNode(selectedNode!)}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
+        <MenuItem onClick={() => expandChildren(selectedNode!)}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
+        <MenuItem onClick={() => collapseChildren(selectedNode!)}>{t('editor:hierarchy.lbl-collapseAll')}</MenuItem>
       </ContextMenu>
     </>
   )
