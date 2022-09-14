@@ -130,14 +130,14 @@ export const updateXRInput = () => {
   head.updateMatrix()
   head.updateMatrixWorld(true)
 
-  // TODO: we should probably keep references to all these controllers somewhere...
-  for (let i = 0; i < xrManager.controllers.length; i++) {
-    const inputSource = xrManager.controllerInputSources[i]
-    const controller = xrManager.controllers[i]
-    if (inputSource !== null && controller !== undefined) {
-      controller.update(inputSource, xrFrame, xrManager.getReferenceSpace())
-    }
-  }
+  // TODO: uncomment the following when three.js fixes WebXRManager
+  // for (let i = 0; i < xrManager.controllers.length; i++) {
+  //   const inputSource = xrManager.controllerInputSources[i]
+  //   const controller = xrManager.controllers[i]
+  //   if (inputSource !== null && controller !== undefined) {
+  //     controller.update(inputSource, xrFrame, xrManager.getReferenceSpace())
+  //   }
+  // }
 }
 /**
  * System for XR session and input handling

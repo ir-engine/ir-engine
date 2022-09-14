@@ -87,7 +87,7 @@ export class EngineRenderer {
 
   renderer: WebGLRenderer = null!
   effectComposer: EffectComposerWithSchema = null!
-  xrManager: WebXRManager & { controllers: WebXRController[]; controllerInputSources: XRInputSourceArray } = null!
+  xrManager: WebXRManager = null!
   xrSession: XRSession = null!
   csm: CSM = null!
   isCSMEnabled = false
