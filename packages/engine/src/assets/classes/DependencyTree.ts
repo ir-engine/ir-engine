@@ -8,7 +8,7 @@ import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 
 export class DependencyTreeActions {
   static dependencyFulfilled = defineAction({
-    type: 'DEPENDENCY_FULFILLED' as const,
+    type: 'xre.assets.DependencyTree.DEPENDENCY_FULFILLED' as const,
     uuid: matches.string
   })
 }

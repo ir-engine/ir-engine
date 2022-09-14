@@ -119,22 +119,22 @@ export const AdminPartyService = {
 
 export class AdminPartyActions {
   static partyAdminCreated = defineAction({
-    type: 'PARTY_ADMIN_CREATED' as const,
+    type: 'xre.client.AdminParty.PARTY_ADMIN_CREATED' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static partyRetrieved = defineAction({
-    type: 'PARTY_ADMIN_DISPLAYED' as const,
+    type: 'xre.client.AdminParty.PARTY_ADMIN_DISPLAYED' as const,
     party: matches.object as Validator<unknown, Paginated<Party>>
   })
 
   static partyRemoved = defineAction({
-    type: 'ADMIN_PARTY_REMOVED' as const,
+    type: 'xre.client.AdminParty.ADMIN_PARTY_REMOVED' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static partyPatched = defineAction({
-    type: 'ADMIN_PARTY_PATCHED' as const,
+    type: 'xre.client.AdminParty.ADMIN_PARTY_PATCHED' as const,
     party: matches.object as Validator<unknown, Party>
   })
 }

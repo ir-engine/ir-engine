@@ -12,7 +12,7 @@ const AdminGithubAppState = defineState({
   })
 })
 
-const githubAppFetchedReceptor = (action: typeof GithubAppActions.githubAppFetched.matches._TYPE) => {
+const githubAppFetchedReceptor = (action: typeof AdminGithubAppActions.githubAppFetched.matches._TYPE) => {
   const state = getState(AdminGithubAppState)
   return state.merge({
     repos: action.result,
@@ -31,13 +31,13 @@ export const useAdminGithubAppState = () => useState(accessAdminGithubAppState()
 export const GithubAppService = {
   fetchGithubAppRepos: async () => {
     const repos = await API.instance.client.service('github-app').find()
-    dispatchAction(GithubAppActions.githubAppFetched({ result: repos }))
+    dispatchAction(AdminGithubAppActions.githubAppFetched({ result: repos }))
   }
 }
 
-export class GithubAppActions {
+export class AdminGithubAppActions {
   static githubAppFetched = defineAction({
-    type: 'GITHUBAPP_RETRIEVED' as const,
+    type: 'xre.client.AdminGithubApp.GITHUBAPP_RETRIEVED' as const,
     result: matches.array as Validator<unknown, GithubAppInterface[]>
   })
 }

@@ -17,7 +17,7 @@ const AdminInstanceServerState = defineState({
   })
 })
 
-const patchInstanceserverReceptor = (action: typeof InstanceserverActions.patchInstanceserver.matches._TYPE) => {
+const patchInstanceserverReceptor = (action: typeof AdminInstanceserverActions.patchInstanceserver.matches._TYPE) => {
   const state = getState(AdminInstanceServerState)
   return state.merge({
     patch: undefined,
@@ -25,7 +25,9 @@ const patchInstanceserverReceptor = (action: typeof InstanceserverActions.patchI
   })
 }
 
-const patchedInstanceserverReceptor = (action: typeof InstanceserverActions.patchedInstanceserver.matches._TYPE) => {
+const patchedInstanceserverReceptor = (
+  action: typeof AdminInstanceserverActions.patchedInstanceserver.matches._TYPE
+) => {
   const state = getState(AdminInstanceServerState)
   return state.merge({
     patch: action.patch,
@@ -47,9 +49,9 @@ export const useInstanceserverState = () => useState(accessInstanceserverState()
 export const InstanceserverService = {
   patchInstanceserver: async (locationId) => {
     try {
-      dispatchAction(InstanceserverActions.patchInstanceserver({}))
+      dispatchAction(AdminInstanceserverActions.patchInstanceserver({}))
       const patch = await API.instance.client.service('instanceserver-provision').patch({ locationId })
-      dispatchAction(InstanceserverActions.patchedInstanceserver({ patch }))
+      dispatchAction(AdminInstanceserverActions.patchedInstanceserver({ patch }))
     } catch (error) {
       logger.error(error)
     }
@@ -57,12 +59,12 @@ export const InstanceserverService = {
 }
 
 //Action
-export class InstanceserverActions {
+export class AdminInstanceserverActions {
   static patchInstanceserver = defineAction({
-    type: 'INSTANCESERVER_PATCH' as const
+    type: 'xre.client.AdminInstanceserver.INSTANCESERVER_PATCH' as const
   })
   static patchedInstanceserver = defineAction({
-    type: 'INSTANCESERVER_PATCHED' as const,
+    type: 'xre.client.AdminInstanceserver.INSTANCESERVER_PATCHED' as const,
     patch: matches.object as Validator<unknown, InstanceServerPatch>
   })
 }

@@ -73,21 +73,21 @@ export const SelectionService = {}
 //Action
 export class SelectionAction {
   static changedBeforeSelection = defineAction({
-    type: 'editorSelection.BEFORE_SELECTION_CHANGED'
+    type: 'xre.editor.Selection.BEFORE_SELECTION_CHANGED'
   })
 
   static changedObject = defineAction({
-    type: 'editorSelection.OBJECT_CHANGED',
+    type: 'xre.editor.Selection.OBJECT_CHANGED',
     objects: matches.array as Validator<unknown, (EntityTreeNode | string)[]>,
     propertyName: matches.string
   })
 
   static changedSceneGraph = defineAction({
-    type: 'editorSelection.SCENE_GRAPH_CHANGED'
+    type: 'xre.editor.Selection.SCENE_GRAPH_CHANGED'
   })
 
   static updateSelection = defineAction({
-    type: 'editorSelection.SELECTION_CHANGED',
+    type: 'xre.editor.Selection.SELECTION_CHANGED',
     selectedEntities: matches.array as Validator<unknown, (Entity | string)[]>
   })
 }

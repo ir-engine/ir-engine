@@ -58,7 +58,7 @@ export const RouteService = {
 //Action
 export class AdminRouteActions {
   static installedRoutesRetrieved = defineAction({
-    type: 'ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
+    type: 'xre.client.AdminRoute.ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
     data: matches.array as Validator<unknown, InstalledRoutesInterface[]>
   })
 }

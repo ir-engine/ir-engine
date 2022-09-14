@@ -1,0 +1,17 @@
+@import "@xrengine/client-core/src/styles/imports.module.scss";
+
+.modalConnecting {
+  right: 0;
+  bottom: 0;
+
+  // pointer-events: none;
+  z-index: 1000;
+  position: absolute;
+
+  .modalConnectingTitle {
+    padding: 20px 12px;
+    color: white;
+    text-shadow: 1px 1px 2px grey, 0 0 1em grey, 0 0 1em grey;
+    font-size: 0.7rem;
+  }
+}

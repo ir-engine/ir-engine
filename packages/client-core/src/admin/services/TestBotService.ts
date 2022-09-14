@@ -78,16 +78,16 @@ export const TestBotService = {
 //Action
 export class AdminTestBotActions {
   static fetchedBots = defineAction({
-    type: 'TEST_BOT_FETCHED' as const,
+    type: 'xre.client.AdminTestBot.TEST_BOT_FETCHED' as const,
     bots: matches.array as Validator<unknown, TestBot[]>
   })
 
   static spawnBots = defineAction({
-    type: 'TEST_BOT_SPAWN' as const
+    type: 'xre.client.AdminTestBot.TEST_BOT_SPAWN' as const
   })
 
   static spawnedBots = defineAction({
-    type: 'TEST_BOT_SPAWNED' as const,
+    type: 'xre.client.AdminTestBot.TEST_BOT_SPAWNED' as const,
     spawn: matches.object as Validator<unknown, SpawnTestBot>
   })
 }

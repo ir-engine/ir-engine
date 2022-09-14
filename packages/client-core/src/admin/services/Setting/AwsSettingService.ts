@@ -59,10 +59,10 @@ export const AwsSettingService = {
 export class AdminAwsSettingActions {
   // TODO: add interface
   static awsSettingRetrieved = defineAction({
-    type: 'ADMIN_AWS_SETTING_FETCHED' as const,
+    type: 'xre.client.AdminAwsSetting.ADMIN_AWS_SETTING_FETCHED' as const,
     awsSettings: matches.object as Validator<unknown, Paginated<AdminAwsSetting>>
   })
   static awsSettingPatched = defineAction({
-    type: 'ADMIN_AWS_SETTING_PATCHED' as const
+    type: 'xre.client.AdminAwsSetting.ADMIN_AWS_SETTING_PATCHED' as const
   })
 }

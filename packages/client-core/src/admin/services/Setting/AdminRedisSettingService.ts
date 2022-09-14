@@ -44,7 +44,7 @@ export const AdminRedisSettingService = {
 
 export class AdminRedisSettingActions {
   static redisSettingRetrieved = defineAction({
-    type: 'ADMIN_REDIS_SETTING_FETCHED' as const,
+    type: 'xre.client.AdminRedisSetting.ADMIN_REDIS_SETTING_FETCHED' as const,
     adminRedisSetting: matches.object as Validator<unknown, Paginated<AdminRedisSetting>>
   })
 }

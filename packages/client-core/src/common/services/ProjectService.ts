@@ -179,32 +179,32 @@ export const ProjectService = {
 //Action
 export class ProjectAction {
   static projectsFetched = defineAction({
-    type: 'PROJECTS_RETRIEVED' as const,
+    type: 'xre.client.Project.PROJECTS_RETRIEVED' as const,
     projectResult: matches.array as Validator<unknown, ProjectInterface[]>
   })
 
   static reloadStatusFetched = defineAction({
-    type: 'RELOAD_STATUS_RETRIEVED' as const,
+    type: 'xre.client.Project.RELOAD_STATUS_RETRIEVED' as const,
     status: matches.boolean
   })
 
   static postProject = defineAction({
-    type: 'PROJECT_POSTED' as const
+    type: 'xre.client.Project.PROJECT_POSTED' as const
   })
 
   static createdProject = defineAction({
-    type: 'PROJECT_CREATED' as const
+    type: 'xre.client.Project.PROJECT_CREATED' as const
   })
 
   static patchedProject = defineAction({
-    type: 'PROJECT_PATCHED' as const,
+    type: 'xre.client.Project.PROJECT_PATCHED' as const,
     project: matches.object as Validator<unknown, ProjectInterface>
   })
 
   // TODO
   // buildProgress: (message: string) => {
   //   return {
-  //     type: 'PROJECT_BUILDER_UPDATE' as const,
+  //     type: 'xre.client.Project.PROJECT_BUILDER_UPDATE' as const,
   //     message
   //   }
   // }
