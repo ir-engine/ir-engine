@@ -73,6 +73,11 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
     const { position, rotation } = getComponent(entity, TransformComponent)
     rigidBodyDesc.setTranslation(position.x, position.y, position.z)
     rigidBodyDesc.setRotation(rotation)
+    colliderDesc.map((desc) => {
+      const dTranslate = desc.translation
+      const translation = new Vector3(dTranslate.x, dTranslate.y, dTranslate.z).add(position.clone().negate())
+      desc.setTranslation(...translation.toArray())
+    })
   }
 
   const body = world.createRigidBody(rigidBodyDesc)

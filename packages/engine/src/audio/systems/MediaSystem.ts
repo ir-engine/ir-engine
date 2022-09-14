@@ -91,12 +91,11 @@ export const MediaPrefabs = {
   volumetric: 'Volumetric' as const
 }
 
-// TODO: move this into system initializer once we have system destroy callbacks
-if (isClient) {
-  const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
-  if (!Engine.instance.isEditor) {
+export default async function MediaSystem(world: World) {
+  if (isClient && !Engine.instance.isEditor) {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
+    const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
     function handleAutoplay() {
       for (const entity of mediaQuery()) {
         const media = getComponent(entity, MediaComponent)
@@ -106,12 +105,11 @@ if (isClient) {
         getComponent(entity, MediaElementComponent)?.element.play()
       }
     }
+    // TODO: add destroy callbacks
     window.addEventListener('pointerdown', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
   }
-}
 
-export default async function MediaSystem(world: World) {
   world.scenePrefabRegistry.set(MediaPrefabs.audio, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
