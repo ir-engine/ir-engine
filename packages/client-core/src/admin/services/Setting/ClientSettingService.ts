@@ -76,10 +76,10 @@ export const ClientSettingService = {
 
 export class ClientSettingActions {
   static fetchedClient = defineAction({
-    type: 'CLIENT_SETTING_DISPLAY' as const,
+    type: 'xre.client.AdminClientSetting.CLIENT_SETTING_DISPLAY' as const,
     clientSettings: matches.object as Validator<unknown, Paginated<ClientSetting>>
   })
   static clientSettingPatched = defineAction({
-    type: 'CLIENT_SETTING_PATCHED' as const
+    type: 'xre.client.AdminClientSetting.CLIENT_SETTING_PATCHED' as const
   })
 }

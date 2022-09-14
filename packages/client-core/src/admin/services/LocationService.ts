@@ -166,44 +166,44 @@ export const AdminLocationService = {
 //Action
 export class AdminLocationActions {
   static locationsRetrieved = defineAction({
-    type: 'ADMIN_LOCATIONS_RETRIEVED' as const,
+    type: 'xre.client.AdminLocation.ADMIN_LOCATIONS_RETRIEVED' as const,
     locations: matches.object as Validator<unknown, Paginated<Location>>
   })
 
   // static locationRetrieved = defineAction({
-  //   type: 'ADMIN_LOCATION_RETRIEVED' as const,
+  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_RETRIEVED' as const,
   //   location: matches.object as Validator<unknown, Location>
   // })
 
   static locationCreated = defineAction({
-    type: 'ADMIN_LOCATION_CREATED' as const,
+    type: 'xre.client.AdminLocation.ADMIN_LOCATION_CREATED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static locationPatched = defineAction({
-    type: 'ADMIN_LOCATION_PATCHED' as const,
+    type: 'xre.client.AdminLocation.ADMIN_LOCATION_PATCHED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static locationRemoved = defineAction({
-    type: 'ADMIN_LOCATION_REMOVED' as const,
+    type: 'xre.client.AdminLocation.ADMIN_LOCATION_REMOVED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   // static locationBanCreated = defineAction({
-  //   type: 'ADMIN_LOCATION_BAN_CREATED' as const
+  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_BAN_CREATED' as const
   // })
 
   // static fetchingCurrentLocation = defineAction({
-  //   type: 'ADMIN_FETCH_CURRENT_LOCATION' as const
+  //   type: 'xre.client.AdminLocation.ADMIN_FETCH_CURRENT_LOCATION' as const
   // })
 
   // static locationNotFound = defineAction({
-  //   type: 'ADMIN_LOCATION_NOT_FOUND' as const
+  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_NOT_FOUND' as const
   // })
 
   static locationTypesRetrieved = defineAction({
-    type: 'ADMIN_LOCATION_TYPES_RETRIEVED' as const,
+    type: 'xre.client.AdminLocation.ADMIN_LOCATION_TYPES_RETRIEVED' as const,
     locationTypes: matches.object as Validator<unknown, Paginated<LocationType>>
   })
 }

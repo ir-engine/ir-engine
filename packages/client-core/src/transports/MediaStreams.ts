@@ -9,10 +9,10 @@ const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
 export class MediaStreams {
   static actions = {
     triggerUpdateConsumers: defineAction({
-      type: 'NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS' as const
+      type: 'xre.client.MediaStreams.NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS' as const
     }),
     closeConsumer: defineAction({
-      type: 'NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER' as const,
+      type: 'xre.client.MediaStreams.NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER' as const,
       consumer: matches.any
     })
   }

@@ -55,10 +55,10 @@ export const ServerSettingService = {
 
 export class AdminServerSettingActions {
   static fetchedSeverInfo = defineAction({
-    type: 'SETTING_SERVER_DISPLAY' as const,
+    type: 'xre.client.AdminServerSetting.SETTING_SERVER_DISPLAY' as const,
     serverSettings: matches.object as Validator<unknown, Paginated<ServerSetting>>
   })
   static serverSettingPatched = defineAction({
-    type: 'SERVER_SETTING_PATCHED' as const
+    type: 'xre.client.AdminServerSetting.SERVER_SETTING_PATCHED' as const
   })
 }

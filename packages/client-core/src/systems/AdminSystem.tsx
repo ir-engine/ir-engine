@@ -6,9 +6,9 @@ import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/service
 import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
-import { AdminGithubAppReceptors, GithubAppActions } from '../admin/services/GithubAppService'
+import { AdminGithubAppActions, AdminGithubAppReceptors } from '../admin/services/GithubAppService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
-import { InstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
+import { AdminInstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
 import { AdminInstanceActions, AdminInstanceReceptors } from '../admin/services/InstanceService'
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
@@ -48,8 +48,8 @@ export default async function AdminSystem(world: World) {
   const fetchedCoilQueue = createActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
   const fetchedEmailQueue = createActionQueue(EmailSettingActions.fetchedEmail.matches)
   const emailSettingPatchedQueue = createActionQueue(EmailSettingActions.emailSettingPatched.matches)
-  const patchInstanceserverQueue = createActionQueue(InstanceserverActions.patchInstanceserver.matches)
-  const patchedInstanceserverQueue = createActionQueue(InstanceserverActions.patchedInstanceserver.matches)
+  const patchInstanceserverQueue = createActionQueue(AdminInstanceserverActions.patchInstanceserver.matches)
+  const patchedInstanceserverQueue = createActionQueue(AdminInstanceserverActions.patchedInstanceserver.matches)
   const projectSettingFetchedQueue = createActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
   const fetchedSeverInfoQueue = createActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
   const serverSettingPatchedQueue = createActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
@@ -99,7 +99,7 @@ export default async function AdminSystem(world: World) {
   const updateGroupQueue = createActionQueue(AdminGroupActions.updateGroup.matches)
   const removeGroupActionQueue = createActionQueue(AdminGroupActions.removeGroupAction.matches)
   const addAdminGroupQueue = createActionQueue(AdminGroupActions.addAdminGroup.matches)
-  const githubAppFetchedQueue = createActionQueue(GithubAppActions.githubAppFetched.matches)
+  const githubAppFetchedQueue = createActionQueue(AdminGithubAppActions.githubAppFetched.matches)
   const installedRoutesRetrievedQueue = createActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
   const activeRoutesRetrievedQueue = createActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
   const fetchedSingleUserQueue = createActionQueue(AdminUserActions.fetchedSingleUser.matches)

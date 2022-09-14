@@ -91,11 +91,11 @@ export const EditorActiveInstanceService = {
 //Action
 export class EditorActiveInstanceAction {
   static fetchingActiveInstances = defineAction({
-    type: 'editorActiveInstance.FETCHING_ACTIVE_INSTANCES' as const
+    type: 'xre.editor.EditorActiveInstance.FETCHING_ACTIVE_INSTANCES' as const
   })
 
   static fetchedActiveInstances = defineAction({
-    type: 'editorActiveInstance.FETCHED_ACTIVE_INSTANCES' as const,
+    type: 'xre.editor.EditorActiveInstance.FETCHED_ACTIVE_INSTANCES' as const,
     activeInstances: matches.array as Validator<unknown, ActiveInstance[]>
   })
 }
