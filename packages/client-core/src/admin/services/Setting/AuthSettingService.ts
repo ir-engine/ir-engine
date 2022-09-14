@@ -87,10 +87,10 @@ export const AuthSettingsService = {
 
 export class AuthSettingsActions {
   static authSettingRetrieved = defineAction({
-    type: 'AUTH_SETTINGS_FETCHED' as const,
+    type: 'xre.client.AuthSettings.AUTH_SETTINGS_FETCHED' as const,
     authSetting: matches.object as Validator<unknown, Paginated<AdminAuthSetting>>
   })
   static authSettingPatched = defineAction({
-    type: 'AUTH_SETTINGS_PATCHED' as const
+    type: 'xre.client.AuthSettings.AUTH_SETTINGS_PATCHED' as const
   })
 }

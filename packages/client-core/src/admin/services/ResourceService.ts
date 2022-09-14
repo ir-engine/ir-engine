@@ -166,30 +166,30 @@ export const ResourceService = {
 //Action
 export class AdminResourceActions {
   static resourceNeedsUpdated = defineAction({
-    type: 'RESOURCE_NEEDS_UPDATE' as const
+    type: 'xre.client.AdminResource.RESOURCE_NEEDS_UPDATE' as const
   })
 
   static resourcesFetched = defineAction({
-    type: 'RESOURCES_RETRIEVED' as const,
+    type: 'xre.client.AdminResource.RESOURCES_RETRIEVED' as const,
     resources: matches.object as Validator<unknown, StaticResourceResult>
   })
 
   static resourceFiltersFetched = defineAction({
-    type: 'RESOURCE_FILTERS_RETRIEVED' as const,
+    type: 'xre.client.AdminResource.RESOURCE_FILTERS_RETRIEVED' as const,
     filters: matches.object as Validator<unknown, StaticResourceFilterResult>
   })
 
   static setSelectedMimeTypes = defineAction({
-    type: 'RESOURCE_SET_MIME' as const,
+    type: 'xre.client.AdminResource.RESOURCE_SET_MIME' as const,
     types: matches.object as Validator<unknown, string[]>
   })
 
   static setSelectedResourceTypes = defineAction({
-    type: 'RESOURCE_SET_TYPE' as const,
+    type: 'xre.client.AdminResource.RESOURCE_SET_TYPE' as const,
     types: matches.object as Validator<unknown, string[]>
   })
 
   static resourcesResetFilter = defineAction({
-    type: 'RESOURCES_RESET_FILTER' as const
+    type: 'xre.client.AdminResource.RESOURCES_RESET_FILTER' as const
   })
 }

@@ -113,14 +113,31 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const updateXRCamera = () => {
+export const updateXRInput = () => {
+  const xrFrame = Engine.instance.xrFrame
+  const xrManager = EngineRenderer.instance.xrManager
   const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
-  EngineRenderer.instance.xrManager.updateCamera(camera)
+
+  xrManager.updateCamera(camera)
 
   const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
   const head = xrInputSourceComponent.head
   head.quaternion.copy(camera.quaternion)
   head.position.copy(camera.position)
+
+  camera.updateMatrix()
+  camera.updateMatrixWorld(true)
+  head.updateMatrix()
+  head.updateMatrixWorld(true)
+
+  // TODO: uncomment the following when three.js fixes WebXRManager
+  // for (let i = 0; i < xrManager.controllers.length; i++) {
+  //   const inputSource = xrManager.controllerInputSources[i]
+  //   const controller = xrManager.controllers[i]
+  //   if (inputSource !== null && controller !== undefined) {
+  //     controller.update(inputSource, xrFrame, xrManager.getReferenceSpace())
+  //   }
+  // }
 }
 /**
  * System for XR session and input handling
@@ -166,10 +183,10 @@ export default async function XRSystem(world: World) {
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
-      updateXRCamera()
+      updateXRInput()
 
       // Assume world.camera.layers is source of truth for all xr cameras
+      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
       const xrCamera = EngineRenderer.instance.xrManager.getCamera()
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask

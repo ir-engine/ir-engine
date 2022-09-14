@@ -21,11 +21,11 @@ import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSyste
 
 export class ParticleSystemActions {
   static disposeParticleSystem = defineAction({
-    type: 'PARTICLE_SYSTEM_DISPOSE' as const,
+    type: 'xre.scene.ParticleSystem.PARTICLE_SYSTEM_DISPOSE' as const,
     entity: matches.any as Validator<unknown, Entity>
   })
   static createParticleSystem = defineAction({
-    type: 'PARTICLE_SYSTEM_CREATE' as const,
+    type: 'xre.scene.ParticleSystem.PARTICLE_SYSTEM_CREATE' as const,
     entity: matches.any as Validator<unknown, Entity>
   })
 }

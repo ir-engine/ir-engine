@@ -23,6 +23,7 @@ import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect 
 
 import { PartyService, usePartyState } from '../../social/services/PartyService'
 import { UserServiceReceptor } from '../../user/services/UserService'
+import { ConnectingToWorldServerModal } from './ConnectingToWorldServerModal'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const NetworkInstanceProvisioning = () => {
@@ -193,7 +194,12 @@ export const NetworkInstanceProvisioning = () => {
     currentChannelInstanceConnection?.connecting
   ])
 
-  return <InstanceServerWarnings />
+  return (
+    <>
+      <InstanceServerWarnings />
+      <ConnectingToWorldServerModal />
+    </>
+  )
 }
 
 export default NetworkInstanceProvisioning

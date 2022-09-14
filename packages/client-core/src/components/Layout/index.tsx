@@ -2,15 +2,12 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 
-import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-import {
-  AdminCoilSettingService,
-  useCoilSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { Close, FullscreenExit, ZoomOutMap } from '@mui/icons-material'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
@@ -38,7 +35,7 @@ interface Props {
 }
 
 const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideFullscreen }: Props): any => {
-  const clientSettingState = useClientSettingState()
+  const engineState = useHookstate(getState(EngineState))
   const [fullScreenActive, setFullScreenActive] = useFullscreen()
   const [showMediaIcons, setShowMediaIcons] = useState(true)
   const [showBottomIcons, setShowBottomIcons] = useState(true)
@@ -193,11 +190,13 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                   {!hideVideo && <UserMediaWindows className={styles.userMediaWindows} />}
                 </div>
 
-                <InstanceChat
-                  animate={styles.animateBottom}
-                  hideOtherMenus={hideOtherMenus}
-                  setShowTouchPad={setShowTouchPad}
-                />
+                {engineState.connectedWorld.value && (
+                  <InstanceChat
+                    animate={styles.animateBottom}
+                    hideOtherMenus={hideOtherMenus}
+                    setShowTouchPad={setShowTouchPad}
+                  />
+                )}
               </div>
             </div>
           </>

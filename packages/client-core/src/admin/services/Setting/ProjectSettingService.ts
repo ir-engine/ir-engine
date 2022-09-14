@@ -55,7 +55,7 @@ export const ProjectSettingService = {
 
 export class AdminProjectSettingsActions {
   static projectSettingFetched = defineAction({
-    type: 'PROJECT_SETTING_FETCHED' as const,
+    type: 'xre.client.AdminProjectSettings.PROJECT_SETTING_FETCHED' as const,
     projectSettings: matches.array as Validator<unknown, ProjectSettingValue[]>
   })
 }

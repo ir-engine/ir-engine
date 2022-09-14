@@ -207,7 +207,7 @@ export const GroupService = {
     try {
       const channelResult = (await API.instance.client.service('channel').find({
         query: {
-          channelType: 'group',
+          channelType: 'xre.client.Group.group',
           groupId: groupId
         }
       })) as any
@@ -333,7 +333,7 @@ export const GroupService = {
 //Action
 export class GroupAction {
   static loadedGroups = defineAction({
-    type: 'LOADED_GROUPS' as const,
+    type: 'xre.client.Group.LOADED_GROUPS' as const,
     groups: matches.array as Validator<unknown, Group[]>,
     total: matches.number,
     limit: matches.number,
@@ -341,50 +341,50 @@ export class GroupAction {
   })
 
   static createdGroup = defineAction({
-    type: 'CREATED_GROUP' as const,
+    type: 'xre.client.Group.CREATED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static patchedGroup = defineAction({
-    type: 'PATCHED_GROUP' as const,
+    type: 'xre.client.Group.PATCHED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static removedGroup = defineAction({
-    type: 'REMOVED_GROUP' as const,
+    type: 'xre.client.Group.REMOVED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static createdGroupUser = defineAction({
-    type: 'CREATED_GROUP_USER' as const,
+    type: 'xre.client.Group.CREATED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>
   })
 
   static patchedGroupUser = defineAction({
-    type: 'PATCHED_GROUP_USER' as const,
+    type: 'xre.client.Group.PATCHED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>
   })
 
   static removedGroupUser = defineAction({
-    type: 'REMOVED_GROUP_USER' as const,
+    type: 'xre.client.Group.REMOVED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>,
     self: matches.boolean
   })
 
   static invitedGroupUser = defineAction({
-    type: 'INVITED_GROUP_USER' as const
+    type: 'xre.client.Group.INVITED_GROUP_USER' as const
   })
 
   static leftGroup = defineAction({
-    type: 'LEFT_GROUP' as const
+    type: 'xre.client.Group.LEFT_GROUP' as const
   })
 
   static fetchingGroups = defineAction({
-    type: 'FETCHING_GROUPS' as const
+    type: 'xre.client.Group.FETCHING_GROUPS' as const
   })
 
   static loadedInvitableGroups = defineAction({
-    type: 'LOADED_INVITABLE_GROUPS' as const,
+    type: 'xre.client.Group.LOADED_INVITABLE_GROUPS' as const,
     groups: matches.array as Validator<unknown, Group[]>,
     total: matches.number,
     limit: matches.number,
@@ -392,10 +392,10 @@ export class GroupAction {
   })
 
   static fetchingInvitableGroups = defineAction({
-    type: 'FETCHING_INVITABLE_GROUPS' as const
+    type: 'xre.client.Group.FETCHING_INVITABLE_GROUPS' as const
   })
 
   static removeCloseGroupDetail = defineAction({
-    type: 'REMOVE_CLOSE_GROUP_DETAIL' as const
+    type: 'xre.client.Group.REMOVE_CLOSE_GROUP_DETAIL' as const
   })
 }
