@@ -1,5 +1,5 @@
 import { Downgraded } from '@hookstate/core'
-import React, { memo, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@xrengine/client-core/src/admin/common/ConfirmDialog'
@@ -17,7 +17,7 @@ import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
-import { TablePagination } from '@mui/material'
+import { PopoverPosition, TablePagination } from '@mui/material'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -27,7 +27,7 @@ import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
-import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import { FileBrowserItem } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
@@ -77,7 +77,9 @@ export function isFileDataType(value: any): value is FileDataType {
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
-  const anchorRef = React.useRef(null)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const open = Boolean(anchorEl)
   const [isLoading, setLoading] = useState(true)
   const [selectedDirectory, setSelectedDirectory] = useState(
     `/projects/${props.selectedFile ? props.selectedFile + '/' : ''}`
@@ -86,7 +88,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const filesValue = fileState.files.attach(Downgraded).value
   const { skip, total, retrieving } = fileState.value
   const [fileProperties, setFileProperties] = useState<any>(null)
-  // const [files, setFiles] = useState<FileDataType[]>([])
   const [openProperties, setOpenPropertiesModal] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
   const [contentToDeletePath, setContentToDeletePath] = useState('')
@@ -120,49 +121,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
     })
 
-  useEffect(() => {
-    addActionReceptor(FileBrowserServiceReceptor)
-    return () => {
-      removeActionReceptor(FileBrowserServiceReceptor)
-    }
-  }, [])
-
-  const onSelect = (params: FileDataType) => {
-    if (params.type !== 'folder') {
-      props.onSelectionChanged({
-        resourceUrl: params.url,
-        name: params.name,
-        contentType: params.type
-      })
-    } else {
-      const newPath = `${selectedDirectory}${params.name}/`
-      setSelectedDirectory(newPath)
-    }
-  }
-
-  useEffect(() => {
-    setLoading(false)
-  }, [filesValue])
-
-  // useEffect(() => {
-  //   setFiles(
-  //     fileState.files.value.map((file) => {
-  //       const prefabType = PrefabFileType[file.type]
-  //       const isFolder = file.type === 'folder'
-  //       const fullName = isFolder ? file.name : file.name + '.' + file.type
-
-  //       return {
-  //         ...file,
-  //         path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
-  //         fullName,
-  //         isFolder,
-  //         prefabType,
-  //         Icon: prefabIcons[prefabType]
-  //       }
-  //     })
-  //   )
-  // }, [fileState])
-
   const files = fileState.files.value.map((file) => {
     const prefabType = PrefabFileType[file.type]
     const isFolder = file.type === 'folder'
@@ -179,14 +137,56 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   })
 
   useEffect(() => {
+    addActionReceptor(FileBrowserServiceReceptor)
+    return () => {
+      removeActionReceptor(FileBrowserServiceReceptor)
+    }
+  }, [])
+
+  useEffect(() => {
+    setLoading(false)
+  }, [filesValue])
+
+  useEffect(() => {
     FileBrowserService.fetchFiles(selectedDirectory)
   }, [selectedDirectory])
+
+  const onSelect = (params: FileDataType) => {
+    if (params.type !== 'folder') {
+      props.onSelectionChanged({
+        resourceUrl: params.url,
+        name: params.name,
+        contentType: params.type
+      })
+    } else {
+      const newPath = `${selectedDirectory}${params.name}/`
+      setSelectedDirectory(newPath)
+    }
+  }
+
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    setAnchorEl(event.currentTarget)
+    setAnchorPosition({
+      left: event.clientX + 2,
+      top: event.clientY - 6
+    })
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+    setAnchorPosition(undefined)
+  }
 
   const handlePageChange = async (_event, newPage: number) => {
     await FileBrowserService.fetchFiles(selectedDirectory, newPage)
   }
 
   const createNewFolder = async () => {
+    handleClose()
+
     await FileBrowserService.addNewFolder(`${selectedDirectory}New_Folder`)
     await FileBrowserService.fetchFiles(selectedDirectory)
   }
@@ -268,6 +268,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const pasteContent = async () => {
+    handleClose()
+
     if (isLoading) return
     setLoading(true)
 
@@ -308,17 +310,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     setSelectedDirectory(newPath)
   }
 
-  // if (retrieving) {
-  //   return (
-  //     <LoadingView
-  //       className={styles.filesLoading}
-  //       title={t('editor:layout.filebrowser.loadingFiles')}
-  //       variant="body2"
-  //       titleColor="var(--textColor)"
-  //     />
-  //   )
-  // }
-
   return (
     <div className={styles.fileBrowserRoot}>
       <div style={headGrid}>
@@ -353,7 +344,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
 
-      <div ref={anchorRef} id="file-browser-panel" className={styles.panelContainer}>
+      <div onContextMenu={handleContextMenu} id="file-browser-panel" className={styles.panelContainer}>
         <div className={styles.contentContainer}>
           {unique(files, (file) => file.key).map((file, i) => (
             <FileBrowserItem
@@ -385,7 +376,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
       </div>
 
-      <ContextMenu anchorEl={anchorRef.current}>
+      <ContextMenu anchorEl={anchorEl} anchorPosition={anchorPosition} open={open} onClose={handleClose}>
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>

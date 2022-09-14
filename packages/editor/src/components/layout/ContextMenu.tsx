@@ -1,15 +1,14 @@
-import React, { ReactElement, useEffect } from 'react'
+import React from 'react'
 // react-contextmenu has a bug when built, and the only viable
 // workaround is to import from the /dist bunled copy of it.
 import {
   ContextMenuTrigger as _ContextMenuTrigger, // MenuItem as _MenuItem,
   showMenu as _showMenu,
-  SubMenu as _SubMenu, // ContextMenuProps,
-  ContextMenu as ReactContextMenu
+  SubMenu as _SubMenu
 } from 'react-contextmenu'
 import { createGlobalStyle } from 'styled-components'
 
-import { MenuItem as _MenuItem, Menu } from '@mui/material'
+import { MenuItem as _MenuItem, Menu, PopoverPosition } from '@mui/material'
 
 export const MenuItem = _MenuItem
 export const showMenu = _showMenu
@@ -92,89 +91,32 @@ export const ContextMenuStyles = createGlobalStyle<any>`
 `
 
 type ContextMenuProps = {
+  open: boolean
   anchorEl: null | HTMLElement
+  anchorPosition: undefined | PopoverPosition
+  onClose: () => void
 }
 
-/**
- *
- * @param {ReactNode} children
- * @param {string} id
- * @param {any} rest
- * @returns
- */
-export const ContextMenu = ({ children, anchorEl }: React.PropsWithChildren<ContextMenuProps>) => {
-  const [contextMenu, setContextMenu] = React.useState<{
-    mouseX: number
-    mouseY: number
-  } | null>(null)
-
-  useEffect(() => {
-    // if (anchorEl) {
-    //   anchorEl.oncontextmenu = handleContextMenu
-    // }
-    anchorEl?.addEventListener('contextmenu', handleContextMenu)
-
-    return () => {
-      anchorEl?.removeEventListener('contextmenu', handleContextMenu)
-    }
-  }, [anchorEl])
-
-  const handleContextMenu = (event: MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-
-    setContextMenu(
-      contextMenu === null
-        ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6
-          }
-        : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-          // Other native context menus might behave different.
-          // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-          null
-    )
-  }
-
-  const handleClose = () => {
-    setContextMenu(null)
-  }
-
-  const addCloseHandler = (item: any) => {
-    if (item.props && item.props.onClick) {
-      return React.cloneElement(item, {
-        onClick: () => {
-          item.props.onClick()
-          handleClose()
-        }
-      })
-    } else {
-      return React.cloneElement(item)
-    }
-  }
-
-  let menuItems = children
-  // if (Array.isArray(menuItems)) {
-  //   menuItems = menuItems.map((item) => {
-  //     return addCloseHandler(item)
-  //   })
-  // } else {
-  //   menuItems = addCloseHandler(menuItems)
-  // }
-
+export const ContextMenu = ({
+  children,
+  open,
+  anchorEl,
+  anchorPosition,
+  onClose
+}: React.PropsWithChildren<ContextMenuProps>) => {
   return (
-    <>
-      <Menu
-        open={contextMenu !== null}
-        onClose={handleClose}
-        anchorReference="anchorPosition"
-        anchorPosition={contextMenu !== null ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined}
-      >
-        {menuItems}
-      </Menu>
-      {/* 
-      <ReactContextMenu {...rest}>{children}</ReactContextMenu>
-      <ContextMenuStyles /> */}
-    </>
+    <Menu
+      open={open}
+      onClose={onClose}
+      anchorEl={anchorEl}
+      anchorReference="anchorPosition"
+      anchorPosition={anchorPosition}
+      onContextMenu={(event) => {
+        event.preventDefault()
+        event.stopPropagation()
+      }}
+    >
+      {children}
+    </Menu>
   )
 }
