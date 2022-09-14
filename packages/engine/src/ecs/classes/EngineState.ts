@@ -12,7 +12,7 @@ export const EngineState = defineState({
     frameTime: 0,
     deltaSeconds: 0,
     elapsedSeconds: 0,
-    fixedDeltaSeconds: 1 / 60,
+    fixedDeltaSeconds: 1 / 43,
     fixedElapsedSeconds: 0,
     fixedTick: 0,
     isEngineInitialized: false,

@@ -12,14 +12,8 @@ import {
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import {
-  PerspectiveCamera,
-  sRGBEncoding,
-  WebGL1Renderer,
-  WebGLRenderer,
-  WebGLRendererParameters,
-  WebXRManager
-} from 'three'
+import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRendererParameters } from 'three'
+import type { WebXRController } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
@@ -42,6 +36,7 @@ import {
 } from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
+import { WebXRManager } from './WebXRManager'
 
 export interface EffectComposerWithSchema extends EffectComposer {
   OutlineEffect: OutlineEffect
@@ -92,7 +87,7 @@ export class EngineRenderer {
 
   renderer: WebGLRenderer = null!
   effectComposer: EffectComposerWithSchema = null!
-  xrManager: WebXRManager = null!
+  xrManager: WebXRManager & { controllers: WebXRController[]; controllerInputSources: XRInputSourceArray } = null!
   xrSession: XRSession = null!
   csm: CSM = null!
   isCSMEnabled = false
@@ -151,8 +146,7 @@ export class EngineRenderer {
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
     this.renderer.debug.checkShaderErrors = false //isDev
 
-    this.xrManager = renderer.xr
-    //@ts-ignore
+    this.xrManager = renderer.xr = new WebXRManager(renderer, renderer.getContext()) as any
     renderer.xr.cameraAutoUpdate = false
     this.xrManager.enabled = true
 

@@ -112,7 +112,7 @@ export default async function PhysicsSystem(world: World) {
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
   const colliderQuery = defineQuery([ColliderComponent])
   const groupColliderQuery = defineQuery([GroupColliderComponent])
-  const ownedRigidBodyQuery = defineQuery([RigidBodyComponent])
+  const allRigidBodyQuery = defineQuery([RigidBodyComponent])
 
   const networkedAvatarBodyQuery = defineQuery([
     RigidBodyComponent,
@@ -150,7 +150,7 @@ export default async function PhysicsSystem(world: World) {
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
-    for (const entity of ownedRigidBodyQuery()) {
+    for (const entity of allRigidBodyQuery()) {
       const rigidBody = getComponent(entity, RigidBodyComponent)
       rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
       rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
