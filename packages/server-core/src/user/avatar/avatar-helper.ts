@@ -4,9 +4,9 @@ import path from 'path'
 import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
 import { UserParams } from '../user/user.class'
+import logger from '../../ServerLogger'
 
 export type AvatarCreateArguments = {
   modelResourceId?: string

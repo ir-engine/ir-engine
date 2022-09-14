@@ -1,5 +1,5 @@
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { GroupUser } from './group-user.class'
 import groupUserDocs from './group-user.docs'
 import hooks from './group-user.hooks'
