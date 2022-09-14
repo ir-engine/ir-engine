@@ -27,6 +27,12 @@ Mesh.prototype.raycast = acceleratedRaycast
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
+declare module 'three/src/core/Object3D' {
+  export interface Object3D {
+    matrixWorldAutoUpdate: boolean
+  }
+}
+
 /**
  * Since we have complete control over matrix updates, we know that at any given point
  *  in execution time if the matrix will be up to date or a frame late, and we can simply
