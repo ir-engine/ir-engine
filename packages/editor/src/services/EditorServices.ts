@@ -66,47 +66,47 @@ export const EditorService = {}
 //Action
 export class EditorAction {
   static projectChanged = defineAction({
-    type: 'editor.EDITOR_PROJECT_CHANGED' as const,
+    type: 'xre.editor.Editor.EDITOR_PROJECT_CHANGED' as const,
     projectName: matches.any as Validator<unknown, string | null>
   })
 
   static sceneChanged = defineAction({
-    type: 'editor.EDITOR_SCENE_CHANGED' as const,
+    type: 'xre.editor.Editor.EDITOR_SCENE_CHANGED' as const,
     sceneName: matches.any as Validator<unknown, string | null>
   })
 
   static sceneModified = defineAction({
-    type: 'editor.EDITOR_SCENE_MODIFIED' as const,
+    type: 'xre.editor.Editor.EDITOR_SCENE_MODIFIED' as const,
     modified: matches.boolean
   })
 
   static projectLoaded = defineAction({
-    type: 'editor.EDITOR_PROJECT_LOADED' as const,
+    type: 'xre.editor.Editor.EDITOR_PROJECT_LOADED' as const,
     loaded: matches.boolean
   })
 
   static rendererInitialized = defineAction({
-    type: 'editor.EDITOR_RENDERER_INITIALIZED' as const,
+    type: 'xre.editor.Editor.EDITOR_RENDERER_INITIALIZED' as const,
     initialized: matches.boolean
   })
 
   static showObject3DInHierarchy = defineAction({
-    type: 'editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
+    type: 'xre.editor.Editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
     showObject3DInHierarchy: matches.boolean
   })
 
   static setAdvancedMode = defineAction({
-    type: 'editor.SET_ADVANCED_MODE' as const,
+    type: 'xre.editor.Editor.SET_ADVANCED_MODE' as const,
     advanced: matches.boolean
   })
 
   static updatePreprojectLoadTask = defineAction({
-    type: 'editor.UPDATE_PREPROJECT_TASK_STATUS' as const,
+    type: 'xre.editor.Editor.UPDATE_PREPROJECT_TASK_STATUS' as const,
     taskStatus: matches.any as Validator<unknown, TaskStatus>
   })
 
   static lockPropertiesPanel = defineAction({
-    type: 'editor.LOCK_PROPERTIES_PANEL' as const,
+    type: 'xre.editor.Editor.LOCK_PROPERTIES_PANEL' as const,
     lockPropertiesPanel: matches.string
   })
 }

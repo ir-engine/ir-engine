@@ -42,11 +42,11 @@ export function MediaSettingReceptor(action) {
 
 export class MediaSettingAction {
   static setImmersiveMediaMode = defineAction({
-    type: 'core.mediaSettings.IMMERSIVE_MEDIA_MODE' as const,
+    type: 'xre.media.MediaSetting.IMMERSIVE_MEDIA_MODE' as const,
     mode: matches.string
   })
   static setUseImmersiveMedia = defineAction({
-    type: 'core.mediaSettings.USE_IMMERSIVE_MEDIA' as const,
+    type: 'xre.media.MediaSetting.USE_IMMERSIVE_MEDIA' as const,
     use: matches.boolean
   })
 }

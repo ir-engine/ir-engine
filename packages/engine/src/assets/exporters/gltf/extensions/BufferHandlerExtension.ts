@@ -20,7 +20,7 @@ type BufferDefinition = BufferJson & {
 
 export default class BufferHandlerExtension extends ExporterExtension {
   static saveBuffer = defineAction({
-    type: 'xre.engine.SAVE_BUFFER' as const,
+    type: 'xre.assets.BufferHandlerExtension.SAVE_BUFFER' as const,
     saveParms: matches.object as Validator<unknown, BufferDefinition>
   })
 

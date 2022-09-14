@@ -44,11 +44,11 @@ export const StoredLocalStoreService = {
 
 export class StoredLocalAction {
   static storedLocal = defineAction({
-    type: 'STORE_LOCAL' as const,
+    type: 'xre.client.StoredLocal.STORE_LOCAL' as const,
     newState: matches.object
   })
 
   static restoreLocalData = defineAction({
-    type: 'RESTORE' as const
+    type: 'xre.client.StoredLocal.RESTORE' as const
   })
 }

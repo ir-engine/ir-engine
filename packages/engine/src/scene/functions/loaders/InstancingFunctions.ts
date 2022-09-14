@@ -292,7 +292,7 @@ float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
 
 export class InstancingActions {
   static instancingStaged = defineAction({
-    type: 'INSTANCING_STAGED' as const,
+    type: 'xre.scene.Instancing.INSTANCING_STAGED' as const,
     uuid: matches.string
   })
 }

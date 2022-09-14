@@ -20,11 +20,11 @@ import { createSceneEntity } from '../systems/SceneLoadingSystem'
 
 export class SceneDynamicLoadAction {
   static load = defineAction({
-    type: 'xre.engine.DYNAMIC_LOAD_OBJECT',
+    type: 'xre.scene.SceneDynamicLoad.DYNAMIC_LOAD_OBJECT',
     uuid: matches.string
   })
   static unload = defineAction({
-    type: 'xre.engine.DYNAMIC_UNLOAD_OBJECT',
+    type: 'xre.scene.SceneDynamicLoad.DYNAMIC_UNLOAD_OBJECT',
     uuid: matches.string
   })
 }

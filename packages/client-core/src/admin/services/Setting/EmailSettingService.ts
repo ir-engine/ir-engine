@@ -56,10 +56,10 @@ export const EmailSettingService = {
 
 export class EmailSettingActions {
   static fetchedEmail = defineAction({
-    type: 'EMAIL_SETTING_DISPLAY' as const,
+    type: 'xre.client.EmailSetting.EMAIL_SETTING_DISPLAY' as const,
     emailSettings: matches.object as Validator<unknown, Paginated<EmailSetting>>
   })
   static emailSettingPatched = defineAction({
-    type: 'EMAIL_SETTING_PATCHED' as const
+    type: 'xre.client.EmailSetting.EMAIL_SETTING_PATCHED' as const
   })
 }

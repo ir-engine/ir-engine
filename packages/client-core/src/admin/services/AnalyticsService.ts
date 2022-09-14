@@ -302,35 +302,35 @@ export const AdminAnalyticsService = {
 //Action
 export class AdminAnalyticsActions {
   static activePartiesFetched = defineAction({
-    type: 'ACTIVE_PARTIES_FETCHED' as const,
+    type: 'xre.client.AdminAnalytics.ACTIVE_PARTIES_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static activeInstancesFetched = defineAction({
-    type: 'ACTIVE_INSTANCES_FETCHED' as const,
+    type: 'xre.client.AdminAnalytics.ACTIVE_INSTANCES_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static channelUsersFetched = defineAction({
-    type: 'CHANNEL_USERS_FETCHED' as const,
+    type: 'xre.client.AdminAnalytics.CHANNEL_USERS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static instanceUsersFetched = defineAction({
-    type: 'INSTANCE_USERS_FETCHED' as const,
+    type: 'xre.client.AdminAnalytics.INSTANCE_USERS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static activeLocationsFetched = defineAction({
-    type: 'ACTIVE_LOCATIONS_FETCHED' as const,
+    type: 'xre.client.AdminAnalytics.ACTIVE_LOCATIONS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static activeScenesFetched = defineAction({
-    type: 'ACTIVE_SCENES_FETCHED' as const,
+    type: 'xre.client.AdminAnalytics.ACTIVE_SCENES_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static dailyUsersFetched = defineAction({
-    type: 'DAILY_USERS_FETCHED' as const,
+    type: 'xre.client.AdminAnalytics.DAILY_USERS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static dailyNewUsersFetched = defineAction({
-    type: 'DAILY_NEW_USERS_FETCHED' as const,
+    type: 'xre.client.AdminAnalytics.DAILY_NEW_USERS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
 }
