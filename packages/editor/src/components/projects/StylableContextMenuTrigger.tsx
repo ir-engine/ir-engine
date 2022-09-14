@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { ContextMenuTrigger } from '../layout/ContextMenu'
+import { ContextMenuTrigger } from '../contextMenu'
 
 /**
  *

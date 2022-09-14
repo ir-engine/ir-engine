@@ -3,9 +3,11 @@ import React, { useState } from 'react'
 import MenuIcon from '@mui/icons-material/Menu'
 
 import DropDownMenu from '../dropDownMenu'
+import DropDownMenuInput from '../inputs/DropDownMenuInput'
 import { EditorNavbarProfile } from '../projects/EditorNavbarProfile'
 import { WorldInstanceConnection } from '../realtime/WorldInstanceConnection'
 import * as styles from './styles.module.scss'
+import ToolButton from './ToolButton'
 import AdvancedModeTool from './tools/AdvancedModeTool'
 import GridTool from './tools/GridTool'
 import HelperToggleTool from './tools/HelperToggleTool'
@@ -26,11 +28,12 @@ export const ToolBar = (props: ToolBarProps) => {
   if (!props.editorReady) {
     return <div className={styles.toolbarContainer} />
   }
-  const [isMenuOpen, setMenuOpen] = useState(false)
-
   return (
     <div style={{ pointerEvents: 'auto' }} className={styles.toolbarContainer}>
-      <DropDownMenu icon={MenuIcon} commands={props.menu} isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} />
+      <DropDownMenuInput
+        // className={styles.selectInput}
+        options={props.menu}
+      />
       <AdvancedModeTool />
       <WorldInstanceConnection />
       <TransformTool />

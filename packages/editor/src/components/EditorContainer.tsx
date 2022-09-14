@@ -469,33 +469,33 @@ const EditorContainer = () => {
   const generateToolbarMenu = () => {
     return [
       {
-        name: t('editor:menubar.newScene'),
-        action: onNewScene
+        label: t('editor:menubar.newScene'),
+        value: onNewScene
       },
       {
-        name: t('editor:menubar.saveScene'),
+        label: t('editor:menubar.saveScene'),
         hotkey: `${cmdOrCtrlString}+s`,
-        action: onSaveScene
+        value: onSaveScene
       },
       {
-        name: t('editor:menubar.saveAs'),
-        action: onSaveAs
+        label: t('editor:menubar.saveAs'),
+        value: onSaveAs
       },
       {
-        name: t('editor:menubar.importAsset'),
-        action: onImportAsset
+        label: t('editor:menubar.importAsset'),
+        value: onImportAsset
       },
       {
-        name: t('editor:menubar.importScene'),
-        action: onImportScene
+        label: t('editor:menubar.importScene'),
+        value: onImportScene
       },
       {
-        name: t('editor:menubar.exportScene'),
-        action: onExportScene
+        label: t('editor:menubar.exportScene'),
+        value: onExportScene
       },
       {
-        name: t('editor:menubar.quit'),
-        action: onCloseProject
+        label: t('editor:menubar.quit'),
+        value: onCloseProject
       }
     ]
   }

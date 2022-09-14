@@ -1,7 +1,7 @@
 import React from 'react'
 import Hotkeys, { OnKeyFun } from 'react-hot-keys'
 
-import { ContextMenu, MenuItem, showMenu, SubMenu } from '../layout/ContextMenu'
+import { ContextMenu, MenuItem } from '../contextMenu'
 import ToolButton from '../toolbar/ToolButton'
 
 interface Command {
@@ -59,11 +59,11 @@ const MainMenu = (props: MainMenuProp) => {
       return menuItem
     } else {
       return (
-        <SubMenu key={command.name} title={command.name} hoverDelay={0}>
+        <MenuItem key={command.name} title={command.name} hoverDelay={0}>
           {command.subCommnads.map((subcommand) => {
             return renderMenu(subcommand)
           })}
-        </SubMenu>
+        </MenuItem>
       )
     }
   }

@@ -14,7 +14,7 @@ import Paper from '@mui/material/Paper'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../contextMenu'
 import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
 

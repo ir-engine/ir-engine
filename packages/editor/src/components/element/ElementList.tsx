@@ -21,7 +21,7 @@ import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { shouldPrefabDeserialize } from '../../functions/shouldDeserialize'
 import { useSelectionState } from '../../services/SelectionServices'
-import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../contextMenu'
 import styles from './styles.module.scss'
 
 export interface PrefabItemType {

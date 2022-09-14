@@ -10,6 +10,7 @@ import { EditorPropType } from './Util'
 type NodeEditorProps = EditorPropType & {
   description?: string
   name?: string
+  children?: any
 }
 
 /**

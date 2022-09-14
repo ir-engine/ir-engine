@@ -27,7 +27,7 @@ import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
-import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../contextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import { FileBrowserItem } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
@@ -327,7 +327,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           titleColor="var(--textColor)"
         />
       )}
-
+      {/* 
       <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>
         <div id="file-browser-panel" className={styles.panelContainer}>
           <div className={styles.contentContainer}>
@@ -360,12 +360,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             )}
           </div>
         </div>
-      </ContextMenuTrigger>
+      </ContextMenuTrigger> */}
 
-      <ContextMenu id={'uniqueId_current'} hideOnLeave={true}>
+      {/* <ContextMenu id={'uniqueId_current'} hideOnLeave={true}>
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
-      </ContextMenu>
+      </ContextMenu> */}
       {openProperties && fileProperties && (
         <Dialog
           open={openProperties}

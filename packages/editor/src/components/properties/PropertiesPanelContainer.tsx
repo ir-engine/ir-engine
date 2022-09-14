@@ -22,16 +22,12 @@ import {
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 
-import { Close } from '@mui/icons-material'
-import AddIcon from '@mui/icons-material/Add'
-
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useEditorState } from '../../services/EditorServices'
 import { useSelectionState } from '../../services/SelectionServices'
-import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import MaterialEditor from '../materials/MaterialEditor'
