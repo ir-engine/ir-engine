@@ -72,7 +72,6 @@ export class Engine {
 
   publicPath = ''
 
-  simpleMaterials = false
   xrFrame: XRFrame
 
   isEditor = false
