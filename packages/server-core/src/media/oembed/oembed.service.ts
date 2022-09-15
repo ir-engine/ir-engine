@@ -1,5 +1,10 @@
 import { BadRequest } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers/lib'
+
+import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import { Location } from '@xrengine/common/src/interfaces/Location'
+import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -14,12 +19,12 @@ declare module '@xrengine/common/declarations' {
 export default (app: Application): void => {
   app.use('oembed', {
     find: async (params: Params) => {
-      const queryURL = params.query.url
+      const queryURL = params.query?.url
       if (!queryURL) return new BadRequest('Must provide a valid URL for OEmbed')
       const url = new URL(queryURL)
       const isLocation = /^\/location\//.test(url.pathname)
-      const serverSettingsResult = await app.service('server-setting').find()
-      const clientSettingsResult = await app.service('client-setting').find()
+      const serverSettingsResult = (await app.service('server-setting').find()) as Paginated<ServerSetting>
+      const clientSettingsResult = (await app.service('client-setting').find()) as Paginated<ClientSetting>
       if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {
         const serverSettings = serverSettingsResult.data[0]
         const clientSettings = clientSettingsResult.data[0]
@@ -41,11 +46,11 @@ export default (app: Application): void => {
 
         if (isLocation) {
           const locationName = url.pathname.replace(/\/location\//, '')
-          const locationResult = await app.service('location').find({
+          const locationResult = (await app.service('location').find({
             query: {
               slugifiedName: locationName
             }
-          })
+          })) as Paginated<Location>
           if (locationResult.total === 0) throw new BadRequest('Invalid location name')
           const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
           const storageProvider = getStorageProvider()
