@@ -4,7 +4,7 @@ import { Color } from 'three'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
@@ -12,8 +12,10 @@ import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ControllerGroup, XRInputSourceComponent } from '../../xr/XRComponents'
 import { XRUIManager } from '../classes/XRUIManager'
+import { XRUIClickAwayComponent } from '../components/XRUIClickAwayComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
+import { XRUIUtils } from '../functions/XRUIUtils'
 
 export default async function XRUISystem(world: World) {
   const renderer = EngineRenderer.instance.renderer
@@ -69,7 +71,11 @@ export default async function XRUISystem(world: World) {
        * get closest hit from all XRUIs
        */
       const layerHit = layer.hitTest(controller)
-      if (layerHit && (!hit || layerHit.intersection.distance < hit.intersection.distance)) hit = layerHit
+      if (layerHit) {
+        if (!hit || layerHit.intersection.distance < hit.intersection.distance) hit = layerHit
+      } else if (hasComponent(entity, XRUIClickAwayComponent) && layer.rootLayer.visible) {
+        XRUIUtils.setUIVisible(layer, false)
+      }
     }
 
     if (hit) {

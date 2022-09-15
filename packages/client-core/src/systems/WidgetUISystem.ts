@@ -10,6 +10,7 @@ import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { XRUIUtils } from '@xrengine/engine/src/xrui/functions/XRUIUtils'
 import {
   accessWidgetAppState,
   WidgetAppActions,
@@ -34,7 +35,7 @@ import { createWidgetButtonsView } from './ui/WidgetMenuView'
 export default async function WidgetSystem(world: World) {
   const ui = createWidgetButtonsView()
   const xrui = getComponent(ui.entity, XRUIComponent)
-  ObjectFitFunctions.setUIVisible(xrui.container, false)
+  XRUIUtils.setUIVisible(xrui.container, false)
 
   addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
 
@@ -62,7 +63,7 @@ export default async function WidgetSystem(world: World) {
       // createReadyPlayerWidget(world)
     }
     const xrui = getComponent(ui.entity, XRUIComponent)
-    ObjectFitFunctions.setUIVisible(xrui.container, show)
+    XRUIUtils.setUIVisible(xrui.container, show)
   }
 
   const toggleWidgetsMenu = () => {
@@ -89,7 +90,7 @@ export default async function WidgetSystem(world: World) {
     matches(action).when(WidgetAppActions.showWidget.matches, (action) => {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       const xrui = getComponent(widget.ui.entity, XRUIComponent)
-      ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
+      XRUIUtils.setUIVisible(xrui.container, action.shown)
     })
   }
   addActionReceptor(WidgetAppServiceReceptor)

@@ -1,6 +1,5 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
 import { Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
-import { DEG2RAD } from 'three/src/math/MathUtils'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -124,11 +123,5 @@ export const ObjectFitFunctions = {
     container.scale.setScalar(Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(position) / 3))
     container.position.copy(position)
     container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
-  },
-
-  setUIVisible: (container: WebContainer3D, visibility: boolean) => {
-    container.rootLayer.traverse((obj) => {
-      obj.visible = visibility
-    })
   }
 }
