@@ -177,21 +177,10 @@
           }
         },
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "ground-plane",
           "props": {
             "color": 3561699,
             "generateNavmesh": false
-          }
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
           }
         }
       ],
