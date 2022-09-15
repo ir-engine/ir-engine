@@ -354,7 +354,7 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
     setConnected(true)
     setLocalStorageAddress(accounts[0].address)
     handleConnectAuthService(STRING.KEPLR)
-    await AuthService.loginUserByWeb3Auth(STRING.KEPLR, accounts[0].address, '/', '/')
+    await AuthService.loginUserByWeb3Auth(STRING.KEPLR, accounts[0].address, '/', '/', '')
 
     dispatchAction(AuthAction.actionProcessing({ processing: false }))
   }
