@@ -9,7 +9,6 @@ import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { CredentialVerificationSystem } from '@xrengine/engine/src/credentials/CredentialVerificationSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
@@ -254,11 +253,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
     await initializeCoreSystems()
-
-    initSystemSync(world, {
-      type: SystemUpdateType.UPDATE,
-      systemFunction: CredentialVerificationSystem
-    })
 
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
