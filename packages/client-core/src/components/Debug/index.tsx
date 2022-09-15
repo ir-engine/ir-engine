@@ -152,18 +152,6 @@ export const Debug = () => {
               >
                 <GridOnIcon fontSize="small" />
               </button>
-              <button
-                type="button"
-                onClick={() =>
-                  dispatchAction(
-                    EngineActions.useSimpleMaterials({ useSimpleMaterials: !engineState.useSimpleMaterials.value })
-                  )
-                }
-                className={styles.flagBtn + (engineState.useSimpleMaterials.value ? ' ' + styles.active : '')}
-                title={t('common:debug.simpleMaterials')}
-              >
-                <BlurOffIcon fontSize="small" />
-              </button>
               {hasActiveControlledAvatar && (
                 <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
                   <Refresh />
