@@ -151,13 +151,13 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
       console.log('user info', userInfo)
 
       const openLoginKey = sdkInstance.privKey
-      const { privateKey, publicKey } = await getJunoKeyPairFromOpenLoginKey(openLoginKey)
+      const { mnemonics, privateKey, publicKey } = await getJunoKeyPairFromOpenLoginKey(openLoginKey)
       setAddress(publicKey)
       setPrivateKey(privateKey)
       setUserInfo(userInfo)
       setConnected(true)
 
-      AuthService.loginUserByWeb3Auth(STRING.WEB3AUTH, publicKey, '/', '/')
+      AuthService.loginUserByWeb3Auth(STRING.WEB3AUTH, publicKey, '/', '/', mnemonics)
     }
     setSdk(sdkInstance)
     setConnectLoading(false)
