@@ -119,24 +119,22 @@ export class Web3Strategy extends LocalStrategy {
         { accessToken: params?.authentication?.accessToken },
         {}
       )
-      let provider = authResult['identity-provider'] // To be deleted
-      console.log('authenticate, identityProvider', identityProvider)
-      console.log('authenticate, provider', provider)
-      // await this.app?.service('user').remove(provider.userId)
+
+      // To be deleted, it's deleted when it's guest and find another entity connected with authentication.publicKey
+      let provider = authResult['identity-provider']
+
+      let user: UserInterface = await this.app?.service('user').get(provider.userId)
+      if (user.isGuest === true) await this.app?.service('user').remove(provider.userId)
     } catch (err) {
-      console.log('web3auth-authentication-err', err)
-      console.log('authentication.addWallet', authentication.addWallet)
       if (authentication.addWallet) {
-        console.log('authentication.addWallet1', authentication.addWallet)
         await this.updateEntity(authentication.publicKey, authentication.type, params)
         const identityProvider = await this.findEntity(authentication.publicKey, params)
-        console.log('identityProvider authentication.addWallet', identityProvider)
         return {
           authentication: { web3: true },
           ['identity-provider']: identityProvider
         }
       }
-      // throw new NotAuthenticated(err)
+      throw new NotAuthenticated(err)
     }
     return {
       authentication: { web3: true },
