@@ -9,13 +9,14 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
 import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { ContextMenu, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu } from '../layout/ContextMenu'
 import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
 

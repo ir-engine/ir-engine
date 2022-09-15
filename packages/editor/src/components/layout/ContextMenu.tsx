@@ -1,19 +1,7 @@
 import React from 'react'
-// react-contextmenu has a bug when built, and the only viable
-// workaround is to import from the /dist bunled copy of it.
-import {
-  ContextMenuTrigger as _ContextMenuTrigger, // MenuItem as _MenuItem,
-  showMenu as _showMenu,
-  SubMenu as _SubMenu
-} from 'react-contextmenu'
 import { createGlobalStyle } from 'styled-components'
 
-import { MenuItem as _MenuItem, Menu, PopoverPosition } from '@mui/material'
-
-export const MenuItem = _MenuItem
-export const showMenu = _showMenu
-export const SubMenu = _SubMenu
-export const ContextMenuTrigger = _ContextMenuTrigger
+import { Menu, PopoverPosition } from '@mui/material'
 
 export const ContextMenuStyles = createGlobalStyle<any>`
   .react-contextmenu {
@@ -94,6 +82,7 @@ type ContextMenuProps = {
   open: boolean
   anchorEl: null | HTMLElement
   anchorPosition: undefined | PopoverPosition
+  rootStyle?: React.CSSProperties | undefined
   onClose: () => void
 }
 
@@ -102,6 +91,7 @@ export const ContextMenu = ({
   open,
   anchorEl,
   anchorPosition,
+  rootStyle,
   onClose
 }: React.PropsWithChildren<ContextMenuProps>) => {
   return (
@@ -111,6 +101,7 @@ export const ContextMenu = ({
       anchorEl={anchorEl}
       anchorReference="anchorPosition"
       anchorPosition={anchorPosition}
+      PaperProps={{ style: rootStyle }}
       onContextMenu={(event) => {
         event.preventDefault()
         event.stopPropagation()

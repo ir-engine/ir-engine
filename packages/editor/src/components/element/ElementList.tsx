@@ -12,7 +12,7 @@ import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeF
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
-import { IconButton, PopoverPosition, Tooltip } from '@mui/material'
+import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
 import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -21,7 +21,7 @@ import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { shouldPrefabDeserialize } from '../../functions/shouldDeserialize'
 import { useSelectionState } from '../../services/SelectionServices'
-import { ContextMenu, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
 export interface PrefabItemType {

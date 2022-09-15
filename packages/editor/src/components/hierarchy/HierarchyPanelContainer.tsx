@@ -19,6 +19,7 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { useHookEffect } from '@xrengine/hyperflux'
 
+import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
@@ -32,7 +33,7 @@ import { useEditorState } from '../../services/EditorServices'
 import { accessSelectionState, useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
-import { ContextMenu, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu } from '../layout/ContextMenu'
 import { AppContext } from '../Search/context'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import {

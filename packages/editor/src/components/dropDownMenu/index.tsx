@@ -1,77 +1,87 @@
 import React from 'react'
 import Hotkeys, { OnKeyFun } from 'react-hot-keys'
 
-import { ContextMenu, MenuItem, showMenu, SubMenu } from '../layout/ContextMenu'
+import MenuItem from '@mui/material/MenuItem'
+import { PopoverPosition } from '@mui/material/Popover'
+
+import { ContextMenu } from '../layout/ContextMenu'
 import ToolButton from '../toolbar/ToolButton'
 
 interface Command {
   name: string
   action: Function
   hotkey?: string
-  subCommnads?: Command[]
 }
 
 interface MainMenuProp {
   commands: Command[]
   icon: any
-  isMenuOpen: boolean
-  setMenuOpen: (open: boolean) => void
 }
 
-const MainMenu = (props: MainMenuProp) => {
-  const { commands, icon, isMenuOpen, setMenuOpen } = props
+const MainMenu = ({ commands, icon }: MainMenuProp) => {
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
 
-  const toggleMenu = (e) => {
-    if (isMenuOpen) {
-      setMenuOpen(!isMenuOpen)
-      return
-    }
+  const onOpen = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
 
-    const x = 0
-    const y = e.currentTarget.offsetHeight
-    showMenu({
-      position: { x, y },
-      target: e.currentTarget,
-      id: 'menu'
+    setAnchorEl(event.currentTarget)
+    setAnchorPosition({
+      left: 0,
+      top: event.currentTarget.offsetHeight + 6
     })
-
-    setMenuOpen(true)
   }
 
-  const hideMenu = () => setMenuOpen(false)
+  const handleClose = () => {
+    setAnchorEl(null)
+    setAnchorPosition(undefined)
+  }
 
   const renderMenu = (command: Command) => {
-    if (!command.subCommnads || command.subCommnads.length === 0) {
-      const menuItem = (
-        <MenuItem key={command.name} onClick={command.action}>
-          {command.name}
-          {command.hotkey && <div>{command.hotkey}</div>}
-        </MenuItem>
-      )
+    const menuItem = (
+      <MenuItem
+        key={command.name}
+        onClick={() => {
+          command.action()
+          handleClose()
+        }}
+      >
+        {command.name}
+        {command.hotkey && <div>{command.hotkey}</div>}
+      </MenuItem>
+    )
 
-      if (command.hotkey) {
-        return (
-          <Hotkeys key={command.name} keyName={command.hotkey} onKeyUp={command.action as OnKeyFun}>
-            {menuItem}
-          </Hotkeys>
-        )
-      }
-      return menuItem
-    } else {
+    if (command.hotkey) {
       return (
-        <SubMenu key={command.name} title={command.name} hoverDelay={0}>
-          {command.subCommnads.map((subcommand) => {
-            return renderMenu(subcommand)
-          })}
-        </SubMenu>
+        <Hotkeys
+          key={command.name}
+          keyName={command.hotkey}
+          onKeyUp={() => {
+            command.action()
+            handleClose()
+          }}
+        >
+          {menuItem}
+        </Hotkeys>
       )
     }
+    return menuItem
   }
 
   return (
     <>
-      <ToolButton icon={icon} onClick={toggleMenu} isSelected={isMenuOpen} id="menu" />
-      <ContextMenu id="menu" onHide={hideMenu}>
+      <ToolButton icon={icon} onClick={onOpen} isSelected={open} id="menu" />
+      <ContextMenu
+        open={open}
+        anchorEl={anchorEl}
+        anchorPosition={anchorPosition}
+        rootStyle={{
+          transform: 'translateX(-12px)'
+        }}
+        onClose={handleClose}
+      >
         {commands.map((command: Command) => renderMenu(command))}
       </ContextMenu>
     </>
