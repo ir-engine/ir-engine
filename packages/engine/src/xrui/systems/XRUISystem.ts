@@ -51,11 +51,16 @@ export default async function XRUISystem(world: World) {
   const redirectDOMEvent = (evt) => {
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
-      const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
-      if (hit && hit.intersection.object.visible) {
-        hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
-        hit.target.focus()
-        return
+      const layerHit = layer.hitTest(world.pointerScreenRaycaster.ray)
+      if (layerHit) {
+        if (layerHit.intersection.object.visible) {
+          layerHit.target.dispatchEvent(new evt.constructor(evt.type, evt))
+          layerHit.target.focus()
+          return
+        }
+      } else if (layer.rootLayer.visible) {
+        if (hasComponent(entity, XRUIClickAwayComponent))
+          getComponent(entity, XRUIClickAwayComponent).onClickAway(layerHit)
       }
     }
   }
@@ -73,8 +78,9 @@ export default async function XRUISystem(world: World) {
       const layerHit = layer.hitTest(controller)
       if (layerHit) {
         if (!hit || layerHit.intersection.distance < hit.intersection.distance) hit = layerHit
-      } else if (hasComponent(entity, XRUIClickAwayComponent) && layer.rootLayer.visible) {
-        XRUIUtils.setUIVisible(layer, false)
+      } else if (layer.rootLayer.visible) {
+        if (hasComponent(entity, XRUIClickAwayComponent))
+          getComponent(entity, XRUIClickAwayComponent).onClickAway(layerHit)
       }
     }
 
