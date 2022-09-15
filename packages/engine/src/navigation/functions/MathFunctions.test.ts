@@ -2,9 +2,9 @@ import assert from 'assert'
 import { round } from 'lodash'
 
 import { V_000, V_001, V_010, V_100, V_111 } from '../../common/constants/MathConstants'
-import { getMovementDirection } from './vectorFunctions'
+import { getMovementDirection } from './MathFunctions'
 
-describe('vectorFunctions', () => {
+describe('MathFunctions', () => {
   it('returns a normalized vector that points in the direction of the target from the origin, neglecting Y differences', () => {
     assert.deepStrictEqual(getMovementDirection(V_000, V_001.clone().multiplyScalar(2)).toArray(), [0, 0, -1])
     assert.deepStrictEqual(getMovementDirection(V_000, V_010.clone().multiplyScalar(2)).toArray(), [0, 0, 0])

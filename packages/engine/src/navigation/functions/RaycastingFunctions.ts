@@ -1,11 +1,7 @@
 import { Camera, Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
 const raycaster = new Raycaster()
-export function findClosestProjectedPoint(
-  camera: Camera,
-  surfaces: Object3D[],
-  point: Vector2
-): [Vector3 | null, number] {
+export function findFirstIntersection(camera: Camera, surfaces: Object3D[], point: Vector2): [Vector3 | null, number] {
   raycaster.setFromCamera(point, camera)
 
   const raycasterResults: Intersection[] = []

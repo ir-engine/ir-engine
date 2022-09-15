@@ -1,16 +1,10 @@
 import { Vector3 } from 'three'
 
 import { NavMesh } from '../../scene/classes/NavMesh'
-import { fromYukaVector, toYukaVector } from './vectorFunctions'
+import { fromYukaVector, toYukaVector } from './MathFunctions'
 
-export const updatePath = (
-  path: Vector3[],
-  navMesh: NavMesh,
-  from: Vector3,
-  to: Vector3,
-  debugInfo: null | { polygonPath: number[] }
-): Vector3[] => {
-  const points = navMesh.findPath(toYukaVector(from), toYukaVector(to), debugInfo)
+export const updatePath = (path: Vector3[], navMesh: NavMesh, from: Vector3, to: Vector3): Vector3[] => {
+  const points = navMesh.findPath(toYukaVector(from), toYukaVector(to))
 
   // Copy array
   for (let i = 0; i < points.length; i++) {

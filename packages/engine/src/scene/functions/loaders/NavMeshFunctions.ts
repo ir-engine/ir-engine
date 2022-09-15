@@ -90,9 +90,8 @@ function setNavMeshPolygons(navMesh: NavMesh, obj3d: Object3D) {
     const position = geometry.getAttribute('position').array
     const index = geometry.getIndex()?.array
 
-    // Apply mesh's transforms to mesh's geometry
-    const matrix = mesh.matrix
-    const polygons = parseGeometry(position, index, matrix)
+    // Apply mesh's aggregate transforms to mesh's geometry
+    const polygons = parseGeometry(position, index, mesh.matrixWorld)
     // This will also clear any existing polygons
     navMesh.fromPolygons(polygons)
   }

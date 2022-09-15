@@ -6,13 +6,23 @@ const vec3 = new Vector3()
 export function getMovementDirection(target: Vector3, origin: Vector3) {
   vec3.copy(target).sub(origin).normalize()
 
+  // TODO this needs to change for paths in 3D
   vec3.setY(0)
   return vec3
 }
 
-export function applyTransform(p: Vector3, r: Quaternion, s: Vector3) {
+// TODO Use Matrix4 instead
+export function applyTransform({
+  position,
+  rotation,
+  scale
+}: {
+  position: Vector3
+  rotation: Quaternion
+  scale: Vector3
+}) {
   return (source: Vector3, target: Vector3) => {
-    return target.copy(source).applyQuaternion(r).multiply(s).add(p)
+    return target.copy(source).applyQuaternion(rotation).multiply(scale).add(position)
   }
 }
 

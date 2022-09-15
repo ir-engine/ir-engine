@@ -1,10 +1,13 @@
 import { Vector3 } from 'three'
 
+import { State as EntityState } from '../../common/functions/EntityStateMachineFunctions'
+import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type AutoPilotComponentType = {
-  // TODO remove this property?
-  endPoint: Vector3
+  state: EntityState
+  navMeshEntities: Entity[]
+  closestNavMeshIndex: number
   path: Vector3[]
   pathIndex: number
   speed: number

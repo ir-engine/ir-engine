@@ -36,7 +36,7 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { AutoPilotComponent } from '../../navigation/component/AutoPilotComponent'
 import { createConvexRegionHelper } from '../../navigation/functions/createConvexRegionHelper'
-import { createGraphHelper, createPathHelper } from '../../navigation/GraphHelper'
+import { createGoalHelper, createGraphHelper, createPathHelper } from '../../navigation/GraphHelper'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -101,6 +101,7 @@ export default async function DebugHelpersSystem(world: World) {
     velocityArrow: new Map(),
     navmesh: new Map(),
     autoPilot: new Map(),
+    autoPilotGoal: new Map(),
     navpath: new Map(),
     positionalAudioHelper: new Map(),
     interactorFrustum: new Map()
@@ -542,33 +543,27 @@ export default async function DebugHelpersSystem(world: World) {
       const convexRegionHelper = createConvexRegionHelper(navMesh)
       const graphHelper = createGraphHelper(navMesh.graph, 0.2)
       const helper = new Group()
-      const transform = getComponent(entity, TransformComponent)
       helper.add(convexRegionHelper, graphHelper)
-      helper.position.copy(transform.position)
-      helper.quaternion.copy(transform.rotation)
-      helper.scale.copy(transform.scale)
       Engine.instance.currentWorld.scene.add(helper)
       helpersByEntity.navmesh.set(entity, helper)
     }
     for (const entity of autoPilotQuery.exit()) {
       if (helpersByEntity.autoPilot.has(entity)) {
-        const helper = helpersByEntity.autoPilot.get(entity) as Object3D
-        Engine.instance.currentWorld.scene.remove(helper)
+        const pathHelper = helpersByEntity.autoPilot.get(entity) as Object3D
+        Engine.instance.currentWorld.scene.remove(pathHelper)
         helpersByEntity.autoPilot.delete(entity)
       }
     }
-    for (const entity of autoPilotQuery.enter()) {
-      const navMeshEntity = getComponent(entity, DebugAutoPilotComponent).navMeshEntity
-      const path = getComponent(entity, DebugAutoPilotComponent).polygonPath
-      if (path.length > 0) {
+    // Check for changes
+    for (const entity of autoPilotQuery()) {
+      const { navMeshEntities, closestNavMeshIndex } = getComponent(entity, AutoPilotComponent)
+      if (!helpersByEntity.autoPilot.has(entity) && closestNavMeshIndex >= 0) {
+        const navMeshEntity = navMeshEntities[closestNavMeshIndex]
+        const path = getComponent(entity, AutoPilotComponent).path
         const navMesh = getComponent(navMeshEntity, NavMeshComponent).value
-        const navMeshTransform = getComponent(navMeshEntity, TransformComponent)
-        const helper = createPathHelper(navMesh, path, 0.2)
-        helper.position.copy(navMeshTransform.position)
-        helper.quaternion.copy(navMeshTransform.rotation)
-        helper.scale.copy(navMeshTransform.scale)
-        Engine.instance.currentWorld.scene.add(helper)
-        helpersByEntity.autoPilot.set(entity, helper)
+        const pathHelper = createPathHelper(navMesh, [...path], 0.2)
+        Engine.instance.currentWorld.scene.add(pathHelper)
+        helpersByEntity.autoPilot.set(entity, pathHelper)
       }
     }
 
