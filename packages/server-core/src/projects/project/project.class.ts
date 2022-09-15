@@ -489,14 +489,14 @@ export class Project extends Service {
 
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     data.forEach((item) => {
-      const packageJson = getProjectPackageJson(item.name)
-      const values = (item as any).dataValues as ProjectInterface
+      const values = (item as any).dataValues
+        ? ((item as any).dataValues as ProjectInterface)
+        : (item as ProjectInterface)
+      const packageJson = getProjectPackageJson(values.name)
       values.version = packageJson.version
-      values.engineVersion = packageJson.etherealEngine.version
+      values.engineVersion = packageJson.etherealEngine?.version
       values.description = packageJson.description
-      values
-        ? (values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
-        : (item.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
+      values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
     })
 
     return {
