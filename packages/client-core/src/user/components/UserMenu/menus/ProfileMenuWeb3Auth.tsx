@@ -156,6 +156,7 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
       setPrivateKey(privateKey)
       setUserInfo(userInfo)
       setConnected(true)
+      setLocalStorageLoginType(STRING.WEB3AUTH)
 
       AuthService.loginUserByWeb3Auth(STRING.WEB3AUTH, publicKey, '/', '/', mnemonics)
     }
@@ -165,11 +166,16 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
   }
 
   const loadAddress = () => {
-    initializeOpenlogin()
-    let address
-    if (!(address = getLocalStorageAddress())) {
+    let type: string | null
+    if (!(type = getLocalStorageLoginType())) {
       setConnected(false)
     } else {
+      if (type === STRING.WEB3AUTH) {
+        initializeOpenlogin()
+        // handleConnectWithWeb3Auth()
+      } else if (type === STRING.KEPLR) {
+        handleConnectWithKeplrWallet()
+      }
       setAddress(address)
       setConnected(true)
     }
@@ -272,14 +278,17 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
     AuthService.removeUserOAuth(e.currentTarget.id)
   }
 
-  const setLocalStorageAddress = (address: string | null) => {
-    if (address) localStorage.setItem('address', address)
-    else localStorage.removeItem('address')
+  const setLocalStorageLoginType = (type: string | null) => {
+    if (type) {
+      localStorage.setItem('logintype', type)
+    } else {
+      localStorage.removeItem('logintype')
+    }
   }
 
-  const getLocalStorageAddress = (): string | null => {
-    if (!localStorage.getItem('address') || !localStorage.getItem('address')?.startsWith('juno')) return null
-    return localStorage.getItem('address') as string
+  const getLocalStorageLoginType = (): string | null => {
+    if (!localStorage.getItem('logintype')) return null
+    return localStorage.getItem('logintype') as string
   }
 
   // const getLocalStroageAddress
@@ -303,15 +312,15 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
           const userInfo = await (openlogin as OpenLogin).getUserInfo()
           console.log('user info', userInfo)
 
-          const { privateKey, publicKey } = await getJunoKeyPairFromOpenLoginKey(openLoginKey)
+          const { mnemonics, privateKey, publicKey } = await getJunoKeyPairFromOpenLoginKey(openLoginKey)
           setAddress(publicKey)
           setPrivateKey(privateKey)
           setUserInfo(userInfo)
-          setLocalStorageAddress(publicKey)
+          setLocalStorageLoginType(STRING.WEB3AUTH)
           setConnected(true)
 
           console.log('AuthService.loginUserByWeb3Auth', STRING.WEB3AUTH, publicKey)
-          AuthService.loginUserByWeb3Auth(STRING.WEB3AUTH, publicKey, '/', '/')
+          AuthService.loginUserByWeb3Auth(STRING.WEB3AUTH, publicKey, '/', '/', mnemonics)
         }
       } else {
         NotificationService.dispatchNotify('Error while login with Web3Auth!', {
@@ -352,7 +361,7 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
     const accounts = await offlineSigner.getAccounts()
     setAddress(accounts[0].address)
     setConnected(true)
-    setLocalStorageAddress(accounts[0].address)
+    setLocalStorageLoginType(STRING.KEPLR)
     handleConnectAuthService(STRING.KEPLR)
     await AuthService.loginUserByWeb3Auth(STRING.KEPLR, accounts[0].address, '/', '/', '')
 
@@ -369,7 +378,7 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
     if (openlogin !== undefined && userInfo) {
       await openlogin.logout({})
     }
-    setLocalStorageAddress(null)
+    setLocalStorageLoginType(null)
     setAddress(loginNote)
     setUserInfo(null)
     setConnected(false)
