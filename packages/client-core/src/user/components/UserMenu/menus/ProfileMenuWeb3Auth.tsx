@@ -160,18 +160,20 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
 
       AuthService.loginUserByWeb3Auth(STRING.WEB3AUTH, publicKey, '/', '/', mnemonics)
     }
+    console.log('sdkInstance', sdkInstance)
     setSdk(sdkInstance)
     setConnectLoading(false)
     dispatchAction(AuthAction.actionProcessing({ processing: false }))
   }
 
   const loadAddress = () => {
+    initializeOpenlogin()
     let type: string | null
     if (!(type = getLocalStorageLoginType())) {
       setConnected(false)
     } else {
       if (type === STRING.WEB3AUTH) {
-        initializeOpenlogin()
+        // initializeOpenlogin()
         // handleConnectWithWeb3Auth()
       } else if (type === STRING.KEPLR) {
         handleConnectWithKeplrWallet()
@@ -294,13 +296,6 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
   // const getLocalStroageAddress
 
   const handleConnectWithWeb3Auth = async () => {
-    if (!(await window.Keplr.getKeplr())) {
-      NotificationService.dispatchNotify('Please install Keplr wallet extension!', {
-        variant: 'error'
-      })
-      return
-    }
-
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     setConnectLoading(true)
     try {
@@ -794,13 +789,13 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
                 <div className={styles.container}>
                   <CircularProgress size={30} />
                 </div>
-                <Typography variant="h3" className={styles.textBlock}>
+                <Typography variant="h1" className={styles.textBlock}>
                   {t('user:usermenu.connect.connecting')}
                 </Typography>
               </>
             ) : (
               <>
-                <Typography variant="h3" className={styles.textBlock}>
+                <Typography variant="h1" className={styles.textBlock}>
                   {t('user:usermenu.connect.connect-with')}
                 </Typography>
               </>

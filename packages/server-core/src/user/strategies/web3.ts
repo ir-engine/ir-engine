@@ -10,6 +10,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { Application } from '../../../declarations'
 import { Scope } from '../../scope/scope/scope.class'
 import getFreeInviteCode from '../../util/get-free-invite-code'
+import makeInitialAdmin from '../../util/make-initial-admin'
 import { User } from '../user/user.class'
 
 export class Web3Strategy extends LocalStrategy {
@@ -58,46 +59,58 @@ export class Web3Strategy extends LocalStrategy {
     console.log('authResult', authResult)
     let identityProvider = authResult['identity-provider']
     console.log('identityProvider', identityProvider)
-    let user
+    let user = (await this.app?.service('user').get(identityProvider.userId)) as UserInterface
     const code = await getFreeInviteCode(this.app)
-    if (!identityProvider) {
+
+    if (!user) {
       user = (await this.app?.service('user').create({
         isGuest: 0,
         inviteCode: code,
         type: type,
-        avatarId: avatars[random(avatars.data.length - 1)].avatarId
+        avatarId: avatars[random(avatars.total - 1)].avatarId
       })) as UserInterface
       userId = user.id
     } else {
-      user = (await this.app?.service('user').get(identityProvider.userId)) as UserInterface
-      console.log('web3auth-user', user)
       await this.app?.service('user').patch(identityProvider.userId, {
         isGuest: 0,
         inviteCode: code
       })
       userId = identityProvider.userId
     }
+
     identityProvider = await this.app?.service('identity-provider').patch(identityProvider.id, {
       userId: userId,
       type: type,
       publicKey: publicKey
     })
-    console.log('updateEntity, identityProvider', identityProvider)
-    // console.log('updateEntity, userService', UserService)
-    // user = await this.app?.service('user').get(userId!)
-    console.log('updateEntity, userId', userId)
-    console.log('UserService', UserService)
-    const adminCount = await UserService.Model.count({
-      include: [
-        {
-          model: ScopeService.Model,
-          where: {
-            type: 'admin:admin'
-          }
-        }
-      ]
+    await makeInitialAdmin(this.app as Application, user.id)
+
+    const apiKey = await this.app?.service('user-api-key').find({
+      query: {
+        userId: userId
+      }
     })
-    console.log('adminCount', adminCount)
+    if ((apiKey as any).total === 0)
+      await this.app?.service('user-api-key').create({
+        userId: userId
+      })
+
+    // if (user.type !== 'guest' && identityProvider.type === 'guest') {
+    //   await this.app?.service('identity-provider').remove(identityProvider.id)
+    //   await this.app?.service('user').remove(identityProvider.userId)
+    // }
+
+    // const adminCount = await UserService.Model.count({
+    //   include: [
+    //     {
+    //       model: ScopeService.Model,
+    //       where: {
+    //         type: 'admin:admin'
+    //       }
+    //     }
+    //   ]
+    // })
+    // console.log('adminCount', adminCount)
   }
 
   /**
