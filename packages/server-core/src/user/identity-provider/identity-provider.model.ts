@@ -17,6 +17,7 @@ export default (app: Application) => {
       },
       token: { type: DataTypes.STRING, unique: true },
       password: { type: DataTypes.STRING },
+      publicKey: { type: DataTypes.STRING },
       isVerified: { type: DataTypes.BOOLEAN },
       verifyToken: { type: DataTypes.STRING },
       verifyShortToken: { type: DataTypes.STRING },

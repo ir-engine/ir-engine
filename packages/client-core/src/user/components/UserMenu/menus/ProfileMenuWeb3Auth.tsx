@@ -12,6 +12,7 @@ import { requestVcForEvent } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Check, ContentCopy, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -24,7 +25,6 @@ import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 
 import { STRING } from '../../../../../../common/src/utils/string'
 import InputSelect, { InputMenuItem } from '../../../../admin/common/InputSelect'
@@ -38,17 +38,16 @@ import { KeplrIcon } from '../../../../common/components/Icons/KeplrIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
 import { Web3AuthIcon } from '../../../../common/components/Icons/Web3AuthIcon'
+import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { publicKeyToReduceString } from '../../../../util/web3'
-import { AuthService, useAuthState, AuthAction } from '../../../services/AuthService'
+import { AuthAction, AuthService, useAuthState } from '../../../services/AuthService'
 import { getJunoKeyPairFromOpenLoginKey } from '../../../services/Web3AuthService'
 import { userHasAccess } from '../../../userHasAccess'
 import styles from '../index.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
 const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
-
-import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
 interface Props {
   className?: string
@@ -64,6 +63,7 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
 
   const selfUser = useAuthState().user
   console.log('USER:', selfUser)
+  console.log('web3auth-USER:', selfUser)
 
   const [username, setUsername] = useState(selfUser?.name.value)
   const [emailPhone, setEmailPhone] = useState('')
@@ -143,6 +143,8 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
       clientId: 'BPArw0EQxNo0pW9thSDA7xZo8w_qdtK9VdccvnaoUIxWy7YeTikQVaZBHh0yemI3XgSSfDlnlHvHxhfPmlgKiy0', // your project id
       network: OPENLOGIN_NETWORK[localStorage.getItem('network') as string] || 'testnet'
     })
+
+    dispatchAction(AuthAction.actionProcessing({ processing: true }))
     await sdkInstance.init()
     if (sdkInstance.privKey) {
       const userInfo = await sdkInstance.getUserInfo()
@@ -154,9 +156,12 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
       setPrivateKey(privateKey)
       setUserInfo(userInfo)
       setConnected(true)
+
+      AuthService.loginUserByWeb3Auth(STRING.WEB3AUTH, publicKey, '/', '/')
     }
     setSdk(sdkInstance)
     setConnectLoading(false)
+    dispatchAction(AuthAction.actionProcessing({ processing: false }))
   }
 
   const loadAddress = () => {
@@ -287,6 +292,7 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
       return
     }
 
+    dispatchAction(AuthAction.actionProcessing({ processing: true }))
     setConnectLoading(true)
     try {
       if (openlogin != undefined) {
@@ -304,9 +310,9 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
           setLocalStorageAddress(publicKey)
           setConnected(true)
 
+          console.log('AuthService.loginUserByWeb3Auth', STRING.WEB3AUTH, publicKey)
           AuthService.loginUserByWeb3Auth(STRING.WEB3AUTH, publicKey, '/', '/')
         }
-        setConnectLoading(false)
       } else {
         NotificationService.dispatchNotify('Error while login with Web3Auth!', {
           variant: 'error'
@@ -315,7 +321,9 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
       }
     } catch (error) {
       console.log('error', error)
+    } finally {
       setConnectLoading(false)
+      dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   }
 
@@ -610,7 +618,8 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
             )}
             <h4>
               {isConnected && (
-                <div className={styles.logout}
+                <div
+                  className={styles.logout}
                   onClick={handleLogout}
                   onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -771,19 +780,35 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
 
         {!isConnected ? (
           <section className={styles.connectBlock}>
-            {loading && (
-              <div className={styles.container}>
-                <CircularProgress size={30} />
-              </div>
+            {loading ? (
+              <>
+                <div className={styles.container}>
+                  <CircularProgress size={30} />
+                </div>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.connect.connecting')}
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.connect.connect-with')}
+                </Typography>
+              </>
             )}
-            <Typography variant="h3" className={styles.textBlock}>
-              {t('user:usermenu.connect.connect-with')}
-            </Typography>
-            <Button className={styles.connectWeb3AuthButton} onClick={() => handleConnectWithWeb3Auth()}>
+            <Button
+              disabled={loading}
+              className={styles.connectWeb3AuthButton}
+              onClick={() => handleConnectWithWeb3Auth()}
+            >
               <Web3AuthIcon width="10" height="10" viewBox="0 0 10 10" />
               &nbsp;{t('user:usermenu.connect.web3auth')}
             </Button>
-            <Button className={styles.connectWalletButton} onClick={() => handleConnectWithKeplrWallet()}>
+            <Button
+              disabled={loading}
+              className={styles.connectWalletButton}
+              onClick={() => handleConnectWithKeplrWallet()}
+            >
               <KeplrIcon width="10" height="10" viewBox="0 0 10 10" />
               &nbsp;{t('user:usermenu.connect.wallet')}
             </Button>
@@ -802,7 +827,7 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
                   size="small"
                   placeholder={'Wallet ddress'}
                   variant="outlined"
-                  value={publicKeyToReduceString(address, 10)}
+                  value={publicKeyToReduceString(address, 14)}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
