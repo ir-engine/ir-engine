@@ -605,3 +605,11 @@
 .profilePaper {
   background-color: transparent;
 }
+
+[class*="MuiDrawer-modal"] {
+  z-index: 1400;
+}
+
+#menu-projectURL {
+  z-index: 1500;
+}

@@ -4,7 +4,7 @@ import fs from 'fs'
 import fsExtra from 'fs-extra'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
-import { defineConfig, loadEnv, UserConfig, UserConfigExport } from 'vite'
+import { defineConfig, loadEnv, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import PkgConfig from 'vite-plugin-package-config'
@@ -109,7 +109,7 @@ export default defineConfig(async () => {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         'socket.io-client': 'socket.io-client/dist/socket.io.js',
-        '@mui/styled-engine': '@mui/styled-engine-sc'
+        '@mui/styled-engine': '@mui/styled-engine-sc/'
       }
     },
     build: {
