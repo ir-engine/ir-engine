@@ -19,6 +19,8 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { useHookEffect } from '@xrengine/hyperflux'
 
+import { PopoverPosition } from '@mui/material/Popover'
+
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { executeCommandWithHistory, setPropertyOnEntityNode } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -33,7 +35,13 @@ import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { AppContext } from '../Search/context'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
-import { getNodeElId, HierarchyTreeNode, HierarchyTreeNodeData, RenameNodeData } from './HierarchyTreeNode'
+import {
+  getNodeElId,
+  HierarchyTreeNode,
+  HierarchyTreeNodeData,
+  HierarchyTreeNodeProps,
+  RenameNodeData
+} from './HierarchyTreeNode'
 import styles from './styles.module.scss'
 
 /**
@@ -102,18 +110,16 @@ function getModelNodesFromTreeWalker(
 }
 
 /**
- * initializing MemoTreeNode.
- */
-const MemoTreeNode = memo(HierarchyTreeNode, areEqual)
-
-/**
  * HierarchyPanel function component provides view for hierarchy tree.
  *
  * @constructor
  */
 export default function HierarchyPanel() {
   const { t } = useTranslation()
-  const anchorRef = React.useRef(null)
+  const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
   const onUpload = useUpload(uploadOptions)
   const selectionState = useSelectionState()
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
@@ -122,9 +128,13 @@ export default function HierarchyPanel() {
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const editorState = useEditorState()
-  const setSelectedNode = (selection) => !editorState.lockPropertiesPanel.value && _setSelectedNode(selection)
   const { searchHierarchy } = useContext(AppContext)
   const showObject3DInHierarchy = useEditorState().showObject3DInHierarchy
+
+  const MemoTreeNode = memo(
+    (props: HierarchyTreeNodeProps) => <HierarchyTreeNode {...props} onContextMenu={onContextMenu} />,
+    areEqual
+  )
 
   if (searchHierarchy.length > 0) {
     const condition = new RegExp(searchHierarchy.toLowerCase())
@@ -162,6 +172,8 @@ export default function HierarchyPanel() {
     selectionState.sceneGraphChangeCounter
   ])
 
+  const setSelectedNode = (selection) => !editorState.lockPropertiesPanel.value && _setSelectedNode(selection)
+
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
@@ -181,6 +193,8 @@ export default function HierarchyPanel() {
 
   const expandChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
+      handleClose()
+
       if (node.obj3d) return // todo
       traverseEntityNode(node.entityNode, (child) => (collapsedNodes[child.entity] = false))
       setCollapsedNodes({ ...collapsedNodes })
@@ -190,6 +204,8 @@ export default function HierarchyPanel() {
 
   const collapseChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
+      handleClose()
+
       if (node.obj3d) return // todo
       traverseEntityNode(node.entityNode, (child) => (collapsedNodes[child.entity] = true))
       setCollapsedNodes({ ...collapsedNodes })
@@ -227,6 +243,24 @@ export default function HierarchyPanel() {
       }
     }
   }, [])
+
+  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: HeirarchyTreeNodeType) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    setContextSelectedItem(item)
+    setAnchorEl(event.currentTarget)
+    setAnchorPosition({
+      left: event.clientX + 2,
+      top: event.clientY - 6
+    })
+  }
+
+  const handleClose = () => {
+    setContextSelectedItem(undefined)
+    setAnchorEl(null)
+    setAnchorPosition(undefined)
+  }
 
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (node.obj3d) return // todo
@@ -327,6 +361,8 @@ export default function HierarchyPanel() {
   )
 
   const onDeleteNode = useCallback((node: HeirarchyTreeNodeType) => {
+    handleClose()
+
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
@@ -334,6 +370,8 @@ export default function HierarchyPanel() {
   }, [])
 
   const onDuplicateNode = useCallback((node: HeirarchyTreeNodeType) => {
+    handleClose()
+
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
@@ -341,6 +379,8 @@ export default function HierarchyPanel() {
   }, [])
 
   const onGroupNodes = useCallback((node: HeirarchyTreeNodeType) => {
+    handleClose()
+
     const objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
@@ -350,6 +390,8 @@ export default function HierarchyPanel() {
 
   /* Rename functions */
   const onRenameNode = useCallback((node: HeirarchyTreeNodeType) => {
+    handleClose()
+
     if (node.entityNode) {
       const entity = node.entityNode.entity
       setRenamingNode({ entity, name: getComponent(entity, NameComponent).name })
@@ -461,8 +503,8 @@ export default function HierarchyPanel() {
           </AutoSizer>
         )}
       </div>
-      <ContextMenu anchorEl={anchorRef.current}>
-        <MenuItem onClick={() => onRenameNode(selectedNode!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
+      <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+        <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <Hotkeys
           keyName={cmdOrCtrlString + '+d'}
           onKeyUp={(_, e) => {
@@ -471,7 +513,7 @@ export default function HierarchyPanel() {
             selectedNode && onDuplicateNode(selectedNode!)
           }}
         >
-          <MenuItem onClick={() => onDuplicateNode}>
+          <MenuItem onClick={() => onDuplicateNode(contextSelectedItem!)}>
             {t('editor:hierarchy.lbl-duplicate')}
             <div>{cmdOrCtrlString + ' + d'}</div>
           </MenuItem>
@@ -484,14 +526,16 @@ export default function HierarchyPanel() {
             selectedNode && onGroupNodes(selectedNode!!)
           }}
         >
-          <MenuItem onClick={() => onGroupNodes(selectedNode!)}>
+          <MenuItem onClick={() => onGroupNodes(contextSelectedItem!)}>
             {t('editor:hierarchy.lbl-group')}
             <div>{cmdOrCtrlString + ' + g'}</div>
           </MenuItem>
         </Hotkeys>
-        <MenuItem onClick={() => onDeleteNode(selectedNode!)}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
-        <MenuItem onClick={() => expandChildren(selectedNode!)}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
-        <MenuItem onClick={() => collapseChildren(selectedNode!)}>{t('editor:hierarchy.lbl-collapseAll')}</MenuItem>
+        <MenuItem onClick={() => onDeleteNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
+        <MenuItem onClick={() => expandChildren(contextSelectedItem!)}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
+        <MenuItem onClick={() => collapseChildren(contextSelectedItem!)}>
+          {t('editor:hierarchy.lbl-collapseAll')}
+        </MenuItem>
       </ContextMenu>
     </>
   )

@@ -24,7 +24,6 @@ import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
-import { ContextMenuTrigger } from '../layout/ContextMenu'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
@@ -60,6 +59,7 @@ export type HierarchyTreeNodeProps = {
   index: number
   data: HierarchyTreeNodeData
   style: StyleHTMLAttributes<HTMLLIElement>
+  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: HeirarchyTreeNodeType) => void
 }
 
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
@@ -103,7 +103,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const onMouseDownNode = useCallback((e) => data.onMouseDown(e, node), [node, data.onMouseDown])
 
   const onChangeNodeName = useCallback((e) => data.onChangeName(node, e.target.value), [node, data.onChangeName])
-  const onSubmitNodeName = useCallback((e) => data.onRenameSubmit(node, e.target.value), [data.onRenameSubmit, node])
 
   const [_dragProps, drag, preview] = useDrag({
     type: ItemTypes.Node,
@@ -283,12 +282,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   return (
     <li style={props.style}>
-      {/* <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" collect={collectNodeMenuProps}> */}
       <div
         ref={drag}
         id={getNodeElId(node)}
-        onMouseDown={onMouseDownNode}
-        onClick={onClickNode}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
         className={
@@ -298,6 +294,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           (node.selected ? ' ' + styles.selected : '') +
           (node.active ? ' ' + styles.active : '')
         }
+        onMouseDown={onMouseDownNode}
+        onClick={onClickNode}
+        onContextMenu={(event) => props.onContextMenu(event, node)}
       >
         <div
           className={styles.nodeDropTraget}
@@ -328,7 +327,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                     className={styles.renameInput}
                     onChange={onChangeNodeName}
                     onKeyDown={onKeyDownNameInput}
-                    onBlur={onSubmitNodeName}
                     value={data.renamingNode.name}
                     autoFocus
                   />
@@ -351,7 +349,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           ref={afterDropTarget}
         />
       </div>
-      {/* </ContextMenuTrigger> */}
     </li>
   )
 }
