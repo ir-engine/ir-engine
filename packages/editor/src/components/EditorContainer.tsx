@@ -503,7 +503,7 @@ const EditorContainer = () => {
   const viewPortPanelContent = useCallback((shouldDisplay) => {
     return shouldDisplay ? (
       <div className={styles.bgImageBlock}>
-        <img src="/static/xrengine.png" />
+        <img src="/static/etherealengine.png" alt="" />
         <h2>{t('editor:selectSceneMsg')}</h2>
       </div>
     ) : (
