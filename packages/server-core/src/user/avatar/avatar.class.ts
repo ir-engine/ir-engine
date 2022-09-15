@@ -110,7 +110,7 @@ export class Avatar extends Service<AvatarInterface> {
     if (avatar.userId !== params?.user!.id && params && params.user && params.user.id) {
       const hasPermission = await checkScope(params?.user, this.app, 'admin', 'admin')
       if (!hasPermission) {
-        throw new UnauthorizedException(`Unauthorised to perform this action.`)
+        throw new UnauthorizedException(`Unauthorized to perform this action.`)
       }
     }
 

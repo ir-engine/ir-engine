@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "",
   "main": "",
+  "etherealEngine": {
+    "version": ""
+  },
   "scripts": {
     "test": "mocha --config .mocharc.js"
   },

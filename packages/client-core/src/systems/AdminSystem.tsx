@@ -6,7 +6,6 @@ import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/service
 import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
-import { AdminGithubAppActions, AdminGithubAppReceptors } from '../admin/services/GithubAppService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
 import { AdminInstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
 import { AdminInstanceActions, AdminInstanceReceptors } from '../admin/services/InstanceService'
@@ -99,7 +98,6 @@ export default async function AdminSystem(world: World) {
   const updateGroupQueue = createActionQueue(AdminGroupActions.updateGroup.matches)
   const removeGroupActionQueue = createActionQueue(AdminGroupActions.removeGroupAction.matches)
   const addAdminGroupQueue = createActionQueue(AdminGroupActions.addAdminGroup.matches)
-  const githubAppFetchedQueue = createActionQueue(AdminGithubAppActions.githubAppFetched.matches)
   const installedRoutesRetrievedQueue = createActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
   const activeRoutesRetrievedQueue = createActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
   const fetchedSingleUserQueue = createActionQueue(AdminUserActions.fetchedSingleUser.matches)
@@ -184,7 +182,6 @@ export default async function AdminSystem(world: World) {
     for (const action of updateGroupQueue()) AdminGroupServiceReceptors.updateGroupReceptor(action)
     for (const action of removeGroupActionQueue()) AdminGroupServiceReceptors.removeGroupActionReceptor(action)
     for (const action of addAdminGroupQueue()) AdminGroupServiceReceptors.addAdminGroupReceptor(action)
-    for (const action of githubAppFetchedQueue()) AdminGithubAppReceptors.githubAppFetchedReceptor(action)
     for (const action of installedRoutesRetrievedQueue()) AdminRouteReceptors.installedRoutesRetrievedReceptor(action)
     for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
     for (const action of fetchedSingleUserQueue()) AdminUserReceptors.fetchedSingleUserReceptor(action)
@@ -268,7 +265,6 @@ export default async function AdminSystem(world: World) {
     removeActionQueue(updateGroupQueue)
     removeActionQueue(removeGroupActionQueue)
     removeActionQueue(addAdminGroupQueue)
-    removeActionQueue(githubAppFetchedQueue)
     removeActionQueue(installedRoutesRetrievedQueue)
     removeActionQueue(activeRoutesRetrievedQueue)
     removeActionQueue(fetchedSingleUserQueue)
