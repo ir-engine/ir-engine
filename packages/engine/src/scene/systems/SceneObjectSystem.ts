@@ -1,22 +1,23 @@
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import { Mesh, MeshStandardMaterial, Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
+import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
+import { beforeMaterialCompile } from '../classes/BPCEMShader'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent } from '../components/GroupComponent'
+import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 
 type BPCEMProps = {
   bakeScale: Vector3
@@ -33,10 +34,8 @@ export class SceneOptions {
   boxProjection = false
 }
 
-const processObject3d = (entity: Entity) => {
-  if (!isClient) return
-
-  const group = getComponent(entity, GroupComponent) as any as Mesh<any, MeshBasicMaterial>[]
+const updateObject = (entity: Entity) => {
+  const group = getComponent(entity, GroupComponent) as (Object3DWithEntity & Mesh<any, MeshStandardMaterial>)[]
   const shadowComponent = getComponent(entity, ShadowComponent)
 
   for (const obj of group) {
@@ -49,31 +48,38 @@ const processObject3d = (entity: Entity) => {
     }
   }
 
-  updateSimpleMaterials([entity])
+  if (hasComponent(entity, XRUIComponent)) return
+
+  let abort = false
+
+  for (const obj of group) {
+    if (abort || (obj.entity && hasComponent(entity, XRUIComponent))) {
+      abort = true
+      return
+    }
+
+    obj.traverse(applyMaterial)
+  }
 }
 
-const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
-  for (const entity of sceneObjectEntities) {
-    const group = getComponent(entity, GroupComponent)
-    if (hasComponent(entity, XRUIComponent)) return
+const applyMaterial = (obj: Mesh<any, MeshStandardMaterial>) => {
+  const material = obj.material
 
-    const simpleMaterials =
-      hasComponent(entity, SimpleMaterialTagComponent) || getEngineState().useSimpleMaterials.value
-
-    let abort = false
-
-    for (const obj of group) {
-      if (abort || (obj.entity && hasComponent(entity, XRUIComponent))) {
-        abort = true
-        return
-      }
-      if (simpleMaterials) {
-        useSimpleMaterial(obj as any)
-      } else {
-        useStandardMaterial(obj as any)
-      }
-    }
+  // BPCEM
+  if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
+    addOBCPlugin(
+      material,
+      beforeMaterialCompile(
+        SceneOptions.instance.bpcemOptions.bakeScale,
+        SceneOptions.instance.bpcemOptions.bakePositionOffset
+      )
+    )
+    material.userData.hasBoxProjectionApplied = true
   }
+
+  material.envMapIntensity = SceneOptions.instance.envMapIntensity
+
+  if (obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
 }
 
 export default async function SceneObjectSystem(world: World) {
@@ -84,8 +90,6 @@ export default async function SceneObjectSystem(world: World) {
 
   const sceneObjectQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
-
-  const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
@@ -98,10 +102,7 @@ export default async function SceneObjectSystem(world: World) {
       }
     }
 
-    // todo: refactor this processing by making all the changes reactive
-    for (const entity of sceneObjectQuery()) {
-      processObject3d(entity)
-    }
+    if (isClient) for (const entity of sceneObjectQuery()) updateObject(entity)
 
     const delta = getState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {

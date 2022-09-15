@@ -30,7 +30,6 @@
     "debug": "Debug Helpers",
     "nodeHelperDebug": "Node Helper",
     "gridDebug": "Grid",
-    "simpleMaterials": "Simple Materials",
     "tick": "Tick",
     "state": "State",
     "systems": "Systems",

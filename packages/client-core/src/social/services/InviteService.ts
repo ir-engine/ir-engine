@@ -41,7 +41,7 @@ const InviteState = defineState({
     getSentInvitesInProgress: false,
     getReceivedInvitesInProgress: false,
     targetObjectId: '',
-    targetObjectType: 'xre.client.Invite.'
+    targetObjectType: ''
   })
 })
 
@@ -229,7 +229,7 @@ export const InviteService = {
       const inviteResult = (await API.instance.client.service('invite').find({
         query: {
           $sort: sortData,
-          type: 'xre.client.Invite.received',
+          type: 'received',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit,
           search: search
@@ -272,7 +272,7 @@ export const InviteService = {
       const inviteResult = (await API.instance.client.service('invite').find({
         query: {
           $sort: sortData,
-          type: 'xre.client.Invite.sent',
+          type: 'sent',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit,
           search: search

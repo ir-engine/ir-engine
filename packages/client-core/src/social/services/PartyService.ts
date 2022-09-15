@@ -164,7 +164,7 @@ export const PartyService = {
     try {
       const channelResult = (await API.instance.client.service('channel').find({
         query: {
-          channelType: 'xre.client.Party.party',
+          channelType: 'party',
           partyId: partyId
         }
       })) as Paginated<Channel>
@@ -180,7 +180,7 @@ export const PartyService = {
   inviteToParty: async (partyId: string, userId: string) => {
     try {
       const sendData = {
-        inviteType: 'xre.client.Party.party',
+        inviteType: 'party',
         inviteeId: userId,
         targetObjectId: partyId
       } as SendInvite

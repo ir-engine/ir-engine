@@ -324,7 +324,6 @@
             "materialOverrides": [],
             "generateBVH": true,
             "matrixAutoUpdate": true,
-            "useBasicMaterial": false,
             "isUsingGPUInstancing": false
           }
         },
@@ -584,7 +583,6 @@
             "materialOverrides": [],
             "generateBVH": false,
             "matrixAutoUpdate": true,
-            "useBasicMaterial": false,
             "isUsingGPUInstancing": false
           }
         },

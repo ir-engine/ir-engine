@@ -207,7 +207,7 @@ export const GroupService = {
     try {
       const channelResult = (await API.instance.client.service('channel').find({
         query: {
-          channelType: 'xre.client.Group.group',
+          channelType: 'group',
           groupId: groupId
         }
       })) as any
