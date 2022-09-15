@@ -135,7 +135,6 @@ export default function HierarchyPanel() {
 
   const updateNodeHierarchy = useCallback(
     (world = Engine.instance.currentWorld) => {
-      console.log('update node hierarchy', world)
       if (!world.entityTree) return
       setNodes(
         getModelNodesFromTreeWalker(
