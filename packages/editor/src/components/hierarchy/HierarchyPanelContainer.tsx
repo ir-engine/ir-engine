@@ -146,7 +146,8 @@ export default function HierarchyPanel() {
   }
 
   const updateNodeHierarchy = useCallback(
-    (world = useWorld()) => {
+    (world = Engine.instance.currentWorld) => {
+      console.log('update node hierarchy', world)
       if (!world.entityTree) return
       setNodes(
         getModelNodesFromTreeWalker(
@@ -217,7 +218,7 @@ export default function HierarchyPanel() {
 
   const onObjectChanged = useCallback(
     (_, propertyName) => {
-      if (propertyName === 'name' || !propertyName) updateNodeHierarchy(collapsedNodes)
+      if (propertyName === 'name' || !propertyName) updateNodeHierarchy()
     },
     [collapsedNodes]
   )
