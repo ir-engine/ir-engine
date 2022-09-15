@@ -2,6 +2,7 @@ import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import path from 'path'
 
+import { ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
@@ -133,6 +134,10 @@ export const getProjectConfig = async (projectName: string): Promise<ProjectConf
     )
     return null!
   }
+}
+
+export const getProjectPackageJson = (projectName: string): ProjectPackageJsonType => {
+  return require(path.resolve(projectsRootFolder, projectName, 'package.json'))
 }
 
 export const getProjectEnv = async (app: Application, projectName: string) => {

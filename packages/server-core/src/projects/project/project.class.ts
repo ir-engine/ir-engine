@@ -31,7 +31,7 @@ import {
   getUserRepos,
   pushProjectToGithub
 } from '../githubapp/githubapp-helper'
-import { getProjectConfig, onProjectEvent } from './project-helper'
+import { getProjectConfig, getProjectPackageJson, onProjectEvent } from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -487,12 +487,18 @@ export class Project extends Service {
       }
     }
 
-    let data: ProjectInterface[] = ((await super.find(params)) as any).data
-    data.forEach((item) =>
-      (item as any).dataValues
-        ? ((item as any).dataValues.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
+    const data: ProjectInterface[] = ((await super.find(params)) as any).data
+    data.forEach((item) => {
+      const packageJson = getProjectPackageJson(item.name)
+      const values = (item as any).dataValues as ProjectInterface
+      values.version = packageJson.version
+      values.engineVersion = packageJson.etherealEngine.version
+      values.description = packageJson.description
+      values
+        ? (values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
         : (item.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
-    )
+    })
+
     return {
       data
     }
