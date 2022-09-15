@@ -2,6 +2,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
 import { ParityValue } from '../../common/enums/ParityValue'
+import { isMobile } from '../../common/functions/isMobile'
 import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
 
@@ -34,8 +35,7 @@ export const EngineState = defineState({
      */
     shareLink: '',
     shareTitle: '',
-    transformsNeedSorting: true,
-    useSimpleMaterials: false
+    transformsNeedSorting: true
   }
 })
 
@@ -67,9 +67,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.shareInteractableLink.matches, (action) => {
       s.shareLink.set(action.shareLink)
       s.shareTitle.set(action.shareTitle)
-    })
-    .when(EngineActions.useSimpleMaterials.matches, (action) => {
-      s.useSimpleMaterials.set(action.useSimpleMaterials)
     })
 }
 
@@ -168,11 +165,6 @@ export class EngineActions {
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.Engine.SCENE_OBJECT_UPDATE' as const,
     entities: matches.array as Validator<unknown, Entity[]>
-  })
-
-  static useSimpleMaterials = defineAction({
-    type: 'xre.engine.Engine.SIMPLE_MATERIALS' as const,
-    useSimpleMaterials: matches.boolean
   })
 
   static avatarModelChanged = defineAction({

@@ -24,7 +24,6 @@ import {
   SCENE_COMPONENT_MODEL_DEFAULT_VALUE
 } from '../../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
-import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { generateMeshBVH } from '../bvhWorkerPool'
 import { addError, removeError } from '../ErrorFunctions'
@@ -87,12 +86,6 @@ export const updateModel = async (entity: Entity) => {
   const scene = model.scene!
   enableObjectLayer(scene, ObjectLayers.Camera, model.generateBVH)
 
-  const notUsingAndHasBasicMaterial = !hasComponent(entity, SimpleMaterialTagComponent) && model.useBasicMaterial
-  const usingAndNotHasBasicMaterial = hasComponent(entity, SimpleMaterialTagComponent) && !model.useBasicMaterial
-
-  if (notUsingAndHasBasicMaterial) addComponent(entity, SimpleMaterialTagComponent, true)
-  if (usingAndNotHasBasicMaterial) removeComponent(entity, SimpleMaterialTagComponent)
-
   if (isClient && model.materialOverrides.length > 0) {
     const overrides = await Promise.all(
       model.materialOverrides.map((override, i) => initializeOverride(entity, override)?.())
@@ -128,7 +121,6 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
     materialOverrides: overrides,
     generateBVH: component.generateBVH,
     matrixAutoUpdate: component.matrixAutoUpdate,
-    useBasicMaterial: component.useBasicMaterial,
     isUsingGPUInstancing: component.isUsingGPUInstancing
   }
 }
