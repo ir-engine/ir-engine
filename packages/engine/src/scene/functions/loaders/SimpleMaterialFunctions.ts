@@ -25,7 +25,8 @@ export const useSimpleMaterial = (obj: Object3DWithEntity & Mesh<any, any>): voi
   const isStandardMaterial = obj.material instanceof MeshStandardMaterial
   const isBasicMaterial = obj.material instanceof MeshBasicMaterial
 
-  if (!obj.material || !obj.material.color || isBasicMaterial) return
+  if (!obj.material || !obj.material.color || isBasicMaterial || typeof obj.userData.isSimpleMaterial !== 'undefined')
+    return
   if (obj.entity && hasComponent(obj.entity, XRUIComponent)) return
   if (obj.userData.prevMaterial) return
 
@@ -349,17 +350,23 @@ export const useSimpleMaterial = (obj: Object3DWithEntity & Mesh<any, any>): voi
       obj.material.uniforms.flipEnvMap = { value: 1 }
     }
     obj.material.needsUpdate = true
+    obj.material.userData.isSimpleMaterial = true
   } catch (error) {
     console.error(error)
   }
 }
 
-export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
-  const material = obj.userData.prevMaterial ?? obj.material
+export const useStandardMaterial = (obj: Mesh<any, MeshStandardMaterial>): void => {
+  if (obj.userData.prevMaterial) {
+    obj.material.dispose()
+    obj.material = obj.userData.prevMaterial
+    obj.userData.prevMaterial = undefined
+  }
 
-  if (typeof material === 'undefined') return
-  //avoid materials without shadow receiving capabilities
-  if (['MeshBasicMaterial', 'ShaderMaterial', 'RawShaderMaterial'].includes(material.type)) return
+  const material = obj.material
+
+  if (typeof material === 'undefined' || typeof material.userData.isSimpleMaterial !== 'undefined') return
+
   // BPCEM
   if (SceneOptions.instance.boxProjection) {
     addOBCPlugin(
@@ -373,11 +380,7 @@ export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
 
   material.envMapIntensity = SceneOptions.instance.envMapIntensity
 
-  if (obj.userData.prevMaterial) {
-    obj.material.dispose()
-    obj.material = material
-    obj.userData.prevMaterial = undefined
-  }
-
   if (obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
+
+  obj.material.userData.isSimpleMaterial = false
 }

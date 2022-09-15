@@ -2,6 +2,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
 import { ParityValue } from '../../common/enums/ParityValue'
+import { isMobile } from '../../common/functions/isMobile'
 import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
 
@@ -35,7 +36,7 @@ export const EngineState = defineState({
     shareLink: '',
     shareTitle: '',
     transformsNeedSorting: true,
-    useSimpleMaterials: false
+    useSimpleMaterials: isMobile
   }
 })
 

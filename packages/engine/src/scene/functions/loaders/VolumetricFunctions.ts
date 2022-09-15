@@ -1,5 +1,5 @@
 import type VolumetricPlayer from '@xrfoundation/volumetric/player'
-import { Box3, Group, Material, Mesh, Object3D } from 'three'
+import { Box3, Group, Material, Mesh, MeshStandardMaterial, Object3D } from 'three'
 
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
@@ -71,6 +71,7 @@ export const enterVolumetric = async (entity: Entity) => {
     video: mediaElement.element as HTMLVideoElement,
     paths: [],
     playMode: PlayMode.single
+    // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
 
   const volumetric = {
@@ -89,8 +90,10 @@ export const enterVolumetric = async (entity: Entity) => {
     () => {
       const transform = getComponent(entity, TransformComponent)
       if (!transform) return
-      volumetric.height = calculateHeight(player.mesh) * transform.scale.y
-      if (volumetric.loadingEffectTime === 0) setupLoadingEffect(entity, player!.mesh)
+      if (volumetric.loadingEffectActive) {
+        volumetric.height = calculateHeight(player.mesh) * transform.scale.y
+        if (volumetric.loadingEffectTime === 0) setupLoadingEffect(entity, player!.mesh)
+      }
     },
     { signal: mediaElement.abortController.signal }
   )

@@ -1,20 +1,19 @@
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent } from '../components/GroupComponent'
+import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 
@@ -54,11 +53,10 @@ const processObject3d = (entity: Entity) => {
 
 const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
   for (const entity of sceneObjectEntities) {
-    const group = getComponent(entity, GroupComponent)
-    if (hasComponent(entity, XRUIComponent)) return
+    const group = getComponent(entity, GroupComponent) as (Object3DWithEntity & Mesh<any, MeshStandardMaterial>)[]
+    if (hasComponent(entity, XRUIComponent)) continue
 
-    const simpleMaterials =
-      hasComponent(entity, SimpleMaterialTagComponent) || getEngineState().useSimpleMaterials.value
+    const simpleMaterials = getEngineState().useSimpleMaterials.value
 
     let abort = false
 
@@ -67,10 +65,11 @@ const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
         abort = true
         return
       }
+
       if (simpleMaterials) {
-        useSimpleMaterial(obj as any)
+        obj.traverse(useSimpleMaterial)
       } else {
-        useStandardMaterial(obj as any)
+        obj.traverse(useStandardMaterial)
       }
     }
   }
@@ -84,8 +83,6 @@ export default async function SceneObjectSystem(world: World) {
 
   const sceneObjectQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
-
-  const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {

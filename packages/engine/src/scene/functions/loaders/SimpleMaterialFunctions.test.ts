@@ -32,9 +32,8 @@ describe('SimpleMaterialFunctions', () => {
 
   describe('useStandardMaterial()', () => {
     it('does nothing if there no material', () => {
-      const mat = new MeshStandardMaterial()
       const obj3d = new Object3D()
-      useStandardMaterial(obj3d as Mesh<any, Material>)
+      useStandardMaterial(obj3d as Mesh<any, MeshStandardMaterial>)
 
       assert(!obj3d.userData.material)
     })
@@ -46,7 +45,7 @@ describe('SimpleMaterialFunctions', () => {
       EngineRenderer.instance.csm = { setupMaterial() {} } as any
       obj3d.userData.prevMaterial = mat
 
-      useStandardMaterial(obj3d)
+      useStandardMaterial(obj3d as any)
 
       assert(obj3d.material === (mat as any))
       assert((obj3d.material as any).envMapIntensity === SceneOptions.instance.envMapIntensity)
