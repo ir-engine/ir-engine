@@ -300,6 +300,7 @@
     "connect": {
       "note": "Please connect with below methods",
       "connect-with": "Connect With",
+      "connecting": "Connecting",
       "connected-with": "Connected With",
       "web3auth": "Web3Auth",
       "wallet": "Keplr Wallet"

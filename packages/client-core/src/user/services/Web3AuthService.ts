@@ -1,8 +1,12 @@
+import { toHex } from '@cosmjs/encoding'
+import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 import { Paginated } from '@feathersjs/feathers'
 import { Downgraded } from '@speigg/hookstate'
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
+import { fromSeed } from 'bip32'
+import { entropyToMnemonic, mnemonicToSeedSync } from 'bip39'
 import i18n from 'i18next'
 import _ from 'lodash'
 import querystring from 'querystring'
@@ -20,13 +24,6 @@ import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { entropyToMnemonic, mnemonicToSeedSync } from 'bip39';
-import { fromSeed } from 'bip32';
-import { toHex } from '@cosmjs/encoding'
-import {
-  DirectSecp256k1HdWallet,
-} from '@cosmjs/proto-signing'
-
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
@@ -37,7 +34,7 @@ import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
 export const getJunoKeyPairFromOpenLoginKey = async (openloginKey) => {
-  const mnemonic_phrase = entropyToMnemonic(openloginKey);
+  const mnemonic_phrase = entropyToMnemonic(openloginKey)
   console.log('mnemonic_phrase', mnemonic_phrase)
   const path = `m/44'/118'/0'/0/0`
   const password = ''
@@ -55,17 +52,18 @@ export const getJunoKeyPairFromOpenLoginKey = async (openloginKey) => {
   console.log('privatekey => ', toHex(privateKey))
 
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic_phrase, {
-    prefix: 'juno',
+    prefix: 'juno'
   })
   const accs = await wallet.getAccounts()
-  let publicKey = '';
+  let publicKey = ''
   if (accs.length) {
-    publicKey = accs[0].address;
+    publicKey = accs[0].address
   }
   accs.map((acc) => console.log('Juno addresses => ', acc.address))
 
   return {
+    mnemonics: mnemonic_phrase,
     privateKey: toHex(privateKey),
     publicKey: publicKey
-  };
+  }
 }

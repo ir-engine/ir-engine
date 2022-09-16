@@ -24,6 +24,7 @@ export interface UserInterface {
   name: string
   isGuest: boolean
   avatarId?: string
+  mnemonics?: string // In case of login with web3auth, (identity_providers[0].type == 'keplr' | 'web3auth')
   identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
@@ -49,6 +50,7 @@ export const UserSeed: UserInterface = {
   name: '',
   isGuest: true,
   avatarId: '',
+  mnemonics: '',
   apiKey: {
     id: '',
     token: '',

@@ -381,26 +381,31 @@
 
     .connectBlock {
       margin-top: 20px;
+
       .connectWeb3AuthButton {
         background: var(--green);
         margin-right: 10px;
+
         &:hover {
           cursor: pointer;
           background: var(--lightGreen);
         }
       }
+
       .connectWalletButton {
         background: var(--green);
         margin-right: 10px;
+
         &:hover {
           cursor: pointer;
           background: var(--lightGreen);
         }
       }
+
       .textBlock {
         font-size: 14px;
         color: var(--textColor);
-        font-weight: normal;
+        font-weight: bold;
         text-align: center;
         display: block;
         cursor: initial;
@@ -434,7 +439,7 @@
       .textBlock {
         color: var(--textColor);
         font-size: 14px;
-        font-weight: normal;
+        font-weight: bold;
         text-align: center;
         display: block;
         cursor: initial;
@@ -485,7 +490,7 @@
       .textBlock {
         font-size: 14px;
         color: var(--textColor);
-        font-weight: normal;
+        font-weight: bold;
         text-align: center;
         display: block;
         cursor: initial;
@@ -706,24 +711,29 @@
 
     .connectBlock {
       margin-top: 20px;
+
       .textBlock {
         font-size: 14px;
         color: var(--textColor);
-        font-weight: normal;
+        font-weight: bold;
         text-align: center;
         display: block;
         cursor: initial;
       }
+
       .connectWeb3AuthButton {
         background: var(--green);
         margin-right: 10px;
+
         &:hover {
           cursor: pointer;
           background: var(--lightGreen);
         }
       }
+
       .connectWalletButton {
         background: var(--green);
+
         &:hover {
           cursor: pointer;
           background: var(--lightGreen);
@@ -758,7 +768,7 @@
       .textBlock {
         color: var(--textColor);
         font-size: 14px;
-        font-weight: normal;
+        font-weight: bold;
         text-align: center;
         display: block;
         cursor: initial;
@@ -809,7 +819,7 @@
       .textBlock {
         font-size: 14px;
         color: var(--textColor);
-        font-weight: normal;
+        font-weight: bold;
         text-align: center;
         display: block;
         cursor: initial;
@@ -1223,6 +1233,7 @@
 
   .deletePanel {
     .deleteAccount {
+      margin-top: 10px;
       color: var(--textColor);
 
       &:hover {

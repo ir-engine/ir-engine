@@ -5,6 +5,8 @@ import { Downgraded } from '@hookstate/core'
 import axios from 'axios'
 import i18n from 'i18next'
 import _ from 'lodash'
+// ms per interval of waiting for authToken to be updated
+import { random } from 'lodash'
 import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
@@ -22,12 +24,15 @@ import {
   UserSetting
 } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import getFreeInviteCode from '@xrengine/server-core/src/util/get-free-invite-code'
 
+import { STRING } from '../../../../common/src/utils/string'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
@@ -38,12 +43,7 @@ import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
-export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
-
-import { random } from 'lodash'
-import { STRING } from '../../../../common/src/utils/string'
-import getFreeInviteCode from '@xrengine/server-core/src/util/get-free-invite-code'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+export const TIMEOUT_INTERVAL = 50
 
 //State
 export const AuthState = defineState({
@@ -246,7 +246,7 @@ export const AuthService = {
     }
   },
 
-  async loadUserData(userId: string) {
+  async loadUserData(userId: string, mnemonics?: string) {
     try {
       const client = API.instance.client
       const res: any = await client.service('user').get(userId)
@@ -262,6 +262,7 @@ export const AuthService = {
         }
       }
       const user = resolveUser(res)
+      if (mnemonics) user.mnemonics = mnemonics
       dispatchAction(AuthAction.loadedUserDataAction({ user }))
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
@@ -363,13 +364,13 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
-  
+
   /**
    * Logs in the current user based on an OAuth response.
    * @param service {string} - OAuth service id (github, etc).
    * @param location {object} - `useLocation()` from 'react-router-dom'
    */
-   async loginUserByOAuth(service: string, location: any) {
+  async loginUserByOAuth(service: string, location: any) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     const token = accessAuthState().authUser.accessToken.value
     const path = location?.state?.from || location.pathname
@@ -382,7 +383,16 @@ export const AuthService = {
       redirectObject
     )}`
   },
-  async loginUserByWeb3Auth <K extends keyof typeof STRING>(service: typeof STRING[K], walletAddress: string, redirectSuccess: string, redirectError: string) {
+  /**
+   * @param PrivateKey is only available when logined with web3auth, otherwise, will connect wtih keplr wallet
+   */
+  async loginUserByWeb3Auth<K extends keyof typeof STRING>(
+    service: typeof STRING[K],
+    walletAddress: string,
+    redirectSuccess: string,
+    redirectError: string,
+    mnemonics?: string
+  ) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     const authData = accessStoredLocalState().attach(Downgraded).value
     let accessToken = authData?.authUser?.accessToken
@@ -399,10 +409,10 @@ export const AuthService = {
       console.error('Non-Authenticated - Invalid Login')
     }
     const authUser = resolveAuthUser(res)
-    await AuthService.loadUserData(authUser.identityProvider.userId)
+    await AuthService.loadUserData(authUser.identityProvider.userId, mnemonics)
     dispatchAction(AuthAction.actionProcessing({ processing: false }))
   },
-  
+
   async removeUserOAuth(service: string) {
     const ipResult = (await API.instance.client.service('identity-provider').find()) as any
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
@@ -705,13 +715,15 @@ export const AuthService = {
   },
   async addConnectionByWallet(publicKey: string, accessToken: string, userId?: string) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    const avatars = await API.instance.client.service('avatar').find({ isInternal: true, query: { $limit: 1000 } }) as Paginated<AvatarInterface>
+    const avatars = (await API.instance.client
+      .service('avatar')
+      .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarInterface>
     let user
     if (!userId) {
-      user = (await API.instance.client.service('user').create({
+      user = await API.instance.client.service('user').create({
         isGuest: false,
         avatarId: avatars[random(avatars.data.length - 1)].avatarId
-      }))
+      })
       userId = user.id
     }
     await API.instance.client.authentication.setAccessToken(accessToken as string)
@@ -741,9 +753,9 @@ export const AuthService = {
     const res = (await API.instance.client.service('user-settings').patch(id, data)) as UserSetting
     dispatchAction(AuthAction.updatedUserSettingsAction({ data: res }))
   },
-  async removeUser(userId: string) {
+  async removeUser(userId: string, logout?: boolean) {
     await API.instance.client.service('user').remove(userId)
-    AuthService.logoutUser()
+    if (logout !== undefined && logout === true) AuthService.logoutUser()
   },
   async updateApiKey() {
     const apiKey = (await API.instance.client.service('user-api-key').patch(null, {})) as UserApiKey

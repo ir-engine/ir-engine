@@ -10,6 +10,7 @@ import { MyJwtStrategy } from './strategies/jwt'
 import LinkedInStrategy from './strategies/linkedin'
 import { MyLocalStrategy } from './strategies/local'
 import TwitterStrategy from './strategies/twitter'
+import { Web3Strategy } from './strategies/web3'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
@@ -21,6 +22,7 @@ export default (app: Application): void => {
   const authentication = new AuthenticationService(app as any)
   authentication.register('jwt', new MyJwtStrategy())
   authentication.register('local', new MyLocalStrategy() as any)
+  authentication.register('web3', new Web3Strategy(app) as any)
   authentication.register('discord', new DiscordStrategy(app) as any)
   authentication.register('google', new GoogleStrategy(app) as any)
   authentication.register('facebook', new FacebookStrategy(app) as any)
