@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash'
 import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import logger from '@xrengine/common/src/logger'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
@@ -11,6 +12,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
 import {
+  addComponent,
   ComponentMap,
   defineQuery,
   getAllComponents,
@@ -229,16 +231,21 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
  * @param world
  */
 export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
-  const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
-  if (existingEntity) {
-    deserializeSceneEntity(existingEntity, entityJson)
-    /** handle reparenting due to changes in scene json */
-    if (world.entityTree.entityNodeMap.get(existingEntity!.parentEntity!)?.uuid !== entityJson.parent)
-      reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
-  } else {
-    const node = createEntityNode(createEntity(), uuid)
-    addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!))
-    deserializeSceneEntity(node, entityJson)
+  try {
+    const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
+    if (existingEntity) {
+      deserializeSceneEntity(existingEntity, entityJson)
+      const parent = world.entityTree.entityNodeMap.get(existingEntity!.parentEntity!)
+      /** handle reparenting due to changes in scene json */
+      if (parent && parent.uuid !== entityJson.parent)
+        reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
+    } else {
+      const node = createEntityNode(createEntity(), uuid)
+      addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!))
+      deserializeSceneEntity(node, entityJson)
+    }
+  } catch (e) {
+    logger.error(e, `Failed to update scene entity ${uuid}`)
   }
 }
 
@@ -278,12 +285,15 @@ export const deserializeSceneEntity = (
   setComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
 
   /** remove ECS components that are in the scene register but not in the json */
+  /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */
   const componentsToRemove = getAllComponents(entityNode.entity).filter(
     (C) =>
-      world.sceneComponentRegistry.has(C.name) ||
+      world.sceneComponentRegistry.has(C.name) &&
       !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
   )
-  for (const C of componentsToRemove) removeComponent(entityNode.entity, C)
+  for (const C of componentsToRemove) {
+    removeComponent(entityNode.entity, C)
+  }
   for (const component of sceneEntity.components) {
     try {
       loadComponent(entityNode.entity, component)
