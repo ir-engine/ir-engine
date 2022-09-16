@@ -130,7 +130,10 @@ function applyDescToCollider(
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 }
 
-function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
+function createColliderDesc(
+  mesh: Mesh,
+  colliderDescOptions: ColliderDescOptions & { singleton?: boolean }
+): ColliderDesc {
   if (!colliderDescOptions.shapeType && colliderDescOptions.type)
     colliderDescOptions.shapeType = colliderDescOptions.type
 
@@ -211,7 +214,10 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       return undefined!
   }
 
-  applyDescToCollider(colliderDesc, colliderDescOptions, mesh.position, mesh.quaternion)
+  const position = colliderDescOptions.singleton ? new Vector3() : mesh.position
+  const rotation = colliderDescOptions.singleton ? new Quaternion() : mesh.quaternion
+
+  applyDescToCollider(colliderDesc, colliderDescOptions, position, rotation)
 
   return colliderDesc
 }

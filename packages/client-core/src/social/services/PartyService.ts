@@ -354,54 +354,54 @@ export const PartyService = {
 
 export class PartyActions {
   static loadedPartyAction = defineAction({
-    type: 'LOADED_PARTY' as const,
+    type: 'xre.client.Party.LOADED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>,
     isOwned: matches.boolean
   })
 
   static createdPartyAction = defineAction({
-    type: 'CREATED_PARTY' as const,
+    type: 'xre.client.Party.CREATED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static patchedPartyAction = defineAction({
-    type: 'PATCHED_PARTY' as const,
+    type: 'xre.client.Party.PATCHED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static removedPartyAction = defineAction({
-    type: 'REMOVED_PARTY' as const,
+    type: 'xre.client.Party.REMOVED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static invitedPartyUserAction = defineAction({
-    type: 'INVITED_PARTY_USER' as const
+    type: 'xre.client.Party.INVITED_PARTY_USER' as const
   })
 
   static leftPartyAction = defineAction({
-    type: 'LEFT_PARTY' as const
+    type: 'xre.client.Party.LEFT_PARTY' as const
   })
 
   static createdPartyUserAction = defineAction({
-    type: 'CREATED_PARTY_USER' as const,
+    type: 'xre.client.Party.CREATED_PARTY_USER' as const,
     partyUser: matches.object as Validator<unknown, PartyUser>
   })
 
   static patchedPartyUserAction = defineAction({
-    type: 'PATCHED_PARTY_USER' as const,
+    type: 'xre.client.Party.PATCHED_PARTY_USER' as const,
     partyUser: matches.object as Validator<unknown, PartyUser>
   })
 
   static removedPartyUserAction = defineAction({
-    type: 'REMOVED_PARTY_USER' as const,
+    type: 'xre.client.Party.REMOVED_PARTY_USER' as const,
     partyUser: matches.object as Validator<unknown, PartyUser>
   })
 
   static changedPartyAction = defineAction({
-    type: 'CHANGED_PARTY' as const
+    type: 'xre.client.Party.CHANGED_PARTY' as const
   })
 
   static resetUpdateNeededAction = defineAction({
-    type: 'RESET_UPDATE_NEEDED' as const
+    type: 'xre.client.Party.RESET_UPDATE_NEEDED' as const
   })
 }

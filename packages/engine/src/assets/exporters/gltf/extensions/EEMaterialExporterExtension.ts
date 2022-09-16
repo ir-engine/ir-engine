@@ -1,13 +1,20 @@
-import { Material } from 'three'
+import { Material, Texture } from 'three'
 
 import { extractDefaults, materialToDefaultArgs } from '../../../../renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
+export type EEMaterialExtensionType = {
+  uuid: string
+  name: string
+  prototype: string
+  args: { [field: string]: any }
+}
+
 export default class EEMaterialExporterExtension extends ExporterExtension {
   constructor(writer: GLTFWriter) {
-    super(writer, {})
+    super(writer)
     this.name = 'EE_material'
     this.matCache = new Map()
   }
@@ -22,6 +29,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       switch (v.type) {
         case 'texture':
           if (material[k]) {
+            if ((material[k] as Texture).isRenderTargetTexture) return //for skipping environment maps which cause errors
             const mapDef = { index: this.writer.processTexture(material[k]) }
             this.writer.applyTextureTransform(mapDef, material[k])
             result[k] = mapDef

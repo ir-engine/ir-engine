@@ -57,7 +57,7 @@ export const InviteTypeService = {
 //Action
 export class InviteTypeAction {
   static retrievedInvitesTypes = defineAction({
-    type: 'LOAD_INVITE_TYPE' as const,
+    type: 'xre.client.InviteType.LOAD_INVITE_TYPE' as const,
     total: matches.number,
     limit: matches.number,
     invitesType: matches.any as Validator<unknown, Paginated<InviteType>>,
@@ -65,6 +65,6 @@ export class InviteTypeAction {
   })
 
   static fetchingInvitesTypes = defineAction({
-    type: 'FETCHING_RECEIVED_INVITES_TYPES' as const
+    type: 'xre.client.InviteType.FETCHING_RECEIVED_INVITES_TYPES' as const
   })
 }

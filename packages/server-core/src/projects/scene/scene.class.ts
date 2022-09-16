@@ -26,7 +26,6 @@ export const getSceneData = async (
   internal = false,
   storageProviderName?: string
 ) => {
-  console.log('getSceneData', projectName, sceneName, metadataOnly, internal, storageProviderName)
   const storageProvider = getStorageProvider(storageProviderName)
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
   const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`

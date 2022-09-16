@@ -18,7 +18,7 @@ import { ExporterExtension } from './ExporterExtension'
 
 export default class BasisuExporterExtension extends ExporterExtension {
   constructor(writer: GLTFWriter) {
-    super(writer, {})
+    super(writer)
     this.name = 'KHR_texture_basisu'
     this.sampler = writer.processSampler(new Texture())
     this.imgCache = new Map<any, number>()

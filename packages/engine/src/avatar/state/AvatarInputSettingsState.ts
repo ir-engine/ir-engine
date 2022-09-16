@@ -42,22 +42,22 @@ export function AvatarInputSettingsReceptor(action) {
 
 export class AvatarInputSettingsAction {
   static setControlType = defineAction({
-    type: 'AVATAR_SET_CONTROL_TYPE' as const,
+    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_CONTROL_TYPE' as const,
     controlType: matches.string as Validator<unknown, typeof AvatarControllerType[keyof typeof AvatarControllerType]>
   })
 
   static setControlScheme = defineAction({
-    type: 'AVATAR_SET_CONTROL_SCHEME' as const,
+    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_CONTROL_SCHEME' as const,
     scheme: matches.string as Validator<unknown, typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme]>
   })
 
   static setInvertRotationAndMoveSticks = defineAction({
-    type: 'SET_INVERT_ROTATION_AND_MOVE_STICKS' as const,
+    type: 'xre.avatar.AvatarInputSettings.SET_INVERT_ROTATION_AND_MOVE_STICKS' as const,
     invertRotationAndMoveSticks: matches.boolean
   })
 
   static setShowAvatar = defineAction({
-    type: 'SET_SHOW_AVATAR' as const,
+    type: 'xre.avatar.AvatarInputSettings.SET_SHOW_AVATAR' as const,
     showAvatar: matches.boolean
   })
 }

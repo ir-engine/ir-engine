@@ -103,19 +103,19 @@ export const AdminAvatarService = {
 //Action
 export class AdminAvatarActions {
   static avatarsFetched = defineAction({
-    type: 'AVATARS_RETRIEVED' as const,
+    type: 'xre.client.AdminAvatar.AVATARS_RETRIEVED' as const,
     avatars: matches.object as Validator<unknown, AvatarResult>
   })
 
   static avatarCreated = defineAction({
-    type: 'AVATAR_CREATED' as const
+    type: 'xre.client.AdminAvatar.AVATAR_CREATED' as const
   })
 
   static avatarRemoved = defineAction({
-    type: 'AVATAR_REMOVED' as const
+    type: 'xre.client.AdminAvatar.AVATAR_REMOVED' as const
   })
 
   static avatarUpdated = defineAction({
-    type: 'AVATAR_UPDATED' as const
+    type: 'xre.client.AdminAvatar.AVATAR_UPDATED' as const
   })
 }

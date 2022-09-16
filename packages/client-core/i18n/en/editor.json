@@ -119,7 +119,7 @@
     "title": "Properties",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
-    "lbl-dynamicLoad": "Load Dynamically",
+    "lbl-dynamicLoad": "Load Children Dynamically",
     "lbl-dynamicLoadDistance": "Distance",
     "multipleNodeSelected": "Multiple Nodes of different types selected",
     "noNodeSelected": "No node selected",
@@ -183,7 +183,7 @@
       "lbl-pause": "Pause",
       "error-url": "Error Loading From URL"
     },
-    "boxCollider": {
+    "collider": {
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger"
     },
@@ -241,7 +241,6 @@
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
       "lbl-isAvatar": "Is Avatar",
-      "lbl-useBasicMaterials": "Use Basic Materials",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isEquippable": "Is Equippable",
       "lbl-castShadow": "Cast Shadow",
@@ -479,10 +478,8 @@
       "info-mediaConeInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
       "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
       "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
-      "lbl-simpleMaterials": "Use Simple Materials",
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
-      "info-simpleMaterials": "Converts all expensive materials to simpler ones to take the load off scene rendering.",
       "lbl-rendererSettings": "Override Renderer Settings",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",

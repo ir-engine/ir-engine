@@ -19,6 +19,7 @@ import {
   GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
+import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
@@ -27,9 +28,6 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   // todo: ColliderComponent needs to be refactored to support multiple colliders
   const colliderProps = parseColliderProperties(data)
   setComponent(entity, ColliderComponent, colliderProps)
-  if (data['xrengine.collider.bodyType']) {
-    setComponent(entity, GroupColliderComponent, {})
-  }
 }
 
 export const updateCollider = (entity: Entity) => {
@@ -38,7 +36,18 @@ export const updateCollider = (entity: Entity) => {
   const world = Engine.instance.currentWorld
 
   if (!colliderComponent) return
-
+  if (colliderComponent.bodyType !== undefined) {
+    //i think this always evaluates to true currently
+    setComponent(entity, GroupColliderComponent, {})
+    if (!hasComponent(entity, GroupComponent)) {
+      //if this is a singleton collider, create a singleton object and let updateGroupCollider initialize things
+      const colliderObj = new Object3D()
+      colliderObj.userData['shapeType'] = colliderComponent.shapeType
+      colliderObj.userData['singleton'] = true
+      addObjectToGroup(entity, colliderObj)
+    }
+    return
+  }
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
     colliderComponent.bodyType !== getComponent(entity, RigidBodyComponent).body.bodyType()
@@ -116,12 +125,12 @@ export const updateGroupCollider = (entity: Entity) => {
     collisionLayer: colliderComponent.collisionLayer,
     collisionMask: colliderComponent.collisionMask
   })
-
+  /*
   if (rigidbody) {
     const transform = getComponent(entity, TransformComponent)
     rigidbody.setTranslation(transform.position, true)
     rigidbody.setRotation(transform.rotation, true)
-  }
+  }*/
 }
 
 /**

@@ -1,108 +1,42 @@
 import React from 'react'
-// react-contextmenu has a bug when built, and the only viable
-// workaround is to import from the /dist bunled copy of it.
-import {
-  ContextMenuTrigger as _ContextMenuTrigger,
-  MenuItem as _MenuItem,
-  showMenu as _showMenu,
-  SubMenu as _SubMenu,
-  ContextMenuProps,
-  ContextMenu as ReactContextMenu
-} from 'react-contextmenu'
-import { createGlobalStyle } from 'styled-components'
 
-export const MenuItem = _MenuItem
-export const showMenu = _showMenu
-export const SubMenu = _SubMenu
-export const ContextMenuTrigger = _ContextMenuTrigger
+import { Menu, PopoverPosition } from '@mui/material'
 
-export const ContextMenuStyles = createGlobalStyle<any>`
-  .react-contextmenu {
-    background-color: var(--dropdownMenuBackground);
-    background-clip: padding-box;
-    border-radius: 4px;
-    margin: 2px 0 0;
-    min-width: 140px;
-    outline: none;
-    opacity: 0;
-    padding: 4px 0;
-    pointer-events: none;
-    text-align: left;
-    box-shadow: var(--shadow30);
-  }
+import styles from './styles.module.scss'
 
-  .react-contextmenu-wrapper {
-    height: calc(100% - 40px);
-    width:100%;
-  }
+type ContextMenuProps = {
+  open: boolean
+  anchorEl: null | HTMLElement
+  anchorPosition: undefined | PopoverPosition
+  rootStyle?: React.CSSProperties | undefined
+  onClose: () => void
+}
 
-  .react-contextmenu.react-contextmenu--visible {
-    opacity: 1;
-    pointer-events: auto;
-    z-index: 9999;
-  }
-
-  .react-contextmenu-item {
-    background: 0 0;
-    border: 0;
-    cursor: pointer;
-    line-height: 24px;
-    padding: 4px 8px;
-    text-align: inherit;
-    white-space: nowrap;
-    display: flex;
-    flex: 1;
-    justify-content: space-between;
-    color: var(--textColor);
-  }
-
-  .react-contextmenu-item.react-contextmenu-item--active,
-  .react-contextmenu-item.react-contextmenu-item--selected {
-    color: var(--textColor);
-    background-color: var(--dropdownMenuHoverBackground);
-    border-color: transparent;
-    text-decoration: none;
-  }
-
-  .react-contextmenu-item.react-contextmenu-item--disabled,
-  .react-contextmenu-item.react-contextmenu-item--disabled:hover {
-    background-color: transparent;
-    border-color: rgba(0,0,0,.15);
-    color: var(--textColor);
-  }
-
-  .react-contextmenu-item--divider {
-    border-bottom: 1px solid var(--border);
-    cursor: inherit;
-    margin: 4px 0;
-    height: 1px;
-    padding: 0;
-  }
-
-  .react-contextmenu-item.react-contextmenu-submenu {
-    padding: 0;
-  }
-
-  .react-contextmenu-item.react-contextmenu-submenu > .react-contextmenu-item::after {
-    display: inline-block;
-    font-size: 12px;
-    content: "▸";
-    vertical-align: middle;
-  }
-`
-
-/**
- *
- * @param {ReactNode} children
- * @param {string} id
- * @param {any} rest
- * @returns
- */
-export const ContextMenu = ({ children, ...rest }: React.PropsWithChildren<ContextMenuProps>) => {
+export const ContextMenu = ({
+  children,
+  open,
+  anchorEl,
+  anchorPosition,
+  rootStyle,
+  onClose
+}: React.PropsWithChildren<ContextMenuProps>) => {
   return (
-    <>
-      <ReactContextMenu {...rest}>{children}</ReactContextMenu>
-      <ContextMenuStyles />
-    </>
+    <Menu
+      className={styles.contextMenu}
+      open={open}
+      onClose={onClose}
+      anchorEl={anchorEl}
+      anchorReference="anchorPosition"
+      anchorPosition={anchorPosition}
+      PaperProps={{
+        style: rootStyle
+      }}
+      onContextMenu={(event) => {
+        event.preventDefault()
+        event.stopPropagation()
+      }}
+    >
+      {children}
+    </Menu>
   )
 }

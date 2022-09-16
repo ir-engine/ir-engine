@@ -24,7 +24,6 @@ import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
-import { ContextMenuTrigger } from '../layout/ContextMenu'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
@@ -60,6 +59,7 @@ export type HierarchyTreeNodeProps = {
   index: number
   data: HierarchyTreeNodeData
   style: StyleHTMLAttributes<HTMLLIElement>
+  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: HeirarchyTreeNodeType) => void
 }
 
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
@@ -103,7 +103,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const onMouseDownNode = useCallback((e) => data.onMouseDown(e, node), [node, data.onMouseDown])
 
   const onChangeNodeName = useCallback((e) => data.onChangeName(node, e.target.value), [node, data.onChangeName])
-  const onSubmitNodeName = useCallback((e) => data.onRenameSubmit(node, e.target.value), [data.onRenameSubmit, node])
 
   const [_dragProps, drag, preview] = useDrag({
     type: ItemTypes.Node,
@@ -283,75 +282,73 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   return (
     <li style={props.style}>
-      <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" collect={collectNodeMenuProps}>
+      <div
+        ref={drag}
+        id={getNodeElId(node)}
+        tabIndex={0}
+        onKeyDown={onNodeKeyDown}
+        className={
+          styles.treeNodeContainer +
+          (node.obj3d ? ' ' + styles.obj3d : '') +
+          (node.depth === 0 ? ' ' + styles.rootNode : '') +
+          (node.selected ? ' ' + styles.selected : '') +
+          (node.active ? ' ' + styles.active : '')
+        }
+        onMouseDown={onMouseDownNode}
+        onClick={onClickNode}
+        onContextMenu={(event) => props.onContextMenu(event, node)}
+      >
         <div
-          ref={drag}
-          id={getNodeElId(node)}
-          onMouseDown={onMouseDownNode}
-          onClick={onClickNode}
-          tabIndex={0}
-          onKeyDown={onNodeKeyDown}
-          className={
-            styles.treeNodeContainer +
-            (node.obj3d ? ' ' + styles.obj3d : '') +
-            (node.depth === 0 ? ' ' + styles.rootNode : '') +
-            (node.selected ? ' ' + styles.selected : '') +
-            (node.active ? ' ' + styles.active : '')
-          }
-        >
-          <div
-            className={styles.nodeDropTraget}
-            style={{ marginLeft, borderTopWidth: isOverBefore && canDropBefore ? 2 : 0 }}
-            ref={beforeDropTarget}
-          />
-          <div className={styles.nodeContent} style={{ paddingLeft: node.depth * 8 + 'px' }} ref={onDropTarget}>
-            {node.isLeaf ? (
-              <div className={styles.spacer} />
-            ) : (
-              <button
-                type="button"
-                className={styles.collapseButton}
-                onClick={onClickToggle as any}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                {node.isCollapsed ? <ArrowRightIcon fontSize="small" /> : <ArrowDropDownIcon fontSize="small" />}
-              </button>
-            )}
+          className={styles.nodeDropTraget}
+          style={{ marginLeft, borderTopWidth: isOverBefore && canDropBefore ? 2 : 0 }}
+          ref={beforeDropTarget}
+        />
+        <div className={styles.nodeContent} style={{ paddingLeft: node.depth * 8 + 'px' }} ref={onDropTarget}>
+          {node.isLeaf ? (
+            <div className={styles.spacer} />
+          ) : (
+            <button
+              type="button"
+              className={styles.collapseButton}
+              onClick={onClickToggle as any}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              {node.isCollapsed ? <ArrowRightIcon fontSize="small" /> : <ArrowDropDownIcon fontSize="small" />}
+            </button>
+          )}
 
-            <div className={styles.selectTarget}>
-              {IconComponent ? <IconComponent className={styles.nodeIcon} /> : null}
-              <div className={styles.labelContainer}>
-                {renaming ? (
-                  <div className={styles.renameInputContainer}>
-                    <input
-                      type="text"
-                      className={styles.renameInput}
-                      onChange={onChangeNodeName}
-                      onKeyDown={onKeyDownNameInput}
-                      onBlur={onSubmitNodeName}
-                      value={data.renamingNode.name}
-                      autoFocus
-                    />
-                  </div>
-                ) : (
-                  <div className={styles.nodelabel + (isOverOn && canDropOn ? ' ' + styles.dropTarget : '')}>
-                    {nodeName}
-                  </div>
-                )}
-              </div>
-              {node.entityNode && engineState.errorEntities[node.entityNode.entity].get() && (
-                <NodeIssuesIcon node={[{ severity: 'error', message: errorComponent?.error }]} />
+          <div className={styles.selectTarget}>
+            {IconComponent ? <IconComponent className={styles.nodeIcon} /> : null}
+            <div className={styles.labelContainer}>
+              {renaming ? (
+                <div className={styles.renameInputContainer}>
+                  <input
+                    type="text"
+                    className={styles.renameInput}
+                    onChange={onChangeNodeName}
+                    onKeyDown={onKeyDownNameInput}
+                    value={data.renamingNode.name}
+                    autoFocus
+                  />
+                </div>
+              ) : (
+                <div className={styles.nodelabel + (isOverOn && canDropOn ? ' ' + styles.dropTarget : '')}>
+                  {nodeName}
+                </div>
               )}
             </div>
+            {node.entityNode && engineState.errorEntities[node.entityNode.entity].get() && (
+              <NodeIssuesIcon node={[{ severity: 'error', message: errorComponent?.error }]} />
+            )}
           </div>
-
-          <div
-            className={styles.nodeDropTraget}
-            style={{ marginLeft, borderBottomWidth: isOverAfter && canDropAfter ? 2 : 0 }}
-            ref={afterDropTarget}
-          />
         </div>
-      </ContextMenuTrigger>
+
+        <div
+          className={styles.nodeDropTraget}
+          style={{ marginLeft, borderBottomWidth: isOverAfter && canDropAfter ? 2 : 0 }}
+          ref={afterDropTarget}
+        />
+      </div>
     </li>
   )
 }

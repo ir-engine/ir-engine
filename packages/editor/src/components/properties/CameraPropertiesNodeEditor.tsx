@@ -60,11 +60,6 @@ const projectionTypeSelect = [
   }
 ]
 
-/**
- * [BoxColliderNodeEditor is used to provide properties to customize box collider element]
- * @type {[component class]}
- */
-
 export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
   const cameraPropertiesComponent = getComponent(props.node.entity, CameraPropertiesComponent)
 

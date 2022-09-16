@@ -361,12 +361,12 @@ export const InviteService = {
 //Action
 export class InviteAction {
   static sentInvite = defineAction({
-    type: 'INVITE_SENT' as const,
+    type: 'xre.client.Invite.INVITE_SENT' as const,
     id: matches.string
   })
 
   static retrievedSentInvites = defineAction({
-    type: 'SENT_INVITES_RETRIEVED' as const,
+    type: 'xre.client.Invite.SENT_INVITES_RETRIEVED' as const,
     invites: matches.array as Validator<unknown, Invite[]>,
     total: matches.number,
     limit: matches.number,
@@ -374,7 +374,7 @@ export class InviteAction {
   })
 
   static retrievedReceivedInvites = defineAction({
-    type: 'RECEIVED_INVITES_RETRIEVED' as const,
+    type: 'xre.client.Invite.RECEIVED_INVITES_RETRIEVED' as const,
     invites: matches.array as Validator<unknown, Invite[]>,
     total: matches.number,
     limit: matches.number,
@@ -382,40 +382,40 @@ export class InviteAction {
   })
 
   static createdReceivedInvite = defineAction({
-    type: 'CREATED_RECEIVED_INVITE' as const
+    type: 'xre.client.Invite.CREATED_RECEIVED_INVITE' as const
   })
 
   static removedReceivedInvite = defineAction({
-    type: 'REMOVED_RECEIVED_INVITE' as const
+    type: 'xre.client.Invite.REMOVED_RECEIVED_INVITE' as const
   })
 
   static createdSentInvite = defineAction({
-    type: 'CREATED_SENT_INVITE' as const
+    type: 'xre.client.Invite.CREATED_SENT_INVITE' as const
   })
 
   static removedSentInvite = defineAction({
-    type: 'REMOVED_SENT_INVITE' as const
+    type: 'xre.client.Invite.REMOVED_SENT_INVITE' as const
   })
 
   static acceptedInvite = defineAction({
-    type: 'ACCEPTED_INVITE' as const
+    type: 'xre.client.Invite.ACCEPTED_INVITE' as const
   })
 
   static declinedInvite = defineAction({
-    type: 'DECLINED_INVITE' as const
+    type: 'xre.client.Invite.DECLINED_INVITE' as const
   })
 
   static setInviteTarget = defineAction({
-    type: 'INVITE_TARGET_SET' as const,
+    type: 'xre.client.Invite.INVITE_TARGET_SET' as const,
     targetObjectId: matches.string,
     targetObjectType: matches.string
   })
 
   static fetchingSentInvites = defineAction({
-    type: 'FETCHING_SENT_INVITES' as const
+    type: 'xre.client.Invite.FETCHING_SENT_INVITES' as const
   })
 
   static fetchingReceivedInvites = defineAction({
-    type: 'FETCHING_RECEIVED_INVITES' as const
+    type: 'xre.client.Invite.FETCHING_RECEIVED_INVITES' as const
   })
 }
