@@ -13,8 +13,10 @@ import { World } from '../../ecs/classes/World'
 import {
   ComponentMap,
   defineQuery,
+  getAllComponents,
   getComponent,
   hasComponent,
+  removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -23,6 +25,7 @@ import {
   createEntityNode,
   iterateEntityNode,
   removeEntityNodeFromParent,
+  reparentEntityNode,
   traverseEntityNode
 } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
@@ -229,9 +232,11 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
   const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
   if (existingEntity) {
     deserializeSceneEntity(existingEntity, entityJson)
+    /** handle reparenting due to changes in scene json */
+    if (world.entityTree.entityNodeMap.get(existingEntity!.parentEntity!)?.uuid !== entityJson.parent)
+      reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
   } else {
     const node = createEntityNode(createEntity(), uuid)
-    /** @todo handle reparenting due to changes in scene json */
     addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!))
     deserializeSceneEntity(node, entityJson)
   }
@@ -265,10 +270,20 @@ export const removeSceneEntity = (
  * @param {EntityTreeNode} entityNode
  * @param {EntityJson} sceneEntity
  */
-export const deserializeSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJson): Entity => {
+export const deserializeSceneEntity = (
+  entityNode: EntityTreeNode,
+  sceneEntity: EntityJson,
+  world = Engine.instance.currentWorld
+): Entity => {
   setComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
 
-  /** @todo need to remove ECS components that are no longer on this entity  */
+  /** remove ECS components that are in the scene register but not in the json */
+  const componentsToRemove = getAllComponents(entityNode.entity).filter(
+    (C) =>
+      world.sceneComponentRegistry.has(C.name) ||
+      !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
+  )
+  for (const C of componentsToRemove) removeComponent(entityNode.entity, C)
   for (const component of sceneEntity.components) {
     try {
       loadComponent(entityNode.entity, component)
