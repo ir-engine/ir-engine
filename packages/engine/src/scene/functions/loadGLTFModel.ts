@@ -1,9 +1,6 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
-import { NavMesh, Polygon } from 'yuka'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { parseGeometry } from '../../common/functions/parseGeometry'
-import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -16,7 +13,6 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
@@ -133,39 +129,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   }
 }
 
-// TODO
-export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
-  const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
-  let polygons = [] as Polygon[]
-
-  obj3d.traverse((child: Mesh) => {
-    child.visible = false
-
-    if (!child.geometry || !(child.geometry instanceof BufferGeometry)) return
-
-    const childPolygons = parseGeometry({
-      position: child.geometry.attributes.position.array as number[],
-      index: child.geometry.index ? (child.geometry.index.array as number[]) : []
-    })
-
-    if (childPolygons.length) polygons = polygons.concat(childPolygons)
-  })
-
-  if (polygons.length) {
-    const navMesh = new NavMesh()
-    navMesh.fromPolygons(polygons)
-
-    // const helper = createConvexRegionHelper(navMesh)
-    // Engine.instance.currentWorld.scene.add(helper)
-
-    addComponent(entity, NavMeshComponent, {
-      yukaNavMesh: navMesh,
-      navTarget: obj3d
-    })
-    addComponent(entity, DebugNavMeshComponent, null!)
-  }
-}
-
 export const parseGLTFModel = (entity: Entity) => {
   const props = getComponent(entity, ModelComponent)
   const obj3d = getComponent(entity, Object3DComponent).value
@@ -174,12 +137,6 @@ export const parseGLTFModel = (entity: Entity) => {
   parseObjectComponentsFromGLTF(entity, obj3d)
 
   setObjectLayers(obj3d, ObjectLayers.Scene)
-
-  // DIRTY HACK TO LOAD NAVMESH
-  // TODO
-  if (props.src.match(/navmesh/)) {
-    loadNavmesh(entity, obj3d)
-  }
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (obj3d.animations?.length) {
