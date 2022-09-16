@@ -753,9 +753,9 @@ export const AuthService = {
     const res = (await API.instance.client.service('user-settings').patch(id, data)) as UserSetting
     dispatchAction(AuthAction.updatedUserSettingsAction({ data: res }))
   },
-  async removeUser(userId: string) {
+  async removeUser(userId: string, logout?: boolean) {
     await API.instance.client.service('user').remove(userId)
-    AuthService.logoutUser()
+    if (logout !== undefined && logout === true) AuthService.logoutUser()
   },
   async updateApiKey() {
     const apiKey = (await API.instance.client.service('user-api-key').patch(null, {})) as UserApiKey

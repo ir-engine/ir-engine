@@ -853,6 +853,72 @@ const ProfileMenuWeb3Auth = ({ className, hideLogin, isPopover, changeActiveMenu
                 />
               </form>
             </div>
+
+            <section className={styles.deletePanel}>
+              {
+                <div>
+                  {!isGuest && (
+                    <h2
+                      className={styles.deleteAccount}
+                      id="delete-account"
+                      onClick={() => {
+                        setDeleteControlsOpen(!deleteControlsOpen)
+                        setConfirmDeleteOpen(false)
+                      }}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
+                      {t('user:usermenu.profile.delete.deleteAccount')}
+                    </h2>
+                  )}
+                  {deleteControlsOpen && !confirmDeleteOpen && (
+                    <div className={styles.deleteContainer}>
+                      <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
+                      <Button
+                        className={styles.deleteCancelButton}
+                        onClick={() => setDeleteControlsOpen(false)}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      >
+                        {t('user:usermenu.profile.delete.deleteControlsCancel')}
+                      </Button>
+                      <Button
+                        className={styles.deleteConfirmButton}
+                        onClick={() => {
+                          setDeleteControlsOpen(false)
+                          setConfirmDeleteOpen(true)
+                        }}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      >
+                        {t('user:usermenu.profile.delete.deleteControlsConfirm')}
+                      </Button>
+                    </div>
+                  )}
+                  {confirmDeleteOpen && (
+                    <div className={styles.deleteContainer}>
+                      <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.finalDeleteText')}</h3>
+                      <Button
+                        className={styles.deleteConfirmButton}
+                        onClick={() => {
+                          AuthService.removeUser(userId)
+                          // AuthService.logoutUser()
+                          handleLogout(event)
+                          setConfirmDeleteOpen(false)
+                        }}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      >
+                        {t('user:usermenu.profile.delete.finalDeleteConfirm')}
+                      </Button>
+                      <Button className={styles.deleteCancelButton} onClick={() => setConfirmDeleteOpen(false)}>
+                        {t('user:usermenu.profile.delete.finalDeleteCancel')}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              }
+            </section>
           </section>
         )}
       </section>
