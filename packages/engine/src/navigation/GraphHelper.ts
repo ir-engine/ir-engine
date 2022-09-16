@@ -147,51 +147,6 @@ function createPathHelper(navMesh: NavMesh, path: Vector3[], nodeSize: number, c
 
   return group
 }
-// function createPathHelper(navMesh: NavMesh, path: number[], nodeSize: number, color = 0x00ff00) {
-//   const group = new Group()
-
-//   // nodes
-
-//   const startNodeMaterial = new MeshBasicMaterial({ color: new Color('purple'), depthTest: false, depthWrite: false })
-//   const endNodeMaterial = new MeshBasicMaterial({ color: new Color('orange'), depthTest: false, depthWrite: false })
-//   const nodeGeometry = new IcosahedronBufferGeometry(nodeSize, 2)
-
-//   const startNodeMesh = new Mesh(nodeGeometry, startNodeMaterial)
-//   const endNodeMesh = new Mesh(nodeGeometry, endNodeMaterial)
-
-//   const start = navMesh.regions[path[0]].centroid
-//   const end = navMesh.regions[path[path.length - 1]].centroid
-
-//   startNodeMesh.position.copy(start as any)
-//   endNodeMesh.position.copy(end as any)
-
-//   group.add(startNodeMesh)
-//   group.add(endNodeMesh)
-
-//   // edges
-
-//   const edgesGeometry = new BufferGeometry()
-//   const position: number[] = []
-
-//   const edgesMaterial = new LineBasicMaterial({ color: color, depthTest: false, depthWrite: false })
-
-//   for (let i = 0, l = path.length - 1; i < l; i++) {
-//     const from = navMesh.regions[path[i]].centroid
-//     const to = navMesh.regions[path[i + 1]].centroid
-
-//     position.push(from.x, from.y, from.z)
-//     position.push(to.x, to.y, to.z)
-//   }
-
-//   edgesGeometry.setAttribute('position', new Float32BufferAttribute(position, 3))
-
-//   const lines = new LineSegments(edgesGeometry, edgesMaterial)
-//   lines.matrixAutoUpdate = false
-
-//   group.add(lines)
-
-//   return group
-// }
 
 // TODO try to use this
 function createSearchTreeHelper(graph, searchTree, color = 0xff0000) {
