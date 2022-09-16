@@ -7,10 +7,7 @@ export const EditorNavbar = () => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.navContainer}>
-        <div
-          className={styles.logoBlock}
-          style={{ backgroundImage: 'url(/static/xrengine.png)', filter: 'invert()' }}
-        ></div>
+        <div className={styles.logoBlock} style={{ backgroundImage: 'url(/static/etherealengine.png)' }}></div>
         <EditorNavbarProfile />
       </div>
     </nav>
