@@ -32,6 +32,9 @@ const AdminSystemInjection = {
   systemLoader: () => import('../systems/AdminSystem')
 } as const
 
+initializeCoreSystems([AdminSystemInjection]).then(() => {
+  initializeSceneSystems()
+})
 const ProtectedRoutes = () => {
   const admin = useAuthState().user
   const { isEngineInitialized } = useEngineState().value
@@ -54,11 +57,7 @@ const ProtectedRoutes = () => {
   }
   const scopes = admin?.scopes?.value || []
 
-  useEffect(() => {
-    initializeCoreSystems([AdminSystemInjection]).then(async () => {
-      await initializeSceneSystems()
-    })
-  }, [])
+  useEffect(() => {}, [])
 
   scopes.forEach((scope) => {
     if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
