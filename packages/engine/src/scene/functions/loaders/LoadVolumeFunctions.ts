@@ -26,7 +26,7 @@ import {
   SCENE_COMPONENT_LOAD_VOLUME_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/components/LoadVolumeComponent'
 import { serializeEntity, serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
-import { createSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { updateSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 
 import { EntityTreeNode } from '../../../ecs/classes/EntityTree'
 
@@ -56,7 +56,7 @@ export const updateLoadVolume: ComponentUpdateFunction = (entity: Entity) => {
 
   function doLoad() {
     component.targets.map(({ uuid, componentJson }) => {
-      const loaded = createSceneEntity(uuid, { name: uuid, components: componentJson })
+      const loaded = updateSceneEntity(uuid, { name: uuid, components: componentJson })
     })
   }
 
