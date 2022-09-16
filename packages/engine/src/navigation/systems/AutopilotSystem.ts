@@ -16,6 +16,7 @@ import { INITIAL_SPEED, MAX_SPEED, MIN_SPEED } from '../constants'
 
 let debugMode = false
 
+// TODO combine with NavigationSystem and rename AutoPilot components?
 export default async function AutopilotSystem(world: World) {
   const navmeshesQuery = defineQuery([NavMeshComponent, Object3DComponent])
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
