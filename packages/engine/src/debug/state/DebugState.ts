@@ -4,6 +4,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 export const DebugState = defineState({
   name: 'DebugState',
   initial: () => ({
+    // TODO afforance for toggling this debug helper
     show: false,
     lastClick: [0, 0]
   })
@@ -12,7 +13,7 @@ export const DebugState = defineState({
 export function DebugActionReceptor(action) {
   const s = getState(DebugState)
   matches(action).when(DebugAction.setLastClick.matches, (action) => {
-    return s.merge({ lastClick: action.lastClick, show: true })
+    return s.merge({ lastClick: action.lastClick })
   })
 }
 
