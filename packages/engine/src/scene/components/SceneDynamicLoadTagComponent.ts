@@ -2,6 +2,8 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type SceneDynamicLoadTagComponentType = {
   distance: number
+  // runtime property
+  loaded?: boolean
 }
 
 export const SceneDynamicLoadTagComponent =

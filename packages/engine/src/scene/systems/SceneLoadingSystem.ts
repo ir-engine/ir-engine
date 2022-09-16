@@ -151,7 +151,7 @@ export const updateSystemFromJSON = async (sceneData: SceneData, world = Engine.
  * @param parent
  * @param world
  */
-export const updateSceneEntitesFromJSON = (parent: string, world = Engine.instance.currentWorld) => {
+export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.instance.currentWorld) => {
   const entitiesToLoad = Object.entries(world.sceneJson.entities).filter(([uuid, entity]) => entity.parent === parent)
   for (const [uuid, entityJson] of entitiesToLoad) {
     updateSceneEntity(uuid, entityJson, world)
@@ -172,7 +172,7 @@ export const updateSceneEntitesFromJSON = (parent: string, world = Engine.instan
       }
     } else {
       // iterate children
-      updateSceneEntitesFromJSON(uuid, world)
+      updateSceneEntitiesFromJSON(uuid, world)
     }
   }
 }
@@ -197,7 +197,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
 
   /** update scene entities with new data, and load new ones */
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
-  updateSceneEntitesFromJSON(sceneData.scene.root, world)
+  updateSceneEntitiesFromJSON(sceneData.scene.root, world)
 
   /** remove entites that are no longer part of the scene */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {
@@ -231,6 +231,7 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
     deserializeSceneEntity(existingEntity, entityJson)
   } else {
     const node = createEntityNode(createEntity(), uuid)
+    /** @todo handle reparenting due to changes in scene json */
     addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!))
     deserializeSceneEntity(node, entityJson)
   }
@@ -244,14 +245,17 @@ export const removeSceneEntity = (
   iterateEntityNode(targetNode, (node) => {
     if (serialize && node !== targetNode) {
       const jsonEntity = world.sceneJson.entities[node.uuid]
-      jsonEntity.components = serializeEntity(node.entity)
-      if (node.parentEntity) {
-        const parentNode = world.entityTree.entityNodeMap.get(node.parentEntity!)!
-        jsonEntity.parent = parentNode.uuid
+      if (jsonEntity) {
+        jsonEntity.components = serializeEntity(node.entity)
+        if (node.parentEntity) {
+          const parentNode = world.entityTree.entityNodeMap.get(node.parentEntity!)!
+          jsonEntity.parent = parentNode.uuid
+        }
       }
     }
-    node.children.filter((entity) => !world.entityTree.entityNodeMap.has(entity)).map((entity) => removeEntity(entity))
-    removeEntity(node.entity)
+    /** @todo do we still need this? */
+    // node.children.filter((entity) => !world.entityTree.entityNodeMap.has(entity)).map((entity) => removeEntity(entity))
+    if (entityExists(node.entity, world)) removeEntity(node.entity)
   })
   iterateEntityNode(targetNode, (node) => removeEntityNodeFromParent(node))
 }
