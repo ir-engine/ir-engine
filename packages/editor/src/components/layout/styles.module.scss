@@ -20,3 +20,36 @@
 .divider {
   border-color: var(--panelBackground);
 }
+
+.contextMenu {
+  :global(.MuiMenu-paper) {
+    background-color: var(--dropdownMenuBackground);
+    min-width: 140px;
+    box-shadow: var(--shadow30);
+  }
+
+  :global(.MuiMenu-list) {
+    padding: 0;
+  }
+
+  :global(.MuiMenuItem-root) {
+    background: 0 0;
+    border: 0;
+    cursor: pointer;
+    line-height: 24px;
+    padding: 4px 8px;
+    text-align: inherit;
+    white-space: nowrap;
+    display: flex;
+    flex: 1 1 0%;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    color: var(--textColor);
+    font-size: 12px;
+
+    &:active,
+    &:hover {
+      background-color: var(--dropdownMenuHoverBackground);
+    }
+  }
+}

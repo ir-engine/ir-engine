@@ -202,7 +202,6 @@
     "react",
     "react-apexcharts",
     "react-color/lib/Sketch",
-    "react-contextmenu",
     "react-copy-to-clipboard",
     "react-dnd",
     "react-dnd-html5-backend",

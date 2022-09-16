@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import MenuIcon from '@mui/icons-material/Menu'
 
@@ -26,11 +26,10 @@ export const ToolBar = (props: ToolBarProps) => {
   if (!props.editorReady) {
     return <div className={styles.toolbarContainer} />
   }
-  const [isMenuOpen, setMenuOpen] = useState(false)
 
   return (
     <div style={{ pointerEvents: 'auto' }} className={styles.toolbarContainer}>
-      <DropDownMenu icon={MenuIcon} commands={props.menu} isMenuOpen={isMenuOpen} setMenuOpen={setMenuOpen} />
+      <DropDownMenu icon={MenuIcon} commands={props.menu} />
       <AdvancedModeTool />
       <WorldInstanceConnection />
       <TransformTool />
