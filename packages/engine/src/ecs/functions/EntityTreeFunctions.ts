@@ -125,7 +125,7 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
   const node = {
     type: 'EntityNode' as const,
     entity,
-    uuid: uuid || MathUtils.generateUUID(),
+    uuid: uuid ?? MathUtils.generateUUID(),
     children: []
   }
   addComponent(entity, SceneObjectComponent, true)

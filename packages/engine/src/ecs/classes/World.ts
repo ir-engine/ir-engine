@@ -3,7 +3,7 @@ import * as bitecs from 'bitecs'
 import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getState } from '@xrengine/hyperflux'
@@ -150,24 +150,26 @@ export class World {
    */
   scene = new Scene()
 
-  sceneDynamicallyUnloadedEntities = new Map<
-    string,
-    {
-      json: EntityJson
-      position: Vector3
-      distance: number
-    }
-  >()
+  sceneJson = null! as SceneJson
 
-  sceneDynamicallyLoadedEntities = new Map<
-    Entity,
-    {
-      json: EntityJson
-      position: Vector3
-      distance: number
-      uuid: string
-    }
-  >()
+  // sceneDynamicallyUnloadedEntities = new Map<
+  //   string,
+  //   {
+  //     json: EntityJson
+  //     position: Vector3
+  //     distance: number
+  //   }
+  // >()
+
+  // sceneDynamicallyLoadedEntities = new Map<
+  //   Entity,
+  //   {
+  //     json: EntityJson
+  //     position: Vector3
+  //     distance: number
+  //     uuid: string
+  //   }
+  // >()
 
   /**
    * The scene entity
