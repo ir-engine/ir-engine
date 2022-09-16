@@ -270,13 +270,22 @@ export class Location<T = LocationDataType> extends Service<T> {
       )
 
       if (loggedInUser) {
-        await this.app.service('location-admin').Model.create(
-          {
-            locationId: location.id,
-            userId: loggedInUser.id
-          },
-          { transaction: t }
-        )
+        await Promise.all([
+          this.app.service('location-admin').Model.create(
+            {
+              locationId: location.id,
+              userId: loggedInUser.id
+            },
+            { transaction: t }
+          ),
+          this.app.service('location-authorized-user').Model.create(
+            {
+              locationId: location.id,
+              userId: loggedInUser.id
+            },
+            { transaction: t }
+          )
+        ])
       }
 
       await t.commit()

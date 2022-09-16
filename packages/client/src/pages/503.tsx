@@ -6,7 +6,7 @@ export const Custom503 = (): any => {
   return (
     <>
       <h1 style={{ color: 'black' }}>{t('503.msg')}</h1>
-      <img src="/static/xrengine.png" />
+      <img src="/static/etherealengine.png" />
     </>
   )
 }

@@ -2,7 +2,7 @@ import type { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInt
 
 const config: ProjectConfigInterface = {
   onEvent: undefined,
-  thumbnail: '/static/xrengine_thumbnail.jpg',
+  thumbnail: '/static/etherealengine.png',
   routes: {},
   services: undefined,
   databaseSeed: undefined
