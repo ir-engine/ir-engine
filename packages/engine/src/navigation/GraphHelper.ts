@@ -73,8 +73,6 @@ function createGraphHelper(graph, nodeSize = 1, nodeColor = 0x4e84c4, edgeColor 
   return group
 }
 
-let _debug = false
-
 function getClosestRegion(point: YukaVector3) {
   const regions = this.regions
   let closesRegion = null
@@ -92,23 +90,7 @@ function getClosestRegion(point: YukaVector3) {
     }
   }
 
-  _debug && console.log('closest region distance', minDistance)
   return closesRegion
-}
-
-function getClosestNavNode(navMesh: NavMesh, point: YukaVector3) {
-  const region = getClosestRegion.call(navMesh, point)
-  return navMesh.graph.getNode(navMesh.getNodeIndex(region))
-}
-
-function applyTransform(p: YukaVector3, r: Quaternion, s: YukaVector3) {
-  return (vec: YukaVector3) => {
-    const newVec = vec.clone()
-    newVec.applyRotation(r as any)
-    newVec.multiply(s)
-    newVec.add(p)
-    return newVec
-  }
 }
 
 function createPathHelper(navMesh: NavMesh, path: Vector3[], nodeSize: number, color = 0x00ff00) {
