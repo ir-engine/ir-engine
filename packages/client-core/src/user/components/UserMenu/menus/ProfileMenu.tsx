@@ -6,10 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { requestVcForEvent } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
@@ -26,9 +24,7 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
-import InputSelect, { InputMenuItem } from '../../../../admin/common/InputSelect'
 import { useAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
-import { useClientSettingState } from '../../../../admin/services/Setting/ClientSettingService'
 import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
@@ -37,7 +33,6 @@ import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { AuthService, useAuthState } from '../../../services/AuthService'
-import { userHasAccess } from '../../../userHasAccess'
 import styles from '../index.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
@@ -72,38 +67,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const loading = useAuthState().isProcessing.value
-  const userSettings = selfUser.user_setting.value
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
   const isGuest = selfUser.isGuest.value
 
-  const clientSettingState = useClientSettingState()
-  const [clientSetting] = clientSettingState?.client?.value || []
-
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
-  const hasEditorAccess = userHasAccess('editor:write')
-
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
-
-  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
-  const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
-
-  const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
-    if (mode === 'admin' && !hasAdminAccess) {
-      return false
-    } else if (mode === 'editor' && !hasEditorAccess) {
-      return false
-    }
-    return true
-  })
-
-  const colorModesMenu: InputMenuItem[] = Object.keys(themeSettings).map((el) => {
-    return {
-      label: capitalizeFirstLetter(el),
-      value: el
-    }
-  })
 
   useEffect(() => {
     if (authSetting) {
@@ -116,18 +86,6 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       setAuthState(temp)
     }
   }, [authSettingState?.updateNeeded?.value])
-
-  /**
-   * Note: If you're editing this function, be sure to make the same changes to
-   * the XRUI version over at packages/client-core/src/systems/ui/ProfileDetailView/index.tsx
-   * @param event
-   */
-  const handleChangeUserThemeMode = (event) => {
-    const { name, value } = event.target
-
-    const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
-    userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
-  }
 
   let type = ''
   const addMoreSocial =
@@ -905,26 +863,6 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                   )}
                 </div>
               </section>
-            )}
-
-            {selfUser && (
-              <div className={styles.themeSettingContainer}>
-                <Grid container spacing={{ xs: 0, sm: 2 }} sx={{ mt: 2 }}>
-                  {accessibleThemeModes.map((mode, index) => (
-                    <Grid key={index} item xs={12} md={4}>
-                      <InputSelect
-                        name={mode}
-                        label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
-                        value={themeModes[mode]}
-                        menu={colorModesMenu}
-                        onChange={(e) => handleChangeUserThemeMode(e)}
-                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </div>
             )}
 
             <section className={styles.deletePanel}>

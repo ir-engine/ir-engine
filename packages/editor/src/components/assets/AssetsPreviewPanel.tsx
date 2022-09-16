@@ -49,7 +49,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
     thumbnail.value && URL.revokeObjectURL(thumbnail.value)
     if (/ktx2$/.test(props.resourceUrl)) {
       const texture = await AssetLoader.loadAsync(props.resourceUrl)
-      thumbnail.set(createReadableTexture(texture, { url: true }) as string)
+      thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
     } else {
       thumbnail.set('')
     }

@@ -8,7 +8,7 @@ import {
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
-import { Direction } from '../../common/constants/Axis3D'
+import { AvatarDirection } from '../../common/constants/Axis3D'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -227,12 +227,11 @@ describe('Physics', () => {
     physicsWorld.step()
 
     const raycastComponentData = {
-      filterData: null, // TODO
       type: SceneQueryType.Closest,
       origin: new Vector3().set(0, 1, 0),
-      direction: Direction.Right,
+      direction: AvatarDirection.Left,
       maxDistance: 20,
-      flags: getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+      groups: getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
     }
     const hits = Physics.castRay(physicsWorld, raycastComponentData)
 

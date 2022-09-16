@@ -20,7 +20,6 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { BaseInput } from '../input/enums/BaseInput'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/XRComponents'
@@ -71,7 +70,6 @@ export default async function AvatarControllerSystem(world: World) {
       if (hasComponent(avatarEntity, AvatarComponent)) {
         const avatarComponent = getComponent(avatarEntity, AvatarComponent)
         targetEntity = createEntity()
-        setComponent(targetEntity, PersistTagComponent, true)
         setTransformComponent(targetEntity)
         setComputedTransformComponent(targetEntity, avatarEntity, () => {
           const avatarTransform = getComponent(avatarEntity, TransformComponent)

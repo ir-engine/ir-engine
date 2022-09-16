@@ -12,6 +12,7 @@ export const proxifyVector3 = (store: Vector3Store, entity: Entity, dirty: Set<E
   store.x[entity] = vector3.x
   store.y[entity] = vector3.y
   store.z[entity] = vector3.z
+  dirty.add(entity)
   return defineProperties(vector3, {
     _eid: { value: entity },
     _store: { value: store },
@@ -45,8 +46,12 @@ export const proxifyVector3 = (store: Vector3Store, entity: Entity, dirty: Set<E
   })
 }
 
-export const createVector3Proxy = (store: Vector3Store, entity: Entity, dirty: Set<Entity> = new Set()) =>
-  proxifyVector3(store, entity, dirty, new Vector3())
+export const createVector3Proxy = (
+  store: Vector3Store,
+  entity: Entity,
+  dirty: Set<Entity> = new Set(),
+  source = new Vector3()
+) => proxifyVector3(store, entity, dirty, source)
 
 export const proxifyQuaternion = (
   store: QuaternionStore,
@@ -59,6 +64,7 @@ export const proxifyQuaternion = (
   store.y[entity] = quaternion.y
   store.z[entity] = quaternion.z
   store.w[entity] = quaternion.w
+  dirty.add(entity)
   return defineProperties(quaternion, {
     _eid: { value: entity },
     _store: { value: store },
@@ -104,5 +110,6 @@ export const proxifyQuaternion = (
 export const createQuaternionProxy = (
   store: QuaternionStore,
   entity: Entity,
-  dirty: Set<Entity> = new Set()
-): Quaternion => proxifyQuaternion(store, entity, dirty, new Quaternion())
+  dirty: Set<Entity> = new Set(),
+  source = new Quaternion()
+): Quaternion => proxifyQuaternion(store, entity, dirty, source)

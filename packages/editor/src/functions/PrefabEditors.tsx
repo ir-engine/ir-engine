@@ -43,6 +43,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
+import AnimationSequencerNodeEditor from '../components/properties/AnimationSequencerNodeEditor'
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
@@ -79,6 +80,7 @@ import { EditorComponentType } from '../components/properties/Util'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
+import { AnimationSequencerComponent } from '@xrengine/engine/src/scene/components/AnimationSequencerComponent'
 
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] => {
   const components = getAllComponents(entity)
@@ -128,6 +130,7 @@ export const EntityNodeEditor = {
   [VolumetricComponent._name]: VolumetricNodeEditor,
   [CloudComponent._name]: CloudsNodeEditor,
   [OceanComponent._name]: OceanNodeEditor,
+  [AnimationSequencerComponent._name]: AnimationSequencerNodeEditor,
   [WaterComponent._name]: WaterNodeEditor,
   [InteriorComponent._name]: InteriorNodeEditor,
   [SystemComponent._name]: SystemNodeEditor,
@@ -145,6 +148,7 @@ export const prefabIcons = {
   [LightPrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
   [LightPrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
+  [ScenePrefabs.animationSequencer]: AnimationSequencerNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,

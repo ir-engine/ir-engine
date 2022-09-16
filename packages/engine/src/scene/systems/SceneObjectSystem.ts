@@ -13,11 +13,9 @@ import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/Com
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 import { reparentObject3D } from '../functions/ReparentFunction'
 import { Updatable } from '../interfaces/Updatable'
@@ -88,7 +86,6 @@ export default async function SceneObjectSystem(world: World) {
   }
 
   const sceneObjectQuery = defineQuery([Object3DComponent])
-  const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
@@ -136,21 +133,6 @@ export default async function SceneObjectSystem(world: World) {
     for (const action of useSimpleMaterialsActionQueue()) {
       const sceneObjectEntities = sceneObjectQuery()
       updateSimpleMaterials(sceneObjectEntities)
-    }
-
-    // Enable second camera layer for persistant entities for fun portal effects
-    for (const entity of persistQuery.enter()) {
-      const object3DComponent = getComponent(entity, Object3DComponent)
-      object3DComponent?.value?.traverse((obj) => {
-        obj.layers.enable(ObjectLayers.Portal)
-      })
-    }
-
-    for (const entity of persistQuery.exit()) {
-      const object3DComponent = getComponent(entity, Object3DComponent)
-      object3DComponent?.value?.traverse((obj) => {
-        obj.layers.disable(ObjectLayers.Portal)
-      })
     }
 
     const fixedDelta = getState(EngineState).fixedDeltaSeconds.value

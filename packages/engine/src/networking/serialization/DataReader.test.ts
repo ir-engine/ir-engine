@@ -12,10 +12,11 @@ import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getAllComponents, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
@@ -83,7 +84,6 @@ describe('DataReader', () => {
     TransformComponent.position.z[entity] = 0
 
     view.cursor = 0
-    console.log('TransformComponent.position', TransformComponent.position)
     const readPosition = readComponent(TransformComponent.position)
 
     readPosition(view, entity)

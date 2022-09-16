@@ -1,8 +1,10 @@
 import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Quaternion, Vector3 } from 'three'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -15,6 +17,8 @@ export const createMediaControlsUI = (entity: Entity) => {
   const mediaElementComponent = getComponent(entity, MediaElementComponent)
 
   const ui = createMediaControlsView({ playing: mediaComponent.playing }, entity)
+
+  addEntityNodeInTree(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
 
   addComponent(ui.entity, NameComponent, {
     name: 'mediacontrols-ui-' + mediaElementComponent.src

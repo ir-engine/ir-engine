@@ -113,6 +113,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     applyTransformToMeshWorld(entity, mesh)
 
     const transform = setTransformComponent(e)
+    mesh.updateWorldMatrix(true, true)
     mesh.getWorldPosition(transform.position)
     mesh.getWorldQuaternion(transform.rotation)
     mesh.getWorldScale(transform.scale)

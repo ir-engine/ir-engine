@@ -1,6 +1,6 @@
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   MediaComponent,
   MediaComponentType,
@@ -12,7 +12,7 @@ import { PlayMode } from '../../constants/PlayMode'
 
 export const deserializeMedia: ComponentDeserializeFunction = (entity: Entity, data: MediaComponentType) => {
   const props = parseMediaProperties(data)
-  addComponent(entity, MediaComponent, {
+  setComponent(entity, MediaComponent, {
     ...props,
     currentSource: 0,
     playing: false,

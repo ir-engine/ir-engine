@@ -9,7 +9,13 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
 import {
   ImageComponent,
@@ -21,7 +27,12 @@ import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeImage: ComponentDeserializeFunction = (entity: Entity, data: ImageComponentType) => {
   const props = parseImageProperties(data)
-  addComponent(entity, ImageComponent, props)
+  setComponent(entity, ImageComponent, props)
+  let obj3d = getComponent(entity, Object3DComponent)?.value
+  if (!obj3d) {
+    const mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
+    addComponent(entity, Object3DComponent, { value: mesh })
+  }
 }
 
 export const updateImage: ComponentUpdateFunction = async (entity: Entity) => {

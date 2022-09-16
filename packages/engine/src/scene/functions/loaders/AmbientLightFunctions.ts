@@ -11,7 +11,8 @@ import {
   addComponent,
   getComponent,
   getComponentCountOfType,
-  hasComponent
+  hasComponent,
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import {
   AmbientLightComponent,
@@ -25,7 +26,7 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
   data: AmbientLightComponentType
 ) => {
   const props = parseAmbientLightProperties(data)
-  addComponent(entity, AmbientLightComponent, props)
+  setComponent(entity, AmbientLightComponent, props)
 }
 
 export const updateAmbientLight: ComponentUpdateFunction = (entity: Entity) => {

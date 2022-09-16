@@ -1,5 +1,4 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { Object3D } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -8,25 +7,21 @@ export type ColliderComponentType = {
   bodyType: RigidBodyType
   shapeType: ShapeType
   isTrigger: boolean
+  /**
+   * removeMesh will clean up any objects in the scene hierarchy after the collider bodies have been processed.
+   *   This can be used to reduce CPU load by only persisting colliders in the physics simulation.
+   */
   removeMesh: boolean
   collisionLayer: number
   collisionMask: number
   /**
-   * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
+   * trigger component values
    */
-  onEnter?: string
-  /**
-   * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
-   */
-  onExit?: string
-  /**
-   * uuid (string)
-   *
-   * empty string represents self
-   *
-   * TODO: how do we handle non-scene entities?
-   */
-  target?: string
+  triggerEvent: string
+  triggerType: string
+  target: any
+  active: boolean
+  targetComponent: string
 }
 
 export const ColliderComponent = createMappedComponent<ColliderComponentType>('ColliderComponent')
@@ -39,5 +34,11 @@ export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {
   isTrigger: false,
   removeMesh: false,
   collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
+  collisionMask: DefaultCollisionMask,
+
+  triggerEvent: '',
+  triggerType: '',
+  target: '',
+  active: true,
+  targetComponent: ''
 }

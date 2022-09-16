@@ -78,20 +78,20 @@ export default (app: Application): void => {
         )
         targetIds.push(groupUser.userId)
       })
-      userRelationships.forEach((userRelationship) => {
-        updatePromises.push(
-          app.service('user-relationship').patch(
-            userRelationship.id,
-            {
-              userRelationshipType: userRelationship.userRelationshipType,
-              userId: userRelationship.userId
-            },
-            params
-          )
-        )
-        targetIds.push(userRelationship.userId)
-        targetIds.push(userRelationship.relatedUserId)
-      })
+      // userRelationships.forEach((userRelationship) => {
+      //   updatePromises.push(
+      //     app.service('user-relationship').patch(
+      //       userRelationship.id,
+      //       {
+      //         userRelationshipType: userRelationship.userRelationshipType,
+      //         userId: userRelationship.userId
+      //       },
+      //       params
+      //     )
+      //   )
+      //   targetIds.push(userRelationship.userId)
+      //   targetIds.push(userRelationship.relatedUserId)
+      // })
 
       await Promise.all(updatePromises)
       targetIds = _.uniq(targetIds)

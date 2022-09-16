@@ -348,16 +348,16 @@ const setLocalMovementDirection: InputBehaviorType = (
       controller.localMovementDirection.y = hasEnded ? 0 : 1
       break
     case BaseInput.FORWARD:
-      controller.localMovementDirection.z = hasEnded ? 0 : 1
-      break
-    case BaseInput.BACKWARD:
       controller.localMovementDirection.z = hasEnded ? 0 : -1
       break
+    case BaseInput.BACKWARD:
+      controller.localMovementDirection.z = hasEnded ? 0 : 1
+      break
     case BaseInput.LEFT:
-      controller.localMovementDirection.x = hasEnded ? 0 : 1
+      controller.localMovementDirection.x = hasEnded ? 0 : -1
       break
     case BaseInput.RIGHT:
-      controller.localMovementDirection.x = hasEnded ? 0 : -1
+      controller.localMovementDirection.x = hasEnded ? 0 : 1
       break
   }
   controller.localMovementDirection.normalize()
@@ -385,7 +385,7 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias
 
   // if vr, rotate the avatar
   if (getControlMode() === 'attached' && inputValue.value[0] !== 0) {
-    rotateAvatar(entity, inputValue.value[0] * vrAxisLookSensitivity)
+    rotateAvatar(entity, -inputValue.value[0] * vrAxisLookSensitivity)
   }
 }
 
@@ -438,7 +438,7 @@ export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, input
     origin: new Vector3(),
     direction: new Vector3(),
     maxDistance: 20,
-    flags: interactionGroups
+    groups: interactionGroups
   } as RaycastArgs
 
   const input = getComponent(entity, InputComponent)
@@ -476,8 +476,8 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
     dispatchAction(
-      EngineRendererAction.setPhysicsDebug({
-        physicsDebugEnable: !accessEngineRendererState().physicsDebugEnable.value
+      EngineRendererAction.setDebug({
+        debugEnable: !accessEngineRendererState().debugEnable.value
       })
     )
   }

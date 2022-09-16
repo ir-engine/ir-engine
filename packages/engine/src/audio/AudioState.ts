@@ -15,7 +15,7 @@ export const AudioState = defineState({
   initial: () => ({
     masterVolume: 0.5,
     microphoneGain: 0.5,
-    usePositionalAudio: false, // only for avatars
+    usePositionalMedia: false, // only for avatars
     mediaStreamVolume: 0.5,
     notificationVolume: 0.5,
     soundEffectsVolume: 0.2,
@@ -32,8 +32,8 @@ export function restoreAudioSettings() {
     if (typeof v !== 'undefined')
       dispatchAction(AudioSettingAction.setMicrophoneVolume({ value: MathUtils.clamp(v, 0, 1) }))
   })
-  ClientStorage.get(AudioSettingKeys.USE_POSITIONAL_AUDIO).then((v: boolean) => {
-    if (typeof v !== 'undefined') dispatchAction(AudioSettingAction.setUsePositionalAudio({ value: Boolean(v) }))
+  ClientStorage.get(AudioSettingKeys.USE_POSITIONAL_MEDIA).then((v: boolean) => {
+    if (typeof v !== 'undefined') dispatchAction(AudioSettingAction.setUsePositionalMedia({ value: Boolean(v) }))
   })
   ClientStorage.get(AudioSettingKeys.MEDIA_STREAM_VOLUME).then((v: number) => {
     if (typeof v !== 'undefined')
@@ -67,9 +67,9 @@ export function AudioSettingReceptor(action) {
       s.merge({ microphoneGain: action.value })
       ClientStorage.set(AudioSettingKeys.MICROPHONE, action.value)
     })
-    .when(AudioSettingAction.setUsePositionalAudio.matches, (action) => {
-      s.merge({ usePositionalAudio: action.value })
-      ClientStorage.set(AudioSettingKeys.USE_POSITIONAL_AUDIO, action.value)
+    .when(AudioSettingAction.setUsePositionalMedia.matches, (action) => {
+      s.merge({ usePositionalMedia: action.value })
+      ClientStorage.set(AudioSettingKeys.USE_POSITIONAL_MEDIA, action.value)
     })
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
       s.merge({ mediaStreamVolume: action.value })
@@ -118,8 +118,8 @@ export class AudioSettingAction {
     type: 'core.audio.MICROPHONE_VOLUME' as const,
     value: matches.number
   })
-  static setUsePositionalAudio = defineAction({
-    type: 'core.audio.POSITIONAL_AUDIO' as const,
+  static setUsePositionalMedia = defineAction({
+    type: 'core.audio.POSITIONAL_MEDIA' as const,
     value: matches.boolean
   })
   static setMediaStreamVolume = defineAction({

@@ -73,16 +73,8 @@ export const Debug = () => {
     respawnAvatar(Engine.instance.currentWorld.localClientEntity)
   }
 
-  const togglePhysicsDebug = () => {
-    dispatchAction(
-      EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: !engineRendererState.physicsDebugEnable.value })
-    )
-  }
-
-  const toggleAvatarDebug = () => {
-    dispatchAction(
-      EngineRendererAction.setAvatarDebug({ avatarDebugEnable: !engineRendererState.avatarDebugEnable.value })
-    )
+  const toggleDebug = () => {
+    dispatchAction(EngineRendererAction.setDebug({ debugEnable: !engineRendererState.debugEnable.value }))
   }
 
   const renderAllEntities = () => {
@@ -93,7 +85,10 @@ export const Debug = () => {
             const name = getComponent(eid, NameComponent)?.name
             try {
               return [
-                '(eid:' + eid + ') ' + (name ?? ''),
+                '(eid:' +
+                  eid +
+                  ') ' +
+                  (name ?? Engine.instance.currentWorld.entityTree.entityNodeMap.get(eid)?.uuid ?? ''),
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
@@ -155,19 +150,11 @@ export const Debug = () => {
             <div className={styles.flagContainer}>
               <button
                 type="button"
-                onClick={togglePhysicsDebug}
-                className={styles.flagBtn + (engineRendererState.physicsDebugEnable.value ? ' ' + styles.active : '')}
-                title={t('common:debug.physicsDebug')}
+                onClick={toggleDebug}
+                className={styles.flagBtn + (engineRendererState.debugEnable.value ? ' ' + styles.active : '')}
+                title={t('common:debug.debug')}
               >
                 <SquareFootIcon fontSize="small" />
-              </button>
-              <button
-                type="button"
-                onClick={toggleAvatarDebug}
-                className={styles.flagBtn + (engineRendererState.avatarDebugEnable.value ? ' ' + styles.active : '')}
-                title={t('common:debug.avatarDebug')}
-              >
-                <ManIcon fontSize="small" />
               </button>
               <button
                 type="button"

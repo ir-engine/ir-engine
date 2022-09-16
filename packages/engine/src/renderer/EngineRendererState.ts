@@ -41,6 +41,7 @@ export const EngineRendererState = defineState({
     physicsDebugEnable: false,
     navigationDebugEnable: false,
     avatarDebugEnable: false,
+    debugEnable: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
     gridVisibility: false,
@@ -58,10 +59,13 @@ export function restoreEngineRendererData() {
       if (typeof v !== 'undefined')
         dispatchAction(EngineRendererAction.setNavigationDebug({ navigationDebugEnable: Boolean(v) }))
     }),
-      ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v: boolean) => {
+    ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v: boolean) => {
         if (typeof v !== 'undefined')
           dispatchAction(EngineRendererAction.setAvatarDebug({ avatarDebugEnable: Boolean(v) }))
-      })
+    })
+    ClientStorage.get(RenderSettingKeys.DEBUG_ENABLE).then((v: boolean) => {
+      if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.setDebug({ debugEnable: Boolean(v) }))
+    })
     ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v: RenderModesType) => {
       if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.changedRenderMode({ renderMode: v }))
     })
@@ -100,6 +104,7 @@ function updateState(): void {
   dispatchAction(EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: state.physicsDebugEnable.value }))
   dispatchAction(EngineRendererAction.setNavigationDebug({ navigationDebugEnable: state.navigationDebugEnable.value }))
   dispatchAction(EngineRendererAction.setAvatarDebug({ avatarDebugEnable: state.avatarDebugEnable.value }))
+  dispatchAction(EngineRendererAction.setDebug({ debugEnable: state.debugEnable.value }))
 
   if (Engine.instance.isEditor) {
     changeRenderMode(state.renderMode.value)
@@ -165,7 +170,7 @@ export class EngineRendererReceptor {
     ClientStorage.set(RenderSettingKeys.USE_SHADOWS, action.useShadows)
   }
 
-  static setPhysicsDebug(action: typeof EngineRendererAction.setPhysicsDebug.matches._TYPE) {
+  static setDebug(action: typeof EngineRendererAction.setDebug.matches._TYPE) {
     const s = getState(EngineRendererState)
     s.merge({ physicsDebugEnable: action.physicsDebugEnable })
     ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, action.physicsDebugEnable)
@@ -181,6 +186,8 @@ export class EngineRendererReceptor {
     const s = getState(EngineRendererState)
     s.merge({ avatarDebugEnable: action.avatarDebugEnable })
     ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, action.avatarDebugEnable)
+    s.merge({ debugEnable: action.debugEnable })
+    ClientStorage.set(RenderSettingKeys.DEBUG_ENABLE, action.debugEnable)
   }
 
   static changedRenderMode(action: typeof EngineRendererAction.changedRenderMode.matches._TYPE) {
@@ -218,7 +225,7 @@ export class EngineRendererReceptor {
 export class EngineRendererAction {
   static restoreStorageData = defineAction({
     type: 'xre.renderer.RESTORE_ENGINE_RENDERER_STORAGE_DATA' as const,
-    state: matches.object as Validator<unknown, EngineRendererStateType>
+    state: matches.object
   })
 
   static setQualityLevel = defineAction({
@@ -259,6 +266,11 @@ export class EngineRendererAction {
   static setAvatarDebug = defineAction({
     type: 'xre.renderer.AVATAR_DEBUG_CHANGED' as const,
     avatarDebugEnable: matches.boolean
+  })
+  
+  static setDebug = defineAction({
+    type: 'xre.renderer.DEBUG_CHANGED' as const,
+    debugEnable: matches.boolean
   })
 
   static changedRenderMode = defineAction({

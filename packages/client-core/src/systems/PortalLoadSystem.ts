@@ -4,6 +4,7 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { PortalComponent, PortalPreviewTypeSpherical } from '@xrengine/engine/src/scene/components/PortalComponent'
 
@@ -18,6 +19,7 @@ export const updatePortalDetails = async (entity: Entity) => {
     if (typeof portalComponent.previewImageURL !== 'undefined' && portalComponent.previewImageURL !== '') {
       if (portalComponent.previewType === PortalPreviewTypeSpherical) {
         const texture = (await AssetLoader.loadAsync(portalDetails.previewImageURL)) as Texture
+        if (!entityExists(entity)) return
         const portalObject = getComponent(entity, Object3DComponent).value as Mesh<any, MeshBasicMaterial>
         ;(portalObject.children[0] as any).material.map = texture
       }

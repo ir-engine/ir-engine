@@ -1,30 +1,17 @@
 import { pipe } from 'bitecs'
-import {
-  AdditiveBlending,
-  AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  DoubleSide,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  PlaneGeometry,
-  Skeleton,
-  SkinnedMesh,
-  sRGBEncoding,
-  Vector3
-} from 'three'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/isClient'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
@@ -32,9 +19,8 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
-import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneNames, createSkeletonFromBone } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -77,9 +63,35 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   return SkeletonUtils.clone(parent)
 }
 
-export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
+export const loadAvatarForUser = async (
+  entity: Entity,
+  avatarURL: string,
+  loadingEffect = getState(EngineState).avatarLoadingEffect.value
+) => {
+  if (loadingEffect) {
+    if (hasComponent(entity, AvatarControllerComponent)) {
+      getComponent(entity, AvatarControllerComponent).movementEnabled = false
+    }
+  }
+
+  addComponent(entity, AvatarPendingComponent, true)
   const parent = await loadAvatarModelAsset(avatarURL)
+  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
+
   setupAvatarForUser(entity, parent)
+
+  if (isClient && loadingEffect) {
+    const avatar = getComponent(entity, AvatarComponent)
+    const avatarMaterials = setupAvatarMaterials(entity, avatar.modelContainer)
+    const effectEntity = createEntity()
+    addComponent(effectEntity, AvatarEffectComponent, {
+      sourceEntity: entity,
+      opacityMultiplier: 1,
+      originMaterials: avatarMaterials
+    })
+  }
+
+  dispatchAction(EngineActions.avatarModelChanged({ entity }))
 }
 
 export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
@@ -96,13 +108,6 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
 
   setupAvatarModel(entity)(model)
   setupAvatarHeight(entity, model)
-
-  const avatarMaterials = setupAvatarMaterials(entity, model)
-
-  // Materials only load on the client currently
-  if (isClient) {
-    loadGrowingEffectObject(entity, avatarMaterials)
-  }
 
   model.children.forEach((child) => avatar.modelContainer.add(child))
 }
@@ -138,14 +143,15 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   const { rig } = avatarAnimationComponent
   const rootBone = rig.Root || rig.Hips
-  rootBone.updateWorldMatrix(false, true)
+  rootBone.updateWorldMatrix(true, true)
 
+  /**@todo this is broken */
   // Try converting to T pose
-  if (!isSkeletonInTPose(rig)) {
-    makeTPose(rig)
-    const meshes = findSkinnedMeshes(model)
-    meshes.forEach(applySkeletonPose)
-  }
+  // if (!isSkeletonInTPose(rig)) {
+  //   makeTPose(rig)
+  //   const meshes = findSkinnedMeshes(model)
+  //   meshes.forEach(applySkeletonPose)
+  // }
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
@@ -221,53 +227,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }
 
-export const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<MaterialMap>) => {
-  const textureLight = await AssetLoader.loadAsync('/itemLight.png')
-  const texturePlate = await AssetLoader.loadAsync('/itemPlate.png')
-
-  const lightMesh = new Mesh(
-    new PlaneGeometry(0.04, 3.2),
-    new MeshBasicMaterial({
-      transparent: true,
-      map: textureLight,
-      blending: AdditiveBlending,
-      depthWrite: false,
-      side: DoubleSide
-    })
-  )
-
-  const plateMesh = new Mesh(
-    new PlaneGeometry(1.6, 1.6),
-    new MeshBasicMaterial({
-      transparent: false,
-      map: texturePlate,
-      blending: AdditiveBlending,
-      depthWrite: false
-    })
-  )
-
-  lightMesh.geometry.computeBoundingSphere()
-  plateMesh.geometry.computeBoundingSphere()
-  lightMesh.name = 'light_obj'
-  plateMesh.name = 'plate_obj'
-
-  textureLight.encoding = sRGBEncoding
-  textureLight.needsUpdate = true
-  texturePlate.encoding = sRGBEncoding
-  texturePlate.needsUpdate = true
-
-  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
-  addComponent(entity, AvatarPendingComponent, {
-    light: lightMesh,
-    plate: plateMesh
-  })
-  if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
-  addComponent(entity, AvatarEffectComponent, {
-    opacityMultiplier: 0,
-    originMaterials: originalMatList
-  })
-}
-
 /**
  * Creates an empty skinned mesh with the default skeleton attached.
  * The skeleton created is compatible with default animation tracks
@@ -317,7 +276,6 @@ export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, 
   if (!animationComponent) return false
   const bone = animationComponent.rig[boneName]
   if (!bone) return false
-  bone.updateWorldMatrix(true, false)
   const el = bone.matrixWorld.elements
   position.set(el[12], el[13], el[14])
   return true

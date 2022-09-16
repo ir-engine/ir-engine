@@ -1,4 +1,4 @@
-export type RelationshipType = 'friend' | 'requested' | 'blocked' | 'blocking'
+export type RelationshipType = 'friend' | 'requested' | 'pending' | 'blocked' | 'blocking'
 export type UserRelationship = {
   id: string
   createdAt: string

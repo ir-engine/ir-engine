@@ -3,11 +3,18 @@ import { MathUtils } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { isMobile } from '../../common/functions/isMobile'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
+import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
 import { addComponent, removeAllComponents } from './ComponentFunctions'
+import { createEntity, entityExists, removeEntity } from './EntityFunctions'
 
 // ========== Entity Tree Functions ========== //
 /**
@@ -35,6 +42,14 @@ export function removeFromEntityTreeMaps(node: EntityTreeNode, tree = Engine.ins
  * @param world World
  */
 export function initializeEntityTree(world = Engine.instance.currentWorld): void {
+  if (entityExists(world.sceneEntity)) removeEntity(world.sceneEntity, true)
+
+  world.sceneEntity = createEntity()
+  addComponent(world.sceneEntity, NameComponent, { name: 'scene' })
+  addComponent(world.sceneEntity, VisibleComponent, true)
+  setTransformComponent(world.sceneEntity)
+  if (isMobile) addComponent(world.sceneEntity, SimpleMaterialTagComponent, true)
+
   world.entityTree = {
     rootNode: createEntityNode(world.sceneEntity),
     entityNodeMap: new Map(),
@@ -97,7 +112,7 @@ export function emptyEntityTree(tree = Engine.instance.currentWorld.entityTree):
     delete arr[i]
   }
 
-  tree.rootNode = createEntityNode(-1 as Entity)
+  tree.rootNode = createEntityNode(createEntity())
 
   tree.entityNodeMap.clear()
   tree.uuidNodeMap.clear()
@@ -118,6 +133,7 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
     uuid: uuid || MathUtils.generateUUID(),
     children: []
   }
+  addComponent(entity, SceneObjectComponent, true)
 
   // addComponent(entity, NetworkObjectComponent, {
   //   ownerId: Engine.instance.currentWorld._worldHostId,

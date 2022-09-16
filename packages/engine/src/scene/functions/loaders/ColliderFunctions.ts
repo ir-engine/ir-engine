@@ -8,7 +8,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -18,20 +18,22 @@ import {
   MeshColliderComponentTag,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
+import { NameComponent } from '../../components/NameComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
-  if (!data.shapeType) {
-    addComponent(entity, MeshColliderComponentTag, {})
+  /** @todo this is brittle, should be replaced with something explicit for models */
+  if (typeof data.shapeType === 'undefined') {
+    setComponent(entity, MeshColliderComponentTag, true)
   }
   const colliderProps = parseColliderProperties(data)
   if (!hasComponent(entity, Object3DComponent)) {
     addComponent(entity, Object3DComponent, { value: new Object3D() })
   }
-  addComponent(entity, ColliderComponent, colliderProps)
+  setComponent(entity, ColliderComponent, colliderProps)
 }
 
 export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
@@ -88,7 +90,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    */
   const colliderTypeChanged =
     rigidbody.numColliders() === 0 || rigidbody.collider(0).shape.type !== colliderComponent.shapeType
-  if (true) {
+  if (colliderTypeChanged) {
     rigidbody.numColliders() > 0 &&
       Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
     const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
@@ -124,6 +126,7 @@ export const updateMeshCollider = (entity: Entity) => {
     bodyType: colliderComponent.bodyType,
     shapeType: colliderComponent.shapeType,
     isTrigger: colliderComponent.isTrigger,
+    removeMesh: colliderComponent.removeMesh,
     collisionLayer: colliderComponent.collisionLayer,
     collisionMask: colliderComponent.collisionMask
   })
@@ -159,9 +162,10 @@ export const serializeCollider: ComponentSerializeFunction = (entity) => {
     collisionMask: collider.collisionMask
   } as ColliderComponentType
   if (collider.isTrigger) {
-    response.onEnter = collider.onEnter
-    response.onExit = collider.onExit
     response.target = collider.target
+    response.triggerEvent = collider.triggerEvent
+    response.targetComponent = collider.targetComponent
+    response.triggerType = collider.triggerType
   }
   return response
 }
@@ -176,9 +180,10 @@ export const parseColliderProperties = (props: Partial<ColliderComponentType>): 
     collisionMask: props.collisionMask ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.collisionMask
   } as ColliderComponentType
   if (response.isTrigger) {
-    response.onEnter = props.onEnter
-    response.onExit = props.onExit
     response.target = props.target
+    response.triggerEvent = props.triggerEvent ? props.triggerEvent : SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.triggerEvent,
+    response.targetComponent = props.targetComponent ? props.targetComponent : SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.targetComponent,
+    response.triggerType = props.triggerType ? props.triggerType : SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.triggerType
   }
   return response
 }

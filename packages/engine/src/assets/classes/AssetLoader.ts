@@ -71,38 +71,52 @@ export const loadExtensions = async (gltf: GLTF) => {
   }
 }
 
+const onUploadDropBuffer = (uuid?: string) =>
+  function (this: BufferAttribute) {
+    const dropBuffer = () => {
+      // @ts-ignore
+      this.array = new this.array.constructor(1)
+    }
+    if (uuid)
+      matchActionOnce(
+        DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
+        dropBuffer
+      )
+    else dropBuffer()
+  }
+
+const onTextureUploadDropSource = (uuid?: string) =>
+  function (this: Texture) {
+    const dropTexture = () => {
+      this.source.data = null
+      this.mipmaps.map((b) => delete b.data)
+      this.mipmaps = []
+    }
+    if (uuid)
+      matchActionOnce(
+        DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
+        dropTexture
+      )
+    else dropTexture()
+  }
+
+export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
+  if (Engine.instance.isEditor || !child.isMesh) return
+  const geo = child.geometry as BufferGeometry
+  const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
+  const attributes = geo.attributes
+  if (!args.ignoreDisposeGeometry) {
+    for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer(args.uuid)
+    if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer(args.uuid)
+  }
+  Object.entries(mat)
+    .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
+    .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource(args.uuid)))
+}
+
 const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
-
-  const onUploadDropBuffer = (uuid?: string) =>
-    function (this: BufferAttribute) {
-      const dropBuffer = () => {
-        // @ts-ignore
-        this.array = new this.array.constructor(1)
-      }
-      if (uuid)
-        matchActionOnce(
-          DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
-          dropBuffer
-        )
-      else dropBuffer()
-    }
-
-  const onTextureUploadDropSource = (uuid?: string) =>
-    function (this: Texture) {
-      const dropTexture = () => {
-        this.source.data = null
-        this.mipmaps.map((b) => delete b.data)
-        this.mipmaps = []
-      }
-      if (uuid)
-        matchActionOnce(
-          DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
-          dropTexture
-        )
-      else dropTexture()
-    }
 
   asset.traverse((child: Mesh<any, Material>) => {
     //test for LODs within this traversal
@@ -125,20 +139,7 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
         child.material = newMaterial
       }
     }
-
-    const geo = child.geometry as BufferGeometry
-    const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
-    const attributes = geo.attributes
-    if (!Engine.instance.isEditor) {
-      if (!args.ignoreDisposeGeometry) {
-        for (var name in attributes)
-          (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer(args.uuid)
-        if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer(args.uuid)
-      }
-      Object.entries(mat)
-        .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
-        .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource(args.uuid)))
-    }
+    cleanupAllMeshData(child, args)
   })
   replacedMaterials.clear()
 

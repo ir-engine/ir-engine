@@ -3,7 +3,6 @@ import { Box3 } from 'three'
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
-import { loadGrowingEffectObject } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 
 import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
@@ -16,7 +15,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { CallbackComponent } from '../../components/CallbackComponent'
@@ -50,35 +49,33 @@ if (isClient) {
 }
 
 export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, data: VolumetricComponentType) => {
-  try {
-    removeError(entity, 'error')
-    addVolumetricComponent(entity, data)
-  } catch (error) {
-    console.error(error)
-    addError(entity, 'error', error.message)
-  }
-}
-
-export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {
-  if (!isClient) return
-
-  const obj3d = new UpdateableObject3D()
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, UpdatableComponent, true)
   const mediaComponent = getComponent(entity, MediaComponent)
-  const audioComponent = getComponent(entity, AudioComponent)
-
-  let height = 0
-  let step = 0.001
-
-  const properties = parseVolumetricProperties(props)
-
+  const properties = parseVolumetricProperties(data)
   const player = new DracosisPlayer({
     renderer: EngineRenderer.instance.renderer,
     // https://github.com/XRFoundation/Universal-Volumetric/issues/117
     paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
     playMode: mediaComponent.playMode as any
   })
+  addComponent(entity, VolumetricComponent, {
+    player,
+    ...properties
+  })
+}
+
+export const addVolumetricComponent = (entity: Entity) => {
+  if (!isClient) return
+
+  const obj3d = new UpdateableObject3D()
+  addComponent(entity, Object3DComponent, { value: obj3d })
+  addComponent(entity, UpdatableComponent, true)
+  const audioComponent = getComponent(entity, AudioComponent)
+
+  let height = 0
+  let step = 0.001
+
+  const player = getComponent(entity, VolumetricComponent).player
+  const mediaComponent = getComponent(entity, MediaComponent)
 
   player.video.addEventListener('play', () => {
     height = calculateHeight(obj3d)
@@ -90,11 +87,6 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   })
 
   obj3d.add(player.mesh)
-
-  addComponent(entity, VolumetricComponent, {
-    player,
-    ...properties
-  })
 
   // TODO: move to CallbackComponent
   obj3d.update = () => {
@@ -149,6 +141,14 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
 }
 
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
+  try {
+    if (!hasComponent(entity, Object3DComponent)) addVolumetricComponent(entity)
+    removeError(entity, 'error')
+  } catch (error) {
+    console.error(error)
+    addError(entity, 'error', error.message)
+  }
+
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const { player } = getComponent(entity, VolumetricComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
@@ -235,7 +235,12 @@ const setupLoadingEffect = (entity, obj) => {
       object.material = DissolveEffect.getDissolveTexture(object)
     }
   })
-  loadGrowingEffectObject(entity, materialList)
+  if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
+  addComponent(entity, AvatarEffectComponent, {
+    sourceEntity: entity,
+    opacityMultiplier: 0,
+    originMaterials: materialList
+  })
 }
 
 const calculateHeight = (obj3d) => {

@@ -1,6 +1,10 @@
 import { Paginated } from '@feathersjs/feathers'
 import { Downgraded } from '@hookstate/core'
+// TODO: Decouple this
+// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+import axios from 'axios'
 import i18n from 'i18next'
+import _ from 'lodash'
 import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
@@ -20,19 +24,28 @@ import {
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
+import { accessPartyState } from '../../social/services/PartyService'
 import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
+import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
 
-// State
+import { random } from 'lodash'
+import { STRING } from '../../../../common/src/utils/string'
+import getFreeInviteCode from '@xrengine/server-core/src/util/get-free-invite-code'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+//State
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
@@ -44,7 +57,6 @@ export const AuthState = defineState({
     identityProvider: IdentityProviderSeed,
     avatarList: [] as Array<AvatarInterface>
   }),
-
   onCreate: (store, s) => {
     s.attach(() => ({
       id: Symbol('AuthPersist'),
@@ -163,129 +175,6 @@ export const AuthServiceReceptor = (action) => {
     })
 }
 
-export class AuthAction {
-  static actionProcessing = defineAction({
-    type: 'ACTION_PROCESSING' as const,
-    processing: matches.boolean
-  })
-
-  static loginUserSuccessAction = defineAction({
-    type: 'LOGIN_USER_SUCCESS' as const,
-    authUser: matches.object as Validator<unknown, AuthUser>,
-    message: matches.string
-  })
-
-  static loginUserErrorAction = defineAction({
-    type: 'LOGIN_USER_ERROR' as const,
-    message: matches.string
-  })
-
-  static loginUserByGithubSuccessAction = defineAction({
-    type: 'LOGIN_USER_BY_GITHUB_SUCCESS' as const,
-    message: matches.string
-  })
-
-  static loginUserByGithubErrorAction = defineAction({
-    type: 'LOGIN_USER_BY_GITHUB_ERROR' as const,
-    message: matches.string
-  })
-
-  static loginUserByLinkedinSuccessAction = defineAction({
-    type: 'LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
-    message: matches.string
-  })
-
-  static loginUserByLinkedinErrorAction = defineAction({
-    type: 'LOGIN_USER_BY_LINKEDIN_ERROR' as const,
-    message: matches.string
-  })
-
-  static didLogoutAction = defineAction({
-    type: 'LOGOUT_USER' as const
-  })
-
-  static registerUserByEmailSuccessAction = defineAction({
-    type: 'REGISTER_USER_BY_EMAIL_SUCCESS' as const,
-    identityProvider: matches.object as Validator<unknown, IdentityProvider>,
-    message: matches.string
-  })
-
-  static registerUserByEmailErrorAction = defineAction({
-    type: 'REGISTER_USER_BY_EMAIL_ERROR' as const,
-    message: matches.string
-  })
-
-  static didVerifyEmailAction = defineAction({
-    type: 'DID_VERIFY_EMAIL' as const,
-    result: matches.boolean
-  })
-
-  static didResendVerificationEmailAction = defineAction({
-    type: 'DID_RESEND_VERIFICATION_EMAIL' as const,
-    result: matches.boolean
-  })
-
-  static didForgotPasswordAction = defineAction({
-    type: 'DID_FORGOT_PASSWORD' as const,
-    result: matches.boolean
-  })
-
-  static didResetPasswordAction = defineAction({
-    type: 'DID_RESET_PASSWORD' as const,
-    result: matches.boolean
-  })
-
-  static didCreateMagicLinkAction = defineAction({
-    type: 'DID_CREATE_MAGICLINK' as const,
-    result: matches.boolean
-  })
-
-  static loadedUserDataAction = defineAction({
-    type: 'LOADED_USER_DATA' as const,
-    user: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static updatedUserSettingsAction = defineAction({
-    type: 'UPDATE_USER_SETTINGS' as const,
-    data: matches.object as Validator<unknown, UserSetting>
-  })
-
-  static avatarUpdatedAction = defineAction({
-    type: 'AVATAR_UPDATED' as const,
-    url: matches.any
-  })
-
-  static usernameUpdatedAction = defineAction({
-    type: 'USERNAME_UPDATED' as const,
-    name: matches.string
-  })
-
-  static userAvatarIdUpdatedAction = defineAction({
-    type: 'USERAVATARID_UPDATED' as const,
-    avatarId: matches.string
-  })
-
-  static userPatchedAction = defineAction({
-    type: 'USER_PATCHED' as const,
-    params: matches.any
-  })
-
-  static userUpdatedAction = defineAction({
-    type: 'USER_UPDATED' as const,
-    user: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static updateAvatarListAction = defineAction({
-    type: 'AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
-  })
-
-  static apiKeyUpdatedAction = defineAction({
-    type: 'USER_API_KEY_UPDATED' as const,
-    apiKey: matches.object as Validator<unknown, UserApiKey>
-  })
-}
-
 /**
  * Resets the current user's accessToken to a new random guest token.
  */
@@ -303,7 +192,7 @@ async function _resetToGuestToken(options = { reset: true }) {
   return accessToken
 }
 
-// Service
+//Service
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
     try {
@@ -460,7 +349,7 @@ export const AuthService = {
         }
       }
 
-      // TODO: This is temp until we move completely to XR wallet
+      //TODO: This is temp until we move completely to XR wallet
       const oldId = accessAuthState().user.id.value
       walletUser.id = oldId
 
@@ -474,13 +363,13 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
-
+  
   /**
    * Logs in the current user based on an OAuth response.
    * @param service {string} - OAuth service id (github, etc).
    * @param location {object} - `useLocation()` from 'react-router-dom'
    */
-  async loginUserByOAuth(service: string, location: any) {
+   async loginUserByOAuth(service: string, location: any) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     const token = accessAuthState().authUser.accessToken.value
     const path = location?.state?.from || location.pathname
@@ -493,7 +382,27 @@ export const AuthService = {
       redirectObject
     )}`
   },
+  async loginUserByWeb3Auth <K extends keyof typeof STRING>(service: typeof STRING[K], walletAddress: string, redirectSuccess: string, redirectError: string) {
+    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+    const authData = accessStoredLocalState().attach(Downgraded).value
+    let accessToken = authData?.authUser?.accessToken
 
+    let res
+    try {
+      res = await API.instance.client.authenticate({
+        strategy: 'web3',
+        publicKey: walletAddress,
+        addWallet: true,
+        type: service
+      })
+    } catch (err: any) {
+      console.error('Non-Authenticated - Invalid Login')
+    }
+    const authUser = resolveAuthUser(res)
+    await AuthService.loadUserData(authUser.identityProvider.userId)
+    dispatchAction(AuthAction.actionProcessing({ processing: false }))
+  },
+  
   async removeUserOAuth(service: string) {
     const ipResult = (await API.instance.client.service('identity-provider').find()) as any
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
@@ -672,7 +581,6 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
-
   async createMagicLink(emailPhone: string, authState: AuthStrategies, linkType?: 'email' | 'sms') {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
@@ -694,6 +602,7 @@ export const AuthService = {
           NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
             variant: 'error'
           })
+
           return
         }
         type = 'sms'
@@ -704,6 +613,7 @@ export const AuthService = {
           NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'phone number' }), {
             variant: 'error'
           })
+
           return
         }
         type = 'email'
@@ -711,6 +621,7 @@ export const AuthService = {
         NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email or phone number' }), {
           variant: 'error'
         })
+
         return
       }
     }
@@ -726,7 +637,6 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
-
   async addConnectionByPassword(form: EmailLoginForm, userId: string) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
@@ -745,7 +655,6 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
-
   async addConnectionByEmail(email: string, userId: string) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     try {
@@ -764,7 +673,6 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
-
   async addConnectionBySms(phone: string, userId: string) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
@@ -789,14 +697,32 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
-
   async addConnectionByOauth(
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: string
   ) {
     window.open(`https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
-
+  async addConnectionByWallet(publicKey: string, accessToken: string, userId?: string) {
+    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+    const avatars = await API.instance.client.service('avatar').find({ isInternal: true, query: { $limit: 1000 } }) as Paginated<AvatarInterface>
+    let user
+    if (!userId) {
+      user = (await API.instance.client.service('user').create({
+        isGuest: false,
+        avatarId: avatars[random(avatars.data.length - 1)].avatarId
+      }))
+      userId = user.id
+    }
+    await API.instance.client.authentication.setAccessToken(accessToken as string)
+    const res = await API.instance.client.reAuthenticate(true)
+    const authUser = resolveAuthUser(res)
+    // await API.instance.client.service('identity-provider').update(authUser.identityProvider.id, {
+    //   // userId: userId,
+    //   // publicKey: publicKey
+    // })
+    dispatchAction(AuthAction.actionProcessing({ processing: false }))
+  },
   async removeConnection(identityProviderId: number, userId: string) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     try {
@@ -808,43 +734,45 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
-
   refreshConnections(userId: string) {
     AuthService.loadUserData(userId)
   },
-
   async updateUserSettings(id: any, data: any) {
     const res = (await API.instance.client.service('user-settings').patch(id, data)) as UserSetting
     dispatchAction(AuthAction.updatedUserSettingsAction({ data: res }))
   },
-
   async removeUser(userId: string) {
     await API.instance.client.service('user').remove(userId)
     AuthService.logoutUser()
   },
-
   async updateApiKey() {
     const apiKey = (await API.instance.client.service('user-api-key').patch(null, {})) as UserApiKey
     dispatchAction(AuthAction.apiKeyUpdatedAction({ apiKey }))
   },
-
   async updateUsername(userId: string, name: string) {
     const { name: updatedName } = await API.instance.client.service('user').patch(userId, { name: name })
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     dispatchAction(AuthAction.usernameUpdatedAction({ name: updatedName }))
   },
-
   useAPIListeners: () => {
     useEffect(() => {
       const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
       const locationBanCreatedListener = async (params) => {
         const selfUser = accessAuthState().user
+        const party = accessPartyState().party.value
+        const selfPartyUser =
+          party && party.partyUsers
+            ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value)
+            : ({} as any)
         const currentLocation = accessLocationState().currentLocation.location
         const locationBan = params.locationBan
         if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
           // TODO: Decouple and reenable me!
           // endVideoChat({ leftParty: true });
           // leave(true);
+          if (selfPartyUser != undefined && selfPartyUser?.id != null) {
+            await API.instance.client.service('party-user').remove(selfPartyUser.id)
+          }
           const userId = selfUser.id.value ?? ''
           const user = resolveUser(await API.instance.client.service('user').get(userId))
           dispatchAction(AuthAction.userUpdatedAction({ user }))
@@ -862,44 +790,155 @@ export const AuthService = {
   }
 }
 
-/**
- * @param vprResult {any} See `loginUserByXRWallet()`'s docstring.
- */
-function parseUserWalletCredentials(vprResult: any) {
-  console.log('PARSING:', vprResult)
-
-  const {
-    data: { presentation: vp }
-  } = vprResult
-  const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
-
-  const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
-
+const parseUserWalletCredentials = (wallet) => {
   return {
     user: {
-      id: vp.holder,
-      displayName,
-      icon: displayIcon
+      id: 'did:web:example.com',
+      displayName: 'alice',
+      icon: 'https://material-ui.com/static/images/avatar/1.jpg'
       // session // this will contain the access token and helper methods
     }
   }
 }
 
-/**
- * Parses the user's preferred display name (username) and avatar icon from the
- * login credentials.
- *
- * @param credentials {VerifiableCredential[]} List of VCs requested by the
- *   login request. One of those credentials needs to be of type
- *   'LoginDisplayCredential'.
- *
- * @returns {{displayName: string, displayIcon: string}}
- */
-function parseLoginDisplayCredential(credentials) {
-  const loginDisplayVc = credentials.find((vc) => vc.type.includes('LoginDisplayCredential'))
-  const DEFAULT_ICON = 'https://material-ui.com/static/images/avatar/1.jpg'
-  const displayName = loginDisplayVc.credentialSubject.displayName || 'Wallet User'
-  const displayIcon = loginDisplayVc.credentialSubject.displayIcon || DEFAULT_ICON
+// Action
+export interface EmailLoginForm {
+  email: string
+  password: string
+}
 
-  return { displayName, displayIcon }
+export interface EmailRegistrationForm {
+  email: string
+  password: string
+}
+
+export interface GithubLoginForm {
+  email: string
+}
+
+export interface LinkedInLoginForm {
+  email: string
+}
+
+export class AuthAction {
+  static actionProcessing = defineAction({
+    type: 'ACTION_PROCESSING' as const,
+    processing: matches.boolean
+  })
+
+  static loginUserSuccessAction = defineAction({
+    type: 'LOGIN_USER_SUCCESS' as const,
+    authUser: matches.object as Validator<unknown, AuthUser>,
+    message: matches.string
+  })
+
+  static loginUserErrorAction = defineAction({
+    type: 'LOGIN_USER_ERROR' as const,
+    message: matches.string
+  })
+
+  static loginUserByGithubSuccessAction = defineAction({
+    type: 'LOGIN_USER_BY_GITHUB_SUCCESS' as const,
+    message: matches.string
+  })
+
+  static loginUserByGithubErrorAction = defineAction({
+    type: 'LOGIN_USER_BY_GITHUB_ERROR' as const,
+    message: matches.string
+  })
+
+  static loginUserByLinkedinSuccessAction = defineAction({
+    type: 'LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
+    message: matches.string
+  })
+
+  static loginUserByLinkedinErrorAction = defineAction({
+    type: 'LOGIN_USER_BY_LINKEDIN_ERROR' as const,
+    message: matches.string
+  })
+
+  static didLogoutAction = defineAction({
+    type: 'LOGOUT_USER' as const
+  })
+
+  static registerUserByEmailSuccessAction = defineAction({
+    type: 'REGISTER_USER_BY_EMAIL_SUCCESS' as const,
+    identityProvider: matches.object as Validator<unknown, IdentityProvider>,
+    message: matches.string
+  })
+
+  static registerUserByEmailErrorAction = defineAction({
+    type: 'REGISTER_USER_BY_EMAIL_ERROR' as const,
+    message: matches.string
+  })
+
+  static didVerifyEmailAction = defineAction({
+    type: 'DID_VERIFY_EMAIL' as const,
+    result: matches.boolean
+  })
+
+  static didResendVerificationEmailAction = defineAction({
+    type: 'DID_RESEND_VERIFICATION_EMAIL' as const,
+    result: matches.boolean
+  })
+
+  static didForgotPasswordAction = defineAction({
+    type: 'DID_FORGOT_PASSWORD' as const,
+    result: matches.boolean
+  })
+
+  static didResetPasswordAction = defineAction({
+    type: 'DID_RESET_PASSWORD' as const,
+    result: matches.boolean
+  })
+
+  static didCreateMagicLinkAction = defineAction({
+    type: 'DID_CREATE_MAGICLINK' as const,
+    result: matches.boolean
+  })
+
+  static loadedUserDataAction = defineAction({
+    type: 'LOADED_USER_DATA' as const,
+    user: matches.object as Validator<unknown, UserInterface>
+  })
+
+  static updatedUserSettingsAction = defineAction({
+    type: 'UPDATE_USER_SETTINGS' as const,
+    data: matches.object as Validator<unknown, UserSetting>
+  })
+
+  static avatarUpdatedAction = defineAction({
+    type: 'AVATAR_UPDATED' as const,
+    url: matches.any
+  })
+
+  static usernameUpdatedAction = defineAction({
+    type: 'USERNAME_UPDATED' as const,
+    name: matches.string
+  })
+
+  static userAvatarIdUpdatedAction = defineAction({
+    type: 'USERAVATARID_UPDATED' as const,
+    avatarId: matches.string
+  })
+
+  static userPatchedAction = defineAction({
+    type: 'USER_PATCHED' as const,
+    params: matches.any
+  })
+
+  static userUpdatedAction = defineAction({
+    type: 'USER_UPDATED' as const,
+    user: matches.object as Validator<unknown, UserInterface>
+  })
+
+  static updateAvatarListAction = defineAction({
+    type: 'AVATAR_FETCHED' as const,
+    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
+  })
+
+  static apiKeyUpdatedAction = defineAction({
+    type: 'USER_API_KEY_UPDATED' as const,
+    apiKey: matches.object as Validator<unknown, UserApiKey>
+  })
 }

@@ -11,7 +11,13 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
@@ -78,7 +84,7 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   data: ParticleEmitterComponentType
 ) => {
   const comp = parseParticleEmitterProperties(data)
-  addComponent(entity, ParticleEmitterComponent, comp)
+  setComponent(entity, ParticleEmitterComponent, comp)
   dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))
   //initializeParticleSystem(entity)
   //updateParticleEmitter(entity, comp)

@@ -15,7 +15,8 @@ import {
   getComponent,
   getComponentCountOfType,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
@@ -36,7 +37,7 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   data: GroundPlaneComponentType
 ): Promise<void> {
   const props = parseGroundPlaneProperties(data)
-  addComponent(entity, GroundPlaneComponent, props)
+  setComponent(entity, GroundPlaneComponent, props)
 }
 
 let navigationRaycastTarget: Group
@@ -58,6 +59,7 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
       bodyType: RigidBodyType.Fixed,
       type: ShapeType.Cuboid,
       size: planeSize,
+      removeMesh: false,
       collisionLayer: CollisionGroups.Ground,
       collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
     } as ColliderDescOptions
