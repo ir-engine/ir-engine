@@ -17,7 +17,6 @@ import {
   hasComponent,
   removeComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
 import { Physics } from '../../../physics/classes/Physics'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
@@ -98,10 +97,8 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
 
       navigationRaycastTarget.scale.setScalar(getComponent(entity, TransformComponent).scale.x)
       Engine.instance.currentWorld.scene.add(navigationRaycastTarget)
-      addComponent(entity, NavMeshComponent, { navTarget: navigationRaycastTarget })
     } else {
       Engine.instance.currentWorld.scene.remove(navigationRaycastTarget)
-      removeComponent(entity, NavMeshComponent)
     }
   }
 
