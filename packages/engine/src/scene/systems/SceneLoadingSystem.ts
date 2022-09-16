@@ -212,13 +212,6 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     removeEntityNodeFromParent(node)
   }
 
-  /** @todo - this action dispatch will no longer be needed when all scene components use new defineComponent API */
-  dispatchAction(
-    EngineActions.sceneObjectUpdate({
-      entities: sceneObjectQuery()
-    })
-  )
-
   if (!sceneAssetPendingTagQuery().length) {
     dispatchAction(EngineActions.sceneLoaded({}))
   }
