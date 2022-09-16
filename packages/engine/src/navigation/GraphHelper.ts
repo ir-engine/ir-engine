@@ -134,7 +134,7 @@ function createPathHelper(navMesh: NavMesh, path: Vector3[], nodeSize: number, c
     position.push(from.x, from.y, from.z)
     position.push(to.x, to.y, to.z)
 
-    nodeMesh.position.copy(from)
+    nodeMesh.position.copy(to)
     group.add(nodeMesh)
   }
 
