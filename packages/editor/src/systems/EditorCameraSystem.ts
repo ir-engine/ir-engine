@@ -24,9 +24,9 @@ export default async function EditorCameraSystem(world: World) {
   const sphere = new Sphere()
   const spherical = new Spherical()
 
-  return () => {
-    const cameraQuery = defineQuery([EditorCameraComponent, CameraComponent])
+  const cameraQuery = defineQuery([EditorCameraComponent, CameraComponent])
 
+  return () => {
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
       const camera = getComponent(entity, CameraComponent).camera
