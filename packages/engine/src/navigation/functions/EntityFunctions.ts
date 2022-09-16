@@ -10,6 +10,8 @@ import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { THRESHOLD_ARRIVED_SQUARED } from '../constants'
 import { roundmap } from './HelperFunctions'
 
+// TODO test
+
 export function getCurrentWaypoint(entity: Entity): Vector3 {
   const autoPilot = getComponent(entity, AutoPilotComponent)
   invariant(!!autoPilot, 'no existing autoPilot component')
