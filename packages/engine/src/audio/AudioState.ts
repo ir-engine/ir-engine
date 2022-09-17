@@ -111,31 +111,31 @@ export function AudioSettingReceptor(action) {
 
 export class AudioSettingAction {
   static setMasterVolume = defineAction({
-    type: 'core.audio.MASTER_VOLUME' as const,
+    type: 'xre.audio.AudioSetting.MASTER_VOLUME' as const,
     value: matches.number
   })
   static setMicrophoneVolume = defineAction({
-    type: 'core.audio.MICROPHONE_VOLUME' as const,
+    type: 'xre.audio.AudioSetting.MICROPHONE_VOLUME' as const,
     value: matches.number
   })
   static setUsePositionalMedia = defineAction({
-    type: 'core.audio.POSITIONAL_MEDIA' as const,
+    type: 'xre.audio.AudioSetting.POSITIONAL_MEDIA' as const,
     value: matches.boolean
   })
   static setMediaStreamVolume = defineAction({
-    type: 'core.audio.MEDIA_STREAM_VOLUME' as const,
+    type: 'xre.audio.AudioSetting.MEDIA_STREAM_VOLUME' as const,
     value: matches.number
   })
   static setNotificationVolume = defineAction({
-    type: 'core.audio.NOTIFICATION_VOLUME' as const,
+    type: 'xre.audio.AudioSetting.NOTIFICATION_VOLUME' as const,
     value: matches.number
   })
   static setSoundEffectsVolume = defineAction({
-    type: 'core.audio.SOUND_EFFECT_VOLUME' as const,
+    type: 'xre.audio.AudioSetting.SOUND_EFFECT_VOLUME' as const,
     value: matches.number
   })
   static setMusicVolume = defineAction({
-    type: 'core.audio.BACKGROUND_MUSIC_VOLUME' as const,
+    type: 'xre.audio.AudioSetting.BACKGROUND_MUSIC_VOLUME' as const,
     value: matches.number
   })
 }

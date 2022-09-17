@@ -159,34 +159,34 @@ export const LocationService = {
 //Action
 export class LocationAction {
   static setLocationName = defineAction({
-    type: 'LOCATION_NAME_SET' as const,
+    type: 'xre.client.Location.LOCATION_NAME_SET' as const,
     locationName: matches.string
   })
 
   static socialLocationRetrieved = defineAction({
-    type: 'LOCATION_RETRIEVED' as const,
+    type: 'xre.client.Location.LOCATION_RETRIEVED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static socialLocationBanCreated = defineAction({
-    type: 'LOCATION_BAN_CREATED' as const
+    type: 'xre.client.Location.LOCATION_BAN_CREATED' as const
   })
 
   static fetchingCurrentSocialLocation = defineAction({
-    type: 'FETCH_CURRENT_LOCATION' as const
+    type: 'xre.client.Location.FETCH_CURRENT_LOCATION' as const
   })
 
   static socialLocationNotFound = defineAction({
-    type: 'LOCATION_NOT_FOUND' as const
+    type: 'xre.client.Location.LOCATION_NOT_FOUND' as const
   })
 
   static socialLocationNotAuthorized = defineAction({
-    type: 'LOCATION_NOT_AUTHORIZED' as const,
+    type: 'xre.client.Location.LOCATION_NOT_AUTHORIZED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static socialSelfUserBanned = defineAction({
-    type: 'LOCATION_LOCAL_USER_BANNED' as const,
+    type: 'xre.client.Location.LOCATION_LOCAL_USER_BANNED' as const,
     banned: matches.boolean
   })
 }

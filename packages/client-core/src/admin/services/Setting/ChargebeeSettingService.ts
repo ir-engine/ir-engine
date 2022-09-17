@@ -43,7 +43,7 @@ export const ChargebeeSettingService = {
 
 export class AdminChargebeeSettingActions {
   static chargebeeSettingRetrieved = defineAction({
-    type: 'ADMIN_REDIS_SETTING_FETCHED' as const,
+    type: 'xre.client.AdminChargebeeSetting.ADMIN_CHARGEBEE_SETTING_FETCHED' as const,
     chargebeeSetting: matches.object as Validator<unknown, Paginated<ChargebeeSetting>>
   })
 }

@@ -169,7 +169,7 @@ export const PropertiesPanelContainer = () => {
     nodeEntity = nodeEntity as Entity
     const components = getAllComponents(nodeEntity as Entity).filter((c) => EntityNodeEditor.has(c))
     // todo - still WIP
-    // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry)
+    // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry.entries())
 
     content = (
       <StyledNodeEditor>
@@ -192,7 +192,7 @@ export const PropertiesPanelContainer = () => {
           </NameInputGroupContainer>
         </PropertiesHeader>
         {/** @todo this is the add component menu - still a work in progress */}
-        {/* <div style={{ pointerEvents: 'auto' }}>
+        {/* {typeof nodeEntity === 'number' && <div style={{ pointerEvents: 'auto' }}>
           <MainMenu
             icon={isMenuOpen ? Close : AddIcon}
             isMenuOpen={isMenuOpen}
@@ -210,12 +210,12 @@ export const PropertiesPanelContainer = () => {
                 setComponent(
                   nodeEntity,
                   ComponentMap.get(sceneComponentID),
-                  isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
+                  isTagComponent ? true : { ...sceneComponent.defaultData }
                 )
               }
             }))}
           />
-        </div> */}
+        </div>} */}
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
           // nodeEntity is used as key here to signal to React when the entity has changed,

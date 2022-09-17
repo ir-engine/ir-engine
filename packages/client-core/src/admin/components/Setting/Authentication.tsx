@@ -506,7 +506,7 @@ const Account = () => {
                     />
                   </IconButton>
                 }
-                onChange={() => handleShowPassword('linkedin-key')}
+                onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.LINKEDIN)}
               />
 
               <InputText

@@ -41,7 +41,7 @@ export const AdminCoilSettingService = {
 
 export class AdminCoilSettingActions {
   static fetchedCoil = defineAction({
-    type: 'COIL_SETTING_DISPLAY' as const,
+    type: 'xre.client.AdminCoilSetting.COIL_SETTING_DISPLAY' as const,
     coilSettings: matches.object as Validator<unknown, Paginated<CoilSetting>>
   })
 }

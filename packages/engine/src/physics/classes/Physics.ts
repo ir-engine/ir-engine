@@ -130,7 +130,10 @@ function applyDescToCollider(
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 }
 
-function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
+function createColliderDesc(
+  mesh: Mesh,
+  colliderDescOptions: ColliderDescOptions & { singleton?: boolean }
+): ColliderDesc {
   if (!colliderDescOptions.shapeType && colliderDescOptions.type)
     colliderDescOptions.shapeType = colliderDescOptions.type
 
@@ -185,24 +188,34 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     case ShapeType.ConvexPolyhedron: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
-      const _buff = mesh.geometry
-        .clone()
-        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
-      const vertices = new Float32Array(_buff.attributes.position.array)
-      const indices = new Uint32Array(_buff.index!.array)
-      colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+      try {
+        const _buff = mesh.geometry
+          .clone()
+          .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        const vertices = new Float32Array(_buff.attributes.position.array)
+        const indices = new Uint32Array(_buff.index!.array)
+        colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+      } catch (e) {
+        console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
+        return undefined!
+      }
       break
     }
 
     case ShapeType.TriMesh: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
-      const _buff = mesh.geometry
-        .clone()
-        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
-      const vertices = new Float32Array(_buff.attributes.position.array)
-      const indices = new Uint32Array(_buff.index!.array)
-      colliderDesc = ColliderDesc.trimesh(vertices, indices)
+      try {
+        const _buff = mesh.geometry
+          .clone()
+          .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        const vertices = new Float32Array(_buff.attributes.position.array)
+        const indices = new Uint32Array(_buff.index!.array)
+        colliderDesc = ColliderDesc.trimesh(vertices, indices)
+      } catch (e) {
+        console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
+        return undefined!
+      }
       break
     }
 
@@ -211,7 +224,10 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       return undefined!
   }
 
-  applyDescToCollider(colliderDesc, colliderDescOptions, mesh.position, mesh.quaternion)
+  const position = colliderDescOptions.singleton ? new Vector3() : mesh.position
+  const rotation = colliderDescOptions.singleton ? new Quaternion() : mesh.quaternion
+
+  applyDescToCollider(colliderDesc, colliderDescOptions, position, rotation)
 
   return colliderDesc
 }

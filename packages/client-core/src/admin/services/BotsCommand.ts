@@ -64,11 +64,11 @@ export const AdminBotCommandService = {
 //Action
 export class AdminBotCommandActions {
   static botCommandCreated = defineAction({
-    type: 'BOT_COMMAND_ADMIN_CREATE' as const,
+    type: 'xre.client.AdminBotCommand.BOT_COMMAND_ADMIN_CREATE' as const,
     botCommand: matches.object as Validator<unknown, BotCommands>
   })
   static botCommandRemoved = defineAction({
-    type: 'BOT_COMMAND_ADMIN_REMOVE' as const,
+    type: 'xre.client.AdminBotCommand.BOT_COMMAND_ADMIN_REMOVE' as const,
     botCommand: matches.object as Validator<unknown, BotCommands>
   })
 }

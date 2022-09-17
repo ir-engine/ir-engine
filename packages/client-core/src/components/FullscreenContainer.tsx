@@ -1,13 +1,21 @@
-import React, { Suspense, useCallback, useEffect, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@xrengine/client-core/src/components/useFullscreen'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 
-export const FullscreenContainer = (props: Props) => {
+export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
   const [fullScreenActive, setFullScreenActive] = useState(false)
   const handle = useFullScreenHandle()
+
+  useEffect(() => {
+    if (ref?.current) {
+      const canvas = document.getElementById('engine-renderer-canvas')!
+      document.body.removeChild(canvas)
+      ref.current.appendChild(canvas)
+    }
+  }, [ref])
 
   const reportChange = useCallback((state) => {
     if (state) {
@@ -25,8 +33,8 @@ export const FullscreenContainer = (props: Props) => {
   return (
     <FullscreenContext.Provider value={[fullScreenActive, setFullScreenActive]}>
       <FullScreen handle={handle} onChange={reportChange}>
-        {props.children}
+        <div ref={ref}>{props.children}</div>
       </FullScreen>
     </FullscreenContext.Provider>
   )
-}
+})

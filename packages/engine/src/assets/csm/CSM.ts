@@ -302,7 +302,7 @@ export class CSM {
 
   setupMaterial(mesh: Mesh): void {
     const material = mesh.material as Material
-    if (material.userData['IGNORE_CSM']) return
+    if (material.userData.IGNORE_CSM || material.userData.CSMPlugin) return
     material.defines = material.defines || {}
     material.defines.USE_CSM = 1
     material.defines.CSM_CASCADES = this.cascades

@@ -3,7 +3,7 @@ import * as bitecs from 'bitecs'
 import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getState } from '@xrengine/hyperflux'
@@ -12,7 +12,6 @@ import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
-import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -24,8 +23,6 @@ import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupCo
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
-import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
@@ -153,24 +150,26 @@ export class World {
    */
   scene = new Scene()
 
-  sceneDynamicallyUnloadedEntities = new Map<
-    string,
-    {
-      json: EntityJson
-      position: Vector3
-      distance: number
-    }
-  >()
+  sceneJson = null! as SceneJson
 
-  sceneDynamicallyLoadedEntities = new Map<
-    Entity,
-    {
-      json: EntityJson
-      position: Vector3
-      distance: number
-      uuid: string
-    }
-  >()
+  // sceneDynamicallyUnloadedEntities = new Map<
+  //   string,
+  //   {
+  //     json: EntityJson
+  //     position: Vector3
+  //     distance: number
+  //   }
+  // >()
+
+  // sceneDynamicallyLoadedEntities = new Map<
+  //   Entity,
+  //   {
+  //     json: EntityJson
+  //     position: Vector3
+  //     distance: number
+  //     uuid: string
+  //   }
+  // >()
 
   /**
    * The scene entity

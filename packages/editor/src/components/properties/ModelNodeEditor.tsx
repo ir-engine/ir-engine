@@ -116,12 +116,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'matrixAutoUpdate')}
         />
       </InputGroup>
-      <InputGroup name="Use Basic Materials" label={t('editor:properties.model.lbl-useBasicMaterials')}>
-        <BooleanInput
-          value={modelComponent.useBasicMaterial}
-          onChange={updateProperty(ModelComponent, 'useBasicMaterial')}
-        />
-      </InputGroup>
       <InputGroup name="Is Using GPU Instancing" label={t('editor:properties.model.lbl-isGPUInstancing')}>
         <BooleanInput
           value={modelComponent.isUsingGPUInstancing}

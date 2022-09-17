@@ -80,28 +80,28 @@ export const WidgetAppService = {
 
 export class WidgetAppActions {
   static showWidgetMenu = defineAction({
-    type: 'WidgetAppActions.SHOW_WIDGET_MENU' as const,
+    type: 'xre.xrui.WidgetAppActions.SHOW_WIDGET_MENU' as const,
     shown: matches.boolean
   })
 
   static registerWidget = defineAction({
-    type: 'WidgetAppActions.REGISTER_WIDGET' as const,
+    type: 'xre.xrui.WidgetAppActions.REGISTER_WIDGET' as const,
     id: matches.string
   })
 
   static unregisterWidget = defineAction({
-    type: 'WidgetAppActions.UNREGISTER_WIDGET' as const,
+    type: 'xre.xrui.WidgetAppActions.UNREGISTER_WIDGET' as const,
     id: matches.string
   })
 
   static enableWidget = defineAction({
-    type: 'WidgetAppActions.ENABLE_WIDGET' as const,
+    type: 'xre.xrui.WidgetAppActions.ENABLE_WIDGET' as const,
     id: matches.string,
     enabled: matches.boolean
   })
 
   static showWidget = defineAction({
-    type: 'WidgetAppActions.SHOW_WIDGET' as const,
+    type: 'xre.xrui.WidgetAppActions.SHOW_WIDGET' as const,
     id: matches.string,
     shown: matches.boolean
   })
