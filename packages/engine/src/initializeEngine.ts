@@ -160,11 +160,6 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
       uuid: 'xre.engine.AssetSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => import('./scene/systems/AssetSystem')
-    },
-    {
-      uuid: 'xre.engine.LoadVolumeSystem',
-      type: SystemUpdateType.FIXED_LATE,
-      systemLoader: () => import('./scene/systems/LoadVolumeSystem')
     }
   )
 

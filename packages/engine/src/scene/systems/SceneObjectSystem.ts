@@ -1,4 +1,4 @@
-import { Mesh, MeshStandardMaterial, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshStandardMaterial, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -62,9 +62,21 @@ const updateObject = (entity: Entity) => {
   }
 }
 
-const applyMaterial = (obj: Mesh<any, MeshStandardMaterial>) => {
+const applyMaterial = (obj: Mesh<any, any>) => {
   if (!obj.material) return
   const material = obj.material
+
+  if (Engine.instance.isHMD) {
+    if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
+      obj.material = new MeshLambertMaterial({
+        color: obj.material.color,
+        flatShading: obj.material.flatShading,
+        map: obj.material.map,
+        fog: obj.material.fog
+      })
+      return
+    }
+  }
 
   // BPCEM
   if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
@@ -80,7 +92,7 @@ const applyMaterial = (obj: Mesh<any, MeshStandardMaterial>) => {
 
   material.envMapIntensity = SceneOptions.instance.envMapIntensity
 
-  if (obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
+  if (!Engine.instance.isHMD && obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
 }
 
 export default async function SceneObjectSystem(world: World) {

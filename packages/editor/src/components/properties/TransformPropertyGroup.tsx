@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   SCENE_COMPONENT_DYNAMIC_LOAD,
@@ -73,7 +74,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   return (
     <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
-      <InputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
+      <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
         <BooleanInput
           value={hasComponent(props.node.entity, SceneDynamicLoadTagComponent)}
           onChange={onChangeDynamicLoad}

@@ -125,7 +125,7 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
   const node = {
     type: 'EntityNode' as const,
     entity,
-    uuid: uuid || MathUtils.generateUUID(),
+    uuid: uuid ?? MathUtils.generateUUID(),
     children: []
   }
   addComponent(entity, SceneObjectComponent, true)
@@ -160,9 +160,11 @@ export function addEntityNodeChild(node: EntityTreeNode, child: EntityTreeNode, 
 
   const parentTransform = getComponent(node.entity, TransformComponent)
   const childTransform = getComponent(child.entity, TransformComponent)
-  const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
-  const localTransform = setLocalTransformComponent(child.entity, node.entity)
-  childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+  if (parentTransform && childTransform) {
+    const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
+    const localTransform = setLocalTransformComponent(child.entity, node.entity)
+    childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+  }
 }
 
 /**
