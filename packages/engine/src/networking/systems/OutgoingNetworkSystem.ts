@@ -1,5 +1,5 @@
 import { World } from '../../ecs/classes/World'
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -33,7 +33,14 @@ const serializeAndSend = (world: World, serialize: Function) => {
 export default async function OutgoingNetworkSystem(world: World) {
   const serialize = createDataWriter()
 
-  return () => {
+  const execute = () => {
     world.worldNetwork && serializeAndSend(world, serialize)
   }
+
+  const cleanup = async () => {
+    removeQuery(world, networkTransformsQuery)
+    removeQuery(world, authoritativeNetworkTransformsQuery)
+  }
+
+  return { execute, cleanup }
 }

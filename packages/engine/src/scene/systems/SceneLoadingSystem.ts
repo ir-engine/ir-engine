@@ -19,6 +19,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -140,6 +141,8 @@ export const updateSystemFromJSON = async (sceneData: SceneData, world = Engine.
   const systemsToUnload = Object.keys(world.pipelines).map((p) =>
     world.pipelines[p].filter((loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid))
   )
+
+  await Promise.all(systemsToUnload.flat().map((system) => system.cleanup()))
 
   /** unload old systems */
   for (const pipeline of systemsToUnload) {
@@ -333,7 +336,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson, world = 
   }
 }
 
-const sceneObjectQuery = defineQuery([SceneObjectComponent])
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 export default async function SceneLoadingSystem(world: World) {
@@ -349,7 +351,7 @@ export default async function SceneLoadingSystem(world: World) {
     )
   }
 
-  return () => {
+  const execute = () => {
     const pendingAssets = sceneAssetPendingTagQuery().length
 
     for (const entity of sceneAssetPendingTagQuery.enter()) {
@@ -364,4 +366,10 @@ export default async function SceneLoadingSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, sceneAssetPendingTagQuery)
+  }
+
+  return { execute, cleanup }
 }

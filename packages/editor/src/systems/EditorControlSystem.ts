@@ -22,6 +22,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  removeQuery,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -75,7 +76,7 @@ import { accessSelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
-export default async function EditorControlSystem(_: World) {
+export default async function EditorControlSystem(world: World) {
   const editorControlQuery = defineQuery([EditorControlComponent])
   const selectionState = accessSelectionState()
   const editorHelperState = accessEditorHelperState()
@@ -170,7 +171,7 @@ export default async function EditorControlSystem(_: World) {
     }
   }
 
-  return () => {
+  const execute = () => {
     for (let _ of editorControlQuery()) {
       if (editorHelperState.isPlayModeEnabled.value) continue
 
@@ -569,4 +570,10 @@ export default async function EditorControlSystem(_: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, editorControlQuery)
+  }
+
+  return { execute, cleanup }
 }

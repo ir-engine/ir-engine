@@ -499,7 +499,6 @@ export const createAvatarInput = () => {
   map.set(GamepadButtons.A, BaseInput.INTERACT)
   map.set(GamepadButtons.B, BaseInput.JUMP)
   map.set(GamepadButtons.X, BaseInput.TOGGLE_MENU_BUTTONS)
-  map.set('Escape', BaseInput.HIDE_MENU_BUTTONS)
   // map.set(GamepadButtons.Y, BaseInput.INTERACT)
   map.set(GamepadButtons.LTrigger, BaseInput.GRAB_LEFT)
   map.set(GamepadButtons.RTrigger, BaseInput.GRAB_RIGHT)

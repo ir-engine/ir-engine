@@ -2,7 +2,12 @@ import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
 import { CameraComponent } from '@xrengine/engine/src/camera/components/CameraComponent'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeQuery
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
@@ -26,7 +31,7 @@ export default async function EditorCameraSystem(world: World) {
 
   const cameraQuery = defineQuery([EditorCameraComponent, CameraComponent])
 
-  return () => {
+  const execute = () => {
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
       const camera = getComponent(entity, CameraComponent).camera
@@ -114,4 +119,10 @@ export default async function EditorCameraSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, cameraQuery)
+  }
+
+  return { execute, cleanup }
 }

@@ -5,6 +5,7 @@ import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
+import { World } from '../classes/World'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -266,7 +267,15 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   wrappedQuery.enter = (world = Engine.instance.currentWorld) => enterQuery(world) as Entity[]
   wrappedQuery.exit = (world = Engine.instance.currentWorld) => exitQuery(world) as Entity[]
   wrappedQuery._query = query
+  wrappedQuery._enterQuery = enterQuery
+  wrappedQuery._exitQuery = exitQuery
   return wrappedQuery
+}
+
+export function removeQuery(world: World, query: ReturnType<typeof defineQuery>) {
+  bitECS.removeQuery(world, query._query)
+  bitECS.removeQuery(world, query._enterQuery)
+  bitECS.removeQuery(world, query._exitQuery)
 }
 
 export type Query = ReturnType<typeof defineQuery>

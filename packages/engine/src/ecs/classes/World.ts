@@ -210,9 +210,6 @@ export class World {
 
   #entityRemovedQuery = bitecs.defineQuery([EntityRemovedComponent])
 
-  #portalQuery = bitecs.defineQuery([PortalComponent])
-  portalQuery = () => this.#portalQuery(this) as Entity[]
-
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
   /**

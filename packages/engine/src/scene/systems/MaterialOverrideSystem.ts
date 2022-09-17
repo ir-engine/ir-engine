@@ -5,7 +5,7 @@ import { getState } from '@xrengine/hyperflux'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { assignMaterial, MaterialParms } from '../../renderer/materials/MaterialParms'
 import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../components/MaterialOverrideComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -64,7 +64,7 @@ export default async function MaterialOverrideSystem(world: World) {
     entEntry.delete(override)
   }
 
-  return () => {
+  const execute = () => {
     for (const entity of overrideQuery.enter()) {
       const override = getComponent(entity, MaterialOverrideComponent)
       register(override)
@@ -85,4 +85,10 @@ export default async function MaterialOverrideSystem(world: World) {
       }
     }*/
   }
+
+  const cleanup = async () => {
+    removeQuery(world, overrideQuery)
+  }
+
+  return { execute, cleanup }
 }

@@ -7,8 +7,12 @@ import { SystemUpdateType } from '../functions/SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
-export type CreateSystemSyncFunctionType<A extends any> = (world: World, props?: A) => () => void
-export type CreateSystemFunctionType<A extends any> = (world: World, props?: A) => Promise<() => void>
+export type SystemDefinition = {
+  execute: () => void
+  cleanup: () => Promise<void>
+}
+export type CreateSystemSyncFunctionType<A extends any> = (world: World, props?: A) => SystemDefinition
+export type CreateSystemFunctionType<A extends any> = (world: World, props?: A) => Promise<SystemDefinition>
 export type SystemModule<A extends any> = { default: CreateSystemFunctionType<A> }
 export type systemLoader<A extends any> = Promise<SystemModule<A>>
 
@@ -43,6 +47,7 @@ export type SystemInstanceType = {
   sceneSystem: boolean
   enabled: boolean
   execute: () => void
+  cleanup: () => void
 }
 
 export const initSystems = async (world: World, systemModulesToLoad: SystemModuleType<any>[]) => {
@@ -63,7 +68,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         execute: () => {
           const startTime = nowMilliseconds()
           try {
-            system()
+            system.execute()
           } catch (e) {
             logger.error(e.stack)
           }
@@ -73,7 +78,8 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
             lastWarningTime = endTime
             logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
           }
-        }
+        },
+        cleanup: system.cleanup
       } as SystemInstanceType
     } catch (e) {
       logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
@@ -107,6 +113,7 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
   let lastWarningTime = 0
   const warningCooldownDuration = 1000 * 10 // 10 seconds
   const systemData = {
+    uuid: systemArgs.uuid,
     name,
     type: systemArgs.type,
     sceneSystem: false,
@@ -114,7 +121,7 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
     execute: () => {
       const startTime = nowMilliseconds()
       try {
-        system()
+        system.execute()
       } catch (e) {
         logger.error(e)
       }
@@ -124,7 +131,8 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
         lastWarningTime = endTime
         logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
       }
-    }
+    },
+    cleanup: system.cleanup
   } as SystemInstanceType
   world.pipelines[systemData.type].push(systemData)
 }

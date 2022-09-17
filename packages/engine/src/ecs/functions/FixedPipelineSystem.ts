@@ -15,7 +15,7 @@ export default function FixedPipelineSystem(world: World) {
   // we should simply skip ahead.
   const maxTimeDifference = 2
 
-  return () => {
+  const execute = () => {
     const start = nowMilliseconds()
     let timeUsed = 0
     let updatesCount = 0
@@ -64,4 +64,8 @@ export default function FixedPipelineSystem(world: World) {
         world.elapsedSeconds - world.fixedElapsedSeconds
       )
   }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
 }

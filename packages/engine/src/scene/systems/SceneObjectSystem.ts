@@ -10,7 +10,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { removeQuery, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
@@ -18,6 +18,7 @@ import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
+import { removeQuery } from 'bitecs'
 
 type BPCEMProps = {
   bakeScale: Vector3
@@ -104,7 +105,7 @@ export default async function SceneObjectSystem(world: World) {
   const sceneObjectQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  return () => {
+  const execute = () => {
     for (const entity of sceneObjectQuery.exit()) {
       const group = getComponent(entity, GroupComponent, true)
       const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
@@ -123,4 +124,11 @@ export default async function SceneObjectSystem(world: World) {
       callbacks.get(UpdatableCallback)?.(delta)
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, sceneObjectQuery)
+    removeQuery(world, updatableQuery)
+  }
+
+  return { execute, cleanup }
 }

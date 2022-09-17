@@ -14,7 +14,6 @@ import { createWorld, destroyWorld } from './ecs/classes/World'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
 import { initSystems, initSystemSync, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import { matchActionOnce } from './networking/functions/matchActionOnce'
 import IncomingActionSystem from './networking/systems/IncomingActionSystem'
 import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
@@ -330,6 +329,11 @@ export const initializeSceneSystems = async () => {
         uuid: 'xre.engine.DebugHelpersSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./debug/systems/DebugHelpersSystem')
+      },
+      {
+        uuid: 'xre.engine.DebugRenderer',
+        type: SystemUpdateType.PRE_RENDER,
+        systemLoader: () => import('./debug/systems/DebugRenderer')
       },
       {
         uuid: 'xre.engine.HighlightSystem',

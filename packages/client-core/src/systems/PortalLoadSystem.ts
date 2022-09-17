@@ -3,7 +3,7 @@ import { Euler, Texture } from 'three'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 
@@ -31,7 +31,14 @@ export const enterPortal = async (entity: Entity) => {
  */
 export default async function PortalLoadSystem(world: World) {
   const portalQuery = defineQuery([PortalComponent])
-  return () => {
+
+  const execute = () => {
     for (const entity of portalQuery.enter()) enterPortal(entity)
   }
+
+  const cleanup = async () => {
+    removeQuery(world, portalQuery)
+  }
+
+  return { execute, cleanup }
 }

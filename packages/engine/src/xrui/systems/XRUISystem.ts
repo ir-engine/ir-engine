@@ -4,7 +4,7 @@ import { Color } from 'three'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
@@ -112,7 +112,7 @@ export default async function XRUISystem(world: World) {
   canvas.addEventListener('contextmenu', redirectDOMEvent)
   canvas.addEventListener('dblclick', redirectDOMEvent)
 
-  return () => {
+  const execute = () => {
     const input = getComponent(world.localClientEntity, InputComponent)
     const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
 
@@ -167,4 +167,14 @@ export default async function XRUISystem(world: World) {
     // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
     // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }
+
+  const cleanup = async () => {
+    canvas.removeEventListener('click', redirectDOMEvent)
+    canvas.removeEventListener('contextmenu', redirectDOMEvent)
+    canvas.removeEventListener('dblclick', redirectDOMEvent)
+    removeQuery(world, xruiQuery)
+    removeQuery(world, localXRInputQuery)
+  }
+
+  return { execute, cleanup }
 }

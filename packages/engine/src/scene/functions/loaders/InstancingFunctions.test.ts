@@ -59,9 +59,12 @@ describe('InstancingFunctions', async () => {
             default: async () => {
               let resolve: () => void
               nextFixedStep = new Promise<void>((r) => (resolve = r))
-              return () => {
-                resolve()
-                nextFixedStep = new Promise<void>((r) => (resolve = r))
+              return {
+                execute: () => {
+                  resolve()
+                  nextFixedStep = new Promise<void>((r) => (resolve = r))
+                },
+                cleanup: async () => {}
               }
             }
           })

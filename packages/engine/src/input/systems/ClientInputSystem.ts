@@ -3,13 +3,13 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { InputComponent, InputComponentType } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
 import { BaseInput } from '../enums/BaseInput'
 import { InputType } from '../enums/InputType'
-import { addClientInputListeners } from '../functions/clientInputListeners'
+import { addClientInputListeners, removeClientInputListeners } from '../functions/clientInputListeners'
 import { handleGamepads } from '../functions/GamepadInput'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
@@ -139,7 +139,7 @@ export default async function ClientInputSystem(world: World) {
   addClientInputListeners()
   world.pointerScreenRaycaster.layers.enableAll()
 
-  return () => {
+  const execute = () => {
     if (!EngineRenderer.instance?.xrSession) {
       handleGamepads()
     }
@@ -167,4 +167,11 @@ export default async function ClientInputSystem(world: World) {
       world.pointerScreenRaycaster.ray.direction.set(0, -1, 0)
     }
   }
+
+  const cleanup = async () => {
+    removeClientInputListeners()
+    removeQuery(world, localClientInputQuery)
+  }
+
+  return { execute, cleanup }
 }
