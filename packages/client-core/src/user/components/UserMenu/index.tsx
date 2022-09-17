@@ -47,7 +47,7 @@ export const EmoteIcon = () => (
   </svg>
 )
 
-UserMenuPanels.set(Views.Profile, ProfileMenu)
+UserMenuPanels.set(Views.Profile, (props) => <ProfileMenu {...props} allowAvatarChange />)
 UserMenuPanels.set(Views.Settings, SettingMenu)
 UserMenuPanels.set(Views.Share, ShareMenu)
 UserMenuPanels.set(Views.Party, PartyMenu)
