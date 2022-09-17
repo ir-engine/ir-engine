@@ -228,10 +228,10 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
     const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
     if (existingEntity) {
       deserializeSceneEntity(existingEntity, entityJson)
-      const parent = world.entityTree.entityNodeMap.get(existingEntity!.parentEntity!)
-      /** handle reparenting due to changes in scene json */
-      if (parent && parent.uuid !== entityJson.parent)
-        reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
+      /** @todo handle reparenting due to changes in scene json */
+      // const parent = world.entityTree.entityNodeMap.get(existingEntity!.parentEntity!)
+      // if (parent && parent.uuid !== entityJson.parent)
+      //   reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
     } else {
       const node = createEntityNode(createEntity(), uuid)
       addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!))
@@ -279,14 +279,14 @@ export const deserializeSceneEntity = (
 
   /** remove ECS components that are in the scene register but not in the json */
   /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */
-  const componentsToRemove = getAllComponents(entityNode.entity).filter(
-    (C) =>
-      world.sceneComponentRegistry.has(C.name) &&
-      !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
-  )
-  for (const C of componentsToRemove) {
-    removeComponent(entityNode.entity, C)
-  }
+  // const componentsToRemove = getAllComponents(entityNode.entity).filter(
+  //   (C) =>
+  //     world.sceneComponentRegistry.has(C.name) &&
+  //     !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
+  // )
+  // for (const C of componentsToRemove) {
+  //   removeComponent(entityNode.entity, C)
+  // }
   for (const component of sceneEntity.components) {
     try {
       loadComponent(entityNode.entity, component)
