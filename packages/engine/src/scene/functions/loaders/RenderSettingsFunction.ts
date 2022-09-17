@@ -122,9 +122,8 @@ export const initializeCSM = () => {
     Engine.instance.currentWorld.scene.traverse((obj: Mesh) => {
       if (typeof obj.material !== 'undefined' && obj.receiveShadow) EngineRenderer.instance.csm.setupMaterial(obj)
     })
+    EngineRenderer.instance.isCSMEnabled = true
   }
-
-  EngineRenderer.instance.isCSMEnabled = true
 }
 
 export const disposeCSM = () => {

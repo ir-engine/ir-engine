@@ -11,7 +11,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
-import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { createNewEditorNode, deserializeSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -110,7 +110,7 @@ function addObject(command: AddObjectCommandParams) {
         traverseEntityNode(object, (node) => {
           if (!data.entities[node.uuid]) return
           node.entity = createEntity()
-          loadSceneEntity(node, data.entities[node.uuid])
+          deserializeSceneEntity(node, data.entities[node.uuid])
 
           if (node.parentEntity && node.uuid !== data.root)
             reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
