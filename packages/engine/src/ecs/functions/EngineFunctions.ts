@@ -78,9 +78,6 @@ export const unloadScene = (world: World) => {
   const entityNodesToRemove = [] as EntityTreeNode[]
   const sceneObjectsToRemove = [] as Object3D[]
 
-  world.sceneDynamicallyLoadedEntities.clear()
-  world.sceneDynamicallyUnloadedEntities.clear()
-
   for (const entity of sceneQuery()) entitiesToRemove.push(entity)
 
   traverseEntityNode(world.entityTree.rootNode, (node) => {
