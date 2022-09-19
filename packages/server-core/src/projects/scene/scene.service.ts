@@ -38,7 +38,6 @@ type GetScenesArgsType = {
 
 export const getScenesForProject = (app: Application) => {
   return async function (args: GetScenesArgsType, params?: Params): Promise<{ data: SceneData[] }> {
-    console.log('getSceneForProject', args.storageProviderName)
     const storageProvider = getStorageProvider(args.storageProviderName)
     const { projectName, metadataOnly, internal } = args
     try {
