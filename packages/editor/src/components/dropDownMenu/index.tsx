@@ -1,5 +1,4 @@
 import React from 'react'
-import Hotkeys, { OnKeyFun } from 'react-hot-keys'
 
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
@@ -52,21 +51,6 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
         {command.hotkey && <div>{command.hotkey}</div>}
       </MenuItem>
     )
-
-    if (command.hotkey) {
-      return (
-        <Hotkeys
-          key={command.name}
-          keyName={command.hotkey}
-          onKeyUp={() => {
-            command.action()
-            handleClose()
-          }}
-        >
-          {menuItem}
-        </Hotkeys>
-      )
-    }
     return menuItem
   }
 

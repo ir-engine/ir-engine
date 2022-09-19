@@ -15,17 +15,17 @@ import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObject
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
-  GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../scene/components/ColliderComponent'
+import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import {
   deserializeCollider,
   serializeCollider,
   updateCollider,
-  updateGroupCollider
+  updateModelColliders
 } from '../../scene/functions/loaders/ColliderFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -110,8 +110,8 @@ export default async function PhysicsSystem(world: World) {
   ])
 
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
-  const colliderQuery = defineQuery([ColliderComponent])
-  const groupColliderQuery = defineQuery([GroupColliderComponent])
+  const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
+  const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
   const allRigidBodyQuery = defineQuery([RigidBodyComponent])
 
   const networkedAvatarBodyQuery = defineQuery([
@@ -136,7 +136,7 @@ export default async function PhysicsSystem(world: World) {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ColliderComponent)) {
-          if (hasComponent(entity, GroupColliderComponent)) {
+          if (hasComponent(entity, GLTFLoadedComponent)) {
             /** @todo we currently have no reason to support this, and it breaks live scene updates */
             // updateMeshCollider(entity)
           } else {
@@ -146,7 +146,7 @@ export default async function PhysicsSystem(world: World) {
       }
     }
     for (const action of colliderQuery.enter()) updateCollider(action)
-    for (const action of groupColliderQuery.enter()) updateGroupCollider(action)
+    for (const action of groupColliderQuery.enter()) updateModelColliders(action)
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
