@@ -56,6 +56,27 @@ export type SystemFactoryType<A> = {
   args?: A
 }
 
+const createExecute = (system: SystemDefintion, name: string) => {
+  let lastWarningTime = 0
+  const warningCooldownDuration = 1000 * 10 // 10 seconds
+
+  return () => {
+    const startTime = nowMilliseconds()
+    try {
+      system.execute()
+    } catch (e) {
+      logger.error(`Failed to execute system ${name}`)
+      logger.error(e)
+    }
+    const endTime = nowMilliseconds()
+    const systemDuration = endTime - startTime
+    if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
+      lastWarningTime = endTime
+      logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
+    }
+  }
+}
+
 const loadSystemInjection = async (
   world: World,
   systemModule: SystemModule<any>,
@@ -68,28 +89,13 @@ const loadSystemInjection = async (
     else logger.info(`${name} initializing`)
     const system = await systemModule.default(world, args)
     logger.info(`${name} ready`)
-    let lastWarningTime = 0
-    const warningCooldownDuration = 1000 * 10 // 10 seconds
+    const subsystems = system.subsystems
+      ? await Promise.all(system.subsystems.map(async (subsystem) => loadSystemInjection(world, await subsystem())))
+      : []
     return {
-      execute: () => {
-        const startTime = nowMilliseconds()
-        try {
-          system.execute()
-        } catch (e) {
-          logger.error(`Failed to execute system ${name}`)
-          logger.error(e)
-        }
-        const endTime = nowMilliseconds()
-        const systemDuration = endTime - startTime
-        if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
-          lastWarningTime = endTime
-          logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
-        }
-      },
+      execute: createExecute(system, name),
       cleanup: system.cleanup,
-      subsystems: system.subsystems
-        ? await Promise.all(system.subsystems.map(async (subsystem) => loadSystemInjection(world, await subsystem())))
-        : []
+      subsystems
     } as SystemInstance
   } catch (e) {
     logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
