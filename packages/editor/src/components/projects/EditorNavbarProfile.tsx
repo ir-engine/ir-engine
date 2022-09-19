@@ -50,7 +50,7 @@ export const EditorNavbarProfile = () => {
               <ProfileMenu
                 isPopover
                 onClose={handleClose}
-                changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Settings)}
+                changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
               />
             )}
             {selectedMenu === Views.Settings && (

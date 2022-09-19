@@ -41,12 +41,20 @@ const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 interface Props {
   className?: string
   hideLogin?: boolean
+  allowAvatarChange?: boolean
   isPopover?: boolean
   changeActiveMenu?: (type: string | null) => void
   onClose?: () => void
 }
 
-const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
+const ProfileMenu = ({
+  className,
+  hideLogin,
+  allowAvatarChange,
+  isPopover,
+  changeActiveMenu,
+  onClose
+}: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -384,7 +392,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
             <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
-            {changeActiveMenu && (
+            {allowAvatarChange && changeActiveMenu && (
               <Button
                 className={styles.avatarBtn}
                 id="select-avatar"

@@ -82,13 +82,14 @@ export const HomePage = (): any => {
                     top: 0px;
                     left: 0px;
                     width: 100%;
+                    min-width: 420px;
                     transform: none;
                     pointer-events: auto;
                 }
               `}
             </style>
             {selectedMenu === Views.Profile && (
-              <ProfileMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Settings)} />
+              <ProfileMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
             )}
             {selectedMenu === Views.Settings && (
               <SettingMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
