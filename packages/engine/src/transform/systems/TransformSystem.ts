@@ -15,11 +15,11 @@ import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/c
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { GroupColliderComponent } from '../../scene/components/ColliderComponent'
+import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
-import { updateCollider, updateGroupCollider } from '../../scene/functions/loaders/ColliderFunctions'
+import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
@@ -93,7 +93,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
     const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(transform.scale) > 0.0001 : true
 
     if (scaleChanged) {
-      if (hasComponent(entity, GroupColliderComponent)) updateGroupCollider(entity)
+      if (hasComponent(entity, GLTFLoadedComponent)) updateModelColliders(entity)
       else updateCollider(entity)
     }
 

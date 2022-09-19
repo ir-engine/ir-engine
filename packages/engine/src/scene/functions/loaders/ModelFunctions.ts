@@ -15,7 +15,6 @@ import {
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
-import { GLTFLoadedComponent } from '../../components/GLTFLoadedComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import {
