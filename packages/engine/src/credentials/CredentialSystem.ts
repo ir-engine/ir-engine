@@ -1,6 +1,6 @@
 import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
-import { CallbackComponent } from '@xrengine/engine/src/scene/components/CallbackComponent'
+import { CallbackComponent, setCallback } from '@xrengine/engine/src/scene/components/CallbackComponent'
 import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
@@ -36,34 +36,32 @@ export const CredentialSystem = () => {
     for (const entity of nameQuery.enter()) {
       const name = getComponent(entity, NameComponent).name
       if (name === 'Door' || name === 'VCKey Trigger Volume') {
-        addComponent(entity, CallbackComponent, {
-          receiveVC: async () => {
-            // Give the user a credential
-            if (isClient) {
-              const signedVp = await requestVcForEvent('EnteredVolumeEvent')
-              console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
+        setCallback(entity, 'receiveVC', async () => {
+          // Give the user a credential
+          if (isClient) {
+            const signedVp = await requestVcForEvent('EnteredVolumeEvent')
+            console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
 
-              const webCredentialType = 'VerifiablePresentation'
-              // @ts-ignore
-              const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
-                recommendedHandlerOrigins: ['https://uniwallet.cloud']
-              })
+            const webCredentialType = 'VerifiablePresentation'
+            // @ts-ignore
+            const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
+              recommendedHandlerOrigins: ['https://uniwallet.cloud']
+            })
 
-              const storeResult = await navigator.credentials.store(webCredentialWrapper)
-              console.log('Stored credential result:', JSON.stringify(storeResult, null, 2))
-            }
-          },
-          activate: async () => {
-            console.log('IN ACTIVATE')
-            // request credential
-            if (isClient) {
-              const vpResult = (await navigator.credentials.get(vpRequestQuery)) as any
-              console.log(JSON.stringify(vpResult, null, 2))
-              // send the vc to the server side for verification
-              dispatchAction(
-                CredentialAction.requestVerify({ credential: vpResult?.data?.presentation.verifiableCredential[0] })
-              )
-            }
+            const storeResult = await navigator.credentials.store(webCredentialWrapper)
+            console.log('Stored credential result:', JSON.stringify(storeResult, null, 2))
+          }
+        })
+        setCallback(entity, 'activate', async () => {
+          console.log('IN ACTIVATE')
+          // request credential
+          if (isClient) {
+            const vpResult = (await navigator.credentials.get(vpRequestQuery)) as any
+            console.log(JSON.stringify(vpResult, null, 2))
+            // send the vc to the server side for verification
+            dispatchAction(
+              CredentialAction.requestVerify({ credential: vpResult?.data?.presentation.verifiableCredential[0] })
+            )
           }
         })
       }

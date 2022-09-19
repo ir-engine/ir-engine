@@ -16,6 +16,7 @@ import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
 import { initSystems, initSystemSync, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import IncomingActionSystem from './networking/systems/IncomingActionSystem'
+import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { FontManager } from './xrui/classes/FontManager'
@@ -47,6 +48,11 @@ export const setupEngineActionSystems = () => {
     uuid: 'xre.engine.IncomingActionSystem',
     type: SystemUpdateType.FIXED_EARLY,
     systemFunction: IncomingActionSystem
+  })
+  initSystemSync(world, {
+    uuid: 'xre.engine.OutgoingActionSystem',
+    type: SystemUpdateType.FIXED_LATE,
+    systemFunction: OutgoingActionSystem
   })
 }
 
@@ -154,11 +160,6 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
       uuid: 'xre.engine.AssetSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => import('./scene/systems/AssetSystem')
-    },
-    {
-      uuid: 'xre.engine.OutgoingActionSystem',
-      type: SystemUpdateType.FIXED_LATE,
-      systemLoader: () => import('./networking/systems/OutgoingActionSystem')
     }
   )
 
