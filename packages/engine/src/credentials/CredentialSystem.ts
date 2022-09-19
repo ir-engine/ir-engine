@@ -28,6 +28,34 @@ function updateCredentialState(action: typeof CredentialAction.verificationResul
   credentialState[action.userId].all.merge(credential)
 }
 
+async function receiveVC() {
+  // Give the user a credential
+  if (isClient) {
+    const signedVp = await requestVcForEvent('EnteredVolumeEvent')
+    console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
+
+    const webCredentialType = 'VerifiablePresentation'
+    // @ts-ignore
+    const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
+      recommendedHandlerOrigins: ['https://uniwallet.cloud']
+    })
+
+    const storeResult = await navigator.credentials.store(webCredentialWrapper)
+    console.log('Stored credential result:', JSON.stringify(storeResult, null, 2))
+  }
+}
+
+async function activate() {
+  console.log('IN ACTIVATE')
+  // request credential
+  if (isClient) {
+    const vpResult = (await navigator.credentials.get(vpRequestQuery)) as any
+    console.log(JSON.stringify(vpResult, null, 2))
+    // send the vc to the server side for verification
+    dispatchAction(CredentialAction.requestVerify({ credential: vpResult?.data?.presentation.verifiableCredential[0] }))
+  }
+}
+
 export const CredentialSystem = () => {
   const didVerifyCredentialActions = createActionQueue(CredentialAction.verificationResult.matches)
   const nameQuery = defineQuery([NameComponent])
@@ -36,34 +64,8 @@ export const CredentialSystem = () => {
     for (const entity of nameQuery.enter()) {
       const name = getComponent(entity, NameComponent).name
       if (name === 'Door' || name === 'VCKey Trigger Volume') {
-        setCallback(entity, 'receiveVC', async () => {
-          // Give the user a credential
-          if (isClient) {
-            const signedVp = await requestVcForEvent('EnteredVolumeEvent')
-            console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
-
-            const webCredentialType = 'VerifiablePresentation'
-            // @ts-ignore
-            const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
-              recommendedHandlerOrigins: ['https://uniwallet.cloud']
-            })
-
-            const storeResult = await navigator.credentials.store(webCredentialWrapper)
-            console.log('Stored credential result:', JSON.stringify(storeResult, null, 2))
-          }
-        })
-        setCallback(entity, 'activate', async () => {
-          console.log('IN ACTIVATE')
-          // request credential
-          if (isClient) {
-            const vpResult = (await navigator.credentials.get(vpRequestQuery)) as any
-            console.log(JSON.stringify(vpResult, null, 2))
-            // send the vc to the server side for verification
-            dispatchAction(
-              CredentialAction.requestVerify({ credential: vpResult?.data?.presentation.verifiableCredential[0] })
-            )
-          }
-        })
+        setCallback(entity, 'receiveVC', receiveVC)
+        setCallback(entity, 'activate', activate)
       }
     }
     for (const action of didVerifyCredentialActions()) updateCredentialState(action)
