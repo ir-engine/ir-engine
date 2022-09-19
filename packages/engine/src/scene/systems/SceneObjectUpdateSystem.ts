@@ -156,6 +156,7 @@ import {
 } from '../functions/loaders/RenderSettingsFunction'
 import {
   enterScenePreviewCamera,
+  serializeScenePreviewCamera,
   shouldDeserializeScenePreviewCamera
 } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
@@ -237,7 +238,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ScenePreviewCameraComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
-    shouldDeserialize: shouldDeserializeScenePreviewCamera
+    shouldDeserialize: shouldDeserializeScenePreviewCamera,
+    serialize: serializeScenePreviewCamera
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.system, [
