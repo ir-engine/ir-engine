@@ -27,7 +27,6 @@ export const updateCollider = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const colliderComponent = getComponent(entity, ColliderComponent)
   const world = Engine.instance.currentWorld
-  console.log(colliderComponent)
   if (!colliderComponent) return
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
