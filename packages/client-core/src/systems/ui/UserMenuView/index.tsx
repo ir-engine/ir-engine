@@ -24,7 +24,7 @@ export function createAvatarContextMenuView() {
   return createXRUI(
     AvatarContextMenu,
     createState({
-      id: '' as UserId
+      id: '' as UserId | ''
     })
   )
 }

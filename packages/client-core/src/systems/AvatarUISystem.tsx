@@ -71,6 +71,13 @@ export default async function AvatarUISystem(world: World) {
   const applyingVideo = new Map()
 
   const handleAvatarClick = (action: ReturnType<typeof EngineActions.buttonClicked>) => {
+    /** clickaway */
+    if (AvatarContextMenuUI.state.id.value !== '' && !action.clicked && action.button === BaseInput.PRIMARY) {
+      const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent).container
+      const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
+      if (!hit) AvatarContextMenuUI.state.id.set('')
+    }
+
     /** only handle avatar click if right clicking and when lifting button */
     if (action.button !== BaseInput.SECONDARY || action.clicked === true) return
 
@@ -101,8 +108,11 @@ export default async function AvatarUISystem(world: World) {
       if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
         AvatarContextMenuUI.state.id.set(userId)
+        return
       }
     }
+
+    AvatarContextMenuUI.state.id.set('')
   }
 
   const primaryButtonClickActionQueue = createActionQueue(EngineActions.buttonClicked.matches)

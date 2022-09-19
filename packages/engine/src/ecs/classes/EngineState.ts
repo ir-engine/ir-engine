@@ -59,10 +59,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
     .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
-    .when(EngineActions.shareInteractableLink.matches, (action) => {
-      s.shareLink.set(action.shareLink)
-      s.shareTitle.set(action.shareTitle)
-    })
 }
 
 export const getEngineState = () => getState(EngineState)
