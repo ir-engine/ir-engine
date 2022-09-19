@@ -6,6 +6,7 @@ import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
@@ -158,6 +159,8 @@ export function addEntityNodeChild(node: EntityTreeNode, child: EntityTreeNode, 
   child.parentEntity = node.entity
   addToEntityTreeMaps(child)
 
+  updateEntityTransform(node.entity)
+  updateEntityTransform(child.entity)
   const parentTransform = getComponent(node.entity, TransformComponent)
   const childTransform = getComponent(child.entity, TransformComponent)
   if (parentTransform && childTransform) {
