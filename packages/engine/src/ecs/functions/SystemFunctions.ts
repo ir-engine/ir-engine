@@ -7,14 +7,30 @@ import { SystemUpdateType } from '../functions/SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
-export type SystemDefinition = {
+export type CreateSystemSyncFunctionType<A extends any> = (world: World, props?: A) => SystemDefintion
+export type CreateSystemFunctionType<A extends any> = (world: World, props?: A) => Promise<SystemDefintion>
+export type SystemModule<A extends any> = { default: CreateSystemFunctionType<A> }
+export type SystemLoader<A extends any> = () => Promise<SystemModule<A>>
+
+export interface SystemDefintion {
   execute: () => void
   cleanup: () => Promise<void>
+  subsystems?: Array<SystemLoader<any>>
 }
-export type CreateSystemSyncFunctionType<A extends any> = (world: World, props?: A) => SystemDefinition
-export type CreateSystemFunctionType<A extends any> = (world: World, props?: A) => Promise<SystemDefinition>
-export type SystemModule<A extends any> = { default: CreateSystemFunctionType<A> }
-export type systemLoader<A extends any> = Promise<SystemModule<A>>
+
+export interface SystemInstance {
+  execute: () => void
+  cleanup: () => Promise<void>
+  subsystems: SystemInstance[]
+}
+
+export interface SystemInstanceType extends SystemInstance {
+  name: string
+  uuid: string
+  type: SystemUpdateType
+  sceneSystem: boolean
+  enabled: boolean
+}
 
 export type SystemSyncFunctionType<A> = {
   systemFunction: CreateSystemSyncFunctionType<A>
@@ -24,7 +40,7 @@ export type SystemSyncFunctionType<A> = {
 }
 
 export type SystemModuleType<A> = {
-  systemLoader: () => systemLoader<A>
+  systemLoader: SystemLoader<A>
   /** any string to uniquely identity this module - can be a uuidv4 or a string name */
   uuid: string
   type: SystemUpdateType
@@ -40,52 +56,48 @@ export type SystemFactoryType<A> = {
   args?: A
 }
 
-export type SystemInstanceType = {
-  name: string
-  uuid: string
-  type: SystemUpdateType
-  sceneSystem: boolean
-  enabled: boolean
-  execute: () => void
-  cleanup: () => void
+const loadSystemInjection = async (
+  world: World,
+  systemModule: SystemModule<any>,
+  type?: SystemUpdateType,
+  args?: any
+) => {
+  const name = systemModule.default.name
+  try {
+    if (type) logger.info(`${name} initializing on ${type} pipeline`)
+    else logger.info(`${name} initializing`)
+    const system = await systemModule.default(world, args)
+    logger.info(`${name} ready`)
+    let lastWarningTime = 0
+    const warningCooldownDuration = 1000 * 10 // 10 seconds
+    return {
+      execute: () => {
+        const startTime = nowMilliseconds()
+        try {
+          system.execute()
+        } catch (e) {
+          logger.error(`Failed to execute system ${name}`)
+          logger.error(e)
+        }
+        const endTime = nowMilliseconds()
+        const systemDuration = endTime - startTime
+        if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
+          lastWarningTime = endTime
+          logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
+        }
+      },
+      cleanup: system.cleanup,
+      subsystems: system.subsystems
+        ? await Promise.all(system.subsystems.map(async (subsystem) => loadSystemInjection(world, await subsystem())))
+        : []
+    } as SystemInstance
+  } catch (e) {
+    logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
+    return null
+  }
 }
 
 export const initSystems = async (world: World, systemModulesToLoad: SystemModuleType<any>[]) => {
-  const loadSystemInjection = async (s: SystemFactoryType<any>) => {
-    const name = s.systemModule.default.name
-    try {
-      logger.info(`${name} initializing on ${s.type} pipeline`)
-      const system = await s.systemModule.default(world, s.args)
-      logger.info(`${name} ready`)
-      let lastWarningTime = 0
-      const warningCooldownDuration = 1000 * 10 // 10 seconds
-      return {
-        uuid: s.uuid,
-        name,
-        type: s.type,
-        sceneSystem: s.sceneSystem,
-        enabled: true,
-        execute: () => {
-          const startTime = nowMilliseconds()
-          try {
-            system.execute()
-          } catch (e) {
-            logger.error(e.stack)
-          }
-          const endTime = nowMilliseconds()
-          const systemDuration = endTime - startTime
-          if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
-            lastWarningTime = endTime
-            logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
-          }
-        },
-        cleanup: system.cleanup
-      } as SystemInstanceType
-    } catch (e) {
-      logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
-      return null
-    }
-  }
   const systemModule = await Promise.all(
     systemModulesToLoad.map(async (s) => {
       return {
@@ -97,7 +109,18 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
       }
     })
   )
-  const systems = await Promise.all(systemModule.map(loadSystemInjection))
+  const systems = await Promise.all(
+    systemModule.map(async (s) => {
+      return {
+        uuid: s.uuid,
+        name: s.systemModule.default.name,
+        type: s.type,
+        sceneSystem: s.sceneSystem,
+        enabled: true,
+        ...(await loadSystemInjection(world, s.systemModule))
+      }
+    })
+  )
   systems.forEach((s) => {
     if (s) {
       world.pipelines[s.type].push(s)
@@ -123,6 +146,7 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
       try {
         system.execute()
       } catch (e) {
+        logger.error(`Failed to execute system ${name}`)
         logger.error(e)
       }
       const endTime = nowMilliseconds()
@@ -132,7 +156,8 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
         logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
       }
     },
-    cleanup: system.cleanup
+    cleanup: system.cleanup,
+    subsystems: []
   } as SystemInstanceType
   world.pipelines[systemData.type].push(systemData)
 }

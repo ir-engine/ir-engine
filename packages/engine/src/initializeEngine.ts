@@ -256,11 +256,6 @@ export const initializeSceneSystems = async () => {
       uuid: 'xre.engine.TriggerSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => import('./scene/systems/TriggerSystem')
-    },
-    {
-      uuid: 'xre.engine.MediaSystem',
-      type: SystemUpdateType.PRE_RENDER,
-      systemLoader: () => import('./audio/systems/MediaSystem')
     }
   )
   if (isClient) {
@@ -294,6 +289,11 @@ export const initializeSceneSystems = async () => {
         uuid: 'xre.engine.InteractiveSystem',
         type: SystemUpdateType.UPDATE_LATE,
         systemLoader: () => import('./interaction/systems/InteractiveSystem')
+      },
+      {
+        uuid: 'xre.engine.MediaSystem',
+        type: SystemUpdateType.PRE_RENDER,
+        systemLoader: () => import('./audio/systems/MediaSystem')
       },
       {
         uuid: 'xre.engine.MountPointSystem',

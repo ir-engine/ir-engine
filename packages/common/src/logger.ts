@@ -205,3 +205,5 @@ function stringifyError(error, errorContextMessage?) {
 }
 
 export default multiLogger
+
+globalThis.logger = multiLogger
