@@ -63,7 +63,7 @@ const FormDialog = () => {
                 `}
           </style>
           {selectedMenu === Views.Profile && (
-            <ProfileMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Settings)} />
+            <ProfileMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
           )}
           {selectedMenu === Views.Settings && (
             <SettingMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
