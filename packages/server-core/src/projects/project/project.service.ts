@@ -6,6 +6,7 @@ import _ from 'lodash'
 import path from 'path'
 
 import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
+import { UserParams } from '@xrengine/common/src/interfaces/User'
 import logger from '@xrengine/common/src/logger'
 
 import { Application } from '../../../declarations'
@@ -102,13 +103,13 @@ export default (app: Application): void => {
   })
 
   app.use('project-github-push', {
-    patch: async (id: Id, data: any, params?: Params): Promise<any> => {
+    patch: async (id: Id, data: any, params?: Params & UserParams): Promise<any> => {
       const project = await app.service('project').Model.findOne({
         where: {
           id
         }
       })
-      return pushProjectToGithub(app, project, params!.user)
+      return pushProjectToGithub(app, project, params!.user!)
     }
   })
 

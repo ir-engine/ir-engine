@@ -2,6 +2,8 @@ import { Params } from '@feathersjs/feathers'
 import express from 'express'
 import multer from 'multer'
 
+import { UploadParams } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+
 import { Application } from '../../../declarations'
 import { FileBrowserService } from './file-browser.class'
 import hooks from './file-browser.hooks'
@@ -15,14 +17,14 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
-export const uploadFile = (app: Application) => async (data: any, params: Params) => {
+export const uploadFile = (app: Application) => async (data: any, params: Params & UploadParams) => {
   if (typeof data.args === 'string') data.args = JSON.parse(data.args)
 
   const result = (await Promise.all(
     params.files.map((file) =>
       app
         .service('file-browser')
-        .patch(null, { fileName: data.fileName, path: data.path, body: file.buffer, contentType: file.mimeType })
+        .patch(null, { fileName: data.fileName, path: data.path, body: file.buffer, contentType: file.mimetype })
     )
   )) as string[]
 

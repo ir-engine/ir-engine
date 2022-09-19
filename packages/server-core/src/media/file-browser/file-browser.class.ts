@@ -1,4 +1,3 @@
-import { AuthenticationParams } from '@feathersjs/authentication/lib/core'
 import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
@@ -7,6 +6,7 @@ import path from 'path/posix'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import { UserParams } from '@xrengine/common/src/interfaces/User'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
@@ -55,7 +55,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: AuthenticationParams): Promise<Paginated<FileContentType>> {
+  async get(directory: string, params?: Params & UserParams): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { $skip, $limit, storageProviderName } = params.query

@@ -5,7 +5,11 @@ import { Op } from 'sequelize'
 import { MathUtils } from 'three'
 
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import {
+  AdminAssetUploadArgumentsType,
+  AssetUploadType,
+  UploadParams
+} from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
@@ -126,7 +130,7 @@ export default (app: Application): void => {
       next()
     },
     {
-      create: async (data: AssetUploadType, params: Params) => {
+      create: async (data: AssetUploadType, params: Params & UploadParams) => {
         if (typeof data.args === 'string') data.args = JSON.parse(data.args)
         const files = params.files
         if (data.type === 'user-avatar-upload') {
@@ -158,7 +162,7 @@ export default (app: Application): void => {
           if (files && files.length > 0) {
             return Promise.all(
               files.map((file, i) =>
-                addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, file.mimetype, { ...argsData })
+                addGenericAssetToS3AndStaticResources(app, file.buffer, file.mimetype, { ...argsData })
               )
             )
           } else {

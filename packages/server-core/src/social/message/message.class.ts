@@ -1,9 +1,9 @@
-import { AuthenticationParams } from '@feathersjs/authentication/lib/core'
 import { BadRequest } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { Message as MessageInterface } from '@xrengine/common/src/interfaces/Message'
+import { Message as MessageInterface, MessageParams } from '@xrengine/common/src/interfaces/Message'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
@@ -26,7 +26,7 @@ export class Message<T = MessageDataType> extends Service<T> {
    * @param params contain user info
    * @returns {@Object} created message
    */
-  async create(data: any, params?: AuthenticationParams): Promise<T> {
+  async create(data: any, params?: Params & MessageParams): Promise<T> {
     let channel, channelId
     let userIdList: any[] = []
     const loggedInUser = params!.user as UserInterface

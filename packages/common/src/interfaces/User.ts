@@ -111,3 +111,9 @@ export function resolveWalletUser(credentials: any): UserInterface {
     apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserId }
   }
 }
+
+export type UserParams = {
+  user?: UserInterface
+  isInternal?: boolean
+  sequelize?: any
+}

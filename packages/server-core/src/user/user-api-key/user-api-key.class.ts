@@ -3,7 +3,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { v1 } from 'uuid'
 
 import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 
@@ -21,7 +21,7 @@ export class UserApiKey<T = UserApiKeyDataType> extends Service<T> {
     this.app = app
   }
 
-  async patch(id: NullableId, data: any, params: Params = {}): Promise<T | T[]> {
+  async patch(id: NullableId, data: any, params: Params & UserParams = {}): Promise<T | T[]> {
     const loggedInUser = params.user as UserInterface
     if (
       loggedInUser.scopes &&

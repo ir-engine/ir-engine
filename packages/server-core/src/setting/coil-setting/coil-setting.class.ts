@@ -2,7 +2,7 @@ import { Id, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { CoilSetting as CoilSettingDataType } from '@xrengine/common/src/interfaces/CoilSetting'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 
@@ -14,7 +14,7 @@ export class CoilSetting<T = CoilSettingDataType> extends Service<T> {
     this.app = app
   }
 
-  async get(id: Id, params?: Params): Promise<T> {
+  async get(id: Id, params?: Params & UserParams): Promise<T> {
     const loggedInUser = params!.user as UserInterface
     const settings = (await super.get(id, params)) as any
     if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) {
@@ -24,7 +24,7 @@ export class CoilSetting<T = CoilSettingDataType> extends Service<T> {
     return settings
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: Params & UserParams): Promise<T[] | Paginated<T>> {
     const loggedInUser = params!.user as UserInterface
     const settings = (await super.find(params)) as any
     if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))

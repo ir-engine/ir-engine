@@ -1,9 +1,8 @@
-import { AuthenticationParams } from '@feathersjs/authentication/lib/core'
 import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { createTicket, deleteTicket, getTicket } from '@xrengine/matchmaking/src/functions'
-import { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
+import { OpenMatchTicket, OpenMatchTicketParams } from '@xrengine/matchmaking/src/interfaces'
 import config from '@xrengine/server-core/src/appconfig'
 
 import { Application } from '../../../declarations'
@@ -42,7 +41,7 @@ export class MatchTicket implements ServiceMethods<Data> {
     return []
   }
 
-  async get(id: Id, params: AuthenticationParams): Promise<OpenMatchTicket> {
+  async get(id: Id, params: Params & OpenMatchTicketParams): Promise<OpenMatchTicket> {
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }

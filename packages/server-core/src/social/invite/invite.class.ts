@@ -1,13 +1,12 @@
-import { AuthenticationParams } from '@feathersjs/authentication/lib'
 import { Forbidden } from '@feathersjs/errors'
-import { Paginated, Query } from '@feathersjs/feathers'
+import { Paginated, Params, Query } from '@feathersjs/feathers'
 import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
-import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { InviteRemoveParams, Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
+import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { sendInvite } from '../../hooks/send-invite'
@@ -205,7 +204,7 @@ export class Invite extends Service<InviteDataType> {
     this.app = app
   }
 
-  async create(data: any, params?: AuthenticationParams): Promise<InviteDataType | InviteDataType[]> {
+  async create(data: any, params?: Params & UserParams): Promise<InviteDataType | InviteDataType[]> {
     const user = params!.user!
     if (!user.scopes?.find((scope) => scope.type === 'admin:admin')) delete data.makeAdmin
     data.passcode = crypto.randomBytes(8).toString('hex')
@@ -220,7 +219,7 @@ export class Invite extends Service<InviteDataType> {
    * @param params of query with type and userId
    * @returns invite data
    */
-  async find(params?: AuthenticationParams): Promise<InviteDataType[] | Paginated<InviteDataType>> {
+  async find(params?: Params & UserParams): Promise<InviteDataType[] | Paginated<InviteDataType>> {
     let result: Paginated<InviteDataType> = null!
     if (params && params.query) {
       const query = params.query
@@ -238,7 +237,7 @@ export class Invite extends Service<InviteDataType> {
     return result
   }
 
-  async remove(id: string, params?: AuthenticationParams): Promise<InviteDataType[] | InviteDataType> {
+  async remove(id: string, params?: Params & InviteRemoveParams): Promise<InviteDataType[] | InviteDataType> {
     if (!id) return super.remove(id, params)
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {

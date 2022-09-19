@@ -7,3 +7,7 @@ export type PartyUser = {
   partyId?: string
   userId?: string
 }
+
+export interface PartyUserParams {
+  deletingParty?: boolean
+}

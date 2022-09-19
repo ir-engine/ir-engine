@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { Op } from 'sequelize'
 
 import { Channel as ChannelInterface } from '@xrengine/common/src/interfaces/Channel'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
@@ -26,7 +26,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
    * @returns {@Array} which contains list of channel
    */
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: Params & UserParams): Promise<T[] | Paginated<T>> {
     if (!params) params = {}
     const query = params.query!
     const skip = query?.skip || 0

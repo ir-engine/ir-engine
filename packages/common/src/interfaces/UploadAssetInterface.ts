@@ -24,3 +24,12 @@ export type AdminAssetUploadType = {
 }
 
 export type AssetUploadType = AvatarUploadType | AdminAssetUploadType
+
+export interface UploadFile {
+  buffer: Buffer
+  mimetype: string
+}
+
+export interface UploadParams {
+  files: UploadFile[]
+}

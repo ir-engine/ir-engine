@@ -3,6 +3,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Sequelize, Transaction } from 'sequelize'
 
 import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRelationship'
+import { UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -117,7 +118,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
     return result
   }
 
-  async patch(id: Id, data: any, params?: Params): Promise<T> {
+  async patch(id: Id, data: any, params?: Params & UserParams): Promise<T> {
     if (!params) params = {}
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
@@ -128,7 +129,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
       await this.app.service('user').get(id)
       //The ID resolves to a userId, in which case patch the relation joining that user to the requesting one
       whereParams = {
-        userId: params.user.id,
+        userId: params.user!.id,
         relatedUserId: id
       }
     } catch (err) {

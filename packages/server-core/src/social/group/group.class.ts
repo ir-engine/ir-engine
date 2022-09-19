@@ -3,7 +3,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
 import { Group as GroupInterface } from '@xrengine/common/src/interfaces/Group'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 
@@ -26,7 +26,7 @@ export class Group<T = GroupDataType> extends Service<T> {
    * @returns {@Object} of group
    */
 
-  async find(params?: Params): Promise<Paginated<T>> {
+  async find(params?: Params & UserParams): Promise<Paginated<T>> {
     const loggedInUser = params!.user as UserInterface
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10

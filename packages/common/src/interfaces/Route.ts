@@ -9,3 +9,7 @@ export interface InstalledRoutesInterface {
   routes: string[]
   project: string
 }
+
+export interface RouteParams {
+  paginate?: boolean
+}

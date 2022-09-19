@@ -3,8 +3,8 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize'
 
-import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { Party as PartyDataType, PartyRemoveParams } from '@xrengine/common/src/interfaces/Party'
+import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
@@ -82,7 +82,7 @@ export class Party<T = PartyDataType> extends Service<T> {
    * @param params contains user info
    * @returns {@Object} of single party
    */
-  async get(id: string, params?: Params): Promise<T> {
+  async get(id: string, params?: Params & UserParams): Promise<T> {
     if (id == null || id == '') {
       const user = params!.user as UserInterface
       if (user.partyId)
@@ -105,10 +105,10 @@ export class Party<T = PartyDataType> extends Service<T> {
     return null!
   }
 
-  async create(data?: any, params?: Params): Promise<any> {
+  async create(data?: any, params?: Params & UserParams): Promise<any> {
     const self = this
     if (!params) return null!
-    const userId = params!.user.id
+    const userId = params!.user!.id
 
     try {
       const existingPartyUsers = await this.app.service('party-user').find({
@@ -150,7 +150,7 @@ export class Party<T = PartyDataType> extends Service<T> {
     }
   }
 
-  async remove(id: string, params?: Params): Promise<T> {
+  async remove(id: string, params?: Params & PartyRemoveParams): Promise<T> {
     const partyUsers = (
       await this.app.service('party-user').find({
         query: {
