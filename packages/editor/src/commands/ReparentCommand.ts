@@ -156,9 +156,9 @@ function reparent(command: ReparentCommandParams, isUndo: boolean) {
     const before = befores ? befores[i] ?? befores[0] : undefined
     if (typeof node !== 'string') {
       const _parent = parent as EntityTreeNode
+      if (node.entity === _parent.entity) continue
       const _before = before as EntityTreeNode | undefined
       const index = _before && _parent.children ? _parent.children.indexOf(_before.entity) : undefined
-
       reparentEntityNode(node, _parent, index)
       reparentObject3D(node, _parent, _before)
     } else {
