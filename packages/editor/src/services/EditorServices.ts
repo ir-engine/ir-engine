@@ -9,7 +9,7 @@ export enum TaskStatus {
   COMPLETED = 2
 }
 
-const EditorState = defineState({
+export const EditorState = defineState({
   name: 'EditorState',
   initial: () => ({
     projectName: null as string | null,
