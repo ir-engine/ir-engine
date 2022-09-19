@@ -372,7 +372,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   /**
    * AC UTILITY
    */
-
   world.scenePrefabRegistry.set(ScenePrefabs.animationSequencer, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },

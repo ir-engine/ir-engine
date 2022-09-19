@@ -318,7 +318,7 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
 
 export const loadComponent = (entity: Entity, component: ComponentJson, world = Engine.instance.currentWorld): void => {
   const sceneComponent = world.sceneLoadingRegistry.get(component.name)
-
+  console.log(sceneComponent)
   if (!sceneComponent) return
 
   const deserializer = sceneComponent.deserialize
