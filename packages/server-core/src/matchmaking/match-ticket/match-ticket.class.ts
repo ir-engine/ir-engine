@@ -1,3 +1,4 @@
+import { AuthenticationParams } from '@feathersjs/authentication/lib/core'
 import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
@@ -41,7 +42,7 @@ export class MatchTicket implements ServiceMethods<Data> {
     return []
   }
 
-  async get(id: Id, params: Params): Promise<OpenMatchTicket> {
+  async get(id: Id, params: AuthenticationParams): Promise<OpenMatchTicket> {
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }

@@ -1,3 +1,4 @@
+import { AuthenticationParams } from '@feathersjs/authentication/lib/core'
 import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
@@ -54,7 +55,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: Params): Promise<Paginated<FileContentType>> {
+  async get(directory: string, params?: AuthenticationParams): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { $skip, $limit, storageProviderName } = params.query
@@ -78,7 +79,7 @@ export class FileBrowserService implements ServiceMethods<any> {
       const projectPermissions = await this.app.service('project-permission').Model.findAll({
         include: ['project'],
         where: {
-          userId: params.user.id
+          userId: params.user!.id
         }
       })
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
@@ -208,7 +209,7 @@ export class FileBrowserService implements ServiceMethods<any> {
     }
 
     const staticResource = (await this.app.service('static-resource').find({
-      where: {
+      query: {
         key: key,
         $limit: 1
       }

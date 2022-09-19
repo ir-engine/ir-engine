@@ -44,6 +44,7 @@ export class StaticResource extends Service<StaticResourceInterface> {
 
   async find(params?: Params): Promise<StaticResourceInterface[] | Paginated<StaticResourceInterface>> {
     const search = params?.query?.search ?? ''
+    const key = params?.query?.key ?? ''
     const mimeTypes = params?.query?.mimeTypes && params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : null
     const resourceTypes =
       params?.query?.resourceTypes && params?.query?.resourceTypes.length > 0 ? params?.query?.resourceTypes : null
@@ -64,7 +65,10 @@ export class StaticResource extends Service<StaticResourceInterface> {
       order: order,
       where: {
         key: {
-          [Op.like]: `%${search}%`
+          [Op.or]: {
+            [Op.like]: `%${search}%`,
+            [Op.eq]: key
+          }
         },
         mimeType: {
           [Op.or]: mimeTypes

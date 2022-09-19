@@ -1,5 +1,6 @@
+import { AuthenticationParams } from '@feathersjs/authentication/lib'
 import { Forbidden } from '@feathersjs/errors'
-import { Paginated, Params, Query } from '@feathersjs/feathers'
+import { Paginated, Query } from '@feathersjs/feathers'
 import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
@@ -7,7 +8,6 @@ import Sequelize, { Op } from 'sequelize'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Application } from '../../../declarations'
 import { sendInvite } from '../../hooks/send-invite'
@@ -205,9 +205,9 @@ export class Invite extends Service<InviteDataType> {
     this.app = app
   }
 
-  async create(data: any, params?: Params): Promise<InviteDataType | InviteDataType[]> {
-    const user = params!.user
-    if (!user.scopes.find((scope) => scope.type === 'admin:admin')) delete data.makeAdmin
+  async create(data: any, params?: AuthenticationParams): Promise<InviteDataType | InviteDataType[]> {
+    const user = params!.user!
+    if (!user.scopes?.find((scope) => scope.type === 'admin:admin')) delete data.makeAdmin
     data.passcode = crypto.randomBytes(8).toString('hex')
     const result = (await super.create(data)) as InviteDataType
     await sendInvite(this.app, result, params!)
@@ -220,7 +220,7 @@ export class Invite extends Service<InviteDataType> {
    * @param params of query with type and userId
    * @returns invite data
    */
-  async find(params?: Params): Promise<InviteDataType[] | Paginated<InviteDataType>> {
+  async find(params?: AuthenticationParams): Promise<InviteDataType[] | Paginated<InviteDataType>> {
     let result: Paginated<InviteDataType> = null!
     if (params && params.query) {
       const query = params.query
@@ -229,7 +229,7 @@ export class Invite extends Service<InviteDataType> {
       } else if (query.type === 'sent') {
         result = await inviteSent(this, query)
       } else {
-        result = await inviteAll(this, query, params.user)
+        result = await inviteAll(this, query, params.user!)
       }
     } else {
       result = (await super.find(params)) as Paginated<InviteDataType>
@@ -238,7 +238,7 @@ export class Invite extends Service<InviteDataType> {
     return result
   }
 
-  async remove(id: string, params?: Params): Promise<InviteDataType[] | InviteDataType> {
+  async remove(id: string, params?: AuthenticationParams): Promise<InviteDataType[] | InviteDataType> {
     if (!id) return super.remove(id, params)
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
