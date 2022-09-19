@@ -4,6 +4,7 @@ import { defineAction, defineState, getState, useState } from '@xrengine/hyperfl
 import { ParityValue } from '../../common/enums/ParityValue'
 import { isMobile } from '../../common/functions/isMobile'
 import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
+import { InputAlias } from '../../input/types/InputAlias'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -24,7 +25,6 @@ export const EngineState = defineState({
     isTeleporting: false,
     leaveWorld: false,
     socketInstance: false,
-    avatarTappedId: '' as UserId,
     userHasInteracted: false,
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
@@ -46,11 +46,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.resetEngine.matches, (action) =>
       s.merge({
         socketInstance: action.instance
-      })
-    )
-    .when(EngineActions.userAvatarTapped.matches, (action) =>
-      s.merge({
-        avatarTappedId: action.userId
       })
     )
     .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
@@ -75,9 +70,10 @@ export const getEngineState = () => getState(EngineState)
 export const useEngineState = () => useState(getEngineState())
 
 export class EngineActions {
-  static userAvatarTapped = defineAction({
-    type: 'xre.engine.Engine.USER_AVATAR_TAPPED' as const,
-    userId: matchesUserId
+  static buttonClicked = defineAction({
+    type: 'xre.engine.Engine.PRIMARY_BUTTON_CLICKED' as const,
+    clicked: matches.boolean,
+    button: matches.string as Validator<any, InputAlias>
   })
 
   static setTeleporting = defineAction({
@@ -144,12 +140,6 @@ export class EngineActions {
   static spectateUser = defineAction({
     type: 'xre.engine.Engine.SPECTATE_USER' as const,
     user: matches.string.optional()
-  })
-
-  static shareInteractableLink = defineAction({
-    type: 'xre.engine.Engine.SHARE_LINK' as const,
-    shareLink: matches.string,
-    shareTitle: matches.string
   })
 
   static interactedWithObject = defineAction({
