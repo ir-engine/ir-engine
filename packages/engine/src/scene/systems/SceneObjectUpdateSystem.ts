@@ -388,7 +388,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.group, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_GROUP, props: true }
+    { name: SCENE_COMPONENT_GROUP, props: [] }
   ])
 
   world.sceneComponentRegistry.set(GroupComponent._name, SCENE_COMPONENT_GROUP)
