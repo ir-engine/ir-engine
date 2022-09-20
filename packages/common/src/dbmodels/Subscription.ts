@@ -10,3 +10,9 @@ export interface SubscriptionInterface {
   pendingSeats: number
   filledSeats: number
 }
+
+export interface SubscriptionParams {
+  body?: {
+    userId: string
+  }
+}

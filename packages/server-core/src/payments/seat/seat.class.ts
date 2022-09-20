@@ -2,7 +2,7 @@ import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { Seat as SeatInterface } from '@xrengine/common/src/interfaces/Seat'
+import { Seat as SeatInterface, SeatParams } from '@xrengine/common/src/interfaces/Seat'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
@@ -20,7 +20,7 @@ export class Seat<T = SeatDataType> extends Service<T> {
     this.app = app
   }
 
-  async create(data: any, params?: Params): Promise<T> {
+  async create(data: any, params?: Params & SeatParams): Promise<T> {
     const userId = (params as any).userId || (params as any).connection['identity-provider'].userId
     if (userId == undefined) {
       throw new Error('Invalid user')

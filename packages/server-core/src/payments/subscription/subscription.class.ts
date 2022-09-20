@@ -1,7 +1,7 @@
 import { Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { SubscriptionInterface } from '@xrengine/common/src/dbmodels/Subscription'
+import { SubscriptionInterface, SubscriptionParams } from '@xrengine/common/src/dbmodels/Subscription'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -23,7 +23,7 @@ export class Subscription<T = SubscriptionDataType> extends Service<T> {
    * @param params which contains user info
    * @returns {@Object} of created new subscription
    */
-  async create(data: any, params?: Params): Promise<T> {
+  async create(data: any, params?: Params & SubscriptionParams): Promise<T> {
     const userId = (params as any).connection['identity-provider'].userId || params?.body?.userId
     if (userId == null) {
       throw new Error('Invalid user')
