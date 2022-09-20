@@ -1,5 +1,5 @@
 import { AuthenticationService } from '@feathersjs/authentication'
-import { expressOauth } from '@feathersjs/authentication-oauth'
+import { oauth } from '@feathersjs/authentication-oauth'
 
 import { Application } from '../../declarations'
 import DiscordStrategy from './strategies/discord'
@@ -31,5 +31,5 @@ export default (app: Application): void => {
   app.use('authentication', authentication)
 
   // @ts-ignore
-  app.configure(expressOauth())
+  app.configure(oauth())
 }
