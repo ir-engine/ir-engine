@@ -19,6 +19,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -129,29 +130,6 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
   return result
 }
 
-export const updateSystemFromJSON = async (sceneData: SceneData, world = Engine.instance.currentWorld) => {
-  const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
-  const systemsToLoad = sceneSystems.filter(
-    (systemToLoad) =>
-      !Object.values(world.pipelines)
-        .flat()
-        .find((s) => s.uuid === systemToLoad.uuid)
-  )
-  const systemsToUnload = Object.keys(world.pipelines).map((p) =>
-    world.pipelines[p].filter((loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid))
-  )
-
-  /** unload old systems */
-  for (const pipeline of systemsToUnload) {
-    for (const system of pipeline) {
-      /** @todo run cleanup hook for this system */
-      const i = pipeline.indexOf(system)
-      pipeline.splice(i, 1)
-    }
-  }
-  await initSystems(world, systemsToLoad)
-}
-
 /**
  * @param parent
  * @param world
@@ -190,21 +168,33 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
 
-  if (!Engine.instance.isEditor) await updateSystemFromJSON(sceneData, world)
+  /** get systems that have changed */
+  const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
+  const systemsToLoad = sceneSystems.filter(
+    (systemToLoad) =>
+      !Object.values(world.pipelines)
+        .flat()
+        .find((s) => s.uuid === systemToLoad.uuid)
+  )
+  const systemsToUnload = Object.keys(world.pipelines).map((p) =>
+    world.pipelines[p].filter((loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid))
+  )
 
-  /** remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
+  /** 1. unload old systems */
+  await Promise.all(systemsToUnload.flat().map((system) => system.cleanup()))
+  for (const pipeline of systemsToUnload) {
+    for (const system of pipeline) {
+      /** @todo run cleanup hook for this system */
+      const i = pipeline.indexOf(system)
+      pipeline.splice(i, 1)
+    }
+  }
+
+  /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
   const oldLoadedEntityNodesToRemove = Array.from(world.entityTree.uuidNodeMap).filter(
     ([uuid, node]) =>
       !sceneData.scene.entities[uuid] && !getComponent(node.entity, GLTFLoadedComponent)?.includes('entity')
   )
-
-  world.sceneJson = sceneData.scene
-
-  /** update scene entities with new data, and load new ones */
-  updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
-  updateSceneEntitiesFromJSON(sceneData.scene.root, world)
-
-  /** remove entites that are no longer part of the scene */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {
     traverseEntityNode(node, (node) => {
       if (entityExists(node.entity)) removeEntity(node.entity)
@@ -212,6 +202,16 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     removeEntityNodeFromParent(node)
   }
 
+  /** 3. load new systems */
+  if (!Engine.instance.isEditor) {
+    await initSystems(world, systemsToLoad)
+  }
+
+  world.sceneJson = sceneData.scene
+
+  /** 4. update scene entities with new data, and load new ones */
+  updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
+  updateSceneEntitiesFromJSON(sceneData.scene.root, world)
   if (!sceneAssetPendingTagQuery().length) {
     dispatchAction(EngineActions.sceneLoaded({}))
   }
@@ -333,7 +333,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson, world = 
   }
 }
 
-const sceneObjectQuery = defineQuery([SceneObjectComponent])
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 export default async function SceneLoadingSystem(world: World) {
@@ -349,7 +348,7 @@ export default async function SceneLoadingSystem(world: World) {
     )
   }
 
-  return () => {
+  const execute = () => {
     const pendingAssets = sceneAssetPendingTagQuery().length
 
     for (const entity of sceneAssetPendingTagQuery.enter()) {
@@ -364,4 +363,10 @@ export default async function SceneLoadingSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, sceneAssetPendingTagQuery)
+  }
+
+  return { execute, cleanup }
 }

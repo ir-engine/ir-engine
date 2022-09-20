@@ -3,14 +3,14 @@ import { Camera, Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
@@ -32,25 +32,6 @@ import {
 
 const scratchVector3 = new Vector3()
 const scratchQuaternion = new Quaternion()
-
-const ownedDynamicRigidBodyQuery = defineQuery([
-  RigidBodyComponent,
-  RigidBodyDynamicTagComponent,
-  NetworkObjectOwnedTag,
-  TransformComponent,
-  VelocityComponent
-])
-
-const groupQuery = defineQuery([GroupComponent])
-const localTransformQuery = defineQuery([LocalTransformComponent])
-const transformQuery = defineQuery([TransformComponent])
-const spawnPointQuery = defineQuery([SpawnPointComponent])
-
-const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
-const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
-
-const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
-const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 
 const prevRigidbodyScale = new Map<Entity, Vector3>()
 
@@ -175,6 +156,25 @@ export default async function TransformSystem(world: World) {
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
+  const ownedDynamicRigidBodyQuery = defineQuery([
+    RigidBodyComponent,
+    RigidBodyDynamicTagComponent,
+    NetworkObjectOwnedTag,
+    TransformComponent,
+    VelocityComponent
+  ])
+
+  const groupQuery = defineQuery([GroupComponent])
+  const localTransformQuery = defineQuery([LocalTransformComponent])
+  const transformQuery = defineQuery([TransformComponent])
+  const spawnPointQuery = defineQuery([SpawnPointComponent])
+
+  const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
+  const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
+
+  const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
+  const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
+
   const computedReferenceDepths = new Map<Entity, number>()
 
   const visitedReferenceEntities = new Set<Entity>()
@@ -232,7 +232,7 @@ export default async function TransformSystem(world: World) {
     for (const obj of group) box.expandByObject(obj)
   }
 
-  return () => {
+  const execute = () => {
     // update transform components from rigid body components,
     // interpolating the remaining time after the fixed pipeline is complete.
     // we only update the transform for objects that we have authority over.
@@ -289,4 +289,23 @@ export default async function TransformSystem(world: World) {
       updateReferenceSpace(world.localClientEntity)
     }
   }
+
+  const cleanup = async () => {
+    world.sceneComponentRegistry.delete(TransformComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_TRANSFORM)
+
+    removeActionQueue(modifyPropertyActionQueue)
+
+    removeQuery(world, ownedDynamicRigidBodyQuery)
+    removeQuery(world, groupQuery)
+    removeQuery(world, localTransformQuery)
+    removeQuery(world, transformQuery)
+    removeQuery(world, spawnPointQuery)
+    removeQuery(world, staticBoundingBoxQuery)
+    removeQuery(world, dynamicBoundingBoxQuery)
+    removeQuery(world, distanceFromLocalClientQuery)
+    removeQuery(world, distanceFromCameraQuery)
+  }
+
+  return { execute, cleanup }
 }

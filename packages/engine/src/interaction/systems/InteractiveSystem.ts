@@ -14,7 +14,8 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
@@ -104,7 +105,7 @@ export default async function InteractiveSystem(world: World) {
 
   let gatherAvailableInteractablesTimer = 0
 
-  return () => {
+  const execute = () => {
     gatherAvailableInteractablesTimer += world.deltaSeconds
     // update every 0.3 seconds
     if (gatherAvailableInteractablesTimer > 0.3) gatherAvailableInteractablesTimer = 0
@@ -152,4 +153,11 @@ export default async function InteractiveSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, allInteractablesQuery)
+    removeQuery(world, interactableQuery)
+  }
+
+  return { execute, cleanup }
 }

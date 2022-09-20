@@ -2,7 +2,7 @@ import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'thre
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
-import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
@@ -18,6 +18,7 @@ import {
   defineQuery,
   getComponent,
   removeComponent,
+  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
@@ -266,7 +267,7 @@ export default async function CameraSystem(world: World) {
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
 
-  return () => {
+  const execute = () => {
     for (const action of cameraSpawnActions()) cameraSpawnReceptor(action, world)
 
     for (const action of spectateUserActions()) {
@@ -312,4 +313,14 @@ export default async function CameraSystem(world: World) {
       })
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, followCameraQuery)
+    removeQuery(world, ownedNetworkCamera)
+    removeQuery(world, spectatorQuery)
+    removeActionQueue(cameraSpawnActions)
+    removeActionQueue(spectateUserActions)
+  }
+
+  return { execute, cleanup }
 }

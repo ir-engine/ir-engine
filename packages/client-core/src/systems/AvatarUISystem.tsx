@@ -10,7 +10,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
@@ -117,7 +117,7 @@ export default async function AvatarUISystem(world: World) {
 
   const primaryButtonClickActionQueue = createActionQueue(EngineActions.buttonClicked.matches)
 
-  return () => {
+  const execute = () => {
     videoPreviewTimer += world.deltaSeconds
     if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
@@ -223,4 +223,11 @@ export default async function AvatarUISystem(world: World) {
       renderAvatarContextMenu(world, AvatarContextMenuUI.state.id.value, AvatarContextMenuUI.entity)
     }
   }
+
+  const cleanup = async () => {
+    removeEntity(AvatarContextMenuUI.entity)
+    removeQuery(world, userQuery)
+  }
+
+  return { execute, cleanup }
 }

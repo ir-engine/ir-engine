@@ -1,18 +1,19 @@
 import { Object3D } from 'three'
 
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { World } from '../ecs/classes/World'
+import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { HighlightComponent } from './components/HighlightComponent'
 import { EngineRenderer } from './WebGLRendererSystem'
 
-export default async function HighlightSystem() {
+export default async function HighlightSystem(world: World) {
   const highlightedObjectQuery = defineQuery([Object3DComponent, HighlightComponent])
 
   const addToSelection = (obj: Object3D) => {
     EngineRenderer.instance.effectComposer.OutlineEffect.selection.add(obj)
   }
 
-  return () => {
+  const execute = () => {
     if (!EngineRenderer.instance.effectComposer.OutlineEffect) return
 
     EngineRenderer.instance.effectComposer.OutlineEffect.selection.clear()
@@ -22,4 +23,10 @@ export default async function HighlightSystem() {
       highlightedObject?.traverse(addToSelection)
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, highlightedObjectQuery)
+  }
+
+  return { execute, cleanup }
 }

@@ -4,7 +4,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import { SceneState } from '../functions/sceneRenderFunctions'
 
 export default async function EditorInfoSystem(world: World) {
-  return () => {
+  const execute = () => {
     if (SceneState.onUpdateStats) {
       EngineRenderer.instance.renderer.info.reset()
       const renderStat = EngineRenderer.instance.renderer.info.render as any
@@ -13,4 +13,8 @@ export default async function EditorInfoSystem(world: World) {
       SceneState.onUpdateStats(EngineRenderer.instance.renderer.info)
     }
   }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
 }
