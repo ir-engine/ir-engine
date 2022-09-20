@@ -27,6 +27,10 @@ export default (app: Application) => {
         type: DataTypes.DATE,
         defaultValue: Date.now(),
         allowNull: false
+      },
+      log: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
     {
