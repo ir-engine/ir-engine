@@ -21,7 +21,6 @@ import {
   removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { CreateSystemFunctionType, SystemDefinition } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
@@ -261,7 +260,7 @@ export function cameraSpawnReceptor(
   addComponent(entity, CameraComponent, null)
 }
 
-export default async function CameraSystem(world: World): Promise<SystemDefinition> {
+export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
   const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
   const spectatorQuery = defineQuery([SpectatorComponent])
