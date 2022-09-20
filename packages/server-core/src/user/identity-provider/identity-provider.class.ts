@@ -6,13 +6,14 @@ import { v1 as uuidv1 } from 'uuid'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
+import { UserParams } from '../user/user.class'
 
 interface IdentityProviderParams extends UserParams {
   bot?: boolean
@@ -37,7 +38,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
    * @param params
    * @returns accessToken
    */
-  async create(data: any, params: Params & IdentityProviderParams = {}): Promise<T & { accessToken?: string }> {
+  async create(data: any, params: IdentityProviderParams = {}): Promise<T & { accessToken?: string }> {
     let { token, type, password } = data
     let user
     let authResult
@@ -236,7 +237,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     return result
   }
 
-  async find(params?: Params & UserParams): Promise<T[] | Paginated<T>> {
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     const loggedInUser = params!.user as UserInterface
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)

@@ -1,6 +1,6 @@
 import { Params } from '@feathersjs/feathers'
 
-import { SceneData, SceneParams } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Application, ServerMode } from '../../../declarations'
 import logger from '../../logger'
@@ -27,6 +27,10 @@ declare module '@xrengine/common/declarations' {
       find: ReturnType<typeof getAllScenes>
     }
   }
+}
+
+export interface SceneParams extends Params {
+  metadataOnly: boolean
 }
 
 type GetScenesArgsType = {
@@ -68,7 +72,7 @@ export const getScenesForProject = (app: Application) => {
 }
 
 export const getAllScenes = (app: Application) => {
-  return async function (params: Params & SceneParams): Promise<{ data: SceneData[] }> {
+  return async function (params: SceneParams): Promise<{ data: SceneData[] }> {
     const projects = await app.service('project').find(params)
     const scenes = await Promise.all(
       projects.data.map(

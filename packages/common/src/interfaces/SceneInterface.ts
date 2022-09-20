@@ -25,7 +25,3 @@ export interface SceneMetadata {
 export interface SceneData extends SceneMetadata {
   scene: SceneJson
 }
-
-export interface SceneParams {
-  metadataOnly: boolean
-}

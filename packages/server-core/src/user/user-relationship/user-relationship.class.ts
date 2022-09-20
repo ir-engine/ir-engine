@@ -3,11 +3,11 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Sequelize, Transaction } from 'sequelize'
 
 import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRelationship'
-import { UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { resolveModelData } from '../../util/model-resolver'
+import { UserParams } from '../user/user.class'
 
 export type UserRelationshipDataType = UserRelationshipInterface
 /**
@@ -118,7 +118,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
     return result
   }
 
-  async patch(id: Id, data: any, params?: Params & UserParams): Promise<T> {
+  async patch(id: Id, data: any, params?: UserParams): Promise<T> {
     if (!params) params = {}
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)

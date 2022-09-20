@@ -29,7 +29,3 @@ export interface UploadFile {
   buffer: Buffer
   mimetype: string
 }
-
-export interface UploadParams {
-  files: UploadFile[]
-}

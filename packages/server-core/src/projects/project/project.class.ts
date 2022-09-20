@@ -8,7 +8,6 @@ import { Op } from 'sequelize'
 
 import { GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UserParams } from '@xrengine/common/src/interfaces/User'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import templateProjectJson from '@xrengine/projects/template-project/package.json'
 
@@ -19,6 +18,7 @@ import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
@@ -248,7 +248,7 @@ export class Project extends Service {
   async update(
     data: { url: string; name?: string; needsRebuild?: boolean; reset?: boolean },
     placeholder?: null,
-    params?: Params & UserParams
+    params?: UserParams
   ) {
     if (data.url === 'default-project') {
       copyDefaultProject()
@@ -331,7 +331,7 @@ export class Project extends Service {
     return returned
   }
 
-  async patch(id: Id, data: any, params?: Params & UserParams) {
+  async patch(id: Id, data: any, params?: UserParams) {
     if (data.repositoryPath) {
       const repoPath = data.repositoryPath
       const user = params!.user!
@@ -420,7 +420,7 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params?: Params & UserParams): Promise<{ data: ProjectInterface[] }> {
+  async find(params?: UserParams): Promise<{ data: ProjectInterface[] }> {
     let projectPushIds: string[] = []
     if (params?.query?.allowed != null) {
       // Get all of the projects that this user has permissions for, then calculate push status by whether the GitHub

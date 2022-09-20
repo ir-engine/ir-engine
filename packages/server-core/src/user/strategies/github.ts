@@ -17,7 +17,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     this.app = app
   }
 
-  async getEntityData(profile: any, entity: any, params: Params & CustomOAuthParams): Promise<any> {
+  async getEntityData(profile: any, entity: any, params: CustomOAuthParams): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
@@ -36,7 +36,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async updateEntity(entity: any, profile: any, params: Params & CustomOAuthParams): Promise<any> {
+  async updateEntity(entity: any, profile: any, params: CustomOAuthParams): Promise<any> {
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
@@ -88,7 +88,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async getRedirect(data: any, params: Params & CustomOAuthParams): Promise<string> {
+  async getRedirect(data: any, params: CustomOAuthParams): Promise<string> {
     const redirectHost = config.authentication.callback.github
     const type = params?.query?.userId ? 'connection' : 'login'
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
@@ -112,7 +112,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async authenticate(authentication: AuthenticationRequest, originalParams: Params & CustomOAuthParams) {
+  async authenticate(authentication: AuthenticationRequest, originalParams: CustomOAuthParams) {
     originalParams.access_token = authentication.access_token
     return super.authenticate(authentication, originalParams)
   }

@@ -1,11 +1,12 @@
-import { NullableId, Params } from '@feathersjs/feathers'
+import { NullableId } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { v1 } from 'uuid'
 
 import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
-import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../user/user.class'
 
 export type UserApiKeyDataType = UserApiKeyInterface & { userId: string }
 /**
@@ -21,7 +22,7 @@ export class UserApiKey<T = UserApiKeyDataType> extends Service<T> {
     this.app = app
   }
 
-  async patch(id: NullableId, data: any, params: Params & UserParams = {}): Promise<T | T[]> {
+  async patch(id: NullableId, data: any, params: UserParams = {}): Promise<T | T[]> {
     const loggedInUser = params.user as UserInterface
     if (
       loggedInUser.scopes &&

@@ -5,7 +5,7 @@ import { Application } from '../../../declarations'
 
 // import { OAuthProfile } from '@feathersjs/authentication-oauth/src/strategy'
 
-export interface CustomOAuthParams {
+export interface CustomOAuthParams extends Params {
   redirect?: string
   access_token?: string
 }

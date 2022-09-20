@@ -1,5 +1,5 @@
 import { MessageStatus } from './MessageStatus'
-import { UserInterface, UserParams } from './User'
+import { UserInterface } from './User'
 import { UserId } from './UserId'
 
 export type Message = {
@@ -12,10 +12,4 @@ export type Message = {
   updatedAt: string
   sender: UserInterface
   messageStatus: MessageStatus
-}
-
-export interface MessageParams extends UserParams {
-  'identity-provider': {
-    userId: string
-  }
 }

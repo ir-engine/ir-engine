@@ -66,9 +66,3 @@ export interface OpenMatchTicketAssignmentResponse {
     assignment: OpenMatchTicketAssignment
   }
 }
-
-export interface OpenMatchTicketParams {
-  body: {
-    userId: string
-  }
-}

@@ -13,7 +13,3 @@ export type Party = {
 export interface PatchParty {
   maxMembers: number
 }
-
-export interface PartyRemoveParams {
-  skipPartyUserDelete?: boolean
-}

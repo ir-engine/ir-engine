@@ -2,12 +2,17 @@ import { Params } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { PartyUser as PartyUserDataType, PartyUserParams } from '@xrengine/common/src/interfaces/PartyUser'
-import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
+import { PartyUser as PartyUserDataType } from '@xrengine/common/src/interfaces/PartyUser'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { UserParams } from '../../user/user/user.class'
 import { PartyUserModelStatic } from './party-user.model'
+
+interface PartyUserParams extends Params {
+  deletingParty?: boolean
+}
 
 /**
  * A class for Party user service
@@ -20,7 +25,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params & UserParams): Promise<any> {
+  async find(params?: UserParams): Promise<any> {
     try {
       const self = this
       const loggedInUser = params!.user as UserInterface
@@ -144,7 +149,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
     }
   }
 
-  async remove(id: string, params?: Params & PartyUserParams): Promise<any> {
+  async remove(id: string, params?: PartyUserParams): Promise<any> {
     try {
       const partyUser = (await this.app.service('party-user').get(id)) as any
 

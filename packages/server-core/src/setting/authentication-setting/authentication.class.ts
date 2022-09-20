@@ -2,10 +2,11 @@ import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
-import { UserInterface, UserParams } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { UserParams } from '../../user/user/user.class'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
 
@@ -17,7 +18,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params & UserParams): Promise<T[] | Paginated<T>> {
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     const auth = (await super.find()) as any
     const loggedInUser = params!.user as UserInterface
     const data = auth.data.map((el) => {

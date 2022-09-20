@@ -1,13 +1,12 @@
-import { Params } from '@feathersjs/feathers'
 import fs from 'fs'
 import path from 'path'
 
-import { UserParams } from '@xrengine/common/src/interfaces/User'
 import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
+import { UserParams } from '../user/user.class'
 
 export type AvatarCreateArguments = {
   modelResourceId?: string
@@ -83,7 +82,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 export const uploadAvatarStaticResource = async (
   app: Application,
   data: AvatarUploadArguments,
-  params?: Params & UserParams
+  params?: UserParams
 ) => {
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 

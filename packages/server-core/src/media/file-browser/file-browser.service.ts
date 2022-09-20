@@ -1,10 +1,8 @@
-import { Params } from '@feathersjs/feathers'
 import express from 'express'
 import multer from 'multer'
 
-import { UploadParams } from '@xrengine/common/src/interfaces/UploadAssetInterface'
-
 import { Application } from '../../../declarations'
+import { UploadParams } from '../upload-asset/upload-asset.service'
 import { FileBrowserService } from './file-browser.class'
 import hooks from './file-browser.hooks'
 
@@ -17,7 +15,7 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
-export const uploadFile = (app: Application) => async (data: any, params: Params & UploadParams) => {
+export const uploadFile = (app: Application) => async (data: any, params: UploadParams) => {
   if (typeof data.args === 'string') data.args = JSON.parse(data.args)
 
   const result = (await Promise.all(

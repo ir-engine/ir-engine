@@ -8,7 +8,7 @@ import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticR
 import {
   AdminAssetUploadArgumentsType,
   AssetUploadType,
-  UploadParams
+  UploadFile
 } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
@@ -26,6 +26,10 @@ declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'upload-asset': any
   }
+}
+
+export interface UploadParams extends Params {
+  files: UploadFile[]
 }
 
 export const addGenericAssetToS3AndStaticResources = async (
@@ -130,7 +134,7 @@ export default (app: Application): void => {
       next()
     },
     {
-      create: async (data: AssetUploadType, params: Params & UploadParams) => {
+      create: async (data: AssetUploadType, params: UploadParams) => {
         if (typeof data.args === 'string') data.args = JSON.parse(data.args)
         const files = params.files
         if (data.type === 'user-avatar-upload') {

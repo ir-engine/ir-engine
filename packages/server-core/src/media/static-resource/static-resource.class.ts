@@ -3,9 +3,9 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { UserParams } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../user/user/user.class'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type CreateStaticResourceType = {
@@ -25,7 +25,7 @@ export class StaticResource extends Service<StaticResourceInterface> {
   }
 
   // @ts-ignore
-  async create(data: CreateStaticResourceType, params?: Params & UserParams): Promise<StaticResourceInterface> {
+  async create(data: CreateStaticResourceType, params?: UserParams): Promise<StaticResourceInterface> {
     const self = this
     const oldResource = await this.find({
       query: {

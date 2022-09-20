@@ -6,10 +6,10 @@ import path from 'path/posix'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { UserParams } from '@xrengine/common/src/interfaces/User'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../user/user/user.class'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -55,7 +55,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: Params & UserParams): Promise<Paginated<FileContentType>> {
+  async get(directory: string, params?: UserParams): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { $skip, $limit, storageProviderName } = params.query

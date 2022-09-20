@@ -1,4 +1,4 @@
-import { UserInterface, UserParams } from './User'
+import { UserInterface } from './User'
 
 export type Invite = {
   id: string
@@ -62,8 +62,4 @@ export interface InviteInterface {
   timed?: boolean
   startTime?: Date | null
   endTime?: Date | null
-}
-
-export interface InviteRemoveParams extends UserParams {
-  preventUserRelationshipRemoval?: boolean
 }
