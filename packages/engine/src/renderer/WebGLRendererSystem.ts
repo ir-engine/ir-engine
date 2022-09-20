@@ -22,7 +22,7 @@ import {
 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
@@ -33,6 +33,7 @@ import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { matchActionOnce } from '../networking/functions/matchActionOnce'
+import { XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import {
   accessEngineRendererState,
@@ -309,7 +310,8 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
     for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
 
-    EngineRenderer.instance.execute(world.deltaSeconds)
+    if (!Engine.instance.isHMD || getState(XRState).sessionActive.value)
+      EngineRenderer.instance.execute(world.deltaSeconds)
   }
 
   const cleanup = async () => {
