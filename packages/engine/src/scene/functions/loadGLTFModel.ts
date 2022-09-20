@@ -13,7 +13,7 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
@@ -101,14 +101,19 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   }
 
   for (const mesh of meshesToProcess) {
+    const name = mesh.userData['xrengine.entity'] ?? mesh.uuid
+    if (name !== '' && Engine.instance.currentWorld.namedEntities.has(name)) {
+      console.error(
+        `Entity with name ${name} already exists on entity ${Engine.instance.currentWorld.namedEntities.get(name)}`
+      )
+      continue
+    }
     const e = createEntity()
 
     const node = createEntityNode(e, mesh.uuid)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
 
-    addComponent(e, NameComponent, {
-      name: mesh.userData['xrengine.entity'] ?? mesh.uuid
-    })
+    addComponent(e, NameComponent, { name })
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
