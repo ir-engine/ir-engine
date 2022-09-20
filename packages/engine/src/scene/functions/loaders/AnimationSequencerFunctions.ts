@@ -51,19 +51,16 @@ export const deserializeAnimationSequencer: ComponentDeserializeFunction = (
     obj3d = new Object3D()
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
-
 }
 
 export const serializeAnimationSequencer: ComponentSerializeFunction = (entity) => {
   const animationSequencerComponent = getComponent(entity, AnimationSequencerComponent)
   return {
     name: SCENE_COMPONENT_ANIMATION_SEQUENCER,
-    props: {
-      animationIndex: animationSequencerComponent.animationIndex,
-      targetObject: animationSequencerComponent.targetObject,
-      loop: animationSequencerComponent.loop,
-      playOnStart: animationSequencerComponent.playOnStart
-    }
+    animationIndex: animationSequencerComponent.animationIndex,
+    targetObject: animationSequencerComponent.targetObject,
+    loop: animationSequencerComponent.loop,
+    playOnStart: animationSequencerComponent.playOnStart
   }
 }
 
@@ -73,17 +70,17 @@ export const shouldDeserializeAnimationSequencer: ComponentShouldDeserializeFunc
 
 export const parseAnimationSequencerProperties = (json): AnimationSequencerComponentType => {
   const ac = {
-    animationIndex: json.props.animationIndex ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.animationIndex,
-    targetObject: json.props.targetObject ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.targetObject,
-    loop: json.props.loop ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.loop,
-    playOnStart: json.props.playOnStart ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.playOnStart,
+    animationIndex: json.animationIndex ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.animationIndex,
+    targetObject: json.targetObject ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.targetObject,
+    loop: json.loop ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.loop,
+    playOnStart: json.playOnStart ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.playOnStart,
 
-    action: new SequencerAction(json.props.targetObject ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.targetObject, 
-      json.props.animationIndex ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.animationIndex,
-      json.props.loop ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.loop)
+    action: new SequencerAction(
+      json.targetObject ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.targetObject,
+      json.animationIndex ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.animationIndex,
+      json.loop ?? SCENE_COMPONENT_ANIMATION_SEQUENCER_DEFAULT_VALUES.loop
+    )
   }
-  ac.loop = json.props.loop
-  console.log(ac)
-  console.log(json.props)
+  ac.loop = json.loop
   return ac
 }

@@ -68,7 +68,7 @@ export const NetworkInstanceProvisioning = () => {
       const searchParams = url.searchParams
       const instanceId = searchParams.get('instanceId')
       if (instanceId !== worldNetworkHostId) searchParams.set('instanceId', worldNetworkHostId)
-      history.push(url.pathname + url.search)
+      history?.push(url.pathname + url.search)
     }
   }, [currentLocationInstanceConnection])
 
