@@ -4,7 +4,7 @@ import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs
 import { EditorInputComponent } from '../classes/InputComponent'
 import { ActionKey } from '../controls/input-mappings'
 
-export default async function ResetInputSystem(_: World) {
+export default async function ResetInputSystem(world: World) {
   const inputQuery = defineQuery([EditorInputComponent])
   const execute = () => {
     for (const entity of inputQuery()) {

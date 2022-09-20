@@ -6,7 +6,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 const GIZMO_SIZE = 10
 
-export default async function GizmoSystem(_: World) {
+export default async function GizmoSystem(world: World) {
   const gizmoQuery = defineQuery([TransformGizmoComponent])
 
   const execute = () => {
