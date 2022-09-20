@@ -1,12 +1,16 @@
 import { MathUtils } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
+import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
 import { addComponent, getComponent, setComponent } from './ComponentFunctions'
@@ -79,7 +83,7 @@ export function addEntityNodeInTree(
   const node = tree.entityNodeMap.get(entityNode.entity)
 
   if (node) {
-    if (node.parentEntity !== parentNode.entity) reparentEntityNode(node, parentNode)
+    reparentEntityNode(node, parentNode)
     return node
   }
 
@@ -158,8 +162,11 @@ export function addEntityNodeChild(node: EntityTreeNode, child: EntityTreeNode, 
   child.parentEntity = node.entity
   addToEntityTreeMaps(child)
 
+  updateEntityTransform(node.entity)
+  updateEntityTransform(child.entity)
   const parentTransform = getComponent(node.entity, TransformComponent)
   const childTransform = getComponent(child.entity, TransformComponent)
+  getState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
     const localTransform = setLocalTransformComponent(child.entity, node.entity)
@@ -219,6 +226,7 @@ export function removeEntityNodeFromParent(
  * @param index Index at which passed node will be set as child in parent node's children arrays
  */
 export function reparentEntityNode(node: EntityTreeNode, newParent: EntityTreeNode, index?: number): void {
+  if (node.parentEntity === newParent.entity) return
   removeEntityNodeFromParent(node)
   addEntityNodeChild(newParent, node, index)
 }

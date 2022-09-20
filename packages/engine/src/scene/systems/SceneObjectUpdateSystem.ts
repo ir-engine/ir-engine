@@ -156,6 +156,7 @@ import {
 } from '../functions/loaders/RenderSettingsFunction'
 import {
   enterScenePreviewCamera,
+  serializeScenePreviewCamera,
   shouldDeserializeScenePreviewCamera
 } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
@@ -237,7 +238,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ScenePreviewCameraComponent.name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
-    shouldDeserialize: shouldDeserializeScenePreviewCamera
+    shouldDeserialize: shouldDeserializeScenePreviewCamera,
+    serialize: serializeScenePreviewCamera
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.system, [
@@ -386,7 +388,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.group, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_GROUP, props: true }
+    { name: SCENE_COMPONENT_GROUP, props: [] }
   ])
 
   world.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)

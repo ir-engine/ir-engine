@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -47,7 +47,11 @@ export const EmoteIcon = () => (
   </svg>
 )
 
-UserMenuPanels.set(Views.Profile, ProfileMenu)
+const ActiveMenuContext = createContext<[ActiveMenu, (c: ActiveMenu) => void]>([{ view: Views.Closed }, () => {}])
+
+export const useActiveMenu = () => useContext(ActiveMenuContext)
+
+UserMenuPanels.set(Views.Profile, (props) => <ProfileMenu {...props} allowAvatarChange />)
 UserMenuPanels.set(Views.Settings, SettingMenu)
 UserMenuPanels.set(Views.Share, ShareMenu)
 UserMenuPanels.set(Views.Party, PartyMenu)
@@ -81,75 +85,51 @@ const UserMenu = (props: Props): any => {
 
   const Panel = UserMenuPanels.get(currentActiveMenu?.view)!
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
-  const userState = useUserState()
-
-  useEffect(() => {
-    function shareLinkReceptor(a) {
-      matches(a).when(EngineActions.shareInteractableLink.matches, (action) => {
-        if (action.shareLink !== '') {
-          setCurrentActiveMenu({ view: Views.Share })
-        }
-      })
-    }
-    addActionReceptor(shareLinkReceptor)
-    return () => removeActionReceptor(shareLinkReceptor)
-  }, [])
-
-  useEffect(() => {
-    function userAvatarTappedReceptor(a) {
-      matches(a).when(EngineActions.userAvatarTapped.matches, (action) => {
-        if (action.userId !== '') {
-          const tappedUser = userState.layerUsers.find((user) => user.id.value === action.userId)
-          setCurrentActiveMenu({ view: Views.AvatarContext, params: { user: tappedUser?.value } })
-        }
-      })
-    }
-    addActionReceptor(userAvatarTappedReceptor)
-    return () => removeActionReceptor(userAvatarTappedReceptor)
-  }, [])
 
   return (
-    <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
-      <div>
-        <section
-          className={`${styles.settingContainer} ${props.animate} ${
-            currentActiveMenu?.view ? props.fadeOutBottom : ''
-          }`}
-        >
-          {!xrSessionActive.value && (
-            <div className={styles.iconContainer}>
-              {Array.from(HotbarMenu.keys()).map((id, index) => {
-                const IconNode = HotbarMenu.get(id)
-                return (
-                  <span
-                    key={index}
-                    id={id + '_' + index}
-                    onClick={() => setCurrentActiveMenu({ view: id })}
-                    className={`${styles.materialIconBlock} ${
-                      currentActiveMenu && currentActiveMenu.view === id ? styles.activeMenu : null
-                    }`}
-                  >
-                    <IconNode
-                      className={styles.icon}
-                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    />
-                  </span>
-                )
-              })}
-            </div>
+    <ActiveMenuContext.Provider value={[currentActiveMenu, setCurrentActiveMenu]}>
+      <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
+        <div>
+          <section
+            className={`${styles.settingContainer} ${props.animate} ${
+              currentActiveMenu?.view ? props.fadeOutBottom : ''
+            }`}
+          >
+            {!xrSessionActive.value && (
+              <div className={styles.iconContainer}>
+                {Array.from(HotbarMenu.keys()).map((id, index) => {
+                  const IconNode = HotbarMenu.get(id)
+                  return (
+                    <span
+                      key={index}
+                      id={id + '_' + index}
+                      onClick={() => setCurrentActiveMenu({ view: id })}
+                      className={`${styles.materialIconBlock} ${
+                        currentActiveMenu && currentActiveMenu.view === id ? styles.activeMenu : null
+                      }`}
+                    >
+                      <IconNode
+                        className={styles.icon}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      />
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+          {currentActiveMenu && currentActiveMenu.view && (
+            <Panel
+              {...currentActiveMenu.params}
+              changeActiveMenu={(view, params) => {
+                setCurrentActiveMenu({ view, params })
+              }}
+            />
           )}
-        </section>
-        {currentActiveMenu && currentActiveMenu.view && (
-          <Panel
-            {...currentActiveMenu.params}
-            changeActiveMenu={(view, params) => {
-              setCurrentActiveMenu({ view, params })
-            }}
-          />
-        )}
-      </div>
-    </ClickAwayListener>
+        </div>
+      </ClickAwayListener>
+    </ActiveMenuContext.Provider>
   )
 }
 

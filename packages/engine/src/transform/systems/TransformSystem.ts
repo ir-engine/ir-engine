@@ -15,11 +15,11 @@ import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/c
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { GroupColliderComponent } from '../../scene/components/ColliderComponent'
+import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
-import { updateCollider, updateGroupCollider } from '../../scene/functions/loaders/ColliderFunctions'
+import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
@@ -74,7 +74,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
     const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(transform.scale) > 0.0001 : true
 
     if (scaleChanged) {
-      if (hasComponent(entity, GroupColliderComponent)) updateGroupCollider(entity)
+      if (hasComponent(entity, GLTFLoadedComponent)) updateModelColliders(entity)
       else updateCollider(entity)
     }
 
@@ -110,6 +110,38 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   }
 }
 
+export const updateEntityTransform = (entity: Entity, world = Engine.instance.currentWorld) => {
+  const transform = getComponent(entity, TransformComponent)
+  if (!transform) return
+
+  const computedTransform = getComponent(entity, ComputedTransformComponent)
+  const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
+
+  updateTransformFromLocalTransform(entity)
+  updateTransformFromRigidbody(entity)
+
+  if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
+    computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
+  }
+
+  if (world.dirtyTransforms.has(entity)) {
+    // avoid scale 0 to prevent NaN errors
+    transform.scale.x = Math.max(1e-10, transform.scale.x)
+    transform.scale.y = Math.max(1e-10, transform.scale.y)
+    transform.scale.z = Math.max(1e-10, transform.scale.z)
+    transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+    transform.matrixInverse.copy(transform.matrix).invert()
+  }
+
+  if (group) {
+    // drop down one level and update children
+    for (const root of group) {
+      for (const obj of root.children) {
+        obj.updateMatrixWorld()
+      }
+    }
+  }
+}
 const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
   return getComponent(entity, TransformComponent).position.distanceToSquared(targetPosition)
 }
@@ -222,38 +254,7 @@ export default async function TransformSystem(world: World) {
     // IMPORTANT: update transforms in order of reference depth
     // Note: cyclic references will cause undefined behavior
 
-    for (const entity of transformEntities) {
-      const transform = getComponent(entity, TransformComponent)
-      if (!transform) continue
-
-      const computedTransform = getComponent(entity, ComputedTransformComponent)
-      const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
-
-      updateTransformFromLocalTransform(entity)
-      updateTransformFromRigidbody(entity)
-
-      if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
-        computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
-      }
-
-      if (world.dirtyTransforms.has(entity)) {
-        // avoid scale 0 to prevent NaN errors
-        transform.scale.x = Math.max(1e-10, transform.scale.x)
-        transform.scale.y = Math.max(1e-10, transform.scale.y)
-        transform.scale.z = Math.max(1e-10, transform.scale.z)
-        transform.matrix.compose(transform.position, transform.rotation, transform.scale)
-        transform.matrixInverse.copy(transform.matrix).invert()
-      }
-
-      if (group) {
-        // drop down one level and update children
-        for (const root of group) {
-          for (const obj of root.children) {
-            obj.updateMatrixWorld()
-          }
-        }
-      }
-    }
+    for (const entity of transformEntities) updateEntityTransform(entity, world)
 
     world.dirtyTransforms.clear()
 

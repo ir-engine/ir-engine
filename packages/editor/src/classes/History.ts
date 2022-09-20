@@ -52,6 +52,7 @@ export function executeCommand(command: CommandParamsType): void {
   commandFunctions.prepare(command)
   commandFunctions.execute(command)
 
+  logger.info('[executeCommand]', command.type, command)
   dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 
@@ -96,6 +97,7 @@ export function executeCommandWithHistory(command: CommandParamsType): void {
   // clearing all the redo-commands
   EditorHistory.redos = []
 
+  logger.info('[executeCommandWithHistory]', command.type, command)
   dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 

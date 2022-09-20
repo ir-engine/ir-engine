@@ -155,7 +155,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of directionalLightSelectQuery.exit()) {
         const light = getComponent(entity, DirectionalLightComponent)?.light
-        if (light) light.userData.cameraHelper.visible = false
+        if (light?.userData?.cameraHelper) light.userData.cameraHelper.visible = false
       }
 
       for (const entity of directionalLightSelectQuery()) {

@@ -2,11 +2,13 @@ import { Euler, Quaternion } from 'three'
 
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { updateEntityTransform } from '@xrengine/engine/src/transform/systems/TransformSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, TransformCommands } from '../constants/EditorCommands'
@@ -36,9 +38,14 @@ function prepare(command: RotationCommandParams) {
 
   if (command.keepHistory) {
     command.undo = {
-      rotations: command.affectedNodes.map((o) => {
-        if (typeof o === 'string') return obj3dFromUuid(o).rotation.clone() ?? new Euler()
-        else return getComponent(o.entity, Object3DComponent).value.rotation.clone() ?? new Euler()
+      rotations: command.affectedNodes.map((node) => {
+        if (typeof node === 'string') {
+          return obj3dFromUuid(node).rotation.clone() ?? new Euler()
+        } else {
+          const transform = getComponent(node.entity, TransformComponent)
+          const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+          return new Euler().setFromQuaternion(localTransform.rotation)
+        }
       }),
       space: TransformSpace.Local
     }
@@ -118,6 +125,7 @@ function updateRotation(command: RotationCommandParams, isUndo: boolean): void {
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
         localTransform.rotation.copy(newLocalQuaternion)
+        updateEntityTransform(node.entity)
       }
     }
   }

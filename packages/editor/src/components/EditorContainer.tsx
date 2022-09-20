@@ -3,6 +3,7 @@ import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
@@ -143,6 +144,18 @@ const EditorContainer = () => {
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
   const history = useHistory()
   const dockPanelRef = useRef<DockLayout>(null)
+
+  useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
+
+  useEffect(() => {
+    runPreprojectLoadTasks().then(() => {
+      setEditorReady(true)
+    })
+    return () => {
+      setEditorReady(false)
+      disposeProject()
+    }
+  }, [])
 
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
@@ -361,6 +374,7 @@ const EditorContainer = () => {
   }
 
   const onSaveScene = async () => {
+    console.log('onSaveScene')
     const sceneLoaded = getEngineState().sceneLoaded.value
 
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
@@ -441,24 +455,11 @@ const EditorContainer = () => {
     dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
 
-  useEffect(() => {
-    runPreprojectLoadTasks().then(() => {
-      setEditorReady(true)
-    })
-  }, [])
-
   useHookEffect(() => {
     if (editorError) {
       onEditorError(editorError.value)
     }
   }, [editorError])
-
-  useEffect(() => {
-    return () => {
-      setEditorReady(false)
-      disposeProject()
-    }
-  }, [])
 
   useEffect(() => {
     if (editorState.projectLoaded.value === true) {

@@ -1,7 +1,7 @@
 import { Event, Object3D } from 'three'
 
-import { addComponent, getComponent, hasComponent } from '../../../../ecs/functions/ComponentFunctions'
-import { ColliderComponent, GroupColliderComponent } from '../../../../scene/components/ColliderComponent'
+import { getComponent, hasComponent } from '../../../../ecs/functions/ComponentFunctions'
+import { ColliderComponent } from '../../../../scene/components/ColliderComponent'
 import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -18,7 +18,7 @@ export default class EEColliderExporterExtension extends ExporterExtension imple
     if (!node || !node.isObject3D || !node.entity || !hasComponent(node.entity, ColliderComponent)) return
     const writer = this.writer
     const collider = getComponent(node.entity, ColliderComponent)
-    const groupedColliders = getComponent(node.entity, GroupColliderComponent)
-    groupedColliders
+    // const groupedColliders = getComponent(node.entity, GroupColliderComponent)
+    // groupedColliders
   }
 }

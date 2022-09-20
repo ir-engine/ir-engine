@@ -8,12 +8,13 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { getState } from '@xrengine/hyperflux'
+import { getState, useHookEffect } from '@xrengine/hyperflux'
 
 import { FriendService, useFriendState } from '../../../social/services/FriendService'
 import { InviteService } from '../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../social/services/PartyService'
-import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { useActiveMenu } from '../../../user/components/UserMenu'
+import { getAvatarURLForUser, Views } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useUserState } from '../../../user/services/UserService'
 import XRTextButton from '../../components/XRTextButton'
@@ -23,7 +24,7 @@ export function createAvatarContextMenuView() {
   return createXRUI(
     AvatarContextMenu,
     createState({
-      id: '' as UserId
+      id: '' as UserId | ''
     })
   )
 }
@@ -34,6 +35,7 @@ interface UserMenuState {
 
 const AvatarContextMenu = () => {
   const detailState = useXRUIState<UserMenuState>()
+  const [currentActiveMenu, setCurrentActiveMenu] = useActiveMenu()
 
   const engineState = useEngineState()
   const userState = useUserState()
@@ -78,10 +80,12 @@ const AvatarContextMenu = () => {
     console.log('Mute pressed')
   }
 
-  useEffect(() => {
-    if (engineState.avatarTappedId.value !== authState.user.id.value)
-      detailState.id.set(engineState.avatarTappedId.value)
-  }, [engineState.avatarTappedId.value])
+  useHookEffect(() => {
+    if (detailState.id.value !== '') {
+      const tappedUser = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
+      setCurrentActiveMenu({ view: Views.AvatarContext, params: { user: tappedUser?.value } })
+    }
+  }, [detailState.id])
 
   return (
     <>
