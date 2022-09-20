@@ -30,7 +30,7 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@xrengine/client-core/src/API'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
-import { clientHost, serverHost } from '@xrengine/client-core/src/util/config'
+import { clientHost, serverHost } from '@xrengine/common/src/config'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
