@@ -18,13 +18,14 @@ export interface SystemDefintion {
   subsystems?: Array<SystemLoader<any>>
 }
 
-export interface SystemInstance {
+/** Internal */
+interface SystemInstanceData {
   execute: () => void
   cleanup: () => Promise<void>
-  subsystems: SystemInstance[]
+  subsystems: SystemInstanceData[]
 }
 
-export interface SystemInstanceType extends SystemInstance {
+export interface SystemInstance extends SystemInstanceData {
   name: string
   uuid: string
   type: SystemUpdateType
@@ -96,7 +97,7 @@ const loadSystemInjection = async (
       execute: createExecute(system, name),
       cleanup: system.cleanup,
       subsystems
-    } as SystemInstance
+    } as SystemInstanceData
   } catch (e) {
     logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
     return null
@@ -164,7 +165,7 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
     },
     cleanup: system.cleanup,
     subsystems: []
-  } as SystemInstanceType
+  } as SystemInstance
   world.pipelines[systemData.type].push(systemData)
 }
 

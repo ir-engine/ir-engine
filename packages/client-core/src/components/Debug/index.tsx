@@ -9,6 +9,7 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Component, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -165,13 +166,13 @@ export const Debug = () => {
           <h1>{t('common:debug.systems')}</h1>
           <JSONTree
             data={pipelines}
-            postprocessValue={(v) => {
+            postprocessValue={(v: SystemInstance) => {
               if (!v?.name) return v
-              const s = new String(v?.name) as any
+              const s = new String(`${v?.name} - ${v.uuid}`) as any
               s.instance = v
               return s
             }} // yes, all this is a hack. We probably shouldn't use JSONTree for this
-            valueRenderer={(raw, value: any) => (
+            valueRenderer={(raw, value: { instance: SystemInstance }) => (
               <>
                 <input
                   type="checkbox"
