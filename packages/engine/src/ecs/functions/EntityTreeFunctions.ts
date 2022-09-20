@@ -151,6 +151,8 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
  * @param index Index at which child node will be added
  */
 export function addEntityNodeChild(node: EntityTreeNode, child: EntityTreeNode, index: number = -1): void {
+  // TODO: move this logic into the TransformSystem, in response to an EntityTree action
+
   if (!node.children) node.children = []
 
   if (index < 0) {

@@ -1,7 +1,6 @@
 import { entityExists } from 'bitecs'
 import { Camera, Mesh, Quaternion, Vector3 } from 'three'
 
-import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
@@ -12,13 +11,11 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -32,6 +29,14 @@ import {
 
 const scratchVector3 = new Vector3()
 const scratchQuaternion = new Quaternion()
+
+const transformQuery = defineQuery([TransformComponent])
+
+const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
+const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
+
+const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
+const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 
 const prevRigidbodyScale = new Map<Entity, Vector3>()
 
@@ -156,54 +161,25 @@ export default async function TransformSystem(world: World) {
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
-  const ownedDynamicRigidBodyQuery = defineQuery([
-    RigidBodyComponent,
-    RigidBodyDynamicTagComponent,
-    NetworkObjectOwnedTag,
-    TransformComponent,
-    VelocityComponent
-  ])
+  const transformDepths = new Map<Entity, number>()
 
-  const groupQuery = defineQuery([GroupComponent])
-  const localTransformQuery = defineQuery([LocalTransformComponent])
-  const transformQuery = defineQuery([TransformComponent])
-  const spawnPointQuery = defineQuery([SpawnPointComponent])
+  const updateTransformDepth = (entity: Entity) => {
+    if (transformDepths.has(entity)) return transformDepths.get(entity)
 
-  const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
-  const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
+    const referenceEntity = getComponent(entity, ComputedTransformComponent)?.referenceEntity
+    const parentEntity = getComponent(entity, LocalTransformComponent)?.parentEntity
 
-  const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
-  const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
+    const referenceEntityDepth = referenceEntity ? updateTransformDepth(referenceEntity) : 0
+    const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
+    const depth = Math.max(referenceEntityDepth, parentEntityDepth) + 1
+    transformDepths.set(entity, depth)
 
-  const computedReferenceDepths = new Map<Entity, number>()
-
-  const visitedReferenceEntities = new Set<Entity>()
-
-  const updateComputedReferenceDepth = (entity: Entity) => {
-    const computedTransform = getComponent(entity, ComputedTransformComponent)
-
-    visitedReferenceEntities.clear()
-    let depth = 0
-    if (computedTransform) {
-      let reference = computedTransform.referenceEntity
-      while (reference) {
-        visitedReferenceEntities.add(reference)
-        depth++
-        const referenceComputedTransform = getComponent(reference, ComputedTransformComponent)
-        reference = referenceComputedTransform?.referenceEntity
-        if (visitedReferenceEntities.has(reference)) {
-          logger.warn(`Cyclic reference detected in computed transform for entity ${entity}`)
-          break
-        }
-      }
-    }
-
-    computedReferenceDepths.set(entity, depth)
+    return depth
   }
 
   const compareReferenceDepth = (a: Entity, b: Entity) => {
-    const aDepth = computedReferenceDepths.get(a)!
-    const bDepth = computedReferenceDepths.get(b)!
+    const aDepth = transformDepths.get(a)!
+    const bDepth = transformDepths.get(b)!
     return aDepth - bDepth
   }
 
@@ -233,27 +209,27 @@ export default async function TransformSystem(world: World) {
   }
 
   const execute = () => {
-    // update transform components from rigid body components,
-    // interpolating the remaining time after the fixed pipeline is complete.
-    // we only update the transform for objects that we have authority over.
-
-    // for (const entity of ownedDynamicRigidBodyQuery.enter()) {
-    //   setComputedTransformComponent(entity, Engine.instance.currentWorld.sceneEntity, updateRigidbodyTransforms)
-    // }
+    // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
 
     // if transform order is dirty, sort by reference depth
     const { transformsNeedSorting } = getState(EngineState)
     const transformEntities = transformQuery()
 
     if (transformsNeedSorting.value) {
-      for (const entity of transformEntities) updateComputedReferenceDepth(entity)
+      transformDepths.clear()
+      for (const entity of transformEntities) updateTransformDepth(entity)
       insertionSort(transformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
       transformsNeedSorting.set(false)
     }
 
-    // IMPORTANT: update transforms in order of reference depth
     // Note: cyclic references will cause undefined behavior
 
+    // TODO: try to split transform update logic apart into multiple iterations for improved cpu prediction:
+    //  1) update dirty local transform matrices
+    //  2) apply dirty world transforms to rigidbodies (physics teleport, and also copy to previous physics position/rotation for interpolation)
+    //  3) readback rigidbody transforms and calculate interpolated transforms
+    //  4) update all dirty computed and local to world transform matrices (IMPORTANT: strictly ordered by reference depth)
+    //  5) call updateMatrixWorld on group children
     for (const entity of transformEntities) updateEntityTransform(entity, world)
 
     world.dirtyTransforms.clear()
@@ -296,11 +272,7 @@ export default async function TransformSystem(world: World) {
 
     removeActionQueue(modifyPropertyActionQueue)
 
-    removeQuery(world, ownedDynamicRigidBodyQuery)
-    removeQuery(world, groupQuery)
-    removeQuery(world, localTransformQuery)
     removeQuery(world, transformQuery)
-    removeQuery(world, spawnPointQuery)
     removeQuery(world, staticBoundingBoxQuery)
     removeQuery(world, dynamicBoundingBoxQuery)
     removeQuery(world, distanceFromLocalClientQuery)
