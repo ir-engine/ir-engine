@@ -47,6 +47,7 @@ const updateObject = (entity: Entity) => {
       obj.castShadow = shadowComponent.cast
     }
   }
+  if (Engine.instance.isHMD) return
 
   if (hasComponent(entity, XRUIComponent)) return
 
@@ -66,18 +67,6 @@ const applyMaterial = (obj: Mesh<any, any>) => {
   if (!obj.material) return
   const material = obj.material
 
-  if (Engine.instance.isHMD) {
-    if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
-      obj.material = new MeshLambertMaterial({
-        color: obj.material.color,
-        flatShading: obj.material.flatShading,
-        map: obj.material.map,
-        fog: obj.material.fog
-      })
-      return
-    }
-  }
-
   // BPCEM
   if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
     addOBCPlugin(
@@ -92,7 +81,7 @@ const applyMaterial = (obj: Mesh<any, any>) => {
 
   material.envMapIntensity = SceneOptions.instance.envMapIntensity
 
-  if (!Engine.instance.isHMD && obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
+  if (obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
 }
 
 export default async function SceneObjectSystem(world: World) {
@@ -113,6 +102,21 @@ export default async function SceneObjectSystem(world: World) {
           if (layer.has(obj)) layer.delete(obj)
         }
       }
+    }
+
+    /** ensure the HMD has no heavy materials */
+    if (Engine.instance.isHMD) {
+      world.scene.traverse((obj: Mesh<any, any>) => {
+        if (obj.material)
+          if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
+            obj.material = new MeshLambertMaterial({
+              color: obj.material.color,
+              flatShading: obj.material.flatShading,
+              map: obj.material.map,
+              fog: obj.material.fog
+            })
+          }
+      })
     }
 
     if (isClient) for (const entity of sceneObjectQuery()) updateObject(entity)
