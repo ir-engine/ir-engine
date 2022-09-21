@@ -29,7 +29,7 @@ export const SPHERE_GEO_FLIPPED = flipNormals(new SphereGeometry(1, 64, 32))
 export const ImageComponent = defineComponent({
   name: 'XRE_image',
 
-  onAdd: (entity, data) => {
+  onAdd: (entity) => {
     const state = hookstate(
       {
         source: '',
@@ -105,21 +105,12 @@ export const ImageComponent = defineComponent({
     state.alphaMode.subscribe(updateMaterial)
     state.side.subscribe(updateMaterial)
 
-    const imageData = data as ReturnType<typeof ImageComponent.toJSON>
-    state.merge(imageData)
-
     // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
     updateTexture()
     updateMaterial()
     updateGeometry()
 
     return state as typeof state & StateMethodsDestroy // TODO: StateMethodsDestroy temporary until hookstate fixes typings
-  },
-
-  onRemove: (entity, component) => {
-    component.mesh.material.map.value?.dispose()
-    component.mesh.value.removeFromParent()
-    component.destroy()
   },
 
   toJSON: (entity, component) => {
@@ -130,6 +121,21 @@ export const ImageComponent = defineComponent({
       projection: component.projection.value,
       side: component.side.value
     }
+  },
+
+  onUpdate: (entity, component, json) => {
+    const imageData = json as ReturnType<typeof ImageComponent.toJSON>
+    component.source.set(imageData.source)
+    component.alphaMode.set(imageData.alphaMode)
+    component.alphaCutoff.set(imageData.alphaCutoff)
+    component.projection.set(imageData.projection)
+    component.side.set(imageData.side)
+  },
+
+  onRemove: (entity, component) => {
+    component.mesh.material.map.value?.dispose()
+    component.mesh.value.removeFromParent()
+    component.destroy()
   }
 })
 

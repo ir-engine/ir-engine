@@ -12,7 +12,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
 import {
-  addComponent,
   ComponentMap,
   defineQuery,
   getAllComponents,
@@ -22,24 +21,22 @@ import {
   removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import {
   addEntityNodeInTree,
   createEntityNode,
-  iterateEntityNode,
-  removeEntityNodeFromParent,
-  reparentEntityNode,
-  traverseEntityNode
+  removeEntityNode,
+  removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
+import { GroupComponent } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
-import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { serializeEntity } from '../functions/serializeWorld'
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
   const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
@@ -143,14 +140,14 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
     if (JSONEntityIsDynamic && !Engine.instance.isEditor) {
       const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
       if (existingEntity) {
-        const previouslyNotDynamic = !hasComponent(existingEntity.entity, SceneDynamicLoadTagComponent)
+        const previouslyNotDynamic = !getComponent(existingEntity.entity, SceneDynamicLoadTagComponent)?.loaded
         if (previouslyNotDynamic) {
           // remove children from world (get from entity tree)
           // these are children who have potentially been previously loaded and are now to be dynamically loaded
           const nodes = world.entityTree.uuidNodeMap
             .get(uuid!)
             ?.children.map((entity) => world.entityTree.entityNodeMap.get(entity)!)!
-          for (const node of nodes) removeSceneEntity(node, false, world)
+          for (const node of nodes) removeEntityNode(node, false, world.entityTree)
         }
       }
     } else {
@@ -195,11 +192,9 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     ([uuid, node]) =>
       !sceneData.scene.entities[uuid] && !getComponent(node.entity, GLTFLoadedComponent)?.includes('entity')
   )
+  /** @todo this will not  */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {
-    traverseEntityNode(node, (node) => {
-      if (entityExists(node.entity)) removeEntity(node.entity)
-    })
-    removeEntityNodeFromParent(node)
+    removeEntityNodeRecursively(node, false, world.entityTree)
   }
 
   /** 3. load new systems */
@@ -212,6 +207,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   /** 4. update scene entities with new data, and load new ones */
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
   updateSceneEntitiesFromJSON(sceneData.scene.root, world)
+
   if (!sceneAssetPendingTagQuery().length) {
     dispatchAction(EngineActions.sceneLoaded({}))
   }
@@ -242,29 +238,6 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
   }
 }
 
-export const removeSceneEntity = (
-  targetNode: EntityTreeNode,
-  serialize = false,
-  world = Engine.instance.currentWorld
-) => {
-  iterateEntityNode(targetNode, (node) => {
-    if (serialize && node !== targetNode) {
-      const jsonEntity = world.sceneJson.entities[node.uuid]
-      if (jsonEntity) {
-        jsonEntity.components = serializeEntity(node.entity)
-        if (node.parentEntity) {
-          const parentNode = world.entityTree.entityNodeMap.get(node.parentEntity!)!
-          jsonEntity.parent = parentNode.uuid
-        }
-      }
-    }
-    /** @todo do we still need this? */
-    // node.children.filter((entity) => !world.entityTree.entityNodeMap.has(entity)).map((entity) => removeEntity(entity))
-    if (entityExists(node.entity, world)) removeEntity(node.entity)
-  })
-  iterateEntityNode(targetNode, (node) => removeEntityNodeFromParent(node))
-}
-
 /**
  * Loads all the components from scene json for an entity
  * @param {EntityTreeNode} entityNode
@@ -279,17 +252,19 @@ export const deserializeSceneEntity = (
 
   /** remove ECS components that are in the scene register but not in the json */
   /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */
-  // const componentsToRemove = getAllComponents(entityNode.entity).filter(
-  //   (C) =>
-  //     world.sceneComponentRegistry.has(C.name) &&
-  //     !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
-  // )
-  // for (const C of componentsToRemove) {
-  //   removeComponent(entityNode.entity, C)
-  // }
+  const componentsToRemove = getAllComponents(entityNode.entity).filter(
+    (C) =>
+      world.sceneComponentRegistry.has(C.name) &&
+      !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
+  )
+  for (const C of componentsToRemove) {
+    if (C === GroupComponent || C === TransformComponent) continue
+    console.log('removing component', C.name, C, entityNode.entity)
+    removeComponent(entityNode.entity, C)
+  }
   for (const component of sceneEntity.components) {
     try {
-      loadComponent(entityNode.entity, component)
+      deserializeComponent(entityNode.entity, component)
     } catch (e) {
       console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
       console.error(e)
@@ -305,10 +280,11 @@ export const deserializeSceneEntity = (
   return entityNode.entity
 }
 
-/**
- * @todo rename this `deserializeComponent`
- */
-export const loadComponent = (entity: Entity, component: ComponentJson, world = Engine.instance.currentWorld): void => {
+export const deserializeComponent = (
+  entity: Entity,
+  component: ComponentJson,
+  world = Engine.instance.currentWorld
+): void => {
   const sceneComponent = world.sceneLoadingRegistry.get(component.name)
 
   if (!sceneComponent) return
