@@ -44,14 +44,14 @@ function prepare(command: ScaleCommandParams) {
 
   if (command.keepHistory) {
     command.undo = {
-      scales: command.affectedNodes.map((o) => {
-        if (typeof o === 'string') {
-          return obj3dFromUuid(o).scale.clone()
-        } else if (hasComponent(o.entity, Object3DComponent)) {
-          return getComponent(o.entity, Object3DComponent)!.value.scale.clone()
-        } else if (hasComponent(o.entity, TransformComponent)) {
-          return getComponent(o.entity, TransformComponent)!.scale.clone()
-        } else throw new Error('No scalable component detected')
+      scales: command.affectedNodes.map((node) => {
+        if (typeof node === 'string') {
+          return obj3dFromUuid(node).scale.clone()
+        } else {
+          const transform = getComponent(node.entity, TransformComponent)
+          const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+          return localTransform.scale.clone()
+        }
       }),
       space: TransformSpace.Local,
       overrideScale: true
@@ -108,7 +108,9 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
     }
 
     const transformComponent =
-      typeof node === 'string' ? obj3dFromUuid(node) : getComponent(node.entity, TransformComponent)
+      typeof node === 'string'
+        ? obj3dFromUuid(node)
+        : getComponent(node.entity, LocalTransformComponent) ?? getComponent(node.entity, TransformComponent)
 
     if (overrideScale) {
       transformComponent.scale.copy(scale)

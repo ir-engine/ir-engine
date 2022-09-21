@@ -56,6 +56,5 @@ describe('PortalFunctions', () => {
     const portalComponent = getComponent(entity, PortalComponent)
     assert.equal(portalComponent.location, 'test')
     assert.equal(portalComponent.linkedPortalId, linkedPortalId)
-    assert(Engine.instance.currentWorld.portalQuery().includes(entity))
   })
 })

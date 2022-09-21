@@ -5,7 +5,7 @@ import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -31,6 +31,9 @@ import { createSocialsMenuWidget } from './createSocialsMenuWidget'
 import { createUploadAvatarWidget } from './createUploadAvatarWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
+export const WidgetInput = {
+  TOGGLE_MENU_BUTTONS: 'WidgetInput_TOGGLE_MENU_BUTTONS' as const
+}
 export default async function WidgetSystem(world: World) {
   const ui = createWidgetButtonsView()
   const xrui = getComponent(ui.entity, XRUIComponent)
@@ -76,11 +79,11 @@ export default async function WidgetSystem(world: World) {
     }
   }
 
-  AvatarInputSchema.inputMap.set(GamepadButtons.X, BaseInput.TOGGLE_MENU_BUTTONS)
+  AvatarInputSchema.inputMap.set(GamepadButtons.X, WidgetInput.TOGGLE_MENU_BUTTONS)
   // add escape key for local testing until we migrate fully with new interface story #6425
-  if (isDev && !Engine.instance.isHMD) AvatarInputSchema.inputMap.set('Escape', BaseInput.TOGGLE_MENU_BUTTONS)
+  if (isDev && !Engine.instance.isHMD) AvatarInputSchema.inputMap.set('Escape', WidgetInput.TOGGLE_MENU_BUTTONS)
 
-  AvatarInputSchema.behaviorMap.set(BaseInput.TOGGLE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
+  AvatarInputSchema.behaviorMap.set(WidgetInput.TOGGLE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
     if (inputValue.lifecycleState !== LifecycleValue.Started) return
     toggleWidgetsMenu()
   })
@@ -95,7 +98,7 @@ export default async function WidgetSystem(world: World) {
   addActionReceptor(WidgetAppServiceReceptor)
   addActionReceptor(WidgetReceptor)
 
-  return () => {
+  const execute = () => {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
     ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
@@ -113,4 +116,15 @@ export default async function WidgetSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeEntity(ui.entity)
+    if (AvatarInputSchema.inputMap.get(GamepadButtons.X) === WidgetInput.TOGGLE_MENU_BUTTONS)
+      AvatarInputSchema.inputMap.delete(GamepadButtons.X)
+    if (AvatarInputSchema.inputMap.get('Escape') === WidgetInput.TOGGLE_MENU_BUTTONS)
+      AvatarInputSchema.inputMap.delete('Escape')
+    AvatarInputSchema.behaviorMap.delete(WidgetInput.TOGGLE_MENU_BUTTONS)
+  }
+
+  return { execute, cleanup }
 }

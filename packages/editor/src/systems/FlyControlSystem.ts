@@ -2,7 +2,7 @@ import { Matrix3, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -29,7 +29,7 @@ export default async function FlyControlSystem(world: World) {
   const normalMatrix = new Matrix3()
   const editorHelperState = accessEditorHelperState()
 
-  return () => {
+  const execute = () => {
     for (let entity of flyControlQuery()) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
       const camera = Engine.instance.currentWorld.camera
@@ -103,4 +103,10 @@ export default async function FlyControlSystem(world: World) {
         getInput(FlyActionSet.moveY) * world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, flyControlQuery)
+  }
+
+  return { execute, cleanup }
 }

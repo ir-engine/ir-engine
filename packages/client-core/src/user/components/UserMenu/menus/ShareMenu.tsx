@@ -141,10 +141,6 @@ const ShareMenu = (props: Props): JSX.Element => {
       refLink
     })
 
-  useEffect(() => {
-    return () => dispatchAction(EngineActions.shareInteractableLink({ shareLink: '', shareTitle: '' }))
-  }, [])
-
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>

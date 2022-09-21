@@ -35,7 +35,7 @@ async function MockSystemInitialiser(world: World, args: {}) {
   const mockQuery = defineQuery([MockComponent])
   MockSystemState.set(world, [])
 
-  return () => {
+  const execute = () => {
     const mockState = MockSystemState.get(world)!
 
     // console.log('run MockSystem')
@@ -52,6 +52,11 @@ async function MockSystemInitialiser(world: World, args: {}) {
       mockState.splice(mockState.indexOf(component.mockValue))
       // console.log('externalState', mockState)
     }
+  }
+
+  return {
+    execute,
+    cleanup: async () => {}
   }
 }
 

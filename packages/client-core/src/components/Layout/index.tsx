@@ -14,7 +14,7 @@ import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 import { Tooltip } from '@mui/material'
 
-import { useLoadingSystemState } from '../../systems/state/LoadingState'
+import { LoadingSystemState } from '../../systems/state/LoadingState'
 import ConferenceMode from '../ConferenceMode'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
@@ -39,7 +39,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const [fullScreenActive, setFullScreenActive] = useFullscreen()
   const [showMediaIcons, setShowMediaIcons] = useState(true)
   const [showBottomIcons, setShowBottomIcons] = useState(true)
-  const loadingSystemState = useLoadingSystemState()
+  const loadingSystemState = useHookstate(getState(LoadingSystemState))
   const [showTouchPad, setShowTouchPad] = useState(true)
   const [conferenceMode, setConferenceMode] = useState(false)
 

@@ -4,14 +4,18 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { useHookEffect } from '@xrengine/hyperflux'
+import { getState, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppLoadingStates, useLoadingState } from '../../../common/services/AppLoadingService'
 import { useSceneState } from '../../../world/services/SceneService'
+import { LoadingSystemState } from '../../state/LoadingState'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
@@ -52,6 +56,7 @@ const LoadingDetailView = (props: {
   transition: ReturnType<typeof createTransitionState>
   onStateChange: (state: { hasSceneColors: boolean }) => void
 }) => {
+  const loadingSystemState = useHookstate(getState(LoadingSystemState))
   const loadingState = useLoadingState()
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
@@ -113,6 +118,13 @@ const LoadingDetailView = (props: {
       props.transition.setState('IN')
     }
   }, [loadingState.state])
+
+  useEffect(() => {
+    /** renderering is disabled on an HMD when a session is not active ,
+     *   render it here whenever the loading screen changes */
+    if (Engine.instance.isHMD && !getState(XRState).sessionActive.value)
+      EngineRenderer.instance.execute(Engine.instance.tickRate)
+  }, [engineState.loadingProgress, loadingSystemState.loadingScreenOpacity])
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value

@@ -85,11 +85,14 @@ export const addAnimationLogic = (
   addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
   async function AvatarSelectRenderSystem(world: World) {
-    return () => {
-      // only render if this menu is open
-      if (!!panelRef.current) {
-        renderer.render(scene, camera)
-      }
+    return {
+      execute: () => {
+        // only render if this menu is open
+        if (!!panelRef.current) {
+          renderer.render(scene, camera)
+        }
+      },
+      cleanup: async () => {}
     }
   }
 

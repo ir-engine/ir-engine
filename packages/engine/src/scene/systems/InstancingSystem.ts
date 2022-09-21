@@ -1,8 +1,8 @@
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent, removeComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -45,7 +45,7 @@ export default async function ScatterSystem(world: World) {
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
-  return () => {
+  const execute = () => {
     instancingQuery.enter().map(updateInstancing)
 
     modifyPropertyActionQueue().map((action) =>
@@ -69,4 +69,18 @@ export default async function ScatterSystem(world: World) {
       removeComponent(entity, InstancingUnstagingComponent, world)
     }
   }
+
+  const cleanup = async () => {
+    world.sceneComponentRegistry.delete(InstancingComponent._name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_INSTANCING)
+    world.scenePrefabRegistry.delete(ScenePrefabs.instancing)
+
+    removeQuery(world, instancingQuery)
+    removeQuery(world, stagingQuery)
+    removeQuery(world, unstagingQuery)
+
+    removeActionQueue(modifyPropertyActionQueue)
+  }
+
+  return { execute, cleanup }
 }

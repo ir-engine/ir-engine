@@ -1,11 +1,11 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -61,7 +61,7 @@ const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 export default async function AvatarSpawnSystem(world: World) {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
 
-  return () => {
+  const execute = () => {
     for (const action of avatarSpawnQueue()) createAvatar(action)
 
     // Keep a list of spawn points so we can send our user to one
@@ -72,4 +72,11 @@ export default async function AvatarSpawnSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, spawnPointQuery)
+    removeActionQueue(avatarSpawnQueue)
+  }
+
+  return { execute, cleanup }
 }
