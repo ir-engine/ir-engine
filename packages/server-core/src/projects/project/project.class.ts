@@ -34,6 +34,10 @@ import {
 } from '../githubapp/githubapp-helper'
 import { getProjectConfig, onProjectEvent } from './project-helper'
 
+interface ProjectParams extends UserParams {
+  paginate?: false
+}
+
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
@@ -420,7 +424,7 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params?: UserParams): Promise<{ data: ProjectInterface[] }> {
+  async find(params?: ProjectParams): Promise<{ data: ProjectInterface[] }> {
     let projectPushIds: string[] = []
     if (params?.query?.allowed != null) {
       // Get all of the projects that this user has permissions for, then calculate push status by whether the GitHub
