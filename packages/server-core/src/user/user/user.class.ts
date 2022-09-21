@@ -12,6 +12,7 @@ import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export interface UserParams extends Params {
   user?: UserInterface
+  paginate?: false
   isInternal?: boolean
   sequelize?: any
 }

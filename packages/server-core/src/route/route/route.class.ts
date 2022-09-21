@@ -1,13 +1,10 @@
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 
 import { Application } from '../../../declarations'
-
-interface RouteParams extends Params {
-  paginate?: boolean
-}
+import { UserParams } from '../../user/user/user.class'
 
 export type ActiveRoutesDataType = ActiveRoutesInterface
 
@@ -21,10 +18,10 @@ export class Route<T = ActiveRoutesDataType> extends Service<T> {
   }
 
   // @ts-ignore
-  async find(params?: RouteParams): Promise<T[], Paginated<T>> {
+  async find(params?: UserParams): Promise<T[], Paginated<T>> {
     if (!params) params = {}
     params.paginate = false
-    const routes = await super.find(params as Params)
+    const routes = await super.find(params)
     return {
       total: (routes as any).length,
       data: routes
