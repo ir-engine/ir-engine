@@ -99,6 +99,7 @@ const loadSystemInjection = async (
       subsystems
     } as SystemInstanceData
   } catch (e) {
+    console.error(e)
     logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
     return null
   }
