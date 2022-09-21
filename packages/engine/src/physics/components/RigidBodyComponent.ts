@@ -38,7 +38,7 @@ export const RigidBodyComponent = defineComponent<RigidBodyComponentType, typeof
   },
 
   onUpdate: (entity, component, json) => {
-    if (json.body) component.body = json.body as RigidBody
+    if (typeof json.body === 'object') component.body = json.body as RigidBody
   },
 
   onRemove: (entity, component) => {

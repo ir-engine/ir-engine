@@ -61,7 +61,8 @@ export const MediaElementComponent = defineComponent({
   },
 
   onUpdate: (entity, component, json) => {
-    if (json.element) component.element = json.element as HTMLMediaElement
+    if (typeof json.element === 'object' && json.element !== component.element)
+      component.element = json.element as HTMLMediaElement
   },
 
   onRemove: (entity, component) => {
@@ -292,18 +293,23 @@ export const MediaComponent = defineComponent({
   },
 
   onUpdate: (entity, component, json) => {
-    if (json.paths) {
+    if (typeof json.paths === 'object') {
       // backwars-compat: update uvol paths to point to the video files
       const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
       if (!deepEqual(component.paths.value, json.paths)) component.paths.set(paths)
     }
 
-    if (json.controls && component.controls.value !== json.controls) component.controls.set(json.controls)
+    if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
+      component.controls.set(json.controls)
 
-    if (json.autoplay && component.autoplay.value !== json.autoplay) component.autoplay.set(json.autoplay)
+    if (typeof json.autoplay === 'boolean' && json.autoplay !== component.autoplay.value)
+      component.autoplay.set(json.autoplay)
 
     // backwars-compat: convert from number enums to strings
-    if (json.playMode && component.playMode.value !== json.playMode) {
+    if (
+      (typeof json.playMode === 'number' || typeof json.playMode === 'string') &&
+      json.playMode !== component.playMode.value
+    ) {
       if (typeof json.playMode === 'number') {
         switch (json.playMode) {
           case 1:
@@ -324,7 +330,8 @@ export const MediaComponent = defineComponent({
       }
     }
 
-    if (json.isMusic && component.isMusic.value !== json.isMusic) component.isMusic.set(json.isMusic)
+    if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
+      component.isMusic.set(json.isMusic)
 
     return component
   },

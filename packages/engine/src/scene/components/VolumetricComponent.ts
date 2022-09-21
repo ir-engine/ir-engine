@@ -24,7 +24,8 @@ export const VolumetricComponent = defineComponent({
   },
 
   onUpdate: (entity, component, json) => {
-    component.useLoadingEffect.set(json.useLoadingEffect)
+    if (typeof json.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value)
+      component.useLoadingEffect.set(json.useLoadingEffect)
   },
 
   onRemove: (entity, component) => {

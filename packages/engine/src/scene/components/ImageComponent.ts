@@ -124,12 +124,14 @@ export const ImageComponent = defineComponent({
   },
 
   onUpdate: (entity, component, json) => {
-    const imageData = json as ReturnType<typeof ImageComponent.toJSON>
-    component.source.set(imageData.source)
-    component.alphaMode.set(imageData.alphaMode)
-    component.alphaCutoff.set(imageData.alphaCutoff)
-    component.projection.set(imageData.projection)
-    component.side.set(imageData.side)
+    if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
+    if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)
+      component.alphaMode.set(json.alphaMode)
+    if (typeof json.alphaCutoff === 'number' && json.alphaCutoff !== component.alphaCutoff.value)
+      component.alphaCutoff.set(json.alphaCutoff)
+    if (typeof json.projection === 'string' && json.projection !== component.projection.value)
+      component.projection.set(json.projection)
+    if (typeof json.side === 'number' && json.side !== component.side.value) component.side.set(json.side)
   },
 
   onRemove: (entity, component) => {

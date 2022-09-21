@@ -31,19 +31,19 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   onUpdate: (entity, component, json) => {
-    if (typeof json.distanceModel !== 'undefined' && component.distanceModel.value !== json.distanceModel)
+    if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)
-    if (typeof json.rolloffFactor !== 'undefined' && component.rolloffFactor.value !== json.rolloffFactor)
+    if (typeof json.rolloffFactor === 'number' && component.rolloffFactor.value !== json.rolloffFactor)
       component.rolloffFactor.set(json.rolloffFactor)
-    if (typeof json.refDistance !== 'undefined' && component.refDistance.value !== json.refDistance)
+    if (typeof json.refDistance === 'number' && component.refDistance.value !== json.refDistance)
       component.refDistance.set(json.refDistance)
-    if (typeof json.maxDistance !== 'undefined' && component.maxDistance.value !== json.maxDistance)
+    if (typeof json.maxDistance === 'number' && component.maxDistance.value !== json.maxDistance)
       component.maxDistance.set(json.maxDistance)
-    if (typeof json.coneInnerAngle !== 'undefined' && component.coneInnerAngle.value !== json.coneInnerAngle)
+    if (typeof json.coneInnerAngle === 'number' && component.coneInnerAngle.value !== json.coneInnerAngle)
       component.coneInnerAngle.set(json.coneInnerAngle)
-    if (typeof json.coneOuterAngle !== 'undefined' && component.coneOuterAngle.value !== json.coneOuterAngle)
+    if (typeof json.coneOuterAngle === 'number' && component.coneOuterAngle.value !== json.coneOuterAngle)
       component.coneOuterAngle.set(json.coneOuterAngle)
-    if (typeof json.coneOuterGain !== 'undefined' && component.coneOuterGain.value !== json.coneOuterGain)
+    if (typeof json.coneOuterGain === 'number' && component.coneOuterGain.value !== json.coneOuterGain)
       component.coneOuterGain.set(json.coneOuterGain)
   },
 
