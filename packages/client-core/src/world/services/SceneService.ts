@@ -49,7 +49,7 @@ export const SceneService = {
           .service('scene')
           .get({ projectName, sceneName, metadataOnly: null }, {})
         updateSceneFromJSON(sceneData.data)
-        // ;(getState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
+        ;(getState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
       }
       // for testing
       // window.addEventListener('keydown', (ev) => {
@@ -57,10 +57,10 @@ export const SceneService = {
       // })
 
       /** @todo currently broken */
-      // API.instance.client.service('scene').on('updated', sceneUpdatedListener)
+      API.instance.client.service('scene').on('updated', sceneUpdatedListener)
 
       return () => {
-        // API.instance.client.service('scene').off('updated', sceneUpdatedListener)
+        API.instance.client.service('scene').off('updated', sceneUpdatedListener)
       }
     }, [])
   }
