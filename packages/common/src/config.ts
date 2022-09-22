@@ -11,6 +11,8 @@ export const serverHost = localBuildOrDev
   ? `https://${globalThis.process.env['VITE_SERVER_HOST']}:${globalThis.process.env['VITE_SERVER_PORT']}`
   : `https://${globalThis.process.env['VITE_SERVER_HOST']}`
 
+export const hostDefined = !!globalThis.process.env['VITE_SERVER_HOST']
+
 export const instanceserverHost = localBuildOrDev
   ? `https://${globalThis.process.env['VITE_INSTANCESERVER_HOST']}:${globalThis.process.env['VITE_INSTANCESERVER_PORT']}`
   : `https://${globalThis.process.env['VITE_INSTANCESERVER_HOST']}`

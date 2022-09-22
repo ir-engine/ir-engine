@@ -12,13 +12,12 @@
 import { LruCache } from '@digitalcredentials/lru-memoize'
 import fetch from 'cross-fetch'
 
-import { localBuildOrDev, serverHost } from './config'
+import { hostDefined, localBuildOrDev, serverHost } from './config'
 
 const logRequestCache = new LruCache({
   maxAge: 1000 * 5 // 5 seconds cache expiry
 })
 
-const hostDefined = !!serverHost
 const disableLog = process.env['VITE_DISABLE_LOG']
 
 const baseComponent = 'client-core'
@@ -58,7 +57,7 @@ const multiLogger = {
    * @param opts.component {string}
    */
   child: (opts: any) => {
-    if (localBuildOrDev && !process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE) {
+    if (!hostDefined || (localBuildOrDev && !process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE)) {
       // Locally, this will provide correct file & line numbers in browser console
       return {
         debug: console.debug.bind(console, `[${opts.component}]`),
