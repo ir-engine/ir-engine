@@ -8,6 +8,7 @@ import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
 import logger from '../../logger'
 import { UnauthorizedException } from '../../util/exceptions/exception'
+import { UserParams } from '../user/user.class'
 import { AvatarCreateArguments, AvatarPatchArguments } from './avatar-helper'
 
 export class Avatar extends Service<AvatarInterface> {
@@ -36,7 +37,7 @@ export class Avatar extends Service<AvatarInterface> {
     return avatar
   }
 
-  async find(params?: Params): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
+  async find(params?: UserParams): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
     let isAdmin = false
     if (params && params.user && params.user.id) {
       isAdmin = await checkScope(params?.user, this.app, 'admin', 'admin')
@@ -89,11 +90,11 @@ export class Avatar extends Service<AvatarInterface> {
     return avatars
   }
 
-  async create(data: AvatarCreateArguments, params?: Params): Promise<AvatarInterface> {
+  async create(data: AvatarCreateArguments, params?: UserParams): Promise<AvatarInterface> {
     let avatar = (await super.create({
       name: data.name,
       isPublic: data.isPublic ?? true,
-      userId: params?.user.id,
+      userId: params?.user!.id,
       modelResourceId: data.modelResourceId,
       thumbnailResourceId: data.thumbnailResourceId
     })) as AvatarInterface
@@ -103,10 +104,10 @@ export class Avatar extends Service<AvatarInterface> {
     return avatar
   }
 
-  async patch(id: string, data: AvatarPatchArguments, params?: Params): Promise<AvatarInterface> {
+  async patch(id: string, data: AvatarPatchArguments, params?: UserParams): Promise<AvatarInterface> {
     let avatar = (await super.get(id, params)) as AvatarInterface
 
-    if (avatar.userId !== params?.user.id && params && params.user && params.user.id) {
+    if (avatar.userId !== params?.user!.id && params && params.user && params.user.id) {
       const hasPermission = await checkScope(params?.user, this.app, 'admin', 'admin')
       if (!hasPermission) {
         throw new UnauthorizedException(`Unauthorised to perform this action.`)

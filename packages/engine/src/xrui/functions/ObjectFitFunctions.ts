@@ -7,8 +7,10 @@ import { getState } from '@xrengine/hyperflux'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Component, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRState } from '../../xr/XRState'
+import { XRUIComponentType } from '../components/XRUIComponent'
+import { XRUI } from './createXRUI'
 
 const _vec = new Vector3()
 const _pos = new Vector3()
@@ -124,11 +126,5 @@ export const ObjectFitFunctions = {
     container.scale.setScalar(Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(position) / 3))
     container.position.copy(position)
     container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
-  },
-
-  setUIVisible: (container: WebContainer3D, visibility: boolean) => {
-    container.rootLayer.traverse((obj) => {
-      obj.visible = visibility
-    })
   }
 }

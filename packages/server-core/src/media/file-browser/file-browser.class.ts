@@ -9,6 +9,7 @@ import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticR
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../user/user/user.class'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -54,7 +55,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: Params): Promise<Paginated<FileContentType>> {
+  async get(directory: string, params?: UserParams): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { $skip, $limit, storageProviderName } = params.query
@@ -78,7 +79,7 @@ export class FileBrowserService implements ServiceMethods<any> {
       const projectPermissions = await this.app.service('project-permission').Model.findAll({
         include: ['project'],
         where: {
-          userId: params.user.id
+          userId: params.user!.id
         }
       })
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
@@ -208,7 +209,7 @@ export class FileBrowserService implements ServiceMethods<any> {
     }
 
     const staticResource = (await this.app.service('static-resource').find({
-      where: {
+      query: {
         key: key,
         $limit: 1
       }

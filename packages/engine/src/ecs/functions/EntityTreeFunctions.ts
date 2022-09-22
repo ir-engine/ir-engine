@@ -6,6 +6,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { serializeEntity } from '../../scene/functions/serializeWorld'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { updateEntityTransform } from '../../transform/systems/TransformSystem'
@@ -219,6 +220,56 @@ export function removeEntityNodeFromParent(
     const parent = tree.entityNodeMap.get(node.parentEntity)
     if (parent) return removeEntityNodeChild(parent, node, tree)
   }
+}
+
+export function serializeNodeToWorld(node: EntityTreeNode, world = Engine.instance.currentWorld) {
+  const jsonEntity = world.sceneJson.entities[node.uuid]
+  if (jsonEntity) {
+    jsonEntity.components = serializeEntity(node.entity)
+    if (node.parentEntity) {
+      const parentNode = world.entityTree.entityNodeMap.get(node.parentEntity!)!
+      jsonEntity.parent = parentNode.uuid
+    }
+  }
+}
+
+/**
+ * Removes an entity node from it's parent, and remove it's entity and all it's children nodes and entities
+ * @param node
+ * @param tree
+ */
+export function removeEntityNodeRecursively(
+  node: EntityTreeNode,
+  serialize = false,
+  tree = Engine.instance.currentWorld.entityTree
+) {
+  removeEntityNodeFromParent(node, tree)
+  traverseEntityNode(node, (child) => {
+    if (serialize) serializeNodeToWorld(child)
+    removeFromEntityTreeMaps(child, tree)
+    removeEntity(child.entity)
+  })
+}
+
+/**
+ * Removes an entity node from it's parent, and remove it's entity and all it's children nodes and entities
+ * @param node
+ * @param tree
+ */
+export function removeEntityNode(
+  node: EntityTreeNode,
+  serialize = false,
+  tree = Engine.instance.currentWorld.entityTree
+) {
+  for (const childEntity of node.children) {
+    const child = tree.entityNodeMap.get(childEntity)!
+    const newParent = node.parentEntity ? tree.entityNodeMap.get(node.parentEntity)! : tree.rootNode
+    reparentEntityNode(child, newParent)
+  }
+  if (serialize) serializeNodeToWorld(node)
+  removeEntityNodeFromParent(node, tree)
+  removeFromEntityTreeMaps(node, tree)
+  removeEntity(node.entity)
 }
 
 /**

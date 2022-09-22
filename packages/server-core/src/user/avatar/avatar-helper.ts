@@ -1,4 +1,3 @@
-import { Params } from '@feathersjs/feathers'
 import fs from 'fs'
 import path from 'path'
 
@@ -7,6 +6,7 @@ import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownC
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
+import { UserParams } from '../user/user.class'
 
 export type AvatarCreateArguments = {
   modelResourceId?: string
@@ -79,22 +79,26 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
   await Promise.all(promises)
 }
 
-export const uploadAvatarStaticResource = async (app: Application, data: AvatarUploadArguments, params?: Params) => {
+export const uploadAvatarStaticResource = async (
+  app: Application,
+  data: AvatarUploadArguments,
+  params?: UserParams
+) => {
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
-  const key = `avatars/${data.isPublic ? 'public' : params?.user.id}/${name}`
+  const key = `avatars/${data.isPublic ? 'public' : params?.user!.id}/${name}`
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
 
   const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, CommonKnownContentTypes.glb, {
-    userId: params?.user.id,
+    userId: params?.user!.id,
     key: `${key}.${data.avatarFileType ?? 'glb'}`,
     staticResourceType: 'avatar'
   })
 
   const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, CommonKnownContentTypes.png, {
-    userId: params?.user.id,
+    userId: params?.user!.id,
     key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
     staticResourceType: 'user-thumbnail'
   })

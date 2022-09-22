@@ -4,6 +4,8 @@ import Hls from 'hls.js'
 import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
+import { deepEqual } from '../../common/functions/deepEqual'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
@@ -46,27 +48,35 @@ export const createAudioNodeGroup = (
 export const MediaElementComponent = defineComponent({
   name: 'MediaElement',
 
-  onAdd: (entity, json) => {
+  onAdd: (entity) => {
     return {
-      element: json.element as HTMLMediaElement,
+      element: undefined! as HTMLMediaElement,
       hls: undefined as Hls | undefined,
       abortController: new AbortController()
     }
   },
 
+  toJSON: () => {
+    return undefined as any as { element: HTMLMediaElement }
+  },
+
+  onUpdate: (entity, component, json) => {
+    if (typeof json.element === 'object' && json.element !== component.element)
+      component.element = json.element as HTMLMediaElement
+  },
+
   onRemove: (entity, component) => {
     component.hls?.destroy()
     component.hls = undefined
+    const audioNodeGroup = AudioNodeGroups.get(component.element)
+    if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
+    AudioNodeGroups.delete(component.element)
     component.element.pause()
     component.element.removeAttribute('src')
     component.element.load()
     component.element.remove()
     component.element = undefined!
     component.abortController.abort()
-  },
-
-  toJSON: () => {
-    return undefined as any as { element: HTMLMediaElement }
   }
 })
 
@@ -76,27 +86,7 @@ const metadataElements = new Set<HTMLMediaElement>()
 export const MediaComponent = defineComponent({
   name: 'XRE_media',
 
-  onAdd: (entity, json) => {
-    // backwars-compat: update uvol paths to point to the video files
-    if (json.paths) json.paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
-    // backwars-compat: convert from number enums to strings
-    if (json.playMode && typeof json.playMode === 'number') {
-      switch (json.playMode) {
-        case 1:
-          json.playMode = PlayMode.single
-          break
-        case 2:
-          json.playMode = PlayMode.random
-          break
-        case 3:
-          json.playMode = PlayMode.loop
-          break
-        case 4:
-          json.playMode = PlayMode.singleloop
-          break
-      }
-    }
-
+  onAdd: (entity) => {
     const state = hookstate(
       {
         controls: false,
@@ -129,7 +119,7 @@ export const MediaComponent = defineComponent({
       const track = state.track.value
       const path = state.paths[track].value
       if (!path) {
-        removeComponent(entity, MediaElementComponent)
+        if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
         return
       }
 
@@ -280,8 +270,6 @@ export const MediaComponent = defineComponent({
     // bind play
     state.paused.subscribe(updatePlay)
 
-    state.merge(json)
-
     // handle autoplay
     if (state.autoplay.value && getEngineState().userHasInteracted.value) state.paused.set(false)
 
@@ -294,12 +282,6 @@ export const MediaComponent = defineComponent({
     return state
   },
 
-  onRemove: (entity, component) => {
-    removeComponent(entity, MediaElementComponent)
-    component.paths.set([])
-    ;(component as typeof component & StateMethodsDestroy).destroy()
-  },
-
   toJSON: (entity, component) => {
     return {
       controls: component.controls.value,
@@ -308,6 +290,56 @@ export const MediaComponent = defineComponent({
       playMode: component.playMode.value,
       isMusic: component.isMusic.value
     }
+  },
+
+  onUpdate: (entity, component, json) => {
+    if (typeof json.paths === 'object') {
+      // backwars-compat: update uvol paths to point to the video files
+      const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
+      if (!deepEqual(component.paths.value, json.paths)) component.paths.set(paths)
+    }
+
+    if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
+      component.controls.set(json.controls)
+
+    if (typeof json.autoplay === 'boolean' && json.autoplay !== component.autoplay.value)
+      component.autoplay.set(json.autoplay)
+
+    // backwars-compat: convert from number enums to strings
+    if (
+      (typeof json.playMode === 'number' || typeof json.playMode === 'string') &&
+      json.playMode !== component.playMode.value
+    ) {
+      if (typeof json.playMode === 'number') {
+        switch (json.playMode) {
+          case 1:
+            component.playMode.set(PlayMode.single)
+            break
+          case 2:
+            component.playMode.set(PlayMode.random)
+            break
+          case 3:
+            component.playMode.set(PlayMode.loop)
+            break
+          case 4:
+            component.playMode.set(PlayMode.singleloop)
+            break
+        }
+      } else {
+        component.playMode.set(json.playMode)
+      }
+    }
+
+    if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
+      component.isMusic.set(json.isMusic)
+
+    return component
+  },
+
+  onRemove: (entity, component) => {
+    removeComponent(entity, MediaElementComponent)
+    component.paths.set([])
+    ;(component as typeof component & StateMethodsDestroy).destroy()
   }
 })
 
