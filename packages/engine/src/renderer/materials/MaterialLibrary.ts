@@ -1,6 +1,9 @@
+import { Material } from 'three'
+
 import { SeedRandom, stringHash } from '../../common/functions/MathFunctions'
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
+import { MaterialSource } from './components/MaterialSource'
 import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './constants/material-prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './constants/material-prototypes/MeshMatcapMaterial.mat'
@@ -9,11 +12,18 @@ import MeshPhysicalMaterial from './constants/material-prototypes/MeshPhysicalMa
 import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMaterial.mat'
 import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
-import { extractDefaults, formatMaterialArgs } from './functions/Utilities'
+import { extractDefaults, formatMaterialArgs, registerMaterial } from './functions/Utilities'
 
-export const MaterialLibrary = {
+export type MaterialLibraryType = {
+  prototypes: Map<string, MaterialPrototypeComponentType>
+  materials: Map<string, MaterialComponentType>
+  sources: Map<string, string[]>
+}
+
+export const MaterialLibrary: MaterialLibraryType = {
   prototypes: new Map<string, MaterialPrototypeComponentType>(),
-  materials: new Map<string, MaterialComponentType>()
+  materials: new Map<string, MaterialComponentType>(),
+  sources: new Map<string, string[]>()
 }
 
 export function initializeMaterialLibrary() {
@@ -36,11 +46,11 @@ export function initializeMaterialLibrary() {
     material.name = prototype.prototypeId
     //set uuid to pseudorandom value based on name
     material.uuid = `${SeedRandom(stringHash(material.name))}`
-    MaterialLibrary.materials.set(material.uuid, {
-      material,
-      parameters,
-      prototype: prototype.prototypeId,
-      src: { type: 'MATERIAL_LIBRARY' }
-    })
+
+    const src: MaterialSource = {
+      path: '',
+      type: 'Built In'
+    }
+    registerMaterial(material, src, parameters)
   })
 }
