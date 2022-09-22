@@ -57,7 +57,7 @@ export type SystemFactoryType<A> = {
   args?: A
 }
 
-const createExecute = (system: SystemDefintion, name: string) => {
+const createExecute = (system: SystemDefintion, subsystems: SystemInstanceData[], name: string) => {
   let lastWarningTime = 0
   const warningCooldownDuration = 1000 * 10 // 10 seconds
 
@@ -74,6 +74,9 @@ const createExecute = (system: SystemDefintion, name: string) => {
     if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
       lastWarningTime = endTime
       logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
+    }
+    for (const sys of subsystems) {
+      sys.execute()
     }
   }
 }
@@ -94,7 +97,7 @@ const loadSystemInjection = async (
       ? await Promise.all(system.subsystems.map(async (subsystem) => loadSystemInjection(world, await subsystem())))
       : []
     return {
-      execute: createExecute(system, name),
+      execute: createExecute(system, subsystems, name),
       cleanup: system.cleanup,
       subsystems
     } as SystemInstanceData
