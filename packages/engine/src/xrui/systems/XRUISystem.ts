@@ -175,6 +175,7 @@ export default async function XRUISystem(world: World) {
     canvas.removeEventListener('contextmenu', redirectDOMEvent)
     canvas.removeEventListener('dblclick', redirectDOMEvent)
     removeQuery(world, xruiQuery)
+    removeQuery(world, visibleXruiQuery)
     removeQuery(world, localXRInputQuery)
   }
 
