@@ -104,7 +104,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     const e = createEntity()
 
     const node = createEntityNode(e, mesh.uuid)
-    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
+    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
     addComponent(e, NameComponent, {
       name: mesh.userData['xrengine.entity'] ?? mesh.uuid

@@ -67,20 +67,10 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
  */
 export function addEntityNodeInTree(
   entityNode: EntityTreeNode,
-  parentNode?: EntityTreeNode,
+  parentNode: EntityTreeNode,
   index?: number,
-  skipRootUpdate = false,
   tree = Engine.instance.currentWorld.entityTree
 ): EntityTreeNode {
-  if (parentNode == null) {
-    if (!skipRootUpdate) {
-      tree.rootNode = entityNode
-      addToEntityTreeMaps(entityNode, tree)
-    }
-
-    return tree.rootNode
-  }
-
   const node = tree.entityNodeMap.get(entityNode.entity)
 
   if (node) {
@@ -98,6 +88,12 @@ export function addEntityNodeInTree(
   addEntityNodeChild(parentNode, entityNode, index)
 
   return entityNode
+}
+
+export function updateRootNodeUuid(uuid: string, tree = Engine.instance.currentWorld.entityTree) {
+  tree.uuidNodeMap.delete(tree.rootNode.uuid)
+  tree.uuidNodeMap.set(uuid, tree.rootNode)
+  tree.rootNode.uuid = uuid
 }
 
 /**

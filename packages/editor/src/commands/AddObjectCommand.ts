@@ -140,7 +140,7 @@ function addObject(command: AddObjectCommandParams) {
           : undefined
     }
     if (typeof parent !== 'string' && typeof object !== 'string') {
-      addEntityNodeInTree(object, parent, index, false, world.entityTree)
+      addEntityNodeInTree(object, parent, index, world.entityTree)
 
       reparentObject3D(object, parent, typeof before === 'string' ? undefined : before, world.entityTree)
 

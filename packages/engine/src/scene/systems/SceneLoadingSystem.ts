@@ -26,7 +26,8 @@ import {
   addEntityNodeInTree,
   createEntityNode,
   removeEntityNode,
-  removeEntityNodeRecursively
+  removeEntityNodeRecursively,
+  updateRootNodeUuid
 } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -122,7 +123,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
         result.push(node)
       }
     }
-    addEntityNodeInTree(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : undefined)
+    addEntityNodeInTree(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : root)
   })
   return result
 }
@@ -205,6 +206,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   world.sceneJson = sceneData.scene
 
   /** 4. update scene entities with new data, and load new ones */
+  updateRootNodeUuid(sceneData.scene.root, world.entityTree)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
   updateSceneEntitiesFromJSON(sceneData.scene.root, world)
 
@@ -230,7 +232,7 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
       //   reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
     } else {
       const node = createEntityNode(createEntity(), uuid)
-      addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!))
+      addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!) ?? world.entityTree.rootNode)
       deserializeSceneEntity(node, entityJson)
     }
   } catch (e) {
