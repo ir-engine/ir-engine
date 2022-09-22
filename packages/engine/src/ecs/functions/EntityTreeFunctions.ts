@@ -120,8 +120,9 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
  * @param index Index at which child node will be added
  */
 export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode, index: number = -1): void {
-  console.log('addEntityNodeChild', parent, node)
   // TODO: move this logic into the TransformSystem, in response to an EntityTree action
+
+  if (parent.children.includes(node.entity)) return
 
   if (index < 0) {
     parent.children.push(node.entity)
