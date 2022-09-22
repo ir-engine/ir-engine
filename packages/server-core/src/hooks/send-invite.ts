@@ -1,4 +1,4 @@
-import { HookContext, Paginated, Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
@@ -6,7 +6,6 @@ import * as pug from 'pug'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Application } from '../../declarations'
 import config from '../appconfig'
@@ -14,6 +13,7 @@ import logger from '../logger'
 import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
+import { UserParams } from '../user/user/user.class'
 
 export type InviteDataType = InviteType
 
@@ -111,7 +111,7 @@ async function generateSMS(
 }
 
 // This will attach the owner ID in the contact while creating/updating list item
-export const sendInvite = async (app: Application, result: InviteDataType, params: Params) => {
+export const sendInvite = async (app: Application, result: InviteDataType, params: UserParams) => {
   try {
     let token = ''
     if (result.identityProviderType === 'email' || (result.identityProviderType === 'sms' && result.token)) {

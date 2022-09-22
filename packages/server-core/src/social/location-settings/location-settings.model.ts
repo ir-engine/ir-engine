@@ -1,7 +1,7 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
 import { DataTypes, Model, Sequelize } from 'sequelize'
-import { HookReturn } from 'sequelize/types/lib/hooks'
+import { HookReturn } from 'sequelize/types/hooks'
 
 import { LocationSettingsInterface } from '@xrengine/common/src/dbmodels/LocationSettings'
 
