@@ -1,12 +1,12 @@
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
 
 import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { UserParams } from '../../user/user/user.class'
 
 export type ProjectPermissionsDataType = ProjectPermissionInterface
 
@@ -40,9 +40,9 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
     }
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
-    const loggedInUser = params!.user
-    if (loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin')) return super.find(params)
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
+    const loggedInUser = params!.user!
+    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return super.find(params)
     if (params?.query?.projectId) {
       const permissionStatus = await super.Model.findOne({
         where: {
@@ -58,16 +58,16 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
     return super.find(params)
   }
 
-  async get(id: string, params?: Params): Promise<T> {
-    const loggedInUser = params!.user
+  async get(id: string, params?: UserParams): Promise<T> {
+    const loggedInUser = params!.user!
     const projectPermission = await super.get(id, params)
-    if (loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin')) return projectPermission
+    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return projectPermission
     if (projectPermission.userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
     return projectPermission
   }
 
-  async create(data: any, params?: Params): Promise<T> {
-    const selfUser = params!.user
+  async create(data: any, params?: UserParams): Promise<T> {
+    const selfUser = params!.user!
     try {
       const searchParam = data.inviteCode
         ? {
@@ -105,7 +105,7 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
         type:
           data.type === 'owner' ||
           existingPermissionsCount === 0 ||
-          (selfUser.scopes.find((scope) => scope.type === 'admin:admin') && selfUser.id === user.id)
+          (selfUser.scopes?.find((scope) => scope.type === 'admin:admin') && selfUser.id === user.id)
             ? 'owner'
             : 'user'
       })

@@ -7,6 +7,11 @@ import { Seat as SeatInterface } from '@xrengine/common/src/interfaces/Seat'
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 
+interface SeatParams extends Params {
+  self: boolean
+  userId?: string
+}
+
 export type SeatDataType = SeatInterface
 
 /**
@@ -20,7 +25,7 @@ export class Seat<T = SeatDataType> extends Service<T> {
     this.app = app
   }
 
-  async create(data: any, params?: Params): Promise<T> {
+  async create(data: any, params?: SeatParams): Promise<T> {
     const userId = (params as any).userId || (params as any).connection['identity-provider'].userId
     if (userId == undefined) {
       throw new Error('Invalid user')

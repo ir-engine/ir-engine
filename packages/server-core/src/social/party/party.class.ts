@@ -8,6 +8,11 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { UserParams } from '../../user/user/user.class'
+
+interface PartyRemoveParams extends Params {
+  skipPartyUserDelete?: boolean
+}
 
 /**
  * A class for Party service
@@ -82,7 +87,7 @@ export class Party<T = PartyDataType> extends Service<T> {
    * @param params contains user info
    * @returns {@Object} of single party
    */
-  async get(id: string, params?: Params): Promise<T> {
+  async get(id: string, params?: UserParams): Promise<T> {
     if (id == null || id == '') {
       const user = params!.user as UserInterface
       if (user.partyId)
@@ -105,10 +110,10 @@ export class Party<T = PartyDataType> extends Service<T> {
     return null!
   }
 
-  async create(data?: any, params?: Params): Promise<any> {
+  async create(data?: any, params?: UserParams): Promise<any> {
     const self = this
     if (!params) return null!
-    const userId = params!.user.id
+    const userId = params!.user!.id
 
     try {
       const existingPartyUsers = await this.app.service('party-user').find({
@@ -150,7 +155,7 @@ export class Party<T = PartyDataType> extends Service<T> {
     }
   }
 
-  async remove(id: string, params?: Params): Promise<T> {
+  async remove(id: string, params?: PartyRemoveParams): Promise<T> {
     const partyUsers = (
       await this.app.service('party-user').find({
         query: {

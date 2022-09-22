@@ -8,6 +8,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { UserParams } from '../../user/user/user.class'
 
 export type LocationDataType = LocationType
 
@@ -121,7 +122,7 @@ export class Location<T = LocationDataType> extends Service<T> {
    * @param params of query with limit number and skip number
    * @returns {@Array} of all locations
    */
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params?.query ?? {}
 
     if ($skip == null) $skip = 0
@@ -243,7 +244,7 @@ export class Location<T = LocationDataType> extends Service<T> {
    * @param params
    * @returns new location object
    */
-  async create(data: any, params?: Params): Promise<T> {
+  async create(data: any, params?: UserParams): Promise<T> {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
@@ -364,7 +365,7 @@ export class Location<T = LocationDataType> extends Service<T> {
    * @returns {@function} of remove data
    */
 
-  async remove(id: string, params?: Params): Promise<T> {
+  async remove(id: string, params?: UserParams): Promise<T> {
     const location = await this.app.service('location').Model.findOne({
       where: {
         isLobby: true,
@@ -400,7 +401,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     return (await super.remove(id)) as T
   }
 
-  async makeLobby(t, params?: Params): Promise<void> {
+  async makeLobby(t, params?: UserParams): Promise<void> {
     const selfUser = params!.user as UserInterface
 
     if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin'))

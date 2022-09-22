@@ -29,6 +29,10 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
+export interface SceneParams extends Params {
+  metadataOnly: boolean
+}
+
 type GetScenesArgsType = {
   projectName: string
   metadataOnly: boolean
@@ -68,7 +72,7 @@ export const getScenesForProject = (app: Application) => {
 }
 
 export const getAllScenes = (app: Application) => {
-  return async function (params: Params): Promise<{ data: SceneData[] }> {
+  return async function (params: SceneParams): Promise<{ data: SceneData[] }> {
     const projects = await app.service('project').find(params)
     const scenes = await Promise.all(
       projects.data.map(

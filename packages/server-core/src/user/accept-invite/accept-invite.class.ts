@@ -9,6 +9,11 @@ interface Data {}
 
 interface ServiceOptions {}
 
+interface AcceptInviteParams extends Params {
+  skipAuth?: boolean
+  preventUserRelationshipRemoval?: boolean
+}
+
 /**
  * accept invite class for get, create, update and remove user invite
  *
@@ -44,7 +49,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @returns {@Object} contains single invite
    */
 
-  async get(id: Id, params?: Params): Promise<Data> {
+  async get(id: Id, params?: AcceptInviteParams): Promise<Data> {
     let inviteeIdentityProvider
     let returned = {} as any
     if (!params) params = {}

@@ -6,6 +6,12 @@ import { SubscriptionInterface } from '@xrengine/common/src/dbmodels/Subscriptio
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 
+interface SubscriptionParams extends Params {
+  body?: {
+    userId: string
+  }
+}
+
 export type SubscriptionDataType = SubscriptionInterface & { subscriptionId: string; paymentUrl: string }
 
 export class Subscription<T = SubscriptionDataType> extends Service<T> {
@@ -23,7 +29,7 @@ export class Subscription<T = SubscriptionDataType> extends Service<T> {
    * @param params which contains user info
    * @returns {@Object} of created new subscription
    */
-  async create(data: any, params?: Params): Promise<T> {
+  async create(data: any, params?: SubscriptionParams): Promise<T> {
     const userId = (params as any).connection['identity-provider'].userId || params?.body?.userId
     if (userId == null) {
       throw new Error('Invalid user')

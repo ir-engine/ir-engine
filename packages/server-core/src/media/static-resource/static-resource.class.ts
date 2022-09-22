@@ -5,6 +5,7 @@ import { Op } from 'sequelize'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../user/user/user.class'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type CreateStaticResourceType = {
@@ -24,7 +25,7 @@ export class StaticResource extends Service<StaticResourceInterface> {
   }
 
   // @ts-ignore
-  async create(data: CreateStaticResourceType, params?: Params): Promise<StaticResourceInterface> {
+  async create(data: CreateStaticResourceType, params?: UserParams): Promise<StaticResourceInterface> {
     const self = this
     const oldResource = await this.find({
       query: {
@@ -44,6 +45,7 @@ export class StaticResource extends Service<StaticResourceInterface> {
 
   async find(params?: Params): Promise<StaticResourceInterface[] | Paginated<StaticResourceInterface>> {
     const search = params?.query?.search ?? ''
+    const key = params?.query?.key ?? ''
     const mimeTypes = params?.query?.mimeTypes && params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : null
     const resourceTypes =
       params?.query?.resourceTypes && params?.query?.resourceTypes.length > 0 ? params?.query?.resourceTypes : null
@@ -64,7 +66,10 @@ export class StaticResource extends Service<StaticResourceInterface> {
       order: order,
       where: {
         key: {
-          [Op.like]: `%${search}%`
+          [Op.or]: {
+            [Op.like]: `%${search}%`,
+            [Op.eq]: key
+          }
         },
         mimeType: {
           [Op.or]: mimeTypes
