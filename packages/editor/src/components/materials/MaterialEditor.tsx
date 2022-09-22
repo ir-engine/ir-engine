@@ -27,12 +27,18 @@ export default function MaterialEditor({ material }: { ['material']: Material })
 
   const createThumbnails = async () => {
     const result = new Map<string, string>()
-    await Promise.all(
+    await Promise.allSettled(
       Object.entries(material).map(([k, field]: [string, Texture]) => {
         if (field?.isTexture) {
-          return createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }).then((src) => {
-            result.set(k, src as string)
-          })
+          try {
+            return createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }).then(
+              (src) => {
+                result.set(k, src as string)
+              }
+            )
+          } catch (e) {
+            console.warn('failed loading thumbnail: ' + e)
+          }
         }
       })
     )

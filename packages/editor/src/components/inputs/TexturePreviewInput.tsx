@@ -1,8 +1,10 @@
 import React, { Fragment } from 'react'
+import { Texture } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { ImageFileTypes, VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { AssetClass } from '@xrengine/engine/src/assets/enum/AssetClass'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import { Stack } from '@mui/material'
 
@@ -10,6 +12,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
 import { ImageContainer } from './ImagePreviewInput'
 import InputGroup from './InputGroup'
+import Vector2Input from './Vector2Input'
 
 /**
  * VideoInput used to render component view for video inputs.
@@ -29,7 +32,15 @@ export function TextureInput({ onChange, ...rest }) {
   )
 }
 
-export default function TexturePreviewInput({ value, onChange, ...rest }) {
+export default function TexturePreviewInput({
+  value,
+  onChange,
+  ...rest
+}: {
+  value: string | Texture
+  onChange: (value: any) => void
+  preview?: string
+}) {
   const previewStyle = {
     maxWidth: '128px',
     maxHeight: '128px',
@@ -39,9 +50,17 @@ export default function TexturePreviewInput({ value, onChange, ...rest }) {
   const { preview } = rest
   const validSrcValue =
     typeof value === 'string' && [AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(value))
+  const texture = value as Texture
+  const src = value as string
   const showPreview = preview !== undefined || validSrcValue
   const previewSrc = validSrcValue ? value : preview
-  const inputSrc = validSrcValue ? value : value?.source?.data?.src ?? value?.userData?.src ?? (preview ? 'BLOB' : '')
+  const inputSrc = validSrcValue
+    ? value
+    : texture?.isTexture
+    ? texture.source?.data?.src ?? texture?.userData?.src ?? (preview ? 'BLOB' : '')
+    : src
+  const offset = useHookstate(texture?.offset.clone())
+  const scale = useHookstate(texture?.repeat.clone())
   return (
     <ImageContainer>
       <Stack>
@@ -56,6 +75,26 @@ export default function TexturePreviewInput({ value, onChange, ...rest }) {
               <video src={previewSrc} style={previewStyle} />
             )}
           </Fragment>
+        )}
+        {texture?.isTexture && !texture.isRenderTargetTexture && (
+          <>
+            <Vector2Input
+              value={offset.value}
+              onChange={(_offset) => {
+                offset.set(_offset)
+                texture.offset.copy(_offset)
+              }}
+              uniformScaling={false}
+            />
+            <Vector2Input
+              value={scale.value}
+              onChange={(_scale) => {
+                scale.set(_scale)
+                texture.repeat.copy(_scale)
+              }}
+              uniformScaling={false}
+            />
+          </>
         )}
       </Stack>
     </ImageContainer>
