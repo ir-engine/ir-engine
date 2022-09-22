@@ -4,10 +4,16 @@ import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
@@ -37,7 +43,7 @@ export const WidgetInput = {
 export default async function WidgetSystem(world: World) {
   const ui = createWidgetButtonsView()
   const xrui = getComponent(ui.entity, XRUIComponent)
-  ObjectFitFunctions.setUIVisible(xrui.container, false)
+  removeComponent(ui.entity, VisibleComponent)
 
   addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
 
@@ -64,8 +70,8 @@ export default async function WidgetSystem(world: World) {
       // restored.
       // createReadyPlayerWidget(world)
     }
-    const xrui = getComponent(ui.entity, XRUIComponent)
-    ObjectFitFunctions.setUIVisible(xrui.container, show)
+    if (show && !hasComponent(ui.entity, VisibleComponent)) addComponent(ui.entity, VisibleComponent, true)
+    if (!show && hasComponent(ui.entity, VisibleComponent)) removeComponent(ui.entity, VisibleComponent)
   }
 
   const toggleWidgetsMenu = () => {
@@ -92,7 +98,10 @@ export default async function WidgetSystem(world: World) {
     matches(action).when(WidgetAppActions.showWidget.matches, (action) => {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       const xrui = getComponent(widget.ui.entity, XRUIComponent)
-      ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
+      if (action.shown && !hasComponent(widget.ui.entity, VisibleComponent))
+        addComponent(ui.entity, VisibleComponent, true)
+      if (!action.shown && hasComponent(widget.ui.entity, VisibleComponent))
+        removeComponent(ui.entity, VisibleComponent)
     })
   }
   addActionReceptor(WidgetAppServiceReceptor)

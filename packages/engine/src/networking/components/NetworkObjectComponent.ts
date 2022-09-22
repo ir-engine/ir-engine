@@ -21,12 +21,16 @@ export const NetworkObjectComponent = defineComponent({
     networkId: Types.ui32
   },
 
-  onAdd: (entity, json) => {
-    NetworkObjectComponent.networkId[entity] = json.networkId
-    return json as NetworkObjectComponentType
+  toJSON: (entity, component: NetworkObjectComponentType) => {
+    return component
   },
 
-  toJSON: (entity, component) => {
-    return component
+  onUpdate: (entity, component, json) => {
+    if (typeof json.ownerId === 'string') component.ownerId = json.ownerId
+    if (typeof json.authorityUserId === 'string') component.authorityUserId = json.authorityUserId
+    if (typeof json.networkId === 'number') {
+      component.networkId = json.networkId
+      NetworkObjectComponent.networkId[entity] = json.networkId
+    }
   }
 })

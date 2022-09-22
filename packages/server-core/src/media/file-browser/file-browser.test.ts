@@ -321,7 +321,7 @@ describe('file browser service', () => {
       result.forEach((r) => assert(r === true))
 
       const staticResource = (await app.service('static-resource').find({
-        where: {
+        query: {
           key: filePath,
           $limit: 1
         }

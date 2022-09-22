@@ -129,7 +129,7 @@ describe('user service', () => {
         },
         {
           isInternal: true
-        }
+        } as any
       )
       const { name } = await app.service('user').get(user.id)
       assert.equal(newName, name)

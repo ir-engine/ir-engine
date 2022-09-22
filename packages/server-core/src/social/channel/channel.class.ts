@@ -1,4 +1,4 @@
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import _ from 'lodash'
 import { Op } from 'sequelize'
@@ -8,6 +8,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { UserParams } from '../../user/user/user.class'
 
 export type ChannelDataType = ChannelInterface
 
@@ -26,7 +27,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
    * @returns {@Array} which contains list of channel
    */
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     if (!params) params = {}
     const query = params.query!
     const skip = query?.skip || 0

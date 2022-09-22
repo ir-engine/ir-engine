@@ -23,7 +23,7 @@ import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { loadComponent } from '../systems/SceneLoadingSystem'
+import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
 
 export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
@@ -74,7 +74,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       console.warn(`Could not load component '${component}'`)
     } else {
       getComponent(entity, GLTFLoadedComponent).push(component)
-      loadComponent(entity, {
+      deserializeComponent(entity, {
         name: key,
         props: value
       })
