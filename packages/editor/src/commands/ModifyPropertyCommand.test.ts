@@ -11,7 +11,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   createEntityNode,
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -62,10 +62,9 @@ describe('ModifyPropertyCommand', () => {
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-    addEntityNodeInTree(rootNode)
 
     for (let i = 0; i < 2; i++) {
-      addEntityNodeInTree(nodes[i], rootNode)
+      addEntityNodeChild(nodes[i], rootNode)
       addComponent(nodes[i].entity, TestComponent, getRandomValues())
     }
 

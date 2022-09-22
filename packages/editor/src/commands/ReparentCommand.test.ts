@@ -6,7 +6,7 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   createEntityNode,
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -48,13 +48,12 @@ describe('ReparentCommand', () => {
     parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
-    addEntityNodeInTree(rootNode)
-    addEntityNodeInTree(parentNodes[0], rootNode)
-    addEntityNodeInTree(parentNodes[1], rootNode)
-    addEntityNodeInTree(nodes[0], rootNode)
-    addEntityNodeInTree(nodes[1], rootNode)
-    addEntityNodeInTree(beforeNodes[0], parentNodes[0])
-    addEntityNodeInTree(beforeNodes[1], parentNodes[1])
+    addEntityNodeChild(parentNodes[0], rootNode)
+    addEntityNodeChild(parentNodes[1], rootNode)
+    addEntityNodeChild(nodes[0], rootNode)
+    addEntityNodeChild(nodes[1], rootNode)
+    addEntityNodeChild(beforeNodes[0], parentNodes[0])
+    addEntityNodeChild(beforeNodes[1], parentNodes[1])
 
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
     Engine.instance.currentWorld.entityTree.entityNodeMap.forEach((node) => {

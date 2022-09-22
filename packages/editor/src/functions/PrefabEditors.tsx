@@ -9,6 +9,7 @@ import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudCompo
 import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
+import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapComponent'
 import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent'
 import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
@@ -47,6 +48,7 @@ import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
+import EnvMapEditor from '../components/properties/EnvMapEditor'
 import FogNodeEditor from '../components/properties/FogNodeEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from '../components/properties/GroupNodeEditor'
@@ -108,6 +110,7 @@ EntityNodeEditor.set(WaterComponent, WaterNodeEditor)
 EntityNodeEditor.set(InteriorComponent, InteriorNodeEditor)
 EntityNodeEditor.set(SystemComponent, SystemNodeEditor)
 EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
+EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
 EntityNodeEditor.set(FogComponent, FogNodeEditor)

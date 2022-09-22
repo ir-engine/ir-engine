@@ -160,7 +160,7 @@ export default async function XRUISystem(world: World) {
       }
     }
 
-    for (const entity of xruiQuery()) {
+    for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
       xrui.container.update()
     }
