@@ -90,7 +90,7 @@ export const configureRedis = () => (app: Application) => {
     app.configure(
       sync({
         uri: config.redis.password
-          ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}`
+          ? `redis://:${config.redis.password}@${config.redis.address}:${config.redis.port}`
           : `redis://${config.redis.address}:${config.redis.port}`
       })
     )
