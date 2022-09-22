@@ -14,10 +14,10 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -104,7 +104,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     const e = createEntity()
 
     const node = createEntityNode(e, mesh.uuid)
-    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
+    addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
     addComponent(e, NameComponent, {
       name: mesh.userData['xrengine.entity'] ?? mesh.uuid

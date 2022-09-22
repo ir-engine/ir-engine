@@ -23,7 +23,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   createEntityNode,
   removeEntityNode,
   removeEntityNodeRecursively,
@@ -123,7 +123,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
         result.push(node)
       }
     }
-    addEntityNodeInTree(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : root)
+    addEntityNodeChild(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : root)
   })
   return result
 }
@@ -195,6 +195,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   )
   /** @todo this will not  */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {
+    if (node === world.entityTree.rootNode) continue
     removeEntityNodeRecursively(node, false, world.entityTree)
   }
 
@@ -232,7 +233,7 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
       //   reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
     } else {
       const node = createEntityNode(createEntity(), uuid)
-      addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!) ?? world.entityTree.rootNode)
+      addEntityNodeChild(node, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
       deserializeSceneEntity(node, entityJson)
     }
   } catch (e) {

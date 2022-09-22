@@ -13,11 +13,7 @@ import {
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  addEntityNodeInTree,
-  createEntityNode,
-  removeEntityNodeFromParent
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { createEntityNode, removeEntityNodeFromParent } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import '@xrengine/engine/src/patchEngineNode'
@@ -42,8 +38,6 @@ describe('AssetComponentFunctions', async () => {
     entity = createEntity()
     node = createEntityNode(entity)
     world = Engine.instance.currentWorld
-
-    addEntityNodeInTree(node)
   }
   const testDir = 'packages/engine/tests/assets/'
   beforeEach(async () => {
