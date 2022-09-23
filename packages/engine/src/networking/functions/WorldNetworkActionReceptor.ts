@@ -4,7 +4,13 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
@@ -17,8 +23,7 @@ const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
-  const uuidEntity = world.entityTree.uuidNodeMap.get(action.uuid!)?.entity
-  const entity = uuidEntity ?? createEntity()
+  const entity = createEntity()
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
@@ -48,7 +53,10 @@ const receiveRegisterSceneObject = (
 ) => {
   const entity = world.entityTree.uuidNodeMap.get(action.objectUuid)?.entity!
 
-  addComponent(entity, NetworkObjectComponent, {
+  if (!entity)
+    return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', entity, action)
+
+  setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
     authorityUserId: action.$from,
     networkId: action.networkId
@@ -56,8 +64,11 @@ const receiveRegisterSceneObject = (
 
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    addComponent(entity, NetworkObjectOwnedTag, true)
-    addComponent(entity, NetworkObjectAuthorityTag, true)
+    setComponent(entity, NetworkObjectOwnedTag, true)
+    setComponent(entity, NetworkObjectAuthorityTag, true)
+  } else {
+    if (hasComponent(entity, NetworkObjectOwnedTag)) removeComponent(entity, NetworkObjectOwnedTag)
+    if (hasComponent(entity, NetworkObjectAuthorityTag)) removeComponent(entity, NetworkObjectAuthorityTag)
   }
 }
 

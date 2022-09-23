@@ -237,17 +237,6 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
       addEntityNodeChild(node, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
       deserializeSceneEntity(node, entityJson)
     }
-    if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
-      const node = world.entityTree.uuidNodeMap.get(uuid)!
-      const transform = getComponent(node.entity, TransformComponent)
-      dispatchAction(
-        WorldNetworkAction.spawnSceneObject({
-          uuid,
-          position: transform.position.clone(),
-          rotation: transform.rotation.clone()
-        })
-      )
-    }
   } catch (e) {
     logger.error(e, `Failed to update scene entity ${uuid}`)
   }

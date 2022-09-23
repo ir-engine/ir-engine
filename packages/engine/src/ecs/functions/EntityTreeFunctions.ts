@@ -1,7 +1,8 @@
 import { MathUtils } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
@@ -135,6 +136,14 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
     const localTransform = setLocalTransformComponent(node.entity, parent.entity)
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+  }
+
+  if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
+    dispatchAction(
+      WorldNetworkAction.registerSceneObject({
+        objectUuid: node.uuid
+      })
+    )
   }
 }
 
