@@ -25,7 +25,6 @@ import { GroupCommand, GroupCommandParams } from './GroupCommand'
 
 describe('GroupCommand', () => {
   let command = {} as GroupCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
   let parentNodes: EntityTreeNode[]
   let beforeNodes: EntityTreeNode[]
@@ -41,7 +40,7 @@ describe('GroupCommand', () => {
       { name: SCENE_COMPONENT_GROUP, props: true }
     ])
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]

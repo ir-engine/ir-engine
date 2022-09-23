@@ -28,7 +28,6 @@ function getRandomVector3() {
 
 describe('RotateAroundCommand', () => {
   let command = {} as RotateAroundCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -36,7 +35,7 @@ describe('RotateAroundCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
     addEntityNodeChild(nodes[0], rootNode)

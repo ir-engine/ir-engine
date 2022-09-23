@@ -21,7 +21,6 @@ import { AddToSelectionCommand, AddToSelectionCommandParams } from './AddToSelec
 
 describe('AddToSelectionCommand', () => {
   let command = {} as AddToSelectionCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -29,7 +28,7 @@ describe('AddToSelectionCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
     addEntityNodeChild(nodes[0], rootNode)

@@ -52,7 +52,6 @@ function getRandomValues(): TestComponentType {
 
 describe('ModifyPropertyCommand', () => {
   let command = {} as ModifyPropertyCommandParams<typeof TestComponent>
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -60,7 +59,7 @@ describe('ModifyPropertyCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
     for (let i = 0; i < 2; i++) {
