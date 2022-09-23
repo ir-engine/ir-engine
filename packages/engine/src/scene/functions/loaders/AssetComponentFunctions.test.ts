@@ -182,7 +182,7 @@ describe('AssetComponentFunctions', async () => {
       assert(assetComp, 'Asset component exists')
       assert(loadedComp, 'Asset Loaded Component exists')
       //check that asset root contains correct children
-      /** @todo this is broken */
+
       const eNode = world.entityTree.entityNodeMap.get(entity)
       assert(eNode, 'asset root entity node exists')
       assert(assetComp.loaded === LoadState.LOADED, 'asset has finished loading')

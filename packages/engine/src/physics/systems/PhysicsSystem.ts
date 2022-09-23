@@ -10,7 +10,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
@@ -19,7 +18,6 @@ import {
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import {
   deserializeCollider,
