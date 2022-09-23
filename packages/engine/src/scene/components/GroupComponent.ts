@@ -72,6 +72,14 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   proxifyVector3WithDirty(TransformComponent.scale, entity, world.dirtyTransforms, obj.scale)
 }
 
+export function removeGroupComponent(entity: Entity) {
+  if (hasComponent(entity, Object3DComponent)) removeComponent(entity, Object3DComponent)
+  if (hasComponent(entity, GroupComponent)) {
+    for (const obj of getComponent(entity, GroupComponent)) obj.removeFromParent()
+    removeComponent(entity, GroupComponent)
+  }
+}
+
 export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   const obj = object as Object3DWithEntity & Camera
 

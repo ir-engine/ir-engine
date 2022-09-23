@@ -6,22 +6,36 @@ import { createActionQueue, dispatchAction, getState, removeActionQueue } from '
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_010 } from '../common/constants/MathConstants'
+import { Entity } from '../ecs/classes/Entity'
+import { createEntity } from '../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
+import { GroupComponent } from '../scene/components/GroupComponent'
+import { NameComponent } from '../scene/components/NameComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { AssetLoader } from './../assets/classes/AssetLoader'
 import { BinaryValue } from './../common/enums/BinaryValue'
 import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { World } from './../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, removeQuery } from './../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  Component,
+  ComponentType,
+  defineQuery,
+  getComponent,
+  removeQuery,
+  setComponent
+} from './../ecs/functions/ComponentFunctions'
 import { hasComponent, removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { GamepadMapping } from './../input/functions/GamepadInput'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { XRAction } from './XRAction'
-import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
+import { XRHandsInputComponent, XRHitTestComponent, XRInputSourceComponent } from './XRComponents'
 import { cleanXRInputs, updateXRControllerAnimations } from './XRControllerFunctions'
 import { proxifyXRInputs, setupLocalXRInputs, setupXRInputSourceComponent } from './XRFunctions'
 import { getControlMode, XRState } from './XRState'
@@ -34,7 +48,7 @@ export const requestXRSession = createHookableFunction(
     try {
       const xrState = getState(XRState)
       const sessionInit = {
-        optionalFeatures: ['local-floor', 'hand-tracking', 'layers', 'dom-overlay'],
+        optionalFeatures: ['local-floor', 'hand-tracking', 'layers', 'dom-overlay', 'hit-test'],
         domOverlay: { root: document.body }
       }
       const mode =
@@ -52,6 +66,14 @@ export const requestXRSession = createHookableFunction(
       EngineRenderer.instance.xrManager.setSession(session).then(() => {
         const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
         xrState.originReferenceSpace.set(referenceSpace)
+        session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
+          xrState.viewerReferenceSpace.set(viewerReferenceSpace)
+          if ('requestHitTestSource' in session) {
+            session.requestHitTestSource!({ space: viewerReferenceSpace })!.then((source) => {
+              xrState.viewerHitTestSource.set(source)
+            })
+          }
+        })
       })
       EngineRenderer.instance.xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
@@ -74,6 +96,9 @@ export const requestXRSession = createHookableFunction(
         EngineRenderer.instance.xrManager.setSession(null!)
         const world = Engine.instance.currentWorld
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+
+        xrState.originReferenceSpace.set(null)
+        xrState.viewerReferenceSpace.set(null)
 
         cleanXRInputs(world.localClientEntity)
         removeComponent(world.localClientEntity, XRInputSourceComponent)
@@ -139,6 +164,24 @@ export const updateXRInput = () => {
   //   }
   // }
 }
+
+export const updateHitTest = (entity: Entity) => {
+  const xrState = getState(XRState)
+  const xrFrame = Engine.instance.xrFrame
+
+  const hitTestComponent = getComponent(entity, XRHitTestComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const hitTestResults = xrFrame.getHitTestResults(xrState.viewerHitTestSource.value!)
+
+  if (hitTestResults.length) {
+    const hit = hitTestResults[0]
+    hitTestComponent.hasHit.set(true)
+    transform.matrix.fromArray(hit.getPose(xrState.originReferenceSpace.value!)!.transform.matrix)
+  } else {
+    hitTestComponent.hasHit.set(false)
+  }
+}
+
 /**
  * System for XR session and input handling
  */
@@ -159,7 +202,15 @@ export default async function XRSystem(world: World) {
   updateSessionSupport()
   setupLocalXRInputs()
 
+  const viewerHitTestEntity = createEntity()
+  setComponent(viewerHitTestEntity, NameComponent, { name: 'AR Viewer Hit Test' })
+  setTransformComponent(viewerHitTestEntity)
+  setComponent(viewerHitTestEntity, VisibleComponent, true)
+  setComponent(viewerHitTestEntity, XRHitTestComponent, null)
+  xrState.viewerHitTestEntity.set(viewerHitTestEntity)
+
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
+  const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
   const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
@@ -183,6 +234,10 @@ export default async function XRSystem(world: World) {
 
       const session = EngineRenderer.instance.xrManager!.getSession()!
       for (const source of session.inputSources) updateGamepadInput(source)
+
+      if ('getHitTestResults' in Engine.instance.xrFrame && xrState.viewerHitTestSource) {
+        for (const entity of xrHitTestQuery()) updateHitTest(entity)
+      }
     }
 
     //XR Controller mesh animation update
@@ -192,6 +247,7 @@ export default async function XRSystem(world: World) {
   const cleanup = async () => {
     navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
     removeQuery(world, xrControllerQuery)
+    removeQuery(world, xrHitTestQuery)
     removeActionQueue(xrRequestSessionQueue)
     removeActionQueue(xrEndSessionQueue)
     removeActionQueue(xrSessionChangedQueue)

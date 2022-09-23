@@ -2,7 +2,9 @@
 import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
 import { BufferGeometry, Group, Mesh, MeshBasicMaterial } from 'three'
 
-import { createMappedComponent } from '../ecs/functions/ComponentFunctions'
+import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
+
+import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
 export type XRGripButtonComponentType = {}
@@ -127,3 +129,17 @@ export const XRInputSourceComponent = createMappedComponent<XRInputSourceCompone
   'XRInputSourceComponent',
   XRInputSourceSchema
 )
+
+export const XRHitTestComponent = defineComponent({
+  name: 'XRHitTest',
+
+  onAdd: (entity) => {
+    return hookstate({
+      hasHit: false
+    })
+  },
+
+  toJSON: () => {
+    return null! as any
+  }
+})
