@@ -1,4 +1,8 @@
+import { Vector3 } from 'three'
+
 import { defineState, getState } from '@xrengine/hyperflux'
+
+import { Entity } from '../ecs/classes/Entity'
 
 export const XRState = defineState({
   name: 'XRState',
@@ -18,7 +22,10 @@ export const XRState = defineState({
      * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
     avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
-    originReferenceSpace: null! as XRReferenceSpace | null
+    originReferenceSpace: null as XRReferenceSpace | null,
+    viewerReferenceSpace: null as XRReferenceSpace | null,
+    viewerHitTestSource: null as XRHitTestSource | null,
+    viewerHitTestEntity: NaN as Entity
   })
 })
 
