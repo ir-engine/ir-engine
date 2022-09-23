@@ -18,7 +18,8 @@ export const DefaultArgs = {
 export const MeshPhysicalMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshPhysicalMaterial',
   baseMaterial: Physical,
-  arguments: DefaultArgs
+  arguments: DefaultArgs,
+  src: { type: 'Built In', path: '' }
 }
 
 export default MeshPhysicalMaterial

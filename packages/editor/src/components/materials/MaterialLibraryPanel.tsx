@@ -28,10 +28,11 @@ export default function MaterialLibraryPanel() {
 
   const nodeChanges = useHookstate(0)
   const createNodes = useCallback(() => {
-    const result = [...MaterialLibrary.materials.values()].map(({ material, prototype }) => ({
+    const result = [...MaterialLibrary.materials.values()].map(({ material, prototype, src }) => ({
       uuid: material.uuid,
       material,
       prototype,
+      source: src,
       selected: selectionState.selectedEntities.value.some(
         (selectedEntity) => typeof selectedEntity === 'string' && selectedEntity === material.uuid
       ),
@@ -59,13 +60,16 @@ export default function MaterialLibraryPanel() {
     <>
       <div className={styles.panelContainer}>
         <div className={styles.panelSection} style={{ height: 'auto' }}>
-          <Grid container spacing={1}>
+          <Grid container spacing={1} columns={16}>
             <Grid item xs={1}></Grid>
             <Grid item xs={3}>
               <b>Name</b>
             </Grid>
             <Grid item xs={3}>
               <b>Prototype</b>
+            </Grid>
+            <Grid item xs={3}>
+              <b>Source</b>
             </Grid>
             <Grid item xs={3}>
               <b>Uuid</b>
@@ -98,7 +102,7 @@ export default function MaterialLibraryPanel() {
           <Stack direction={'column'} spacing={1}>
             <Button
               onClick={() => {
-                registerMaterial(new MeshBasicMaterial(), { type: 'EDITOR_SESSION' })
+                registerMaterial(new MeshBasicMaterial(), { path: '', type: 'Editor Session' })
                 nodeChanges.set(nodeChanges.get() + 1)
               }}
             >

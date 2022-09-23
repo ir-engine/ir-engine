@@ -27,7 +27,8 @@ export const MeshMatcapMaterial: MaterialPrototypeComponentType = {
     ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
       (arg) => (shader.uniforms[arg] = { value: null })
     )
-  }
+  },
+  src: { type: 'Built In', path: '' }
 }
 
 export default MeshMatcapMaterial

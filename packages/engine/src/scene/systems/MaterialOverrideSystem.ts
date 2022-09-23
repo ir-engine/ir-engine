@@ -45,9 +45,13 @@ export default async function MaterialOverrideSystem(world: World) {
     if (tableEntry.has(override)) {
       remove(override)
     }
-    const [defaults, material] = assignMaterial(override)
-    if (defaults.length > 0) {
-      tableEntry.set(override, { material, defaults })
+    try {
+      const [defaults, material] = assignMaterial(override)
+      if (defaults.length > 0) {
+        tableEntry.set(override, { material, defaults })
+      }
+    } catch (e) {
+      console.warn('failed to assign material override', override, 'error: ', e)
     }
   }
 
@@ -74,16 +78,6 @@ export default async function MaterialOverrideSystem(world: World) {
       const override = getComponent(entity, MaterialOverrideComponent, true)
       remove(override)
     }
-
-    //Performs update functions for each override that is currently active in the scene
-    /*const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
-    for (const entity of overrideQuery()) {
-      const override = getComponent(entity, MaterialOverrideComponent)
-      const entityEntry = overrideTable.get(override.targetEntity!)!
-      for (const overrideEntry of entityEntry.values()) {
-        overrideEntry.matParm.update(fixedDelta)
-      }
-    }*/
   }
 
   const cleanup = async () => {
