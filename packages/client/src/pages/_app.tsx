@@ -2,7 +2,7 @@ import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, useLocation } from 'react-router-dom'
 
 import {
   ClientSettingService,
@@ -30,8 +30,9 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@xrengine/client-core/src/API'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+import { clientHost, serverHost } from '@xrengine/client-core/src/util/config'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
@@ -91,9 +92,7 @@ const App = (): any => {
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
-      html.dataset.theme = currentTheme
-
+      html.dataset.theme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
       updateTheme()
     }
   }, [selfUser?.user_setting?.value])
@@ -149,6 +148,9 @@ const App = (): any => {
 
   const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
+  const location = useLocation()
+  const oembedLink = `${serverHost}/oembed?url=${encodeURIComponent(`${clientHost}${location.pathname}`)}&format=json`
+
   const updateTheme = () => {
     if (clientThemeSettings) {
       if (clientThemeSettings?.[currentTheme]) {
@@ -175,6 +177,7 @@ const App = (): any => {
         {paymentPointer && <meta name="monetization" content={paymentPointer} />}
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
+        {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
       </Helmet>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>

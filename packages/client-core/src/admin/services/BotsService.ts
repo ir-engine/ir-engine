@@ -116,19 +116,19 @@ export const AdminBotService = {
 //Action
 export class AdminBotsActions {
   static fetchedBot = defineAction({
-    type: 'BOT_ADMIN_DISPLAY' as const,
+    type: 'xre.client.AdminBots.BOT_ADMIN_DISPLAY' as const,
     bots: matches.object as Validator<unknown, Paginated<AdminBot>>
   })
   static botCreated = defineAction({
-    type: 'BOT_ADMIN_CREATE' as const,
+    type: 'xre.client.AdminBots.BOT_ADMIN_CREATE' as const,
     bot: matches.object as Validator<unknown, AdminBot>
   })
   static botRemoved = defineAction({
-    type: 'BOT_ADMIN_REMOVE' as const,
+    type: 'xre.client.AdminBots.BOT_ADMIN_REMOVE' as const,
     bot: matches.object as Validator<unknown, AdminBot>
   })
   static botPatched = defineAction({
-    type: 'BOT_ADMIN_UPDATE' as const,
+    type: 'xre.client.AdminBots.BOT_ADMIN_UPDATE' as const,
     bot: matches.object as Validator<unknown, AdminBot>
   })
 }

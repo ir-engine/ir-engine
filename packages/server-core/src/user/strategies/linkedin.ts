@@ -8,7 +8,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import makeInitialAdmin from '../../util/make-initial-admin'
-import CustomOAuthStrategy from './custom-oauth'
+import CustomOAuthStrategy, { CustomOAuthParams } from './custom-oauth'
 
 export class LinkedInStrategy extends CustomOAuthStrategy {
   constructor(app: Application) {
@@ -84,7 +84,7 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async getRedirect(data: any, params: Params): Promise<string> {
+  async getRedirect(data: any, params: CustomOAuthParams): Promise<string> {
     const redirectHost = config.authentication.callback.linkedin
     const type = params?.query?.userId ? 'connection' : 'login'
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
@@ -92,7 +92,7 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
       return redirectHost + `?error=${err}`
     } else {
       const token = data.accessToken as string
-      const redirect = params.redirect
+      const redirect = params.redirect!
       let parsedRedirect
       try {
         parsedRedirect = JSON.parse(redirect)

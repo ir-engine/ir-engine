@@ -8,8 +8,11 @@ import { AssetLoader } from './AssetLoader'
 
 export class XRELoader {
   fileLoader: FileLoader
+  isXRELoader: true
+  rootNode: EntityTreeNode | undefined
 
   constructor(loader?: FileLoader) {
+    this.isXRELoader = true
     if (loader) {
       this.fileLoader = loader
     } else {
@@ -19,7 +22,7 @@ export class XRELoader {
 
   parse(data: string, onLoad = (response: EntityTreeNode[]) => {}) {
     const result = gltfToSceneJson(JSON.parse(data))
-    return loadECSData(result).then(onLoad)
+    return loadECSData(result, this.rootNode).then(onLoad)
   }
 
   load(

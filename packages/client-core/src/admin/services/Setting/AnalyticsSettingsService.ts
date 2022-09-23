@@ -42,7 +42,7 @@ export const AdminSettingAnalyticsService = {
 
 export class AdminAnalyticsSettingActions {
   static fetchedAnalytics = defineAction({
-    type: 'SETTING_ANALYIS_DISPLAY' as const,
+    type: 'xre.client.AdminAnalyticsSetting.SETTING_ANALYIS_DISPLAY' as const,
     analyticsSettings: matches.object as Validator<unknown, Paginated<SettingAnalytics>>
   })
 }

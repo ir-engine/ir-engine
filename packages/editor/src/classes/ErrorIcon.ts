@@ -1,4 +1,4 @@
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry, Texture } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three'
 import { NearestFilter } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -23,7 +23,7 @@ export default class ErrorIcon extends Mesh {
   constructor() {
     if (!errorTexture) throw new Error('ErrorIcon must be loaded before it can be used. Await ErrorIcon.load()')
 
-    const geometry = new PlaneBufferGeometry()
+    const geometry = new PlaneGeometry()
     const material = new MeshBasicMaterial()
     material.map = errorTexture
     material.side = DoubleSide

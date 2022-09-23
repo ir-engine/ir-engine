@@ -1,8 +1,13 @@
 import { Euler, Quaternion, Vector3 } from 'three'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  LocalTransformComponent,
+  setLocalTransformComponent
+} from '../../../transform/components/LocalTransformComponent'
 import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   setTransformComponent,
@@ -15,15 +20,18 @@ const v3 = new Vector3()
 
 export const deserializeTransform: ComponentDeserializeFunction = (entity: Entity, data: TransformComponentType) => {
   const props = parseTransformProperties(data)
-
-  const transform = setTransformComponent(entity)
-  transform.position.copy(props.position)
-  transform.rotation.copy(props.rotation)
-  transform.scale.copy(props.scale)
+  const entityNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)
+  if (entityNode?.parentEntity) {
+    setLocalTransformComponent(entity, entityNode.parentEntity, props.position, props.rotation, props.scale)
+  } else {
+    setTransformComponent(entity, props.position, props.rotation, props.scale)
+  }
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, TransformComponent)
+  const component = hasComponent(entity, LocalTransformComponent)
+    ? getComponent(entity, LocalTransformComponent)
+    : getComponent(entity, TransformComponent)
   return {
     position: new Vector3().copy(component.position),
     rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),

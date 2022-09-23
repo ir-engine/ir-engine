@@ -120,7 +120,7 @@ const DemoStyle = ({ theme }: DemoStyleProps) => {
         width: 100%;
         height: 125px;
         background-size: cover;
-        background-image: url(/static/xrengine_thumbnail.jpg);
+        background-image: url(/static/etherealengine.png);
       }
 
       .panelCard:hover {

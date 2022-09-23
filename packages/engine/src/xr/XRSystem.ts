@@ -1,7 +1,7 @@
 import { PerspectiveCamera, Quaternion } from 'three'
 
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
-import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
@@ -15,7 +15,7 @@ import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { World } from './../ecs/classes/World'
-import { addComponent, defineQuery, getComponent } from './../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent, removeQuery } from './../ecs/functions/ComponentFunctions'
 import { hasComponent, removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { GamepadMapping } from './../input/functions/GamepadInput'
@@ -113,16 +113,31 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const updateXRCamera = (camera: PerspectiveCamera) => {
-  EngineRenderer.instance.xrManager.updateCamera(camera)
-  // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
-  camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
-  camera.updateMatrixWorld(true)
+export const updateXRInput = () => {
+  const xrFrame = Engine.instance.xrFrame
+  const xrManager = EngineRenderer.instance.xrManager
+  const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+
+  xrManager.updateCamera(camera)
 
   const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
   const head = xrInputSourceComponent.head
   head.quaternion.copy(camera.quaternion)
   head.position.copy(camera.position)
+
+  camera.updateMatrix()
+  camera.updateMatrixWorld(true)
+  head.updateMatrix()
+  head.updateMatrixWorld(true)
+
+  // TODO: uncomment the following when three.js fixes WebXRManager
+  // for (let i = 0; i < xrManager.controllers.length; i++) {
+  //   const inputSource = xrManager.controllerInputSources[i]
+  //   const controller = xrManager.controllers[i]
+  //   if (inputSource !== null && controller !== undefined) {
+  //     controller.update(inputSource, xrFrame, xrManager.getReferenceSpace())
+  //   }
+  // }
 }
 /**
  * System for XR session and input handling
@@ -140,26 +155,16 @@ export default async function XRSystem(world: World) {
     updateSessionSupportForMode('immersive-vr')
   }
 
-  // TODO: we need a way to remove listeners when systems are unloaded
   navigator.xr?.addEventListener('devicechange', updateSessionSupport)
   updateSessionSupport()
   setupLocalXRInputs()
-
-  // TEMPORARY - precache controller model
-  // Cache hand models
-  AssetLoader.loadAsync('/default_assets/controllers/hands/left.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/right.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/left_controller.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
-
-  // const joinedWorldActionQueue = createActionQueue(EngineActions.joinedWorld.matches)
 
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
   const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
-  return () => {
+  const execute = () => {
     const xrRequestSessionAction = xrRequestSessionQueue().pop()
     const xrEndSessionAction = xrEndSessionQueue().pop()
     if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)
@@ -168,10 +173,10 @@ export default async function XRSystem(world: World) {
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
-      updateXRCamera(camera)
+      updateXRInput()
 
       // Assume world.camera.layers is source of truth for all xr cameras
+      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
       const xrCamera = EngineRenderer.instance.xrManager.getCamera()
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
@@ -183,6 +188,16 @@ export default async function XRSystem(world: World) {
     //XR Controller mesh animation update
     for (const entity of xrControllerQuery()) updateXRControllerAnimations(getComponent(entity, XRInputSourceComponent))
   }
+
+  const cleanup = async () => {
+    navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
+    removeQuery(world, xrControllerQuery)
+    removeActionQueue(xrRequestSessionQueue)
+    removeActionQueue(xrEndSessionQueue)
+    removeActionQueue(xrSessionChangedQueue)
+  }
+
+  return { execute, cleanup }
 }
 
 export function updateGamepadInput(source: XRInputSource) {

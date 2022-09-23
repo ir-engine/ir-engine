@@ -1,7 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import createGLTFExporter from './createGLTFExporter'
 
 export default async function exportModelGLTF(
@@ -13,11 +12,11 @@ export default async function exportModelGLTF(
     embedImages: true
   }
 ) {
-  const obj3d = getComponent(entity, Object3DComponent).value
+  const scene = getComponent(entity, ModelComponent).scene!
   const exporter = await createGLTFExporter()
   const gltf: ArrayBuffer = await new Promise((resolve) =>
     exporter.parse(
-      obj3d,
+      scene,
       (gltf: ArrayBuffer) => resolve(gltf),
       (error) => {
         throw error

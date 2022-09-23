@@ -1,6 +1,6 @@
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -73,7 +73,7 @@ export async function addMediaNode(
         {
           affectedNodes: [node],
           component: ImageComponent,
-          properties: [{ imageSource: url }]
+          properties: [{ source: url }]
         },
         false
       )

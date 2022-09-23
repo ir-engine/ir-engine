@@ -18,7 +18,7 @@ const newProjectName = 'SceneTest_test_project_name'
 const newSceneName = 'SceneTest_test_scene_name'
 const newestSceneName = 'SceneTest_test_scene_rename'
 
-const params = { isInternal: true }
+const params = { isInternal: true } as any
 
 describe('scene.test', () => {
   let app: Application
@@ -42,6 +42,7 @@ describe('scene.test', () => {
           },
           params
         )
+        console.log('scene-data data', data)
         assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
       })
     })

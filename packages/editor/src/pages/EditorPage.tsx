@@ -19,69 +19,6 @@ import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 
-const systems = [
-  {
-    uuid: 'core.editor.RenderSystem',
-    systemLoader: () => import('../systems/RenderSystem'),
-    type: SystemUpdateType.POST_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.InputSystem',
-    systemLoader: () => import('../systems/InputSystem'),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.FlyControlSystem',
-    systemLoader: () => import('../systems/FlyControlSystem'),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.EditorControlSystem',
-    systemLoader: () => import('../systems/EditorControlSystem'),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.EditorLocalTransformUpdateSystem',
-    systemLoader: () => import('../systems/EditorLocalTransformUpdateSystem'),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.EditorCameraSystem',
-    systemLoader: () => import('../systems/EditorCameraSystem'),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.ResetInputSystem',
-    systemLoader: () => import('../systems/ResetInputSystem'),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.GizmoSystem',
-    systemLoader: () => import('../systems/GizmoSystem'),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.PortalLoadSystem',
-    systemLoader: () => import('@xrengine/client-core/src/systems/PortalLoadSystem'),
-    type: SystemUpdateType.FIXED,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.ModelHandlingSystem',
-    systemLoader: () => import('../systems/ModelHandlingSystem'),
-    type: SystemUpdateType.FIXED,
-    args: { enabled: true }
-  }
-]
-
 export const EditorPage = (props: RouteComponentProps<{ sceneName: string; projectName: string }>) => {
   const editorState = useEditorState()
   const projectState = useProjectState()
@@ -89,7 +26,6 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   const authUser = authState.authUser
   const user = authState.user
   const [clientInitialized, setClientInitialized] = useState(false)
-  const [engineReady, setEngineReady] = useState(false)
   const [isAuthenticated, setAuthenticated] = useState(false)
 
   useEffect(() => {
@@ -104,27 +40,15 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   }, [authUser.accessToken, user.id, isAuthenticated])
 
   useEffect(() => {
-    if (engineReady) {
-      const { projectName, sceneName } = props.match.params
-      dispatchAction(EditorAction.projectChanged({ projectName: projectName ?? null }))
-      dispatchAction(EditorAction.sceneChanged({ sceneName: sceneName ?? null }))
-    }
-  }, [engineReady, props.match.params.projectName, props.match.params.sceneName])
+    const { projectName, sceneName } = props.match.params
+    dispatchAction(EditorAction.projectChanged({ projectName: projectName ?? null }))
+    dispatchAction(EditorAction.sceneChanged({ sceneName: sceneName ?? null }))
+  }, [props.match.params.projectName, props.match.params.sceneName])
 
   useEffect(() => {
     if (clientInitialized || projectState.projects.value.length <= 0) return
     setClientInitialized(true)
-    Engine.instance.isEditor = true
-    const world = Engine.instance.currentWorld
-    initializeCoreSystems().then(async () => {
-      initSystems(world, systems)
-      const projects = API.instance.client.service('projects').find()
-      await initializeRealtimeSystems(false)
-      await initializeSceneSystems()
-      await loadEngineInjection(world, await projects)
-      setEngineReady(true)
-    })
   }, [projectState.projects.value])
 
-  return <>{engineReady && editorState.projectName.value && isAuthenticated && <EditorContainer />}</>
+  return <>{editorState.projectName.value && isAuthenticated && <EditorContainer />}</>
 }

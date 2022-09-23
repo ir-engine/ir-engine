@@ -1,8 +1,8 @@
 import { Matrix4, Vector3 } from 'three'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -10,7 +10,6 @@ import { CommandFuncType, CommandParams, TransformCommands } from '../constants/
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import { EditorAction } from '../services/EditorServices'
-import { SelectionAction } from '../services/SelectionServices'
 
 export type RotateAroundCommandUndoParams = {
   axis: Vector3
@@ -72,7 +71,6 @@ function emitEventAfter(command: RotateAroundCommandParams) {
   if (command.preventEvents) return
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'matrix' }))
 }
 
 function rotateAround(command: RotateAroundCommandParams, isUndo?: boolean) {
@@ -94,25 +92,25 @@ function rotateAround(command: RotateAroundCommandParams, isUndo?: boolean) {
     const node = command.affectedNodes[i]
     if (typeof node === 'string') {
       const obj3d = obj3dFromUuid(node)
-      obj3d.matrixWorld.copy(
-        new Matrix4()
-          .copy(obj3d.matrixWorld)
-          .premultiply(pivotToOriginMatrix)
-          .premultiply(rotationMatrix)
-          .premultiply(originToPivotMatrix)
-          .premultiply(obj3d.parent!.matrixWorld.clone().invert())
-      )
-    } else {
-      const obj3d = getComponent(node.entity, Object3DComponent).value
-      const transform = getComponent(node.entity, TransformComponent)
-
-      new Matrix4()
+      const matrixWorld = new Matrix4()
         .copy(obj3d.matrixWorld)
         .premultiply(pivotToOriginMatrix)
         .premultiply(rotationMatrix)
         .premultiply(originToPivotMatrix)
         .premultiply(obj3d.parent!.matrixWorld.clone().invert())
-        .decompose(transform.position, transform.rotation, transform.scale)
+      obj3d.matrixWorld.copy(matrixWorld)
+    } else {
+      const transform = getComponent(node.entity, TransformComponent)
+      const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+      const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
+
+      new Matrix4()
+        .copy(transform.matrix)
+        .premultiply(pivotToOriginMatrix)
+        .premultiply(rotationMatrix)
+        .premultiply(originToPivotMatrix)
+        .premultiply(parentTransform.matrixInverse)
+        .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
     }
   }
 }

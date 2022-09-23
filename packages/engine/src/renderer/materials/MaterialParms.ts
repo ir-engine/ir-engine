@@ -6,8 +6,8 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 
 import { MaterialOverrideComponentType } from '../../scene/components/MaterialOverrideComponent'
 import { MatRend } from '../../scene/systems/MaterialOverrideSystem'
-import { DefaultArguments, MaterialLibrary } from './MaterialLibrary'
-import { formatMaterialArgs } from './Utilities'
+import { formatMaterialArgs, materialIdToDefaultArgs, materialIdToFactory } from './functions/Utilities'
+import { MaterialLibrary } from './MaterialLibrary'
 
 export type MaterialParms = {
   material: Material
@@ -36,23 +36,26 @@ function checkMatch(toCheck: string, assignment: MaterialOverrideComponentType):
   }
 }
 
-export function assignMaterial(override: MaterialOverrideComponentType): [MatRend[], MaterialParms] {
+export function assignMaterial(override: MaterialOverrideComponentType): [MatRend[], Material] {
   const result: MatRend[] = []
   //first retrieve material to build assignment
-  const factory = MaterialLibrary[override.materialID]
-
+  let material: Material
+  /*if (MaterialLibrary.materials.has(override.materialID)) {
+    material = MaterialLibrary.materials.get(override.materialID)!.material
+  } else {*/
+  const factory = materialIdToFactory(override.materialID)
   if (!factory) {
     console.warn('Could not find factory function for material' + override.materialID)
-    return [result, { material: new Material(), update: () => {} }]
+    return [result, new Material()]
   }
-  const defaultArgs = DefaultArguments[override.materialID]
+  const defaultArgs = materialIdToDefaultArgs(override.materialID)
   const formattedArgs = formatMaterialArgs(override.args, defaultArgs)
-  const matParm: MaterialParms = factory(formattedArgs)
+  material = factory(formattedArgs)
   const target = getComponent(override.targetEntity!, Object3DComponent)?.value
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')
   }
-  const root = getComponent(override.targetEntity!, Object3DComponent).value as UpdateableObject3D
+  const root = getComponent(override.targetEntity!, Object3DComponent).value
   root.traverse((obj3d) => {
     let isMatch = false
     switch (override.patternTarget) {
@@ -87,9 +90,9 @@ export function assignMaterial(override: MaterialOverrideComponentType): [MatRen
       }
       if (!mesh) return
       const oldMat = mesh.material
-      mesh.material = matParm.material
+      mesh.material = material
       result.push({ mesh: mesh, material: oldMat })
     }
   })
-  return [result, matParm]
+  return [result, material]
 }

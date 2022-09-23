@@ -2,14 +2,18 @@ import { none } from '@hookstate/core'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { Network, NetworkTopics } from '../classes/Network'
+import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -49,7 +53,9 @@ const receiveRegisterSceneObject = (
 ) => {
   const entity = world.entityTree.uuidNodeMap.get(action.objectUuid)?.entity!
 
-  addComponent(entity, NetworkObjectComponent, {
+  if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
+
+  setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
     authorityUserId: action.$from,
     networkId: action.networkId
@@ -57,8 +63,11 @@ const receiveRegisterSceneObject = (
 
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    addComponent(entity, NetworkObjectOwnedTag, true)
-    addComponent(entity, NetworkObjectAuthorityTag, true)
+    setComponent(entity, NetworkObjectOwnedTag, true)
+    setComponent(entity, NetworkObjectAuthorityTag, true)
+  } else {
+    if (hasComponent(entity, NetworkObjectOwnedTag)) removeComponent(entity, NetworkObjectOwnedTag)
+    if (hasComponent(entity, NetworkObjectAuthorityTag)) removeComponent(entity, NetworkObjectAuthorityTag)
   }
 }
 

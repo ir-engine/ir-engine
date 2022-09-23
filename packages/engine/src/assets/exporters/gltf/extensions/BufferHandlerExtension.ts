@@ -20,7 +20,7 @@ type BufferDefinition = BufferJson & {
 
 export default class BufferHandlerExtension extends ExporterExtension {
   static saveBuffer = defineAction({
-    type: 'xre.engine.SAVE_BUFFER' as const,
+    type: 'xre.assets.BufferHandlerExtension.SAVE_BUFFER' as const,
     saveParms: matches.object as Validator<unknown, BufferDefinition>
   })
 
@@ -28,7 +28,7 @@ export default class BufferHandlerExtension extends ExporterExtension {
     const writer = this.writer
     const json = writer.json
     const buffers = writer.buffers
-    const options = this.options
+    const options = writer.options
     if (!options?.binary) {
       writer.buffers.map((buffer, index) => {
         const name = generateUUID()

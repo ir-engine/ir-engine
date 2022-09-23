@@ -17,7 +17,6 @@ import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarCons
 import { BoneStructure } from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -86,11 +85,14 @@ export const addAnimationLogic = (
   addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
   async function AvatarSelectRenderSystem(world: World) {
-    return () => {
-      // only render if this menu is open
-      if (!!panelRef.current) {
-        renderer.render(scene, camera)
-      }
+    return {
+      execute: () => {
+        // only render if this menu is open
+        if (!!panelRef.current) {
+          renderer.render(scene, camera)
+        }
+      },
+      cleanup: async () => {}
     }
   }
 

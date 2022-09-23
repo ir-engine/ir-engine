@@ -3,15 +3,15 @@ import * as bitecs from 'bitecs'
 import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
-import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -19,27 +19,26 @@ import { InputAlias } from '../../input/types/InputAlias'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
+import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
-import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
+  Component,
   ComponentType,
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent,
-  MappedComponent
+  hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTreeFunctions'
-import { SystemInstanceType } from '../functions/SystemFunctions'
+import { SystemInstance } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
@@ -66,12 +65,13 @@ export class World {
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
-    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
     setTransformComponent(this.cameraEntity)
+    addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
 
     initializeEntityTree(this)
 
-    // this.scene.autoUpdate = false
+    /** @todo */
+    // this.scene.matrixAutoUpdate = false
     this.scene.layers.set(ObjectLayers.Scene)
   }
 
@@ -150,29 +150,26 @@ export class World {
    */
   scene = new Scene()
 
-  sceneDynamicallyUnloadedEntities = new Map<
-    string,
-    {
-      json: EntityJson
-      position: Vector3
-      distance: number
-    }
-  >()
+  sceneJson = null! as SceneJson
 
-  sceneDynamicallyLoadedEntities = new Map<
-    Entity,
-    {
-      json: EntityJson
-      position: Vector3
-      distance: number
-      uuid: string
-    }
-  >()
+  // sceneDynamicallyUnloadedEntities = new Map<
+  //   string,
+  //   {
+  //     json: EntityJson
+  //     position: Vector3
+  //     distance: number
+  //   }
+  // >()
 
-  /**
-   * Reference to the three.js perspective camera object.
-   */
-  camera: PerspectiveCamera | OrthographicCamera = new PerspectiveCamera(60, 1, 0.1, 10000)
+  // sceneDynamicallyLoadedEntities = new Map<
+  //   Entity,
+  //   {
+  //     json: EntityJson
+  //     position: Vector3
+  //     distance: number
+  //     uuid: string
+  //   }
+  // >()
 
   /**
    * The scene entity
@@ -188,6 +185,13 @@ export class World {
    * The camera entity
    */
   cameraEntity: Entity = NaN as Entity
+
+  /**
+   * Reference to the three.js camera object.
+   */
+  get camera() {
+    return getComponent(this.cameraEntity, CameraComponent).camera
+  }
 
   /**
    * The local client entity
@@ -206,10 +210,7 @@ export class World {
 
   #entityRemovedQuery = bitecs.defineQuery([EntityRemovedComponent])
 
-  #portalQuery = bitecs.defineQuery([PortalComponent])
-  portalQuery = () => this.#portalQuery(this) as Entity[]
-
-  activePortal = null as ReturnType<typeof PortalComponent.get> | null
+  activePortal = null as ComponentType<typeof PortalComponent> | null
 
   /**
    * Custom systems injected into this world
@@ -224,7 +225,7 @@ export class World {
     [SystemUpdateType.PRE_RENDER]: [],
     [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []
-  } as { [pipeline: string]: SystemInstanceType[] }
+  } as { [pipeline: string]: SystemInstance[] }
 
   #nameMap = new Map<string, Entity>()
   #nameQuery = defineQuery([NameComponent])
@@ -308,7 +309,7 @@ export class World {
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
+  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
     return (
       this.getOwnedNetworkObjects(userId).find((eid) => {
         return hasComponent(eid, component, this)

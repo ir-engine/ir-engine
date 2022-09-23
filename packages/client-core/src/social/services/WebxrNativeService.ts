@@ -48,9 +48,9 @@ export const WebxrNativeService = {
 
 export class WebxrNativeAction {
   static setWebXrNative = defineAction({
-    type: 'SET_WEBXRNATIVE' as const
+    type: 'xre.client.WebxrNative.SET_WEBXRNATIVE' as const
   })
   static toggleWebXrNative = defineAction({
-    type: 'TOGGLE_WEBXRNATIVE' as const
+    type: 'xre.client.WebxrNative.TOGGLE_WEBXRNATIVE' as const
   })
 }

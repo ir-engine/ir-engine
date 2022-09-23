@@ -1,6 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { Euler } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   SCENE_COMPONENT_DYNAMIC_LOAD,
@@ -12,7 +14,6 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
-import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
@@ -27,11 +28,7 @@ import { EditorComponentType, updateProperty } from './Util'
  * @type {class component}
  */
 export const TransformPropertyGroup: EditorComponentType = (props) => {
-  const selectionState = useSelectionState()
   const { t } = useTranslation()
-
-  // access state to detect the change
-  selectionState.objectChangeCounter.value
 
   const onChangeDynamicLoad = (value) => {
     executeCommandWithHistoryOnSelection({
@@ -55,7 +52,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   //function to handle changes rotation properties
-  const onChangeRotation = (value) => {
+  const onChangeRotation = (value: Euler) => {
     executeCommandWithHistoryOnSelection({
       type: EditorCommands.ROTATION,
       rotations: [value]
@@ -72,13 +69,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   //rendering editor view for Transform properties
-  const transfromComponent = getComponent(props.node.entity, TransformComponent)
-  const localTransfromComponent = getComponent(props.node.entity, LocalTransformComponent)
-  const transform = localTransfromComponent ?? transfromComponent
+  const transform =
+    getComponent(props.node.entity, LocalTransformComponent) ?? getComponent(props.node.entity, TransformComponent)
 
   return (
     <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
-      <InputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
+      <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
         <BooleanInput
           value={hasComponent(props.node.entity, SceneDynamicLoadTagComponent)}
           onChange={onChangeDynamicLoad}
@@ -100,15 +96,11 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          onChange={localTransfromComponent ? updateProperty(LocalTransformComponent, 'position') : onChangePosition}
+          onChange={onChangePosition}
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput
-          quaternion={transform.rotation}
-          onChange={localTransfromComponent ? updateProperty(LocalTransformComponent, 'rotation') : onChangeRotation}
-          unit="°"
-        />
+        <EulerInput quaternion={transform.rotation} onChange={onChangeRotation} unit="°" />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input
@@ -117,7 +109,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           mediumStep={0.1}
           largeStep={1}
           value={transform.scale}
-          onChange={localTransfromComponent ? updateProperty(LocalTransformComponent, 'scale') : onChangeScale}
+          onChange={onChangeScale}
         />
       </InputGroup>
     </NodeEditor>

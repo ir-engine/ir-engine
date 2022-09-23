@@ -4,7 +4,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -20,7 +20,6 @@ import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
 interface Props {
-  isPublicAvatar?: boolean
   changeActiveMenu: Function
 }
 
@@ -28,7 +27,7 @@ let scene: Scene
 let camera: PerspectiveCamera
 let renderer: WebGLRenderer = null!
 
-const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
+const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
@@ -116,7 +115,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
 
     canvas.toBlob(async (blob) => {
       setShowLoading(true)
-      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
+      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
       setShowLoading(false)
       changeActiveMenu(null)
     })

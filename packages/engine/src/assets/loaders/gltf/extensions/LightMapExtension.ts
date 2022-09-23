@@ -1,7 +1,16 @@
 // https://github.com/mozilla/hubs/blob/27eb7f3d9eba3b938f1ca47ed5b161547b6fb3f2/src/components/gltf-model-plus.js
-import { RepeatWrapping, Texture } from 'three'
+import { Material, MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, Texture } from 'three'
 
 import { GLTFParser } from '../GLTFLoader'
+
+export type MOZ_lightmap = {
+  index: number
+  texCoord: number
+  intensity: number
+  extensions: {
+    [extname: string]: any
+  }
+}
 
 export class HubsLightMapExtension {
   name = 'MOZ_lightmap'
@@ -21,7 +30,7 @@ export class HubsLightMapExtension {
       return null
     }
 
-    const extensionDef = materialDef.extensions[this.name]
+    const extensionDef: MOZ_lightmap = materialDef.extensions[this.name]
 
     const pending: any[] = []
 
@@ -29,8 +38,8 @@ export class HubsLightMapExtension {
     pending.push(parser.getDependency('texture', extensionDef.index))
 
     return Promise.all(pending).then((results) => {
-      const material = results[0]
-      const lightMap = results[1]
+      const material: MeshStandardMaterial | MeshBasicMaterial = results[0]
+      const lightMap: Texture = (results[1] as Texture).clone()
 
       const transform = extensionDef.extensions ? extensionDef.extensions['KHR_texture_transform'] : undefined
       if (transform !== undefined) {
@@ -44,7 +53,7 @@ export class HubsLightMapExtension {
       material.lightMap = lightMap
       material.lightMapIntensity = extensionDef.intensity ?? 1.0
       //fix for change to MeshBasicMaterial shading WRT lightmaps
-      if (material.isMeshBasicMaterial) {
+      if (material.type === 'MeshBasicMaterial') {
         material.lightMapIntensity *= Math.PI
       }
       return material

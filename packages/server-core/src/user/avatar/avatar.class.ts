@@ -5,7 +5,10 @@ import { Op } from 'sequelize'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 import { Application } from '../../../declarations'
+import { checkScope } from '../../hooks/verify-scope'
 import logger from '../../logger'
+import { UnauthorizedException } from '../../util/exceptions/exception'
+import { UserParams } from '../user/user.class'
 import { AvatarCreateArguments, AvatarPatchArguments } from './avatar-helper'
 
 export class Avatar extends Service<AvatarInterface> {
@@ -34,7 +37,12 @@ export class Avatar extends Service<AvatarInterface> {
     return avatar
   }
 
-  async find(params?: Params): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
+  async find(params?: UserParams): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
+    let isAdmin = false
+    if (params && params.user && params.user.id) {
+      isAdmin = await checkScope(params?.user, this.app, 'admin', 'admin')
+    }
+
     if (params?.query?.search != null) {
       if (params.query.search.length > 0)
         params.query.name = {
@@ -42,6 +50,29 @@ export class Avatar extends Service<AvatarInterface> {
         }
     }
     if (params?.query) delete params.query.search
+
+    if (!isAdmin && params) {
+      if (params.user && params.user.id) {
+        params.query = {
+          ...params?.query,
+          [Op.or]: [
+            {
+              isPublic: true
+            },
+            {
+              isPublic: false,
+              userId: params.user.id
+            }
+          ]
+        }
+      } else {
+        params.query = {
+          ...params?.query,
+          isPublic: true
+        }
+      }
+    }
+
     const avatars = (await super.find(params)) as Paginated<AvatarInterface>
     await Promise.all(
       avatars.data.map(async (avatar) => {
@@ -59,9 +90,11 @@ export class Avatar extends Service<AvatarInterface> {
     return avatars
   }
 
-  async create(data: AvatarCreateArguments, params?: Params): Promise<AvatarInterface> {
+  async create(data: AvatarCreateArguments, params?: UserParams): Promise<AvatarInterface> {
     let avatar = (await super.create({
       name: data.name,
+      isPublic: data.isPublic ?? true,
+      userId: params?.user!.id,
       modelResourceId: data.modelResourceId,
       thumbnailResourceId: data.thumbnailResourceId
     })) as AvatarInterface
@@ -71,11 +104,21 @@ export class Avatar extends Service<AvatarInterface> {
     return avatar
   }
 
-  async patch(id: string, data: AvatarPatchArguments, params?: Params): Promise<AvatarInterface> {
-    let avatar = (await super.patch(id, data, params)) as AvatarInterface
+  async patch(id: string, data: AvatarPatchArguments, params?: UserParams): Promise<AvatarInterface> {
+    let avatar = (await super.get(id, params)) as AvatarInterface
+
+    if (avatar.userId !== params?.user!.id && params && params.user && params.user.id) {
+      const hasPermission = await checkScope(params?.user, this.app, 'admin', 'admin')
+      if (!hasPermission) {
+        throw new UnauthorizedException(`Unauthorised to perform this action.`)
+      }
+    }
+
+    avatar = (await super.patch(id, data, params)) as AvatarInterface
     avatar = (await super.patch(avatar.id, {
       identifierName: avatar.name + '_' + avatar.id
     })) as AvatarInterface
+
     if (avatar.modelResourceId)
       try {
         avatar.modelResource = await this.app.service('static-resource').get(avatar.modelResourceId)

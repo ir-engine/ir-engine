@@ -1,12 +1,13 @@
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Vector3 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
+import { EngineRendererState } from '../../renderer/EngineRendererState'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -15,7 +16,7 @@ type RaycastDebugs = {
   hits: RaycastHit[]
 }
 
-export const DebugRenderer = () => {
+export default async function DebugRenderer(world: World) {
   let enabled = false
 
   const debugLines = [] as Line<BufferGeometry, LineBasicMaterial>[]
@@ -28,7 +29,8 @@ export const DebugRenderer = () => {
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
 
-  return (world: World, _enabled: boolean) => {
+  const execute = () => {
+    const _enabled = getState(EngineRendererState).debugEnable.value
     for (const action of sceneLoadQueue()) Engine.instance.currentWorld.scene.add(_lineSegments)
 
     if (enabled !== _enabled) {
@@ -78,4 +80,11 @@ export const DebugRenderer = () => {
 
     if (world.physicsWorld) (world.physicsWorld as any).raycastDebugs = []
   }
+
+  const cleanup = async () => {
+    _lineSegments.removeFromParent()
+    removeActionQueue(sceneLoadQueue)
+  }
+
+  return { execute, cleanup }
 }

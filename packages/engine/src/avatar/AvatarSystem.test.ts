@@ -82,7 +82,6 @@ describe('AvatarSystem', async () => {
     setupXRInputSourceContainer(entity)
     setupHeadIK(entity)
     setupHandIK(entity)
-    ;(XRInputSourceComponent as any)._setPrevious(entity, xrInput)
     xrInputQueryExit(entity)
 
     assert(!xrInput.container.parent)

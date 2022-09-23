@@ -212,22 +212,22 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.boxCollider.description')}>
-      <InputGroup name="Type" label={t('editor:properties.boxCollider.lbl-type')}>
+    <NodeEditor {...props} description={t('editor:properties.collider.description')}>
+      <InputGroup name="Type" label={t('editor:properties.collider.lbl-type')}>
         <SelectInput
           options={bodyTypeOptions}
           value={colliderComponent.bodyType}
           onChange={updateProperty(ColliderComponent, 'bodyType')}
         />
       </InputGroup>
-      <InputGroup name="Shape" label={t('editor:properties.boxCollider.lbl-shape')}>
+      <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput
           options={shapeTypeOptions}
           value={colliderComponent.shapeType}
           onChange={updateProperty(ColliderComponent, 'shapeType')}
         />
       </InputGroup>
-      <InputGroup name="Trigger" label={t('editor:properties.boxCollider.lbl-isTrigger')}>
+      <InputGroup name="Trigger" label={t('editor:properties.collider.lbl-isTrigger')}>
         <BooleanInput value={colliderComponent.isTrigger} onChange={updateIsTrigger} />
       </InputGroup>
       {colliderComponent.isTrigger && triggerProps()}

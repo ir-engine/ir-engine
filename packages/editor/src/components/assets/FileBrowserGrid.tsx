@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, MutableRefObject, useCallback, useEffect, useState } from 'react'
+import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -9,12 +9,14 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
 import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
+import { PopoverPosition } from '@mui/material/Popover'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu } from '../layout/ContextMenu'
 import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
 
@@ -94,52 +96,87 @@ export function FileBrowserItem({
   moveContent
 }: FileBrowserItemType) {
   const { t } = useTranslation()
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
   const [renamingAsset, setRenamingAsset] = useState(false)
+
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    setAnchorEl(event.currentTarget)
+    setAnchorPosition({
+      left: event.clientX + 2,
+      top: event.clientY - 6
+    })
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+    setAnchorPosition(undefined)
+  }
 
   const onClickItem = (_) => onClick(item)
 
-  const placeObject = useCallback((_, trigger) => {
-    addMediaNode(trigger.item.url)
-  }, [])
+  const placeObject = () => {
+    addMediaNode(item.url)
 
-  const placeObjectAtOrigin = useCallback(async (_, trigger) => {
-    const node = await addMediaNode(trigger.item.url)
+    handleClose()
+  }
+
+  const placeObjectAtOrigin = async () => {
+    const node = await addMediaNode(item.url)
     const transformComponent = getComponent(node.entity, TransformComponent)
     if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
-  }, [])
 
-  const copyURL = useCallback((_, trigger) => {
+    handleClose()
+  }
+
+  const copyURL = () => {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(trigger.item.url)
+      navigator.clipboard.writeText(item.url)
     }
-  }, [])
 
-  const openURL = useCallback((_, trigger) => {
-    window.open(trigger.item.url)
-  }, [])
+    handleClose()
+  }
 
-  const Copy = useCallback((_, trigger) => {
-    currentContent.current = { item: trigger.item, isCopy: true }
-  }, [])
+  const openURL = () => {
+    window.open(item.url)
 
-  const Cut = useCallback((_, trigger) => {
-    currentContent.current = { item: trigger.item, isCopy: false }
-  }, [])
+    handleClose()
+  }
 
-  const viewAssetProperties = useCallback((_, trigger) => {
-    if (trigger.item.isFolder) {
+  const Copy = () => {
+    currentContent.current = { item: item, isCopy: true }
+
+    handleClose()
+  }
+
+  const Cut = () => {
+    currentContent.current = { item: item, isCopy: false }
+
+    handleClose()
+  }
+
+  const viewAssetProperties = () => {
+    if (item.isFolder) {
       setFileProperties({
-        ...trigger.item,
-        url: trigger.item.url + '/' + trigger.item.key
+        ...item,
+        url: item.url + '/' + item.key
       })
     } else {
-      setFileProperties(trigger.item)
+      setFileProperties(item)
     }
     setOpenPropertiesModal(true)
-  }, [])
 
-  const deleteContentCallback = (_, trigger) => {
-    deleteContent(trigger.item.key, trigger.item.type)
+    handleClose()
+  }
+
+  const deleteContentCallback = () => {
+    deleteContent(item.key, item.type)
+
+    handleClose()
   }
 
   const onNameChanged = async (fileName: string): Promise<void> => {
@@ -148,7 +185,11 @@ export function FileBrowserItem({
     await moveContent(item.fullName, item.isFolder ? fileName : `${fileName}.${item.type}`, item.path, item.path, false)
   }
 
-  const rename = () => setRenamingAsset(true)
+  const rename = () => {
+    setRenamingAsset(true)
+
+    handleClose()
+  }
 
   const [_dragProps, drag, preview] = disableDnD
     ? [undefined, undefined, undefined]
@@ -175,14 +216,10 @@ export function FileBrowserItem({
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const collectMenuProps = () => {
-    return { item }
-  }
-
   return (
     <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
       <div ref={drag}>
-        <ContextMenuTrigger id={contextMenuId} holdToDisplay={-1} collect={collectMenuProps}>
+        <div onContextMenu={handleContextMenu}>
           <FileListItem
             item={item}
             onClick={onClickItem}
@@ -190,16 +227,14 @@ export function FileBrowserItem({
             isRenaming={renamingAsset}
             onNameChanged={onNameChanged}
           />
-        </ContextMenuTrigger>
+        </div>
 
-        <ContextMenu id={contextMenuId} hideOnLeave={true}>
+        <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+          {item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
           {item.isFolder && (
-            <>
-              <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
-              <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-              <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>
-            </>
+            <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
           )}
+          {item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
           <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
           <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
           <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>

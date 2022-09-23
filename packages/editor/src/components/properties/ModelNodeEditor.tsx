@@ -30,7 +30,6 @@ import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import Well from '../layout/Well'
-import EnvMapEditor from './EnvMapEditor'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -116,12 +115,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'matrixAutoUpdate')}
         />
       </InputGroup>
-      <InputGroup name="Use Basic Materials" label={t('editor:properties.model.lbl-useBasicMaterials')}>
-        <BooleanInput
-          value={modelComponent.useBasicMaterial}
-          onChange={updateProperty(ModelComponent, 'useBasicMaterial')}
-        />
-      </InputGroup>
       <InputGroup name="Is Using GPU Instancing" label={t('editor:properties.model.lbl-isGPUInstancing')}>
         <BooleanInput
           value={modelComponent.isUsingGPUInstancing}
@@ -146,7 +139,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
-      <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
       <ModelTransformProperties modelComponent={modelComponent} onChangeModel={updateProperty(ModelComponent, 'src')} />
       <MaterialAssignment

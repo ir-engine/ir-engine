@@ -60,8 +60,6 @@ export function dispose() {
     Engine.instance.currentWorld.scene = null!
   }
 
-  Engine.instance.currentWorld.camera = null!
-
   if (EngineRenderer.instance.renderer) {
     EngineRenderer.instance.renderer.clear(true, true, true)
     EngineRenderer.instance.renderer.dispose()
@@ -79,9 +77,6 @@ export const unloadScene = (world: World) => {
   const entitiesToRemove = [] as Entity[]
   const entityNodesToRemove = [] as EntityTreeNode[]
   const sceneObjectsToRemove = [] as Object3D[]
-
-  world.sceneDynamicallyLoadedEntities.clear()
-  world.sceneDynamicallyUnloadedEntities.clear()
 
   for (const entity of sceneQuery()) entitiesToRemove.push(entity)
 

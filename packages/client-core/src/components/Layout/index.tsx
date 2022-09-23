@@ -2,22 +2,19 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 
-import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-import {
-  AdminCoilSettingService,
-  useCoilSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { Close, FullscreenExit, ZoomOutMap } from '@mui/icons-material'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 import { Tooltip } from '@mui/material'
 
-import { useLoadingSystemState } from '../../systems/state/LoadingState'
+import { LoadingSystemState } from '../../systems/state/LoadingState'
 import ConferenceMode from '../ConferenceMode'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
@@ -38,11 +35,11 @@ interface Props {
 }
 
 const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideFullscreen }: Props): any => {
-  const clientSettingState = useClientSettingState()
+  const engineState = useHookstate(getState(EngineState))
   const [fullScreenActive, setFullScreenActive] = useFullscreen()
   const [showMediaIcons, setShowMediaIcons] = useState(true)
   const [showBottomIcons, setShowBottomIcons] = useState(true)
-  const loadingSystemState = useLoadingSystemState()
+  const loadingSystemState = useHookstate(getState(LoadingSystemState))
   const [showTouchPad, setShowTouchPad] = useState(true)
   const [conferenceMode, setConferenceMode] = useState(false)
 
@@ -193,11 +190,13 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                   {!hideVideo && <UserMediaWindows className={styles.userMediaWindows} />}
                 </div>
 
-                <InstanceChat
-                  animate={styles.animateBottom}
-                  hideOtherMenus={hideOtherMenus}
-                  setShowTouchPad={setShowTouchPad}
-                />
+                {engineState.connectedWorld.value && (
+                  <InstanceChat
+                    animate={styles.animateBottom}
+                    hideOtherMenus={hideOtherMenus}
+                    setShowTouchPad={setShowTouchPad}
+                  />
+                )}
               </div>
             </div>
           </>

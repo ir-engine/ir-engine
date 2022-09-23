@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
+import { useForceUpdate } from '@xrengine/client-core/src/util/useForceRender'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
@@ -11,6 +13,8 @@ import {
   hasComponent,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import {
   PreventBakeTagComponent,
   SCENE_COMPONENT_PREVENT_BAKE
@@ -30,15 +34,16 @@ import { useSelectionState } from '../../services/SelectionServices'
 import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import MaterialEditor from '../materials/MaterialEditor'
 import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
 
-const StyledNodeEditor = (styled as any).div``
+const StyledNodeEditor = styled.div``
 
 /**
  * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
  */
-const PropertiesHeader = (styled as any).div`
+const PropertiesHeader = styled.div`
   border: none !important;
   padding-bottom: 0 !important;
 `
@@ -48,11 +53,11 @@ const PropertiesHeader = (styled as any).div`
  *
  *  @type {Styled Component}
  */
-const NameInputGroupContainer = (styled as any).div``
+const NameInputGroupContainer = styled.div``
 /**
  * Styled component used to provide styles for visiblity checkbox.
  */
-const VisibleInputGroup = (styled as any)(InputGroup)`
+const VisibleInputGroup = styled(InputGroup)`
   & > label {
     width: auto !important;
   }
@@ -62,7 +67,7 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
  * PropertiesPanelContent used as container element contains content of editor view.
  * @type {Styled Component}
  */
-const PropertiesPanelContent = (styled as any).div`
+const PropertiesPanelContent = styled.div`
   overflow-y: auto;
   height: 100%;
 `
@@ -72,7 +77,7 @@ const PropertiesPanelContent = (styled as any).div`
  *
  * @type {Styled component}
  */
-const NoNodeSelectedMessage = (styled as any).div`
+const NoNodeSelectedMessage = styled.div`
   height: 100%;
   display: flex;
   justify-content: center;
@@ -93,8 +98,12 @@ export const PropertiesPanelContainer = () => {
 
   const [isMenuOpen, setMenuOpen] = useState(false)
 
-  // access state to detect the change
-  selectionState.objectChangeCounter.value
+  const forceUpdate = useForceUpdate()
+
+  // force react to re-render upon any object changing
+  useEffect(() => {
+    forceUpdate()
+  }, [selectionState.objectChangeCounter])
 
   const onChangeVisible = (value) => {
     executeCommandWithHistoryOnSelection({
@@ -127,13 +136,20 @@ export const PropertiesPanelContainer = () => {
   const world = Engine.instance.currentWorld
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
-  const nodeEntity = lockedNode
-    ? world.entityTree.uuidNodeMap.get(lockedNode)!.entity
+  let nodeEntity = lockedNode
+    ? world.entityTree.uuidNodeMap.get(lockedNode)?.entity ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
-  const isObject3D = typeof nodeEntity === 'string'
-  const node = isObject3D
-    ? world.scene.getObjectByProperty('uuid', nodeEntity)
-    : world.entityTree.entityNodeMap.get(nodeEntity)
+  const isMaterial =
+    typeof nodeEntity === 'string' &&
+    (MaterialLibrary.materials.has(nodeEntity) ||
+      [...MaterialLibrary.materials.values()].map(({ material }) => material.uuid).includes(nodeEntity))
+  const isObject3D = typeof nodeEntity === 'string' && !isMaterial
+  const node = isMaterial
+    ? MaterialLibrary.materials.get(nodeEntity as string) ??
+      [...MaterialLibrary.materials.values()].find(({ material }) => material.uuid === nodeEntity)
+    : isObject3D
+    ? world.scene.getObjectByProperty('uuid', nodeEntity as string)
+    : world.entityTree.entityNodeMap.get(nodeEntity as Entity)
 
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
@@ -143,10 +159,17 @@ export const PropertiesPanelContainer = () => {
         <Object3DNodeEditor multiEdit={multiEdit} node={node as EntityTreeNode} />
       </StyledNodeEditor>
     )
+  } else if (isMaterial) {
+    content = (
+      <StyledNodeEditor>
+        <MaterialEditor material={(node as MaterialComponentType).material} />
+      </StyledNodeEditor>
+    )
   } else {
-    const components = getAllComponents(nodeEntity).filter((c) => EntityNodeEditor.has(c))
+    nodeEntity = nodeEntity as Entity
+    const components = getAllComponents(nodeEntity as Entity).filter((c) => EntityNodeEditor.has(c))
     // todo - still WIP
-    // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry)
+    // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry.entries())
 
     content = (
       <StyledNodeEditor>
@@ -169,7 +192,7 @@ export const PropertiesPanelContainer = () => {
           </NameInputGroupContainer>
         </PropertiesHeader>
         {/** @todo this is the add component menu - still a work in progress */}
-        {/* <div style={{ pointerEvents: 'auto' }}>
+        {/* {typeof nodeEntity === 'number' && <div style={{ pointerEvents: 'auto' }}>
           <MainMenu
             icon={isMenuOpen ? Close : AddIcon}
             isMenuOpen={isMenuOpen}
@@ -187,15 +210,25 @@ export const PropertiesPanelContainer = () => {
                 setComponent(
                   nodeEntity,
                   ComponentMap.get(sceneComponentID),
-                  isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
+                  isTagComponent ? true : { ...sceneComponent.defaultData }
                 )
               }
             }))}
           />
-        </div> */}
+        </div>} */}
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
-          return <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} component={c} />
+          // nodeEntity is used as key here to signal to React when the entity has changed,
+          // and to prevent state from being recycled between editor instances, which
+          // can cause hookstate to throw errors.
+          return (
+            <Editor
+              key={`${nodeEntity}-${Editor.name}`}
+              multiEdit={multiEdit}
+              node={node as EntityTreeNode}
+              component={c}
+            />
+          )
         })}
       </StyledNodeEditor>
     )

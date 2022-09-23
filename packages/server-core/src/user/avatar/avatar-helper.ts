@@ -1,4 +1,3 @@
-import { Params } from '@feathersjs/feathers'
 import fs from 'fs'
 import path from 'path'
 
@@ -7,13 +6,14 @@ import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownC
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
+import { UserParams } from '../user/user.class'
 
 export type AvatarCreateArguments = {
   modelResourceId?: string
   thumbnailResourceId?: string
   identifierName?: string
   name: string
-  isPublicAvatar?: boolean
+  isPublic?: boolean
 }
 
 export type AvatarPatchArguments = {
@@ -21,16 +21,14 @@ export type AvatarPatchArguments = {
   thumbnailResourceId?: string
   identifierName?: string
   name?: string
-  isPublicAvatar?: string
 }
 
 export type AvatarUploadArguments = {
   avatar: Buffer
   thumbnail: Buffer
   avatarName: string
+  isPublic: boolean
   avatarFileType?: string
-  isPublicAvatar?: boolean
-  userId?: string
 }
 
 // todo: move this somewhere else
@@ -51,7 +49,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         thumbnail,
         avatarName,
         avatarFileType,
-        isPublicAvatar: true
+        isPublic: true
       }
     })
   const promises: Promise<any>[] = []
@@ -60,7 +58,8 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
       new Promise(async (resolve, reject) => {
         try {
           const newAvatar = await app.service('avatar').create({
-            name: avatar.avatarName
+            name: avatar.avatarName,
+            isPublic: avatar.isPublic
           })
           avatar.avatarName = newAvatar.identifierName
           const [modelResource, thumbnailResource] = await uploadAvatarStaticResource(app, avatar)
@@ -80,24 +79,28 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
   await Promise.all(promises)
 }
 
-export const uploadAvatarStaticResource = async (app: Application, data: AvatarUploadArguments, params?: Params) => {
+export const uploadAvatarStaticResource = async (
+  app: Application,
+  data: AvatarUploadArguments,
+  params?: UserParams
+) => {
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
-  const key = `avatars/${data.userId ?? 'public'}/${name}`
+  const key = `avatars/${data.isPublic ? 'public' : params?.user!.id}/${name}`
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
 
-  const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, {
-    userId: data.userId!,
+  const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, CommonKnownContentTypes.glb, {
+    userId: params?.user!.id,
     key: `${key}.${data.avatarFileType ?? 'glb'}`,
-    contentType: CommonKnownContentTypes.glb
+    staticResourceType: 'avatar'
   })
 
-  const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, {
-    userId: data.userId!,
+  const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, CommonKnownContentTypes.png, {
+    userId: params?.user!.id,
     key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
-    contentType: CommonKnownContentTypes.png
+    staticResourceType: 'user-thumbnail'
   })
 
   const [modelResource, thumbnailResource] = await Promise.all([modelPromise, thumbnailPromise])

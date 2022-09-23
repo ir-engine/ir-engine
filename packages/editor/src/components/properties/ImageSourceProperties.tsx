@@ -24,7 +24,7 @@ const ImageProjectionSideOptions = [
 export const ImageSourceProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const imageComponent = getComponent(props.node.entity, ImageComponent)
+  const imageComponent = getComponent(props.node.entity, ImageComponent).value
 
   return (
     <>

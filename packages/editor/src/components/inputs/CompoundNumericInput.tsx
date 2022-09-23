@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import NumericInput from './NumericInput'
+import NumericInput, { NumericInputProp } from './NumericInput'
 import Slider from './Slider'
 
 /**
@@ -9,7 +9,7 @@ import Slider from './Slider'
  *
  * @type {Styled component}
  */
-const StyledCompoundNumericInput = (styled as any).div`
+const StyledCompoundNumericInput = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -25,7 +25,11 @@ const StyledCompoundNumericInput = (styled as any).div`
  * @param       {any} extras
  * @constructor
  */
-export function CompoundNumericInput({ value, onChange, ...extras }) {
+export function CompoundNumericInput({
+  value,
+  onChange,
+  ...extras
+}: NumericInputProp & { step: number; style?: React.CSSProperties }) {
   const { min, max, step, style } = extras
   return (
     <StyledCompoundNumericInput style={style}>

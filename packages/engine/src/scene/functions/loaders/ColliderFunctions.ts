@@ -1,52 +1,33 @@
 import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import {
   ColliderComponent,
   ColliderComponentType,
-  MeshColliderComponentTag,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
-import { NameComponent } from '../../components/NameComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
-  /** @todo this is brittle, should be replaced with something explicit for models */
-  if (typeof data.shapeType === 'undefined') {
-    setComponent(entity, MeshColliderComponentTag, true)
-  }
+  // todo: ColliderComponent needs to be refactored to support multiple colliders
   const colliderProps = parseColliderProperties(data)
-  if (!hasComponent(entity, Object3DComponent)) {
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
-  }
   setComponent(entity, ColliderComponent, colliderProps)
 }
 
-export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
+export const updateCollider = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const colliderComponent = getComponent(entity, ColliderComponent)
-  /**
-   * @todo bitecs queues are needed to make this Object3DComponent check redundant
-   *   as currently adding PortalComponent and then Obejct3DComponent synchronously
-   *   will still trigger [PortalComponent, Not(Obejct3DComponent)] queries
-   */
-  if (hasComponent(entity, MeshColliderComponentTag)) return
+  const world = Engine.instance.currentWorld
   if (!colliderComponent) return
-
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
     colliderComponent.bodyType !== getComponent(entity, RigidBodyComponent).body.bodyType()
@@ -79,7 +60,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
           bodyDesc = RigidBodyDesc.fixed()
           break
       }
-      Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, bodyDesc, [])
+      Physics.createRigidBody(entity, world.physicsWorld, bodyDesc, [])
     }
   }
 
@@ -88,43 +69,34 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
   /**
    * This component only supports one collider, always at index 0
    */
-  const colliderTypeChanged =
-    rigidbody.numColliders() === 0 || rigidbody.collider(0).shape.type !== colliderComponent.shapeType
-  if (colliderTypeChanged) {
-    rigidbody.numColliders() > 0 &&
-      Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
-    const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
-    colliderDesc.setSensor(colliderComponent.isTrigger)
-    Physics.applyDescToCollider(
-      colliderDesc,
-      {
-        type: colliderComponent.shapeType,
-        isTrigger: colliderComponent.isTrigger,
-        collisionLayer: colliderComponent.collisionLayer,
-        collisionMask: colliderComponent.collisionMask
-      },
-      new Vector3(),
-      new Quaternion()
-    )
-    Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
-  }
+  Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
+  const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
+  Physics.applyDescToCollider(
+    colliderDesc,
+    {
+      shapeType: colliderComponent.shapeType,
+      isTrigger: colliderComponent.isTrigger,
+      collisionLayer: colliderComponent.collisionLayer,
+      collisionMask: colliderComponent.collisionMask
+    },
+    new Vector3(),
+    new Quaternion()
+  )
+  world.physicsWorld.createCollider(colliderDesc, rigidbody)
+
+  rigidbody.setTranslation(transform.position, true)
+  rigidbody.setRotation(transform.rotation, true)
 }
 
-export const updateMeshCollider = (entity: Entity) => {
+export const updateModelColliders = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
-  const object3d = getComponent(entity, Object3DComponent)
-  /**
-   * @todo remove this - see above
-   */
-  if (!object3d) return
 
   if (hasComponent(entity, RigidBodyComponent)) {
-    Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
     Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
   }
-  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, object3d.value, {
+
+  Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, {
     bodyType: colliderComponent.bodyType,
-    shapeType: colliderComponent.shapeType,
     isTrigger: colliderComponent.isTrigger,
     removeMesh: colliderComponent.removeMesh,
     collisionLayer: colliderComponent.collisionLayer,

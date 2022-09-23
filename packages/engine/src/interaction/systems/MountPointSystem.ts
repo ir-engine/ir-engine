@@ -1,6 +1,6 @@
 import { Box3, Object3D, Vector3 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
 import { AvatarStates } from '../../avatar/animation/Util'
@@ -15,9 +15,11 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -54,21 +56,28 @@ export default async function MountPointSystem(world: World) {
     { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(MountPointComponent._name, SCENE_COMPONENT_MOUNT_POINT)
+  world.sceneComponentRegistry.set(MountPointComponent.name, SCENE_COMPONENT_MOUNT_POINT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
     defaultData: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
   })
 
-  if (Engine.instance.isEditor) return () => {}
+  if (Engine.instance.isEditor)
+    return {
+      execute: () => {},
+      cleanup: async () => {
+        world.scenePrefabRegistry.delete(ScenePrefabs.chair)
+        world.sceneComponentRegistry.delete(MountPointComponent.name)
+        world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
+      }
+    }
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const mountPointQuery = defineQuery([MountPointComponent])
   const sittingIdleQuery = defineQuery([SittingComponent])
 
-  return () => {
+  const execute = () => {
     for (const entity of mountPointQuery.enter()) {
       const mountPoint = getComponent(entity, MountPointComponent)
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
       addComponent(entity, BoundingBoxComponent, {
         box: new Box3().setFromCenterAndSize(
           getComponent(entity, TransformComponent).position,
@@ -90,8 +99,8 @@ export default async function MountPointSystem(world: World) {
         if (hasComponent(avatarEntity, SittingComponent)) continue
 
         const transform = getComponent(action.targetEntity!, TransformComponent)
-        const controllerComponent = getComponent(avatarEntity, AvatarControllerComponent)
-        controllerComponent.body.setTranslation(
+        const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
+        rigidBody.body.setTranslation(
           {
             x: transform.position.x,
             y: transform.position.y + avatar.avatarHalfHeight,
@@ -99,7 +108,7 @@ export default async function MountPointSystem(world: World) {
           },
           true
         )
-        controllerComponent.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+        rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
         const sitting = addComponent(avatarEntity, SittingComponent, {
           mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
@@ -149,8 +158,8 @@ export default async function MountPointSystem(world: World) {
           newPos.y += avatarComponent.avatarHalfHeight
         }
 
-        const controllerComponent = getComponent(entity, AvatarControllerComponent)
-        controllerComponent.body.setTranslation(newPos, true)
+        const rigidbody = getComponent(entity, RigidBodyComponent)
+        rigidbody.body.setTranslation(newPos, true)
 
         changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
         removeComponent(entity, SittingComponent)
@@ -158,4 +167,15 @@ export default async function MountPointSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    world.scenePrefabRegistry.delete(ScenePrefabs.chair)
+    world.sceneComponentRegistry.delete(MountPointComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
+    removeActionQueue(mountPointActionQueue)
+    removeQuery(world, mountPointQuery)
+    removeQuery(world, sittingIdleQuery)
+  }
+
+  return { execute, cleanup }
 }

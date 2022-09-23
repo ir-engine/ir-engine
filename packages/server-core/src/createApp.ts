@@ -10,6 +10,7 @@ import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
 import { Socket } from 'socket.io'
+import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { pipe } from '@xrengine/common/src/utils/pipe'
@@ -75,7 +76,7 @@ export const configureSocketIO =
           io.use((socket, next) => {
             ;(socket as any).feathers.socketQuery = socket.handshake.query
             ;(socket as any).socketQuery = socket.handshake.query
-            onSocket(app, socket)
+            onSocket(app, socket as any)
             next()
           })
         }
@@ -89,7 +90,7 @@ export const configureRedis = () => (app: Application) => {
     app.configure(
       sync({
         uri: config.redis.password
-          ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}`
+          ? `redis://:${config.redis.password}@${config.redis.address}:${config.redis.port}`
           : `redis://${config.redis.address}:${config.redis.port}`
       })
     )

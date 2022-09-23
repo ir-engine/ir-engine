@@ -1,8 +1,8 @@
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 export interface AvatarColumn {
-  id: 'id' | 'name' | 'thumbnail' | 'action'
-  label: string
+  id: 'select' | 'id' | 'name' | 'thumbnail' | 'action'
+  label: string | React.ReactElement
   minWidth?: number
   align?: 'right'
 }
@@ -26,6 +26,7 @@ export const avatarColumns: AvatarColumn[] = [
 
 export interface AvatarData {
   el: AvatarInterface
+  select: JSX.Element
   id: string
   name: string | undefined
   action: JSX.Element

@@ -104,7 +104,7 @@ const Users = () => {
           label={t('admin:components.user.hideGuests')}
         />
         <Button className={styles.gradientButton} sx={{ width: '100%' }} onClick={resetFilter}>
-          Reset
+          {t('admin:components.common.reset')}
         </Button>
       </Popover>
     </div>

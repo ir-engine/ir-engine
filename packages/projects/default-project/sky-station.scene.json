@@ -31,38 +31,6 @@
           }
         },
         {
-          "name": "envmap",
-          "props": {
-            "type": "Texture",
-            "envMapTextureType": "Cubemap",
-            "envMapSourceColor": 16777215,
-            "envMapSourceURL": "/hdr/cubemap/MilkyWay/",
-            "envMapIntensity": 1,
-            "envMapBake": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
-            }
-          }
-        },
-        {
           "name": "envmapbake",
           "props": {
             "bakeType": "Baked",
@@ -324,7 +292,6 @@
             "materialOverrides": [],
             "generateBVH": true,
             "matrixAutoUpdate": true,
-            "useBasicMaterial": false,
             "isUsingGPUInstancing": false
           }
         },
@@ -407,7 +374,7 @@
             },
             "scale": {
               "x": 1,
-              "y": 0.5625,
+              "y": 1,
               "z": 1
             }
           }
@@ -453,7 +420,7 @@
         {
           "name": "image",
           "props": {
-            "imageSource": "",
+            "source": "",
             "alphaCutoff": 0.5,
             "alphaMode": "Opaque",
             "projection": "Flat",
@@ -584,7 +551,6 @@
             "materialOverrides": [],
             "generateBVH": false,
             "matrixAutoUpdate": true,
-            "useBasicMaterial": false,
             "isUsingGPUInstancing": false
           }
         },

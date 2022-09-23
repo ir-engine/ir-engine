@@ -1,13 +1,12 @@
-import { Color, Mesh, PlaneBufferGeometry, ShaderMaterial, sRGBEncoding, WebGLRenderTarget } from 'three'
+import { Color, Mesh, PlaneGeometry, ShaderMaterial, sRGBEncoding, WebGLRenderTarget } from 'three'
 import { Vector3 } from 'three'
 
 import { loadCubeMapTexture } from '../constants/Util'
-import { Updatable } from '../interfaces/Updatable'
 import fragmentShader from './water/shaders/surface/fragment'
 import vertexShader from './water/shaders/surface/vertex'
 import { WaveSimulator } from './water/WaveSimulator'
 
-export class Water extends Mesh implements Updatable {
+export class Water extends Mesh {
   waveSimulator: WaveSimulator
   firstRun: boolean
   timer: number
@@ -30,7 +29,7 @@ export class Water extends Mesh implements Updatable {
 
     const gridSize = 512
 
-    const waterGeometry = new PlaneBufferGeometry(2, 2, gridSize, gridSize)
+    const waterGeometry = new PlaneGeometry(2, 2, gridSize, gridSize)
     super(waterGeometry, material)
     this.rotation.x = -Math.PI * 0.5
 

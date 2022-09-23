@@ -19,14 +19,14 @@ import { iterateEntityNode, removeEntityNodeFromParent } from '@xrengine/engine/
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { Physics } from '@xrengine/engine/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
-import { CallbackComponent } from '@xrengine/engine/src/scene/components/CallbackComponent'
+import { CallbackComponent, setCallback } from '@xrengine/engine/src/scene/components/CallbackComponent'
 import {
   LoadVolumeComponent,
   LoadVolumeComponentType,
   SCENE_COMPONENT_LOAD_VOLUME_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/components/LoadVolumeComponent'
 import { serializeEntity, serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
-import { createSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { updateSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 
 import { EntityTreeNode } from '../../../ecs/classes/EntityTree'
 
@@ -56,7 +56,7 @@ export const updateLoadVolume: ComponentUpdateFunction = (entity: Entity) => {
 
   function doLoad() {
     component.targets.map(({ uuid, componentJson }) => {
-      const loaded = createSceneEntity(uuid, { name: uuid, components: componentJson })
+      const loaded = updateSceneEntity(uuid, { name: uuid, components: componentJson })
     })
   }
 
@@ -84,7 +84,9 @@ export const updateLoadVolume: ComponentUpdateFunction = (entity: Entity) => {
   if (hasComponent(entity, CallbackComponent)) {
     removeComponent(entity, CallbackComponent)
   }
-  addComponent(entity, CallbackComponent, { doLoad, doUnload })
+
+  setCallback(entity, 'doLoad', doLoad)
+  setCallback(entity, 'doUnload', doUnload)
 
   if (!getEngineState().sceneLoaded) {
     matchActionOnce(EngineActions.sceneLoaded.matches, finishUpdate)

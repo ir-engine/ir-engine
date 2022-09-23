@@ -187,9 +187,10 @@ export const pushProjectToGithub = async (
   app: Application,
   project: ProjectInterface,
   user: UserInterface,
-  reset = false
+  reset = false,
+  storageProviderName?: string
 ) => {
-  const storageProvider = getStorageProvider()
+  const storageProvider = getStorageProvider(storageProviderName)
   try {
     logger.info(`[ProjectPush]: Getting files for project "${project.name}"...`)
     let files = await getFileKeysRecursive(`projects/${project.name}/`)
@@ -271,7 +272,6 @@ export const pushProjectToGithub = async (
       const branches = await git.branchLocal()
       await git.push('origin', `${branches.current}:${defaultBranch}`, ['-f'])
     } else await uploadToRepo(octoKit, files, owner, repo, defaultBranch, project.name, githubIdentityProvider != null)
-    if (!isDev) deleteFolderRecursive(localProjectDirectory)
   } catch (err) {
     logger.error(err)
     throw err

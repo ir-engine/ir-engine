@@ -453,8 +453,12 @@ class GLTFWriter {
 		}
 
 		this.processInput( input );
-
-		await Promise.all( this.pending );
+		let pendingCount
+		do {
+			pendingCount = this.pending.length
+			await Promise.all( this.pending );
+		} while (pendingCount !== this.pending.length)
+		
 
 		const writer = this;
 		const buffers = writer.buffers;
@@ -1107,96 +1111,109 @@ class GLTFWriter {
 		const imageDef = { mimeType: mimeType };
 
 		if ( options.embedImages ) {
-			const canvas = getCanvas();
+			//check if image already has an object url
+			if(options.binary === true && /^blob:/.test(image.src)) {
+				pending.push(new Promise(async (resolve, reject) => {
+					const response = await fetch(image.src)
+					const blob = await response.blob()
+					
+					const bufferViewIndex = await writer.processBufferViewImage(blob)
+					imageDef.bufferView = bufferViewIndex
+					resolve({})
+				}))
+			} else {
+				const canvas = getCanvas();
 
-			canvas.width = Math.min( image.width, options.maxTextureSize );
-			canvas.height = Math.min( image.height, options.maxTextureSize );
-	
-			const ctx = canvas.getContext( '2d' );
-	
-			if ( flipY === true ) {
-	
-				ctx.translate( 0, canvas.height );
-				ctx.scale( 1, - 1 );
-	
-			}
-	
-			if ( image.data !== undefined ) { // THREE.DataTexture
-				let data
-				if ( format !== RGBAFormat ) {
-	
-	
+				canvas.width = Math.min( image.width, options.maxTextureSize );
+				canvas.height = Math.min( image.height, options.maxTextureSize );
+		
+				const ctx = canvas.getContext( '2d' );
+		
+				if ( flipY === true ) {
+		
+					ctx.translate( 0, canvas.height );
+					ctx.scale( 1, - 1 );
+		
 				}
-				else
-				{
-					if ( image.width > options.maxTextureSize || image.height > options.maxTextureSize ) {
-	
-						console.warn( 'GLTFExporter: Image size is bigger than maxTextureSize', image );
+		
+				if ( image.data !== undefined ) { // THREE.DataTexture
+					let data
+					if ( format !== RGBAFormat ) {
+		
 		
 					}
+					else
+					{
+						if ( image.width > options.maxTextureSize || image.height > options.maxTextureSize ) {
 		
-					data = new Uint8ClampedArray( image.height * image.width * 4 );
-		
-					for ( let i = 0; i < data.length; i += 4 ) {
-		
-						data[ i + 0 ] = image.data[ i + 0 ];
-						data[ i + 1 ] = image.data[ i + 1 ];
-						data[ i + 2 ] = image.data[ i + 2 ];
-						data[ i + 3 ] = image.data[ i + 3 ];
-		
+							console.warn( 'GLTFExporter: Image size is bigger than maxTextureSize', image );
+			
+						}
+			
+						data = new Uint8ClampedArray( image.height * image.width * 4 );
+			
+						for ( let i = 0; i < data.length; i += 4 ) {
+			
+							data[ i + 0 ] = image.data[ i + 0 ];
+							data[ i + 1 ] = image.data[ i + 1 ];
+							data[ i + 2 ] = image.data[ i + 2 ];
+							data[ i + 3 ] = image.data[ i + 3 ];
+			
+						}
+						ctx.putImageData( new ImageData( data, image.width, image.height ), 0, 0 );
 					}
-					ctx.putImageData( new ImageData( data, image.width, image.height ), 0, 0 );
-				}
-			} else {
-	
-				ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
-	
-			}
-	
-			
-			
-	
-			if ( options.binary === true ) {
-	
-				pending.push(
-	
-					getToBlobPromise( canvas, mimeType )
-						.then( blob => writer.processBufferViewImage( blob ) )
-						.then( bufferViewIndex => {
-	
-							imageDef.bufferView = bufferViewIndex;
-	
-						} )
-	
-				);
-	
-			} else {
-	
-				if ( canvas.toDataURL !== undefined ) {
-	
-					imageDef.uri = canvas.toDataURL( mimeType );
-	
 				} else {
-	
-					pending.push(
-	
-						getToBlobPromise( canvas, mimeType )
-							.then( blob => new FileReader().readAsDataURL( blob ) )
-							.then( dataURL => {
-	
-								imageDef.uri = dataURL;
-	
-							} )
-	
-					);
-	
+		
+					ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
+		
 				}
-	
+		
+				
+				
+		
+				if ( options.binary === true ) {
+		
+					pending.push(
+		
+						getToBlobPromise( canvas, mimeType )
+							.then( blob => writer.processBufferViewImage( blob ) )
+							.then( bufferViewIndex => {
+		
+								imageDef.bufferView = bufferViewIndex;
+		
+							} )
+		
+					);
+		
+				} else {
+		
+					if ( canvas.toDataURL !== undefined ) {
+		
+						imageDef.uri = canvas.toDataURL( mimeType );
+		
+					} else {
+		
+						pending.push(
+		
+							getToBlobPromise( canvas, mimeType )
+								.then( blob => new FileReader().readAsDataURL( blob ) )
+								.then( dataURL => {
+		
+									imageDef.uri = dataURL;
+		
+								} )
+		
+						);
+		
+					}
+		
+				}
 			}
 		} else {
 			//only save urls without serializing any images into bufferviews
 			imageDef.uri = image.src
-			imageDef.mimeType = `image/${/(?<=\.)[\d\w]+$/.exec(image.src)[0]}`
+			const extension = image.src.split('.').at(-1)
+			imageDef.mimeType = `image/${extension}`
 			if (imageDef.mimeType === 'image/jpg') 
 				imageDef.mimeType = 'image/jpeg'
 		}

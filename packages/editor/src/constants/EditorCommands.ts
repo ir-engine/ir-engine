@@ -20,35 +20,35 @@ import { TagComponentCommand, TagComponentCommandParams } from '../commands/TagC
 import { ToggleSelectionCommand, ToggleSelectionCommandParams } from '../commands/ToggleSelectionCommand'
 
 export enum ObjectCommands {
-  ADD_OBJECTS = 1,
-  REMOVE_OBJECTS = 2,
-  DUPLICATE_OBJECTS = 3,
-  MODIFY_PROPERTY = 4
+  ADD_OBJECTS = 'ADD_OBJECTS',
+  REMOVE_OBJECTS = 'REMOVE_OBJECTS',
+  DUPLICATE_OBJECTS = 'DUPLICATE_OBJECTS',
+  MODIFY_PROPERTY = 'MODIFY_PROPERTY'
 }
 
 export enum SelectionCommands {
-  ADD_TO_SELECTION = 5,
-  REMOVE_FROM_SELECTION = 6,
-  TOGGLE_SELECTION = 7,
-  REPLACE_SELECTION = 8
+  ADD_TO_SELECTION = 'ADD_TO_SELECTION',
+  REMOVE_FROM_SELECTION = 'REMOVE_FROM_SELECTION',
+  TOGGLE_SELECTION = 'TOGGLE_SELECTION',
+  REPLACE_SELECTION = 'REPLACE_SELECTION'
 }
 
 export enum ParentCommands {
-  REPARENT = 9,
-  GROUP = 10
+  REPARENT = 'REPARENT',
+  GROUP = 'GROUP'
 }
 
 export enum TransformCommands {
-  POSITION = 11,
-  ROTATION = 12,
-  SCALE = 13,
-  ROTATE_AROUND = 14
+  POSITION = 'POSITION',
+  ROTATION = 'ROTATION',
+  SCALE = 'SCALE',
+  ROTATE_AROUND = 'ROTATE_AROUND'
 }
 
 export enum MiscCommands {
-  TAG_COMPONENT = 15,
-  MODIFY_OBJECT3D = 16,
-  MODIFY_MATERIAL = 17
+  TAG_COMPONENT = 'TAG_COMPONENT',
+  MODIFY_OBJECT3D = 'MODIFY_OBJECT3D',
+  MODIFY_MATERIAL = 'MODIFY_MATERIAL'
 }
 
 export const EditorCommands = {

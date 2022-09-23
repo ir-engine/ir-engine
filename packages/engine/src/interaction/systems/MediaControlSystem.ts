@@ -3,10 +3,9 @@ import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
-import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createMediaControlsUI } from '../functions/mediaControlsUI'
@@ -17,19 +16,17 @@ export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTran
 const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
   const xrui = getComponent(mediaControls.entity, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
-  const buttonLayer = xrui.container.rootLayer.querySelector('button')!
-  const model = getComponent(entity, Object3DComponent).value
-  const intersectObjects = world.pointerScreenRaycaster.intersectObject(model, true)
-  if (intersectObjects.length && !mediaControls.state.mouseOver.value) {
+  const buttonLayer = xrui.container.rootLayer.querySelector('button')
+  const group = getComponent(entity, GroupComponent)
+  const intersectObjects = group ? world.pointerScreenRaycaster.intersectObjects(group, true) : []
+  if (intersectObjects.length) {
     transition.setState('IN')
-    mediaControls.state.mouseOver.set(true)
   }
-  if (!intersectObjects.length && mediaControls.state.mouseOver.value) {
+  if (!intersectObjects.length) {
     transition.setState('OUT')
-    mediaControls.state.mouseOver.set(false)
   }
   transition.update(world.deltaSeconds, (opacity) => {
-    buttonLayer.scale.setScalar(0.9 + 0.1 * opacity * opacity)
+    buttonLayer?.scale.setScalar(0.9 + 0.1 * opacity * opacity)
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
       mat.opacity = opacity
@@ -39,15 +36,15 @@ const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<ty
 
 export default async function MediaControlSystem(world: World) {
   /** @todo, remove this when we have better system pipeline injection */
-  if (Engine.instance.isEditor) return () => {}
+  if (Engine.instance.isEditor) return { execute: () => {}, cleanup: async () => {} }
 
-  const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
+  const mediaQuery = defineQuery([MediaComponent])
 
   const update = onUpdate(world)
 
-  return () => {
+  const execute = () => {
     for (const entity of mediaQuery.enter(world)) {
-      if (!getComponent(entity, MediaComponent).controls) return
+      if (!getComponent(entity, MediaComponent).controls.value) continue
       addInteractableUI(entity, createMediaControlsUI(entity), update)
       const transition = createTransitionState(0.25)
       transition.setState('OUT')
@@ -56,8 +53,12 @@ export default async function MediaControlSystem(world: World) {
 
     for (const entity of mediaQuery.exit(world)) {
       if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
-      const mediaComponent = getComponent(entity, MediaElementComponent, true)
-      mediaComponent?.remove()
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, mediaQuery)
+  }
+
+  return { execute, cleanup }
 }

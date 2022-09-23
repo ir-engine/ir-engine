@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -8,6 +8,7 @@ import {
   getEntityNodeArrayFromEntities,
   reparentEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -155,17 +156,20 @@ function reparent(command: ReparentCommandParams, isUndo: boolean) {
     const before = befores ? befores[i] ?? befores[0] : undefined
     if (typeof node !== 'string') {
       const _parent = parent as EntityTreeNode
+      if (node.entity === _parent.entity) continue
       const _before = before as EntityTreeNode | undefined
       const index = _before && _parent.children ? _parent.children.indexOf(_before.entity) : undefined
-
       reparentEntityNode(node, _parent, index)
       reparentObject3D(node, _parent, _before)
     } else {
-      const _parent = obj3dFromUuid(parent as string)
+      const _parent =
+        typeof parent === 'string' ? obj3dFromUuid(parent) : getComponent(parent.entity, GroupComponent)[0]
 
       const obj3d = obj3dFromUuid(node)
+      const oldWorldTransform = obj3d.parent?.matrixWorld ?? new Matrix4()
       obj3d.removeFromParent()
       _parent.add(obj3d)
+      obj3d.applyMatrix4(_parent.matrixWorld.clone().invert().multiply(oldWorldTransform))
     }
   }
 

@@ -12,6 +12,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
+import { ModelComponent } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 class AnimationManager {
@@ -97,10 +98,9 @@ describe('LoopAnimationFunctions', () => {
     let obj3d: Object3D
 
     beforeEach(() => {
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
       addComponent(entity, LoopAnimationComponent, sceneComponentData)
       loopAnimation = getComponent(entity, LoopAnimationComponent) as LoopAnimationComponentType
-      obj3d = getComponent(entity, Object3DComponent)?.value as Object3D
+      obj3d = new Object3D()
       obj3d.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any
     })
 
@@ -137,11 +137,10 @@ describe('LoopAnimationFunctions', () => {
     let obj3d: Object3D
 
     beforeEach(() => {
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
+      const scene = new Object3D()
       addComponent(entity, LoopAnimationComponent, sceneComponentData)
       loopAnimation = getComponent(entity, LoopAnimationComponent) as LoopAnimationComponentType
-      obj3d = getComponent(entity, Object3DComponent)?.value as Object3D
-      obj3d.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any
+      scene.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any
       loopAnimation.activeClipIndex = Math.floor(Math.random() * 100) % 3
       loopAnimationFunctions.updateLoopAnimation(entity)
     })

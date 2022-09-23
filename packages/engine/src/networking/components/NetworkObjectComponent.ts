@@ -3,7 +3,7 @@ import { Types } from 'bitecs'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type NetworkObjectComponentType = {
   /** The user who is authority over this object. */
@@ -14,11 +14,23 @@ export type NetworkObjectComponentType = {
   networkId: NetworkId
 }
 
-const SCHEMA = {
-  networkId: Types.ui32
-}
+export const NetworkObjectComponent = defineComponent({
+  name: 'NetworkObjectComponent',
 
-export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType, typeof SCHEMA>(
-  'NetworkObjectComponent',
-  SCHEMA
-)
+  schema: {
+    networkId: Types.ui32
+  },
+
+  toJSON: (entity, component: NetworkObjectComponentType) => {
+    return component
+  },
+
+  onUpdate: (entity, component, json) => {
+    if (typeof json.ownerId === 'string') component.ownerId = json.ownerId
+    if (typeof json.authorityUserId === 'string') component.authorityUserId = json.authorityUserId
+    if (typeof json.networkId === 'number') {
+      component.networkId = json.networkId
+      NetworkObjectComponent.networkId[entity] = json.networkId
+    }
+  }
+})

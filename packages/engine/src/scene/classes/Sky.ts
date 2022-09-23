@@ -1,6 +1,6 @@
 import {
   BackSide,
-  BoxBufferGeometry,
+  BoxGeometry,
   CubeCamera,
   CubeTexture,
   Mesh,
@@ -195,7 +195,7 @@ export class Sky {
 
   constructor() {
     this.sky = new Mesh(
-      new BoxBufferGeometry(1, 1, 1),
+      new BoxGeometry(1, 1, 1),
       new ShaderMaterial({
         fragmentShader: Sky.fragmentShader,
         vertexShader: Sky.vertexShader,

@@ -14,8 +14,8 @@ import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -43,7 +43,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
   tiltContainer.name = 'Actor (tiltContainer)' + entity
-  tiltContainer.position.setY(defaultAvatarHalfHeight)
+  // tiltContainer.position.setY(defaultAvatarHalfHeight)
 
   // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
   const modelContainer = new Group()
@@ -81,7 +81,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     locomotion: new Vector3()
   })
 
-  addComponent(entity, Object3DComponent, { value: tiltContainer })
+  addObjectToGroup(entity, tiltContainer)
   setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   addComponent(entity, SpawnPoseComponent, {
@@ -144,10 +144,9 @@ export const createAvatarController = (entity: Entity) => {
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   if (!hasComponent(entity, AvatarControllerComponent)) {
     getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
-    const rigidBody = createAvatarRigidBody(entity)
+    createAvatarRigidBody(entity)
     addComponent(entity, AvatarControllerComponent, {
       cameraEntity: Engine.instance.currentWorld.cameraEntity,
-      body: rigidBody,
       bodyCollider: undefined!,
       movementEnabled: true,
       isJumping: false,

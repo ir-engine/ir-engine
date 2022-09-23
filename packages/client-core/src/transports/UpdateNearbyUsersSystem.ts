@@ -41,9 +41,13 @@ export default async function UpdateNearbyUsersSystem(world: World) {
   // every 5 seconds
   const NEARBY_AVATAR_UPDATE_PERIOD = Engine.instance.tickRate * 5
 
-  return () => {
+  const execute = () => {
     if (world.fixedTick % NEARBY_AVATAR_UPDATE_PERIOD === 0) {
       updateNearbyAvatars()
     }
   }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
 }

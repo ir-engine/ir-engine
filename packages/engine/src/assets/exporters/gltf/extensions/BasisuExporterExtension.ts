@@ -3,7 +3,7 @@ import {
   CompressedTexture,
   Mesh,
   PerspectiveCamera,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   Scene,
   ShaderMaterial,
   Texture,
@@ -18,7 +18,7 @@ import { ExporterExtension } from './ExporterExtension'
 
 export default class BasisuExporterExtension extends ExporterExtension {
   constructor(writer: GLTFWriter) {
-    super(writer, {})
+    super(writer)
     this.name = 'KHR_texture_basisu'
     this.sampler = writer.processSampler(new Texture())
     this.imgCache = new Map<any, number>()
@@ -33,9 +33,11 @@ export default class BasisuExporterExtension extends ExporterExtension {
     writer.pending.push(
       new Promise(async (resolve) => {
         const texture = (await createReadableTexture(_texture)) as Texture
-        /*textureDef.source = writer.processImage(texture.image, texture.format, texture.flipY)
-      textureDef.sampler = this.sampler*/
-        const image: HTMLCanvasElement = texture.image
+        textureDef.source = writer.processImage(texture.image, texture.format, texture.flipY)
+        textureDef.sampler = this.sampler
+        resolve(null)
+        /* const image: HTMLCanvasElement = texture.image
+
         const ktx2write = new KTX2Encoder()
         const imageDef: any = {
           width: image.width,
@@ -44,7 +46,14 @@ export default class BasisuExporterExtension extends ExporterExtension {
         }
         if (!writer.json.images) writer.json.images = []
         const index = writer.json.images.push(imageDef) - 1
-        const blob = await new Promise<Blob | null>((resolve) => image.toBlob(resolve))
+        const blob = await new Promise<Blob | null>((resolve) => {
+          if (typeof image.toBlob === 'function')
+            image.toBlob(resolve)
+          else {
+            fetch(image.getAttribute('src')!).then(response => response.blob().then(resolve))
+          }
+        })
+
         if (blob) {
           const data = await blob.arrayBuffer()
           const imgData = {
@@ -67,6 +76,8 @@ export default class BasisuExporterExtension extends ExporterExtension {
               .then(resolve)
           })
         }
+      })
+    )*/
       })
     )
   }

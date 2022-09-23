@@ -1,10 +1,6 @@
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 
-import {
-  ComponentConstructor,
-  hasComponent,
-  removeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { useEditorState } from '../../services/EditorServices'
 import PropertyGroup from './PropertyGroup'
@@ -21,7 +17,13 @@ type NodeEditorProps = EditorPropType & {
  *
  * @type {class component}
  */
-export const NodeEditor: React.FC<NodeEditorProps> = ({ description, children, name, node, component }) => {
+export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
+  description,
+  children,
+  name,
+  node,
+  component
+}) => {
   const editorState = useEditorState()
   return (
     <PropertyGroup

@@ -31,38 +31,6 @@
           }
         },
         {
-          "name": "envmap",
-          "props": {
-            "type": "Texture",
-            "envMapTextureType": "Equirectangular",
-            "envMapSourceColor": 16777215,
-            "envMapSourceURL": "/hdr/city.jpg",
-            "envMapIntensity": 1,
-            "envMapBake": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
-            }
-          }
-        },
-        {
           "name": "envmapbake",
           "props": {
             "bakeType": "Baked",
@@ -177,21 +145,10 @@
           }
         },
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "ground-plane",
           "props": {
             "color": 3561699,
             "generateNavmesh": false
-          }
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
           }
         }
       ],
@@ -428,7 +385,6 @@
             "materialOverrides": [],
             "generateBVH": true,
             "matrixAutoUpdate": true,
-            "useBasicMaterial": false,
             "isUsingGPUInstancing": false
           }
         },
@@ -1209,7 +1165,6 @@
             "materialOverrides": [],
             "generateBVH": false,
             "matrixAutoUpdate": true,
-            "useBasicMaterial": false,
             "isUsingGPUInstancing": false
           }
         },

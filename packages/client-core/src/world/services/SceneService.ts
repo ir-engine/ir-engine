@@ -49,13 +49,14 @@ export const SceneService = {
           .service('scene')
           .get({ projectName, sceneName, metadataOnly: null }, {})
         updateSceneFromJSON(sceneData.data)
-        // ;(getState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
+        ;(getState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
       }
       // for testing
-      window.addEventListener('keydown', (ev) => {
-        if (ev.code === 'KeyN') sceneUpdatedListener()
-      })
+      // window.addEventListener('keydown', (ev) => {
+      //   if (ev.code === 'KeyN') sceneUpdatedListener()
+      // })
 
+      /** @todo currently broken */
       API.instance.client.service('scene').on('updated', sceneUpdatedListener)
 
       return () => {
@@ -67,11 +68,11 @@ export const SceneService = {
 
 export class SceneActions {
   static currentSceneChanged = defineAction({
-    type: 'location.CURRENT_SCENE_CHANGED',
+    type: 'xre.client.Scene.CURRENT_SCENE_CHANGED',
     sceneData: matches.object as Validator<unknown, SceneData>
   })
 
   static unloadCurrentScene = defineAction({
-    type: 'location.UNLOAD_CURRENT_SCENE'
+    type: 'xre.client.Scene.UNLOAD_CURRENT_SCENE'
   })
 }

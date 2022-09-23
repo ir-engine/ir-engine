@@ -1,27 +1,21 @@
 import { WebLayer3D } from '@etherealjs/web-layer/three'
-import { Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
-import { MediaComponent } from '../../scene/components/MediaComponent'
-import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createMediaControlsView } from '../ui/MediaControlsUI'
 
 export const createMediaControlsUI = (entity: Entity) => {
-  const mediaComponent = getComponent(entity, MediaComponent)
-  const mediaElementComponent = getComponent(entity, MediaElementComponent)
+  const ui = createMediaControlsView(entity)
 
-  const ui = createMediaControlsView({ playing: mediaComponent.playing }, entity)
-
-  addEntityNodeInTree(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
+  addEntityNodeChild(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
   addComponent(ui.entity, NameComponent, {
-    name: 'mediacontrols-ui-' + mediaElementComponent.src
+    name: 'mediacontrols-ui-' + entity
   })
 
   const xrui = getComponent(ui.entity, XRUIComponent)

@@ -1,19 +1,24 @@
-import { Object3D } from 'three'
+import { Event, Object3D } from 'three'
 
-import { GLTFWriter } from '../GLTFExporter'
+import { getComponent, hasComponent } from '../../../../ecs/functions/ComponentFunctions'
+import { ColliderComponent } from '../../../../scene/components/ColliderComponent'
+import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
+import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
-export default class EEColliderExporterExtension extends ExporterExtension {
+export default class EEColliderExporterExtension extends ExporterExtension implements GLTFExporterPlugin {
   constructor(writer: GLTFWriter) {
-    super(writer, {})
+    super(writer)
     this.name = 'EE_collider'
   }
 
-  writeNode(node: Object3D, nodeDef) {
-    if (!node?.isObject3D) return
+  beforeParse(input: Object3D<Event> | Object3D<Event>[]) {}
+
+  writeNode(node: Object3DWithEntity, nodeDef) {
+    if (!node || !node.isObject3D || !node.entity || !hasComponent(node.entity, ColliderComponent)) return
     const writer = this.writer
-    nodeDef.extensions = nodeDef.extensions ?? {}
-    const extensionDef = {}
-    nodeDef[this.name] = extensionDef
+    const collider = getComponent(node.entity, ColliderComponent)
+    // const groupedColliders = getComponent(node.entity, GroupColliderComponent)
+    // groupedColliders
   }
 }

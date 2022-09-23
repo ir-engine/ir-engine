@@ -17,16 +17,14 @@ import {
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
-import { GLTFLoadedComponent } from '../../components/GLTFLoadedComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import {
   ModelComponent,
   ModelComponentType,
   SCENE_COMPONENT_MODEL_DEFAULT_VALUE
 } from '../../components/ModelComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
-import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { generateMeshBVH } from '../bvhWorkerPool'
 import { addError, removeError } from '../ErrorFunctions'
@@ -68,8 +66,7 @@ function setupAnimations(model, scene, entity) {
 export const updateModel = async (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
   /** @todo replace userData usage with something else */
-  const sourceChanged =
-    !hasComponent(entity, Object3DComponent) || getComponent(entity, Object3DComponent).value.userData.src !== model.src
+  const sourceChanged = !model.scene || model.scene.userData.src !== model.src
   if (sourceChanged) {
     try {
       const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
@@ -99,6 +96,8 @@ export const updateModel = async (entity: Entity) => {
           break
       }
       scene.userData.src = model.src
+      model.scene = scene
+      addObjectToGroup(entity, scene)
       setBoundingBoxComponent(entity)
       parseGLTFModel(entity)
       if (model.generateBVH) {
@@ -112,14 +111,8 @@ export const updateModel = async (entity: Entity) => {
     }
   }
 
-  const obj3d = getComponent(entity, Object3DComponent).value
-  enableObjectLayer(obj3d, ObjectLayers.Camera, model.generateBVH)
-
-  const notUsingAndHasBasicMaterial = !hasComponent(entity, SimpleMaterialTagComponent) && model.useBasicMaterial
-  const usingAndNotHasBasicMaterial = hasComponent(entity, SimpleMaterialTagComponent) && !model.useBasicMaterial
-
-  if (notUsingAndHasBasicMaterial) addComponent(entity, SimpleMaterialTagComponent, true)
-  if (usingAndNotHasBasicMaterial) removeComponent(entity, SimpleMaterialTagComponent)
+  const scene = model.scene!
+  enableObjectLayer(scene, ObjectLayers.Camera, model.generateBVH)
 
   if (isClient && model.materialOverrides.length > 0) {
     const overrides = await Promise.all(
@@ -156,7 +149,6 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
     materialOverrides: overrides,
     generateBVH: component.generateBVH,
     matrixAutoUpdate: component.matrixAutoUpdate,
-    useBasicMaterial: component.useBasicMaterial,
     isUsingGPUInstancing: component.isUsingGPUInstancing
   }
 }

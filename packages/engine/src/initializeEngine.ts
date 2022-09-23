@@ -14,7 +14,6 @@ import { createWorld, destroyWorld } from './ecs/classes/World'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
 import { initSystems, initSystemSync, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import { matchActionOnce } from './networking/functions/matchActionOnce'
 import IncomingActionSystem from './networking/systems/IncomingActionSystem'
 import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
@@ -132,14 +131,14 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
+      uuid: 'xre.engine.SceneObjectSystem',
+      type: SystemUpdateType.UPDATE_LATE,
+      systemLoader: () => import('./scene/systems/SceneObjectSystem')
+    },
+    {
       uuid: 'xre.engine.TransformSystem',
       type: SystemUpdateType.UPDATE_LATE,
       systemLoader: () => import('./transform/systems/TransformSystem')
-    },
-    {
-      uuid: 'xre.engine.SceneObjectSystem',
-      type: SystemUpdateType.FIXED_LATE,
-      systemLoader: () => import('./scene/systems/SceneObjectSystem')
     },
     {
       uuid: 'xre.engine.SceneLoadingSystem',
@@ -160,11 +159,6 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
       uuid: 'xre.engine.AssetSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => import('./scene/systems/AssetSystem')
-    },
-    {
-      uuid: 'xre.engine.LoadVolumeSystem',
-      type: SystemUpdateType.FIXED_LATE,
-      systemLoader: () => import('./scene/systems/LoadVolumeSystem')
     }
   )
 
@@ -194,6 +188,11 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
         uuid: 'xre.engine.SceneObjectDynamicLoadSystem',
         type: SystemUpdateType.FIXED_LATE,
         systemLoader: () => import('./scene/systems/SceneObjectDynamicLoadSystem')
+      },
+      {
+        uuid: 'xre.engine.MaterialLibrarySystem',
+        type: SystemUpdateType.FIXED_LATE,
+        systemLoader: () => import('./renderer/materials/systems/MaterialLibrarySystem')
       },
       {
         uuid: 'xre.engine.MaterialOverrideSystem',
@@ -292,14 +291,14 @@ export const initializeSceneSystems = async () => {
         systemLoader: () => import('./interaction/systems/InteractiveSystem')
       },
       {
+        uuid: 'xre.engine.MediaSystem',
+        type: SystemUpdateType.PRE_RENDER,
+        systemLoader: () => import('./audio/systems/MediaSystem')
+      },
+      {
         uuid: 'xre.engine.MountPointSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./interaction/systems/MountPointSystem')
-      },
-      {
-        uuid: 'xre.engine.AudioSystem',
-        type: SystemUpdateType.PRE_RENDER,
-        systemLoader: () => import('./audio/systems/AudioSystem')
       },
       {
         uuid: 'xre.engine.PositionalAudioSystem',
@@ -322,11 +321,6 @@ export const initializeSceneSystems = async () => {
         systemLoader: () => import('./avatar/AnimationSystem')
       },
       {
-        uuid: 'xre.engine.RendererUpdateSystem',
-        type: SystemUpdateType.PRE_RENDER,
-        systemLoader: () => import('./scene/systems/RendererUpdateSystem')
-      },
-      {
         uuid: 'xre.engine.ParticleSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./scene/systems/ParticleSystem')
@@ -335,6 +329,11 @@ export const initializeSceneSystems = async () => {
         uuid: 'xre.engine.DebugHelpersSystem',
         type: SystemUpdateType.PRE_RENDER,
         systemLoader: () => import('./debug/systems/DebugHelpersSystem')
+      },
+      {
+        uuid: 'xre.engine.DebugRenderer',
+        type: SystemUpdateType.PRE_RENDER,
+        systemLoader: () => import('./debug/systems/DebugRenderer')
       },
       {
         uuid: 'xre.engine.HighlightSystem',

@@ -90,7 +90,7 @@ describe.skip('matchmaking match-instance service', () => {
 
         userPromise.then((user) => {
           ticketsPromises.push(
-            ticketsService.create({ gamemode, attributes: { tier } }, { user }).then((ticketResponse) => {
+            ticketsService.create({ gamemode, attributes: { tier } }, { user } as any).then((ticketResponse) => {
               const ticket = Array.isArray(ticketResponse) ? ticketResponse[0] : ticketResponse
               return {
                 id: ticket.id,
@@ -159,7 +159,7 @@ describe.skip('matchmaking match-instance service', () => {
     // made with promise all to make all request work asynchronous
     const assignments = await Promise.all(
       connectionTickets.map((ticket, index) => {
-        return assignmentService.get(ticket.id, { 'identity-provider': { userId: ticket.user.id } })
+        return assignmentService.get(ticket.id, { 'identity-provider': { userId: ticket.user.id } } as any)
       })
     )
 
@@ -201,7 +201,7 @@ describe.skip('matchmaking match-instance service', () => {
     // made with promise all to make all request work asynchronous
     await Promise.all(
       tickets.map((ticket, index) => {
-        return assignmentService.get(ticket.id, { 'identity-provider': { userId: ticket.user.id } })
+        return assignmentService.get(ticket.id, { 'identity-provider': { userId: ticket.user.id } } as any)
       })
     )
 
@@ -230,7 +230,7 @@ describe.skip('matchmaking match-instance service', () => {
     // made with promise all to make all request work asynchronous
     await Promise.all(
       tickets.map((ticket, index) => {
-        return assignmentService.get(ticket.id, { 'identity-provider': { userId: users[index].id } })
+        return assignmentService.get(ticket.id, { 'identity-provider': { userId: users[index].id } } as any)
       })
     )
 

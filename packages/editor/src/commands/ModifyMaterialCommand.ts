@@ -1,4 +1,4 @@
-import { Mesh } from 'three'
+import { Material, Mesh } from 'three'
 
 import { executeCommand } from '@xrengine/editor/src/classes/History'
 import { CommandFuncType, CommandParams, MiscCommands } from '@xrengine/editor/src/constants/EditorCommands'
@@ -6,6 +6,7 @@ import arrayShallowEqual from '@xrengine/editor/src/functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeProperties } from '@xrengine/editor/src/functions/debug'
 import { EditorAction } from '@xrengine/editor/src/services/EditorServices'
 import { SelectionAction } from '@xrengine/editor/src/services/SelectionServices'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -20,20 +21,29 @@ export type ModifyMaterialCommandParams = CommandParams & {
   undo?: ModifyMaterialCommandUndoParams
 }
 
+function getMaterial(node: string, materialId: string) {
+  let material: Material | undefined
+  if (MaterialLibrary.materials.has(node)) {
+    material = MaterialLibrary.materials.get(node)!.material
+  } else {
+    const mesh = obj3dFromUuid(node) as Mesh
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+    material = materials.find((material) => material.uuid === materialId)
+  }
+  if (typeof material === 'undefined' || !material.isMaterial) throw new Error('Material is missing from host mesh')
+  return material
+}
+
 function prepare(command: ModifyMaterialCommandParams) {
   const props = command.affectedNodes.filter((node) => typeof node === 'string') as string[]
   if (command.keepHistory) {
     command.undo = {
       properties: props.map((node, i) => {
-        const mesh = obj3dFromUuid(node) as Mesh
-        if (!mesh?.isMesh) throw new Error('Material host not defined')
-        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-        const material = materials.find((material) => material.uuid === command.materialId)
-        if (!material?.isMaterial) throw new Error('Material is missing from host mesh')
+        const material = getMaterial(node, command.materialId)
         const oldProps = {} as any
         const propertyNames = Object.keys(command.properties[i] ?? command.properties[0])
         propertyNames.map((propertyName) => {
-          const oldValue = material[propertyName]
+          const oldValue = material![propertyName]
           oldProps[propertyName] = typeof oldValue?.clone === 'function' ? oldValue.clone() : oldValue
         })
         return oldProps
@@ -76,14 +86,10 @@ function updateMaterial(command: ModifyMaterialCommandParams, isUndo?: boolean) 
   const idCache = new Set<string>()
   command.affectedNodes.map((node, i) => {
     if (typeof node !== 'string') return
-    const obj3d = obj3dFromUuid(node) as Mesh
-    const materials = Array.isArray(obj3d.material) ? obj3d.material : [obj3d.material]
-    const material = materials.find((material) => material.uuid === command.materialId)
-    if (!material) throw new Error('Missing material')
-    if (idCache.has(material.uuid)) return
-    idCache.add(material.uuid)
+    const material = getMaterial(node, command.materialId)
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
+      if (!material) throw new Error('Updating properties on undefined material')
       if (typeof v?.copy === 'function') {
         if (!material[k]) material[k] = new v.constructor()
         material[k].copy(v)
@@ -92,7 +98,6 @@ function updateMaterial(command: ModifyMaterialCommandParams, isUndo?: boolean) 
       } else {
         material[k] = v
       }
-      dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: `material.${k}` }))
     })
     material.needsUpdate = true
   })

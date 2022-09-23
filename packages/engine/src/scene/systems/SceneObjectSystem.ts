@@ -1,24 +1,23 @@
-import { BufferGeometry, Material, Mesh, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshStandardMaterial, Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
+import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { NameComponent } from '../components/NameComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
+import { beforeMaterialCompile } from '../classes/BPCEMShader'
+import { CallbackComponent } from '../components/CallbackComponent'
+import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
-import { UpdatableComponent } from '../components/UpdatableComponent'
-import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
-import { reparentObject3D } from '../functions/ReparentFunction'
-import { Updatable } from '../interfaces/Updatable'
+import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
 type BPCEMProps = {
   bakeScale: Vector3
@@ -35,14 +34,11 @@ export class SceneOptions {
   boxProjection = false
 }
 
-const processObject3d = (entity: Entity) => {
-  if (!isClient) return
-
-  const object3DComponent = getComponent(entity, Object3DComponent)
+const updateObject = (entity: Entity) => {
+  const group = getComponent(entity, GroupComponent) as (Object3DWithEntity & Mesh<any, MeshStandardMaterial>)[]
   const shadowComponent = getComponent(entity, ShadowComponent)
-  object3DComponent.value.name = getComponent(entity, NameComponent)?.name ?? ''
 
-  object3DComponent.value.traverse((obj: Mesh<any, Material>) => {
+  for (const obj of group) {
     const material = obj.material
     if (typeof material !== 'undefined') material.dithering = true
 
@@ -50,33 +46,42 @@ const processObject3d = (entity: Entity) => {
       obj.receiveShadow = shadowComponent.receive
       obj.castShadow = shadowComponent.cast
     }
-  })
+  }
+  if (Engine.instance.isHMD) return
 
-  updateSimpleMaterials([entity])
+  if (hasComponent(entity, XRUIComponent)) return
+
+  let abort = false
+
+  for (const obj of group) {
+    if (abort || (obj.entity && hasComponent(entity, XRUIComponent))) {
+      abort = true
+      return
+    }
+
+    obj.traverse(applyMaterial)
+  }
 }
 
-const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
-  for (const entity of sceneObjectEntities) {
-    const obj3d = getComponent(entity, Object3DComponent)
-    if (hasComponent(entity, XRUIComponent)) return
+const applyMaterial = (obj: Mesh<any, any>) => {
+  if (!obj.material) return
+  const material = obj.material
 
-    const simpleMaterials =
-      hasComponent(entity, SimpleMaterialTagComponent) || getEngineState().useSimpleMaterials.value
-
-    let abort = false
-
-    obj3d.value.traverse((obj: any) => {
-      if (abort || (obj.entity && hasComponent(entity, XRUIComponent))) {
-        abort = true
-        return
-      }
-      if (simpleMaterials) {
-        useSimpleMaterial(obj)
-      } else {
-        useStandardMaterial(obj)
-      }
-    })
+  // BPCEM
+  if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
+    addOBCPlugin(
+      material,
+      beforeMaterialCompile(
+        SceneOptions.instance.bpcemOptions.bakeScale,
+        SceneOptions.instance.bpcemOptions.bakePositionOffset
+      )
+    )
+    material.userData.hasBoxProjectionApplied = true
   }
+
+  material.envMapIntensity = SceneOptions.instance.envMapIntensity
+
+  if (obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
 }
 
 export default async function SceneObjectSystem(world: World) {
@@ -85,60 +90,48 @@ export default async function SceneObjectSystem(world: World) {
     await loadDRACODecoder()
   }
 
-  const sceneObjectQuery = defineQuery([Object3DComponent])
-  const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
+  const sceneObjectQuery = defineQuery([GroupComponent])
+  const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
-
-  return () => {
+  const execute = () => {
     for (const entity of sceneObjectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent, true).value as Mesh
-
-      if (obj3d.parent === Engine.instance.currentWorld.scene) obj3d.removeFromParent()
-
+      const group = getComponent(entity, GroupComponent, true)
       const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
-      for (const layer of layers) {
-        if (layer.has(obj3d)) layer.delete(obj3d)
+      for (const obj of group) {
+        for (const layer of layers) {
+          if (layer.has(obj)) layer.delete(obj)
+        }
       }
-      obj3d.traverse((mesh: Mesh) => {
-        if (typeof (mesh.material as Material)?.dispose === 'function') (mesh.material as Material)?.dispose()
-        if (typeof (mesh.geometry as BufferGeometry)?.dispose === 'function')
-          (mesh.geometry as BufferGeometry)?.dispose()
+    }
+
+    /** ensure the HMD has no heavy materials */
+    if (Engine.instance.isHMD) {
+      world.scene.traverse((obj: Mesh<any, any>) => {
+        if (obj.material)
+          if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
+            obj.material = new MeshLambertMaterial({
+              color: obj.material.color,
+              flatShading: obj.material.flatShading,
+              map: obj.material.map,
+              fog: obj.material.fog
+            })
+          }
       })
     }
 
-    for (const entity of sceneObjectQuery.enter()) {
-      if (!hasComponent(entity, Object3DComponent)) return // may have been since removed
-      const { value } = getComponent(entity, Object3DComponent)
-      // @ts-ignore
-      value.entity = entity
+    if (isClient) for (const entity of sceneObjectQuery()) updateObject(entity)
 
-      const node = world.entityTree.entityNodeMap.get(entity)
-      if (node) {
-        if (node.parentEntity) reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
-      } else {
-        const scene = Engine.instance.currentWorld.scene
-        let isInScene = false
-        value.traverseAncestors((ancestor) => {
-          if (ancestor === scene) {
-            isInScene = true
-          }
-        })
-        if (!isInScene) scene.add(value)
-      }
-
-      processObject3d(entity)
-    }
-
-    for (const action of useSimpleMaterialsActionQueue()) {
-      const sceneObjectEntities = sceneObjectQuery()
-      updateSimpleMaterials(sceneObjectEntities)
-    }
-
-    const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
+    const delta = getState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
-      const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
-      obj?.update(fixedDelta)
+      const callbacks = getComponent(entity, CallbackComponent)
+      callbacks.get(UpdatableCallback)?.(delta)
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, sceneObjectQuery)
+    removeQuery(world, updatableQuery)
+  }
+
+  return { execute, cleanup }
 }

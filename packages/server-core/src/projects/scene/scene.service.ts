@@ -29,15 +29,20 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
+export interface SceneParams extends Params {
+  metadataOnly: boolean
+}
+
 type GetScenesArgsType = {
   projectName: string
   metadataOnly: boolean
   internal?: boolean
+  storageProviderName?: string
 }
 
 export const getScenesForProject = (app: Application) => {
   return async function (args: GetScenesArgsType, params?: Params): Promise<{ data: SceneData[] }> {
-    const storageProvider = getStorageProvider()
+    const storageProvider = getStorageProvider(args.storageProviderName)
     const { projectName, metadataOnly, internal } = args
     try {
       const project = await app.service('project').get(projectName, params)
@@ -67,7 +72,7 @@ export const getScenesForProject = (app: Application) => {
 }
 
 export const getAllScenes = (app: Application) => {
-  return async function (params: Params): Promise<{ data: SceneData[] }> {
+  return async function (params: SceneParams): Promise<{ data: SceneData[] }> {
     const projects = await app.service('project').find(params)
     const scenes = await Promise.all(
       projects.data.map(

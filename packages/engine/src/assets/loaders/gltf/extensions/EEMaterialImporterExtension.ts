@@ -1,6 +1,13 @@
 import { Material } from 'three'
 
-import { materialTypeToDefaultArgs, materialTypeToFactory } from '../../../../renderer/materials/Utilities'
+import {
+  materialIdToDefaultArgs,
+  materialIdToFactory,
+  protoIdToFactory,
+  prototypeFromId
+} from '../../../../renderer/materials/functions/Utilities'
+import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
+import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
 import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
 
 export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
@@ -15,11 +22,13 @@ export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
     const parser = this.parser
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return null
-    const eeMaterial = materialDef.extensions[this.name]
-    const factory = materialTypeToFactory(eeMaterial.type)
+    const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name]
+    const factory = protoIdToFactory(eeMaterial.prototype)
     return factory
       ? (function (args) {
-          return factory(args).material
+          const material = factory(args)
+          material.uuid = eeMaterial.uuid
+          return material
         } as unknown as typeof Material)
       : null
   }
@@ -29,8 +38,10 @@ export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
     const pending = []
-    const extension = materialDef.extensions[this.name]
-    const defaultArgs = materialTypeToDefaultArgs(extension.type)!
+    const extension: EEMaterialExtensionType = materialDef.extensions[this.name]
+    const defaultArgs = MaterialLibrary.materials.has(extension.uuid)
+      ? materialIdToDefaultArgs(extension.uuid)!
+      : prototypeFromId(extension.prototype).arguments
     Object.entries(extension.args).map(async ([k, v]) => {
       materialParams[k] = v
     })

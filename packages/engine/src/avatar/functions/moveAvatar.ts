@@ -1,5 +1,5 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -13,13 +13,14 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getControlMode, XRState } from '../../xr/XRState'
-import { updateXRCamera } from '../../xr/XRSystem'
+import { updateXRInput } from '../../xr/XRSystem'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -27,7 +28,6 @@ import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent
 import { AvatarTeleportTagComponent } from '../components/AvatarTeleportTagComponent'
 import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './createAvatar'
-import { respawnAvatar } from './respawnAvatar'
 
 const _vec3 = new Vector3()
 const _quat = new Quaternion()
@@ -71,7 +71,7 @@ export const moveLocalAvatar = (entity: Entity) => {
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const collidersInContactWithFeet = [] as Collider[]
   physicsWorld.contactsWith(controller.bodyCollider, (otherCollider) => {
-    collidersInContactWithFeet.push(otherCollider)
+    if (otherCollider) collidersInContactWithFeet.push(otherCollider)
   })
 
   for (const otherCollider of collidersInContactWithFeet) {
@@ -91,9 +91,6 @@ export const moveLocalAvatar = (entity: Entity) => {
   const avatarInputState = getState(AvatarInputSettingsState)
   if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) moveAvatarWithTeleport(entity)
   else moveAvatarWithVelocity(entity)
-
-  // TODO: implement scene lower bounds parameter
-  if (controller.body.translation().y < -10) respawnAvatar(entity)
 }
 
 /**
@@ -108,6 +105,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const isInVR = getControlMode() === 'attached'
 
+  const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   /**
@@ -124,7 +122,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   controller.currentSpeed =
     controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
 
-  const prevVelocity = controller.body.linvel()
+  const prevVelocity = rigidBody.body.linvel()
   const currentVelocity = _vec3
     .copy(velocitySpringDirection)
     .multiplyScalar(controller.currentSpeed)
@@ -145,21 +143,18 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
     }
   }
 
-  controller.body.setLinvel(currentVelocity, true)
+  rigidbody.body.setLinvel(currentVelocity, true)
 
   /**
    * Do rotation
    * - if we are in attached mode, we dont need to do any extra rotation
    *     as this is done via the webxr camera automatically
    */
-  if (getControlMode() !== 'attached') {
+  if (!isInVR) {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       rotateBodyTowardsCameraDirection(entity)
     } else {
-      const displacement = _vec3
-        .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
-        .setComponent(1, 0)
-      rotateBodyTowardsVector(entity, displacement)
+      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
     }
   }
 
@@ -181,9 +176,9 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
       _vec3.copy(hits[0].normal as Vector3)
       const angle = _vec3.angleTo(V_010)
       if (angle < stepAngle) {
-        const pos = controller.body.translation()
+        const pos = rigidbody.body.translation()
         pos.y += stepHeight - hits[0].distance
-        controller.body.setTranslation(pos, true)
+        rigidbody.body.setTranslation(pos, true)
       }
     }
   }
@@ -216,7 +211,7 @@ export const updateReferenceSpace = (entity: Entity) => {
     const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
     // maybe?
-    updateXRCamera(Engine.instance.currentWorld.camera as PerspectiveCamera)
+    updateXRInput()
   }
 }
 
@@ -247,9 +242,9 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
 
   if (checkPositionIsValid(newPosition, false)) {
     const avatar = getComponent(entity, AvatarComponent)
-    const controller = getComponent(entity, AvatarControllerComponent)
-    newPosition.y = newPosition.y + avatar.avatarHalfHeight
-    controller.body.setTranslation(newPosition, true)
+    newPosition.y += avatar.avatarHalfHeight
+    const rigidbody = getComponent(entity, RigidBodyComponent)
+    rigidbody.body.setTranslation(newPosition, true)
   } else {
     console.log('invalid position', newPosition)
   }
