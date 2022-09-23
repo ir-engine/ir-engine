@@ -31,7 +31,6 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
-import EnvMapEditor from './EnvMapEditor'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
@@ -117,7 +116,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.scene.name')}
       description={t('editor:properties.scene.description')}
     >
-      <EnvMapEditor node={props.node} />
       <InputGroup
         name="Media Distance Model"
         label={t('editor:properties.scene.lbl-mediaDistanceModel')}

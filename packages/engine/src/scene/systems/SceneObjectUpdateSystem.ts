@@ -63,7 +63,6 @@ import {
   SCENE_COMPONENT_MODEL,
   SCENE_COMPONENT_MODEL_DEFAULT_VALUE
 } from '../components/ModelComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import {
   OceanComponent,
   SCENE_COMPONENT_OCEAN,
@@ -488,10 +487,10 @@ export default async function SceneObjectUpdateSystem(world: World) {
   })
 
   const cameraQuery = defineQuery([CameraComponent])
-  const obj3dQuery = defineQuery([Object3DComponent])
-  const fogQuery = defineQuery([Object3DComponent, FogComponent])
-  const shadowQuery = defineQuery([Object3DComponent, ShadowComponent])
-  const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
+  const obj3dQuery = defineQuery([GroupComponent])
+  const fogQuery = defineQuery([GroupComponent, FogComponent])
+  const shadowQuery = defineQuery([GroupComponent, ShadowComponent])
+  const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
   const loopableAnimationQuery = defineQuery([LoopAnimationComponent, Not(SceneAssetPendingTagComponent)])
@@ -511,12 +510,12 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   const execute = () => {
     for (const entity of obj3dQuery())
-      getComponent(entity, Object3DComponent).value.visible = hasComponent(entity, VisibleComponent)
+      for (const obj of getComponent(entity, GroupComponent)) obj.visible = hasComponent(entity, VisibleComponent)
 
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, ShadowComponent) && hasComponent(entity, Object3DComponent)) updateShadow(entity)
-        if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
+        if (hasComponent(entity, ShadowComponent) && hasComponent(entity, GroupComponent)) updateShadow(entity)
+        if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, GroupComponent)) updateEnvMap(entity)
         if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
         if (hasComponent(entity, PortalComponent)) updatePortal(entity)
@@ -550,7 +549,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of imageQuery.enter()) enterImage(entity)
     for (const entity of shadowQuery.enter()) updateShadow(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
-    for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
     for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')

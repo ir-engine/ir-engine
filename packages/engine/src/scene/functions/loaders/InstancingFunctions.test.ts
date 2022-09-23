@@ -9,7 +9,7 @@ import { EntityTreeNode } from '../../../ecs/classes/EntityTree'
 import { World } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
+import { createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '../../../initializeEngine'
@@ -37,8 +37,6 @@ describe('InstancingFunctions', async () => {
     entity = createEntity()
     node = createEntityNode(entity)
     world = Engine.instance.currentWorld
-
-    addEntityNodeInTree(node)
   }
   beforeEach(async () => {
     sandbox = createSandbox()
