@@ -47,7 +47,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, 
 
 export const updateEnvMap = async (entity: Entity) => {
   const component = getComponent(entity, EnvmapComponent)
-  const obj3d = getComponent(entity, ModelComponent).scene!
+  const obj3d = getComponent(entity, ModelComponent).scene.value!
   if (!obj3d) return
 
   switch (component.type) {

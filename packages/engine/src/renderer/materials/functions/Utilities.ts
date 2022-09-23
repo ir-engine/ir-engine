@@ -124,22 +124,47 @@ export function getSourceMaterials(src: MaterialSource): string[] | undefined {
   return MaterialLibrary.sources.get(hashMaterialSource(src))
 }
 
+export function removeMaterialSource(src: MaterialSource): boolean {
+  const srcId = hashMaterialSource(src)
+  if (!MaterialLibrary.sources.has(srcId)) {
+    MaterialLibrary.sources.get(srcId)!.map((matId) => {
+      const toDelete = materialFromId(matId)
+      Object.values(toDelete.parameters)
+        .filter((val) => (val as Texture).isTexture)
+        .map((val: Texture) => val.dispose())
+      toDelete.material.dispose()
+      MaterialLibrary.materials.delete(matId)
+    })
+    return true
+  } else return false
+}
+
 export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
-  const similarMaterial = [...MaterialLibrary.materials.values()].find(
-    (matComp) => prototypeFromId(matComp.prototype).prototypeId === material.type
-  )
-  if (!similarMaterial) throw Error('unrecognized material prototype ' + material.type)
+  const prototype = prototypeFromId(material.type)
 
   addMaterialSource(src)
   getSourceMaterials(src)!.push(material.uuid)
 
-  const parameters = params ?? Object.fromEntries(Object.keys(similarMaterial.parameters).map((k) => [k, material[k]]))
+  const parameters =
+    params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
   MaterialLibrary.materials.set(material.uuid, {
     material,
     parameters,
-    prototype: similarMaterial.prototype,
+    prototype: prototype.prototypeId,
     src
   })
+}
+
+export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
+  if (MaterialLibrary.prototypes.has(prototype.prototypeId)) {
+    console.warn(
+      'overwriting existing material prototype!\nnew:',
+      prototype.prototypeId,
+      '\nold:',
+      prototypeFromId(prototype.prototypeId)
+    )
+  }
+  MaterialLibrary.prototypes.set(prototype.prototypeId, prototype)
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {

@@ -1,9 +1,5 @@
-import { Material } from 'three'
-
-import { SeedRandom, stringHash } from '../../common/functions/MathFunctions'
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
-import { MaterialSource } from './components/MaterialSource'
 import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './constants/material-prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './constants/material-prototypes/MeshMatcapMaterial.mat'
@@ -12,7 +8,7 @@ import MeshPhysicalMaterial from './constants/material-prototypes/MeshPhysicalMa
 import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMaterial.mat'
 import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
-import { extractDefaults, formatMaterialArgs, registerMaterial } from './functions/Utilities'
+import { registerMaterialPrototype } from './functions/Utilities'
 
 export type MaterialLibraryType = {
   prototypes: Map<string, MaterialPrototypeComponentType>
@@ -37,20 +33,5 @@ export function initializeMaterialLibrary() {
     MeshPhongMaterial,
     MeshToonMaterial,
     ShaderMaterial
-  ].map((prototype) => {
-    MaterialLibrary.prototypes.set(prototype.prototypeId, prototype)
-    //create default material from prototype
-    const parameters = extractDefaults(prototype.arguments)
-    const material = new prototype.baseMaterial(parameters)
-    //set material name to prototype
-    material.name = prototype.prototypeId
-    //set uuid to pseudorandom value based on name
-    material.uuid = `${SeedRandom(stringHash(material.name))}`
-
-    const src: MaterialSource = {
-      path: '',
-      type: 'Built In'
-    }
-    registerMaterial(material, src, parameters)
-  })
+  ].map(registerMaterialPrototype)
 }

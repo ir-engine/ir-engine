@@ -28,7 +28,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
     loader.register((parser) => new GPUInstancingExtension(parser))
     loader.register((parser) => new HubsLightMapExtension(parser))
     loader.register((parser) => new EEMaterialImporterExtension(parser))
-    loader.register((parser) => new RegisterMaterialsExtension())
+    loader.register((parser) => new RegisterMaterialsExtension(parser))
   } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }
