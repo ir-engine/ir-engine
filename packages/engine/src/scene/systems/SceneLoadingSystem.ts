@@ -243,8 +243,8 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
       dispatchAction(
         WorldNetworkAction.spawnSceneObject({
           uuid,
-          position: transform.position,
-          rotation: transform.rotation
+          position: transform.position.clone(),
+          rotation: transform.rotation.clone()
         })
       )
     }

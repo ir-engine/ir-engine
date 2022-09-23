@@ -14,7 +14,6 @@ import { XRHandsInputComponent, XRInputSourceComponent } from '../../xr/XRCompon
 import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
-import { NetworkObjectDirtyTag } from '../components/NetworkObjectDirtyTag'
 import { expand, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
@@ -179,11 +178,14 @@ export const readLinearVelocity = readVector3(VelocityComponent.linear)
 export const readAngularVelocity = readVector3(VelocityComponent.angular)
 export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
 
-export const readTransform = (v: ViewCursor, entity: Entity) => {
+export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Set<Entity>) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
+  if (!isNaN(entity)) {
+    dirtyTransforms.add(entity)
+  }
 }
 
 export const readVelocity = (v: ViewCursor, entity: Entity) => {
@@ -284,14 +286,10 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = NaN as Entity
 
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, world.dirtyTransforms)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
-
-  if (!isNaN(entity) && !hasComponent(entity, NetworkObjectDirtyTag)) {
-    addComponent(entity, NetworkObjectDirtyTag, {})
-  }
 }
 
 export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserId: UserId) => {
