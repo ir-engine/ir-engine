@@ -138,13 +138,14 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
 
-  if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
-    dispatchAction(
-      WorldNetworkAction.registerSceneObject({
-        objectUuid: node.uuid
-      })
-    )
-  }
+  /** @todo networking all objects breaks portals currently - need to implement checks with connecting to instance server to ensure it's the same scene */
+  // if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
+  //   dispatchAction(
+  //     WorldNetworkAction.registerSceneObject({
+  //       objectUuid: node.uuid
+  //     })
+  //   )
+  // }
 }
 
 /**

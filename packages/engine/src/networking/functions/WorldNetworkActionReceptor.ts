@@ -53,8 +53,7 @@ const receiveRegisterSceneObject = (
 ) => {
   const entity = world.entityTree.uuidNodeMap.get(action.objectUuid)?.entity!
 
-  if (!entity)
-    return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', entity, action)
+  if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,

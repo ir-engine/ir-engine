@@ -74,7 +74,7 @@ type PeersUpdateType = Array<{
 
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const isWorldConnection = network.topic === NetworkTopics.world
-  logger.info('Connectting to instance type: %o', { topic: network.topic, hostId: network.hostId })
+  logger.info('Connecting to instance type: %o', { topic: network.topic, hostId: network.hostId })
 
   if (isWorldConnection) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
