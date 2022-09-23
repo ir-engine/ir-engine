@@ -24,6 +24,7 @@ import {
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -325,6 +326,7 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.pu
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
   uuid?: string
+  assetRoot?: EntityTreeNode
 }
 
 const load = (
@@ -342,6 +344,9 @@ const load = (
 
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
+  if (args.assetRoot && (loader as XRELoader).isXRELoader) {
+    ;(loader as XRELoader).rootNode = args.assetRoot
+  }
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {

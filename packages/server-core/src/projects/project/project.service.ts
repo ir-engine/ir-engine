@@ -1,4 +1,4 @@
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
 import fs from 'fs'
@@ -13,6 +13,7 @@ import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { UserParams } from '../../user/user/user.class'
 import { pushProjectToGithub } from '../githubapp/githubapp-helper'
 import { checkBuilderService, retriggerBuilderService } from './project-helper'
 import { Project } from './project.class'
@@ -102,13 +103,13 @@ export default (app: Application): void => {
   })
 
   app.use('project-github-push', {
-    patch: async (id: Id, data: any, params?: Params): Promise<any> => {
+    patch: async (id: Id, data: any, params?: UserParams): Promise<any> => {
       const project = await app.service('project').Model.findOne({
         where: {
           id
         }
       })
-      return pushProjectToGithub(app, project, params!.user)
+      return pushProjectToGithub(app, project, params!.user!)
     }
   })
 

@@ -71,7 +71,7 @@ export const moveLocalAvatar = (entity: Entity) => {
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const collidersInContactWithFeet = [] as Collider[]
   physicsWorld.contactsWith(controller.bodyCollider, (otherCollider) => {
-    collidersInContactWithFeet.push(otherCollider)
+    if (otherCollider) collidersInContactWithFeet.push(otherCollider)
   })
 
   for (const otherCollider of collidersInContactWithFeet) {

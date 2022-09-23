@@ -12,6 +12,12 @@ interface Data {}
 
 interface ServiceOptions {}
 
+interface OpenMatchTicketParams extends Params {
+  body: {
+    userId: string
+  }
+}
+
 interface TicketParams {
   gamemode: string
   attributes?: Record<string, string>
@@ -41,7 +47,7 @@ export class MatchTicket implements ServiceMethods<Data> {
     return []
   }
 
-  async get(id: Id, params: Params): Promise<OpenMatchTicket> {
+  async get(id: Id, params: OpenMatchTicketParams): Promise<OpenMatchTicket> {
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }

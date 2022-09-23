@@ -1,10 +1,12 @@
 import * as bitECS from 'bitecs'
 
+import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
+import { World } from '../classes/World'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -20,15 +22,18 @@ globalThis.ComponentMap = ComponentMap
 export interface ComponentPartial<ComponentType = unknown, Schema = unknown, JSON = unknown> {
   name: string
   schema?: Schema
-  onAdd?: (entity: Entity, json: any) => ComponentType
-  onRemove?: (entity: Entity, component: ComponentType) => void
+  isTag?: boolean
+  onAdd?: (entity: Entity) => ComponentType
   toJSON?: (entity: Entity, component: ComponentType) => JSON
+  onUpdate?: (entity: Entity, component: ComponentType, json: DeepReadonly<Partial<JSON>>) => void
+  onRemove?: (entity: Entity, component: ComponentType) => void
 }
 export interface Component<ComponentType = unknown, Schema = unknown, JSON = unknown>
   extends ComponentPartial<ComponentType, Schema, JSON> {
-  onAdd: (entity: Entity, json: any) => ComponentType
-  onRemove: (entity: Entity, component: ComponentType) => void
+  onAdd: (entity: Entity) => ComponentType
   toJSON: (entity: Entity, component: ComponentType) => JSON
+  onUpdate: (entity: Entity, component: ComponentType, json: DeepReadonly<Partial<JSON>>) => void
+  onRemove: (entity: Entity, component: ComponentType) => void
   /**
    * @deprecated use `name`
    */
@@ -40,7 +45,7 @@ export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
 export type ComponentType<C extends Component> = NonNullable<ReturnType<C['map']['get']>>
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 
-export const defineComponent = <ComponentType, Schema extends bitECS.ISchema = {}, JSON = null>(
+export const defineComponent = <ComponentType, Schema extends bitECS.ISchema = {}, JSON = unknown>(
   def: ComponentPartial<ComponentType, Schema, JSON>
 ) => {
   const Component = bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) as Component<
@@ -49,16 +54,17 @@ export const defineComponent = <ComponentType, Schema extends bitECS.ISchema = {
     JSON
   > &
     SoAComponentType<Schema>
-  Component.onAdd = (entity, json) => {
-    return json
+  Component.onAdd = (entity) => {
+    return {} as any
   }
+  Component.onUpdate = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity) => {
     return undefined as any
   }
   Object.assign(Component, def)
   Component._name = Component.name // backwards-compat; to be removed
-  Component.map = new Map()
+  if (!def.isTag) Component.map = new Map()
   ComponentMap.set(Component.name, Component)
   return Component
 }
@@ -70,7 +76,11 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
   name: string,
   schema?: Schema
 ) => {
-  return defineComponent<ComponentType, Schema, ComponentType>({ name, schema })
+  const Component = defineComponent<ComponentType, Schema, ComponentType>({ name, schema })
+  Component.onUpdate = (entity, component, json) => {
+    Component.map!.set(entity, json as any)
+  }
+  return Component
 }
 
 export const getComponent = <ComponentType>(
@@ -85,8 +95,11 @@ export const getComponent = <ComponentType>(
   if (typeof world === 'undefined' || world === null) {
     throw new Error('[getComponent]: world is undefined')
   }
-  if (getRemoved) return component.map.get(entity)!
-  if (bitECS.hasComponent(world, component, entity)) return component.map.get(entity)!
+  if (!component.map) {
+    throw new Error('[getComponent]: tag components have no data')
+  }
+  if (getRemoved) return component.map?.get(entity)!
+  if (bitECS.hasComponent(world, component, entity)) return component.map?.get(entity)!
   return null!
 }
 
@@ -113,10 +126,14 @@ export const setComponent = <C extends Component>(
   if (typeof world === 'undefined' || world === null) {
     throw new Error('[setComponent]: world is undefined')
   }
-  if (hasComponent(entity, component)) removeComponent(entity, component)
-  component.map.set(entity, component.onAdd(entity, args))
-  bitECS.addComponent(world, component, entity, false) // don't clear data on-add
-  return component.map.get(entity)! as ComponentType<C>
+  if (!hasComponent(entity, component)) {
+    const c = component.onAdd(entity)
+    component.map?.set(entity, c)
+    bitECS.addComponent(world, component, entity, false) // don't clear data on-add
+  }
+  const c = component.map?.get(entity)! as ComponentType<C>
+  component.onUpdate(entity, c, args as Readonly<SerializedComponentType<C>>)
+  return component.map?.get(entity)! as ComponentType<C>
 }
 
 /**
@@ -125,7 +142,8 @@ export const setComponent = <C extends Component>(
 export const updateComponent = <C extends Component>(
   entity: Entity,
   component: C,
-  props: Partial<SerializedComponentType<C>>
+  props: Partial<SerializedComponentType<C>>,
+  world = Engine.instance.currentWorld
 ) => {
   const comp = getComponent(entity, component)
 
@@ -205,8 +223,8 @@ export const removeComponent = <T, S, J>(
     throw new Error('[removeComponent]: world is undefined')
   }
   bitECS.removeComponent(world, component, entity, false)
-  const c = component.map.get(entity)!
-  c && component.onRemove(entity, c)
+  const c = component.map?.get(entity)!
+  component.onRemove(entity, c)
 }
 
 export const getAllComponents = (entity: Entity, world = Engine.instance.currentWorld): Component[] => {
@@ -266,7 +284,15 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   wrappedQuery.enter = (world = Engine.instance.currentWorld) => enterQuery(world) as Entity[]
   wrappedQuery.exit = (world = Engine.instance.currentWorld) => exitQuery(world) as Entity[]
   wrappedQuery._query = query
+  wrappedQuery._enterQuery = enterQuery
+  wrappedQuery._exitQuery = exitQuery
   return wrappedQuery
+}
+
+export function removeQuery(world: World, query: ReturnType<typeof defineQuery>) {
+  bitECS.removeQuery(world, query._query)
+  bitECS.removeQuery(world, query._enterQuery)
+  bitECS.removeQuery(world, query._exitQuery)
 }
 
 export type Query = ReturnType<typeof defineQuery>

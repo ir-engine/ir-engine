@@ -23,18 +23,18 @@ export const serverHost = localBuildOrDev
   ? `https://${globalThis.process.env['VITE_SERVER_HOST']}:${globalThis.process.env['VITE_SERVER_PORT']}`
   : `https://${globalThis.process.env['VITE_SERVER_HOST']}`
 
-const disableLog = process.env.DISABLE_LOG
+const disableLog = process.env['VITE_DISABLE_LOG']
 
 const baseComponent = 'client-core'
 /**
  * No-op logger, used for unit testing (or other disabling of logger)
  */
 const nullLogger = {
-  debug: () => {},
-  info: () => {},
-  warn: () => {},
-  error: () => {},
-  fatal: () => {}
+  debug: console.debug,
+  info: console.info,
+  warn: console.warn,
+  error: console.error,
+  fatal: console.error
 }
 
 /**
@@ -205,3 +205,5 @@ function stringifyError(error, errorContextMessage?) {
 }
 
 export default multiLogger
+
+globalThis.logger = multiLogger

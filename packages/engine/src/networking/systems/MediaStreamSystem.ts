@@ -3,7 +3,7 @@ import { World } from '../../ecs/classes/World'
 export default async function MediaStreamSystem(world: World) {
   let executeInProgress = false
 
-  return () => {
+  const execute = () => {
     const network = world.mediaNetwork
     if (!network) return
 
@@ -26,4 +26,8 @@ export default async function MediaStreamSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
 }

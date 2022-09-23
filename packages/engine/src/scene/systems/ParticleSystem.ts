@@ -1,10 +1,10 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { createActionQueue, defineAction } from '@xrengine/hyperflux'
+import { createActionQueue, defineAction, removeActionQueue } from '@xrengine/hyperflux'
 
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import {
   ParticleEmitterComponent,
@@ -62,7 +62,7 @@ export default async function ParticleSystem(world: World) {
     { name: SCENE_COMPONENT_PARTICLE_EMITTER, props: SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(ParticleEmitterComponent._name, SCENE_COMPONENT_PARTICLE_EMITTER)
+  world.sceneComponentRegistry.set(ParticleEmitterComponent.name, SCENE_COMPONENT_PARTICLE_EMITTER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_EMITTER, {
     defaultData: SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES,
     deserialize: deserializeParticleEmitter,
@@ -72,7 +72,7 @@ export default async function ParticleSystem(world: World) {
   const particleQuery = defineQuery([Object3DComponent, ParticleEmitterComponent])
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
-  return () => {
+  const execute = () => {
     /**
      * Scene Loaders
      */
@@ -123,4 +123,19 @@ export default async function ParticleSystem(world: World) {
         })
     }
   }
+
+  const cleanup = async () => {
+    removeActionQueue(creatingQueue)
+    removeActionQueue(disposingQueue)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.particleEmitter)
+
+    world.sceneComponentRegistry.delete(ParticleEmitterComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_EMITTER)
+
+    removeQuery(world, particleQuery)
+    removeActionQueue(modifyPropertyActionQueue)
+  }
+
+  return { execute, cleanup }
 }

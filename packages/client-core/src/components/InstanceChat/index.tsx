@@ -371,7 +371,6 @@ const InstanceChat = ({
                   label={newMessageLabel}
                   name="newMessage"
                   variant="standard"
-                  autoFocus
                   value={composingMessage}
                   inputProps={{
                     maxLength: 1000,

@@ -8,7 +8,6 @@ import { World } from '../classes/World'
 import { createEntity } from './EntityFunctions'
 import {
   addEntityNodeChild,
-  addEntityNodeInTree,
   addToEntityTreeMaps,
   cloneEntityNode,
   createEntityNode,
@@ -34,8 +33,7 @@ describe('EntityTreeFunctions', () => {
     createEngine()
     world = Engine.instance.currentWorld
 
-    root = createEntityNode(createEntity())
-    addEntityNodeInTree(root)
+    root = world.entityTree.rootNode
   })
 
   describe('addToEntityTreeMaps function', () => {
@@ -50,7 +48,7 @@ describe('EntityTreeFunctions', () => {
   describe('removeFromEntityTreeMaps function', () => {
     it('will remove entity from maps', () => {
       const node = createEntityNode(createEntity())
-      addEntityNodeInTree(node, root)
+      addEntityNodeChild(node, root)
       removeFromEntityTreeMaps(node)
       assert(!world.entityTree.entityNodeMap.get(node.entity))
       assert(!world.entityTree.uuidNodeMap.get(node.uuid))
@@ -62,37 +60,25 @@ describe('EntityTreeFunctions', () => {
       initializeEntityTree()
       assert(world.entityTree.entityNodeMap)
       assert(world.entityTree.uuidNodeMap)
-      assert.equal(world.entityTree.entityNodeMap.size, 0)
-      assert.equal(world.entityTree.uuidNodeMap.size, 0)
+      assert.equal(world.entityTree.entityNodeMap.size, 1)
+      assert.equal(world.entityTree.uuidNodeMap.size, 1)
     })
   })
 
-  describe('addEntityNodeInTree function', () => {
-    it('will add entity node as root in tree', () => {
-      const node = createEntityNode(createEntity())
-      addEntityNodeInTree(node)
-      assert.deepEqual(world.entityTree.rootNode, node)
-    })
-
-    it('will not add entity node as root in tree', () => {
-      const node = createEntityNode(createEntity())
-      addEntityNodeInTree(node, undefined, -1, true)
-      assert.notEqual(world.entityTree.rootNode, node)
-    })
-
+  describe('addEntityNodeChild function', () => {
     it('will not add entity node if already added', () => {
       const node = createEntityNode(createEntity())
-      addEntityNodeInTree(node, root)
-      addEntityNodeInTree(node, root)
+      addEntityNodeChild(node, root)
+      addEntityNodeChild(node, root)
       assert.equal(root.children?.length, 1)
     })
 
     it('will not add entity node if already added and reparent it if parent entity is different in passed node', () => {
       const node = createEntityNode(createEntity())
       const node_1 = createEntityNode(createEntity())
-      addEntityNodeInTree(node, root)
-      addEntityNodeInTree(node, node_1)
-      assert.equal(root.children?.length, 0)
+      addEntityNodeChild(node, root)
+      addEntityNodeChild(node, node_1)
+      assert.equal(root.children?.length, 1)
       assert.equal(node.parentEntity, node_1.entity)
     })
 
@@ -100,11 +86,9 @@ describe('EntityTreeFunctions', () => {
       const node = createEntityNode(createEntity())
       const node_1 = createEntityNode(createEntity())
 
-      addEntityNodeInTree(node, node_1)
+      addEntityNodeChild(node, node_1)
 
-      assert(root.children?.includes(node_1.entity))
       assert(node_1.children?.includes(node.entity))
-      assert.equal(node_1.parentEntity, root.entity)
       assert.equal(node.parentEntity, node_1.entity)
     })
   })
@@ -117,17 +101,17 @@ describe('EntityTreeFunctions', () => {
       const node_0_0_0 = createEntityNode(createEntity())
       const node_0_1_0 = createEntityNode(createEntity())
 
-      addEntityNodeInTree(node_0, root)
-      addEntityNodeInTree(node_0_0, node_0)
-      addEntityNodeInTree(node_0_1, node_0)
-      addEntityNodeInTree(node_0_0_0, node_0_0)
-      addEntityNodeInTree(node_0_1_0, node_0_1)
+      addEntityNodeChild(node_0, root)
+      addEntityNodeChild(node_0_0, node_0)
+      addEntityNodeChild(node_0_1, node_0)
+      addEntityNodeChild(node_0_0_0, node_0_0)
+      addEntityNodeChild(node_0_1_0, node_0_1)
 
       emptyEntityTree(world.entityTree)
 
       assert(world.entityTree.rootNode.entity)
-      assert.equal(world.entityTree.entityNodeMap.size, 0)
-      assert.equal(world.entityTree.uuidNodeMap.size, 0)
+      assert.equal(world.entityTree.entityNodeMap.size, 1)
+      assert.equal(world.entityTree.uuidNodeMap.size, 1)
     })
   })
 
@@ -154,14 +138,14 @@ describe('EntityTreeFunctions', () => {
       const node_1 = createEntityNode(createEntity())
       const node_2 = createEntityNode(createEntity())
 
-      addEntityNodeChild(node_0, node_1)
+      addEntityNodeChild(node_1, node_0)
 
       assert(node_0.children?.includes(node_1.entity))
       assert.equal(node_1.parentEntity, node_0.entity)
       assert(world.entityTree.entityNodeMap.has(node_1.entity))
       assert(world.entityTree.uuidNodeMap.has(node_1.uuid))
 
-      addEntityNodeChild(node_0, node_2, 0)
+      addEntityNodeChild(node_2, node_0, 0)
       assert.equal(node_0.children?.indexOf(node_2.entity), 0)
       assert.equal(node_2.parentEntity, node_0.entity)
     })
@@ -173,8 +157,8 @@ describe('EntityTreeFunctions', () => {
       const node_1 = createEntityNode(createEntity())
       const node_2 = createEntityNode(createEntity())
 
-      addEntityNodeInTree(node_0, root)
-      addEntityNodeInTree(node_1, node_0)
+      addEntityNodeChild(node_0, root)
+      addEntityNodeChild(node_1, node_0)
 
       removeEntityNodeChild(node_0, node_1)
 
@@ -196,8 +180,8 @@ describe('EntityTreeFunctions', () => {
     it('will remove entity node from its parent', () => {
       const node_0 = createEntityNode(createEntity())
       const node_1 = createEntityNode(createEntity())
-      addEntityNodeInTree(node_0, root)
-      addEntityNodeInTree(node_1, node_0)
+      addEntityNodeChild(node_0, root)
+      addEntityNodeChild(node_1, node_0)
 
       removeEntityNodeFromParent(node_0)
 
@@ -213,8 +197,8 @@ describe('EntityTreeFunctions', () => {
     it('will reparent passed entity node to new parent', () => {
       const node_0 = createEntityNode(createEntity())
       const node_1 = createEntityNode(createEntity())
-      addEntityNodeInTree(node_0, root)
-      addEntityNodeInTree(node_1, root)
+      addEntityNodeChild(node_0, root)
+      addEntityNodeChild(node_1, root)
 
       reparentEntityNode(node_0, node_1)
 
@@ -238,11 +222,11 @@ describe('EntityTreeFunctions', () => {
       const node_0_0_0 = createEntityNode(createEntity())
       const node_0_1_0 = createEntityNode(createEntity())
 
-      addEntityNodeInTree(node_0, root)
-      addEntityNodeInTree(node_0_0, node_0)
-      addEntityNodeInTree(node_0_1, node_0)
-      addEntityNodeInTree(node_0_0_0, node_0_0)
-      addEntityNodeInTree(node_0_1_0, node_0_1)
+      addEntityNodeChild(node_0, root)
+      addEntityNodeChild(node_0_0, node_0)
+      addEntityNodeChild(node_0_1, node_0)
+      addEntityNodeChild(node_0_0_0, node_0_0)
+      addEntityNodeChild(node_0_1_0, node_0_1)
 
       traverseEntityNode(node_0, (node) => ((node as any).visited = true))
 
@@ -270,11 +254,11 @@ describe('EntityTreeFunctions', () => {
       const node_0_0_0 = createEntityNode(createEntity())
       const node_0_1_0 = createEntityNode(createEntity())
 
-      addEntityNodeInTree(node_0, root)
-      addEntityNodeInTree(node_0_0, node_0)
-      addEntityNodeInTree(node_0_1, node_0)
-      addEntityNodeInTree(node_0_0_0, node_0_0)
-      addEntityNodeInTree(node_0_1_0, node_0_1)
+      addEntityNodeChild(node_0, root)
+      addEntityNodeChild(node_0_0, node_0)
+      addEntityNodeChild(node_0_1, node_0)
+      addEntityNodeChild(node_0_0_0, node_0_0)
+      addEntityNodeChild(node_0_1_0, node_0_1)
 
       iterateEntityNode(node_0, (node) => ((node as any).visited = true))
 
@@ -299,7 +283,7 @@ describe('EntityTreeFunctions', () => {
       const nodes = [] as EntityTreeNode[]
       for (let i = 0; i < 4; i++) {
         nodes[i] = createEntityNode(createEntity())
-        addEntityNodeInTree(nodes[i], i === 0 ? root : nodes[i - 1])
+        addEntityNodeChild(nodes[i], i === 0 ? root : nodes[i - 1])
       }
 
       traverseEntityNodeParent(nodes[nodes.length - 1], (parent) => ((parent as any).visited = true))
@@ -336,7 +320,7 @@ describe('EntityTreeFunctions', () => {
       const nodes = [] as EntityTreeNode[]
       for (let i = 0; i < 4; i++) {
         nodes[i] = createEntityNode(createEntity())
-        addEntityNodeInTree(nodes[i], root)
+        addEntityNodeChild(nodes[i], root)
       }
 
       const entities = [nodes[0].entity, nodes[2].entity]
@@ -350,7 +334,7 @@ describe('EntityTreeFunctions', () => {
       const nodes = [] as EntityTreeNode[]
       for (let i = 0; i < 4; i++) {
         nodes[i] = createEntityNode(createEntity())
-        addEntityNodeInTree(nodes[i], root)
+        addEntityNodeChild(nodes[i], root)
       }
 
       const fakeEntity = createEntity()
@@ -365,12 +349,12 @@ describe('EntityTreeFunctions', () => {
   describe('findIndexOfEntityNode function', () => {
     it('will return index of passed entity node', () => {
       const testNode = createEntityNode(createEntity())
-      addEntityNodeInTree(createEntityNode(createEntity()), root)
-      addEntityNodeInTree(createEntityNode(createEntity()), root)
-      addEntityNodeInTree(testNode, root)
-      addEntityNodeInTree(createEntityNode(createEntity()), root)
+      addEntityNodeChild(createEntityNode(createEntity()), root)
+      addEntityNodeChild(createEntityNode(createEntity()), root)
+      addEntityNodeChild(testNode, root)
+      addEntityNodeChild(createEntityNode(createEntity()), root)
 
-      assert(world.entityTree.rootNode.children)
+      assert(world.entityTree.rootNode.children.length)
       assert.equal(
         findIndexOfEntityNode(getEntityNodeArrayFromEntities(world.entityTree.rootNode.children), testNode),
         2
@@ -379,9 +363,9 @@ describe('EntityTreeFunctions', () => {
 
     it('will return -1 if it can not find the index of the passed node', () => {
       const testNode = createEntityNode(createEntity())
-      addEntityNodeInTree(createEntityNode(createEntity()), root)
-      addEntityNodeInTree(createEntityNode(createEntity()), root)
-      addEntityNodeInTree(createEntityNode(createEntity()), root)
+      addEntityNodeChild(createEntityNode(createEntity()), root)
+      addEntityNodeChild(createEntityNode(createEntity()), root)
+      addEntityNodeChild(createEntityNode(createEntity()), root)
 
       assert(world.entityTree.rootNode.children)
       assert.equal(

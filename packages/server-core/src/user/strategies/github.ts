@@ -9,7 +9,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import makeInitialAdmin from '../../util/make-initial-admin'
-import CustomOAuthStrategy from './custom-oauth'
+import CustomOAuthStrategy, { CustomOAuthParams } from './custom-oauth'
 
 export class GithubStrategy extends CustomOAuthStrategy {
   constructor(app: Application) {
@@ -17,7 +17,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     this.app = app
   }
 
-  async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
+  async getEntityData(profile: any, entity: any, params: CustomOAuthParams): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
@@ -30,13 +30,13 @@ export class GithubStrategy extends CustomOAuthStrategy {
       ...baseData,
       email: profile.email,
       type: 'github',
-      oauthToken: params.access_token,
+      oauthToken: params.access_token!,
       userName: profile.login,
       userId
     }
   }
 
-  async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
+  async updateEntity(entity: any, profile: any, params: CustomOAuthParams): Promise<any> {
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
@@ -88,7 +88,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async getRedirect(data: any, params: Params): Promise<string> {
+  async getRedirect(data: any, params: CustomOAuthParams): Promise<string> {
     const redirectHost = config.authentication.callback.github
     const type = params?.query?.userId ? 'connection' : 'login'
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
@@ -96,7 +96,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       return redirectHost + `?error=${err}`
     } else {
       const token = data.accessToken as string
-      const redirect = params.redirect
+      const redirect = params.redirect!
       let parsedRedirect
       try {
         parsedRedirect = JSON.parse(redirect)
@@ -112,7 +112,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     }
   }
 
-  async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
+  async authenticate(authentication: AuthenticationRequest, originalParams: CustomOAuthParams) {
     originalParams.access_token = authentication.access_token
     return super.authenticate(authentication, originalParams)
   }

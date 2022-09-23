@@ -4,6 +4,7 @@ import { defineAction, defineState, getState, useState } from '@xrengine/hyperfl
 import { ParityValue } from '../../common/enums/ParityValue'
 import { isMobile } from '../../common/functions/isMobile'
 import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
+import { InputAlias } from '../../input/types/InputAlias'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -24,7 +25,6 @@ export const EngineState = defineState({
     isTeleporting: false,
     leaveWorld: false,
     socketInstance: false,
-    avatarTappedId: '' as UserId,
     userHasInteracted: false,
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
@@ -48,11 +48,6 @@ export function EngineEventReceptor(a) {
         socketInstance: action.instance
       })
     )
-    .when(EngineActions.userAvatarTapped.matches, (action) =>
-      s.merge({
-        avatarTappedId: action.userId
-      })
-    )
     .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
     .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
     .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoaded: true, loadingProgress: 100 }))
@@ -64,10 +59,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
     .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
-    .when(EngineActions.shareInteractableLink.matches, (action) => {
-      s.shareLink.set(action.shareLink)
-      s.shareTitle.set(action.shareTitle)
-    })
 }
 
 export const getEngineState = () => getState(EngineState)
@@ -75,9 +66,10 @@ export const getEngineState = () => getState(EngineState)
 export const useEngineState = () => useState(getEngineState())
 
 export class EngineActions {
-  static userAvatarTapped = defineAction({
-    type: 'xre.engine.Engine.USER_AVATAR_TAPPED' as const,
-    userId: matchesUserId
+  static buttonClicked = defineAction({
+    type: 'xre.engine.Engine.PRIMARY_BUTTON_CLICKED' as const,
+    clicked: matches.boolean,
+    button: matches.string as Validator<any, InputAlias>
   })
 
   static setTeleporting = defineAction({
@@ -144,12 +136,6 @@ export class EngineActions {
   static spectateUser = defineAction({
     type: 'xre.engine.Engine.SPECTATE_USER' as const,
     user: matches.string.optional()
-  })
-
-  static shareInteractableLink = defineAction({
-    type: 'xre.engine.Engine.SHARE_LINK' as const,
-    shareLink: matches.string,
-    shareTitle: matches.string
   })
 
   static interactedWithObject = defineAction({

@@ -1,6 +1,6 @@
 import type { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
-import type { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import type { SystemLoader, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import type { SystemComponentType } from '@xrengine/engine/src/scene/components/SystemComponent'
 
 export const getSystemsFromSceneData = (project: string, sceneData: SceneJson): SystemModuleType<any>[] => {
@@ -19,7 +19,7 @@ export const getSystemsFromSceneData = (project: string, sceneData: SceneJson): 
 }
 
 export const importSystem = (project: string, data: SystemComponentType): Omit<SystemModuleType<any>, 'uuid'> => {
-  console.info(`Loading system ${data.filePath} from project ${project}. Data`, data)
+  console.info(`Getting system definition at ${data.filePath} from project ${project}`, data)
   const { filePath, systemUpdateType, args } = data
   const filePathRelative = new URL(filePath).pathname.replace(`/projects/${project}/`, '')
   const entryPointSplit = filePathRelative.split('.')
@@ -33,128 +33,144 @@ export const importSystem = (project: string, data: SystemComponentType): Omit<S
   // TODO: we could make our own derivate of https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars which can handle this more elegantly
   try {
     const entryPointPathSplit = entryPointSplit[0].split('/')
-    let systemLoader
+    let systemLoader: SystemLoader<any>
     switch (entryPointExtension) {
       case 'js':
         if (entryPointPathSplit.length === 1)
-          systemLoader = import(`./projects/${project}/${entryPointPathSplit[0]}.js`)
+          systemLoader = () => import(`./projects/${project}/${entryPointPathSplit[0]}.js`)
         if (entryPointPathSplit.length === 2)
-          systemLoader = import(`./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}.js`)
+          systemLoader = () => import(`./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}.js`)
         if (entryPointPathSplit.length === 3)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}.js`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}.js`
+            )
         if (entryPointPathSplit.length === 4)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}.js`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}.js`
+            )
         if (entryPointPathSplit.length === 5)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}.js`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}.js`
+            )
         if (entryPointPathSplit.length === 6)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}/${entryPointPathSplit[5]}.js`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}/${entryPointPathSplit[5]}.js`
+            )
         if (entryPointPathSplit.length > 6)
-          systemLoader = Promise.reject(
+          throw new Error(
             'Custom systems cannot be located more than five directories down from the root of the project'
           )
         return {
-          systemLoader: () => systemLoader,
+          systemLoader: systemLoader!,
           type: systemUpdateType,
           sceneSystem: true,
           args
         }
       case 'jsx':
         if (entryPointPathSplit.length === 1)
-          systemLoader = import(`./projects/${project}/${entryPointPathSplit[0]}.jsx`)
+          systemLoader = () => import(`./projects/${project}/${entryPointPathSplit[0]}.jsx`)
         if (entryPointPathSplit.length === 2)
-          systemLoader = import(`./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}.jsx`)
+          systemLoader = () => import(`./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}.jsx`)
         if (entryPointPathSplit.length === 3)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}.jsx`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}.jsx`
+            )
         if (entryPointPathSplit.length === 4)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}.jsx`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}.jsx`
+            )
         if (entryPointPathSplit.length === 5)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}.jsx`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}.jsx`
+            )
         if (entryPointPathSplit.length === 6)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}/${entryPointPathSplit[5]}.jsx`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}/${entryPointPathSplit[5]}.jsx`
+            )
         if (entryPointPathSplit.length > 6)
-          systemLoader = Promise.reject(
+          throw new Error(
             'Custom systems cannot be located more than five directories down from the root of the project'
           )
         return {
-          systemLoader: () => systemLoader,
+          systemLoader: systemLoader!,
           type: systemUpdateType,
           sceneSystem: true,
           args
         }
       case 'ts':
         if (entryPointPathSplit.length === 1)
-          systemLoader = import(`./projects/${project}/${entryPointPathSplit[0]}.ts`)
+          systemLoader = () => import(`./projects/${project}/${entryPointPathSplit[0]}.ts`)
         if (entryPointPathSplit.length === 2)
-          systemLoader = import(`./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}.ts`)
+          systemLoader = () => import(`./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}.ts`)
         if (entryPointPathSplit.length === 3)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}.ts`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}.ts`
+            )
         if (entryPointPathSplit.length === 4)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}.ts`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}.ts`
+            )
         if (entryPointPathSplit.length === 5)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}.ts`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}.ts`
+            )
         if (entryPointPathSplit.length === 6)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}/${entryPointPathSplit[5]}.ts`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}/${entryPointPathSplit[5]}.ts`
+            )
         if (entryPointPathSplit.length > 6)
-          systemLoader = Promise.reject(
+          throw new Error(
             'Custom systems cannot be located more than five directories down from the root of the project'
           )
         return {
-          systemLoader: () => systemLoader,
+          systemLoader: systemLoader!,
           type: systemUpdateType,
           sceneSystem: true,
           args
         }
       case 'tsx':
         if (entryPointPathSplit.length === 1)
-          systemLoader = import(`./projects/${project}/${entryPointPathSplit[0]}.tsx`)
+          systemLoader = () => import(`./projects/${project}/${entryPointPathSplit[0]}.tsx`)
         if (entryPointPathSplit.length === 2)
-          systemLoader = import(`./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}.tsx`)
+          systemLoader = () => import(`./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}.tsx`)
         if (entryPointPathSplit.length === 3)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}.tsx`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}.tsx`
+            )
         if (entryPointPathSplit.length === 4)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}.tsx`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}.tsx`
+            )
         if (entryPointPathSplit.length === 5)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}.tsx`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}.tsx`
+            )
         if (entryPointPathSplit.length === 6)
-          systemLoader = import(
-            `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}/${entryPointPathSplit[5]}.tsx`
-          )
+          systemLoader = () =>
+            import(
+              `./projects/${project}/${entryPointPathSplit[0]}/${entryPointPathSplit[1]}/${entryPointPathSplit[2]}/${entryPointPathSplit[3]}/${entryPointPathSplit[4]}/${entryPointPathSplit[5]}.tsx`
+            )
         if (entryPointPathSplit.length > 6)
-          systemLoader = Promise.reject(
+          throw new Error(
             'Custom systems cannot be located more than five directories down from the root of the project'
           )
         return {
-          systemLoader: () => systemLoader,
+          systemLoader: systemLoader!,
           type: systemUpdateType,
           sceneSystem: true,
           args

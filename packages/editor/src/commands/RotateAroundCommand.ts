@@ -1,9 +1,6 @@
 import { Matrix4, Vector3 } from 'three'
 
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { updateGroupCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -13,7 +10,6 @@ import { CommandFuncType, CommandParams, TransformCommands } from '../constants/
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import { EditorAction } from '../services/EditorServices'
-import { SelectionAction } from '../services/SelectionServices'
 
 export type RotateAroundCommandUndoParams = {
   axis: Vector3

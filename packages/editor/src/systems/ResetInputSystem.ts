@@ -1,12 +1,12 @@
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { EditorInputComponent } from '../classes/InputComponent'
 import { ActionKey } from '../controls/input-mappings'
 
-export default async function ResetInputSystem(_: World) {
+export default async function ResetInputSystem(world: World) {
   const inputQuery = defineQuery([EditorInputComponent])
-  return () => {
+  const execute = () => {
     for (const entity of inputQuery()) {
       const inputComponent = getComponent(entity, EditorInputComponent)
       inputComponent.resetKeys?.forEach((key: ActionKey) => {
@@ -21,4 +21,10 @@ export default async function ResetInputSystem(_: World) {
       })
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, inputQuery)
+  }
+
+  return { execute, cleanup }
 }

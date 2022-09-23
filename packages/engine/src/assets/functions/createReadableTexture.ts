@@ -1,4 +1,5 @@
 import {
+  Camera,
   CubeTexture,
   Mesh,
   PerspectiveCamera,
@@ -10,23 +11,17 @@ import {
   WebGLRenderer
 } from 'three'
 
-export default async function createReadableTexture(
-  map: Texture,
-  options?: {
-    maxDimensions?: { width: number; height: number }
-    url?: boolean
-  }
-): Promise<Texture | string> {
-  if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
-    return options?.url ? map.source.data.src : map
-  }
-  let blit: Texture = map
-  if ((map as CubeTexture).isCubeTexture) {
-    blit = new Texture(map.source.data[0])
-  }
+function initializeTemporaryRenderer() {
+  return new WebGLRenderer({ antialias: false })
+}
+
+let blitMaterial: ShaderMaterial
+let temporaryCam: Camera
+
+function initializeTemporaryScene() {
   const fullscreenQuadGeometry = new PlaneGeometry(2, 2, 1, 1)
-  const fullscreenQuadMaterial = new ShaderMaterial({
-    uniforms: { blitTexture: new Uniform(blit) },
+  blitMaterial = new ShaderMaterial({
+    uniforms: { blitTexture: new Uniform(null) },
     vertexShader: `
             varying vec2 vUv;
             void main(){
@@ -42,14 +37,50 @@ export default async function createReadableTexture(
             }`
   })
 
-  const fullscreenQuad = new Mesh(fullscreenQuadGeometry, fullscreenQuadMaterial)
+  const fullscreenQuad = new Mesh(fullscreenQuadGeometry, blitMaterial)
   fullscreenQuad.frustumCulled = false
 
-  const temporaryCam = new PerspectiveCamera()
+  temporaryCam = new PerspectiveCamera()
   const temporaryScene = new Scene()
   temporaryScene.add(fullscreenQuad)
+  return temporaryScene
+}
 
-  const temporaryRenderer = new WebGLRenderer({ antialias: false })
+let _temporaryRenderer: WebGLRenderer | undefined
+let _temporaryScene: Scene | undefined
+
+function getTemporaryRenderer(): WebGLRenderer {
+  if (!_temporaryRenderer) {
+    _temporaryRenderer = initializeTemporaryRenderer()
+  }
+  return _temporaryRenderer!
+}
+
+function getTemporaryScene(): Scene {
+  if (!_temporaryScene) {
+    _temporaryScene = initializeTemporaryScene()
+  }
+  return _temporaryScene
+}
+
+export default async function createReadableTexture(
+  map: Texture,
+  options?: {
+    maxDimensions?: { width: number; height: number }
+    url?: boolean
+  }
+): Promise<Texture | string> {
+  if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
+    return options?.url ? map.source.data.src : map
+  }
+  let blit: Texture = map
+  if ((map as CubeTexture).isCubeTexture) {
+    blit = new Texture(map.source.data[0])
+  }
+  const temporaryRenderer = getTemporaryRenderer()
+  const temporaryScene = getTemporaryScene()
+  blitMaterial.uniforms['blitTexture'].value = blit
+  blitMaterial.uniformsNeedUpdate = true
   const maxDimensions = options?.maxDimensions
   if (maxDimensions) {
     temporaryRenderer.setSize(
@@ -67,8 +98,8 @@ export default async function createReadableTexture(
   const result = await new Promise<Blob | null>((resolve) =>
     temporaryRenderer.domElement.getContext('webgl2')!.canvas.toBlob(resolve)
   )
-  temporaryRenderer.domElement.remove()
-  temporaryRenderer.dispose()
+  //temporaryRenderer.domElement.remove()
+  //temporaryRenderer.dispose()
   if (!result) throw new Error('Error creating blob')
   const image = new Image(map.image.width, map.image.height)
   image.src = URL.createObjectURL(result)

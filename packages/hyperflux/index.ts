@@ -20,6 +20,7 @@ export const defineAction = dynamicFunctionReference(ActionFunctions, 'defineAct
 export const dispatchAction = dynamicFunctionReference(ActionFunctions, 'dispatchAction')
 export const addActionReceptor = dynamicFunctionReference(ActionFunctions, 'addActionReceptor')
 export const createActionQueue = dynamicFunctionReference(ActionFunctions, 'createActionQueue')
+export const removeActionQueue = dynamicFunctionReference(ActionFunctions, 'removeActionQueue')
 export const removeActionsForTopic = dynamicFunctionReference(ActionFunctions, 'removeActionsForTopic')
 export const removeActionReceptor = dynamicFunctionReference(ActionFunctions, 'removeActionReceptor')
 export const applyIncomingActions = dynamicFunctionReference(ActionFunctions, 'applyIncomingActions')

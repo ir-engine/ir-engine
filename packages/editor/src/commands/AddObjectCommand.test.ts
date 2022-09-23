@@ -5,7 +5,7 @@ import EntityTree, { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/Ent
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   createEntityNode,
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -45,16 +45,15 @@ describe('AddObjectCommand', () => {
       { name: SCENE_COMPONENT_GROUP, props: true }
     ])
 
-    rootNode = createEntityNode(createEntity())
+    rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
-    addEntityNodeInTree(rootNode)
-    addEntityNodeInTree(parentNodes[0], rootNode)
-    addEntityNodeInTree(parentNodes[1], rootNode)
-    addEntityNodeInTree(beforeNodes[0], parentNodes[0])
-    addEntityNodeInTree(beforeNodes[1], parentNodes[1])
+    addEntityNodeChild(parentNodes[0], rootNode)
+    addEntityNodeChild(parentNodes[1], rootNode)
+    addEntityNodeChild(beforeNodes[0], parentNodes[0])
+    addEntityNodeChild(beforeNodes[1], parentNodes[1])
 
     SelectionAction.updateSelection({ selectedEntities: [beforeNodes[0].entity] })
 
@@ -217,7 +216,7 @@ describe('AddObjectCommand', () => {
     })
 
     // it('will create node from provided scenedata', () => {
-    //   addEntityNodeInTree(nodes[1], nodes[0])
+    //   addEntityNodeChild(nodes[1], nodes[0])
     //   console.log(Engine.instance.currentWorld.entityTree)
     //   command.sceneData = [
     //     {

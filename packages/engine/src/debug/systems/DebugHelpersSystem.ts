@@ -23,7 +23,7 @@ import {
   Vector3
 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
@@ -32,7 +32,7 @@ import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingCom
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
@@ -58,7 +58,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { PositionalAudioHelper } from '../PositionalAudioHelper'
-import { DebugRenderer } from './DebugRenderer'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -79,8 +78,6 @@ export default async function DebugHelpersSystem(world: World) {
   ])
 
   spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
-
-  const physicsDebugRenderer = DebugRenderer()
 
   const editorHelpers = new Map<Entity, Object3D>()
   const editorStaticHelpers = new Map<Entity, Object3D>()
@@ -125,7 +122,7 @@ export default async function DebugHelpersSystem(world: World) {
 
   const debugActionQueue = createActionQueue(EngineRendererAction.setDebug.matches)
 
-  return () => {
+  const execute = () => {
     for (const action of debugActionQueue()) physicsDebugUpdate(action.debugEnable)
     const debugEnabled = getState(EngineRendererState).debugEnable.value
 
@@ -158,7 +155,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of directionalLightSelectQuery.exit()) {
         const light = getComponent(entity, DirectionalLightComponent)?.light
-        if (light) light.userData.cameraHelper.visible = false
+        if (light?.userData?.cameraHelper) light.userData.cameraHelper.visible = false
       }
 
       for (const entity of directionalLightSelectQuery()) {
@@ -562,7 +559,30 @@ export default async function DebugHelpersSystem(world: World) {
           helper?.position.copy(getComponent(entity, TransformComponent).position)
         }
     }
-
-    physicsDebugRenderer(world, debugEnabled)
   }
+
+  const cleanup = async () => {
+    Engine.instance.currentWorld.scene.remove(InfiniteGridHelper.instance)
+    InfiniteGridHelper.instance = null!
+
+    removeQuery(world, directionalLightQuery)
+    removeQuery(world, pointLightQuery)
+    removeQuery(world, spotLightQuery)
+    removeQuery(world, portalQuery)
+    removeQuery(world, splineQuery)
+    removeQuery(world, spawnPointQuery)
+    removeQuery(world, mountPointQuery)
+    removeQuery(world, envMapBakeQuery)
+    removeQuery(world, directionalLightSelectQuery)
+    removeQuery(world, scenePreviewCameraSelectQuery)
+    removeQuery(world, boundingBoxQuery)
+    removeQuery(world, ikAvatarQuery)
+    removeQuery(world, avatarAnimationQuery)
+    removeQuery(world, navmeshQuery)
+    removeQuery(world, audioHelper)
+
+    removeActionQueue(debugActionQueue)
+  }
+
+  return { execute, cleanup }
 }

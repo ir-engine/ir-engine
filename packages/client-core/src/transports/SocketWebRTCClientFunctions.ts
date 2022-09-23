@@ -1,4 +1,11 @@
-import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import {
+  Consumer,
+  DtlsParameters,
+  MediaKind,
+  Transport as MediaSoupTransport,
+  RtpParameters,
+  SctpStreamParameters
+} from 'mediasoup-client/lib/types'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
@@ -35,6 +42,10 @@ import { updateNearbyAvatars } from './UpdateNearbyUsersSystem'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
+class ExtendedConsumer extends Consumer {
+  producerPaused?: boolean
+}
+
 export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
   const mediaNetwork = Engine.instance.currentWorld.mediaNetwork
@@ -63,7 +74,7 @@ type PeersUpdateType = Array<{
 
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const isWorldConnection = network.topic === NetworkTopics.world
-  logger.info('Connectting to instance type: %o', { topic: network.topic, hostId: network.hostId })
+  logger.info('Connecting to instance type: %o', { topic: network.topic, hostId: network.hostId })
 
   if (isWorldConnection) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
@@ -377,24 +388,40 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // mediasoup-client will emit a connect event when media needs to
   // start flowing for the first time. send dtlsParameters to the
   // server, then call callback() on success or errback() on failure.
-  transport.on('connect', async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-    const connectResult = await network.request(MessageTypes.WebRTCTransportConnect.toString(), {
-      transportId: transportOptions.id,
-      dtlsParameters
-    })
 
-    if (connectResult.error) {
-      logger.error(connectResult.error, 'Transport connect error')
-      return errback()
+  transport.on(
+    'connect',
+    async (
+      { dtlsParameters }: { dtlsParameters: DtlsParameters },
+      callback: () => void,
+      errback: (error: Error) => void
+    ) => {
+      const connectResult = await network.request(MessageTypes.WebRTCTransportConnect.toString(), {
+        transportId: transportOptions.id,
+        dtlsParameters
+      })
+
+      if (connectResult.error) {
+        logger.error(connectResult.error, 'Transport connect error')
+        return errback(connectResult.error)
+      }
+
+      callback()
     }
-
-    callback()
-  })
+  )
 
   if (direction === 'send') {
     transport.on(
       'produce',
-      async ({ kind, rtpParameters, appData }: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
+      async (
+        {
+          kind,
+          rtpParameters,
+          appData
+        }: { kind: MediaKind; rtpParameters: RtpParameters; appData: Record<string, unknown> },
+        callback: (arg0: { id: string }) => void,
+        errback: (error: Error) => void
+      ) => {
         let paused = false
 
         switch (appData.mediaTag) {
@@ -427,31 +454,43 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
         })
         if (error) {
           logger.error(error)
-          errback()
+          errback(error)
           return
         }
         callback({ id })
       }
     )
 
-    transport.on('producedata', async (parameters: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
-      const { sctpStreamParameters, label, protocol, appData } = parameters
-      const { error, id } = await network.request(MessageTypes.WebRTCProduceData, {
-        transportId: transport.id,
-        sctpStreamParameters,
-        label,
-        protocol,
-        appData
-      })
+    transport.on(
+      'producedata',
+      async (
+        parameters: {
+          sctpStreamParameters: SctpStreamParameters
+          label?: string | undefined
+          protocol?: string | undefined
+          appData: Record<string, unknown>
+        },
+        callback: (arg0: { id: string }) => void,
+        errback: (error: Error) => void
+      ) => {
+        const { sctpStreamParameters, label, protocol, appData } = parameters
+        const { error, id } = await network.request(MessageTypes.WebRTCProduceData, {
+          transportId: transport.id,
+          sctpStreamParameters,
+          label,
+          protocol,
+          appData
+        })
 
-      if (error) {
-        logger.error(error)
-        errback()
-        return
+        if (error) {
+          logger.error(error)
+          errback(error)
+          return
+        }
+
+        return callback({ id })
       }
-
-      return callback({ id })
-    })
+    )
   }
 
   // any time a transport transitions to closed,
@@ -765,13 +804,13 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   // Only continue if we have a valid id
   if (consumerParameters?.id == null) return
 
-  const consumer = await network.recvTransport.consume({
+  const consumer: ExtendedConsumer = await network.recvTransport.consume({
     ...consumerParameters,
     appData: { peerId, mediaTag, channelType },
     paused: true
   })
 
-  ;(consumer as any).producerPaused = consumerParameters.producerPaused
+  consumer.producerPaused = consumerParameters.producerPaused
 
   // if we do already have a consumer, we shouldn't have called this method
   const existingConsumer = network.consumers?.find(
@@ -780,13 +819,13 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   if (existingConsumer == null) {
     network.consumers.push(consumer)
     // okay, we're ready. let's ask the peer to send us media
-    if (!(consumer as any).producerPaused) await resumeConsumer(network, consumer)
+    if (!consumer.producerPaused) await resumeConsumer(network, consumer)
     else await pauseConsumer(network, consumer)
   } else if (existingConsumer?.track?.muted) {
     await closeConsumer(network, existingConsumer)
     network.consumers.push(consumer)
     // okay, we're ready. let's ask the peer to send us media
-    if (!(consumer as any).producerPaused) await resumeConsumer(network, consumer)
+    if (!consumer.producerPaused) await resumeConsumer(network, consumer)
     else await pauseConsumer(network, consumer)
   } else await closeConsumer(network, consumer)
 
@@ -798,10 +837,7 @@ export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, p
   await closeConsumer(network, consumer)
 }
 
-export async function pauseConsumer(
-  network: SocketWebRTCClientNetwork,
-  consumer: { appData: MediaTagType; id: any; pause: () => any }
-) {
+export async function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ExtendedConsumer) {
   await network.request(MessageTypes.WebRTCPauseConsumer.toString(), {
     consumerId: consumer.id
   })
@@ -812,14 +848,7 @@ export async function pauseConsumer(
     })
 }
 
-export async function resumeConsumer(
-  network: SocketWebRTCClientNetwork,
-  consumer: {
-    appData: MediaTagType
-    id: any
-    resume: () => any
-  }
-) {
+export async function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ExtendedConsumer) {
   await network.request(MessageTypes.WebRTCResumeConsumer.toString(), {
     consumerId: consumer.id
   })

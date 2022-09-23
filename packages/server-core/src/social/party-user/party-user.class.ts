@@ -1,13 +1,18 @@
 import { Params } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op, Sequelize } from 'sequelize'
+import { Op } from 'sequelize'
 
 import { PartyUser as PartyUserDataType } from '@xrengine/common/src/interfaces/PartyUser'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { UserParams } from '../../user/user/user.class'
 import { PartyUserModelStatic } from './party-user.model'
+
+interface PartyUserParams extends Params {
+  deletingParty?: boolean
+}
 
 /**
  * A class for Party user service
@@ -20,12 +25,12 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: UserParams): Promise<any> {
     try {
       const self = this
       const loggedInUser = params!.user as UserInterface
       const isInternalOrAdmin =
-        (params && params.isInternalRequest) ||
+        (params && params.isInternal) ||
         (loggedInUser.scopes && loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin'))
 
       if (!isInternalOrAdmin && !loggedInUser) return null!
@@ -68,7 +73,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
     try {
       const party = await this.app.service('party').get(data.partyId, {
         include: [{ model: this.app.service('channel').Model }]
-      })
+      } as any)
 
       if (!party) return null!
 
@@ -144,7 +149,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
     }
   }
 
-  async remove(id: string, params?: Params): Promise<any> {
+  async remove(id: string, params?: PartyUserParams): Promise<any> {
     try {
       const partyUser = (await this.app.service('party-user').get(id)) as any
 

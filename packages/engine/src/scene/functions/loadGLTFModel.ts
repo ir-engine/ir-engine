@@ -14,16 +14,16 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { loadComponent } from '../systems/SceneLoadingSystem'
+import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
 
 export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
@@ -74,7 +74,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       console.warn(`Could not load component '${component}'`)
     } else {
       getComponent(entity, GLTFLoadedComponent).push(component)
-      loadComponent(entity, {
+      deserializeComponent(entity, {
         name: key,
         props: value
       })
@@ -104,7 +104,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     const e = createEntity()
 
     const node = createEntityNode(e, mesh.uuid)
-    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
+    addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
     addComponent(e, NameComponent, {
       name: mesh.userData['xrengine.entity'] ?? mesh.uuid

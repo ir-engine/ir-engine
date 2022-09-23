@@ -2,13 +2,20 @@ import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import Sequelize, { Op } from 'sequelize'
+import { Op } from 'sequelize'
 
 import { CreateEditUser, UserInterface, UserScope } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
+
+export interface UserParams extends Params {
+  user?: UserInterface
+  paginate?: false
+  isInternal?: boolean
+  sequelize?: any
+}
 
 export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[]) => {
   await app.service('user-settings').create({
@@ -72,7 +79,7 @@ export class User extends Service<UserInterface> {
    * @returns {@Array} of found users
    */
 
-  async find(params?: Params): Promise<UserInterface[] | Paginated<UserInterface>> {
+  async find(params?: UserParams): Promise<UserInterface[] | Paginated<UserInterface>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { action, $skip, $limit, search, ...query } = params.query!

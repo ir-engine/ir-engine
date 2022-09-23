@@ -28,7 +28,7 @@ export default async function LoadVolumeSystem(world: World) {
 
   const loadVolumeQuery = defineQuery([LoadVolumeComponent])
   const modifiedQuery = createActionQueue(EngineActions.sceneObjectUpdate.matches)
-  return () => {
+  const execute = () => {
     for (const entity of loadVolumeQuery.enter()) {
       updateLoadVolume(entity)
     }
@@ -38,4 +38,8 @@ export default async function LoadVolumeSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
 }

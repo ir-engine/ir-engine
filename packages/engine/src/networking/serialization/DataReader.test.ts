@@ -332,7 +332,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readTransform(view, entity)
+    readTransform(view, entity, Engine.instance.currentWorld.dirtyTransforms)
 
     strictEqual(TransformComponent.position.x[entity], posX)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -353,7 +353,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readTransform(view, entity)
+    readTransform(view, entity, Engine.instance.currentWorld.dirtyTransforms)
 
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -709,7 +709,7 @@ describe('DataReader', () => {
       })
     })
 
-    const packet = write(Engine.instance.currentWorld, network, entities)
+    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
     const readView = createViewCursor(packet)
 
@@ -806,7 +806,7 @@ describe('DataReader', () => {
       network.userIdToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, network, entities)
+    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -850,7 +850,7 @@ describe('DataReader', () => {
       network.userIdToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, network, entities)
+    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
     strictEqual(packet.byteLength, 252)
   })
@@ -887,7 +887,7 @@ describe('DataReader', () => {
       network.userIdToUserIndex.set(userId, userIndex)
     })
 
-    let packet = write(Engine.instance.currentWorld, network, entities)
+    let packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -903,7 +903,7 @@ describe('DataReader', () => {
     TransformComponent.position.y[entity] = 1
     TransformComponent.position.z[entity] = 1
 
-    packet = write(Engine.instance.currentWorld, network, entities)
+    packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
     strictEqual(packet.byteLength, 31)
 

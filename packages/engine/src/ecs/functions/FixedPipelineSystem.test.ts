@@ -16,8 +16,11 @@ const MockState = defineState({
 const MocksystemLoader = async () => {
   return {
     default: async (world: World) => {
-      return () => {
-        getState(MockState).count.set((c) => c + 1)
+      return {
+        execute: () => {
+          getState(MockState).count.set((c) => c + 1)
+        },
+        cleanup: async () => {}
       }
     }
   }

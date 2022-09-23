@@ -14,7 +14,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   createEntityNode,
   removeEntityNodeFromParent
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -42,8 +42,7 @@ describe('AssetComponentFunctions', async () => {
     entity = createEntity()
     node = createEntityNode(entity)
     world = Engine.instance.currentWorld
-
-    addEntityNodeInTree(node)
+    addEntityNodeChild(node, world.entityTree.rootNode)
   }
   const testDir = 'packages/engine/tests/assets/'
   beforeEach(async () => {
@@ -65,9 +64,12 @@ describe('AssetComponentFunctions', async () => {
             default: async () => {
               let resolve: () => void
               nextFixedStep = new Promise<void>((r) => (resolve = r))
-              return () => {
-                resolve()
-                nextFixedStep = new Promise<void>((r) => (resolve = r))
+              return {
+                execute: () => {
+                  resolve()
+                  nextFixedStep = new Promise<void>((r) => (resolve = r))
+                },
+                cleanup: async () => {}
               }
             }
           })
@@ -108,10 +110,10 @@ describe('AssetComponentFunctions', async () => {
     return dudLoader
   }
 
-  async function loadXRE(file) {
+  async function loadXRE(file, root?: Entity) {
     const scenePath = path.join(appRootPath.path, testDir, file)
     const xreLoader = new XRELoader()
-
+    if (root) xreLoader.rootNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(root)!
     const result = await xreLoader.parse(fs.readFileSync(scenePath, { encoding: 'utf-8' }))
     return result
   }
@@ -171,7 +173,7 @@ describe('AssetComponentFunctions', async () => {
         loaded: LoadState.UNLOADED
       })
       //load asset from example repo
-      await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf')))
+      await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       //wait one frame for system to reparent
       await nextFixedStep
       //check that AssetLoadedComponent and AssetComponent are correctly configured
@@ -180,10 +182,12 @@ describe('AssetComponentFunctions', async () => {
       assert(assetComp, 'Asset component exists')
       assert(loadedComp, 'Asset Loaded Component exists')
       //check that asset root contains correct children
+
       const eNode = world.entityTree.entityNodeMap.get(entity)
       assert(eNode, 'asset root entity node exists')
+      assert(assetComp.loaded === LoadState.LOADED, 'asset has finished loading')
       const modelChild = eNode.children![0]
-      //check for model component
+      // //check for model component
       const modelComp = getComponent(modelChild, ModelComponent)
       assert(modelComp, 'Child model component exists')
     })
@@ -215,7 +219,7 @@ describe('AssetComponentFunctions', async () => {
         loaded: LoadState.UNLOADED
       })
       //call load
-      await loadAsset(entity, setContent(loadXRE('empty.xre.gltf')))
+      await loadAsset(entity, setContent(loadXRE('empty.xre.gltf', entity)))
       //delete entity
       removeEntityNodeFromParent(node, world.entityTree)
       removeEntity(entity)
@@ -254,7 +258,7 @@ describe('AssetComponentFunctions', async () => {
         loaded: LoadState.UNLOADED
       })
       //call load
-      await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf')))
+      await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       // wait for frame
       await nextFixedStep
       //unload asset

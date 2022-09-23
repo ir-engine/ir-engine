@@ -414,6 +414,11 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias
 // }
 
 export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputValue): void => {
+  if (inputValue.lifecycleState === LifecycleValue.Started)
+    dispatchAction(EngineActions.buttonClicked({ clicked: true, button: BaseInput.PRIMARY }))
+  if (inputValue.lifecycleState === LifecycleValue.Ended)
+    dispatchAction(EngineActions.buttonClicked({ clicked: false, button: BaseInput.PRIMARY }))
+
   if (inputValue.lifecycleState !== LifecycleValue.Ended) {
     return
   }
@@ -425,42 +430,10 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
 }
 
 export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, inputValue) => {
-  if (inputValue.lifecycleState !== LifecycleValue.Ended) {
-    return
-  }
-
-  const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
-  const raycastComponentData = {
-    type: SceneQueryType.Closest,
-    origin: new Vector3(),
-    direction: new Vector3(),
-    maxDistance: 20,
-    groups: interactionGroups
-  } as RaycastArgs
-
-  const input = getComponent(entity, InputComponent)
-  const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value!
-
-  const coords = new Vector2(screenXY[0], screenXY[1])
-
-  const hits = Physics.castRayFromCamera(
-    Engine.instance.currentWorld.camera,
-    coords,
-    Engine.instance.currentWorld.physicsWorld,
-    raycastComponentData
-  )
-
-  if (hits.length) {
-    const hit = hits[0]
-    const hitEntity = (hit.body?.userData as any)?.entity as Entity
-    if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
-      const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
-      dispatchAction(EngineActions.userAvatarTapped({ userId }))
-      return
-    }
-  }
-  dispatchAction(EngineActions.userAvatarTapped({ userId: '' as UserId }))
-  return
+  if (inputValue.lifecycleState === LifecycleValue.Started)
+    dispatchAction(EngineActions.buttonClicked({ clicked: true, button: BaseInput.SECONDARY }))
+  if (inputValue.lifecycleState === LifecycleValue.Ended)
+    dispatchAction(EngineActions.buttonClicked({ clicked: false, button: BaseInput.SECONDARY }))
 }
 
 export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
@@ -499,7 +472,6 @@ export const createAvatarInput = () => {
   map.set(GamepadButtons.A, BaseInput.INTERACT)
   map.set(GamepadButtons.B, BaseInput.JUMP)
   map.set(GamepadButtons.X, BaseInput.TOGGLE_MENU_BUTTONS)
-  map.set('Escape', BaseInput.HIDE_MENU_BUTTONS)
   // map.set(GamepadButtons.Y, BaseInput.INTERACT)
   map.set(GamepadButtons.LTrigger, BaseInput.GRAB_LEFT)
   map.set(GamepadButtons.RTrigger, BaseInput.GRAB_RIGHT)

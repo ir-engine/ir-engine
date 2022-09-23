@@ -5,6 +5,7 @@ import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, createMappedComponent, defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
@@ -31,6 +32,7 @@ describe('loadGLTFModel', () => {
       ...SCENE_COMPONENT_MODEL_DEFAULT_VALUE,
       ...mockComponentData
     })
+    addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
     const entityName = 'entity name'
     const number = Math.random()
     const mesh = new Scene()

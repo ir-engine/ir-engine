@@ -2,7 +2,7 @@ import { Not } from 'bitecs'
 import { Color } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import {
   LoopAnimationComponent,
@@ -14,7 +14,7 @@ import { FollowCameraComponent } from '../../camera/components/FollowCameraCompo
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -63,7 +63,6 @@ import {
   SCENE_COMPONENT_MODEL,
   SCENE_COMPONENT_MODEL_DEFAULT_VALUE
 } from '../components/ModelComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import {
   OceanComponent,
   SCENE_COMPONENT_OCEAN,
@@ -156,6 +155,7 @@ import {
 } from '../functions/loaders/RenderSettingsFunction'
 import {
   enterScenePreviewCamera,
+  serializeScenePreviewCamera,
   shouldDeserializeScenePreviewCamera
 } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
@@ -196,7 +196,8 @@ export const ScenePrefabs = {
   spline: 'Spline' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
-  fog: 'Fog' as const
+  fog: 'Fog' as const,
+  loadVolume: 'Load Volume' as const
 }
 
 export default async function SceneObjectUpdateSystem(world: World) {
@@ -204,15 +205,15 @@ export default async function SceneObjectUpdateSystem(world: World) {
    * Tag components
    */
 
-  world.sceneComponentRegistry.set(VisibleComponent._name, SCENE_COMPONENT_VISIBLE)
+  world.sceneComponentRegistry.set(VisibleComponent.name, SCENE_COMPONENT_VISIBLE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {})
 
-  world.sceneComponentRegistry.set(ShadowComponent._name, SCENE_COMPONENT_SHADOW)
+  world.sceneComponentRegistry.set(ShadowComponent.name, SCENE_COMPONENT_SHADOW)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {
     defaultData: SCENE_COMPONENT_SHADOW_DEFAULT_VALUES
   })
 
-  world.sceneComponentRegistry.set(PreventBakeTagComponent._name, SCENE_COMPONENT_PREVENT_BAKE)
+  world.sceneComponentRegistry.set(PreventBakeTagComponent.name, SCENE_COMPONENT_PREVENT_BAKE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PREVENT_BAKE, {})
 
   /**
@@ -223,7 +224,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_CAMERA_PROPERTIES, props: SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(CameraPropertiesComponent._name, SCENE_COMPONENT_CAMERA_PROPERTIES)
+  world.sceneComponentRegistry.set(CameraPropertiesComponent.name, SCENE_COMPONENT_CAMERA_PROPERTIES)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA_PROPERTIES, {
     deserialize: deserializeCameraProperties
   })
@@ -234,16 +235,17 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, props: true }
   ])
 
-  world.sceneComponentRegistry.set(ScenePreviewCameraComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
+  world.sceneComponentRegistry.set(ScenePreviewCameraComponent.name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
-    shouldDeserialize: shouldDeserializeScenePreviewCamera
+    shouldDeserialize: shouldDeserializeScenePreviewCamera,
+    serialize: serializeScenePreviewCamera
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.system, [
     { name: SCENE_COMPONENT_SYSTEM, props: SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(SystemComponent._name, SCENE_COMPONENT_SYSTEM)
+  world.sceneComponentRegistry.set(SystemComponent.name, SCENE_COMPONENT_SYSTEM)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SYSTEM, {
     defaultData: SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES
   })
@@ -254,12 +256,12 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_SPAWN_POINT, props: true }
   ])
 
-  world.sceneComponentRegistry.set(SpawnPointComponent._name, SCENE_COMPONENT_SPAWN_POINT)
+  world.sceneComponentRegistry.set(SpawnPointComponent.name, SCENE_COMPONENT_SPAWN_POINT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
     defaultData: SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA
   })
 
-  world.sceneComponentRegistry.set(RenderSettingComponent._name, SCENE_COMPONENT_RENDERER_SETTINGS)
+  world.sceneComponentRegistry.set(RenderSettingComponent.name, SCENE_COMPONENT_RENDERER_SETTINGS)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_RENDERER_SETTINGS, {
     defaultData: SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES,
     deserialize: deserializeRenderSetting,
@@ -271,7 +273,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_POSTPROCESSING, props: SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(PostprocessingComponent._name, SCENE_COMPONENT_POSTPROCESSING)
+  world.sceneComponentRegistry.set(PostprocessingComponent.name, SCENE_COMPONENT_POSTPROCESSING)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSTPROCESSING, {
     defaultData: SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES,
     deserialize: deserializePostprocessing,
@@ -289,7 +291,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_ASSET, props: SCENE_COMPONENT_ASSET_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(AssetComponent._name, SCENE_COMPONENT_ASSET)
+  world.sceneComponentRegistry.set(AssetComponent.name, SCENE_COMPONENT_ASSET)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSET, {
     defaultData: SCENE_COMPONENT_ASSET_DEFAULT_VALUES,
     deserialize: deserializeAsset,
@@ -305,7 +307,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(PortalComponent._name, SCENE_COMPONENT_PORTAL)
+  world.sceneComponentRegistry.set(PortalComponent.name, SCENE_COMPONENT_PORTAL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {
     deserialize: deserializePortal,
     serialize: serializePortal
@@ -321,7 +323,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_FOG, props: SCENE_COMPONENT_FOG_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(FogComponent._name, SCENE_COMPONENT_FOG)
+  world.sceneComponentRegistry.set(FogComponent.name, SCENE_COMPONENT_FOG)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_FOG, {
     defaultData: SCENE_COMPONENT_FOG_DEFAULT_VALUES,
     deserialize: deserializeFog,
@@ -334,7 +336,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_SKYBOX, props: SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(SkyboxComponent._name, SCENE_COMPONENT_SKYBOX)
+  world.sceneComponentRegistry.set(SkyboxComponent.name, SCENE_COMPONENT_SKYBOX)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
     defaultData: SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
     deserialize: deserializeSkybox,
@@ -348,7 +350,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_ENVMAP_BAKE, props: SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(EnvMapBakeComponent._name, SCENE_COMPONENT_ENVMAP_BAKE)
+  world.sceneComponentRegistry.set(EnvMapBakeComponent.name, SCENE_COMPONENT_ENVMAP_BAKE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {
     defaultData: SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES,
     deserialize: deserializeEnvMapBake,
@@ -366,29 +368,29 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
   ])
 
-  world.sceneComponentRegistry.set(ModelComponent._name, SCENE_COMPONENT_MODEL)
+  world.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
     defaultData: SCENE_COMPONENT_MODEL_DEFAULT_VALUE,
     deserialize: deserializeModel,
     serialize: serializeModel
   })
 
-  world.sceneComponentRegistry.set(EnvmapComponent._name, SCENE_COMPONENT_ENVMAP)
+  world.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {
     deserialize: deserializeEnvMap,
     serialize: serializeEnvMap
   })
 
-  world.sceneComponentRegistry.set(ScreenshareTargetComponent._name, SCENE_COMPONENT_SCREENSHARETARGET)
+  world.sceneComponentRegistry.set(ScreenshareTargetComponent.name, SCENE_COMPONENT_SCREENSHARETARGET)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCREENSHARETARGET, {})
 
   world.scenePrefabRegistry.set(ScenePrefabs.group, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_GROUP, props: true }
+    { name: SCENE_COMPONENT_GROUP, props: [] }
   ])
 
-  world.sceneComponentRegistry.set(GroupComponent._name, SCENE_COMPONENT_GROUP)
+  world.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
     deserialize: deserializeGroup,
     serialize: () => undefined!
@@ -399,7 +401,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_GROUND_PLANE, props: SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(GroundPlaneComponent._name, SCENE_COMPONENT_GROUND_PLANE)
+  world.sceneComponentRegistry.set(GroundPlaneComponent.name, SCENE_COMPONENT_GROUND_PLANE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
     defaultData: SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES,
     deserialize: deserializeGround,
@@ -415,14 +417,14 @@ export default async function SceneObjectUpdateSystem(world: World) {
     }
   ])
 
-  world.sceneComponentRegistry.set(ImageComponent._name, SCENE_COMPONENT_IMAGE)
+  world.sceneComponentRegistry.set(ImageComponent.name, SCENE_COMPONENT_IMAGE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {
     defaultData: {},
     deserialize: deserializeImage,
     serialize: serializeImage
   })
 
-  world.sceneComponentRegistry.set(LoopAnimationComponent._name, SCENE_COMPONENT_LOOP_ANIMATION)
+  world.sceneComponentRegistry.set(LoopAnimationComponent.name, SCENE_COMPONENT_LOOP_ANIMATION)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {
     defaultData: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE,
     serialize: serializeLoopAnimation
@@ -433,7 +435,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_CLOUD, props: SCENE_COMPONENT_CLOUD_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(CloudComponent._name, SCENE_COMPONENT_CLOUD)
+  world.sceneComponentRegistry.set(CloudComponent.name, SCENE_COMPONENT_CLOUD)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CLOUD, {
     defaultData: SCENE_COMPONENT_CLOUD_DEFAULT_VALUES,
     deserialize: deserializeCloud,
@@ -444,7 +446,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_OCEAN, props: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(OceanComponent._name, SCENE_COMPONENT_OCEAN)
+  world.sceneComponentRegistry.set(OceanComponent.name, SCENE_COMPONENT_OCEAN)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_OCEAN, {
     defaultData: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES,
     deserialize: deserializeOcean,
@@ -455,7 +457,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_WATER, props: true }
   ])
 
-  world.sceneComponentRegistry.set(WaterComponent._name, SCENE_COMPONENT_WATER)
+  world.sceneComponentRegistry.set(WaterComponent.name, SCENE_COMPONENT_WATER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_WATER, {
     deserialize: deserializeWater
   })
@@ -465,7 +467,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_INTERIOR, props: SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(InteriorComponent._name, SCENE_COMPONENT_INTERIOR)
+  world.sceneComponentRegistry.set(InteriorComponent.name, SCENE_COMPONENT_INTERIOR)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERIOR, {
     defaultData: SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES,
     deserialize: deserializeInterior,
@@ -477,7 +479,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     { name: SCENE_COMPONENT_SPLINE, props: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(SplineComponent._name, SCENE_COMPONENT_SPLINE)
+  world.sceneComponentRegistry.set(SplineComponent.name, SCENE_COMPONENT_SPLINE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPLINE, {
     defaultData: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES,
     deserialize: deserializeSpline,
@@ -485,10 +487,10 @@ export default async function SceneObjectUpdateSystem(world: World) {
   })
 
   const cameraQuery = defineQuery([CameraComponent])
-  const obj3dQuery = defineQuery([Object3DComponent])
-  const fogQuery = defineQuery([Object3DComponent, FogComponent])
-  const shadowQuery = defineQuery([Object3DComponent, ShadowComponent])
-  const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
+  const obj3dQuery = defineQuery([GroupComponent])
+  const fogQuery = defineQuery([GroupComponent, FogComponent])
+  const shadowQuery = defineQuery([GroupComponent, ShadowComponent])
+  const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
   const loopableAnimationQuery = defineQuery([LoopAnimationComponent, Not(SceneAssetPendingTagComponent)])
@@ -506,14 +508,14 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
-  return () => {
+  const execute = () => {
     for (const entity of obj3dQuery())
-      getComponent(entity, Object3DComponent).value.visible = hasComponent(entity, VisibleComponent)
+      for (const obj of getComponent(entity, GroupComponent)) obj.visible = hasComponent(entity, VisibleComponent)
 
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, ShadowComponent) && hasComponent(entity, Object3DComponent)) updateShadow(entity)
-        if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
+        if (hasComponent(entity, ShadowComponent) && hasComponent(entity, GroupComponent)) updateShadow(entity)
+        if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, GroupComponent)) updateEnvMap(entity)
         if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
         if (hasComponent(entity, PortalComponent)) updatePortal(entity)
@@ -547,7 +549,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of imageQuery.enter()) enterImage(entity)
     for (const entity of shadowQuery.enter()) updateShadow(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
-    for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
     for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')
@@ -564,4 +565,164 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
     for (const entity of scenePreviewCameraQuery.enter()) enterScenePreviewCamera(entity)
   }
+
+  const cleanup = async () => {
+    world.sceneComponentRegistry.delete(VisibleComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_VISIBLE)
+
+    world.sceneComponentRegistry.delete(ShadowComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SHADOW)
+
+    world.sceneComponentRegistry.delete(PreventBakeTagComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PREVENT_BAKE)
+
+    /**
+     * Metadata
+     */
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.cameraProperties)
+
+    world.sceneComponentRegistry.delete(CameraPropertiesComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_CAMERA_PROPERTIES)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.previewCamera)
+
+    world.sceneComponentRegistry.delete(ScenePreviewCameraComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.system)
+
+    world.sceneComponentRegistry.delete(SystemComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SYSTEM)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.spawnPoint)
+
+    world.sceneComponentRegistry.delete(SpawnPointComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPAWN_POINT)
+
+    world.sceneComponentRegistry.delete(RenderSettingComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_RENDERER_SETTINGS)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.postProcessing)
+
+    world.sceneComponentRegistry.delete(PostprocessingComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_POSTPROCESSING)
+
+    /**
+     * Assets
+     */
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.asset)
+
+    world.sceneComponentRegistry.delete(AssetComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_ASSET)
+
+    /**
+     * Portals
+     */
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.portal)
+
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PORTAL)
+    world.sceneComponentRegistry.delete(PortalComponent.name)
+
+    /**
+     * Environment
+     */
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.fog)
+
+    world.sceneComponentRegistry.delete(FogComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_FOG)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.skybox)
+
+    world.sceneComponentRegistry.delete(SkyboxComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SKYBOX)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.envMapbake)
+
+    world.sceneComponentRegistry.delete(EnvMapBakeComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_ENVMAP_BAKE)
+
+    /**
+     * Objects
+     */
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.model)
+
+    world.sceneComponentRegistry.delete(ModelComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MODEL)
+
+    world.sceneComponentRegistry.delete(EnvmapComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_ENVMAP)
+
+    world.sceneComponentRegistry.delete(ScreenshareTargetComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SCREENSHARETARGET)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.group)
+
+    world.sceneComponentRegistry.delete(GroupComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_GROUP)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.groundPlane)
+
+    world.sceneComponentRegistry.delete(GroundPlaneComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_GROUND_PLANE)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.image)
+
+    world.sceneComponentRegistry.delete(ImageComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_IMAGE)
+
+    world.sceneComponentRegistry.delete(LoopAnimationComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_LOOP_ANIMATION)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.cloud)
+
+    world.sceneComponentRegistry.delete(CloudComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_CLOUD)
+    world.scenePrefabRegistry.delete(ScenePrefabs.ocean)
+
+    world.sceneComponentRegistry.delete(OceanComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_OCEAN)
+    world.scenePrefabRegistry.delete(ScenePrefabs.water)
+
+    world.sceneComponentRegistry.delete(WaterComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_WATER)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.interior)
+
+    world.sceneComponentRegistry.delete(InteriorComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_INTERIOR)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.spline)
+
+    world.sceneComponentRegistry.delete(SplineComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
+
+    removeQuery(world, cameraQuery)
+    removeQuery(world, obj3dQuery)
+    removeQuery(world, fogQuery)
+    removeQuery(world, shadowQuery)
+    removeQuery(world, envmapQuery)
+    removeQuery(world, imageQuery)
+    removeQuery(world, sceneEnvmapQuery)
+    removeQuery(world, loopableAnimationQuery)
+    removeQuery(world, skyboxQuery)
+    removeQuery(world, portalQuery)
+    removeQuery(world, modelQuery)
+    removeQuery(world, groundPlaneQuery)
+    removeQuery(world, cloudQuery)
+    removeQuery(world, oceanQuery)
+    removeQuery(world, interiorQuery)
+    removeQuery(world, renderSettingsQuery)
+    removeQuery(world, postProcessingQuery)
+    removeQuery(world, cameraPropertiesQuery)
+    removeQuery(world, scenePreviewCameraQuery)
+
+    removeActionQueue(modifyPropertyActionQueue)
+  }
+
+  return { execute, cleanup }
 }

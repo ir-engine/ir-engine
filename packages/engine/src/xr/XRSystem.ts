@@ -1,7 +1,7 @@
 import { PerspectiveCamera, Quaternion } from 'three'
 
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
-import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
@@ -15,7 +15,7 @@ import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { World } from './../ecs/classes/World'
-import { addComponent, defineQuery, getComponent } from './../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent, removeQuery } from './../ecs/functions/ComponentFunctions'
 import { hasComponent, removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { GamepadMapping } from './../input/functions/GamepadInput'
@@ -155,26 +155,16 @@ export default async function XRSystem(world: World) {
     updateSessionSupportForMode('immersive-vr')
   }
 
-  // TODO: we need a way to remove listeners when systems are unloaded
   navigator.xr?.addEventListener('devicechange', updateSessionSupport)
   updateSessionSupport()
   setupLocalXRInputs()
-
-  // TEMPORARY - precache controller model
-  // Cache hand models
-  AssetLoader.loadAsync('/default_assets/controllers/hands/left.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/right.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/left_controller.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
-
-  // const joinedWorldActionQueue = createActionQueue(EngineActions.joinedWorld.matches)
 
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
   const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
-  return () => {
+  const execute = () => {
     const xrRequestSessionAction = xrRequestSessionQueue().pop()
     const xrEndSessionAction = xrEndSessionQueue().pop()
     if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)
@@ -198,6 +188,16 @@ export default async function XRSystem(world: World) {
     //XR Controller mesh animation update
     for (const entity of xrControllerQuery()) updateXRControllerAnimations(getComponent(entity, XRInputSourceComponent))
   }
+
+  const cleanup = async () => {
+    navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
+    removeQuery(world, xrControllerQuery)
+    removeActionQueue(xrRequestSessionQueue)
+    removeActionQueue(xrEndSessionQueue)
+    removeActionQueue(xrSessionChangedQueue)
+  }
+
+  return { execute, cleanup }
 }
 
 export function updateGamepadInput(source: XRInputSource) {

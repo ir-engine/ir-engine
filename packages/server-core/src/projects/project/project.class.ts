@@ -18,6 +18,7 @@ import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
@@ -247,7 +248,7 @@ export class Project extends Service {
   async update(
     data: { url: string; name?: string; needsRebuild?: boolean; reset?: boolean },
     placeholder?: null,
-    params?: Params
+    params?: UserParams
   ) {
     if (data.url === 'default-project') {
       copyDefaultProject()
@@ -317,11 +318,11 @@ export class Project extends Service {
     if (!existingProjectResult) {
       await this.app.service('project-permission').create({
         projectId: returned.id,
-        userId: params!.user.id
+        userId: params!.user!.id
       })
     }
 
-    if (data.reset) await pushProjectToGithub(this.app, returned, params!.user, true)
+    if (data.reset) await pushProjectToGithub(this.app, returned, params!.user!, true)
     // run project install script
     if (projectConfig.onEvent) {
       await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
@@ -330,10 +331,10 @@ export class Project extends Service {
     return returned
   }
 
-  async patch(id: Id, data: any, params?: Params) {
+  async patch(id: Id, data: any, params?: UserParams) {
     if (data.repositoryPath) {
       const repoPath = data.repositoryPath
-      const user = params!.user
+      const user = params!.user!
       const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
         where: {
           userId: user.id,
@@ -419,14 +420,14 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
+  async find(params?: UserParams): Promise<{ data: ProjectInterface[] }> {
     let projectPushIds: string[] = []
     if (params?.query?.allowed != null) {
       // Get all of the projects that this user has permissions for, then calculate push status by whether the GitHub
       // app associated with the installation can push to it. This will make sure no one tries to push to a repo
       // that the app cannot push to.
       const projectPermissions = (await this.app.service('project-permission').Model.findAll({
-        where: { userId: params.user.id },
+        where: { userId: params.user!.id },
         include: [{ model: this.app.service('project').Model }],
         paginate: false
       })) as any
@@ -442,7 +443,7 @@ export class Project extends Service {
       // can push to.
       const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
         where: {
-          userId: params.user.id,
+          userId: params.user!.id,
           type: 'github'
         }
       })
@@ -468,7 +469,7 @@ export class Project extends Service {
         projectPushIds = projectPushIds.concat(matchingAllowedRepos.map((repo) => repo.id))
       }
 
-      if (!params.user.scopes.find((scope) => scope.type === 'admin:admin'))
+      if (!params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
         params.query.id = { $in: [...new Set(projectPushIds)] }
       delete params.query.allowed
       if (!params.sequelize) params.sequelize = { raw: false }

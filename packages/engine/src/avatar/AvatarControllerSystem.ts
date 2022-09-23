@@ -13,6 +13,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
@@ -64,7 +65,7 @@ export default async function AvatarControllerSystem(world: World) {
   //   displacement = new Vector3()
   // let isLocalXRCameraReady = false
 
-  return () => {
+  const execute = () => {
     for (const avatarEntity of localControllerQuery.enter()) {
       const controller = getComponent(avatarEntity, AvatarControllerComponent)
 
@@ -109,9 +110,14 @@ export default async function AvatarControllerSystem(world: World) {
       const rigidbody = getComponent(controlledEntity, RigidBodyComponent)
       if (rigidbody.body.translation().y < -10) respawnAvatar(controlledEntity)
     }
-
-    return world
   }
+
+  const cleanup = async () => {
+    removeQuery(world, localControllerQuery)
+    removeQuery(world, controllerQuery)
+  }
+
+  return { execute, cleanup }
 }
 
 const alignXRInputContainerYawWithAvatar = (entity: Entity) => {

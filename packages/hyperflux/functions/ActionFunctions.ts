@@ -434,28 +434,42 @@ const clearOutgoingActions = (topic: string, store = HyperFlux.store) => {
   queue.length = 0
 }
 
-const createActionQueue = <V extends Validator<unknown, ResolvedActionType>>(
+function createActionQueue<V extends Validator<unknown, ResolvedActionType>>(
   shape: V,
   store = HyperFlux.store
-): (() => V['_TYPE'][]) => {
+): () => V['_TYPE'][] {
   if (!store.actions.queues.get(shape)) store.actions.queues.set(shape, [])
   const queue = store.actions.history.filter(shape.test)
   store.actions.queues.get(shape)!.push(queue)
-  return () => {
+  const actionQueueDefinition = () => {
     const result = [...queue]
     queue.length = 0
     return result
   }
+  actionQueueDefinition._queue = queue
+  actionQueueDefinition._shape = shape
+  return actionQueueDefinition
+}
+
+const removeActionQueue = (queueFunction, store = HyperFlux.store) => {
+  const queue = queueFunction._queue
+  const shape = queueFunction._shape
+  const shapeQueues = store.actions.queues.get(shape)
+  if (!shapeQueues) return
+  const index = shapeQueues.indexOf(queue)
+  if (index > -1) shapeQueues!.splice(index, 1)
+  if (!shapeQueues.length) store.actions.queues.delete(shape)
 }
 
 export default {
   defineAction,
   dispatchAction,
   addActionReceptor,
+  removeActionReceptor,
   createActionQueue,
+  removeActionQueue,
   addOutgoingTopicIfNecessary,
   removeActionsForTopic,
-  removeActionReceptor,
   applyIncomingActions,
   clearOutgoingActions
 }

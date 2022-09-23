@@ -13,7 +13,10 @@ const MocksystemLoader = async () => {
 }
 
 async function MockSystemInitialiser(world: World) {
-  return () => {}
+  return {
+    execute: () => {},
+    cleanup: async () => {}
+  }
 }
 
 const AnotherMocksystemLoader = async () => {
@@ -23,7 +26,10 @@ const AnotherMocksystemLoader = async () => {
 }
 
 async function AnotherMockSystemInitialiser(world: World) {
-  return () => {}
+  return {
+    execute: () => {},
+    cleanup: async () => {}
+  }
 }
 describe('SystemFunctions', () => {
   describe('initSystems', () => {

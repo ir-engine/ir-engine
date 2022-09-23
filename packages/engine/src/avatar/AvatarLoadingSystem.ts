@@ -23,6 +23,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
@@ -99,7 +100,7 @@ export default async function AvatarLoadingSystem(world: World) {
   texturePlate.encoding = sRGBEncoding
   texturePlate.needsUpdate = true
 
-  return () => {
+  const execute = () => {
     const { deltaSeconds: delta } = world
 
     for (const entity of effectQuery.enter()) {
@@ -277,7 +278,14 @@ export default async function AvatarLoadingSystem(world: World) {
         })
       }
     }
-
-    return world
   }
+
+  const cleanup = async () => {
+    removeQuery(world, effectQuery)
+    removeQuery(world, growQuery)
+    removeQuery(world, commonQuery)
+    removeQuery(world, dissolveQuery)
+  }
+
+  return { execute, cleanup }
 }

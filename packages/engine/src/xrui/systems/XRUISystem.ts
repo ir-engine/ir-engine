@@ -4,12 +4,13 @@ import { Color } from 'three'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ControllerGroup, XRInputSourceComponent } from '../../xr/XRComponents'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
@@ -24,6 +25,7 @@ export default async function XRUISystem(world: World) {
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const xruiQuery = defineQuery([XRUIComponent])
+  const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
@@ -47,7 +49,7 @@ export default async function XRUISystem(world: World) {
   // to the appropriate child Web3DLayer, and finally (back) to the
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
-    for (const entity of xruiQuery()) {
+    for (const entity of visibleXruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (hit && hit.intersection.object.visible) {
@@ -62,7 +64,7 @@ export default async function XRUISystem(world: World) {
     const cursor = controller.cursor
     let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
-    for (const entity of xruiQuery()) {
+    for (const entity of visibleXruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
 
       /**
@@ -112,7 +114,7 @@ export default async function XRUISystem(world: World) {
   canvas.addEventListener('contextmenu', redirectDOMEvent)
   canvas.addEventListener('dblclick', redirectDOMEvent)
 
-  return () => {
+  const execute = () => {
     const input = getComponent(world.localClientEntity, InputComponent)
     const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
 
@@ -158,7 +160,7 @@ export default async function XRUISystem(world: World) {
       }
     }
 
-    for (const entity of xruiQuery()) {
+    for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
       xrui.container.update()
     }
@@ -167,4 +169,15 @@ export default async function XRUISystem(world: World) {
     // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
     // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }
+
+  const cleanup = async () => {
+    canvas.removeEventListener('click', redirectDOMEvent)
+    canvas.removeEventListener('contextmenu', redirectDOMEvent)
+    canvas.removeEventListener('dblclick', redirectDOMEvent)
+    removeQuery(world, xruiQuery)
+    removeQuery(world, visibleXruiQuery)
+    removeQuery(world, localXRInputQuery)
+  }
+
+  return { execute, cleanup }
 }

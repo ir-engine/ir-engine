@@ -8,7 +8,11 @@ import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/component
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { Component, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -66,6 +70,43 @@ export const Debug = () => {
     dispatchAction(EngineRendererAction.setDebug({ debugEnable: !engineRendererState.debugEnable.value }))
   }
 
+  const tree = Engine.instance.currentWorld.entityTree
+
+  const renderEntityTree = (node: EntityTreeNode) => {
+    return {
+      entity: node.entity,
+      uuid: node.uuid,
+      components: renderEntityComponents(node.entity),
+      children: {
+        ...node.children.reduce(
+          (r, child, i) =>
+            Object.assign(r, {
+              [`${i} - ${getComponent(child, NameComponent)?.name ?? tree.entityNodeMap.get(child)?.uuid}`]:
+                renderEntityTree(tree.entityNodeMap.get(child)!)
+            }),
+          {}
+        )
+      }
+    }
+  }
+
+  const renderEntityComponents = (entity: Entity) => {
+    return Object.fromEntries(
+      entityExists(entity)
+        ? getEntityComponents(Engine.instance.currentWorld, entity).reduce<[string, any][]>(
+            (components, C: Component<any, any>) => {
+              if (C !== NameComponent) {
+                const component = getComponent(entity, C)
+                components.push([C._name, { ...component }])
+              }
+              return components
+            },
+            []
+          )
+        : []
+    )
+  }
+
   const renderAllEntities = () => {
     return {
       ...Object.fromEntries(
@@ -74,22 +115,8 @@ export const Debug = () => {
             const name = getComponent(eid, NameComponent)?.name
             try {
               return [
-                '(eid:' +
-                  eid +
-                  ') ' +
-                  (name ?? Engine.instance.currentWorld.entityTree.entityNodeMap.get(eid)?.uuid ?? ''),
-                Object.fromEntries(
-                  getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
-                    (components, C: Component<any, any>) => {
-                      if (C !== NameComponent) {
-                        const component = getComponent(eid, C)
-                        components.push([C._name, { ...component }])
-                      }
-                      return components
-                    },
-                    []
-                  )
-                )
+                '(eid:' + eid + ') ' + (name ?? tree.entityNodeMap.get(eid)?.uuid ?? ''),
+                renderEntityComponents(eid)
               ]
             } catch (e) {
               return null!
@@ -117,11 +144,13 @@ export const Debug = () => {
   }
 
   const namedEntities = useHookstate({})
+  const entityTree = useHookstate({})
 
   const pipelines = Engine.instance.currentWorld.pipelines
 
   if (isShowing) {
     namedEntities.set(renderAllEntities())
+    entityTree.set(renderEntityTree(tree.rootNode))
     return (
       <div className={styles.debugContainer}>
         <div className={styles.debugOptionContainer}>
@@ -165,13 +194,13 @@ export const Debug = () => {
           <h1>{t('common:debug.systems')}</h1>
           <JSONTree
             data={pipelines}
-            postprocessValue={(v) => {
+            postprocessValue={(v: SystemInstance) => {
               if (!v?.name) return v
-              const s = new String(v?.name) as any
+              const s = new String(`${v?.name} - ${v.uuid}`) as any
               s.instance = v
               return s
             }} // yes, all this is a hack. We probably shouldn't use JSONTree for this
-            valueRenderer={(raw, value: any) => (
+            valueRenderer={(raw, value: { instance: SystemInstance }) => (
               <>
                 <input
                   type="checkbox"
@@ -187,6 +216,10 @@ export const Debug = () => {
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.state')}</h1>
           <JSONTree data={Engine.instance.store.state} postprocessValue={(v) => v?.value ?? v} />
+        </div>
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.entityTree')}</h1>
+          <JSONTree data={entityTree.value} postprocessValue={(v) => v?.value ?? v} />
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.entities')}</h1>

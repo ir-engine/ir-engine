@@ -109,5 +109,3 @@ export const removeClientInputListeners = () => {
   })
   boundListeners.splice(0, boundListeners.length - 1)
 }
-
-export default {}

@@ -38,7 +38,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTreeFunctions'
-import { SystemInstanceType } from '../functions/SystemFunctions'
+import { SystemInstance } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
@@ -210,9 +210,6 @@ export class World {
 
   #entityRemovedQuery = bitecs.defineQuery([EntityRemovedComponent])
 
-  #portalQuery = bitecs.defineQuery([PortalComponent])
-  portalQuery = () => this.#portalQuery(this) as Entity[]
-
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
   /**
@@ -228,7 +225,7 @@ export class World {
     [SystemUpdateType.PRE_RENDER]: [],
     [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []
-  } as { [pipeline: string]: SystemInstanceType[] }
+  } as { [pipeline: string]: SystemInstance[] }
 
   #nameMap = new Map<string, Entity>()
   #nameQuery = defineQuery([NameComponent])

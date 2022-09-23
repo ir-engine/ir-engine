@@ -2,10 +2,9 @@ import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
@@ -13,13 +12,11 @@ import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectL
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { accessSceneState } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
-
-const localInputQuery = defineQuery([LocalInputTagComponent])
 
 export default async function LoadingUISystem(world: World) {
   const transitionPeriodSeconds = 1
@@ -47,7 +44,7 @@ export default async function LoadingUISystem(world: World) {
 
   setObjectLayers(mesh, ObjectLayers.UI)
 
-  return () => {
+  const execute = () => {
     if (transition.state === 'OUT' && transition.alpha === 0) return
 
     mesh.quaternion.copy(Engine.instance.currentWorld.camera.quaternion).invert()
@@ -66,11 +63,12 @@ export default async function LoadingUISystem(world: World) {
     const contentWidth = ui.state.imageWidth.value / ppu
     const contentHeight = ui.state.imageHeight.value / ppu
 
+    const loadingState = getState(LoadingSystemState).loadingScreenOpacity
+
     const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
     ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
     transition.update(world.deltaSeconds, (opacity) => {
-      if (opacity !== LoadingSystemState.loadingScreenOpacity.value)
-        LoadingSystemState.loadingScreenOpacity.set(opacity)
+      if (opacity !== loadingState.value) loadingState.set(opacity)
       mesh.material.opacity = opacity
       mesh.visible = opacity > 0
       xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
@@ -81,4 +79,11 @@ export default async function LoadingUISystem(world: World) {
       })
     })
   }
+
+  const cleanup = async () => {
+    removeEntity(ui.entity)
+    mesh.removeFromParent()
+  }
+
+  return { execute, cleanup }
 }

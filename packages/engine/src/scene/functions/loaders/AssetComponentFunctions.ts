@@ -24,6 +24,8 @@ import {
 } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
+import { Engine } from '../../../ecs/classes/Engine'
+
 export const unloadAsset = (entity: Entity) => {
   if (!hasComponent(entity, AssetComponent)) {
     console.warn('no Asset component')
@@ -52,7 +54,9 @@ export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
   }
   try {
     asset.loaded = LoadState.LOADING
-    const result = (await loader.loadAsync(asset.path)) as EntityTreeNode[]
+    const result = (await loader.loadAsync(asset.path, {
+      assetRoot: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+    })) as EntityTreeNode[]
     addComponent(entity, AssetLoadedComponent, { roots: result })
   } catch (e) {
     asset.loaded = LoadState.UNLOADED

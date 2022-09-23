@@ -22,7 +22,7 @@ import {
 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
@@ -33,6 +33,7 @@ import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { matchActionOnce } from '../networking/functions/matchActionOnce'
+import { XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import {
   accessEngineRendererState,
@@ -297,7 +298,7 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
   const restoreStorageDataActions = createActionQueue(EngineRendererAction.restoreStorageData.matches)
 
-  return () => {
+  const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)
     for (const action of setAutomaticActions()) EngineRendererReceptor.setAutomatic(action)
     for (const action of setPostProcessingActions()) EngineRendererReceptor.setPostProcessing(action)
@@ -309,8 +310,24 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
     for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
 
-    EngineRenderer.instance.execute(world.deltaSeconds)
+    if (!Engine.instance.isHMD || getState(XRState).sessionActive.value)
+      EngineRenderer.instance.execute(world.deltaSeconds)
   }
+
+  const cleanup = async () => {
+    removeActionQueue(setQualityLevelActions)
+    removeActionQueue(setAutomaticActions)
+    removeActionQueue(setPostProcessingActions)
+    removeActionQueue(setShadowsActions)
+    removeActionQueue(setDebugActions)
+    removeActionQueue(changedRenderModeActions)
+    removeActionQueue(changeNodeHelperVisibilityActions)
+    removeActionQueue(changeGridToolHeightActions)
+    removeActionQueue(changeGridToolVisibilityActions)
+    removeActionQueue(restoreStorageDataActions)
+  }
+
+  return { execute, cleanup }
 }
 
 globalThis.EngineRenderer = EngineRenderer

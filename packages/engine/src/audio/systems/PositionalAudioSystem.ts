@@ -1,7 +1,7 @@
 import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -9,7 +9,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
 import { MediaSettingAction, shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
@@ -91,12 +91,12 @@ export default async function PositionalAudioSystem(world: World) {
 
   const positionalAudioSettingsQuery = defineQuery([PositionalAudioSettingsComponent])
 
-  world.sceneComponentRegistry.set(PositionalAudioSettingsComponent._name, SCENE_COMPONENT_AUDIO_SETTINGS)
+  world.sceneComponentRegistry.set(PositionalAudioSettingsComponent.name, SCENE_COMPONENT_AUDIO_SETTINGS)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO_SETTINGS, {
     defaultData: SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
   })
 
-  world.sceneComponentRegistry.set(ImmersiveMediaTagComponent._name, SCENE_COMPONENT_MEDIA_SETTINGS)
+  world.sceneComponentRegistry.set(ImmersiveMediaTagComponent.name, SCENE_COMPONENT_MEDIA_SETTINGS)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA_SETTINGS, {})
 
   /**
@@ -118,7 +118,7 @@ export default async function PositionalAudioSystem(world: World) {
   /** Weak map entry is automatically GC'd when network object is removed */
   const avatarAudioStreams: WeakMap<NetworkObjectComponentType, MediaStream> = new WeakMap()
 
-  return () => {
+  const execute = () => {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
     const immersiveMedia = shouldUseImmersiveMedia()
@@ -139,14 +139,14 @@ export default async function PositionalAudioSystem(world: World) {
 
     for (const entity of positionalAudioQuery.enter()) {
       const el = getComponent(entity, MediaElementComponent).element
-      const audioGroup = AudioNodeGroups.get(el)!
-      addPannerNode(audioGroup, getComponent(entity, PositionalAudioComponent).value)
+      const audioGroup = AudioNodeGroups.get(el)
+      if (audioGroup) addPannerNode(audioGroup, getComponent(entity, PositionalAudioComponent).value)
     }
 
     for (const entity of positionalAudioQuery.exit()) {
       const el = getComponent(entity, MediaElementComponent, true).element
-      const audioGroup = AudioNodeGroups.get(el)!
-      removePannerNode(audioGroup)
+      const audioGroup = AudioNodeGroups.get(el)
+      if (audioGroup) removePannerNode(audioGroup)
     }
 
     /**
@@ -271,4 +271,22 @@ export default async function PositionalAudioSystem(world: World) {
     // audioContext.listener.upY.linearRampToValueAtTime(camera.up.y, endTime)
     // audioContext.listener.upZ.linearRampToValueAtTime(camera.up.z, endTime)
   }
+
+  const cleanup = async () => {
+    removeQuery(world, positionalAudioSettingsQuery)
+    world.sceneComponentRegistry.delete(PositionalAudioSettingsComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_AUDIO_SETTINGS)
+    world.sceneComponentRegistry.delete(ImmersiveMediaTagComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MEDIA_SETTINGS)
+    removeActionQueue(modifyPropertyActionQueue)
+    removeQuery(world, positionalAudioQuery)
+    removeQuery(world, immersiveMediaQuery)
+    removeQuery(world, networkedAvatarAudioQuery)
+    removeActionQueue(setMediaStreamVolumeActionQueue)
+    Engine.instance.spatialAudioSettings = {
+      ...SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
+    }
+  }
+
+  return { execute, cleanup }
 }

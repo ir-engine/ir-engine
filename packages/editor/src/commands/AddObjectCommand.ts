@@ -5,7 +5,7 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   getEntityNodeArrayFromEntities,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -140,7 +140,7 @@ function addObject(command: AddObjectCommandParams) {
           : undefined
     }
     if (typeof parent !== 'string' && typeof object !== 'string') {
-      addEntityNodeInTree(object, parent, index, false, world.entityTree)
+      addEntityNodeChild(object, parent, index)
 
       reparentObject3D(object, parent, typeof before === 'string' ? undefined : before, world.entityTree)
 

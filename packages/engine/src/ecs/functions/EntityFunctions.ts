@@ -5,7 +5,9 @@ import { Entity } from '../classes/Entity'
 import { addComponent, EntityRemovedComponent, removeAllComponents } from './ComponentFunctions'
 
 export const createEntity = (world = Engine.instance.currentWorld): Entity => {
-  return bitECS.addEntity(world) as Entity
+  let entity = bitECS.addEntity(world)
+  if (entity === 0) entity = bitECS.addEntity(world) // always discard entity 0 since we do a lot of `if (entity)` checks
+  return entity as Entity
 }
 
 export const removeEntity = (entity: Entity, immediately = false, world = Engine.instance.currentWorld) => {

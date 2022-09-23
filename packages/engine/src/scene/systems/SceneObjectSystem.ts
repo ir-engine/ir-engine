@@ -10,7 +10,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
@@ -47,6 +47,7 @@ const updateObject = (entity: Entity) => {
       obj.castShadow = shadowComponent.cast
     }
   }
+  if (Engine.instance.isHMD) return
 
   if (hasComponent(entity, XRUIComponent)) return
 
@@ -66,18 +67,6 @@ const applyMaterial = (obj: Mesh<any, any>) => {
   if (!obj.material) return
   const material = obj.material
 
-  if (Engine.instance.isHMD) {
-    if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
-      obj.material = new MeshLambertMaterial({
-        color: obj.material.color,
-        flatShading: obj.material.flatShading,
-        map: obj.material.map,
-        fog: obj.material.fog
-      })
-      return
-    }
-  }
-
   // BPCEM
   if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
     addOBCPlugin(
@@ -92,7 +81,7 @@ const applyMaterial = (obj: Mesh<any, any>) => {
 
   material.envMapIntensity = SceneOptions.instance.envMapIntensity
 
-  if (!Engine.instance.isHMD && obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
+  if (obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
 }
 
 export default async function SceneObjectSystem(world: World) {
@@ -104,7 +93,7 @@ export default async function SceneObjectSystem(world: World) {
   const sceneObjectQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  return () => {
+  const execute = () => {
     for (const entity of sceneObjectQuery.exit()) {
       const group = getComponent(entity, GroupComponent, true)
       const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
@@ -115,6 +104,21 @@ export default async function SceneObjectSystem(world: World) {
       }
     }
 
+    /** ensure the HMD has no heavy materials */
+    if (Engine.instance.isHMD) {
+      world.scene.traverse((obj: Mesh<any, any>) => {
+        if (obj.material)
+          if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
+            obj.material = new MeshLambertMaterial({
+              color: obj.material.color,
+              flatShading: obj.material.flatShading,
+              map: obj.material.map,
+              fog: obj.material.fog
+            })
+          }
+      })
+    }
+
     if (isClient) for (const entity of sceneObjectQuery()) updateObject(entity)
 
     const delta = getState(EngineState).deltaSeconds.value
@@ -123,4 +127,11 @@ export default async function SceneObjectSystem(world: World) {
       callbacks.get(UpdatableCallback)?.(delta)
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, sceneObjectQuery)
+    removeQuery(world, updatableQuery)
+  }
+
+  return { execute, cleanup }
 }
