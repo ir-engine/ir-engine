@@ -20,7 +20,6 @@ import { RemoveObjectCommand, RemoveObjectCommandParams } from './RemoveObjectsC
 
 describe('RemoveObjectCommand', () => {
   let command = {} as RemoveObjectCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
   let parentNodes: EntityTreeNode[]
   let beforeNodes: EntityTreeNode[]
@@ -30,7 +29,7 @@ describe('RemoveObjectCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]

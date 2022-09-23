@@ -25,7 +25,6 @@ import { ScaleCommand, ScaleCommandParams } from './ScaleCommand'
 
 describe.skip('ScaleCommand', () => {
   let command = {} as ScaleCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -33,7 +32,7 @@ describe.skip('ScaleCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
     addEntityNodeChild(nodes[0], rootNode)

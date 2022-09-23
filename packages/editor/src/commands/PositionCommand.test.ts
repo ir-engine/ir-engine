@@ -29,7 +29,6 @@ function getRandomPosition() {
 
 describe('PositionCommand', () => {
   let command = {} as PositionCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -37,7 +36,7 @@ describe('PositionCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
     addEntityNodeChild(nodes[0], rootNode)

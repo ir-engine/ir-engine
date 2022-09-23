@@ -19,7 +19,6 @@ import { DuplicateObjectCommand, DuplicateObjectCommandParams } from './Duplicat
 
 describe('DuplicateObjectCommand', () => {
   let command = {} as DuplicateObjectCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
   let parentNodes: EntityTreeNode[]
   let beforeNodes: EntityTreeNode[]
@@ -29,7 +28,7 @@ describe('DuplicateObjectCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]

@@ -20,7 +20,6 @@ import { RemoveFromSelectionCommand, RemoveFromSelectionCommandParams } from './
 
 describe('RemoveFromSelectionCommand', () => {
   let command = {} as RemoveFromSelectionCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -28,7 +27,7 @@ describe('RemoveFromSelectionCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
     addEntityNodeChild(nodes[0], rootNode)
