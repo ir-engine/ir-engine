@@ -23,10 +23,11 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   createEntityNode,
   removeEntityNode,
-  removeEntityNodeRecursively
+  removeEntityNodeRecursively,
+  updateRootNodeUuid
 } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -79,13 +80,13 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
   return data
 }
 
-export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): Promise<EntityTreeNode[]> => {
+export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNode): Promise<EntityTreeNode[]> => {
   const entityMap = {} as { [key: string]: EntityTreeNode }
   const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root)
   const idMap = new Map<string, string>()
   const loadedEntities = Engine.instance.currentWorld.entityTree.uuidNodeMap
 
-  const root = Engine.instance.currentWorld.entityTree.rootNode
+  const root = assetRoot ?? Engine.instance.currentWorld.entityTree.rootNode
   const rootId = sceneData.root
 
   entities.forEach(([_uuid]) => {
@@ -116,13 +117,13 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
     let parentId = sceneEntity.parent
     if (parentId) {
       if (idMap.has(parentId)) parentId = idMap.get(parentId)!
-      if (parentId === sceneData.root) {
+      if (parentId === rootId) {
         sceneEntity.parent = root.uuid
         parentId = root.uuid
         result.push(node)
       }
     }
-    addEntityNodeInTree(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : undefined)
+    addEntityNodeChild(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : root)
   })
   return result
 }
@@ -194,6 +195,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   )
   /** @todo this will not  */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {
+    if (node === world.entityTree.rootNode) continue
     removeEntityNodeRecursively(node, false, world.entityTree)
   }
 
@@ -205,6 +207,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   world.sceneJson = sceneData.scene
 
   /** 4. update scene entities with new data, and load new ones */
+  updateRootNodeUuid(sceneData.scene.root, world.entityTree)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
   updateSceneEntitiesFromJSON(sceneData.scene.root, world)
 
@@ -230,7 +233,7 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
       //   reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
     } else {
       const node = createEntityNode(createEntity(), uuid)
-      addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!))
+      addEntityNodeChild(node, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
       deserializeSceneEntity(node, entityJson)
     }
   } catch (e) {

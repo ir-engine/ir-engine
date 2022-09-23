@@ -3,7 +3,7 @@ import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -14,7 +14,7 @@ export function createInteractUI(entity: Entity, interactMessage: string) {
   const nameComponent = getComponent(entity, NameComponent)
   addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + nameComponent.name })
 
-  addEntityNodeInTree(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
+  addEntityNodeChild(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
   const xrui = getComponent(ui.entity, XRUIComponent)
   xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {

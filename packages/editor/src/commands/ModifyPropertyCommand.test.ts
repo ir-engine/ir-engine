@@ -11,7 +11,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   createEntityNode,
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -52,7 +52,6 @@ function getRandomValues(): TestComponentType {
 
 describe('ModifyPropertyCommand', () => {
   let command = {} as ModifyPropertyCommandParams<typeof TestComponent>
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -60,12 +59,11 @@ describe('ModifyPropertyCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-    addEntityNodeInTree(rootNode)
 
     for (let i = 0; i < 2; i++) {
-      addEntityNodeInTree(nodes[i], rootNode)
+      addEntityNodeChild(nodes[i], rootNode)
       addComponent(nodes[i].entity, TestComponent, getRandomValues())
     }
 
