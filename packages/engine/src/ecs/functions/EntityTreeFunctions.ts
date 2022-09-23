@@ -1,7 +1,8 @@
 import { MathUtils } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
@@ -103,13 +104,6 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
   }
   addComponent(entity, SceneObjectComponent, true)
   setTransformComponent(entity)
-
-  // addComponent(entity, NetworkObjectComponent, {
-  //   ownerId: Engine.instance.currentWorld._worldHostId,
-  //   networkId: //node.uuid as NetworkId,
-  //   prefab: 'entity_node',
-  //   parameters: null
-  // })
   return node
 }
 
@@ -143,6 +137,15 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
     const localTransform = setLocalTransformComponent(node.entity, parent.entity)
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
+
+  /** @todo networking all objects breaks portals currently - need to implement checks with connecting to instance server to ensure it's the same scene */
+  // if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
+  //   dispatchAction(
+  //     WorldNetworkAction.registerSceneObject({
+  //       objectUuid: node.uuid
+  //     })
+  //   )
+  // }
 }
 
 /**
