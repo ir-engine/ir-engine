@@ -8,7 +8,8 @@ import {
   matchesQuaternion,
   matchesUserId,
   matchesVector3,
-  matchesWithDefault
+  matchesWithDefault,
+  string
 } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'
@@ -46,6 +47,7 @@ export class WorldNetworkAction {
   static spawnObject = defineAction({
     type: 'xre.world.SPAWN_OBJECT',
     prefab: matches.string,
+    uuid: matches.string.optional(),
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
@@ -56,6 +58,12 @@ export class WorldNetworkAction {
   static spawnAvatar = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'avatar',
+    $topic: NetworkTopics.world
+  })
+
+  static spawnSceneObject = defineAction({
+    ...WorldNetworkAction.spawnObject.actionShape,
+    prefab: 'scene_object',
     $topic: NetworkTopics.world
   })
 

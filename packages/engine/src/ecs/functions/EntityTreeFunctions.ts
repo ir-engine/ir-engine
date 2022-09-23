@@ -103,13 +103,6 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
   }
   addComponent(entity, SceneObjectComponent, true)
   setTransformComponent(entity)
-
-  // addComponent(entity, NetworkObjectComponent, {
-  //   ownerId: Engine.instance.currentWorld._worldHostId,
-  //   networkId: //node.uuid as NetworkId,
-  //   prefab: 'entity_node',
-  //   parameters: null
-  // })
   return node
 }
 

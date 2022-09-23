@@ -17,7 +17,8 @@ const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
-  const entity = createEntity()
+  const uuidEntity = world.entityTree.uuidNodeMap.get(action.uuid!)?.entity
+  const entity = uuidEntity ?? createEntity()
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,

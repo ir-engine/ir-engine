@@ -30,6 +30,7 @@ import {
   updateRootNodeUuid
 } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -235,6 +236,17 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
       const node = createEntityNode(createEntity(), uuid)
       addEntityNodeChild(node, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
       deserializeSceneEntity(node, entityJson)
+    }
+    if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
+      const node = world.entityTree.uuidNodeMap.get(uuid)!
+      const transform = getComponent(node.entity, TransformComponent)
+      dispatchAction(
+        WorldNetworkAction.spawnSceneObject({
+          uuid,
+          position: transform.position,
+          rotation: transform.rotation
+        })
+      )
     }
   } catch (e) {
     logger.error(e, `Failed to update scene entity ${uuid}`)
