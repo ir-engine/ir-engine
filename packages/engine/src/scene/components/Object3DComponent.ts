@@ -11,6 +11,8 @@ export type Object3DComponentType = {
   value: Object3D | Group
 }
 
+export const Object3DFunctions = ['value.removeFromParent', 'value.clear']
+
 /**
  * @deprecated use GroupComponent
  */

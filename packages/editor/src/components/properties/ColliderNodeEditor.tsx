@@ -3,12 +3,22 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { camelCaseToSpacedString } from '@xrengine/common/src/utils/camelCaseToSpacedString'
+import { LoopAnimationFunctions } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getAllComponents,
+  getComponent,
+  hasComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { AnimationSequencerFunctions } from '@xrengine/engine/src/scene/components/AnimationSequencerComponent'
 import { CallbackComponent } from '@xrengine/engine/src/scene/components/CallbackComponent'
 import { ColliderComponent, ColliderComponentType } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { Object3DFunctions } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { supportedColliderShapes } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import PanToolIcon from '@mui/icons-material/PanTool'
 
@@ -45,28 +55,24 @@ const callbackQuery = defineQuery([CallbackComponent])
 
 export const ColliderNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [options, setOptions] = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
 
   const colliderComponent = getComponent(props.node.entity, ColliderComponent)
 
+  let [options, setOptions] = useState<any[]>([])
+
   useEffect(() => {
-    const options = [] as OptionsType
-    options.push({
-      label: 'Self',
-      value: 'Self',
-      callbacks: []
+    const options: any[] = []
+
+    const entityTree = Engine.instance.currentWorld.entityTree
+
+    traverseEntityNode(entityTree.rootNode, (o) => {
+      if (o === entityTree.rootNode) return
+      if (hasComponent(o.entity, TransformComponent)) {
+        //        const obj3d = getComponent(o.entity, Object3DComponent).value as any
+        //        const callbacks = obj3d.callbacks ? obj3d.callbacks() : []
+        options.push({ label: getComponent(o.entity, NameComponent)?.name, value: o.uuid })
+      }
     })
-    for (const entity of callbackQuery()) {
-      if (entity === props.node.entity) continue
-      const callbacks = getComponent(entity, CallbackComponent)
-      options.push({
-        label: getComponent(entity, NameComponent)?.name,
-        value: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid,
-        callbacks: Object.keys(callbacks).map((cb) => {
-          return { label: cb, value: cb }
-        })
-      })
-    }
     setOptions(options)
   }, [])
 
@@ -74,8 +80,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
     const props = { isTrigger: val } as Partial<ColliderComponentType>
     if (val) {
       props.target = colliderComponent.target ?? 'Self'
-      props.onEnter = colliderComponent.onEnter ?? ''
-      props.onExit = colliderComponent.onExit ?? ''
+      props.triggerEvent = colliderComponent.triggerEvent ?? ''
     }
     setPropertyOnSelectionEntities({
       component: ColliderComponent,
@@ -83,16 +88,72 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
     })
   }
 
+  let comps
+
   const triggerProps = () => {
+    function getEntityNode(entID) {
+      const entityNode = Engine.instance.currentWorld.entityTree.uuidNodeMap.get(entID)
+      return entityNode
+    }
+
+    function getModifiableProperties(entID) {
+      let arr: { label: string; value: any }[] = []
+
+      let entity = getEntityNode(entID)
+      if (!entity) {
+        return arr
+      }
+      comps = getAllComponents(entity.entity)
+
+      comps.forEach(function (comp) {
+        arr.push({ label: comp._name, value: comp._name })
+      })
+      return arr
+    }
+
+    function getValues() {
+      let arr: { label: string; value: any }[] = []
+      if (!comps) return arr
+
+      let funcs: string[] = []
+      switch (colliderComponent.targetComponent) {
+        case 'Object3DComponent':
+          funcs = Object3DFunctions
+          break
+        case 'LoopAnimationComponent':
+          funcs = LoopAnimationFunctions
+          break
+        case 'AnimationSequencerComponent':
+          funcs = AnimationSequencerFunctions
+      }
+
+      funcs.forEach(function (func) {
+        arr.push({ label: func, value: func })
+      })
+
+      return arr
+    }
+
     //function to handle the changes in target
     const onChangeTarget = (target) => {
       setPropertyOnSelectionEntities({
         component: ColliderComponent,
         properties: [
           {
-            target: target === 'Self' ? '' : target,
-            onEnter: '',
-            onExit: ''
+            triggerEvent: '',
+            target
+          }
+        ]
+      })
+    }
+
+    const onChangeComponent = (targetComponent) => {
+      setPropertyOnSelectionEntities({
+        component: ColliderComponent,
+        properties: [
+          {
+            targetComponent: targetComponent,
+            triggerEvent: ''
           }
         ]
       })
@@ -101,51 +162,50 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
     const targetOption = options.find((o) => o.value === colliderComponent.target)
     const target = targetOption ? targetOption.value : 'Self'
 
+    const triggerTypes: { label: string; value: any }[] = [
+      { label: 'On Enter', value: 1 },
+      { label: 'On Exit', value: 2 }
+    ]
+
     return (
       <>
+        <InputGroup name="Trigger Type" label={t('editor:properties.triggereVolume.lbl-triggerType')}>
+          <SelectInput
+            key={props.node.entity}
+            value={colliderComponent.triggerType == '' ? triggerTypes[0].label : colliderComponent.triggerType}
+            onChange={updateProperty(ColliderComponent, 'triggerType')}
+            options={triggerTypes}
+          />
+        </InputGroup>
+
         <InputGroup name="Target" label={t('editor:properties.triggereVolume.lbl-target')}>
           <SelectInput
             key={props.node.entity}
-            value={colliderComponent.target ?? 'Self'}
+            value={colliderComponent.target}
             onChange={onChangeTarget}
             options={options}
-            disabled={props.multiEdit}
+            disabled={props.multiEdit || colliderComponent.triggerType == ''}
           />
         </InputGroup>
-        <InputGroup name="On Enter" label={t('editor:properties.triggereVolume.lbl-onenter')}>
-          {targetOption?.callbacks.length == 0 ? (
-            <StringInput
-              value={colliderComponent.onEnter}
-              onChange={updateProperty(ColliderComponent, 'onEnter')}
-              disabled={props.multiEdit || !target}
-            />
-          ) : (
-            <SelectInput
-              key={props.node.entity}
-              value={colliderComponent.onEnter}
-              onChange={updateProperty(ColliderComponent, 'onEnter')}
-              options={targetOption?.callbacks ? targetOption.callbacks : []}
-              disabled={props.multiEdit || !target}
-            />
-          )}
+
+        <InputGroup name="Component" label={t('editor:properties.triggereVolume.lbl-targetComponent')}>
+          <SelectInput
+            key={props.node.entity}
+            value={colliderComponent.targetComponent}
+            onChange={onChangeComponent}
+            options={!target ? [] : getModifiableProperties(target)}
+            disabled={props.multiEdit || !target}
+          />
         </InputGroup>
 
-        <InputGroup name="On Exit" label={t('editor:properties.triggereVolume.lbl-onexit')}>
-          {targetOption?.callbacks.length == 0 ? (
-            <StringInput
-              value={colliderComponent.onExit}
-              onChange={updateProperty(ColliderComponent, 'onExit')}
-              disabled={props.multiEdit || !target}
-            />
-          ) : (
-            <SelectInput
-              key={props.node.entity}
-              value={colliderComponent.onExit}
-              onChange={updateProperty(ColliderComponent, 'onExit')}
-              options={targetOption?.callbacks ? targetOption.callbacks : []}
-              disabled={props.multiEdit || !target}
-            />
-          )}
+        <InputGroup name="Trigger Event" label={t('editor:properties.triggereVolume.lbl-triggerEvent')}>
+          <SelectInput
+            key={props.node.entity}
+            value={colliderComponent.triggerEvent}
+            onChange={updateProperty(ColliderComponent, 'triggerEvent')}
+            options={!target ? [] : getValues()}
+            disabled={props.multiEdit || !target}
+          />
         </InputGroup>
       </>
     )

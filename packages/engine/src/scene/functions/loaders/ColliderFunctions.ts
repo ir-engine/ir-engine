@@ -134,9 +134,10 @@ export const serializeCollider: ComponentSerializeFunction = (entity) => {
     collisionMask: collider.collisionMask
   } as ColliderComponentType
   if (collider.isTrigger) {
-    response.onEnter = collider.onEnter
-    response.onExit = collider.onExit
     response.target = collider.target
+    response.triggerEvent = collider.triggerEvent
+    response.targetComponent = collider.targetComponent
+    response.triggerType = collider.triggerType
   }
   return response
 }
@@ -151,9 +152,16 @@ export const parseColliderProperties = (props: Partial<ColliderComponentType>): 
     collisionMask: props.collisionMask ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.collisionMask
   } as ColliderComponentType
   if (response.isTrigger) {
-    response.onEnter = props.onEnter
-    response.onExit = props.onExit
     response.target = props.target
+    ;(response.triggerEvent = props.triggerEvent
+      ? props.triggerEvent
+      : SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.triggerEvent),
+      (response.targetComponent = props.targetComponent
+        ? props.targetComponent
+        : SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.targetComponent),
+      (response.triggerType = props.triggerType
+        ? props.triggerType
+        : SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.triggerType)
   }
   return response
 }

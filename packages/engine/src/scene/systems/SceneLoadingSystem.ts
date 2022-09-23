@@ -290,7 +290,7 @@ export const deserializeComponent = (
   world = Engine.instance.currentWorld
 ): void => {
   const sceneComponent = world.sceneLoadingRegistry.get(component.name)
-
+  console.log(sceneComponent)
   if (!sceneComponent) return
 
   const deserializer = sceneComponent.deserialize

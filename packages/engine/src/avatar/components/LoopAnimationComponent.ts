@@ -10,6 +10,8 @@ export type LoopAnimationComponentType = {
 
 export const LoopAnimationComponent = createMappedComponent<LoopAnimationComponentType>('LoopAnimationComponent')
 
+export const LoopAnimationFunctions = ['action.play', 'action.pause', 'action.reset', 'action.stop']
+
 export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
 export const SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE = {
   activeClipIndex: -1,

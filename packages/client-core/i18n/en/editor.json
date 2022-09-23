@@ -297,6 +297,14 @@
       "lbl-groundColor": "Ground Color",
       "lbl-intensity": "Intensity"
     },
+    "animationSequencer":{
+      "name": "Animation Sequencer",
+      "description": "Plays animations on a target object when prompted by a trigger.",
+      "lbl-targetObject": "Target Object",
+      "lbl-animationIndex": "Animation Index",
+      "lbl-loop": "Loop Animation",
+      "lbl-playOnStart": "Play on Start"
+    },
     "image": {
       "name": "Image",
       "description": "Dynamically loads an image.",
@@ -531,10 +539,11 @@
       "lbl-scale": "Scale"
     },
     "triggereVolume": {
-      "description": "Sets a property on the target object on enter and leave.",
+      "description": "Calls a function on the target object on trigger",
       "lbl-target": "Object",
-      "lbl-onenter": "On Enter",
-      "lbl-onexit": "On Exit",
+      "lbl-targetComponent": "Target Component",
+      "lbl-triggerEvent": "Trigger Event",
+      "lbl-triggerType": "Trigger Type",
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
       "ph-selectNode": "Select node..."

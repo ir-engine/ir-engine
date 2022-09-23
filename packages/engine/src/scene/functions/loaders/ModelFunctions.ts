@@ -1,8 +1,10 @@
-import { Object3D, Scene, Texture } from 'three'
+import { AnimationMixer, Object3D, Scene, Texture } from 'three'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../../assets/classes/DependencyTree'
 import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
+import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '../../../avatar/components/LoopAnimationComponent'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -40,6 +42,27 @@ export const deserializeModel: ComponentDeserializeFunction = (entity: Entity, d
   setComponent(entity, SceneAssetPendingTagComponent, true)
 }
 
+function setupAnimations(model, scene, entity) {
+  if (scene.animations) {
+    // We only have to update the mixer time for this animations on each frame
+    if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
+    let ac = addComponent(entity, AnimationComponent, {
+      mixer: new AnimationMixer(scene),
+      animationSpeed: 1,
+      animations: model.animations
+    })
+    ac.animations = model.animations
+    scene.animations = model.animations
+    if (ac.animations.length > 0 && !hasComponent(entity, LoopAnimationComponent)) {
+      addComponent(entity, LoopAnimationComponent, {
+        activeClipIndex: -1,
+        hasAvatarAnimations: false,
+        action: ac.mixer.clipAction(ac.animations[0])
+      })
+    }
+  }
+}
+
 export const updateModel = async (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
   /** @todo replace userData usage with something else */
@@ -58,9 +81,15 @@ export const updateModel = async (entity: Entity) => {
             uuid
           })) as GLTF
           scene = gltf.scene as Scene
+          scene.animations = gltf.animations
+          hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
+          addComponent(entity, Object3DComponent, { value: scene })
+          setupAnimations(gltf, scene, entity)
           break
         case '.fbx':
           scene = (await AssetLoader.loadAsync(model.src, { ignoreDisposeGeometry: model.generateBVH, uuid })).scene
+          hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
+          addComponent(entity, Object3DComponent, { value: scene })
           break
         default:
           scene = new Object3D() as Scene

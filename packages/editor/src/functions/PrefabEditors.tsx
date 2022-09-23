@@ -3,6 +3,7 @@ import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
+import { AnimationSequencerComponent } from '@xrengine/engine/src/scene/components/AnimationSequencerComponent'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
@@ -42,6 +43,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
+import AnimationSequencerNodeEditor from '../components/properties/AnimationSequencerNodeEditor'
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
@@ -88,6 +90,7 @@ EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
 EntityNodeEditor.set(CameraPropertiesComponent, CameraPropertiesNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
+EntityNodeEditor.set(AnimationSequencerComponent, AnimationSequencerNodeEditor)
 EntityNodeEditor.set(ParticleEmitterComponent, ParticleEmitterNodeEditor)
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
@@ -122,6 +125,7 @@ export const prefabIcons = {
   [LightPrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
   [LightPrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
+  [ScenePrefabs.animationSequencer]: AnimationSequencerNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
