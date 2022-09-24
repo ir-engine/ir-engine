@@ -25,6 +25,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
@@ -58,6 +59,8 @@ export class World {
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
+    initializeEntityTree(this)
+
     this.localOriginEntity = createEntity()
     addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
     setTransformComponent(this.localOriginEntity)
@@ -66,9 +69,8 @@ export class World {
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
+    setLocalTransformComponent(this.cameraEntity, this.sceneEntity)
     addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
-
-    initializeEntityTree(this)
 
     /** @todo */
     // this.scene.matrixAutoUpdate = false

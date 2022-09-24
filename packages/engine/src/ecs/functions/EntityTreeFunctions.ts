@@ -3,6 +3,7 @@ import { MathUtils } from 'three'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
@@ -49,6 +50,8 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   world.sceneEntity = createEntity()
   addComponent(world.sceneEntity, NameComponent, { name: 'scene' })
   addComponent(world.sceneEntity, VisibleComponent, true)
+  /** @todo */
+  // addObjectToGroup(world.sceneEntity, world.scene)
 
   world.entityTree = {
     rootNode: createEntityNode(world.sceneEntity),

@@ -6,9 +6,11 @@ import { createActionQueue, dispatchAction, getState, removeActionQueue } from '
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_010 } from '../common/constants/MathConstants'
+import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { GamepadAxis } from '../input/enums/InputEnums'
+import { BaseInput } from '../input/enums/BaseInput'
+import { GamepadAxis, TouchInputs } from '../input/enums/InputEnums'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
@@ -77,6 +79,27 @@ export const requestXRSession = createHookableFunction(
       })
       EngineRenderer.instance.xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
+
+      /**
+       * AR uses the `select` event as taps on the screen for mobile AR sessions
+       * This gets piped into the input system as a TouchInput.Touch
+       */
+      if (mode === 'immersive-ar') {
+        EngineRenderer.instance.xrSession.addEventListener('selectstart', () => {
+          Engine.instance.currentWorld.inputState.set(TouchInputs.Touch, {
+            type: InputType.BUTTON,
+            value: [BinaryValue.ON],
+            lifecycleState: LifecycleValue.Started
+          })
+        })
+        EngineRenderer.instance.xrSession.addEventListener('selectend', (inputSource) => {
+          Engine.instance.currentWorld.inputState.set(TouchInputs.Touch, {
+            type: InputType.BUTTON,
+            value: [BinaryValue.OFF],
+            lifecycleState: LifecycleValue.Ended
+          })
+        })
+      }
 
       const world = Engine.instance.currentWorld
       setupXRInputSourceComponent(world.localClientEntity)
@@ -175,8 +198,11 @@ export const updateHitTest = (entity: Entity) => {
 
   if (hitTestResults.length) {
     const hit = hitTestResults[0]
+    const hitData = hit.getPose(xrState.originReferenceSpace.value!)!
+    transform.matrix.fromArray(hitData.transform.matrix)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+    transform.matrixInverse.copy(transform.matrix).invert()
     hitTestComponent.hasHit.set(true)
-    transform.matrix.fromArray(hit.getPose(xrState.originReferenceSpace.value!)!.transform.matrix)
   } else {
     hitTestComponent.hasHit.set(false)
   }
@@ -214,6 +240,7 @@ export default async function XRSystem(world: World) {
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
   const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+  const buttonClickedQueue = createActionQueue(EngineActions.buttonClicked.matches)
 
   const execute = () => {
     const xrRequestSessionAction = xrRequestSessionQueue().pop()
@@ -235,8 +262,16 @@ export default async function XRSystem(world: World) {
       const session = EngineRenderer.instance.xrManager!.getSession()!
       for (const source of session.inputSources) updateGamepadInput(source)
 
-      if ('getHitTestResults' in Engine.instance.xrFrame && xrState.viewerHitTestSource) {
+      if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
         for (const entity of xrHitTestQuery()) updateHitTest(entity)
+        for (const action of buttonClickedQueue()) {
+          if (action.clicked && action.button === BaseInput.PRIMARY) {
+            const transform = getComponent(viewerHitTestEntity, TransformComponent)
+            Engine.instance.currentWorld.scene.scale.setScalar(transform.position.y > 0.5 ? 0.1 : 1)
+            Engine.instance.currentWorld.scene.position.copy(transform.position)
+            Engine.instance.currentWorld.scene.quaternion.copy(transform.rotation)
+          }
+        }
       }
     }
 
