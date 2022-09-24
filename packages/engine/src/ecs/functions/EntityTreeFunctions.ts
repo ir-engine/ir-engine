@@ -1,15 +1,14 @@
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { MathUtils } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
-import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
 import {
   setLocalTransformComponent,
+  setRootTransformComponent,
   setTransformComponent,
   TransformComponent
 } from '../../transform/components/TransformComponent'
@@ -18,7 +17,7 @@ import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
-import { addComponent, getComponent, hasComponent, setComponent } from './ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from './ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from './EntityFunctions'
 
 // ========== Entity Tree Functions ========== //
@@ -52,28 +51,7 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   world.sceneEntity = createEntity()
   addComponent(world.sceneEntity, NameComponent, { name: 'scene' })
   addComponent(world.sceneEntity, VisibleComponent, true)
-  setComponent(world.sceneEntity, TransformComponent, {
-    position: proxifyVector3WithDirty(
-      TransformComponent.position,
-      world.sceneEntity,
-      world.dirtyTransforms,
-      new Vector3()
-    ),
-    rotation: proxifyQuaternionWithDirty(
-      TransformComponent.rotation,
-      world.sceneEntity,
-      world.dirtyTransforms,
-      new Quaternion()
-    ),
-    scale: proxifyVector3WithDirty(
-      TransformComponent.scale,
-      world.sceneEntity,
-      world.dirtyTransforms,
-      new Vector3(1, 1, 1)
-    ),
-    matrix: new Matrix4(),
-    matrixInverse: new Matrix4()
-  })
+  setRootTransformComponent(world.sceneEntity)
   // addObjectToGroup(world.sceneEntity, world.scene)
 
   world.entityTree = {

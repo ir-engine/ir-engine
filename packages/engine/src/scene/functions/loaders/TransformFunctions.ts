@@ -18,7 +18,13 @@ const v3 = new Vector3()
 export const deserializeTransform: ComponentDeserializeFunction = (entity: Entity, data: TransformComponentType) => {
   const props = parseTransformProperties(data)
   const entityNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
-  setTransformComponent(entity, entityNode.parentEntity, props.position, props.rotation, props.scale)
+  setTransformComponent(
+    entity,
+    entityNode.parentEntity,
+    new Vector3().copy(props.position),
+    new Quaternion().copy(props.rotation),
+    new Vector3().copy(props.scale)
+  )
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {

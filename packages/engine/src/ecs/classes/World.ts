@@ -1,6 +1,6 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
-import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
+import { Matrix4, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -13,6 +13,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { InputAlias } from '../../input/types/InputAlias'
@@ -25,7 +26,11 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setRootTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -34,7 +39,8 @@ import {
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent
+  hasComponent,
+  setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTreeFunctions'
@@ -63,7 +69,7 @@ export class World {
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
-    setTransformComponent(this.cameraEntity)
+    setRootTransformComponent(this.cameraEntity)
     addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
 
     /** @todo */

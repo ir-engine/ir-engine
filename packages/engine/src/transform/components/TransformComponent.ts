@@ -44,7 +44,23 @@ export function setTransformComponent(
   scale = new Vector3(1, 1, 1)
 ) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
-  setLocalTransformComponent(entity, parentEntity)
+  setLocalTransformComponent(entity, parentEntity, position, rotation, scale)
+  return setComponent(entity, TransformComponent, {
+    position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, position),
+    rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, rotation),
+    scale: proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, scale),
+    matrix: new Matrix4(),
+    matrixInverse: new Matrix4()
+  })
+}
+
+export function setRootTransformComponent(
+  entity: Entity,
+  position = new Vector3(),
+  rotation = new Quaternion(),
+  scale = new Vector3(1, 1, 1)
+) {
+  const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
   return setComponent(entity, TransformComponent, {
     position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, position),
     rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, rotation),
