@@ -235,7 +235,7 @@ export default async function XRSystem(world: World) {
       const session = EngineRenderer.instance.xrManager!.getSession()!
       for (const source of session.inputSources) updateGamepadInput(source)
 
-      if ('getHitTestResults' in Engine.instance.xrFrame && xrState.viewerHitTestSource) {
+      if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
         for (const entity of xrHitTestQuery()) updateHitTest(entity)
       }
     }
