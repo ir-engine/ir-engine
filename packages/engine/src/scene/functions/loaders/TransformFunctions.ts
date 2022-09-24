@@ -6,9 +6,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
-  setLocalTransformComponent
-} from '../../../transform/components/LocalTransformComponent'
-import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   setTransformComponent,
   TransformComponent,
@@ -20,12 +17,8 @@ const v3 = new Vector3()
 
 export const deserializeTransform: ComponentDeserializeFunction = (entity: Entity, data: TransformComponentType) => {
   const props = parseTransformProperties(data)
-  const entityNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)
-  if (entityNode?.parentEntity) {
-    setLocalTransformComponent(entity, entityNode.parentEntity, props.position, props.rotation, props.scale)
-  } else {
-    setTransformComponent(entity, props.position, props.rotation, props.scale)
-  }
+  const entityNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+  setTransformComponent(entity, entityNode.parentEntity, props.position, props.rotation, props.scale)
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {

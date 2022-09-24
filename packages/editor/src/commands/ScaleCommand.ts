@@ -8,7 +8,7 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { updateCollider, updateModelColliders } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 

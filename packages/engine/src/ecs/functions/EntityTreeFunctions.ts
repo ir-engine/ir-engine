@@ -1,22 +1,24 @@
-import { MathUtils } from 'three'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
-import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
-import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
-import { addComponent, getComponent, setComponent } from './ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from './ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from './EntityFunctions'
 
 // ========== Entity Tree Functions ========== //
@@ -50,7 +52,28 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   world.sceneEntity = createEntity()
   addComponent(world.sceneEntity, NameComponent, { name: 'scene' })
   addComponent(world.sceneEntity, VisibleComponent, true)
-  /** @todo */
+  setComponent(world.sceneEntity, TransformComponent, {
+    position: proxifyVector3WithDirty(
+      TransformComponent.position,
+      world.sceneEntity,
+      world.dirtyTransforms,
+      new Vector3()
+    ),
+    rotation: proxifyQuaternionWithDirty(
+      TransformComponent.rotation,
+      world.sceneEntity,
+      world.dirtyTransforms,
+      new Quaternion()
+    ),
+    scale: proxifyVector3WithDirty(
+      TransformComponent.scale,
+      world.sceneEntity,
+      world.dirtyTransforms,
+      new Vector3(1, 1, 1)
+    ),
+    matrix: new Matrix4(),
+    matrixInverse: new Matrix4()
+  })
   // addObjectToGroup(world.sceneEntity, world.scene)
 
   world.entityTree = {
@@ -106,7 +129,6 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
     children: []
   }
   addComponent(entity, SceneObjectComponent, true)
-  setTransformComponent(entity)
   return node
 }
 
@@ -129,6 +151,8 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
 
   node.parentEntity = parent.entity
   addToEntityTreeMaps(node)
+
+  if (!hasComponent(node.entity, TransformComponent)) setTransformComponent(node.entity, parent.entity)
 
   updateEntityTransform(parent.entity)
   updateEntityTransform(node.entity)

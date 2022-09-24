@@ -108,6 +108,7 @@ export default async function AvatarLoadingSystem(world: World) {
       const sourceTransform = getComponent(effectComponent.sourceEntity, TransformComponent)
       const transform = setTransformComponent(
         entity,
+        world.sceneEntity,
         sourceTransform.position.clone(),
         sourceTransform.rotation.clone(),
         sourceTransform.scale.clone()

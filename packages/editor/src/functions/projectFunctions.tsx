@@ -80,7 +80,7 @@ export async function loadProjectScene(projectData: SceneData) {
  * Disposes project data
  */
 export function disposeProject() {
-  disposeScene()
+  // disposeScene()
   removeInputEvents()
   disposePlayModeControls()
   dispatchAction(EditorAction.projectLoaded({ loaded: false }))

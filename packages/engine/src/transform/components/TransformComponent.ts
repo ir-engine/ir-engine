@@ -27,21 +27,49 @@ export const TransformComponent = createMappedComponent<
   typeof TransformSchema
 >('TransformComponent', TransformSchema)
 
+type LocalTransformComponentType = TransformComponentType & { parentEntity: Entity }
+
+export const LocalTransformComponent = createMappedComponent<LocalTransformComponentType, typeof TransformSchema>(
+  'LocalTransformComponent',
+  TransformSchema
+)
+
 globalThis.TransformComponent = TransformComponent
 
 export function setTransformComponent(
   entity: Entity,
+  parentEntity = Engine.instance.currentWorld.sceneEntity,
   position = new Vector3(),
   rotation = new Quaternion(),
   scale = new Vector3(1, 1, 1)
 ) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
+  setLocalTransformComponent(entity, parentEntity)
   return setComponent(entity, TransformComponent, {
     position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, position),
     rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, rotation),
     scale: proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, scale),
     matrix: new Matrix4(),
     matrixInverse: new Matrix4()
+  })
+}
+
+export function setLocalTransformComponent(
+  entity: Entity,
+  parentEntity: Entity,
+  position = new Vector3(),
+  rotation = new Quaternion(),
+  scale = new Vector3(1, 1, 1)
+) {
+  if (entity === parentEntity) throw new Error('Tried to parent entity to self - this is not allowed')
+  const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
+  return setComponent(entity, LocalTransformComponent, {
+    parentEntity,
+    // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
+    position: proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms, position.clone()),
+    rotation: proxifyQuaternionWithDirty(LocalTransformComponent.rotation, entity, dirtyTransforms, rotation.clone()),
+    scale: proxifyVector3WithDirty(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()),
+    matrix: new Matrix4()
   })
 }
 
