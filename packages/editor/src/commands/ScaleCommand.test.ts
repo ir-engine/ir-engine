@@ -39,7 +39,7 @@ describe.skip('ScaleCommand', () => {
     nodes.forEach((node: EntityTreeNode) => {
       const obj3d = new Object3D()
       const transform = getRandomTransform()
-      setTransformComponent(node.entity, transform.position, transform.rotation, transform.scale)
+      setTransformComponent(node.entity, rootNode.entity, transform.position, transform.rotation, transform.scale)
       obj3d.scale.copy(transform.scale)
       Engine.instance.currentWorld.scene.add(obj3d)
       addObjectToGroup(node.entity, obj3d)

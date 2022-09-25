@@ -44,7 +44,7 @@ describe('RotationCommand', () => {
       const obj3d = new Object3D()
       addObjectToGroup(node.entity, obj3d)
       const transform = getRandomTransform()
-      setTransformComponent(node.entity, transform.position, transform.rotation, transform.scale)
+      setTransformComponent(node.entity, rootNode.entity, transform.position, transform.rotation, transform.scale)
     })
 
     command = {

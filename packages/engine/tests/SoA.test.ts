@@ -5,7 +5,11 @@ import { proxifyQuaternion, proxifyVector3 } from '../src/common/proxies/createT
 import { addComponent } from '../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../src/initializeEngine'
-import { setTransformComponent, TransformComponent } from '../src/transform/components/TransformComponent'
+import {
+  setRootTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../src/transform/components/TransformComponent'
 
 describe('Structure of Array Synchronization', () => {
   it('should synchronize values between transform objects and SoA data', () => {
@@ -13,7 +17,7 @@ describe('Structure of Array Synchronization', () => {
     createEngine()
 
     const entity = createEntity()
-    const transform = setTransformComponent(
+    const transform = setRootTransformComponent(
       entity,
       proxifyVector3(TransformComponent.position, entity).set(1, 2, 3),
       proxifyQuaternion(TransformComponent.rotation, entity).set(1, 2, 3, 4)
