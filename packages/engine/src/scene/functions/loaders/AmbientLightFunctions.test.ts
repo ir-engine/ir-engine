@@ -1,16 +1,17 @@
 import assert from 'assert'
 import { AmbientLight, Color } from 'three'
 
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import {
   AmbientLightComponent,
   AmbientLightComponentType,
   SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
 } from '../../components/AmbientLightComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   deserializeAmbientLight,
   parseAmbientLightProperties,
@@ -25,6 +26,9 @@ describe('AmbientLightFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
   })
 
   const sceneComponentData = {

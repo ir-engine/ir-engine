@@ -3,10 +3,12 @@ import Hls from 'hls.js'
 import proxyquire from 'proxyquire'
 import { LinearFilter, Mesh, Object3D, sRGBEncoding } from 'three'
 
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { MediaComponent, MediaElementComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -46,6 +48,9 @@ describe.skip('VideoFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
     addComponent(entity, MediaComponent, {
       paths: [],
       playMode: PlayMode.loop,

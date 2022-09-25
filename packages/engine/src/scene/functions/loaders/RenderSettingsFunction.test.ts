@@ -1,6 +1,8 @@
 import assert from 'assert'
 
+import { Engine } from '../../../ecs/classes/Engine'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { deserializeRenderSetting } from './RenderSettingsFunction'
@@ -11,6 +13,9 @@ describe('RenderSettingFunctions', () => {
     EngineRenderer.instance.isCSMEnabled = false
 
     const entity = createEntity()
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
 
     const sceneComponentData = {
       csm: true
