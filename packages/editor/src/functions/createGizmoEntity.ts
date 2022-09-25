@@ -5,13 +5,16 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
-import { setTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import {
+  setRootTransformComponent,
+  setTransformComponent
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export const createGizmoEntity = (gizmo: TransformGizmo): Entity => {
   const entity = createEntity()
   addComponent(entity, NameComponent, { name: 'Transform Gizmo' })
   addComponent(entity, TransformGizmoComponent, { gizmo })
-  setTransformComponent(entity)
+  setRootTransformComponent(entity)
   addObjectToGroup(entity, gizmo)
   return entity
 }

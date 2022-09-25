@@ -36,6 +36,16 @@ export const LocalTransformComponent = createMappedComponent<LocalTransformCompo
 
 globalThis.TransformComponent = TransformComponent
 
+/**
+ * Sets the transform component and local transform component, defaulting parent to the root scene node.
+ * Used for objects that exist as part of the world - such as avatars and scene objects
+ * @param entity
+ * @param parentEntity
+ * @param position
+ * @param rotation
+ * @param scale
+ * @returns
+ */
 export function setTransformComponent(
   entity: Entity,
   parentEntity = Engine.instance.currentWorld.sceneEntity,
@@ -54,6 +64,14 @@ export function setTransformComponent(
   })
 }
 
+/**
+ * Sets only the transform component. Used for objects that are not part of the world - such as gizmos.
+ * @param entity
+ * @param position
+ * @param rotation
+ * @param scale
+ * @returns
+ */
 export function setRootTransformComponent(
   entity: Entity,
   position = new Vector3(),
@@ -70,6 +88,15 @@ export function setRootTransformComponent(
   })
 }
 
+/**
+ * Sets the local transform component. This is used to calculate relative transforms.
+ * @param entity
+ * @param parentEntity
+ * @param position
+ * @param rotation
+ * @param scale
+ * @returns
+ */
 export function setLocalTransformComponent(
   entity: Entity,
   parentEntity: Entity,
