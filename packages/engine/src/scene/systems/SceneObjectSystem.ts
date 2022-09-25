@@ -64,7 +64,7 @@ const updateObject = (entity: Entity) => {
 }
 
 const applyMaterial = (obj: Mesh<any, any>) => {
-  if (!obj.material) return
+  if (!obj.material?.userData) return
   const material = obj.material
 
   // BPCEM

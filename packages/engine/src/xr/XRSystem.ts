@@ -66,14 +66,15 @@ export const requestXRSession = createHookableFunction(
       EngineRenderer.instance.xrManager.setSession(session).then(() => {
         const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
         xrState.originReferenceSpace.set(referenceSpace)
-        session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
-          xrState.viewerReferenceSpace.set(viewerReferenceSpace)
-          if ('requestHitTestSource' in session) {
-            session.requestHitTestSource!({ space: viewerReferenceSpace })!.then((source) => {
-              xrState.viewerHitTestSource.set(source)
-            })
-          }
-        })
+        if (mode === 'immersive-ar')
+          session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
+            xrState.viewerReferenceSpace.set(viewerReferenceSpace)
+            if ('requestHitTestSource' in session) {
+              session.requestHitTestSource!({ space: viewerReferenceSpace })!.then((source) => {
+                xrState.viewerHitTestSource.set(source)
+              })
+            }
+          })
       })
       EngineRenderer.instance.xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
