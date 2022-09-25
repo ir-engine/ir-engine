@@ -7,7 +7,6 @@ import {
   ComponentSerializeFunction
 } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   getComponent,
@@ -15,6 +14,7 @@ import {
   removeComponent,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
   AssetComponent,
   AssetComponentType,

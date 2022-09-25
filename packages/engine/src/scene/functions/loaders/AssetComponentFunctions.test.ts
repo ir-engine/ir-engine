@@ -17,7 +17,7 @@ import {
   addEntityNodeChild,
   createEntityNode,
   removeEntityNodeFromParent
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+} from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import '@xrengine/engine/src/patchEngineNode'
@@ -28,8 +28,8 @@ import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loa
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
-import { EntityTreeNode } from '../../../ecs/classes/EntityTree'
 import { World } from '../../../ecs/classes/World'
+import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 
 describe('AssetComponentFunctions', async () => {

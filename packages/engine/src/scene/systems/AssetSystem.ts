@@ -5,7 +5,7 @@ import {
   iterateEntityNode,
   removeEntityNodeFromParent,
   reparentEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+} from '@xrengine/engine/src/ecs/functions/EntityTree'
 
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
 import { reparentObject3D } from '../functions/ReparentFunction'

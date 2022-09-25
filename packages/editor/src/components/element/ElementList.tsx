@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 

@@ -15,7 +15,6 @@ import {
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
@@ -25,7 +24,8 @@ import {
   removeQuery,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '@xrengine/engine/src/interaction/components/BoundingBoxComponents'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'

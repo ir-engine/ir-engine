@@ -5,7 +5,6 @@ import styled from 'styled-components'
 import { useForceUpdate } from '@xrengine/client-core/src/util/useForceRender'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   ComponentMap,
@@ -13,6 +12,7 @@ import {
   hasComponent,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import {

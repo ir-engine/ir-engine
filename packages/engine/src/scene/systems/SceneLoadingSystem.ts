@@ -9,7 +9,6 @@ import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
 import {
   ComponentMap,
@@ -22,13 +21,14 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import {
   addEntityNodeChild,
   createEntityNode,
   removeEntityNode,
   removeEntityNodeRecursively,
   updateRootNodeUuid
-} from '../../ecs/functions/EntityTreeFunctions'
+} from '../../ecs/functions/EntityTree'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'

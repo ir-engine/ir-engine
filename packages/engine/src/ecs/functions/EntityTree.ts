@@ -16,10 +16,23 @@ import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
-import { addComponent, getComponent, hasComponent } from './ComponentFunctions'
-import { createEntity, entityExists, removeEntity } from './EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '../functions/ComponentFunctions'
+import { createEntity, entityExists, removeEntity } from '../functions/EntityFunctions'
 
+// Data structure to hold parent child relationship between entities
+export interface EntityTree {
+  rootNode: EntityTreeNode
+  entityNodeMap: Map<Entity, EntityTreeNode>
+  uuidNodeMap: Map<string, EntityTreeNode>
+}
+
+export type EntityTreeNode = {
+  type: 'EntityNode'
+  entity: Entity
+  uuid: string
+  children: Entity[]
+  parentEntity?: Entity
+}
 // ========== Entity Tree Functions ========== //
 /**
  * Adds passed node to all the tree maps

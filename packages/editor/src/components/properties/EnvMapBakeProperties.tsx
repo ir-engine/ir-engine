@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EnvMapBakeComponent, EnvMapBakeComponentType } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeTypes'
