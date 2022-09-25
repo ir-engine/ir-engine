@@ -33,7 +33,7 @@ import styles from './styles.module.scss'
 
 export const Debug = () => {
   // This is here to force the debug view to update ECS data on every frame
-  useHookstate(() => getState(EngineState).frameTime).value
+  useHookstate(getState(EngineState).frameTime).value
 
   const [isShowing, setShowing] = useState(false)
   const showingStateRef = useRef(isShowing)
