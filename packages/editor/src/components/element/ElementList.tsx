@@ -55,6 +55,7 @@ export const addPrefabElement = (
   before?: EntityTreeNode
 ): EntityTreeNode | undefined => {
   const node = createEntityNode(createEntity())
+  node.parentEntity = Engine.instance.currentWorld.sceneEntity
 
   executeCommandWithHistory({
     type: EditorCommands.ADD_OBJECTS,
