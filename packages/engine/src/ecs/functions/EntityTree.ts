@@ -25,7 +25,6 @@ export interface EntityTree {
   entityNodeMap: Map<Entity, EntityTreeNode>
   uuidNodeMap: Map<string, EntityTreeNode>
 }
-
 export type EntityTreeNode = {
   type: 'EntityNode'
   entity: Entity
@@ -33,6 +32,7 @@ export type EntityTreeNode = {
   children: Entity[]
   parentEntity?: Entity
 }
+
 // ========== Entity Tree Functions ========== //
 /**
  * Adds passed node to all the tree maps
