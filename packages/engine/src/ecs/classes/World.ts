@@ -58,17 +58,13 @@ export class World {
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
-    this.localOriginEntity = createEntity()
-    addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
-    setTransformComponent(this.localOriginEntity)
+    initializeEntityTree(this)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
     addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
-
-    initializeEntityTree(this)
 
     /** @todo */
     // this.scene.matrixAutoUpdate = false
@@ -175,11 +171,6 @@ export class World {
    * The scene entity
    */
   sceneEntity: Entity = NaN as Entity
-
-  /**
-   * The reference space in which the local avatar, camera, and spatial inputs are positioned
-   */
-  localOriginEntity: Entity = NaN as Entity
 
   /**
    * The camera entity

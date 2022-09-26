@@ -458,6 +458,7 @@ export default async function DebugHelpersSystem(world: World) {
       if (debugEnabled) {
         if (!helpersByEntity.ikExtents.has(entity)) {
           const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
+          if (entity === world.localClientEntity) debugHead.material.visible = false
           const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
           const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
           debugHead.visible = debugEnabled
