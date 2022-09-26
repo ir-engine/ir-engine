@@ -25,7 +25,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -59,10 +59,15 @@ export class World {
 
     initializeEntityTree(this)
 
+    this.originReferenceEntity = createEntity()
+    addComponent(this.originReferenceEntity, NameComponent, { name: 'origin' })
+    setTransformComponent(this.originReferenceEntity)
+
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
+    setLocalTransformComponent(this.cameraEntity, this.originReferenceEntity)
     addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
 
     /** @todo */
@@ -170,6 +175,11 @@ export class World {
    * The scene entity
    */
   sceneEntity: Entity = NaN as Entity
+
+  /**
+   * The origin reference space entity
+   */
+  originReferenceEntity: Entity = NaN as Entity
 
   /**
    * The camera entity
