@@ -9,6 +9,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { deepEqual } from '../../../common/functions/deepEqual'
 import { isClient } from '../../../common/functions/isClient'
+import { isHMD } from '../../../common/functions/isMobile'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -63,6 +64,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
 }
 
 export const updateShadowMapOnSceneLoad = (enable: boolean, shadowMapType?: number) => {
+  if (isHMD) return
   if (getEngineState().sceneLoaded.value) updateShadowMap(enable, shadowMapType)
   else
     matchActionOnce(EngineActions.sceneLoaded.matches, () => {
@@ -95,7 +97,7 @@ const enableCSM = () => {
 }
 
 export const initializeCSM = () => {
-  if (!Engine.instance.isHMD) {
+  if (!isHMD) {
     let activeCSMLight: DirectionalLight | undefined
     if (EngineRenderer.instance.activeCSMLightEntity) {
       activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, DirectionalLightComponent).light

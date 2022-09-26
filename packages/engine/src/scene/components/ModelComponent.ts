@@ -8,7 +8,7 @@ import { DependencyTree } from '../../assets/classes/DependencyTree'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { removeMaterialSource } from '../../renderer/materials/functions/Utilities'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -17,7 +17,7 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { initializeOverride } from '../functions/loaders/MaterialOverrideFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { MaterialOverrideComponentType } from './MaterialOverrideComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
@@ -69,6 +69,7 @@ export const ModelComponent = defineComponent({
               break
           }
           scene.userData.src = model.src
+          if (state.scene.value) removeObjectFromGroup(entity, state.scene.value)
           state.scene.set(scene)
           addObjectToGroup(entity, scene)
           setBoundingBoxComponent(entity)

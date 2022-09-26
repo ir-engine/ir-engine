@@ -5,6 +5,7 @@ import { getState } from '@xrengine/hyperflux'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
+import { isHMD } from '../../common/functions/isMobile'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -47,7 +48,7 @@ const updateObject = (entity: Entity) => {
       obj.castShadow = shadowComponent.cast
     }
   }
-  if (Engine.instance.isHMD) return
+  if (isHMD) return
 
   if (hasComponent(entity, XRUIComponent)) return
 
@@ -105,10 +106,11 @@ export default async function SceneObjectSystem(world: World) {
     }
 
     /** ensure the HMD has no heavy materials */
-    if (Engine.instance.isHMD) {
+    if (isHMD) {
       world.scene.traverse((obj: Mesh<any, any>) => {
         if (obj.material)
           if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
+            obj.material.dispose()
             obj.material = new MeshLambertMaterial({
               color: obj.material.color,
               flatShading: obj.material.flatShading,
