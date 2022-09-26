@@ -60,6 +60,7 @@ export class FileBrowserService implements ServiceMethods<any> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { storageProviderName, key } = params.query
+    if (!key) return { type: 'UNDEFINED' }
     const storageProvider = getStorageProvider(storageProviderName)
     const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
     const exists = await storageProvider.doesExist(file, directory)
