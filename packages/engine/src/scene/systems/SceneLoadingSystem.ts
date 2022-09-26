@@ -262,9 +262,7 @@ export const deserializeSceneEntity = (
       !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
   )
   for (const C of componentsToRemove) {
-    if (entityNode.entity === world.sceneEntity) {
-      if (C === VisibleComponent) continue
-    }
+    if (entityNode.entity === world.sceneEntity) if (C === VisibleComponent) continue
     if (C === GroupComponent || C === TransformComponent) continue
     console.log('removing component', C.name, C, entityNode.entity)
     removeComponent(entityNode.entity, C)
