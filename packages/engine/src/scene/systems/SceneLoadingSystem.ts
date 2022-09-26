@@ -275,12 +275,6 @@ export const deserializeSceneEntity = (
     }
   }
 
-  /** @todo do we need this still? */
-  if (!hasComponent(entityNode.entity, VisibleComponent)) {
-    const obj = getComponent(entityNode.entity, Object3DComponent)?.value
-    if (obj) obj.visible = false
-  }
-
   return entityNode.entity
 }
 

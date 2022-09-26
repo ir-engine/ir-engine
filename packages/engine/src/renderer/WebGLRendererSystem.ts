@@ -81,7 +81,6 @@ export class EngineRenderer {
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
 
   supportWebGL2: boolean
-  rendereringEnabled = true
   canvas: HTMLCanvasElement
 
   averageFrameTime = 1000 / 60
@@ -220,40 +219,38 @@ export class EngineRenderer {
       const state = accessEngineRendererState()
       const engineState = getEngineState()
       if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
-      if (this.rendereringEnabled) {
-        if (this.needsResize) {
-          const curPixelRatio = this.renderer.getPixelRatio()
-          const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
+      if (this.needsResize) {
+        const curPixelRatio = this.renderer.getPixelRatio()
+        const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
 
-          if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
+        if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
-          const width = window.innerWidth
-          const height = window.innerHeight
+        const width = window.innerWidth
+        const height = window.innerHeight
 
-          if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
-            const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
-            cam.aspect = width / height
-            cam.updateProjectionMatrix()
-          }
-
-          state.qualityLevel.value > 0 && this.csm?.updateFrustums()
-          // Effect composer calls renderer.setSize internally
-          this.effectComposer.setSize(width, height, true)
-          this.needsResize = false
+        if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
+          const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
+          cam.aspect = width / height
+          cam.updateProjectionMatrix()
         }
 
-        state.qualityLevel.value > 0 && this.csm?.update()
+        state.qualityLevel.value > 0 && this.csm?.updateFrustums()
+        // Effect composer calls renderer.setSize internally
+        this.effectComposer.setSize(width, height, true)
+        this.needsResize = false
+      }
 
-        /**
-         * Editor should always use post processing, even if no postprocessing schema is in the scene,
-         *   it still uses post processing for effects such as outline.
-         */
-        if (state.usePostProcessing.value || Engine.instance.isEditor) {
-          this.effectComposer.render(delta)
-        } else {
-          this.renderer.autoClear = true
-          this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
-        }
+      state.qualityLevel.value > 0 && this.csm?.update()
+
+      /**
+       * Editor should always use post processing, even if no postprocessing schema is in the scene,
+       *   it still uses post processing for effects such as outline.
+       */
+      if (state.usePostProcessing.value || Engine.instance.isEditor) {
+        this.effectComposer.render(delta)
+      } else {
+        this.renderer.autoClear = true
+        this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
       }
     }
   }
