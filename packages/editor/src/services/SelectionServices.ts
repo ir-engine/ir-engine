@@ -2,7 +2,7 @@ import { useState } from '@hookstate/core'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { defineAction, defineState, getState } from '@xrengine/hyperflux'
 
 import { filterParentEntities } from '../functions/filterParentEntities'

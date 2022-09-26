@@ -1,6 +1,6 @@
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 

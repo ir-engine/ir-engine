@@ -1,5 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommandWithHistory } from '../classes/History'

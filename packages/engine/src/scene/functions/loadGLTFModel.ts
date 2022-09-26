@@ -14,7 +14,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'

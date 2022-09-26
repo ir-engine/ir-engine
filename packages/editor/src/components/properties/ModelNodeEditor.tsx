@@ -13,7 +13,7 @@ import {
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'

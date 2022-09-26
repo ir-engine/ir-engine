@@ -14,9 +14,22 @@ import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
 import { addComponent, getComponent, setComponent } from './ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from './EntityFunctions'
+
+export interface EntityTree {
+  rootNode: EntityTreeNode
+  entityNodeMap: Map<Entity, EntityTreeNode>
+  uuidNodeMap: Map<string, EntityTreeNode>
+}
+
+export type EntityTreeNode = {
+  type: 'EntityNode'
+  entity: Entity
+  uuid: string
+  children: Entity[]
+  parentEntity?: Entity
+}
 
 // ========== Entity Tree Functions ========== //
 /**

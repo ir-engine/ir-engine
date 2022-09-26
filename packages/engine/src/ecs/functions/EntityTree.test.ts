@@ -3,8 +3,8 @@ import { MathUtils } from 'three'
 
 import { createEngine } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
-import { EntityTreeNode } from '../classes/EntityTree'
 import { World } from '../classes/World'
+import { EntityTreeNode } from '../functions/EntityTree'
 import { createEntity } from './EntityFunctions'
 import {
   addEntityNodeChild,
@@ -23,9 +23,9 @@ import {
   reparentEntityNode,
   traverseEntityNode,
   traverseEntityNodeParent
-} from './EntityTreeFunctions'
+} from './EntityTree'
 
-describe('EntityTreeFunctions', () => {
+describe('EntityTree', () => {
   let world: World
   let root: EntityTreeNode
 
