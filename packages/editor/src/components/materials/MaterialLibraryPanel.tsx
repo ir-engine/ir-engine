@@ -4,8 +4,9 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
+import exportMaterialsGLTF from '@xrengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { registerMaterial } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { materialFromId, registerMaterial } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { useHookEffect, useHookstate, useState } from '@xrengine/hyperflux'
 
@@ -13,6 +14,7 @@ import { Divider, Grid, Stack } from '@mui/material'
 
 import { executeCommandWithHistory } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
+import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { useEditorState } from '../../services/EditorServices'
 import { useSelectionState } from '../../services/SelectionServices'
 import { HeirarchyTreeCollapsedNodeType } from '../hierarchy/HeirarchyTreeWalker'
@@ -97,9 +99,9 @@ export default function MaterialLibraryPanel() {
             )}
           </AutoSizer>
         </div>
-        <div className={styles.panelSection} style={{ height: 'auto' }}>
+        <div className={styles.panelSection} style={{ height: 'auto', padding: '8px' }}>
           <div className={styles.divider} />
-          <Stack direction={'column'} spacing={1}>
+          <Stack direction={'column'} spacing={2}>
             <Button
               onClick={() => {
                 registerMaterial(new MeshBasicMaterial(), { path: '', type: 'Editor Session' })
@@ -107,6 +109,29 @@ export default function MaterialLibraryPanel() {
               }}
             >
               New
+            </Button>
+            <Button
+              onClick={async () => {
+                const materials = selectionState.selectedEntities
+                  .filter(
+                    (selected) => typeof selected.value === 'string' && MaterialLibrary.materials.has(selected.value)
+                  )
+                  .map((selected) => materialFromId(selected.value as string))
+                const gltf = (await exportMaterialsGLTF(materials, {
+                  binary: false,
+                  path: 'material-test.gltf'
+                })!) as /*ArrayBuffer*/ { [key: string]: any }
+                const pName = editorState.projectName.value!
+                const blob = [JSON.stringify(gltf)]
+                const file = new File(blob, 'material-test.gltf')
+                /*const pName = editorState.projectName.value!
+                const blob = [gltf]
+                const file = new File(blob, "material-test.glb")*/
+                const urls = await Promise.all(uploadProjectFiles(pName, [file], true).promises)
+                console.log('exported material data to ', ...urls)
+              }}
+            >
+              Save
             </Button>
           </Stack>
         </div>

@@ -75,7 +75,7 @@ export const serializeWorld = (
         const asset = getComponent(node.entity, AssetComponent)
         if (asset.loaded === LoadState.LOADED) {
           const loaded = getComponent(node.entity, AssetLoadedComponent)
-          loaded.roots?.forEach((root) => loadedAssets.add(root))
+          loaded?.roots?.forEach((root) => loadedAssets.add(root))
         }
       }
     },

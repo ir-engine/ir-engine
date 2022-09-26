@@ -1,7 +1,11 @@
 import { KTX2Encoder } from '@etherealjs/web-layer/core/textures/KTX2Encoder'
 import {
   CompressedTexture,
+  CubeTexture,
+  Event,
+  Material,
   Mesh,
+  Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   Scene,
@@ -13,19 +17,71 @@ import {
 import util from 'util'
 
 import createReadableTexture from '../../../functions/createReadableTexture'
-import { GLTFWriter } from '../GLTFExporter'
+import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
-export default class BasisuExporterExtension extends ExporterExtension {
+export default class BasisuExporterExtension extends ExporterExtension implements GLTFExporterPlugin {
   constructor(writer: GLTFWriter) {
     super(writer)
     this.name = 'KHR_texture_basisu'
     this.sampler = writer.processSampler(new Texture())
-    this.imgCache = new Map<any, number>()
+    this.replacedImages = new Map()
   }
 
-  imgCache: Map<any, number>
   sampler: any
+  replacedImages: Map<
+    Texture,
+    { replacement: Promise<Texture | null>; originals: { material: Material; field: string }[] }
+  >
+
+  addReplacement(material: Material, field: string, texture: Texture) {
+    if (this.replacedImages.has(texture)) {
+      const entry = this.replacedImages.get(texture)!
+      entry.originals.push({ material, field })
+      this.writer.pending.push(entry.replacement.then((replacement) => (material[field] = replacement)))
+    } else {
+      let texturePromise: Promise<Texture | null> = (async () => null)()
+      const entry = { replacement: texturePromise, originals: new Array<{ material: Material; field: string }>() }
+      entry.originals.push({ material, field })
+      if (!(texture as CubeTexture).isCubeTexture) {
+        texturePromise = new Promise<Texture>((resolve) => {
+          createReadableTexture(texture).then((replacement: Texture) => {
+            material[field] = replacement
+            resolve(replacement)
+          })
+        })
+      }
+      this.replacedImages.set(texture, entry)
+      this.writer.pending.push(texturePromise)
+    }
+  }
+
+  beforeParse(input: Object3D | Object3D[]) {
+    const materials = new Array()
+    const subjects = Array.isArray(input) ? input : [input]
+    for (const subject of subjects)
+      subject.traverse((mesh: Mesh) => {
+        if (mesh.isMesh) {
+          if (Array.isArray(mesh.material)) materials.push(...mesh.material)
+          else materials.push(mesh.material)
+        }
+      })
+    materials.map((material) => {
+      const textures = Object.entries(material).filter(
+        ([k, val]) => (val as CompressedTexture)?.isCompressedTexture || (val as CubeTexture)?.isCubeTexture
+      )
+      textures.map(([field, texture]: [string, CompressedTexture]) => this.addReplacement(material, field, texture))
+    })
+  }
+
+  afterParse(input: Object3D<Event> | Object3D<Event>[]): void {
+    ;[...this.replacedImages.entries()].map(([original, entry]) => {
+      entry.originals.map(({ material, field }) => {
+        material[field] = original
+      })
+    })
+    this.replacedImages.clear()
+  }
 
   writeTexture(_texture: CompressedTexture, textureDef) {
     if (!_texture.isCompressedTexture) return

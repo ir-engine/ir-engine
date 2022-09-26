@@ -46,6 +46,8 @@ export interface GLTFExporterOptions {
      * Export custom glTF extensions defined on an object's userData.gltfExtensions property. Default is false.
      */
     includeCustomExtensions?: boolean;
+
+    path?: string;
 }
 
 export class GLTFExporter {
@@ -94,7 +96,18 @@ export class GLTFWriter {
     buffers: any[]
     json: any
     cache: any
-    options: any
+    options: {
+        trs?: boolean,
+        binary?: boolean,
+        embedImages?: boolean,
+        path?: string,
+        onlyVisible?: boolean,
+        animations?: AnimationClip[],
+        includeCustomExtensions?: boolean,
+        truncateDrawRange?: boolean,
+        maxTextureSize?: number,
+
+    }
     pending: Promise<any>[]
     extensionsUsed : {[key:string] : any}
 
@@ -155,6 +168,7 @@ export class GLTFWriter {
 }
 
 export interface GLTFExporterPlugin {
+    writeImage?: (image: Image, imageDef: { [key: string]: any }) => void;
     writeTexture?: (map: Texture, textureDef: { [key: string]: any }) => void;
     writeMaterial?: (material: Material, materialDef: { [key: string]: any }) => void;
     writeMesh?: (mesh: Mesh, meshDef: { [key: string]: any }) => void;
