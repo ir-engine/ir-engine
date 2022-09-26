@@ -85,8 +85,6 @@ export const initializeBrowser = () => {
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   ;(window as any).safariWebBrowser = browser?.name === 'safari'
 
-  Engine.instance.isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
-
   setupInitialClickListener()
 
   // maybe needs to be awaited?

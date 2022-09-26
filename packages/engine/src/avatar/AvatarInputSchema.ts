@@ -463,7 +463,7 @@ export const createAvatarInput = () => {
   map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN)
   map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL)
 
-  // map.set(TouchInputs.Touch, BaseInput.INTERACT)
+  map.set(TouchInputs.Touch, BaseInput.PRIMARY)
   // map.set(TouchInputs.DoubleTouch, BaseInput.JUMP)
   map.set(TouchInputs.Touch1Position, BaseInput.SCREENXY)
   map.set(TouchInputs.Touch1Movement, BaseInput.LOOKTURN)

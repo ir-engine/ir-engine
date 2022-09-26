@@ -262,6 +262,7 @@ export const deserializeSceneEntity = (
       !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
   )
   for (const C of componentsToRemove) {
+    if (entityNode.entity === world.sceneEntity) if (C === VisibleComponent) continue
     if (C === GroupComponent || C === TransformComponent) continue
     console.log('removing component', C.name, C, entityNode.entity)
     removeComponent(entityNode.entity, C)
@@ -273,12 +274,6 @@ export const deserializeSceneEntity = (
       console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
       console.error(e)
     }
-  }
-
-  /** @todo do we need this still? */
-  if (!hasComponent(entityNode.entity, VisibleComponent)) {
-    const obj = getComponent(entityNode.entity, Object3DComponent)?.value
-    if (obj) obj.visible = false
   }
 
   return entityNode.entity
