@@ -8,7 +8,7 @@ import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
-import { setRootTransformComponent, TransformComponent } from '../../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../../transform/components/TransformComponent'
 
 const EPSILON = 10e-8
 

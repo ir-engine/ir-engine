@@ -44,7 +44,7 @@ describe('RotateAroundCommand', () => {
       const transform = getRandomTransform()
       obj3d.quaternion.copy(transform.rotation)
       Engine.instance.currentWorld.scene.add(obj3d)
-      setTransformComponent(node.entity, rootNode.entity, transform.position, transform.rotation, transform.scale)
+      setTransformComponent(node.entity, transform.position, transform.rotation, transform.scale)
       addObjectToGroup(node.entity, obj3d)
     })
 

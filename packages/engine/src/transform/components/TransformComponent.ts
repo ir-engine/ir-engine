@@ -48,32 +48,6 @@ globalThis.TransformComponent = TransformComponent
  */
 export function setTransformComponent(
   entity: Entity,
-  parentEntity = Engine.instance.currentWorld.sceneEntity,
-  position = new Vector3(),
-  rotation = new Quaternion(),
-  scale = new Vector3(1, 1, 1)
-) {
-  const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
-  setLocalTransformComponent(entity, parentEntity, position, rotation, scale)
-  return setComponent(entity, TransformComponent, {
-    position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, position),
-    rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, rotation),
-    scale: proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, scale),
-    matrix: new Matrix4(),
-    matrixInverse: new Matrix4()
-  })
-}
-
-/**
- * Sets only the transform component. Used for objects that are not part of the world - such as gizmos.
- * @param entity
- * @param position
- * @param rotation
- * @param scale
- * @returns
- */
-export function setRootTransformComponent(
-  entity: Entity,
   position = new Vector3(),
   rotation = new Quaternion(),
   scale = new Vector3(1, 1, 1)

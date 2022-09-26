@@ -15,7 +15,7 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { setRootTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -198,7 +198,7 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setRootTransformComponent(
+    setTransformComponent(
       entity,
       proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
       proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
@@ -335,7 +335,7 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setRootTransformComponent(
+    setTransformComponent(
       entity,
       proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
       proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
@@ -407,7 +407,7 @@ describe('DataWriter', () => {
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
-      setRootTransformComponent(
+      setTransformComponent(
         entity,
         proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
         proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
@@ -488,7 +488,7 @@ describe('DataWriter', () => {
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
-      setRootTransformComponent(
+      setTransformComponent(
         entity,
         proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
         proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),

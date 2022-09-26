@@ -7,7 +7,7 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { Physics } from '../../../physics/classes/Physics'
-import { setRootTransformComponent } from '../../../transform/components/TransformComponent'
+import { setTransformComponent } from '../../../transform/components/TransformComponent'
 import { NameComponent } from '../../components/NameComponent'
 import { PortalComponent, PortalComponentType } from '../../components/PortalComponent'
 import { deserializePortal } from './PortalFunctions'
@@ -32,7 +32,7 @@ describe('PortalFunctions', () => {
 
     addComponent(entity, NameComponent, { name: 'test-portal' })
 
-    setRootTransformComponent(entity, randomVector3)
+    setTransformComponent(entity, randomVector3)
 
     const linkedPortalId = MathUtils.generateUUID()
 

@@ -54,7 +54,7 @@ describe('ReparentCommand', () => {
     Engine.instance.currentWorld.entityTree.entityNodeMap.forEach((node) => {
       if (node === Engine.instance.currentWorld.entityTree.rootNode) return
       const transform = getRandomTransform()
-      setTransformComponent(node.entity, rootNode.entity, transform.position, transform.rotation, transform.scale)
+      setTransformComponent(node.entity, transform.position, transform.rotation, transform.scale)
       addObjectToGroup(node.entity, new Object3D())
     })
 

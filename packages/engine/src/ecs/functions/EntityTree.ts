@@ -8,7 +8,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
 import {
   setLocalTransformComponent,
-  setRootTransformComponent,
   setTransformComponent,
   TransformComponent
 } from '../../transform/components/TransformComponent'
@@ -64,7 +63,7 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   world.sceneEntity = createEntity()
   addComponent(world.sceneEntity, NameComponent, { name: 'scene' })
   addComponent(world.sceneEntity, VisibleComponent, true)
-  setRootTransformComponent(world.sceneEntity)
+  setTransformComponent(world.sceneEntity)
   // addObjectToGroup(world.sceneEntity, world.scene)
 
   world.entityTree = {
@@ -143,7 +142,7 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
   node.parentEntity = parent.entity
   addToEntityTreeMaps(node)
 
-  if (!hasComponent(node.entity, TransformComponent)) setTransformComponent(node.entity, parent.entity)
+  if (!hasComponent(node.entity, TransformComponent)) setTransformComponent(node.entity)
 
   updateEntityTransform(parent.entity)
   updateEntityTransform(node.entity)
