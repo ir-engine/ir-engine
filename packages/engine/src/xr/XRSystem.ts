@@ -8,7 +8,7 @@ import { FollowCameraComponent } from '../camera/components/FollowCameraComponen
 import { V_010 } from '../common/constants/MathConstants'
 import { Entity } from '../ecs/classes/Entity'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { GamepadAxis } from '../input/enums/InputEnums'
+import { GamepadAxis, TouchInputs } from '../input/enums/InputEnums'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
@@ -78,6 +78,27 @@ export const requestXRSession = createHookableFunction(
       })
       EngineRenderer.instance.xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
+
+      /**
+       * AR uses the `select` event as taps on the screen for mobile AR sessions
+       * This gets piped into the input system as a TouchInput.Touch
+       */
+      if (mode === 'immersive-ar') {
+        EngineRenderer.instance.xrSession.addEventListener('selectstart', () => {
+          Engine.instance.currentWorld.inputState.set(TouchInputs.Touch, {
+            type: InputType.BUTTON,
+            value: [BinaryValue.ON],
+            lifecycleState: LifecycleValue.Started
+          })
+        })
+        EngineRenderer.instance.xrSession.addEventListener('selectend', (inputSource) => {
+          Engine.instance.currentWorld.inputState.set(TouchInputs.Touch, {
+            type: InputType.BUTTON,
+            value: [BinaryValue.OFF],
+            lifecycleState: LifecycleValue.Ended
+          })
+        })
+      }
 
       const world = Engine.instance.currentWorld
       setupXRInputSourceComponent(world.localClientEntity)
@@ -176,8 +197,11 @@ export const updateHitTest = (entity: Entity) => {
 
   if (hitTestResults.length) {
     const hit = hitTestResults[0]
+    const hitData = hit.getPose(xrState.originReferenceSpace.value!)!
+    transform.matrix.fromArray(hitData.transform.matrix)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+    transform.matrixInverse.copy(transform.matrix).invert()
     hitTestComponent.hasHit.set(true)
-    transform.matrix.fromArray(hit.getPose(xrState.originReferenceSpace.value!)!.transform.matrix)
   } else {
     hitTestComponent.hasHit.set(false)
   }
