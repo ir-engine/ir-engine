@@ -1,6 +1,7 @@
 import { Object3D } from 'three'
 
 import { Engine } from '../../../../ecs/classes/Engine'
+import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -9,8 +10,7 @@ export default class URLResolutionExtension extends ExporterExtension {
 
   constructor(writer: GLTFWriter) {
     super(writer)
-    const hostPath = Engine.instance.publicPath.replace(/:\d{4}$/, '')
-    this.cacheRe = new RegExp(`${hostPath}:\\d{4}\/projects\/[^\/]+\/assets\/`)
+    this.cacheRe = pathResolver()
   }
 
   afterParse(input: Object3D | Object3D[]) {

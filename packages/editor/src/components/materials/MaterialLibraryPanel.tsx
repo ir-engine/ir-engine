@@ -112,22 +112,25 @@ export default function MaterialLibraryPanel() {
             </Button>
             <Button
               onClick={async () => {
+                const projectName = editorState.projectName.value!
                 const materials = selectionState.selectedEntities
                   .filter(
                     (selected) => typeof selected.value === 'string' && MaterialLibrary.materials.has(selected.value)
                   )
                   .map((selected) => materialFromId(selected.value as string))
+                const libraryName = 'material-test.gltf'
+                const path = `${Engine.instance.publicPath}/projects/${projectName}/assets/${libraryName}`
                 const gltf = (await exportMaterialsGLTF(materials, {
                   binary: false,
-                  path: 'material-test.gltf'
+                  path
                 })!) as /*ArrayBuffer*/ { [key: string]: any }
-                const pName = editorState.projectName.value!
+
                 const blob = [JSON.stringify(gltf)]
-                const file = new File(blob, 'material-test.gltf')
+                const file = new File(blob, libraryName)
                 /*const pName = editorState.projectName.value!
                 const blob = [gltf]
                 const file = new File(blob, "material-test.glb")*/
-                const urls = await Promise.all(uploadProjectFiles(pName, [file], true).promises)
+                const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
                 console.log('exported material data to ', ...urls)
               }}
             >
