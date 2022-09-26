@@ -9,9 +9,9 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { Component, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
   accessEngineRendererState,

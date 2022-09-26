@@ -1,10 +1,10 @@
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   Component,
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, MiscCommands } from '../constants/EditorCommands'

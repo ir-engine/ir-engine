@@ -1,12 +1,12 @@
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   Component,
   getComponent,
   SerializedComponentType,
   updateComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'

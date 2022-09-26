@@ -2,12 +2,9 @@ import { Matrix4, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  getEntityNodeArrayFromEntities,
-  reparentEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { getEntityNodeArrayFromEntities, reparentEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
