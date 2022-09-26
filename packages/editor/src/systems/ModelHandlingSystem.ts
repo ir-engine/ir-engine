@@ -25,21 +25,17 @@ export default async function ModelHandlingSystem(world: World) {
         currentPromise.then(() => clearModelResources(action.projectName, action.modelName))
       )
     })
-
-    const saveBufferActions = saveBufferQueue()
-    if (saveBufferActions?.length > 0) {
-      saveBufferActions.map(({ saveParms, projectName, modelName }) => {
-        const blob = new Blob([saveParms.buffer])
-        const file = new File([blob], saveParms.uri)
-        const currentPromise = getPromise({ projectName, modelName })
-        executionPromises.set(
-          executionPromiseKey({ projectName, modelName }),
-          currentPromise.then(() =>
-            Promise.all(uploadProjectFiles(projectName, [file], true).promises).then(() => Promise.resolve())
-          )
+    saveBufferQueue().map(({ saveParms, projectName, modelName }) => {
+      const blob = new Blob([saveParms.buffer])
+      const file = new File([blob], saveParms.uri)
+      const currentPromise = getPromise({ projectName, modelName })
+      executionPromises.set(
+        executionPromiseKey({ projectName, modelName }),
+        currentPromise.then(() =>
+          Promise.all(uploadProjectFiles(projectName, [file], true).promises).then(() => Promise.resolve())
         )
-      })
-    }
+      )
+    })
   }
 
   const cleanup = async () => {
