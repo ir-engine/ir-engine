@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Stats from 'stats.js'
 
+import Stats from './stats'
 import styles from './styles.module.scss'
 
 export const StatsPanel = (props: { show: boolean }) => {
   const { t } = useTranslation()
-  const [statsArray, setStatsArray] = useState<Stats[]>([])
+  const [statsArray, setStatsArray] = useState<ReturnType<typeof Stats>[]>([])
   const statsRef = useRef<HTMLDivElement>(null)
   let animateId = 0
 
@@ -26,7 +26,7 @@ export const StatsPanel = (props: { show: boolean }) => {
     statsRef.current.innerHTML = ''
 
     for (let i = 0; i < 3; i++) {
-      statsArray[i] = new Stats()
+      statsArray[i] = Stats()
       statsArray[i].showPanel(i)
       statsRef.current?.appendChild(statsArray[i].dom)
     }
