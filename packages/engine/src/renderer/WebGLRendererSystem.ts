@@ -26,6 +26,7 @@ import { createActionQueue, dispatchAction, getState, removeActionQueue } from '
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { isHMD } from '../common/functions/isMobile'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
@@ -133,7 +134,7 @@ export class EngineRenderer {
       depth: false,
       canvas,
       context,
-      preserveDrawingBuffer: !Engine.instance.isHMD
+      preserveDrawingBuffer: !isHMD
     }
 
     this.canvas = canvas
@@ -214,7 +215,6 @@ export class EngineRenderer {
    */
   execute(delta: number): void {
     if (this.xrManager.isPresenting) {
-      this.csm?.update()
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
       const state = accessEngineRendererState()
@@ -310,8 +310,7 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
     for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
 
-    if (!Engine.instance.isHMD || getState(XRState).sessionActive.value)
-      EngineRenderer.instance.execute(world.deltaSeconds)
+    if (!isHMD || getState(XRState).sessionActive.value) EngineRenderer.instance.execute(world.deltaSeconds)
   }
 
   const cleanup = async () => {
