@@ -1,7 +1,8 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Switch, useHistory } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 
 import { API } from '@xrengine/client-core/src/API'
+import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
@@ -78,7 +79,7 @@ const systems = [
 
 const EditorProtectedRoutes = () => {
   const authState = useAuthState()
-  const history = useHistory()
+  const route = useRouter()
   const user = authState.user
   const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
   const [engineReady, setEngineReady] = useState(false)
@@ -87,7 +88,7 @@ const EditorProtectedRoutes = () => {
     if (user.scopes.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
-        history.push('/')
+        route('/')
         setAuthorized(false)
       } else setAuthorized(true)
     }
