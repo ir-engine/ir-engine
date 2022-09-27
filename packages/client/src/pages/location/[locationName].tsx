@@ -47,7 +47,7 @@ const LocationPage = () => {
   }, [locationState.currentLocation.location.sceneId])
 
   return (
-    <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
+    <Layout>
       {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
       <LoadEngineWithScene injectedSystems={DefaultLocationSystems} />
       {offline ? <OfflineLocation /> : <NetworkInstanceProvisioning />}

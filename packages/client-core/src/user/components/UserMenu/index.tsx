@@ -10,6 +10,7 @@ import GroupsIcon from '@mui/icons-material/Groups'
 import PersonIcon from '@mui/icons-material/Person'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
 import { useUserState } from '../../services/UserService'
 import styles from './index.module.scss'
 import AvatarContextMenu from './menus/AvatarContextMenu'
@@ -83,6 +84,7 @@ interface ActiveMenu {
 const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<ActiveMenu>({ view: Views.Closed })
 
+  const { bottomShelfStyle } = useShelfStyles()
   const Panel = UserMenuPanels.get(currentActiveMenu?.view)!
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
 
@@ -91,8 +93,8 @@ const UserMenu = (props: Props): any => {
       <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
         <div>
           <section
-            className={`${styles.settingContainer} ${props.animate} ${
-              currentActiveMenu?.view ? props.fadeOutBottom : ''
+            className={`${styles.settingContainer} ${bottomShelfStyle} ${
+              currentActiveMenu?.view ? styles.fadeOutBottom : ''
             }`}
           >
             {!xrSessionActive.value && (
