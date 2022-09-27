@@ -20,6 +20,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    pointer-events: auto;
 
     &::before {
       content: " ";

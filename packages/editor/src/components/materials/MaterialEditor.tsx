@@ -71,6 +71,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   )
   const thumbnails = useHookstate(new Map<string, string>())
   const defaults = useHookstate(new Object())
+  const clearingThumbs = useHookstate(null)
 
   const clearThumbs = async () => {
     thumbnails.promised && (await thumbnails.promise)
@@ -83,18 +84,13 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     clearThumbs().then(() => {
       matName.set(material.name)
       matPrototype.set(materialFromId(material.uuid).prototype)
+      thumbnails.set(createThumbnails())
+      defaults.set(createDefaults())
     })
     return () => {
       clearThumbs()
     }
-  }, [matId])
-
-  useHookEffect(() => {
-    clearThumbs().then(() => {
-      thumbnails.set(createThumbnails())
-      defaults.set(createDefaults())
-    })
-  }, [matPrototype])
+  }, [matId, matPrototype])
 
   useEffect(() => {
     if (matId.value !== material.uuid) {
@@ -129,20 +125,24 @@ export default function MaterialEditor({ material }: { ['material']: Material })
         entity={material.uuid}
         values={thumbnails.promised ? {} : material}
         onChange={(k) => async (val) => {
+          defaults.merge((_defaults) => {
+            delete _defaults[k].preview
+            return _defaults
+          })
           let prop
           if (defaults.value[k].type === 'texture' && typeof val === 'string') {
             if (val) {
               prop = await AssetLoader.loadAsync(val)
+              const preview = (await createReadableTexture(prop, { url: true })) as string
+              defaults.merge((_defaults) => {
+                _defaults[k].preview = preview
+                return _defaults
+              })
             } else {
               prop = undefined
             }
+
             URL.revokeObjectURL(defaults.value[k].preview)
-            const preview = (await createReadableTexture(prop, { url: true })) as string
-            defaults.merge((_defaults) => {
-              delete _defaults[k].preview
-              _defaults[k].preview = preview
-              return _defaults
-            })
           } else {
             prop = val
           }

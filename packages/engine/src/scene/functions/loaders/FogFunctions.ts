@@ -19,7 +19,7 @@ import {
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { FogComponent, FogComponentType, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'

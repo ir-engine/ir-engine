@@ -5,24 +5,22 @@ import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLet
 import { Button } from '@xrengine/editor/src/components/inputs/Button'
 
 import { InviteService, useInviteState } from '../../social/services/InviteService'
+import { useAuthState } from '../../user/services/AuthService'
 import styles from './index.module.scss'
 
-interface Props {
-  animate?: any
-}
-
-const InviteToast = (props: Props) => {
-  const InviteState = useInviteState()
+const InviteToast = () => {
+  const inviteState = useInviteState()
+  const authState = useAuthState()
   const newestInvite =
-    InviteState.receivedInvites.total.value > 0 ? InviteState.receivedInvites.invites[0].value : ({} as any)
+    inviteState.receivedInvites.total.value > 0 ? inviteState.receivedInvites.invites[0].value : ({} as any)
   const { t } = useTranslation()
 
-  useEffect(() => {
-    if (InviteState.receivedUpdateNeeded.value)
-      InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
-  }, [InviteState.receivedUpdateNeeded.value])
-
   InviteService.useAPIListeners()
+
+  useEffect(() => {
+    if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
+      InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
+  }, [inviteState.receivedUpdateNeeded, authState.isLoggedIn])
 
   const acceptInvite = (invite) => {
     InviteService.acceptInvite(invite)
@@ -34,7 +32,7 @@ const InviteToast = (props: Props) => {
   return (
     <div
       className={`${styles.inviteToast} ${
-        InviteState.receivedInvites.total.value > 0 ? styles.animateLeft : styles.fadeOutLeft
+        inviteState.receivedInvites.total.value > 0 ? styles.animateLeft : styles.fadeOutLeft
       }`}
     >
       <div className={`${styles.toastContainer} `}>

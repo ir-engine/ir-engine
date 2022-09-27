@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 
-import InstanceChat from '.'
+import { InstanceChat } from '.'
 import { createDOM } from '../../../tests/createDOM'
 import { createMockAPI } from '../../../tests/createMockAPI'
 import { API } from '../../API'

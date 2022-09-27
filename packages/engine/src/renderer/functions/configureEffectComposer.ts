@@ -2,6 +2,7 @@ import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPas
 import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 
 import { isClient } from '../../common/functions/isClient'
+import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
 import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
@@ -12,7 +13,7 @@ import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
   if (!EngineRenderer.instance) return
-
+  if (isHMD) return
   if (!isClient) return
 
   if (!EngineRenderer.instance.renderPass) {

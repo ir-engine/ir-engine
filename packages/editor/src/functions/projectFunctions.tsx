@@ -59,8 +59,6 @@ export async function loadProjectScene(projectData: SceneData) {
 
   await runPreprojectLoadTasks()
 
-  removeInputEvents()
-  disposePlayModeControls()
   const errors = await initializeScene(projectData)
 
   dispatchAction(EditorAction.projectLoaded({ loaded: true }))
@@ -80,7 +78,6 @@ export async function loadProjectScene(projectData: SceneData) {
  * Disposes project data
  */
 export function disposeProject() {
-  disposeScene()
   removeInputEvents()
   disposePlayModeControls()
   dispatchAction(EditorAction.projectLoaded({ loaded: false }))

@@ -9,9 +9,11 @@ import {
   Texture
 } from 'three'
 
+import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
 import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
+import { MaterialSource } from '../components/MaterialSource'
 import { MaterialLibrary } from '../MaterialLibrary'
 
 export function extractDefaults(defaultArgs) {
@@ -106,18 +108,63 @@ export function materialToDefaultArgs(material: Material): Object {
   return materialIdToDefaultArgs(material.uuid)
 }
 
-export function registerMaterial(material: Material, src: any) {
-  const similarMaterial = [...MaterialLibrary.materials.values()].find(
-    (matComp) => prototypeFromId(matComp.prototype).prototypeId === material.type
-  )
-  if (!similarMaterial) throw Error('unrecognized material prototype ' + material.type)
-  const parameters = Object.fromEntries(Object.keys(similarMaterial.parameters).map((k) => [k, material[k]]))
+export function hashMaterialSource(src: MaterialSource): string {
+  return `${stringHash(src.path) ^ stringHash(src.type)}`
+}
+
+export function addMaterialSource(src: MaterialSource): boolean {
+  const srcId = hashMaterialSource(src)
+  if (!MaterialLibrary.sources.has(srcId)) {
+    MaterialLibrary.sources.set(srcId, [])
+    return true
+  } else return false
+}
+
+export function getSourceMaterials(src: MaterialSource): string[] | undefined {
+  return MaterialLibrary.sources.get(hashMaterialSource(src))
+}
+
+export function removeMaterialSource(src: MaterialSource): boolean {
+  const srcId = hashMaterialSource(src)
+  if (!MaterialLibrary.sources.has(srcId)) {
+    MaterialLibrary.sources.get(srcId)!.map((matId) => {
+      const toDelete = materialFromId(matId)
+      Object.values(toDelete.parameters)
+        .filter((val) => (val as Texture).isTexture)
+        .map((val: Texture) => val.dispose())
+      toDelete.material.dispose()
+      MaterialLibrary.materials.delete(matId)
+    })
+    return true
+  } else return false
+}
+
+export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
+  const prototype = prototypeFromId(material.type)
+
+  addMaterialSource(src)
+  getSourceMaterials(src)!.push(material.uuid)
+
+  const parameters =
+    params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
   MaterialLibrary.materials.set(material.uuid, {
     material,
     parameters,
-    prototype: similarMaterial.prototype,
+    prototype: prototype.prototypeId,
     src
   })
+}
+
+export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
+  if (MaterialLibrary.prototypes.has(prototype.prototypeId)) {
+    console.warn(
+      'overwriting existing material prototype!\nnew:',
+      prototype.prototypeId,
+      '\nold:',
+      prototypeFromId(prototype.prototypeId)
+    )
+  }
+  MaterialLibrary.prototypes.set(prototype.prototypeId, prototype)
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {
@@ -147,5 +194,5 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   nuMat.uuid = material.uuid
   nuMat.name = material.name
   nuMat.userData = material.userData
-  registerMaterial(nuMat, { type: 'EDITOR_SESSION' })
+  registerMaterial(nuMat, materialEntry.src)
 }

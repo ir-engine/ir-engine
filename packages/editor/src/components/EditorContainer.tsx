@@ -608,9 +608,6 @@ const EditorContainer = () => {
   }
   return (
     <>
-      <div style={{ pointerEvents: 'auto' }}>
-        <Debug />
-      </div>
       <div
         id="editor-container"
         className={styles.editorContainer}
