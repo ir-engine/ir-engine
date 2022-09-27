@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { serverHost } from '@xrengine/common/src/config'
 import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
@@ -25,7 +26,6 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
-import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { userPatched } from '../functions/userPatched'
 
@@ -41,8 +41,7 @@ export const AuthState = defineState({
     error: '',
     authUser: AuthUserSeed,
     user: UserSeed,
-    identityProvider: IdentityProviderSeed,
-    avatarList: [] as Array<AvatarInterface>
+    identityProvider: IdentityProviderSeed
   }),
 
   onCreate: (store, s) => {
@@ -153,9 +152,6 @@ export const AuthServiceReceptor = (action) => {
     })
     .when(AuthAction.updatedUserSettingsAction.matches, (action) => {
       return s.user.merge({ user_setting: action.data })
-    })
-    .when(AuthAction.updateAvatarListAction.matches, (action) => {
-      return s.avatarList.set(action.avatarList)
     })
 }
 
@@ -269,11 +265,6 @@ export class AuthAction {
   static userUpdatedAction = defineAction({
     type: 'xre.client.Auth.USER_UPDATED' as const,
     user: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static updateAvatarListAction = defineAction({
-    type: 'xre.client.Auth.AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
   })
 
   static apiKeyUpdatedAction = defineAction({
@@ -450,7 +441,7 @@ export const AuthService = {
         identityProvider: {
           id: 0,
           token: '',
-          type: 'chapiWallet',
+          type: 'didWallet',
           isVerified: true,
           userId: walletUser.id
         }

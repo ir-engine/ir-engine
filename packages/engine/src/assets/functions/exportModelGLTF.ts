@@ -12,7 +12,7 @@ export default async function exportModelGLTF(
     embedImages: true
   }
 ) {
-  const scene = getComponent(entity, ModelComponent).scene!
+  const scene = getComponent(entity, ModelComponent).scene.value!
   const exporter = await createGLTFExporter()
   const gltf: ArrayBuffer = await new Promise((resolve) =>
     exporter.parse(

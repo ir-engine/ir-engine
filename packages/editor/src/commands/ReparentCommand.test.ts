@@ -2,14 +2,10 @@ import assert from 'assert'
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  addEntityNodeInTree,
-  createEntityNode,
-  emptyEntityTree
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -33,7 +29,6 @@ export function getRandomTransform() {
 
 describe('ReparentCommand', () => {
   let command = {} as ReparentCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
   let parentNodes: EntityTreeNode[]
   let beforeNodes: EntityTreeNode[]
@@ -43,18 +38,17 @@ describe('ReparentCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
-    addEntityNodeInTree(rootNode)
-    addEntityNodeInTree(parentNodes[0], rootNode)
-    addEntityNodeInTree(parentNodes[1], rootNode)
-    addEntityNodeInTree(nodes[0], rootNode)
-    addEntityNodeInTree(nodes[1], rootNode)
-    addEntityNodeInTree(beforeNodes[0], parentNodes[0])
-    addEntityNodeInTree(beforeNodes[1], parentNodes[1])
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
+    addEntityNodeChild(parentNodes[0], rootNode)
+    addEntityNodeChild(parentNodes[1], rootNode)
+    addEntityNodeChild(nodes[0], rootNode)
+    addEntityNodeChild(nodes[1], rootNode)
+    addEntityNodeChild(beforeNodes[0], parentNodes[0])
+    addEntityNodeChild(beforeNodes[1], parentNodes[1])
 
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
     Engine.instance.currentWorld.entityTree.entityNodeMap.forEach((node) => {

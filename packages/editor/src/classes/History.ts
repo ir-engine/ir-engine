@@ -6,7 +6,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
@@ -52,6 +52,7 @@ export function executeCommand(command: CommandParamsType): void {
   commandFunctions.prepare(command)
   commandFunctions.execute(command)
 
+  logger.info('[executeCommand]', command.type, command)
   dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 
@@ -96,6 +97,7 @@ export function executeCommandWithHistory(command: CommandParamsType): void {
   // clearing all the redo-commands
   EditorHistory.redos = []
 
+  logger.info('[executeCommandWithHistory]', command.type, command)
   dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 

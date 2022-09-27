@@ -1,6 +1,6 @@
 import { Box3, Object3D, Vector3 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
 import { AvatarStates } from '../../avatar/animation/Util'
@@ -15,7 +15,8 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -55,18 +56,26 @@ export default async function MountPointSystem(world: World) {
     { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(MountPointComponent._name, SCENE_COMPONENT_MOUNT_POINT)
+  world.sceneComponentRegistry.set(MountPointComponent.name, SCENE_COMPONENT_MOUNT_POINT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
     defaultData: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
   })
 
-  if (Engine.instance.isEditor) return () => {}
+  if (Engine.instance.isEditor)
+    return {
+      execute: () => {},
+      cleanup: async () => {
+        world.scenePrefabRegistry.delete(ScenePrefabs.chair)
+        world.sceneComponentRegistry.delete(MountPointComponent.name)
+        world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
+      }
+    }
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const mountPointQuery = defineQuery([MountPointComponent])
   const sittingIdleQuery = defineQuery([SittingComponent])
 
-  return () => {
+  const execute = () => {
     for (const entity of mountPointQuery.enter()) {
       const mountPoint = getComponent(entity, MountPointComponent)
       addComponent(entity, BoundingBoxComponent, {
@@ -158,4 +167,15 @@ export default async function MountPointSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    world.scenePrefabRegistry.delete(ScenePrefabs.chair)
+    world.sceneComponentRegistry.delete(MountPointComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
+    removeActionQueue(mountPointActionQueue)
+    removeQuery(world, mountPointQuery)
+    removeQuery(world, sittingIdleQuery)
+  }
+
+  return { execute, cleanup }
 }

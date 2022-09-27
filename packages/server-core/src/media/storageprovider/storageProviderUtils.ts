@@ -1,4 +1,4 @@
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { getStorageProvider } from './storageprovider'
 
 export const getFileKeysRecursive = async (path: string, storageProviderName?: string) => {

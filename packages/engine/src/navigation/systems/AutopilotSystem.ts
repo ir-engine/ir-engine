@@ -11,7 +11,8 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { GamepadAxis } from '../../input/enums/InputEnums'
@@ -76,7 +77,7 @@ export default async function AutopilotSystem(world: World) {
     return quat
   }
 
-  return () => {
+  const execute = () => {
     for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
       const overrideComponent = getComponent(entity, AutoPilotOverrideComponent)
@@ -225,4 +226,13 @@ export default async function AutopilotSystem(world: World) {
       })
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, navmeshesQuery)
+    removeQuery(world, requestsQuery)
+    removeQuery(world, autopilotQuery)
+    removeQuery(world, navClickQuery)
+  }
+
+  return { execute, cleanup }
 }

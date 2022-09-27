@@ -2,14 +2,10 @@ import assert from 'assert'
 import { Euler, Object3D, Quaternion } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  addEntityNodeInTree,
-  createEntityNode,
-  emptyEntityTree
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -29,7 +25,6 @@ function getRandomEuler() {
 
 describe('RotationCommand', () => {
   let command = {} as RotationCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -37,12 +32,11 @@ describe('RotationCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
-    addEntityNodeInTree(rootNode)
-    addEntityNodeInTree(nodes[0], rootNode)
-    addEntityNodeInTree(nodes[1], rootNode)
+    addEntityNodeChild(nodes[0], rootNode)
+    addEntityNodeChild(nodes[1], rootNode)
 
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
 

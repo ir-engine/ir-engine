@@ -2,7 +2,7 @@ import { Object3D } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 
 export type HeirarchyTreeNodeType = {
   depth: number

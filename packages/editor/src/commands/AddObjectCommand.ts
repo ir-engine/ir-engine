@@ -1,14 +1,14 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   getEntityNodeArrayFromEntities,
   traverseEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+} from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { createNewEditorNode, deserializeSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
@@ -140,7 +140,7 @@ function addObject(command: AddObjectCommandParams) {
           : undefined
     }
     if (typeof parent !== 'string' && typeof object !== 'string') {
-      addEntityNodeInTree(object, parent, index, false, world.entityTree)
+      addEntityNodeChild(object, parent, index)
 
       reparentObject3D(object, parent, typeof before === 'string' ? undefined : before, world.entityTree)
 

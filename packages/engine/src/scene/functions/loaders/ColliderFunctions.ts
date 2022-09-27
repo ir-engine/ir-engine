@@ -1,25 +1,18 @@
 import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
-import { LocalTransformComponent } from '../../../transform/components/LocalTransformComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import {
   ColliderComponent,
   ColliderComponentType,
-  GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
-import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
@@ -34,20 +27,7 @@ export const updateCollider = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const colliderComponent = getComponent(entity, ColliderComponent)
   const world = Engine.instance.currentWorld
-
   if (!colliderComponent) return
-  if (colliderComponent.bodyType !== undefined) {
-    //i think this always evaluates to true currently
-    setComponent(entity, GroupColliderComponent, {})
-    if (!hasComponent(entity, GroupComponent)) {
-      //if this is a singleton collider, create a singleton object and let updateGroupCollider initialize things
-      const colliderObj = new Object3D()
-      colliderObj.userData['shapeType'] = colliderComponent.shapeType
-      colliderObj.userData['singleton'] = true
-      addObjectToGroup(entity, colliderObj)
-    }
-    return
-  }
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
     colliderComponent.bodyType !== getComponent(entity, RigidBodyComponent).body.bodyType()
@@ -108,29 +88,20 @@ export const updateCollider = (entity: Entity) => {
   rigidbody.setRotation(transform.rotation, true)
 }
 
-export const updateGroupCollider = (entity: Entity) => {
-  if (!hasComponent(entity, GroupColliderComponent)) return
-
+export const updateModelColliders = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
 
   if (hasComponent(entity, RigidBodyComponent)) {
-    // Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
     Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
   }
 
-  const rigidbody = Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, {
+  Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, {
     bodyType: colliderComponent.bodyType,
     isTrigger: colliderComponent.isTrigger,
     removeMesh: colliderComponent.removeMesh,
     collisionLayer: colliderComponent.collisionLayer,
     collisionMask: colliderComponent.collisionMask
   })
-  /*
-  if (rigidbody) {
-    const transform = getComponent(entity, TransformComponent)
-    rigidbody.setTranslation(transform.position, true)
-    rigidbody.setRotation(transform.rotation, true)
-  }*/
 }
 
 /**

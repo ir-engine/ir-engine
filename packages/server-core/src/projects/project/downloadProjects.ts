@@ -3,9 +3,9 @@ import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
-import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 
 /**

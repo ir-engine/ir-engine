@@ -35,7 +35,7 @@ async function MockSystemInitialiser(world: World, args: {}) {
   const mockQuery = defineQuery([MockComponent])
   MockSystemState.set(world, [])
 
-  return () => {
+  const execute = () => {
     const mockState = MockSystemState.get(world)!
 
     // console.log('run MockSystem')
@@ -52,6 +52,11 @@ async function MockSystemInitialiser(world: World, args: {}) {
       mockState.splice(mockState.indexOf(component.mockValue))
       // console.log('externalState', mockState)
     }
+  }
+
+  return {
+    execute,
+    cleanup: async () => {}
   }
 }
 
@@ -78,7 +83,6 @@ describe('ECS', () => {
     const entities = world.entityQuery()
     assert(entities.includes(world.sceneEntity))
     assert(entities.includes(world.cameraEntity))
-    assert(entities.includes(world.localOriginEntity))
   })
 
   it('should add systems', async () => {

@@ -14,16 +14,16 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { loadComponent } from '../systems/SceneLoadingSystem'
+import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
 
 export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
@@ -74,7 +74,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       console.warn(`Could not load component '${component}'`)
     } else {
       getComponent(entity, GLTFLoadedComponent).push(component)
-      loadComponent(entity, {
+      deserializeComponent(entity, {
         name: key,
         props: value
       })
@@ -83,7 +83,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
 }
 
 export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
-  const scene = object3d ?? getComponent(entity, ModelComponent).scene
+  const scene = object3d ?? getComponent(entity, ModelComponent).scene.value
   const meshesToProcess: Mesh[] = []
 
   if (!scene) return
@@ -104,7 +104,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     const e = createEntity()
 
     const node = createEntityNode(e, mesh.uuid)
-    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
+    addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
     addComponent(e, NameComponent, {
       name: mesh.userData['xrengine.entity'] ?? mesh.uuid
@@ -121,7 +121,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 }
 
 export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
-  const scene = object3d ?? getComponent(entity, ModelComponent).scene
+  const scene = object3d ?? getComponent(entity, ModelComponent).scene.value
   let polygons = [] as Polygon[]
 
   if (!scene) return
@@ -156,22 +156,20 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
 
 export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
-  if (!model.scene) return
-
-  const scene = model.scene
-
+  if (!model.scene.value) return
+  const scene = model.scene.value
   scene.updateMatrixWorld(true)
   scene.traverse((child) => {
-    child.matrixAutoUpdate = model.matrixAutoUpdate
+    child.matrixAutoUpdate = model.matrixAutoUpdate.value
   })
 
   // always parse components first
-  parseObjectComponentsFromGLTF(entity, model.scene)
+  parseObjectComponentsFromGLTF(entity, scene)
 
   setObjectLayers(scene, ObjectLayers.Scene)
 
   // DIRTY HACK TO LOAD NAVMESH
-  if (model.src.match(/navmesh/)) {
+  if (model.src.value.match(/navmesh/)) {
     loadNavmesh(entity, scene)
   }
 

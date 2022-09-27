@@ -29,7 +29,8 @@ export const DefaultArgs = {
 export const MeshPhongMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshPhongMaterial',
   baseMaterial: Phong,
-  arguments: DefaultArgs
+  arguments: DefaultArgs,
+  src: { type: 'Built In', path: '' }
 }
 
 export default MeshPhongMaterial

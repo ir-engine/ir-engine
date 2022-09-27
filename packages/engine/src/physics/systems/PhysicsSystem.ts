@@ -1,31 +1,29 @@
 import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
-  GroupColliderComponent,
   SCENE_COMPONENT_COLLIDER,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../scene/components/ColliderComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import {
   deserializeCollider,
   serializeCollider,
   updateCollider,
-  updateGroupCollider
+  updateModelColliders
 } from '../../scene/functions/loaders/ColliderFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -96,7 +94,7 @@ export const PhysicsPrefabs = {
 }
 
 export default async function PhysicsSystem(world: World) {
-  world.sceneComponentRegistry.set(ColliderComponent._name, SCENE_COMPONENT_COLLIDER)
+  world.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
     defaultData: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES,
     deserialize: deserializeCollider,
@@ -109,17 +107,16 @@ export default async function PhysicsSystem(world: World) {
     { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
   ])
 
-  const rigidBodyQuery = defineQuery([RigidBodyComponent])
-  const colliderQuery = defineQuery([ColliderComponent])
-  const groupColliderQuery = defineQuery([GroupColliderComponent])
+  const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
+  const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
   const allRigidBodyQuery = defineQuery([RigidBodyComponent])
-
   const networkedAvatarBodyQuery = defineQuery([
     RigidBodyComponent,
     NetworkObjectComponent,
     Not(NetworkObjectOwnedTag),
     AvatarComponent
   ])
+  const collisionQuery = defineQuery([CollisionComponent])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
@@ -130,13 +127,11 @@ export default async function PhysicsSystem(world: World) {
   const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
   const drainContacts = Physics.drainContactEventQueue(world.physicsWorld)
 
-  const collisionQuery = defineQuery([CollisionComponent])
-
-  return () => {
+  const execute = () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ColliderComponent)) {
-          if (hasComponent(entity, GroupColliderComponent)) {
+          if (hasComponent(entity, GLTFLoadedComponent)) {
             /** @todo we currently have no reason to support this, and it breaks live scene updates */
             // updateMeshCollider(entity)
           } else {
@@ -146,7 +141,7 @@ export default async function PhysicsSystem(world: World) {
       }
     }
     for (const action of colliderQuery.enter()) updateCollider(action)
-    for (const action of groupColliderQuery.enter()) updateGroupCollider(action)
+    for (const action of groupColliderQuery.enter()) updateModelColliders(action)
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
@@ -179,4 +174,23 @@ export default async function PhysicsSystem(world: World) {
 
     processCollisions(world, drainCollisions, drainContacts, collisionQuery())
   }
+
+  const cleanup = async () => {
+    world.sceneComponentRegistry.delete(ColliderComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
+    world.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
+
+    removeQuery(world, colliderQuery)
+    removeQuery(world, groupColliderQuery)
+    removeQuery(world, allRigidBodyQuery)
+    removeQuery(world, networkedAvatarBodyQuery)
+    removeQuery(world, collisionQuery)
+
+    removeActionQueue(teleportObjectQueue)
+    removeActionQueue(modifyPropertyActionQueue)
+
+    world.physicsWorld.free()
+  }
+
+  return { execute, cleanup }
 }

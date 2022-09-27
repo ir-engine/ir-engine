@@ -188,24 +188,34 @@ function createColliderDesc(
     case ShapeType.ConvexPolyhedron: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
-      const _buff = mesh.geometry
-        .clone()
-        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
-      const vertices = new Float32Array(_buff.attributes.position.array)
-      const indices = new Uint32Array(_buff.index!.array)
-      colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+      try {
+        const _buff = mesh.geometry
+          .clone()
+          .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        const vertices = new Float32Array(_buff.attributes.position.array)
+        const indices = new Uint32Array(_buff.index!.array)
+        colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+      } catch (e) {
+        console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
+        return undefined!
+      }
       break
     }
 
     case ShapeType.TriMesh: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
-      const _buff = mesh.geometry
-        .clone()
-        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
-      const vertices = new Float32Array(_buff.attributes.position.array)
-      const indices = new Uint32Array(_buff.index!.array)
-      colliderDesc = ColliderDesc.trimesh(vertices, indices)
+      try {
+        const _buff = mesh.geometry
+          .clone()
+          .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        const vertices = new Float32Array(_buff.attributes.position.array)
+        const indices = new Uint32Array(_buff.index!.array)
+        colliderDesc = ColliderDesc.trimesh(vertices, indices)
+      } catch (e) {
+        console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
+        return undefined!
+      }
       break
     }
 
@@ -272,7 +282,9 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
   if (!Engine.instance.isEditor)
     for (const mesh of meshesToRemove) {
       mesh.removeFromParent()
-      cleanupAllMeshData(mesh, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
+      mesh.traverse((obj: Mesh<any, any>) =>
+        cleanupAllMeshData(obj, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
+      )
     }
 
   return body

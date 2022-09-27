@@ -19,8 +19,8 @@ export class ProjectSetting implements ServiceMethods<Data> {
     return result?.data[0]?.settings ? JSON.parse(result.data[0].settings) : []
   }
 
-  async patch(id: Id, params?: Params): Promise<any> {
-    return this.app.service('project').updateSettings(id, params as any)
+  async patch(id: Id, data: { settings: string }, params?: Params): Promise<any> {
+    return this.app.service('project').updateSettings(id, data)
   }
 
   async setup(): Promise<any> {}

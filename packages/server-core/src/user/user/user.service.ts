@@ -4,7 +4,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { User } from './user.class'
 import userDocs from './user.docs'
 import hooks from './user.hooks'

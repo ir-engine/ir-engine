@@ -6,7 +6,7 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import {
   accessEngineRendererState,

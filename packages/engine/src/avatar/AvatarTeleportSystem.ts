@@ -16,8 +16,8 @@ import {
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
 import { normalizeRange } from '../common/functions/MathFunctions'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
@@ -105,7 +105,7 @@ export default async function AvatarTeleportSystem(world: World) {
   let canTeleport = false
 
   const avatarTeleportQuery = defineQuery([AvatarTeleportTagComponent])
-  return () => {
+  const execute = () => {
     for (const entity of avatarTeleportQuery.exit(world)) {
       // Get cursor position and teleport avatar to it
       if (canTeleport) teleportAvatar(entity, guideCursor.position)
@@ -169,4 +169,11 @@ export default async function AvatarTeleportSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeEntity(guideCursorEntity)
+    removeQuery(world, avatarTeleportQuery)
+  }
+
+  return { execute, cleanup }
 }

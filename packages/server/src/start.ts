@@ -8,7 +8,7 @@ import { ServerMode } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
 import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
 import channels from './channels'
 

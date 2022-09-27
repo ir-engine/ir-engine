@@ -1,6 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
 import { CallbackComponent } from '../components/CallbackComponent'
@@ -39,7 +39,7 @@ export const triggerExit = (world: World, entity: Entity, triggerEntity: Entity,
 export default async function TriggerSystem(world: World) {
   const collisionQuery = defineQuery([CollisionComponent])
 
-  return () => {
+  const execute = () => {
     for (const entity of collisionQuery()) {
       for (const [e, hit] of getComponent(entity, CollisionComponent)) {
         if (hit.type === CollisionEvents.TRIGGER_START) {
@@ -51,4 +51,10 @@ export default async function TriggerSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, collisionQuery)
+  }
+
+  return { execute, cleanup }
 }

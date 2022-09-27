@@ -27,6 +27,20 @@ export const RigidBodyComponent = defineComponent<RigidBodyComponentType, typeof
   name: 'RigidBodyComponent',
   schema: SCHEMA,
 
+  onAdd: (entity) => {
+    return {
+      body: null!,
+      previousPosition: new Vector3(),
+      previousRotation: new Quaternion(),
+      previousLinearVelocity: new Vector3(),
+      previousAngularVelocity: new Vector3()
+    }
+  },
+
+  onUpdate: (entity, component, json) => {
+    if (typeof json.body === 'object') component.body = json.body as RigidBody
+  },
+
   onRemove: (entity, component) => {
     const world = Engine.instance.currentWorld.physicsWorld
     const rigidBody = component.body

@@ -37,13 +37,13 @@ import {
   hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
-import { initializeEntityTree } from '../functions/EntityTreeFunctions'
-import { SystemInstanceType } from '../functions/SystemFunctions'
+import { initializeEntityTree } from '../functions/EntityTree'
+import { EntityTree } from '../functions/EntityTree'
+import { SystemInstance } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
 import { Entity } from './Entity'
-import EntityTree from './EntityTree'
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -58,17 +58,13 @@ export class World {
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
-    this.localOriginEntity = createEntity()
-    addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
-    setTransformComponent(this.localOriginEntity)
+    initializeEntityTree(this)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
     addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
-
-    initializeEntityTree(this)
 
     /** @todo */
     // this.scene.matrixAutoUpdate = false
@@ -177,11 +173,6 @@ export class World {
   sceneEntity: Entity = NaN as Entity
 
   /**
-   * The reference space in which the local avatar, camera, and spatial inputs are positioned
-   */
-  localOriginEntity: Entity = NaN as Entity
-
-  /**
    * The camera entity
    */
   cameraEntity: Entity = NaN as Entity
@@ -210,9 +201,6 @@ export class World {
 
   #entityRemovedQuery = bitecs.defineQuery([EntityRemovedComponent])
 
-  #portalQuery = bitecs.defineQuery([PortalComponent])
-  portalQuery = () => this.#portalQuery(this) as Entity[]
-
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
   /**
@@ -228,7 +216,7 @@ export class World {
     [SystemUpdateType.PRE_RENDER]: [],
     [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []
-  } as { [pipeline: string]: SystemInstanceType[] }
+  } as { [pipeline: string]: SystemInstance[] }
 
   #nameMap = new Map<string, Entity>()
   #nameQuery = defineQuery([NameComponent])

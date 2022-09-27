@@ -1,12 +1,12 @@
 import logger from '@xrengine/common/src/logger'
-import { addActionReceptor, createActionQueue, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor, restoreMediaSettings } from '../../networking/MediaSettingsState'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
@@ -131,28 +131,28 @@ export default async function MediaSystem(world: World) {
     { name: SCENE_COMPONENT_VOLUMETRIC, props: {} }
   ])
 
-  world.sceneComponentRegistry.set(PositionalAudioComponent._name, SCENE_COMPONENT_POSITIONAL_AUDIO)
+  world.sceneComponentRegistry.set(PositionalAudioComponent.name, SCENE_COMPONENT_POSITIONAL_AUDIO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSITIONAL_AUDIO, {
     defaultData: {},
     deserialize: deserializePositionalAudio,
     serialize: serializePositionalAudio
   })
 
-  world.sceneComponentRegistry.set(VideoComponent._name, SCENE_COMPONENT_VIDEO)
+  world.sceneComponentRegistry.set(VideoComponent.name, SCENE_COMPONENT_VIDEO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
     defaultData: {},
     deserialize: deserializeVideo,
     serialize: serializeVideo
   })
 
-  world.sceneComponentRegistry.set(MediaComponent._name, SCENE_COMPONENT_MEDIA)
+  world.sceneComponentRegistry.set(MediaComponent.name, SCENE_COMPONENT_MEDIA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
     defaultData: {},
     deserialize: deserializeMedia,
     serialize: serializeMedia
   })
 
-  world.sceneComponentRegistry.set(VolumetricComponent._name, SCENE_COMPONENT_VOLUMETRIC)
+  world.sceneComponentRegistry.set(VolumetricComponent.name, SCENE_COMPONENT_VOLUMETRIC)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
     defaultData: {},
     deserialize: deserializeVolumetric,
@@ -190,7 +190,7 @@ export default async function MediaSystem(world: World) {
     AudioEffectPlayer.instance._init()
   }
 
-  return () => {
+  const execute = () => {
     if (userInteractActionQueue().length) {
       enableAudioContext()
     }
@@ -205,4 +205,37 @@ export default async function MediaSystem(world: World) {
     for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
   }
+
+  const cleanup = async () => {
+    world.scenePrefabRegistry.delete(MediaPrefabs.audio)
+    world.scenePrefabRegistry.delete(MediaPrefabs.video)
+    world.scenePrefabRegistry.delete(MediaPrefabs.volumetric)
+    world.sceneComponentRegistry.delete(PositionalAudioComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_POSITIONAL_AUDIO)
+    world.sceneComponentRegistry.delete(VideoComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_VIDEO)
+    world.sceneComponentRegistry.delete(MediaComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MEDIA)
+    world.sceneComponentRegistry.delete(VolumetricComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_VOLUMETRIC)
+
+    Engine.instance.gainNodeMixBuses.mediaStreams.disconnect()
+    Engine.instance.gainNodeMixBuses.mediaStreams = null!
+    Engine.instance.gainNodeMixBuses.notifications.disconnect()
+    Engine.instance.gainNodeMixBuses.notifications = null!
+    Engine.instance.gainNodeMixBuses.music.disconnect()
+    Engine.instance.gainNodeMixBuses.music = null!
+    Engine.instance.gainNodeMixBuses.soundEffects.disconnect()
+    Engine.instance.gainNodeMixBuses.soundEffects = null!
+
+    removeActionQueue(userInteractActionQueue)
+
+    removeQuery(world, mediaQuery)
+    removeQuery(world, videoQuery)
+    removeQuery(world, volumetricQuery)
+
+    for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
+  }
+
+  return { execute, cleanup }
 }

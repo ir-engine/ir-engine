@@ -15,16 +15,17 @@ import {
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
+  removeQuery,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '@xrengine/engine/src/interaction/components/BoundingBoxComponents'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -75,7 +76,7 @@ import { accessSelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
-export default async function EditorControlSystem(_: World) {
+export default async function EditorControlSystem(world: World) {
   const editorControlQuery = defineQuery([EditorControlComponent])
   const selectionState = accessSelectionState()
   const editorHelperState = accessEditorHelperState()
@@ -170,7 +171,7 @@ export default async function EditorControlSystem(_: World) {
     }
   }
 
-  return () => {
+  const execute = () => {
     for (let _ of editorControlQuery()) {
       if (editorHelperState.isPlayModeEnabled.value) continue
 
@@ -569,4 +570,10 @@ export default async function EditorControlSystem(_: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, editorControlQuery)
+  }
+
+  return { execute, cleanup }
 }

@@ -7,6 +7,7 @@ import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRel
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { resolveModelData } from '../../util/model-resolver'
+import { UserParams } from '../user/user.class'
 
 export type UserRelationshipDataType = UserRelationshipInterface
 /**
@@ -117,7 +118,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
     return result
   }
 
-  async patch(id: Id, data: any, params?: Params): Promise<T> {
+  async patch(id: Id, data: any, params?: UserParams): Promise<T> {
     if (!params) params = {}
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
@@ -128,7 +129,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
       await this.app.service('user').get(id)
       //The ID resolves to a userId, in which case patch the relation joining that user to the requesting one
       whereParams = {
-        userId: params.user.id,
+        userId: params.user!.id,
         relatedUserId: id
       }
     } catch (err) {

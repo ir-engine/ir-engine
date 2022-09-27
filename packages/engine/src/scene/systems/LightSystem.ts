@@ -1,8 +1,8 @@
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -64,14 +64,14 @@ export const LightPrefabs = {
 }
 
 export default async function LightSystem(world: World) {
-  world.sceneComponentRegistry.set(DirectionalLightComponent._name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
+  world.sceneComponentRegistry.set(DirectionalLightComponent.name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
     defaultData: SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeDirectionalLight,
     serialize: serializeDirectionalLight
   })
 
-  world.sceneComponentRegistry.set(HemisphereLightComponent._name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
+  world.sceneComponentRegistry.set(HemisphereLightComponent.name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
     defaultData: SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeHemisphereLight,
@@ -79,7 +79,7 @@ export default async function LightSystem(world: World) {
     shouldDeserialize: shouldDeserializeHemisphereLight
   })
 
-  world.sceneComponentRegistry.set(AmbientLightComponent._name, SCENE_COMPONENT_AMBIENT_LIGHT)
+  world.sceneComponentRegistry.set(AmbientLightComponent.name, SCENE_COMPONENT_AMBIENT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
     defaultData: SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeAmbientLight,
@@ -87,14 +87,14 @@ export default async function LightSystem(world: World) {
     shouldDeserialize: shouldDeserializeAmbientLight
   })
 
-  world.sceneComponentRegistry.set(PointLightComponent._name, SCENE_COMPONENT_POINT_LIGHT)
+  world.sceneComponentRegistry.set(PointLightComponent.name, SCENE_COMPONENT_POINT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
     defaultData: SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializePointLight,
     serialize: serializePointLight
   })
 
-  world.sceneComponentRegistry.set(SpotLightComponent._name, SCENE_COMPONENT_SPOT_LIGHT)
+  world.sceneComponentRegistry.set(SpotLightComponent.name, SCENE_COMPONENT_SPOT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
     defaultData: SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeSpotLight,
@@ -136,7 +136,7 @@ export default async function LightSystem(world: World) {
   const pointLightQuery = defineQuery([PointLightComponent])
   const spotLightQuery = defineQuery([SpotLightComponent])
 
-  return () => {
+  const execute = () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, AmbientLightComponent)) updateAmbientLight(entity)
@@ -158,4 +158,36 @@ export default async function LightSystem(world: World) {
     for (const entity of pointLightQuery.enter()) updatePointLight(entity)
     for (const entity of spotLightQuery.enter()) updateSpotLight(entity)
   }
+
+  const cleanup = async () => {
+    world.sceneComponentRegistry.delete(DirectionalLightComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
+
+    world.sceneComponentRegistry.delete(HemisphereLightComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_HEMISPHERE_LIGHT)
+
+    world.sceneComponentRegistry.delete(AmbientLightComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_AMBIENT_LIGHT)
+
+    world.sceneComponentRegistry.delete(PointLightComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_POINT_LIGHT)
+
+    world.sceneComponentRegistry.delete(SpotLightComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPOT_LIGHT)
+
+    world.scenePrefabRegistry.delete(LightPrefabs.directionalLight)
+    world.scenePrefabRegistry.delete(LightPrefabs.hemisphereLight)
+    world.scenePrefabRegistry.delete(LightPrefabs.ambientLight)
+    world.scenePrefabRegistry.delete(LightPrefabs.pointLight)
+    world.scenePrefabRegistry.delete(LightPrefabs.spotLight)
+
+    removeActionQueue(modifyPropertyActionQueue)
+    removeQuery(world, ambientLightQuery)
+    removeQuery(world, directionalLightQuery)
+    removeQuery(world, hemisphereLightQuery)
+    removeQuery(world, pointLightQuery)
+    removeQuery(world, spotLightQuery)
+  }
+
+  return { execute, cleanup }
 }

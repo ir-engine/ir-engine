@@ -11,7 +11,11 @@ const sendOutgoingActions = (world: World) => {
 }
 
 export default function OutgoingActionSystem(world: World) {
-  return () => {
+  const execute = () => {
     sendOutgoingActions(world)
   }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
 }

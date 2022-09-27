@@ -2,10 +2,11 @@ import { Matrix4, Vector3 } from 'three'
 
 import multiLogger from '@xrengine/common/src/logger'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ColliderComponent, GroupColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
+import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
+import { GLTFLoadedComponent } from '@xrengine/engine/src/scene/components/GLTFLoadedComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { updateCollider, updateGroupCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
+import { updateCollider, updateModelColliders } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -43,14 +44,14 @@ function prepare(command: ScaleCommandParams) {
 
   if (command.keepHistory) {
     command.undo = {
-      scales: command.affectedNodes.map((o) => {
-        if (typeof o === 'string') {
-          return obj3dFromUuid(o).scale.clone()
-        } else if (hasComponent(o.entity, Object3DComponent)) {
-          return getComponent(o.entity, Object3DComponent)!.value.scale.clone()
-        } else if (hasComponent(o.entity, TransformComponent)) {
-          return getComponent(o.entity, TransformComponent)!.scale.clone()
-        } else throw new Error('No scalable component detected')
+      scales: command.affectedNodes.map((node) => {
+        if (typeof node === 'string') {
+          return obj3dFromUuid(node).scale.clone()
+        } else {
+          const transform = getComponent(node.entity, TransformComponent)
+          const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+          return localTransform.scale.clone()
+        }
       }),
       space: TransformSpace.Local,
       overrideScale: true
@@ -107,7 +108,9 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
     }
 
     const transformComponent =
-      typeof node === 'string' ? obj3dFromUuid(node) : getComponent(node.entity, TransformComponent)
+      typeof node === 'string'
+        ? obj3dFromUuid(node)
+        : getComponent(node.entity, LocalTransformComponent) ?? getComponent(node.entity, TransformComponent)
 
     if (overrideScale) {
       transformComponent.scale.copy(scale)
@@ -122,8 +125,8 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
     )
 
     if (typeof node !== 'string' && hasComponent(node.entity, ColliderComponent)) {
-      if (hasComponent(node.entity, GroupColliderComponent)) {
-        updateGroupCollider(node.entity)
+      if (hasComponent(node.entity, GLTFLoadedComponent)) {
+        updateModelColliders(node.entity)
       } else {
         updateCollider(node.entity)
       }

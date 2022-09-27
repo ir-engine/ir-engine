@@ -7,13 +7,11 @@ import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthSer
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
+import { useShelfStyles } from '../Shelves/useShelfStyles'
 import UserMediaWindow from '../UserMediaWindow'
+import styles from './index.module.scss'
 
-interface Props {
-  className?: string
-}
-
-const UserMediaWindows = ({ className }: Props): JSX.Element => {
+export const UserMediaWindows = () => {
   const mediaState = useMediaStreamState()
   const nearbyLayerUsers = mediaState.nearbyLayerUsers
   const selfUserId = useState(accessAuthState().user.id)
@@ -39,22 +37,24 @@ const UserMediaWindows = ({ className }: Props): JSX.Element => {
   const consumers = mediaState.consumers.value
   const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
 
+  const { topShelfStyle } = useShelfStyles()
+
   return (
-    <div className={className}>
-      {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-        <UserMediaWindow peerId={'screen_me'} key={'screen_me'} />
-      )}
-      <UserMediaWindow peerId={'cam_me'} key={'cam_me'} />
-      {displayedUsers.map((user) => (
-        <Fragment key={user.id}>
-          <UserMediaWindow peerId={user.id} key={user.id} />
-          {screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id) && (
-            <UserMediaWindow peerId={'screen_' + user.id} key={'screen_' + user.id} />
-          )}
-        </Fragment>
-      ))}
+    <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
+      <div className={styles.userMediaWindows}>
+        {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
+          <UserMediaWindow peerId={'screen_me'} key={'screen_me'} />
+        )}
+        <UserMediaWindow peerId={'cam_me'} key={'cam_me'} />
+        {displayedUsers.map((user) => (
+          <Fragment key={user.id}>
+            <UserMediaWindow peerId={user.id} key={user.id} />
+            {screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id) && (
+              <UserMediaWindow peerId={'screen_' + user.id} key={'screen_' + user.id} />
+            )}
+          </Fragment>
+        ))}
+      </div>
     </div>
   )
 }
-
-export default UserMediaWindows

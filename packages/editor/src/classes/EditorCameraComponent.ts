@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 
 export type EditorCameraComponentType = {
   center: Vector3

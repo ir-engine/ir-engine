@@ -3,7 +3,7 @@ import { AmbientLight, Color } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
@@ -35,7 +35,7 @@ export default async function HyperspacePortalSystem(world: World) {
 
   let sceneVisible = true
 
-  return () => {
+  const execute = () => {
     if (isNaN(world.localClientEntity)) return
 
     const playerTransform = getComponent(world.localClientEntity, TransformComponent)
@@ -93,4 +93,12 @@ export default async function HyperspacePortalSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    PortalEffects.delete(HyperspacePortalEffect)
+    removeQuery(world, sceneAssetPendingTagQuery)
+    removeQuery(world, hyperspaceTagComponent)
+  }
+
+  return { execute, cleanup }
 }

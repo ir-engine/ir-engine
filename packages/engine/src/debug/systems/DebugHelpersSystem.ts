@@ -1,3 +1,4 @@
+import { removeComponent } from 'bitecs'
 import {
   ArrowHelper,
   Box3Helper,
@@ -17,13 +18,14 @@ import {
   Object3D,
   PlaneGeometry,
   Quaternion,
+  RingGeometry,
   SkeletonHelper,
   SphereGeometry,
   TorusGeometry,
   Vector3
 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
@@ -32,7 +34,7 @@ import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingCom
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
@@ -43,6 +45,12 @@ import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import Spline from '../../scene/classes/Spline'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
+import {
+  addObjectToGroup,
+  GroupComponent,
+  removeGroupComponent,
+  removeObjectFromGroup
+} from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
@@ -55,10 +63,10 @@ import { SpotLightComponent } from '../../scene/components/SpotLightComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../../xr/XRComponents'
+import { XRHitTestComponent, XRInputSourceComponent } from '../../xr/XRComponents'
+import { XRState } from '../../xr/XRState'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { PositionalAudioHelper } from '../PositionalAudioHelper'
-import { DebugRenderer } from './DebugRenderer'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -78,9 +86,10 @@ export default async function DebugHelpersSystem(world: World) {
     AssetLoader.loadAsync(GLTF_PATH)
   ])
 
-  spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
+  const xrViewerHitTestMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
+  xrViewerHitTestMesh.geometry.rotateX(-Math.PI / 2)
 
-  const physicsDebugRenderer = DebugRenderer()
+  spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
 
   const editorHelpers = new Map<Entity, Object3D>()
   const editorStaticHelpers = new Map<Entity, Object3D>()
@@ -113,6 +122,7 @@ export default async function DebugHelpersSystem(world: World) {
   const avatarAnimationQuery = defineQuery([AvatarAnimationComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
+  const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
@@ -125,7 +135,7 @@ export default async function DebugHelpersSystem(world: World) {
 
   const debugActionQueue = createActionQueue(EngineRendererAction.setDebug.matches)
 
-  return () => {
+  const execute = () => {
     for (const action of debugActionQueue()) physicsDebugUpdate(action.debugEnable)
     const debugEnabled = getState(EngineRendererState).debugEnable.value
 
@@ -158,7 +168,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of directionalLightSelectQuery.exit()) {
         const light = getComponent(entity, DirectionalLightComponent)?.light
-        if (light) light.userData.cameraHelper.visible = false
+        if (light?.userData?.cameraHelper) light.userData.cameraHelper.visible = false
       }
 
       for (const entity of directionalLightSelectQuery()) {
@@ -448,6 +458,7 @@ export default async function DebugHelpersSystem(world: World) {
       if (debugEnabled) {
         if (!helpersByEntity.ikExtents.has(entity)) {
           const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
+          if (entity === world.localClientEntity) debugHead.material.visible = false
           const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
           const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
           debugHead.visible = debugEnabled
@@ -563,6 +574,44 @@ export default async function DebugHelpersSystem(world: World) {
         }
     }
 
-    physicsDebugRenderer(world, debugEnabled)
+    /**
+     * XR Hit Test
+     */
+
+    for (const entity of xrHitTestQuery()) {
+      const hasHit = getComponent(entity, XRHitTestComponent).hasHit.value
+      if (debugEnabled && hasHit && !hasComponent(entity, GroupComponent)) {
+        addObjectToGroup(entity, xrViewerHitTestMesh)
+      }
+      if ((!debugEnabled || !hasHit) && hasComponent(entity, GroupComponent)) {
+        removeGroupComponent(entity)
+      }
+    }
   }
+
+  const cleanup = async () => {
+    Engine.instance.currentWorld.scene.remove(InfiniteGridHelper.instance)
+    InfiniteGridHelper.instance = null!
+
+    removeQuery(world, directionalLightQuery)
+    removeQuery(world, pointLightQuery)
+    removeQuery(world, spotLightQuery)
+    removeQuery(world, portalQuery)
+    removeQuery(world, splineQuery)
+    removeQuery(world, spawnPointQuery)
+    removeQuery(world, mountPointQuery)
+    removeQuery(world, envMapBakeQuery)
+    removeQuery(world, directionalLightSelectQuery)
+    removeQuery(world, scenePreviewCameraSelectQuery)
+    removeQuery(world, boundingBoxQuery)
+    removeQuery(world, ikAvatarQuery)
+    removeQuery(world, avatarAnimationQuery)
+    removeQuery(world, navmeshQuery)
+    removeQuery(world, audioHelper)
+    removeQuery(world, xrHitTestQuery)
+
+    removeActionQueue(debugActionQueue)
+  }
+
+  return { execute, cleanup }
 }

@@ -1,5 +1,6 @@
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -16,10 +17,13 @@ const authoritativeNetworkTransformsQuery = defineQuery([
   TransformComponent
 ])
 
-const serializeAndSend = (world: World, serialize: Function) => {
-  const ents = authoritativeNetworkTransformsQuery(world)
+const serializeAndSend = (world: World, serialize: ReturnType<typeof createDataWriter>) => {
+  const ents = Engine.instance.isEditor ? networkTransformsQuery(world) : authoritativeNetworkTransformsQuery(world)
   if (ents.length > 0) {
-    const data = serialize(world, world.worldNetwork, ents)
+    const userId = Engine.instance.currentWorld.worldNetwork?.isHosting
+      ? Engine.instance.currentWorld.worldNetwork.hostId
+      : Engine.instance.userId
+    const data = serialize(world, world.worldNetwork, userId, ents)
 
     // todo: insert historian logic here
 
@@ -33,7 +37,14 @@ const serializeAndSend = (world: World, serialize: Function) => {
 export default async function OutgoingNetworkSystem(world: World) {
   const serialize = createDataWriter()
 
-  return () => {
+  const execute = () => {
     world.worldNetwork && serializeAndSend(world, serialize)
   }
+
+  const cleanup = async () => {
+    removeQuery(world, networkTransformsQuery)
+    removeQuery(world, authoritativeNetworkTransformsQuery)
+  }
+
+  return { execute, cleanup }
 }

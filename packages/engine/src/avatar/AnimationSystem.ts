@@ -1,12 +1,12 @@
 import { Bone, Euler, MathUtils, Vector3 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
@@ -63,7 +63,7 @@ export default async function AnimationSystem(world: World) {
 
   await AnimationManager.instance.loadDefaultAnimations()
 
-  return () => {
+  const execute = () => {
     const { deltaSeconds: delta } = world
 
     for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
@@ -255,4 +255,19 @@ export default async function AnimationSystem(world: World) {
       rig.Head?.scale.setScalar(1)
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, vrIKQuery)
+    removeQuery(world, headIKQuery)
+    removeQuery(world, headDecapQuery)
+    removeQuery(world, desiredTransformQuery)
+    removeQuery(world, tweenQuery)
+    removeQuery(world, animationQuery)
+    removeQuery(world, movingAvatarAnimationQuery)
+    removeQuery(world, avatarAnimationQuery)
+    removeQuery(world, armsTwistCorrectionQuery)
+    removeActionQueue(avatarAnimationQueue)
+  }
+
+  return { execute, cleanup }
 }

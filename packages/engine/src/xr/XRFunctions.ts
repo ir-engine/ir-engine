@@ -179,11 +179,9 @@ export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceCompon
   }
 
   addComponent(entity, XRInputSourceComponent, inputData)
-  return inputData
-}
+  proxifyXRInputs(entity)
 
-export const isInXR = (entity: Entity) => {
-  return hasComponent(entity, XRInputSourceComponent)
+  return inputData
 }
 
 const vec3 = new Vector3()

@@ -2,14 +2,10 @@ import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  addEntityNodeInTree,
-  createEntityNode,
-  emptyEntityTree
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
@@ -21,7 +17,6 @@ import { ReplaceSelectionCommand, ReplaceSelectionCommandParams } from './Replac
 
 describe('ReplaceSelectionCommand', () => {
   let command = {} as ReplaceSelectionCommandParams
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -29,12 +24,11 @@ describe('ReplaceSelectionCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
 
-    addEntityNodeInTree(rootNode)
-    addEntityNodeInTree(nodes[0], rootNode)
-    addEntityNodeInTree(nodes[1], rootNode)
+    addEntityNodeChild(nodes[0], rootNode)
+    addEntityNodeChild(nodes[1], rootNode)
 
     addComponent(nodes[0].entity, SelectTagComponent, {})
 

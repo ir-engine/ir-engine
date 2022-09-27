@@ -1,7 +1,7 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
-import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
 
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -13,7 +13,8 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
@@ -146,7 +147,7 @@ const vec3 = new Vector3()
 export const equippableInteractMessage = 'Equip'
 
 export default async function EquippableSystem(world: World) {
-  world.sceneComponentRegistry.set(EquippableComponent._name, SCENE_COMPONENT_EQUIPPABLE)
+  world.sceneComponentRegistry.set(EquippableComponent.name, SCENE_COMPONENT_EQUIPPABLE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {})
 
   const interactedActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
@@ -156,7 +157,7 @@ export default async function EquippableSystem(world: World) {
   const equipperQuery = defineQuery([EquipperComponent])
   const equippableQuery = defineQuery([EquippableComponent])
 
-  return () => {
+  const execute = () => {
     for (const action of interactedActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
       if (!hasComponent(action.targetEntity!, EquippableComponent)) continue
@@ -205,4 +206,18 @@ export default async function EquippableSystem(world: World) {
       equipperQueryExit(entity, world)
     }
   }
+
+  const cleanup = async () => {
+    world.sceneComponentRegistry.delete(EquippableComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_EQUIPPABLE)
+
+    removeActionQueue(interactedActionQueue)
+    removeActionQueue(transferAuthorityOfObjectQueue)
+    removeActionQueue(setEquippedObjectQueue)
+
+    removeQuery(world, equipperQuery)
+    removeQuery(world, equippableQuery)
+  }
+
+  return { execute, cleanup }
 }

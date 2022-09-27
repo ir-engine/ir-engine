@@ -8,7 +8,7 @@ import {
   configureSocketIO,
   createFeathersExpressApp
 } from '@xrengine/server-core/src/createApp'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
 import collectAnalytics from './collect-analytics'
 

@@ -3,9 +3,9 @@ import { Params } from '@feathersjs/feathers'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Application, ServerMode } from '../../../declarations'
-import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
+import logger from '../../ServerLogger'
 import { getAllPortals, getEnvMapBake, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
@@ -29,6 +29,10 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
+export interface SceneParams extends Params {
+  metadataOnly: boolean
+}
+
 type GetScenesArgsType = {
   projectName: string
   metadataOnly: boolean
@@ -38,7 +42,6 @@ type GetScenesArgsType = {
 
 export const getScenesForProject = (app: Application) => {
   return async function (args: GetScenesArgsType, params?: Params): Promise<{ data: SceneData[] }> {
-    console.log('getSceneForProject', args.storageProviderName)
     const storageProvider = getStorageProvider(args.storageProviderName)
     const { projectName, metadataOnly, internal } = args
     try {
@@ -69,7 +72,7 @@ export const getScenesForProject = (app: Application) => {
 }
 
 export const getAllScenes = (app: Application) => {
-  return async function (params: Params): Promise<{ data: SceneData[] }> {
+  return async function (params: SceneParams): Promise<{ data: SceneData[] }> {
     const projects = await app.service('project').find(params)
     const scenes = await Promise.all(
       projects.data.map(

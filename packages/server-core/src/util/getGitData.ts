@@ -4,7 +4,7 @@
 import fs from 'fs'
 import ini from 'ini'
 
-import logger from '../logger'
+import logger from '../ServerLogger'
 
 export interface GitData {
   core: {

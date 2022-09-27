@@ -1,136 +1,48 @@
-import { PerspectiveCamera, Quaternion } from 'three'
+import { PerspectiveCamera } from 'three'
 
-import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
-import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { V_010 } from '../common/constants/MathConstants'
+import { Entity } from '../ecs/classes/Entity'
+import { createEntity } from '../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
-import { SkyboxComponent } from '../scene/components/SkyboxComponent'
-import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
-import { AssetLoader } from './../assets/classes/AssetLoader'
+import { NameComponent } from '../scene/components/NameComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { BinaryValue } from './../common/enums/BinaryValue'
 import { LifecycleValue } from './../common/enums/LifecycleValue'
-import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { World } from './../ecs/classes/World'
-import { addComponent, defineQuery, getComponent } from './../ecs/functions/ComponentFunctions'
-import { hasComponent, removeComponent } from './../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery, setComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { GamepadMapping } from './../input/functions/GamepadInput'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { XRAction } from './XRAction'
-import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
-import { cleanXRInputs, updateXRControllerAnimations } from './XRControllerFunctions'
-import { proxifyXRInputs, setupLocalXRInputs, setupXRInputSourceComponent } from './XRFunctions'
+import { XRHitTestComponent, XRInputSourceComponent } from './XRComponents'
+import { updateXRControllerAnimations } from './XRControllerFunctions'
+import { setupLocalXRInputs } from './XRFunctions'
+import { endXRSession, requestXRSession, xrSessionChanged } from './XRSessionFunctions'
 import { getControlMode, XRState } from './XRState'
 
-const rot180Y = new Quaternion().setFromAxisAngle(V_010, Math.PI)
-const skyboxQuery = defineQuery([SkyboxComponent])
-
-export const requestXRSession = createHookableFunction(
-  async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
-    try {
-      const xrState = getState(XRState)
-      const sessionInit = {
-        optionalFeatures: ['local-floor', 'hand-tracking', 'layers', 'dom-overlay'],
-        domOverlay: { root: document.body }
-      }
-      const mode =
-        action.mode ||
-        (xrState.supportedSessionModes['immersive-ar'].value
-          ? 'immersive-ar'
-          : xrState.supportedSessionModes['immersive-vr'].value
-          ? 'immersive-vr'
-          : 'inline')
-
-      const session = await navigator.xr!.requestSession(mode, sessionInit)
-      xrState.sessionActive.set(true)
-      if (mode === 'immersive-ar') EngineRenderer.instance.canvas.style.display = 'none'
-      EngineRenderer.instance.xrSession = session
-      EngineRenderer.instance.xrManager.setSession(session).then(() => {
-        const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
-        xrState.originReferenceSpace.set(referenceSpace)
-      })
-      EngineRenderer.instance.xrManager.setFoveation(1)
-      xrState.sessionMode.set(mode)
-
-      const world = Engine.instance.currentWorld
-      setupXRInputSourceComponent(world.localClientEntity)
-      proxifyXRInputs(world.localClientEntity)
-
-      const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-      removeComponent(world.cameraEntity, FollowCameraComponent)
-
-      if (mode === 'immersive-ar') world.scene.background = null
-
-      const onSessionEnd = () => {
-        xrState.sessionActive.set(false)
-        xrState.sessionMode.set('none')
-        EngineRenderer.instance.canvas.style.display = ''
-        EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
-        EngineRenderer.instance.xrSession = null!
-        EngineRenderer.instance.xrManager.setSession(null!)
-        const world = Engine.instance.currentWorld
-        addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
-
-        cleanXRInputs(world.localClientEntity)
-        removeComponent(world.localClientEntity, XRInputSourceComponent)
-        removeComponent(world.localClientEntity, XRHandsInputComponent)
-        const skybox = skyboxQuery()[0]
-        if (skybox) updateSkybox(skybox)
-        dispatchAction(XRAction.sessionChanged({ active: false }))
-      }
-      EngineRenderer.instance.xrManager.addEventListener('sessionend', onSessionEnd)
-
-      dispatchAction(XRAction.sessionChanged({ active: true }))
-    } catch (e) {
-      console.error('Failed to create XR Session', e)
-    }
-  }
-)
-
-export const endXRSession = createHookableFunction(async () => {
-  await EngineRenderer.instance.xrSession?.end()
-})
-
-export const xrSessionChanged = createHookableFunction((action: typeof XRAction.sessionChanged.matches._TYPE) => {
-  const entity = Engine.instance.currentWorld.getUserAvatarEntity(action.$from)
-  if (!entity) return
-
-  if (action.active) {
-    if (getControlMode() === 'attached')
-      if (!hasComponent(entity, AvatarHeadDecapComponent)) {
-        addComponent(entity, AvatarHeadDecapComponent, true)
-      }
-    if (!hasComponent(entity, XRInputSourceComponent)) {
-      setupXRInputSourceComponent(entity)
-    }
-  } else if (hasComponent(entity, XRInputSourceComponent)) {
-    cleanXRInputs(entity)
-    removeComponent(entity, XRInputSourceComponent)
-  }
-})
-
 export const updateXRInput = () => {
-  const xrFrame = Engine.instance.xrFrame
   const xrManager = EngineRenderer.instance.xrManager
   const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
 
   xrManager.updateCamera(camera)
 
-  const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
-  const head = xrInputSourceComponent.head
-  head.quaternion.copy(camera.quaternion)
-  head.position.copy(camera.position)
+  if (getControlMode() === 'attached') {
+    const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
+    const head = xrInputSourceComponent.head
+    head.quaternion.copy(camera.quaternion)
+    head.position.copy(camera.position)
 
-  camera.updateMatrix()
-  camera.updateMatrixWorld(true)
-  head.updateMatrix()
-  head.updateMatrixWorld(true)
+    camera.updateMatrix()
+    camera.updateMatrixWorld(true)
+    head.updateMatrix()
+    head.updateMatrixWorld(true)
+  }
 
   // TODO: uncomment the following when three.js fixes WebXRManager
+  // const xrFrame = Engine.instance.xrFrame
   // for (let i = 0; i < xrManager.controllers.length; i++) {
   //   const inputSource = xrManager.controllerInputSources[i]
   //   const controller = xrManager.controllers[i]
@@ -139,6 +51,27 @@ export const updateXRInput = () => {
   //   }
   // }
 }
+
+export const updateHitTest = (entity: Entity) => {
+  const xrState = getState(XRState)
+  const xrFrame = Engine.instance.xrFrame
+
+  const hitTestComponent = getComponent(entity, XRHitTestComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const hitTestResults = xrFrame.getHitTestResults(xrState.viewerHitTestSource.value!)
+
+  if (hitTestResults.length) {
+    const hit = hitTestResults[0]
+    const hitData = hit.getPose(xrState.originReferenceSpace.value!)!
+    transform.matrix.fromArray(hitData.transform.matrix)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+    transform.matrixInverse.copy(transform.matrix).invert()
+    hitTestComponent.hasHit.set(true)
+  } else {
+    hitTestComponent.hasHit.set(false)
+  }
+}
+
 /**
  * System for XR session and input handling
  */
@@ -155,26 +88,24 @@ export default async function XRSystem(world: World) {
     updateSessionSupportForMode('immersive-vr')
   }
 
-  // TODO: we need a way to remove listeners when systems are unloaded
   navigator.xr?.addEventListener('devicechange', updateSessionSupport)
   updateSessionSupport()
   setupLocalXRInputs()
 
-  // TEMPORARY - precache controller model
-  // Cache hand models
-  AssetLoader.loadAsync('/default_assets/controllers/hands/left.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/right.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/left_controller.glb')
-  AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
-
-  // const joinedWorldActionQueue = createActionQueue(EngineActions.joinedWorld.matches)
+  const viewerHitTestEntity = createEntity()
+  setComponent(viewerHitTestEntity, NameComponent, { name: 'AR Viewer Hit Test' })
+  setTransformComponent(viewerHitTestEntity)
+  setComponent(viewerHitTestEntity, VisibleComponent, true)
+  setComponent(viewerHitTestEntity, XRHitTestComponent, null)
+  xrState.viewerHitTestEntity.set(viewerHitTestEntity)
 
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
+  const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
   const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
-  return () => {
+  const execute = () => {
     const xrRequestSessionAction = xrRequestSessionQueue().pop()
     const xrEndSessionAction = xrEndSessionQueue().pop()
     if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)
@@ -193,11 +124,26 @@ export default async function XRSystem(world: World) {
 
       const session = EngineRenderer.instance.xrManager!.getSession()!
       for (const source of session.inputSources) updateGamepadInput(source)
+
+      if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
+        for (const entity of xrHitTestQuery()) updateHitTest(entity)
+      }
     }
 
     //XR Controller mesh animation update
     for (const entity of xrControllerQuery()) updateXRControllerAnimations(getComponent(entity, XRInputSourceComponent))
   }
+
+  const cleanup = async () => {
+    navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
+    removeQuery(world, xrControllerQuery)
+    removeQuery(world, xrHitTestQuery)
+    removeActionQueue(xrRequestSessionQueue)
+    removeActionQueue(xrEndSessionQueue)
+    removeActionQueue(xrSessionChangedQueue)
+  }
+
+  return { execute, cleanup }
 }
 
 export function updateGamepadInput(source: XRInputSource) {

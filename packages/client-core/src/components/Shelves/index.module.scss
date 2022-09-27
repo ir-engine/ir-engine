@@ -1,0 +1,173 @@
+.box {
+  display: flex;
+  width: 200px;
+  height: 150px;
+  margin: 10px;
+  border: solid black 2px;
+  text-align: center;
+
+  &:hover {
+    background-color: gray;
+    cursor: pointer;
+  }
+}
+
+.fullScreen {
+  position: fixed;
+  bottom: 20px;
+  left: 66.4px;
+
+  @media (max-width: 450px) {
+    left: 57.4px;
+  }
+}
+
+.showIconMedia {
+  position: fixed;
+  top: 10px;
+  left: 8px;
+}
+
+.showIcon {
+  position: fixed;
+  bottom: 20px;
+  left: 8px;
+}
+
+.rotate {
+  transform: rotateZ(-360deg);
+  transition: all 0.6s ease;
+}
+
+.rotateBack {
+  transform: rotateZ(0deg);
+  transition: all 0.6s ease;
+}
+
+.smBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  background: rgb(255 255 255 / 50%);
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 6;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  opacity: 1;
+
+  &:hover {
+    box-shadow: 0 1rem 2rem rgba(#000, 0.2);
+    opacity: 1;
+  }
+
+  svg {
+    color: #313131;
+  }
+
+  @media (max-width: 450px) {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  background: white;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  z-index: 6;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  opacity: 0.99;
+
+  &:hover {
+    box-shadow: 0 1rem 2rem rgba(#000, 0.2);
+    opacity: 1;
+  }
+
+  svg {
+    color: black;
+  }
+
+  @media (max-width: 450px) {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.refreshBtn {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 66.4px !important;
+
+  @media (max-width: 450px) {
+    left: 57.4px !important;
+  }
+}
+
+.respawn {
+  position: fixed;
+  bottom: 20px;
+  left: 125px;
+
+  @media (max-width: 450px) {
+    left: 106px;
+  }
+}
+
+.fadeOutTop {
+  opacity: 0;
+  transform: translateY(-4rem);
+  visibility: hidden;
+  transition: all 0.6s;
+}
+
+.fadeOutBottom {
+  opacity: 0;
+  transform: translateY(4rem);
+  visibility: hidden;
+  transition: all 0.6s;
+}
+
+.animateTop {
+  animation: moveInTop 0.3s ease 0.3s;
+  animation-fill-mode: backwards;
+}
+
+.animateBottom {
+  animation: moveInBottom 0.3s ease 0.3s;
+  animation-fill-mode: backwards;
+}
+
+@keyframes moveInBottom {
+  0% {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@keyframes moveInTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
