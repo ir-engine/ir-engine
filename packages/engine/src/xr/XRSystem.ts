@@ -140,19 +140,14 @@ export default async function XRSystem(world: World) {
         //   if (action.clicked && action.button === BaseInput.PRIMARY) {
         const transform = getComponent(viewerHitTestEntity, TransformComponent)
         const worldOriginTransform = getComponent(world.originReferenceEntity, TransformComponent)
-        const size = transform.position.y > 0.5 ? 10 : 1
-        worldOriginTransform.scale.setScalar(size)
-        worldOriginTransform.position.copy(transform.position)
-        worldOriginTransform.rotation.copy(transform.rotation)
-        worldOriginTransform.matrix.compose(
+        worldOriginTransform.matrix.copy(transform.matrixInverse)
+        worldOriginTransform.matrix.decompose(
           worldOriginTransform.position,
           worldOriginTransform.rotation,
           worldOriginTransform.scale
         )
         worldOriginTransform.matrixInverse.copy(worldOriginTransform.matrix).invert()
-
-        EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
-        // }
+        //   }
         // }
       }
 
