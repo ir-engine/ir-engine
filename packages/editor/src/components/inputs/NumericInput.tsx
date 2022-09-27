@@ -29,7 +29,7 @@ function toPrecisionString(value, precision) {
   }
 }
 
-const NumericInputContainer = (styled as any).div`
+const NumericInputContainer = styled.div`
   position: relative;
   display: flex;
   flex: 1;
@@ -43,7 +43,9 @@ const NumericInputContainer = (styled as any).div`
     border-color: var(--blueHover);
   }
 
-  &:focus, &:focus-visible, &:focus-within {
+  &:focus,
+  &:focus-visible,
+  &:focus-within {
     border-color: var(--blue);
   }
 
@@ -53,7 +55,7 @@ const NumericInputContainer = (styled as any).div`
   }
 `
 
-const StyledNumericInput = (styled as any).input`
+const StyledNumericInput = styled.input`
   color: var(--textColor);
   background-color: var(--inputBackground);
   border: none;
@@ -71,7 +73,7 @@ const StyledNumericInput = (styled as any).input`
   }
 `
 
-const NumericInputUnit = (styled as any).div`
+const NumericInputUnit = styled.div`
   color: var(--textColor);
   background-color: var(--inputBackground);
   padding-right: 4px;
@@ -81,16 +83,16 @@ const NumericInputUnit = (styled as any).div`
   height: 100%;
 `
 
-interface NumericInputProp {
+export interface NumericInputProp {
   className?: string
   unit?: any
   prefix?: any
   displayPrecision?: any
-  value?: any
+  value: number
   convertFrom?: any
   precision?: number
   mediumStep?: number
-  onChange?: Function
+  onChange?: (n: number) => void
   onCommit?: Function
   smallStep?: number
   largeStep?: number
@@ -222,7 +224,7 @@ const NumericInput = ({
       {prefix ? prefix : null}
       <StyledNumericInput
         {...rest}
-        unit={unit}
+        // unit={unit} // not a valid property?
         ref={inputEl}
         value={focused ? tempValue : toPrecisionString(convertFrom(value), displayPrecision)}
         onKeyUp={handleKeyPress}

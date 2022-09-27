@@ -1,19 +1,17 @@
-import { Object3D } from 'three'
-
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   getEntityNodeArrayFromEntities,
   traverseEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
+} from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
-import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { createNewEditorNode, deserializeSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -110,8 +108,9 @@ function addObject(command: AddObjectCommandParams) {
         const data = command.sceneData[i] ?? command.sceneData[0]
 
         traverseEntityNode(object, (node) => {
+          if (!data.entities[node.uuid]) return
           node.entity = createEntity()
-          loadSceneEntity(node, data.entities[node.uuid])
+          deserializeSceneEntity(node, data.entities[node.uuid])
 
           if (node.parentEntity && node.uuid !== data.root)
             reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
@@ -124,15 +123,13 @@ function addObject(command: AddObjectCommandParams) {
 
     let index
     if (typeof parent !== 'string') {
-      if (before && typeof before === 'string' && !hasComponent(parent.entity, Object3DComponent)) {
-        const obj3d: Object3DWithEntity = new Object3D() as Object3DWithEntity
-        obj3d.entity = parent.entity
-        addComponent(parent.entity, Object3DComponent, { value: obj3d })
+      if (before && typeof before === 'string' && !hasComponent(parent.entity, GroupComponent)) {
+        addComponent(parent.entity, GroupComponent, [])
       }
       index =
         before && parent.children
           ? typeof before === 'string'
-            ? getComponent(parent.entity, Object3DComponent).value.children.indexOf(obj3dFromUuid(before))
+            ? getComponent(parent.entity, GroupComponent).indexOf(obj3dFromUuid(before) as Object3DWithEntity)
             : parent.children.indexOf(before.entity)
           : undefined
     } else {
@@ -143,7 +140,7 @@ function addObject(command: AddObjectCommandParams) {
           : undefined
     }
     if (typeof parent !== 'string' && typeof object !== 'string') {
-      addEntityNodeInTree(object, parent, index, false, world.entityTree)
+      addEntityNodeChild(object, parent, index)
 
       reparentObject3D(object, parent, typeof before === 'string' ? undefined : before, world.entityTree)
 

@@ -151,22 +151,22 @@ export const AdminInviteService = {
 //Action
 export class AdminInviteActions {
   static invitesRetrieved = defineAction({
-    type: 'ADMIN_INVITES_RETRIEVED' as const,
+    type: 'xre.client.AdminInvite.ADMIN_INVITES_RETRIEVED' as const,
     invites: matches.object as Validator<unknown, Paginated<InviteInterface>>
   })
 
   static inviteCreated = defineAction({
-    type: 'ADMIN_INVITE_CREATED' as const,
+    type: 'xre.client.AdminInvite.ADMIN_INVITE_CREATED' as const,
     invite: matches.object as Validator<unknown, InviteInterface>
   })
 
   static invitePatched = defineAction({
-    type: 'ADMIN_INVITE_PATCHED' as const,
+    type: 'xre.client.AdminInvite.ADMIN_INVITE_PATCHED' as const,
     invite: matches.object as Validator<unknown, InviteInterface>
   })
 
   static inviteRemoved = defineAction({
-    type: 'ADMIN_INVITE_REMOVED' as const,
+    type: 'xre.client.AdminInvite.ADMIN_INVITE_REMOVED' as const,
     invite: matches.object as Validator<unknown, InviteInterface>
   })
 }

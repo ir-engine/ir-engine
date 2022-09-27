@@ -70,7 +70,7 @@ export const AdminScopeTypeService = {
 //Action
 export class AdminScopeTypeActions {
   static getScopeTypes = defineAction({
-    type: 'SCOPE_TYPES_RETRIEVED' as const,
+    type: 'xre.client.AdminScopeType.SCOPE_TYPES_RETRIEVED' as const,
     adminScopeTypeResult: matches.object as Validator<unknown, Paginated<AdminScopeType>>
   })
 }

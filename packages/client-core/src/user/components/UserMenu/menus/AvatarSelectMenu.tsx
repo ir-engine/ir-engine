@@ -14,7 +14,7 @@ import {
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -39,7 +39,6 @@ const logger = multiLogger.child({ component: 'client-core:AvatarSelectMenu' })
 
 interface Props {
   avatarData?: StaticResourceInterface
-  isPublicAvatar?: boolean
   changeActiveMenu: Function
   onAvatarUpload?: () => void
 }
@@ -79,7 +78,7 @@ function TabPanel({ children, value, index }: TabPanelProps) {
   )
 }
 
-export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu, onAvatarUpload }: Props) => {
+export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload }: Props) => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
   const [avatarName, setAvatarName] = useState('')
@@ -233,11 +232,11 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.domElement, 0, 0)
         canvas.toBlob((blob) => {
-          AvatarService.createAvatar(avatarBlob, blob!, avatarName, isPublicAvatar)
+          AvatarService.createAvatar(avatarBlob, blob!, avatarName, false)
         })
       })
     } else {
-      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
+      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, false)
     }
 
     onAvatarUpload && onAvatarUpload()
@@ -326,8 +325,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
           sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
           inputProps={{ 'aria-label': 'avatar url' }}
           classes={{ input: styles.input }}
-          value={avatarData?.name ?? avatarName}
-          disabled={!!avatarData?.name}
+          value={avatarData?.key ?? avatarName}
+          disabled={!!avatarData?.key}
           id="avatarName"
           size="small"
           name="avatarname"

@@ -20,7 +20,7 @@ import {
   DirectionalLightComponentType,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES
 } from '../../components/DirectionalLightComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 
 export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   entity: Entity,
@@ -33,16 +33,16 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
 export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, DirectionalLightComponent)
 
-  if (!hasComponent(entity, Object3DComponent)) {
-    const light = new DirectionalLight()
+  if (!component.light) {
+    const light = (component.light = new DirectionalLight())
     light.target.position.set(0, 0, 1)
     light.target.name = 'light-target'
     light.add(light.target)
-    addComponent(entity, Object3DComponent, { value: light })
+    addObjectToGroup(entity, light)
     EngineRenderer.instance.directionalLightEntities.push(entity)
   }
 
-  const light = getComponent(entity, Object3DComponent).value as DirectionalLight
+  const light = component.light
 
   light.color.set(component.color)
   light.intensity = component.intensity
@@ -63,8 +63,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
     if (EngineRenderer.instance.activeCSMLightEntity) {
       if (EngineRenderer.instance.activeCSMLightEntity === entity) return
 
-      const activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, Object3DComponent)
-        ?.value as DirectionalLight
+      const activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, DirectionalLightComponent).light
       const activeCSMLightComponent = getComponent(
         EngineRenderer.instance.activeCSMLightEntity,
         DirectionalLightComponent

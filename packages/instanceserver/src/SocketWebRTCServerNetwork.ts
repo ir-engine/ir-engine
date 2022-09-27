@@ -6,11 +6,11 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@xrengine/hyperflux'
+import { clearOutgoingActions, getState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
 import { setupSubdomain } from './NetworkFunctions'
 import { startWebRTC } from './WebRTCFunctions'
@@ -56,8 +56,11 @@ export class SocketWebRTCServerNetwork extends Network {
   }
 
   public sendActions = (): any => {
+    if (!this.ready) return
+
     const actions = [...Engine.instance.store.actions.outgoing[this.topic].queue]
     if (!actions.length) return
+
     const userIdMap = {} as { [socketId: string]: UserId }
     for (const [id, client] of this.peers) userIdMap[client.socketId!] = id
     const outgoing = Engine.instance.store.actions.outgoing
@@ -78,6 +81,9 @@ export class SocketWebRTCServerNetwork extends Network {
       }
       if (arr.length) socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ arr) //)
     }
+
+    // TODO: refactor this to support multiple connections of the same topic type
+    clearOutgoingActions(this.topic, Engine.instance.store)
   }
 
   public sendReliableData = (message: any): any => {

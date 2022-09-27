@@ -1,5 +1,5 @@
 import config from '@xrengine/server-core/src/appconfig'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
 const logger = multiLogger.child({ component: 'analytics' })
 

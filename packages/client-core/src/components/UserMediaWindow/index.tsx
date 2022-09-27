@@ -645,7 +645,10 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
           [styles.pip]: isPiP && !isScreen,
           [styles.screenpip]: isPiP && isScreen
         })}
-        style={{ display: isSelfUser || rendered ? 'auto' : 'none' }}
+        style={{
+          pointerEvents: 'auto',
+          display: isSelfUser || rendered ? 'auto' : 'none'
+        }}
         onClick={() => {
           if (isScreen && isPiP) togglePiP()
         }}

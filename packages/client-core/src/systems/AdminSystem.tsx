@@ -1,18 +1,19 @@
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
 import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
-import { AdminGithubAppReceptors, GithubAppActions } from '../admin/services/GithubAppService'
+import { AdminGithubAppActions, AdminGithubAppReceptors } from '../admin/services/GithubAppService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
-import { InstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
+import { AdminInstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
 import { AdminInstanceActions, AdminInstanceReceptors } from '../admin/services/InstanceService'
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
+import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
@@ -47,8 +48,8 @@ export default async function AdminSystem(world: World) {
   const fetchedCoilQueue = createActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
   const fetchedEmailQueue = createActionQueue(EmailSettingActions.fetchedEmail.matches)
   const emailSettingPatchedQueue = createActionQueue(EmailSettingActions.emailSettingPatched.matches)
-  const patchInstanceserverQueue = createActionQueue(InstanceserverActions.patchInstanceserver.matches)
-  const patchedInstanceserverQueue = createActionQueue(InstanceserverActions.patchedInstanceserver.matches)
+  const patchInstanceserverQueue = createActionQueue(AdminInstanceserverActions.patchInstanceserver.matches)
+  const patchedInstanceserverQueue = createActionQueue(AdminInstanceserverActions.patchedInstanceserver.matches)
   const projectSettingFetchedQueue = createActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
   const fetchedSeverInfoQueue = createActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
   const serverSettingPatchedQueue = createActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
@@ -59,6 +60,12 @@ export default async function AdminSystem(world: World) {
   const avatarCreatedQueue = createActionQueue(AdminAvatarActions.avatarCreated.matches)
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
   const avatarUpdatedQueue = createActionQueue(AdminAvatarActions.avatarUpdated.matches)
+  const resourceFiltersFetchedQueue = createActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
+  const resourcesFetchedQueue = createActionQueue(AdminResourceActions.resourcesFetched.matches)
+  const setSelectedMimeTypesQueue = createActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
+  const setSelectedResourceTypesQueue = createActionQueue(AdminResourceActions.setSelectedResourceTypes.matches)
+  const resourceNeedsUpdateQueue = createActionQueue(AdminResourceActions.resourceNeedsUpdated.matches)
+  const resourcesResetFilterQueue = createActionQueue(AdminResourceActions.resourcesResetFilter.matches)
   const scenesFetchedQueue = createActionQueue(AdminSceneActions.scenesFetched.matches)
   const sceneFetchedQueue = createActionQueue(AdminSceneActions.sceneFetched.matches)
   const locationsRetrievedQueue = createActionQueue(AdminLocationActions.locationsRetrieved.matches)
@@ -92,7 +99,7 @@ export default async function AdminSystem(world: World) {
   const updateGroupQueue = createActionQueue(AdminGroupActions.updateGroup.matches)
   const removeGroupActionQueue = createActionQueue(AdminGroupActions.removeGroupAction.matches)
   const addAdminGroupQueue = createActionQueue(AdminGroupActions.addAdminGroup.matches)
-  const githubAppFetchedQueue = createActionQueue(GithubAppActions.githubAppFetched.matches)
+  const githubAppFetchedQueue = createActionQueue(AdminGithubAppActions.githubAppFetched.matches)
   const installedRoutesRetrievedQueue = createActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
   const activeRoutesRetrievedQueue = createActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
   const fetchedSingleUserQueue = createActionQueue(AdminUserActions.fetchedSingleUser.matches)
@@ -116,225 +123,169 @@ export default async function AdminSystem(world: World) {
   // const fetchedClientQueue = createActionQueue(ClientSettingActions.fetchedClient.matches)
   // const clientSettingPatchedQueue = createActionQueue(ClientSettingActions.clientSettingPatched.matches)
 
-  return () => {
-    for (const action of fetchedAnalyticsQueue()) {
-      AnalyticsSettingReceptors.fetchedAnalyticsReceptor(action)
-    }
-    for (const action of redisSettingRetrievedQueue()) {
-      RedisSettingReceptors.redisSettingRetrievedReceptor(action)
-    }
-    for (const action of awsSettingRetrievedQueue()) {
-      AwsSettingReceptors.awsSettingRetrievedReceptor(action)
-    }
-    for (const action of awsSettingPatchedQueue()) {
-      AwsSettingReceptors.awsSettingPatchedReceptor(action)
-    }
-    for (const action of fetchedCoilQueue()) {
-      CoilSettingReceptors.fetchedCoilReceptor(action)
-    }
-    for (const action of fetchedEmailQueue()) {
-      EmailSettingReceptors.fetchedEmailReceptor(action)
-    }
-    for (const action of emailSettingPatchedQueue()) {
-      EmailSettingReceptors.emailSettingPatchedReceptor(action)
-    }
-    for (const action of patchInstanceserverQueue()) {
-      InstanceServerSettingReceptors.patchInstanceserverReceptor(action)
-    }
-    for (const action of patchedInstanceserverQueue()) {
+  const execute = () => {
+    for (const action of fetchedAnalyticsQueue()) AnalyticsSettingReceptors.fetchedAnalyticsReceptor(action)
+    for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
+    for (const action of awsSettingRetrievedQueue()) AwsSettingReceptors.awsSettingRetrievedReceptor(action)
+    for (const action of awsSettingPatchedQueue()) AwsSettingReceptors.awsSettingPatchedReceptor(action)
+    for (const action of fetchedCoilQueue()) CoilSettingReceptors.fetchedCoilReceptor(action)
+    for (const action of fetchedEmailQueue()) EmailSettingReceptors.fetchedEmailReceptor(action)
+    for (const action of emailSettingPatchedQueue()) EmailSettingReceptors.emailSettingPatchedReceptor(action)
+    for (const action of patchInstanceserverQueue()) InstanceServerSettingReceptors.patchInstanceserverReceptor(action)
+    for (const action of patchedInstanceserverQueue())
       InstanceServerSettingReceptors.patchedInstanceserverReceptor(action)
-    }
-    for (const action of projectSettingFetchedQueue()) {
-      ProjectSettingReceptors.projectSettingFetchedReceptor(action)
-    }
-    for (const action of fetchedSeverInfoQueue()) {
-      ServerSettingReceptors.fetchedSeverInfoReceptor(action)
-    }
-    for (const action of serverSettingPatchedQueue()) {
-      ServerSettingReceptors.serverSettingPatchedReceptor(action)
-    }
-    for (const action of getScopeTypesQueue()) {
-      AdminScopeTypeReceptor.getScopeTypesReceptor(action)
-    }
-    for (const action of instancesRetrievedQueue()) {
-      AdminInstanceReceptors.instancesRetrievedReceptor(action)
-    }
-    for (const action of instanceRemovedQueue()) {
-      AdminInstanceReceptors.instanceRemovedReceptor(action)
-    }
-    for (const action of avatarsFetchedQueue()) {
-      AdminAvatarReceptors.avatarsFetchedReceptor(action)
-    }
-    for (const action of avatarCreatedQueue()) {
-      AdminAvatarReceptors.avatarCreatedReceptor(action)
-    }
-    for (const action of avatarRemovedQueue()) {
-      AdminAvatarReceptors.avatarRemovedReceptor(action)
-    }
-    for (const action of avatarUpdatedQueue()) {
-      AdminAvatarReceptors.avatarUpdatedReceptor(action)
-    }
-    for (const action of scenesFetchedQueue()) {
-      AdminSceneReceptors.scenesFetchedReceptor(action)
-    }
-    for (const action of sceneFetchedQueue()) {
-      AdminSceneReceptors.sceneFetchedReceptor(action)
-    }
-    for (const action of locationsRetrievedQueue()) {
-      AdminLocationReceptors.locationsRetrievedReceptor(action)
-    }
-    for (const action of locationCreatedQueue()) {
-      AdminLocationReceptors.locationCreatedReceptor(action)
-    }
-    for (const action of locationPatchedQueue()) {
-      AdminLocationReceptors.locationPatchedReceptor(action)
-    }
-    for (const action of locationRemovedQueue()) {
-      AdminLocationReceptors.locationRemovedReceptor(action)
-    }
-    for (const action of locationTypesRetrievedQueue()) {
-      AdminLocationReceptors.locationTypesRetrievedReceptor(action)
-    }
-    for (const action of partyRetrievedQueue()) {
-      AdminPartyReceptors.partyRetrievedReceptor(action)
-    }
-    for (const action of partyAdminCreatedQueue()) {
-      AdminPartyReceptors.partyAdminCreatedReceptor(action)
-    }
-    for (const action of partyRemovedQueue()) {
-      AdminPartyReceptors.partyRemovedReceptor(action)
-    }
-    for (const action of partyPatchedQueue()) {
-      AdminPartyReceptors.partyPatchedReceptor(action)
-    }
-    for (const action of activeInstancesFetchedQueue()) {
-      AdminAnalyticsReceptors.activeInstancesFetchedReceptor(action)
-    }
-    for (const action of activePartiesFetchedQueue()) {
-      AdminAnalyticsReceptors.activePartiesFetchedReceptor(action)
-    }
-    for (const action of activeLocationsFetchedQueue()) {
-      AdminAnalyticsReceptors.activeLocationsFetchedReceptor(action)
-    }
-    for (const action of activeScenesFetchedQueue()) {
-      AdminAnalyticsReceptors.activeScenesFetchedReceptor(action)
-    }
-    for (const action of channelUsersFetchedQueue()) {
-      AdminAnalyticsReceptors.channelUsersFetchedReceptor(action)
-    }
-    for (const action of instanceUsersFetchedQueue()) {
-      AdminAnalyticsReceptors.instanceUsersFetchedReceptor(action)
-    }
-    for (const action of dailyNewUsersFetchedQueue()) {
-      AdminAnalyticsReceptors.dailyNewUsersFetchedReceptor(action)
-    }
-    for (const action of dailyUsersFetchedQueue()) {
-      AdminAnalyticsReceptors.dailyUsersFetchedReceptor(action)
-    }
-    for (const action of fetchedTestBotsQueue()) {
-      AdminTestBotReceptors.fetchedBotsReceptor(action)
-    }
-    for (const action of spawnBotsQueue()) {
-      AdminTestBotReceptors.spawnBotsReceptor(action)
-    }
-    for (const action of spawnedBotsQueue()) {
-      AdminTestBotReceptors.spawnedBotsReceptor(action)
-    }
-    for (const action of botCommandCreatedQueue()) {
-      AdminBotsCommandReceptors.botCommandCreatedReceptor(action)
-    }
-    for (const action of botCommandRemovedQueue()) {
-      AdminBotsCommandReceptors.botCommandRemovedReceptor(action)
-    }
-    for (const action of fetchedBotQueue()) {
-      AdminBotServiceReceptors.fetchedBotReceptor(action)
-    }
-    for (const action of botCreatedQueue()) {
-      AdminBotServiceReceptors.botCreatedReceptor(action)
-    }
-    for (const action of botPatchedQueue()) {
-      AdminBotServiceReceptors.botPatchedReceptor(action)
-    }
-    for (const action of botRemovedQueue()) {
-      AdminBotServiceReceptors.botRemovedReceptor(action)
-    }
-    for (const action of fetchingGroupQueue()) {
-      AdminGroupServiceReceptors.fetchingGroupReceptor(action)
-    }
-    for (const action of setAdminGroupQueue()) {
-      AdminGroupServiceReceptors.setAdminGroupReceptor(action)
-    }
-    for (const action of updateGroupQueue()) {
-      AdminGroupServiceReceptors.updateGroupReceptor(action)
-    }
-    for (const action of removeGroupActionQueue()) {
-      AdminGroupServiceReceptors.removeGroupActionReceptor(action)
-    }
-    for (const action of addAdminGroupQueue()) {
-      AdminGroupServiceReceptors.addAdminGroupReceptor(action)
-    }
-    for (const action of githubAppFetchedQueue()) {
-      AdminGithubAppReceptors.githubAppFetchedReceptor(action)
-    }
-    for (const action of installedRoutesRetrievedQueue()) {
-      AdminRouteReceptors.installedRoutesRetrievedReceptor(action)
-    }
-    for (const action of activeRoutesRetrievedQueue()) {
-      AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
-    }
-    for (const action of fetchedSingleUserQueue()) {
-      AdminUserReceptors.fetchedSingleUserReceptor(action)
-    }
-    for (const action of loadedUsersQueue()) {
-      AdminUserReceptors.loadedUsersReceptor(action)
-    }
-    for (const action of userAdminRemovedQueue()) {
-      AdminUserReceptors.userAdminRemovedReceptor(action)
-    }
-    for (const action of userCreatedQueue()) {
-      AdminUserReceptors.userCreatedReceptor(action)
-    }
-    for (const action of userPatchedQueue()) {
-      AdminUserReceptors.userPatchedReceptor(action)
-    }
-    for (const action of searchedUserQueue()) {
-      AdminUserReceptors.searchedUserReceptor(action)
-    }
-    for (const action of setSkipGuestsQueue()) {
-      AdminUserReceptors.setSkipGuestsReceptor(action)
-    }
-    for (const action of resetFilterQueue()) {
-      AdminUserReceptors.resetFilterReceptor(action)
-    }
-    for (const action of fetchedInstanceServerQueue()) {
+    for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
+    for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
+    for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
+    for (const action of getScopeTypesQueue()) AdminScopeTypeReceptor.getScopeTypesReceptor(action)
+    for (const action of instancesRetrievedQueue()) AdminInstanceReceptors.instancesRetrievedReceptor(action)
+    for (const action of instanceRemovedQueue()) AdminInstanceReceptors.instanceRemovedReceptor(action)
+    for (const action of avatarsFetchedQueue()) AdminAvatarReceptors.avatarsFetchedReceptor(action)
+    for (const action of avatarCreatedQueue()) AdminAvatarReceptors.avatarCreatedReceptor(action)
+    for (const action of avatarRemovedQueue()) AdminAvatarReceptors.avatarRemovedReceptor(action)
+    for (const action of avatarUpdatedQueue()) AdminAvatarReceptors.avatarUpdatedReceptor(action)
+    for (const action of resourceFiltersFetchedQueue()) AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
+    for (const action of resourcesFetchedQueue()) AdminResourceReceptors.resourcesFetchedReceptor(action)
+    for (const action of setSelectedMimeTypesQueue()) AdminResourceReceptors.setSelectedMimeTypesReceptor(action)
+    for (const action of setSelectedResourceTypesQueue())
+      AdminResourceReceptors.setSelectedResourceTypesReceptor(action)
+    for (const action of resourceNeedsUpdateQueue()) AdminResourceReceptors.resourceNeedsUpdateReceptor(action)
+    for (const action of resourcesResetFilterQueue()) AdminResourceReceptors.resourcesResetFilterReceptor(action)
+    for (const action of scenesFetchedQueue()) AdminSceneReceptors.scenesFetchedReceptor(action)
+    for (const action of sceneFetchedQueue()) AdminSceneReceptors.sceneFetchedReceptor(action)
+    for (const action of locationsRetrievedQueue()) AdminLocationReceptors.locationsRetrievedReceptor(action)
+    for (const action of locationCreatedQueue()) AdminLocationReceptors.locationCreatedReceptor(action)
+    for (const action of locationPatchedQueue()) AdminLocationReceptors.locationPatchedReceptor(action)
+    for (const action of locationRemovedQueue()) AdminLocationReceptors.locationRemovedReceptor(action)
+    for (const action of locationTypesRetrievedQueue()) AdminLocationReceptors.locationTypesRetrievedReceptor(action)
+    for (const action of partyRetrievedQueue()) AdminPartyReceptors.partyRetrievedReceptor(action)
+    for (const action of partyAdminCreatedQueue()) AdminPartyReceptors.partyAdminCreatedReceptor(action)
+    for (const action of partyRemovedQueue()) AdminPartyReceptors.partyRemovedReceptor(action)
+    for (const action of partyPatchedQueue()) AdminPartyReceptors.partyPatchedReceptor(action)
+    for (const action of activeInstancesFetchedQueue()) AdminAnalyticsReceptors.activeInstancesFetchedReceptor(action)
+    for (const action of activePartiesFetchedQueue()) AdminAnalyticsReceptors.activePartiesFetchedReceptor(action)
+    for (const action of activeLocationsFetchedQueue()) AdminAnalyticsReceptors.activeLocationsFetchedReceptor(action)
+    for (const action of activeScenesFetchedQueue()) AdminAnalyticsReceptors.activeScenesFetchedReceptor(action)
+    for (const action of channelUsersFetchedQueue()) AdminAnalyticsReceptors.channelUsersFetchedReceptor(action)
+    for (const action of instanceUsersFetchedQueue()) AdminAnalyticsReceptors.instanceUsersFetchedReceptor(action)
+    for (const action of dailyNewUsersFetchedQueue()) AdminAnalyticsReceptors.dailyNewUsersFetchedReceptor(action)
+    for (const action of dailyUsersFetchedQueue()) AdminAnalyticsReceptors.dailyUsersFetchedReceptor(action)
+    for (const action of fetchedTestBotsQueue()) AdminTestBotReceptors.fetchedBotsReceptor(action)
+    for (const action of spawnBotsQueue()) AdminTestBotReceptors.spawnBotsReceptor(action)
+    for (const action of spawnedBotsQueue()) AdminTestBotReceptors.spawnedBotsReceptor(action)
+    for (const action of botCommandCreatedQueue()) AdminBotsCommandReceptors.botCommandCreatedReceptor(action)
+    for (const action of botCommandRemovedQueue()) AdminBotsCommandReceptors.botCommandRemovedReceptor(action)
+    for (const action of fetchedBotQueue()) AdminBotServiceReceptors.fetchedBotReceptor(action)
+    for (const action of botCreatedQueue()) AdminBotServiceReceptors.botCreatedReceptor(action)
+    for (const action of botPatchedQueue()) AdminBotServiceReceptors.botPatchedReceptor(action)
+    for (const action of botRemovedQueue()) AdminBotServiceReceptors.botRemovedReceptor(action)
+    for (const action of fetchingGroupQueue()) AdminGroupServiceReceptors.fetchingGroupReceptor(action)
+    for (const action of setAdminGroupQueue()) AdminGroupServiceReceptors.setAdminGroupReceptor(action)
+    for (const action of updateGroupQueue()) AdminGroupServiceReceptors.updateGroupReceptor(action)
+    for (const action of removeGroupActionQueue()) AdminGroupServiceReceptors.removeGroupActionReceptor(action)
+    for (const action of addAdminGroupQueue()) AdminGroupServiceReceptors.addAdminGroupReceptor(action)
+    for (const action of githubAppFetchedQueue()) AdminGithubAppReceptors.githubAppFetchedReceptor(action)
+    for (const action of installedRoutesRetrievedQueue()) AdminRouteReceptors.installedRoutesRetrievedReceptor(action)
+    for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
+    for (const action of fetchedSingleUserQueue()) AdminUserReceptors.fetchedSingleUserReceptor(action)
+    for (const action of loadedUsersQueue()) AdminUserReceptors.loadedUsersReceptor(action)
+    for (const action of userAdminRemovedQueue()) AdminUserReceptors.userAdminRemovedReceptor(action)
+    for (const action of userCreatedQueue()) AdminUserReceptors.userCreatedReceptor(action)
+    for (const action of userPatchedQueue()) AdminUserReceptors.userPatchedReceptor(action)
+    for (const action of searchedUserQueue()) AdminUserReceptors.searchedUserReceptor(action)
+    for (const action of setSkipGuestsQueue()) AdminUserReceptors.setSkipGuestsReceptor(action)
+    for (const action of resetFilterQueue()) AdminUserReceptors.resetFilterReceptor(action)
+    for (const action of fetchedInstanceServerQueue())
       AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
-    }
-    for (const action of chargebeeSettingRetrievedQueue()) {
+    for (const action of chargebeeSettingRetrievedQueue())
       AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)
-    }
-    for (const action of invitesRetrievedQueue()) {
-      AdminInviteReceptors.invitesRetrievedReceptor(action)
-    }
-    for (const action of inviteCreatedQueue()) {
-      AdminInviteReceptors.inviteCreatedReceptor(action)
-    }
-    for (const action of invitePatchedQueue()) {
-      AdminInviteReceptors.invitePatchedReceptor(action)
-    }
-    for (const action of inviteRemovedQueue()) {
-      AdminInviteReceptors.inviteRemovedReceptor(action)
-    }
-    // for (const action of authSettingRetrievedQueue()) {
-    //   AuthSettingsReceptors.authSettingRetrievedReceptor(action)
-    // }
-    // for (const action of authSettingPatchedQueue()) {
-    //   AuthSettingsReceptors.authSettingPatchedReceptor(action)
-    // }
-    // for (const action of fetchedClientQueue()) {
-    //   ClientSettingReceptors.fetchedClientReceptor(action)
-    // }
-    // for (const action of clientSettingPatchedQueue()) {
-    //   ClientSettingReceptors.clientSettingPatchedReceptor(action)
-    // }
+    for (const action of invitesRetrievedQueue()) AdminInviteReceptors.invitesRetrievedReceptor(action)
+    for (const action of inviteCreatedQueue()) AdminInviteReceptors.inviteCreatedReceptor(action)
+    for (const action of invitePatchedQueue()) AdminInviteReceptors.invitePatchedReceptor(action)
+    for (const action of inviteRemovedQueue()) AdminInviteReceptors.inviteRemovedReceptor(action)
+    // for (const action of authSettingRetrievedQueue()) //   AuthSettingsReceptors.authSettingRetrievedReceptor(action)/ }
+    // for (const action of authSettingPatchedQueue()) //   AuthSettingsReceptors.authSettingPatchedReceptor(action)/ }
+    // for (const action of fetchedClientQueue()) //   ClientSettingReceptors.fetchedClientReceptor(action)/ }
+    // for (const action of clientSettingPatchedQueue()) //   ClientSettingReceptors.clientSettingPatchedReceptor(action)/ }
   }
+
+  const cleanup = async () => {
+    removeActionQueue(fetchedAnalyticsQueue)
+    removeActionQueue(redisSettingRetrievedQueue)
+    removeActionQueue(awsSettingRetrievedQueue)
+    removeActionQueue(awsSettingPatchedQueue)
+    removeActionQueue(fetchedCoilQueue)
+    removeActionQueue(fetchedEmailQueue)
+    removeActionQueue(emailSettingPatchedQueue)
+    removeActionQueue(patchInstanceserverQueue)
+    removeActionQueue(patchedInstanceserverQueue)
+    removeActionQueue(projectSettingFetchedQueue)
+    removeActionQueue(fetchedSeverInfoQueue)
+    removeActionQueue(serverSettingPatchedQueue)
+    removeActionQueue(getScopeTypesQueue)
+    removeActionQueue(instancesRetrievedQueue)
+    removeActionQueue(instanceRemovedQueue)
+    removeActionQueue(avatarsFetchedQueue)
+    removeActionQueue(avatarCreatedQueue)
+    removeActionQueue(avatarRemovedQueue)
+    removeActionQueue(avatarUpdatedQueue)
+    removeActionQueue(resourceFiltersFetchedQueue)
+    removeActionQueue(resourcesFetchedQueue)
+    removeActionQueue(setSelectedMimeTypesQueue)
+    removeActionQueue(setSelectedResourceTypesQueue)
+    removeActionQueue(resourceNeedsUpdateQueue)
+    removeActionQueue(resourcesResetFilterQueue)
+    removeActionQueue(scenesFetchedQueue)
+    removeActionQueue(sceneFetchedQueue)
+    removeActionQueue(locationsRetrievedQueue)
+    removeActionQueue(locationCreatedQueue)
+    removeActionQueue(locationPatchedQueue)
+    removeActionQueue(locationRemovedQueue)
+    removeActionQueue(locationTypesRetrievedQueue)
+    removeActionQueue(partyRetrievedQueue)
+    removeActionQueue(partyAdminCreatedQueue)
+    removeActionQueue(partyRemovedQueue)
+    removeActionQueue(partyPatchedQueue)
+    removeActionQueue(activeInstancesFetchedQueue)
+    removeActionQueue(activePartiesFetchedQueue)
+    removeActionQueue(activeLocationsFetchedQueue)
+    removeActionQueue(activeScenesFetchedQueue)
+    removeActionQueue(channelUsersFetchedQueue)
+    removeActionQueue(instanceUsersFetchedQueue)
+    removeActionQueue(dailyNewUsersFetchedQueue)
+    removeActionQueue(dailyUsersFetchedQueue)
+    removeActionQueue(fetchedTestBotsQueue)
+    removeActionQueue(spawnBotsQueue)
+    removeActionQueue(spawnedBotsQueue)
+    removeActionQueue(botCommandCreatedQueue)
+    removeActionQueue(botCommandRemovedQueue)
+    removeActionQueue(fetchedBotQueue)
+    removeActionQueue(botCreatedQueue)
+    removeActionQueue(botPatchedQueue)
+    removeActionQueue(botRemovedQueue)
+    removeActionQueue(fetchingGroupQueue)
+    removeActionQueue(setAdminGroupQueue)
+    removeActionQueue(updateGroupQueue)
+    removeActionQueue(removeGroupActionQueue)
+    removeActionQueue(addAdminGroupQueue)
+    removeActionQueue(githubAppFetchedQueue)
+    removeActionQueue(installedRoutesRetrievedQueue)
+    removeActionQueue(activeRoutesRetrievedQueue)
+    removeActionQueue(fetchedSingleUserQueue)
+    removeActionQueue(loadedUsersQueue)
+    removeActionQueue(userAdminRemovedQueue)
+    removeActionQueue(userCreatedQueue)
+    removeActionQueue(userPatchedQueue)
+    removeActionQueue(searchedUserQueue)
+    removeActionQueue(setSkipGuestsQueue)
+    removeActionQueue(resetFilterQueue)
+    removeActionQueue(fetchedInstanceServerQueue)
+    removeActionQueue(chargebeeSettingRetrievedQueue)
+    removeActionQueue(invitesRetrievedQueue)
+    removeActionQueue(inviteCreatedQueue)
+    removeActionQueue(invitePatchedQueue)
+    removeActionQueue(inviteRemovedQueue)
+  }
+
+  return { execute, cleanup }
 }

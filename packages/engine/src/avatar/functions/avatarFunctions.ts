@@ -1,40 +1,29 @@
 import { pipe } from 'bitecs'
-import {
-  AdditiveBlending,
-  AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  DoubleSide,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  PlaneGeometry,
-  Skeleton,
-  SkinnedMesh,
-  sRGBEncoding,
-  Vector3
-} from 'three'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/isClient'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
+import { setCallback } from '../../scene/components/CallbackComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
+import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { Updatable } from '../../scene/interfaces/Updatable'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
@@ -92,9 +81,12 @@ export const loadAvatarForUser = async (
     }
   }
 
-  addComponent(entity, AvatarPendingComponent, true)
+  setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   const parent = await loadAvatarModelAsset(avatarURL)
-  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
+
+  /** hack a cancellable promise - check if the url we start with is the one we end up with */
+  if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
+    return
 
   setupAvatarForUser(entity, parent)
 
@@ -108,6 +100,8 @@ export const loadAvatarForUser = async (
       originMaterials: avatarMaterials
     })
   }
+
+  dispatchAction(EngineActions.avatarModelChanged({ entity }))
 }
 
 export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
@@ -136,18 +130,18 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   animationComponent.rig = avatarBoneMatching(model)
-  const object3DComponent = getComponent(entity, Object3DComponent)
+  const groupComponent = getComponent(entity, GroupComponent)
 
   if (assetType == AssetType.FBX) {
     // TODO: Should probably be applied to vertexes in the modeling tool
     model.children[0].scale.setScalar(0.01)
-    object3DComponent.value!.userData.scale = 0.01
+    for (const obj of groupComponent) obj.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
-    if (model && object3DComponent.value && (model as UpdateableObject3D).update) {
+    if (model && (model as UpdateableObject3D).update) {
       addComponent(entity, UpdatableComponent, true)
-      ;(object3DComponent.value as unknown as Updatable).update = (delta: number) => {
+      setCallback(entity, UpdatableCallback, (delta: number) => {
         ;(model as UpdateableObject3D).update(delta)
-      }
+      })
     }
   }
 
@@ -161,13 +155,13 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
 
-  /**@todo this is broken */
+  /**@todo replace check for loop aniamtion component with ensuring tpose is only handled once */
   // Try converting to T pose
-  // if (!isSkeletonInTPose(rig)) {
-  //   makeTPose(rig)
-  //   const meshes = findSkinnedMeshes(model)
-  //   meshes.forEach(applySkeletonPose)
-  // }
+  if (!hasComponent(entity, LoopAnimationComponent) && !isSkeletonInTPose(rig)) {
+    makeTPose(rig)
+    const meshes = findSkinnedMeshes(model)
+    meshes.forEach(applySkeletonPose)
+  }
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
@@ -208,13 +202,8 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
 }
 
 export const animateModel = (entity: Entity) => {
-  const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
-
-  if (component.action) component.action.stop()
-  component.action = animationComponent.mixer
-    .clipAction(AnimationClip.findByName(animationComponent.animations, 'wave'))
-    .play()
+  animationComponent.mixer.clipAction(AnimationClip.findByName(animationComponent.animations, 'wave')).play()
 }
 
 export const setupAvatarMaterials = (entity, root) => {
@@ -224,7 +213,7 @@ export const setupAvatarMaterials = (entity, root) => {
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
-      const material = object.material.clone()
+      const material = object.material
       materialList.push({
         id: object.uuid,
         material: material

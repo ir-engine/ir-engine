@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
@@ -59,7 +60,7 @@ const OfficialProjectData = [
     id: '1570ae00-889a-11ec-886e-b126f7590685',
     name: 'Development Test Suite',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-development-test-suite',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
+    thumbnail: '/static/etherealengine.png',
     description: 'Assets and tests for xrengine core development',
     needsRebuild: true
   },
@@ -67,7 +68,7 @@ const OfficialProjectData = [
     id: '1570ae01-889a-11ec-886e-b126f7590685',
     name: 'Translations',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-i18n',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
+    thumbnail: '/static/etherealengine.png',
     description: 'Complete language translations in over 100 languages.',
     needsRebuild: true
   },
@@ -75,7 +76,7 @@ const OfficialProjectData = [
     id: '1570ae02-889a-11ec-886e-b126f7590685',
     name: 'Test Bot',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-bot',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
+    thumbnail: '/static/etherealengine.png',
     description: 'A test bot using puppeteer',
     needsRebuild: true
   },
@@ -83,7 +84,7 @@ const OfficialProjectData = [
     id: '1570ae11-889a-11ec-886e-b126f7590685',
     name: 'Maps',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Maps',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
+    thumbnail: '/static/etherealengine.png',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
     needsRebuild: true
   },
@@ -91,7 +92,7 @@ const OfficialProjectData = [
     id: '1570ae12-889a-11ec-886e-b126f7590685',
     name: 'Inventory',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Inventory',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
+    thumbnail: '/static/etherealengine.png',
     description:
       'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
     needsRebuild: true
@@ -100,15 +101,15 @@ const OfficialProjectData = [
     id: '1570ae14-889a-11ec-886e-b126f7590685',
     name: 'Digital Beings',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Digital-Beings',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
-    description: 'Enchance your virtual worlds with GPT-3 backed AI agents!',
+    thumbnail: '/static/etherealengine.png',
+    description: 'Enhance your virtual worlds with GPT-3 backed AI agents!',
     needsRebuild: true
   },
   {
     id: '1570ae15-889a-11ec-886e-b126f7590685',
     name: 'Harmony Chat',
     repositoryPath: 'https://github.com/XRFoundation/Harmony-Chat',
-    thumbnail: '/static/xrengine_thumbnail.jpg',
+    thumbnail: '/static/etherealengine.png',
     description:
       'An elegant and minimalist messenger client with group text, audio, video and screensharing capabilities.',
     needsRebuild: true
@@ -165,7 +166,7 @@ const ProjectsPage = () => {
   const projects = projectState.projects
 
   const { t } = useTranslation()
-  const history = useHistory()
+  const route = useRouter()
 
   const fetchInstalledProjects = async () => {
     setLoading(true)
@@ -230,7 +231,7 @@ const ProjectsPage = () => {
 
     dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
     dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
-    history.push(`/editor/${project.name}`)
+    route(`/editor/${project.name}`)
   }
 
   const onCreateProject = async (name) => {

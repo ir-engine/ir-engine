@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import { requestVcForEvent } from '@xrengine/common/src/credentials/credentials'
+// import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
@@ -41,12 +41,20 @@ const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 interface Props {
   className?: string
   hideLogin?: boolean
+  allowAvatarChange?: boolean
   isPopover?: boolean
   changeActiveMenu?: (type: string | null) => void
   onClose?: () => void
 }
 
-const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
+const ProfileMenu = ({
+  className,
+  hideLogin,
+  allowAvatarChange,
+  isPopover,
+  changeActiveMenu,
+  onClose
+}: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -231,47 +239,25 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
    * some in-engine action, makes a payment, etc).
    */
   async function handleIssueCredentialClick() {
-    const signedVp = await requestVcForEvent('EnteredVolumeEvent')
-    console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
-
-    const webCredentialType = 'VerifiablePresentation'
-    // @ts-ignore
-    const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
-      recommendedHandlerOrigins: ['https://uniwallet.cloud']
-    })
-
-    // Use Credential Handler API to store
-    const result = await navigator.credentials.store(webCredentialWrapper)
-    console.log('Result of receiving via store() request:', result)
+    /** @todo temporarily disabled for vite upgrade */
+    // const signedVp = await requestVcForEvent('EnteredVolumeEvent')
+    // console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
+    // const webCredentialType = 'VerifiablePresentation'
+    // // @ts-ignore
+    // const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
+    //   recommendedHandlerOrigins: ['https://uniwallet.cloud']
+    // })
+    // // Use Credential Handler API to store
+    // const result = await navigator.credentials.store(webCredentialWrapper)
+    // console.log('Result of receiving via store() request:', result)
   }
 
   /**
    * Example function, requests a Verifiable Credential from the user's wallet.
    */
   async function handleRequestCredentialClick() {
-    const vpRequestQuery: any = {
-      web: {
-        VerifiablePresentation: {
-          query: [
-            {
-              type: 'QueryByExample',
-              credentialQuery: [
-                {
-                  example: {
-                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
-                    type: 'VerifiableCredential'
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      }
-    }
-
-    const result = await navigator.credentials.get(vpRequestQuery)
-
-    console.log('VC Request query result:', result)
+    // const result = await navigator.credentials.get(vpRequestQuery)
+    // console.log('VC Request query result:', result)
   }
 
   async function handleWalletLoginClick() {
@@ -384,7 +370,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
             <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
-            {changeActiveMenu && (
+            {allowAvatarChange && changeActiveMenu && (
               <Button
                 className={styles.avatarBtn}
                 id="select-avatar"

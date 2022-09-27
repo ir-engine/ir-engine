@@ -14,13 +14,14 @@ export const Axis = {
 
 Object.freeze(Axis)
 
-export const Direction = {
-  Right: Axis.X,
-  Left: Object.freeze(new Vector3().copy(Axis.X).multiplyScalar(-1)),
+/** Right handed coordinate direction */
+export const AvatarDirection = {
+  Right: Object.freeze(new Vector3().copy(Axis.X).multiplyScalar(-1)),
+  Left: Axis.X,
   Up: Axis.Y,
   Down: Object.freeze(new Vector3().copy(Axis.Y).multiplyScalar(-1)),
-  Forward: Axis.Z,
-  Backward: Object.freeze(new Vector3().copy(Axis.Z).multiplyScalar(-1))
+  Forward: Object.freeze(new Vector3().copy(Axis.Z).multiplyScalar(-1)),
+  Backward: Axis.Z
 }
 
-Object.freeze(Direction)
+Object.freeze(AvatarDirection)

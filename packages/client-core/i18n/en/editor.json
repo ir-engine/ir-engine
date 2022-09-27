@@ -97,6 +97,8 @@
     }
   },
   "toolbar": {
+    "lbl-advanced": "Advanced",
+    "info-advanced": "Enables advanced editing mode",
     "lbl-publish": "Publish",
     "lbl-published": "Published",
     "command": {
@@ -117,7 +119,7 @@
     "title": "Properties",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
-    "lbl-dynamicLoad": "Load Dynamically",
+    "lbl-dynamicLoad": "Load Children Dynamically",
     "lbl-dynamicLoadDistance": "Distance",
     "multipleNodeSelected": "Multiple Nodes of different types selected",
     "noNodeSelected": "No node selected",
@@ -145,6 +147,7 @@
     },
     "media": {
       "name": "Media",
+      "description": "Audio and video playback",
       "paths": "Source Paths",
       "playmode": "Play Mode",
       "playtitle": "Play",
@@ -152,16 +155,15 @@
       "lbl-controls": "controls",
       "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Auto Play",
-      "info-autoplay": "If true, the media will play when first entering the scene.",
+      "info-autoplay": "If true, the media will start playing when the scene loads",
       "lbl-synchronize": "Synchronize",
-      "info-synchronize": "If true, the media will be Synchronized on all the connected clients."
+      "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
+      "lbl-volume": "Volume",
+      "lbl-isMusic": "Is Music"
     },
     "audio": {
-      "name": "Audio",
-      "description": "Dynamically loads audio.",
-      "lbl-loop": "Loop",
-      "info-loop": "If true the media will loop indefinitely.",
-      "lbl-audioType": "Audio Type",
+      "name": "Positional Audio",
+      "description": "Positional audio settings",
       "lbl-distanceModel": "Distance Model",
       "info-distanceModel": "The algorithim used to calculate audio rolloff.",
       "lbl-rolloffFactor": "Rolloff Factor",
@@ -177,13 +179,11 @@
       "info-coneOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
       "lbl-coreOuterGain": "Cone Outer Gain",
       "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
-      "lbl-volume": "Volume",
-      "lbl-isMusic": "Is Music",
       "lbl-play": "Play",
       "lbl-pause": "Pause",
       "error-url": "Error Loading From URL"
     },
-    "boxCollider": {
+    "collider": {
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger"
     },
@@ -230,6 +230,7 @@
       "description": "3D geospatial map of e.g. a city."
     },
     "model": {
+      "title": "Model",
       "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
       "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
       "lbl-modelurl": "Model Url",
@@ -240,7 +241,6 @@
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
       "lbl-isAvatar": "Is Avatar",
-      "lbl-useBasicMaterials": "Use Basic Materials",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isEquippable": "Is Equippable",
       "lbl-castShadow": "Cast Shadow",
@@ -478,10 +478,8 @@
       "info-mediaConeInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
       "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
       "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
-      "lbl-simpleMaterials": "Use Simple Materials",
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
-      "info-simpleMaterials": "Converts all expensive materials to simpler ones to take the load off scene rendering.",
       "lbl-rendererSettings": "Override Renderer Settings",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
@@ -657,6 +655,7 @@
     "lbl-delete": "Delete",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
+    "lbl-explode": "Explode Objects",
     "isseus": "Issues:"
   },
   "dnd": {

@@ -15,7 +15,7 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import logger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRAction } from '@xrengine/engine/src/xr/XRAction'
@@ -35,14 +35,13 @@ import {
   stopLipsyncTracking
 } from '../../media/webcam/WebcamInput'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
-interface Props {
-  animate?: any
-}
-const MediaIconsBox = (props: Props) => {
+export const MediaIconsBox = () => {
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
+  const { topShelfStyle } = useShelfStyles()
 
   const user = useAuthState().user
   const currentLocation = useLocationState().currentLocation.location
@@ -147,7 +146,7 @@ const MediaIconsBox = (props: Props) => {
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
 
   return (
-    <section className={`${styles.drawerBox} ${props.animate}`}>
+    <section className={`${styles.drawerBox} ${topShelfStyle}`}>
       {instanceMediaChatEnabled &&
       hasAudioDevice &&
       Engine.instance.currentWorld.mediaNetwork &&
@@ -227,5 +226,3 @@ const MediaIconsBox = (props: Props) => {
     </section>
   )
 }
-
-export default MediaIconsBox

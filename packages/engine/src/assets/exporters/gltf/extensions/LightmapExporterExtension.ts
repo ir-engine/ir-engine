@@ -2,7 +2,7 @@ import { ExporterExtension } from './ExporterExtension'
 
 export class LightmapExporterExtension extends ExporterExtension {
   constructor(writer) {
-    super(writer, {})
+    super(writer)
     this.name = 'MOZ_lightmap'
   }
 

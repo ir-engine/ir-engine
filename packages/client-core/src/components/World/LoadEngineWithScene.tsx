@@ -1,13 +1,12 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useState } from 'react'
-import { useHistory } from 'react-router'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { AvatarService } from '@xrengine/client-core/src/user/services/AvatarService'
+import { AvatarService, AvatarState } from '@xrengine/client-core/src/user/services/AvatarService'
 import {
   SceneActions,
   SceneServiceReceptor,
@@ -21,35 +20,30 @@ import { teleportAvatar } from '@xrengine/engine/src/avatar/functions/moveAvatar
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   PortalEffects,
-  revertAvatarToMovingStateFromTeleport,
   setAvatarToLocationTeleportingState
 } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
+import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
-export const LoadEngineWithScene = () => {
-  const history = useHistory()
-  const engineState = useEngineState()
-  const sceneState = useSceneState()
-  const loadingState = useLoadingState()
-  const locationState = useLocationState()
-  const authState = useAuthState()
-  const [clientReady, setClientReady] = useState(false)
+type LoadEngineProps = {
+  setClientReady: (ready: boolean) => void
+  injectedSystems?: SystemModuleType<any>[]
+}
 
-  /**
-   * initialise the client
-   */
+export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEngineProps) => {
   useHookEffect(() => {
-    initClient().then(() => {
+    initClient(injectedSystems).then(() => {
       setClientReady(true)
     })
 
@@ -61,34 +55,27 @@ export const LoadEngineWithScene = () => {
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
     }
   }, [])
+}
 
-  /**
-   * load the scene whenever it changes
-   */
-  useHookEffect(() => {
-    const sceneData = sceneState.currentScene.value
-    if (clientReady && sceneData) {
-      AvatarService.fetchAvatarList()
-      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
-      loadScene(sceneData).then(() => {
-        if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
-      })
-    }
-  }, [clientReady, sceneState.currentScene])
-
+export const useLocationSpawnAvatar = () => {
+  const engineState = useEngineState()
+  const authState = useAuthState()
+  const avatarState = useHookstate(getState(AvatarState))
   const didSpawn = useHookstate(false)
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
-  useHookEffect(async () => {
+  useEffect(() => {
+    AvatarService.fetchAvatarList()
+  }, [])
+
+  useHookEffect(() => {
     if (
       didSpawn.value ||
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
-      !authState.avatarList.value.length ||
+      !avatarState.avatarList.value.length ||
       spectateParam
     )
       return
@@ -96,7 +83,7 @@ export const LoadEngineWithScene = () => {
     // the avatar should only be spawned once, after user auth and scene load
 
     const user = authState.user.value
-    const avatarDetails = authState.avatarList.value.find((avatar) => avatar?.id === user.avatarId)!
+    const avatarDetails = avatarState.avatarList.value.find((avatar) => avatar?.id === user.avatarId)!
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
@@ -111,17 +98,14 @@ export const LoadEngineWithScene = () => {
       },
       name: user.name
     })
-  }, [engineState.sceneLoaded, authState.user, authState.avatarList, spectateParam])
+  }, [engineState.sceneLoaded, authState.user, avatarState.avatarList, spectateParam])
+}
 
-  useHookEffect(() => {
-    if (engineState.sceneLoaded.value) {
-      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
-      if (engineState.isTeleporting.value) {
-        revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
-      }
-    }
-  }, [engineState.sceneLoaded])
+export const usePortalTeleport = () => {
+  const route = useRouter()
+  const engineState = useEngineState()
+  const locationState = useLocationState()
+  const authState = useAuthState()
 
   useHookEffect(() => {
     if (engineState.isTeleporting.value) {
@@ -148,8 +132,7 @@ export const LoadEngineWithScene = () => {
         return
       }
 
-      dispatchAction(SceneActions.unloadCurrentScene({}))
-      history.push('/location/' + world.activePortal!.location)
+      route('/location/' + world.activePortal!.location)
       LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
 
       // shut down connection with existing world instance server
@@ -157,7 +140,6 @@ export const LoadEngineWithScene = () => {
       leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
       setAvatarToLocationTeleportingState(world)
-
       if (activePortal.effectType !== 'None') {
         addComponent(world.localClientEntity, PortalEffects.get(activePortal.effectType), true)
       } else {
@@ -165,6 +147,40 @@ export const LoadEngineWithScene = () => {
       }
     }
   }, [engineState.isTeleporting])
+}
+
+type Props = {
+  injectedSystems?: SystemModuleType<any>[]
+}
+
+export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
+  const engineState = useEngineState()
+  const sceneState = useSceneState()
+  const loadingState = useLoadingState()
+  const [clientReady, setClientReady] = useState(false)
+
+  useLoadEngine({ setClientReady, injectedSystems })
+  useLocationSpawnAvatar()
+  usePortalTeleport()
+
+  /**
+   * load the scene whenever it changes
+   */
+  useHookEffect(() => {
+    // loadScene() deserializes the scene data, and deserializers sometimes mutate/update that data for backwards compatability.
+    // Since hookstate throws errors when mutating proxied values, we have to pass down the unproxied value here
+    const sceneData = sceneState.currentScene.get({ noproxy: true })
+    if (clientReady && sceneData) {
+      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
+      loadScene(sceneData)
+    }
+  }, [clientReady, sceneState.currentScene])
+
+  useHookEffect(() => {
+    if (engineState.sceneLoaded.value && loadingState.state.value !== AppLoadingStates.SUCCESS)
+      dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+  }, [engineState.sceneLoaded, engineState.loadingProgress])
 
   return <></>
 }

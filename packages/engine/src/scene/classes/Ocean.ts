@@ -9,7 +9,7 @@ import {
   NearestFilter,
   Object3D,
   PerspectiveCamera,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   RepeatWrapping,
   RGBAFormat,
   Scene,
@@ -122,7 +122,7 @@ function addImageProcess(src: string): Promise<HTMLImageElement> {
   })
 }
 
-export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
+export class Ocean extends Mesh<PlaneGeometry, MeshPhongMaterial> {
   depthMap: WebGLRenderTarget
   shouldResize: boolean
   _shallowWaterColor: Color
@@ -155,7 +155,7 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
   entity: Entity
 
   constructor(entity: Entity) {
-    const planeGeometry = new PlaneBufferGeometry(10, 10, 100, 100)
+    const planeGeometry = new PlaneGeometry(10, 10, 100, 100)
     super(planeGeometry, new MeshPhongMaterial({ color: 'red' }))
     this.rotation.x = -Math.PI * 0.5
 

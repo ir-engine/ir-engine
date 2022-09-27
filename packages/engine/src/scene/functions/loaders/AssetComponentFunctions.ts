@@ -7,7 +7,6 @@ import {
   ComponentSerializeFunction
 } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   getComponent,
@@ -15,6 +14,7 @@ import {
   removeComponent,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
   AssetComponent,
   AssetComponentType,
@@ -23,6 +23,8 @@ import {
   SCENE_COMPONENT_ASSET_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+
+import { Engine } from '../../../ecs/classes/Engine'
 
 export const unloadAsset = (entity: Entity) => {
   if (!hasComponent(entity, AssetComponent)) {
@@ -52,7 +54,9 @@ export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
   }
   try {
     asset.loaded = LoadState.LOADING
-    const result = (await loader.loadAsync(asset.path)) as EntityTreeNode[]
+    const result = (await loader.loadAsync(asset.path, {
+      assetRoot: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+    })) as EntityTreeNode[]
     addComponent(entity, AssetLoadedComponent, { roots: result })
   } catch (e) {
     asset.loaded = LoadState.UNLOADED
@@ -61,11 +65,6 @@ export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
 }
 
 export const deserializeAsset: ComponentDeserializeFunction = async (entity: Entity, data: AssetComponentType) => {
-  let obj3d = getComponent(entity, Object3DComponent)?.value
-  if (!obj3d) {
-    obj3d = new Object3D()
-    addComponent(entity, Object3DComponent, { value: obj3d })
-  }
   const props = parseAssetProperties(data)
   setComponent(entity, AssetComponent, props)
 }

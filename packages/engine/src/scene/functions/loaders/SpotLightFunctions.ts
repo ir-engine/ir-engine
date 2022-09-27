@@ -6,8 +6,8 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import {
   SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
   SpotLightComponent,
@@ -22,15 +22,15 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (entity: Entit
 export const updateSpotLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, SpotLightComponent)
 
-  if (!hasComponent(entity, Object3DComponent)) {
-    const light = new SpotLight()
+  if (!component.light) {
+    const light = (component.light = new SpotLight())
     light.target.position.set(0, -1, 0)
     light.target.name = 'light-target'
     light.add(light.target)
-    addComponent(entity, Object3DComponent, { value: light })
+    addObjectToGroup(entity, light)
   }
 
-  const light = getComponent(entity, Object3DComponent)?.value as SpotLight
+  const light = component.light
 
   light.color.set(component.color)
   light.intensity = component.intensity

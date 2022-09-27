@@ -1,19 +1,16 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
 
+import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   createMappedComponent,
   getComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  addEntityNodeInTree,
-  createEntityNode,
-  emptyEntityTree
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
@@ -21,7 +18,7 @@ import { applyIncomingActions } from '@xrengine/hyperflux'
 import EditorCommands from '../constants/EditorCommands'
 import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState } from '../services/SelectionServices'
-import { getNestedObject, ModifyPropertyCommand, ModifyPropertyCommandParams } from './ModifyPropertyCommand'
+import { ModifyPropertyCommand, ModifyPropertyCommandParams } from './ModifyPropertyCommand'
 
 class TempProp {
   data: number
@@ -51,7 +48,6 @@ function getRandomValues(): TestComponentType {
 
 describe('ModifyPropertyCommand', () => {
   let command = {} as ModifyPropertyCommandParams<typeof TestComponent>
-  let rootNode: EntityTreeNode
   let nodes: EntityTreeNode[]
 
   beforeEach(() => {
@@ -59,12 +55,11 @@ describe('ModifyPropertyCommand', () => {
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
 
-    rootNode = createEntityNode(createEntity())
+    const rootNode = Engine.instance.currentWorld.entityTree.rootNode
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-    addEntityNodeInTree(rootNode)
 
     for (let i = 0; i < 2; i++) {
-      addEntityNodeInTree(nodes[i], rootNode)
+      addEntityNodeChild(nodes[i], rootNode)
       addComponent(nodes[i].entity, TestComponent, getRandomValues())
     }
 

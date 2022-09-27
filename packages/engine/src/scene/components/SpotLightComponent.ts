@@ -1,4 +1,4 @@
-import { Color, Vector2 } from 'three'
+import { Color, SpotLight, Vector2 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
@@ -13,6 +13,7 @@ export type SpotLightComponentType = {
   shadowMapResolution: Vector2
   shadowBias: number
   shadowRadius: number
+  light?: SpotLight
 }
 
 export const SpotLightComponent = createMappedComponent<SpotLightComponentType>('SpotLightComponent')

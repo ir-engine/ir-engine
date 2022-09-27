@@ -6,30 +6,6 @@
   "description": "serialization extension for XREngine audio components",
   "allOf": [{ "$ref": "glTFProperty.schema.json" }],
   "properties": {
-    "audioSource": {
-      "type": "string",
-      "default": ""
-    },
-    "volume": {
-      "type": "number",
-      "minimum": 0.0,
-      "default": 0.5
-    },
-    "audioType": {
-      "anyOf": [
-        {
-          "const": 0,
-          "description": "STEREO",
-          "type": "integer"
-        },
-        {
-          "const": 1,
-          "description": "POSITIONAL",
-          "type": "integer"
-        }
-      ],
-      "default": 1
-    },
     "distanceModel": {
       "allOf": [{ "$ref": "distanceModel.schema.json" }],
       "default": "linear"

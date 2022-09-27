@@ -1,11 +1,11 @@
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
 
 import Button from '@mui/material/Button'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 
+import { useRouter } from '../../../common/services/RouterService'
 import { AuthService, useAuthState } from '../../services/AuthService'
 import styles from '../Login/index.module.scss'
 
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const ConfirmEmail = (props: Props): JSX.Element => {
-  const history = useHistory()
+  const route = useRouter()
   const auth = useAuthState()
   const { t } = useTranslation()
 
@@ -55,7 +55,7 @@ const ConfirmEmail = (props: Props): JSX.Element => {
         <p>
           <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">
             {t('user:auth.confirmEmail.haveAnAccount')}{' '}
-            <span onClick={() => history.push('/')}>{t('user:auth.register.login')}</span>
+            <span onClick={() => route('/')}>{t('user:auth.register.login')}</span>
           </Trans>
         </p>
       </section>

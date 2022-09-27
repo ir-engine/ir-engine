@@ -5,17 +5,15 @@ import makeStyles from '@mui/styles/makeStyles'
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     searchRoot: {
-      position: 'absolute',
-      left: '16rem',
       width: '80px',
-      zIndex: '10',
       display: 'flex',
-      alignItems: 'center',
       background: 'transparent',
-      border: 'none',
-      boxShadow: 'none'
+      boxShadow: 'none',
+      margin: 'auto',
+      alignItems: 'center'
     },
     input: {
+      width: '120px',
       color: '#ffffff',
       fontSize: '0.8rem'
     },

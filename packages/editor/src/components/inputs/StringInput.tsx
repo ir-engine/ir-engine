@@ -8,9 +8,9 @@ const StyledStringInput = (styled as any)(Input)`
   width: 100%;
 `
 
-interface StringInputProp {
+export interface StringInputProp {
   id?: string
-  value?: any
+  value?: string
   onChange?: Function
   required?: boolean
   pattern?: string

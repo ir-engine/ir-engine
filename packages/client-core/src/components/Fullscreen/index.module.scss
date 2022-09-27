@@ -1,0 +1,40 @@
+.fullScreen {
+  position: fixed;
+  bottom: 20px;
+  left: 66.4px;
+
+  @media (max-width: 450px) {
+    left: 57.4px;
+  }
+}
+
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  background: white;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  z-index: 6;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  opacity: 0.99;
+  pointer-events: auto;
+
+  &:hover {
+    box-shadow: 0 1rem 2rem rgba(#000, 0.2);
+    opacity: 1;
+  }
+
+  svg {
+    color: black;
+  }
+
+  @media (max-width: 450px) {
+    width: 40px;
+    height: 40px;
+  }
+}

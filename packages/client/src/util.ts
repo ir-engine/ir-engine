@@ -7,9 +7,9 @@ import getClientCoreI18nConfigs from '@xrengine/client-core/src/i18n'
 import { getI18nConfigs } from '@xrengine/client-core/src/i18nImporter'
 
 //@ts-ignore
-const projects = import.meta.globEager('../../projects/projects/**/i18n/**/*.json')
+const projects = import.meta.glob('../../projects/projects/**/i18n/**/*.json', { eager: true })
 //@ts-ignore
-const clientI18nConfigs = import.meta.globEager('../i18n/**/*.json')
+const clientI18nConfigs = import.meta.glob('../i18n/**/*.json', { eager: true })
 
 export const initializei18n = () => {
   const modules = merge(clientI18nConfigs, getClientCoreI18nConfigs(), projects)

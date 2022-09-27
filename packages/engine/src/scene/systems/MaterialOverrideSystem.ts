@@ -5,7 +5,7 @@ import { getState } from '@xrengine/hyperflux'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { assignMaterial, MaterialParms } from '../../renderer/materials/MaterialParms'
 import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../components/MaterialOverrideComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -17,7 +17,7 @@ export type MatRend = {
 
 export type OverrideEntry = {
   defaults: MatRend[]
-  matParm: MaterialParms
+  material: Material
 }
 
 type EntityEntry = Map<MaterialOverrideComponentType, OverrideEntry>
@@ -45,9 +45,13 @@ export default async function MaterialOverrideSystem(world: World) {
     if (tableEntry.has(override)) {
       remove(override)
     }
-    const [defaults, matParm] = assignMaterial(override)
-    if (defaults.length > 0) {
-      tableEntry.set(override, { matParm, defaults })
+    try {
+      const [defaults, material] = assignMaterial(override)
+      if (defaults.length > 0) {
+        tableEntry.set(override, { material, defaults })
+      }
+    } catch (e) {
+      console.warn('failed to assign material override', override, 'error: ', e)
     }
   }
 
@@ -64,7 +68,7 @@ export default async function MaterialOverrideSystem(world: World) {
     entEntry.delete(override)
   }
 
-  return () => {
+  const execute = () => {
     for (const entity of overrideQuery.enter()) {
       const override = getComponent(entity, MaterialOverrideComponent)
       register(override)
@@ -74,15 +78,11 @@ export default async function MaterialOverrideSystem(world: World) {
       const override = getComponent(entity, MaterialOverrideComponent, true)
       remove(override)
     }
-
-    //Performs update functions for each override that is currently active in the scene
-    const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
-    for (const entity of overrideQuery()) {
-      const override = getComponent(entity, MaterialOverrideComponent)
-      const entityEntry = overrideTable.get(override.targetEntity!)!
-      for (const overrideEntry of entityEntry.values()) {
-        overrideEntry.matParm.update(fixedDelta)
-      }
-    }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, overrideQuery)
+  }
+
+  return { execute, cleanup }
 }

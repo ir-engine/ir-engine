@@ -225,7 +225,7 @@ describe('WorldNetworkActionReceptors', () => {
 
   //     const system = await WorldNetworkActionSystem()
 
-  //     ActionFunctions.clearOutgoingActions()
+  //     ActionFunctions.clearOutgoingActions(network.topic)
   //     ActionFunctions.applyIncomingActions()
   //     system()
 
@@ -297,7 +297,7 @@ describe('WorldNetworkActionReceptors', () => {
   //       world
   //     )
 
-  //     ActionFunctions.clearOutgoingActions()
+  //     ActionFunctions.clearOutgoingActions(network.topic)
   //     ActionFunctions.applyIncomingActions()
   //     world.execute(0)
 

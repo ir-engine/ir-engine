@@ -10,13 +10,13 @@ import CompoundNumericInput from './CompoundNumericInput'
 import InputGroup from './InputGroup'
 
 const PropertyContainer = (styled as any).div`
-display: flex;
-width: 100%;
-border-width: 2px;
-border: solid;
-border-color: #FFFFFF;
-margin: 8px;
-padding: 4px;
+  display: flex;
+  width: 100%;
+  border-width: 2px;
+  border: solid;
+  border-color: #ffffff;
+  margin: 8px;
+  padding: 4px;
 `
 
 export default function RandomizedPropertyInputGroup({ name, label, value, onChange, ...rest }) {
@@ -33,8 +33,8 @@ export default function RandomizedPropertyInputGroup({ name, label, value, onCha
       <PropertyContainer>
         <Stack>
           <CompoundNumericInput
-            name={`${name}-mu`}
-            label={t('editor:properties.randomizedProperty.lbl-mu')}
+            // name={`${name}-mu`}
+            // label={t('editor:properties.randomizedProperty.lbl-mu')}
             value={prop.mu}
             onChange={onChangeProp('mu')}
             min={0.02}
@@ -42,8 +42,8 @@ export default function RandomizedPropertyInputGroup({ name, label, value, onCha
             step={0.01}
           />
           <CompoundNumericInput
-            name={`${name}-sigma`}
-            label={t('editor:properties.randomizedProperty.lbl-sigma')}
+            // name={`${name}-sigma`}
+            // label={t('editor:properties.randomizedProperty.lbl-sigma')}
             value={prop.sigma}
             onChange={onChangeProp('sigma')}
             min={0.01}

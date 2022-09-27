@@ -1,4 +1,4 @@
-import { Color } from 'three'
+import { Color, HemisphereLight } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
@@ -6,6 +6,7 @@ export type HemisphereLightComponentType = {
   skyColor: Color
   groundColor: Color
   intensity: number
+  light?: HemisphereLight
 }
 
 export const HemisphereLightComponent = createMappedComponent<HemisphereLightComponentType>('HemisphereLightComponent')

@@ -23,14 +23,13 @@ import {
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
-import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
-import multiLogger from '@xrengine/server-core/src/logger'
 import { getProjectsList } from '@xrengine/server-core/src/projects/project/project.service'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 import { authorizeUserToJoinServer } from './NetworkFunctions'
@@ -207,7 +206,7 @@ const initializeInstance = async (
           instanceId: instance.id
         },
         'identity-provider': user['identity_providers']![0]
-      })) as Channel[]
+      } as any)) as Channel[]
       if (existingChannel.length === 0) {
         await app.service('channel').create({
           channelType: 'instance',
@@ -260,9 +259,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await loadEngineInjection(world, projects)
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await sceneResultPromise).data.scene
-      const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
-      await loadSceneFromJSON(sceneData, sceneSystems)
+      const sceneData = (await sceneResultPromise).data
+      await updateSceneFromJSON(sceneData)
     }
     app.service('scene').on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()
@@ -270,6 +268,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
   await initPromise
+  network.ready = true
 
   NetworkPeerFunctions.createPeer(
     network,
@@ -341,9 +340,9 @@ const createOrUpdateInstance = async (
   userId: UserId
 ) => {
   logger.info('Creating new instance server or updating current one.')
-  logger.info('agones state is %o', status.state)
-  logger.info('app instance is %o', app.instance)
-  logger.info({ instanceLocationId: app.instance?.locationId, locationId })
+  logger.info(`agones state is ${status.state}`)
+  logger.info('app instance is %o, app.instance')
+  logger.info(`instanceLocationId: ${app.instance?.locationId}, locationId: ${locationId}`)
 
   const isReady = status.state === 'Ready'
   const isNeedingNewServer = !config.kubernetes.enabled && !instanceStarted
@@ -488,7 +487,10 @@ const handleUserDisconnect = async (
 
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (app.transport.peers.size <= 1) await shutdownServer(app, instanceId)
+  if (app.transport.peers.size <= 1) {
+    logger.info('Shutting down instance server as there are no users present.')
+    await shutdownServer(app, instanceId)
+  }
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
@@ -527,6 +529,10 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
     !config.kubernetes.enabled &&
     app.instance &&
     (app.instance.locationId != locationId || app.instance.channelId != channelId)
+
+  logger.info(
+    `current id: ${locationId ?? channelId} and new id: ${app.instance?.locationId ?? app.instance?.channelId}`
+  )
 
   if (isLocalServerNeedingNewLocation) {
     app.restart()

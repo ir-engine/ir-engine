@@ -8,7 +8,7 @@ import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const newProjectName = 'ProjectTest_test_project_name'
 
-const params = { isInternal: true }
+const params = { isInternal: true } as any
 
 const cleanup = async (app: Application) => {
   const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)

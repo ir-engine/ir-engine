@@ -6,13 +6,13 @@ import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/Pr
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import logger from '../../ServerLogger'
 
-export const retriggerBuilderService = async (app: Application) => {
+export const retriggerBuilderService = async (app: Application, storageProviderName?: string) => {
   try {
     // invalidate cache for all installed projects
-    await getStorageProvider().createInvalidation(['projects*'])
+    await getStorageProvider(storageProviderName).createInvalidation(['projects*'])
   } catch (e) {
     logger.error(e, `[Project Rebuild]: Failed to invalidate cache with error: ${e.message}`)
   }

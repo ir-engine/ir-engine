@@ -1,11 +1,10 @@
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
-  ComponentConstructor,
-  getComponent,
+  Component,
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, MiscCommands } from '../constants/EditorCommands'
@@ -20,7 +19,7 @@ export enum TagComponentOperation {
 }
 
 export type TagComponentOperationType = {
-  component: ComponentConstructor<any, any>
+  component: Component<any, any>
   type: TagComponentOperation
   sceneComponentName: string
 }
@@ -68,7 +67,6 @@ function emitEventAfter(command: TagComponentCommandParams) {
   if (command.preventEvents) return
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: '' }))
 }
 
 function update(command: TagComponentCommandParams, isUndo?: boolean) {

@@ -31,6 +31,10 @@ export default (app: Application) => {
       inviteCode: {
         type: DataTypes.STRING,
         unique: true
+      },
+      did: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
     {

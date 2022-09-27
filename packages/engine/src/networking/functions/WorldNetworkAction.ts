@@ -8,7 +8,8 @@ import {
   matchesQuaternion,
   matchesUserId,
   matchesVector3,
-  matchesWithDefault
+  matchesWithDefault,
+  string
 } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'

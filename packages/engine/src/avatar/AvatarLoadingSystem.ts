@@ -14,7 +14,7 @@ import {
 } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
-import { Direction } from '../common/constants/Axis3D'
+import { AvatarDirection } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import {
@@ -23,13 +23,16 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
-import { Physics } from '../physics/classes/Physics'
+import { Physics, RaycastArgs } from '../physics/classes/Physics'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
+import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -51,13 +54,13 @@ const lightOpacity = (y, r) => {
 const downwardGroundRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
-  direction: Direction.Down,
+  direction: AvatarDirection.Down,
   maxDistance: 10,
-  flags: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
-}
+  groups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+} as RaycastArgs
 
 export default async function AvatarLoadingSystem(world: World) {
-  const effectQuery = defineQuery([AvatarEffectComponent, Not(Object3DComponent)])
+  const effectQuery = defineQuery([AvatarEffectComponent])
   const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const dissolveQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarDissolveComponent])
@@ -97,7 +100,7 @@ export default async function AvatarLoadingSystem(world: World) {
   texturePlate.encoding = sRGBEncoding
   texturePlate.needsUpdate = true
 
-  return () => {
+  const execute = () => {
     const { deltaSeconds: delta } = world
 
     for (const entity of effectQuery.enter()) {
@@ -109,24 +112,22 @@ export default async function AvatarLoadingSystem(world: World) {
         sourceTransform.rotation.clone(),
         sourceTransform.scale.clone()
       )
-      addComponent(entity, Object3DComponent, { value: new Group() })
       addComponent(entity, VisibleComponent, true)
       /**
        * cast ray to move this downward to be on the ground
        */
+      downwardGroundRaycast.origin.copy(sourceTransform.position)
       const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, downwardGroundRaycast)
       if (hits.length) {
         transform.position.y = hits[0].position.y
       }
-    }
 
-    for (const entity of growQuery.enter(world)) {
-      const object = getComponent(entity, Object3DComponent).value
-      const effectComponent = getComponent(entity, AvatarEffectComponent)
+      const group = new Group()
 
       const pillar = new Object3D()
       pillar.name = 'pillar_obj'
-      object.add(pillar)
+      addObjectToGroup(entity, group)
+      group.add(pillar)
 
       const R = 0.6 * plate.geometry.boundingSphere?.radius!
       for (let i = 0, n = 5 + 10 * R * Math.random(); i < n; i += 1) {
@@ -145,8 +146,8 @@ export default async function AvatarLoadingSystem(world: World) {
       const pt = plate.clone()
       pt.name = 'plate_obj'
       pt.material = (pt.material as any).clone()
-      object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
+      group.add(pt)
 
       setComponent(entity, TweenComponent, {
         tween: new Tween<any>(effectComponent)
@@ -160,14 +161,18 @@ export default async function AvatarLoadingSystem(world: World) {
           .start()
           .onComplete(() => {
             removeComponent(entity, TweenComponent)
-            const avatarObject = getComponent(effectComponent.sourceEntity, Object3DComponent).value
-            const bbox = new Box3().setFromObject(avatarObject.children[0])
+            const avatarObjects = getComponent(effectComponent.sourceEntity, GroupComponent)
+            const bbox = new Box3()
             let scale = 1
-            if (avatarObject.userData?.scale) {
-              scale = avatarObject.userData.scale
+            for (const obj of avatarObjects) {
+              bbox.expandByObject(obj)
+              if (obj.userData?.scale) {
+                scale = obj.userData.scale
+              }
             }
             setComponent(entity, AvatarDissolveComponent, {
-              effect: new DissolveEffect(avatarObject, bbox.min.y / scale, bbox.max.y / scale)
+              /** @todo refactor to not be just the first index */
+              effect: new DissolveEffect(avatarObjects[0], bbox.min.y / scale, bbox.max.y / scale)
             })
           })
       })
@@ -176,7 +181,6 @@ export default async function AvatarLoadingSystem(world: World) {
     for (const entity of growQuery(world)) {
       const object = getComponent(entity, Object3DComponent).value
       object.updateWorldMatrix(true, true)
-      object.updateMatrixWorld(true)
     }
 
     for (const entity of commonQuery(world)) {
@@ -210,6 +214,12 @@ export default async function AvatarLoadingSystem(world: World) {
       }
     }
 
+    for (const entity of dissolveQuery.enter(world)) {
+      const effectComponent = getComponent(entity, AvatarEffectComponent)
+      if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
+        getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
+    }
+
     for (const entity of dissolveQuery(world)) {
       const disolveEffect = getComponent(entity, AvatarDissolveComponent).effect
 
@@ -225,8 +235,6 @@ export default async function AvatarLoadingSystem(world: World) {
             }
           })
         })
-        if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
-          getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
 
         setComponent(entity, TweenComponent, {
           tween: new Tween<any>(effectComponent)
@@ -238,14 +246,15 @@ export default async function AvatarLoadingSystem(world: World) {
             )
             .start()
             .onComplete(async () => {
-              const object = getComponent(entity, Object3DComponent).value
-              let pillar: any = null!
-              let plate: any = null!
-
-              const childrens = object.children
-              for (let i = 0; i < childrens.length; i++) {
-                if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
-                if (childrens[i].name === 'plate_obj') plate = childrens[i]
+              const objects = getComponent(entity, GroupComponent)
+              let pillar: Mesh = null!
+              let plate: Mesh = null!
+              for (const obj of objects) {
+                const childrens = obj.children as Mesh[]
+                for (let i = 0; i < childrens.length; i++) {
+                  if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+                  if (childrens[i].name === 'plate_obj') plate = childrens[i]
+                }
               }
 
               if (pillar !== null) {
@@ -253,7 +262,7 @@ export default async function AvatarLoadingSystem(world: World) {
                   if (child['material']) child['material'].dispose()
                 })
 
-                pillar.parent.remove(pillar)
+                pillar.removeFromParent()
               }
 
               if (plate !== null) {
@@ -261,7 +270,7 @@ export default async function AvatarLoadingSystem(world: World) {
                   if (child['material']) child['material'].dispose()
                 })
 
-                plate.parent.remove(plate)
+                plate.removeFromParent()
               }
 
               removeEntity(entity)
@@ -269,7 +278,14 @@ export default async function AvatarLoadingSystem(world: World) {
         })
       }
     }
-
-    return world
   }
+
+  const cleanup = async () => {
+    removeQuery(world, effectQuery)
+    removeQuery(world, growQuery)
+    removeQuery(world, commonQuery)
+    removeQuery(world, dissolveQuery)
+  }
+
+  return { execute, cleanup }
 }

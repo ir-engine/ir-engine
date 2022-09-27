@@ -1,9 +1,7 @@
 import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Not } from 'bitecs'
-import { AxesHelper, Vector3 } from 'three'
-import { Quaternion } from 'yuka'
+import { Vector3 } from 'three'
 
-import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 import { defineState, getState } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -16,11 +14,10 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
   DistanceFromLocalClientComponent,
   setDistanceFromLocalClientComponent
@@ -29,7 +26,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { InteractableComponent, setInteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
@@ -105,17 +101,11 @@ export const addInteractableUI = (
 export default async function InteractiveSystem(world: World) {
   const allInteractablesQuery = defineQuery([InteractableComponent])
 
-  // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
-  const interactableQuery = defineQuery([
-    InteractableComponent,
-    Object3DComponent,
-    Not(AvatarComponent),
-    DistanceFromLocalClientComponent
-  ])
+  const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponent), DistanceFromLocalClientComponent])
 
   let gatherAvailableInteractablesTimer = 0
 
-  return () => {
+  const execute = () => {
     gatherAvailableInteractablesTimer += world.deltaSeconds
     // update every 0.3 seconds
     if (gatherAvailableInteractablesTimer > 0.3) gatherAvailableInteractablesTimer = 0
@@ -163,4 +153,11 @@ export default async function InteractiveSystem(world: World) {
       }
     }
   }
+
+  const cleanup = async () => {
+    removeQuery(world, allInteractablesQuery)
+    removeQuery(world, interactableQuery)
+  }
+
+  return { execute, cleanup }
 }

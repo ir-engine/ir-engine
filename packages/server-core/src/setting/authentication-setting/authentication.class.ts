@@ -6,6 +6,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { UserParams } from '../../user/user/user.class'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
 
@@ -17,7 +18,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     const auth = (await super.find()) as any
     const loggedInUser = params!.user as UserInterface
     const data = auth.data.map((el) => {
@@ -73,9 +74,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
 
   async patch(id: string, data: any, params?: Params): Promise<T[] | T> {
     const authSettings = await this.app.service('authentication-setting').get(id)
-    let existingOauth = JSON.parse(authSettings.oauth as any)
     let existingCallback = JSON.parse(authSettings.callback as any)
-    if (typeof existingOauth === 'string') existingOauth = JSON.parse(existingOauth)
     if (typeof existingCallback === 'string') existingCallback = JSON.parse(existingCallback)
 
     let newOAuth = JSON.parse(data.oauth)
@@ -83,10 +82,10 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
 
     for (let key of Object.keys(newOAuth)) {
       newOAuth[key] = JSON.parse(newOAuth[key])
-      if (config.authentication.oauth[key].scope) newOAuth[key].scope = config.authentication.oauth[key].scope
-      if (config.authentication.oauth[key].custom_data)
+      if (config.authentication.oauth[key]?.scope) newOAuth[key].scope = config.authentication.oauth[key].scope
+      if (config.authentication.oauth[key]?.custom_data)
         newOAuth[key].custom_data = config.authentication.oauth[key].custom_data
-      if (key !== 'default' && !data.callback[key]) data.callback[key] = config.authentication.callback[key]
+      if (key !== 'defaults' && !data.callback[key]) data.callback[key] = `${config.client.url}/auth/oauth/${key}`
       newOAuth[key] = JSON.stringify(newOAuth[key])
     }
 

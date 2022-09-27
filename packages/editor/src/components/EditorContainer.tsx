@@ -3,11 +3,11 @@ import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
-import Debug from '@xrengine/client-core/src/components/Debug'
+import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -15,10 +15,7 @@ import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
-import TuneIcon from '@mui/icons-material/Tune'
-import { Checkbox } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
@@ -42,11 +39,14 @@ import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
+import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
 import { DialogContext } from './hooks/useDialog'
-import { PanelCheckbox, PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
+import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
+import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
+import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
+import { PropertiesPanelTitle } from './properties/PropertiesPanelTitle'
 import { AppContext } from './Search/context'
-import Search from './Search/Search'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
@@ -67,14 +67,18 @@ export const DockContainer = (styled as any).div`
     position: relative;
     z-index: 99;
   }
-  .dock-panel[data-dockid="+5"] {
+  .dock-panel[data-dockid='+5'] {
     pointer-events: none;
   }
-  .dock-panel[data-dockid="+5"] .dock-bar { display: none; }
-  .dock-panel[data-dockid="+5"] .dock { background: transparent; }
+  .dock-panel[data-dockid='+5'] .dock-bar {
+    display: none;
+  }
+  .dock-panel[data-dockid='+5'] .dock {
+    background: transparent;
+  }
   .dock-divider {
     pointer-events: auto;
-    background:rgba(1,1,1,${(props) => props.dividerAlpha});
+    background: rgba(1, 1, 1, ${(props) => props.dividerAlpha});
   }
   .dock {
     border-radius: 4px;
@@ -82,18 +86,25 @@ export const DockContainer = (styled as any).div`
   }
   .dock-top .dock-bar {
     font-size: 12px;
-    border-bottom: 1px solid rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     background: transparent;
   }
   .dock-tab {
     background: transparent;
     border-bottom: none;
   }
-  .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
+  .dock-tab:hover,
+  .dock-tab-active,
+  .dock-tab-active:hover {
     border-bottom: 1px solid #ddd;
   }
-  .dock-tab:hover div, .dock-tab:hover svg { color: var(--textColor); }
-  .dock-tab > div { padding: 2px 12px; }
+  .dock-tab:hover div,
+  .dock-tab:hover svg {
+    color: var(--textColor);
+  }
+  .dock-tab > div {
+    padding: 2px 12px;
+  }
   .dock-tab-active {
     color: var(--textColor);
   }
@@ -130,13 +141,30 @@ const EditorContainer = () => {
   const [editorReady, setEditorReady] = useState(false)
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
-  const history = useHistory()
+  const route = useRouter()
   const dockPanelRef = useRef<DockLayout>(null)
+
+  useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
+
+  useEffect(() => {
+    runPreprojectLoadTasks().then(() => {
+      setEditorReady(true)
+    })
+    return () => {
+      setEditorReady(false)
+      disposeProject()
+    }
+  }, [])
 
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
-      await loadProjectScene(sceneFile)
+      await loadProjectScene({
+        project: projectName.value!,
+        scene: sceneFile,
+        thumbnailUrl: null!,
+        name: ''
+      })
       dispatchAction(EditorAction.sceneModified({ modified: true }))
       setDialogComponent(null)
     } catch (error) {
@@ -151,13 +179,6 @@ const EditorContainer = () => {
     }
   }
 
-  const handleInputChangeHierarchy = (searchInput) => {
-    setSearchHierarchy(searchInput)
-  }
-  const handleInputChangeElement = (searchInput) => {
-    setSearchElement(searchInput)
-  }
-
   useHookEffect(() => {
     if (sceneName.value && editorReady) {
       logger.info(`Loading scene ${sceneName.value} via given url`)
@@ -168,7 +189,7 @@ const EditorContainer = () => {
   const reRouteToLoadScene = async (newSceneName: string) => {
     if (sceneName.value === newSceneName) return
     if (!projectName.value || !newSceneName) return
-    history.push(`/editor/${projectName.value}/${newSceneName}`)
+    route(`/editor/${projectName.value}/${newSceneName}`)
   }
 
   const loadScene = async (sceneName: string) => {
@@ -178,7 +199,7 @@ const EditorContainer = () => {
       const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) return
-      await loadProjectScene(project.scene)
+      await loadProjectScene(project)
 
       setDialogComponent(null)
     } catch (error) {
@@ -239,7 +260,7 @@ const EditorContainer = () => {
   }
 
   const onCloseProject = () => {
-    history.push('/editor')
+    route('/editor')
   }
 
   const onSaveAs = async () => {
@@ -352,6 +373,7 @@ const EditorContainer = () => {
   }
 
   const onSaveScene = async () => {
+    console.log('onSaveScene')
     const sceneLoaded = getEngineState().sceneLoaded.value
 
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
@@ -432,24 +454,11 @@ const EditorContainer = () => {
     dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
 
-  useEffect(() => {
-    runPreprojectLoadTasks().then(() => {
-      setEditorReady(true)
-    })
-  }, [])
-
   useHookEffect(() => {
     if (editorError) {
       onEditorError(editorError.value)
     }
   }, [editorError])
-
-  useEffect(() => {
-    return () => {
-      setEditorReady(false)
-      disposeProject()
-    }
-  }, [])
 
   useEffect(() => {
     if (editorState.projectLoaded.value === true) {
@@ -494,7 +503,7 @@ const EditorContainer = () => {
   const viewPortPanelContent = useCallback((shouldDisplay) => {
     return shouldDisplay ? (
       <div className={styles.bgImageBlock}>
-        <img src="/static/xrengine.png" />
+        <img src="/static/etherealengine.png" alt="" />
         <h2>{t('editor:selectSceneMsg')}</h2>
       </div>
     ) : (
@@ -571,26 +580,14 @@ const EditorContainer = () => {
                 {
                   id: 'hierarchyPanel',
                   title: (
-                    <PanelDragContainer>
-                      <PanelIcon as={AccountTreeIcon} size={12} />
-                      <PanelTitle>Hierarchy</PanelTitle>
-                      {/* <PanelCheckbox> */}
-                      <PanelTitle>
-                        Explode Objects{' '}
-                        <Checkbox
-                          style={{ padding: '0px' }}
-                          value={editorState.showObject3DInHierarchy.value}
-                          onChange={(e, value) =>
-                            dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
-                          }
-                        />
-                      </PanelTitle>
-
-                      {/* </PanelCheckbox> */}
-                      <Search elementsName="hierarchy" handleInputChange={handleInputChangeHierarchy} />
-                    </PanelDragContainer>
+                    <HierarchyPanelTitle setSearchElement={setSearchElement} setSearchHierarchy={setSearchHierarchy} />
                   ),
                   content: <HierarchyPanelContainer />
+                },
+                {
+                  id: 'materialLibraryPanel',
+                  title: <MaterialLibraryPanelTitle />,
+                  content: <MaterialLibraryPanel />
                 }
               ]
             },
@@ -598,12 +595,7 @@ const EditorContainer = () => {
               tabs: [
                 {
                   id: 'propertiesPanel',
-                  title: (
-                    <PanelDragContainer>
-                      <PanelIcon as={TuneIcon} size={12} />
-                      <PanelTitle>Properties</PanelTitle>
-                    </PanelDragContainer>
-                  ),
+                  title: <PropertiesPanelTitle />,
                   content: <PropertiesPanelContainer />
                 }
               ]
@@ -615,9 +607,6 @@ const EditorContainer = () => {
   }
   return (
     <>
-      <div style={{ pointerEvents: 'auto' }}>
-        <Debug />
-      </div>
       <div
         id="editor-container"
         className={styles.editorContainer}

@@ -3,7 +3,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import chargebee from 'chargebee'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
 
 interface Data {}

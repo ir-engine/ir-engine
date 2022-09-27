@@ -32,7 +32,7 @@ export default {
             'identity-provider': {
               userId: result.userId
             }
-          }
+          } as any
         )
         return context
       }

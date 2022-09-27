@@ -2,7 +2,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import moment from 'moment'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
 import makeInitialAdmin from '../../util/make-initial-admin'
 

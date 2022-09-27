@@ -6,7 +6,7 @@ import { Instance as InstanceInterface } from '@xrengine/common/src/interfaces/I
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
 import hooks from './instance.hooks'

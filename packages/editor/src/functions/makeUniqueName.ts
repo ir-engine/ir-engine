@@ -1,7 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 const namePattern = new RegExp('(.*) \\d+$')
@@ -26,7 +26,7 @@ export default function makeUniqueName(node: EntityTreeNode) {
 
     const nameComponent = getComponent(child.entity, NameComponent)
 
-    if (!nameComponent || !nameComponent.name.startsWith(nameWithoutIndex)) return
+    if (!nameComponent || !nameComponent.name?.startsWith(nameWithoutIndex)) return
 
     const parts = nameComponent.name.split(nameWithoutIndex)
 

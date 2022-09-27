@@ -15,9 +15,6 @@ export class Engine {
   static instance: Engine
   tickRate = 60
 
-  /** Systems to inject after core systems */
-  injectedSystems: SystemModuleType<any>[] = []
-
   /** The uuid of the logged-in user */
   userId: UserId
 
@@ -61,8 +58,6 @@ export class Engine {
 
   isBot = false
 
-  isHMD = false
-
   /**
    * The current world
    */
@@ -75,7 +70,6 @@ export class Engine {
 
   publicPath = ''
 
-  simpleMaterials = false
   xrFrame: XRFrame
 
   isEditor = false

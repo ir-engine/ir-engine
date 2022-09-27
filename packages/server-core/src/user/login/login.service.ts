@@ -1,7 +1,7 @@
 // Initializes the `login` service on path `/login`
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { Login } from './login.class'
 import loginDocs from './login.docs'
 import hooks from './login.hooks'

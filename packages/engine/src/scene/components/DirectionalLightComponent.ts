@@ -1,4 +1,4 @@
-import { Color, Vector2 } from 'three'
+import { Color, DirectionalLight, Vector2 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
@@ -11,6 +11,7 @@ export type DirectionalLightComponentType = {
   shadowRadius: number
   cameraFar: number
   useInCSM: boolean
+  light: DirectionalLight
 }
 
 export const DirectionalLightComponent =

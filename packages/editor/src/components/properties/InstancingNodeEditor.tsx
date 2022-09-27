@@ -9,7 +9,7 @@ import {
   getOrAddComponent,
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
   InstancingStagingComponent,
@@ -23,7 +23,6 @@ import {
 } from '@xrengine/engine/src/scene/components/InstancingComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   MESH_PROPERTIES_DEFAULT_VALUES
@@ -78,8 +77,9 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       },
       (eNode) => {
         if (eNode === node) return false
-        if (hasComponent(eNode.entity, ModelComponent) && hasComponent(eNode.entity, Object3DComponent)) {
-          const obj3d = getComponent(eNode.entity, Object3DComponent).value
+        if (hasComponent(eNode.entity, ModelComponent)) {
+          const obj3d = getComponent(eNode.entity, ModelComponent).scene.value
+          if (!obj3d) return false
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')
         }
@@ -98,7 +98,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         value: node.uuid
       }
     },
-    (node) => hasComponent(node.entity, Object3DComponent)
+    (node) => hasComponent(node.entity, ModelComponent)
   )
 
   const onUnstage = async () => {
@@ -128,8 +128,10 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const onChangeMode = (mode) => {
     if (scatter.mode === mode) return
-    const obj3d = getOrAddComponent(entity, Object3DComponent, { value: new Object3D() })
-    const uData = obj3d.value.userData
+    const scene = getComponent(entity, ModelComponent).scene
+    const obj3d = scene.value
+    if (!obj3d) return
+    const uData = JSON.parse(JSON.stringify(obj3d.userData))
     uData[scatter.mode] = scatter.sourceProperties
     let srcProperties
     if (uData[mode] !== undefined) {
@@ -144,6 +146,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
           break
       }
     }
+    scene.merge({ userData: uData })
     updateProperty(InstancingComponent, 'sourceProperties')(srcProperties)
     updateProperty(InstancingComponent, 'mode')(mode)
   }

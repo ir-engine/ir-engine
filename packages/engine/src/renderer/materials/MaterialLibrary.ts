@@ -1,27 +1,37 @@
-import Basic, { DefaultArgs as BasicDefaultArgs } from './constants/Basic.mat'
-import Lambert, { DefaultArgs as LambertDefaultArgs } from './constants/Lambert.mat'
-import Matcap, { DefaultArgs as MatcapDefaultArgs } from './constants/Matcap.mat'
-import Phong, { DefaultArgs as PhongDefaultArgs } from './constants/Phong.mat'
-import Physical, { DefaultArgs as PhysicalDefaultArgs } from './constants/Physical.mat'
-import Standard, { DefaultArgs as StandardDefaultArgs } from './constants/Standard.mat'
-import Toon, { DefaultArgs as ToonDefaultArgs } from './constants/Toon.mat'
+import { MaterialComponentType } from './components/MaterialComponent'
+import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
+import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
+import MeshLambertMaterial from './constants/material-prototypes/MeshLambertMaterial.mat'
+import MeshMatcapMaterial from './constants/material-prototypes/MeshMatcapMaterial.mat'
+import MeshPhongMaterial from './constants/material-prototypes/MeshPhongMaterial.mat'
+import MeshPhysicalMaterial from './constants/material-prototypes/MeshPhysicalMaterial.mat'
+import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMaterial.mat'
+import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
+import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
+import { registerMaterialPrototype } from './functions/Utilities'
 
-export const MaterialLibrary = {
-  Basic: Basic,
-  Lambert: Lambert,
-  Matcap: Matcap,
-  Phong: Phong,
-  Physical: Physical,
-  Standard: Standard,
-  Toon: Toon
+export type MaterialLibraryType = {
+  prototypes: Map<string, MaterialPrototypeComponentType>
+  materials: Map<string, MaterialComponentType>
+  sources: Map<string, string[]>
 }
 
-export const DefaultArguments = {
-  Basic: BasicDefaultArgs,
-  Lambert: LambertDefaultArgs,
-  Matcap: MatcapDefaultArgs,
-  Phong: PhongDefaultArgs,
-  Physical: PhysicalDefaultArgs,
-  Standard: StandardDefaultArgs,
-  Toon: ToonDefaultArgs
+export const MaterialLibrary: MaterialLibraryType = {
+  prototypes: new Map<string, MaterialPrototypeComponentType>(),
+  materials: new Map<string, MaterialComponentType>(),
+  sources: new Map<string, string[]>()
+}
+
+export function initializeMaterialLibrary() {
+  //load default prototypes from source
+  ;[
+    MeshBasicMaterial,
+    MeshStandardMaterial,
+    MeshMatcapMaterial,
+    MeshPhysicalMaterial,
+    MeshLambertMaterial,
+    MeshPhongMaterial,
+    MeshToonMaterial,
+    ShaderMaterial
+  ].map(registerMaterialPrototype)
 }

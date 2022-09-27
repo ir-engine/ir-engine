@@ -125,26 +125,26 @@ export const AdminGroupService = {
 //Action
 export class AdminGroupActions {
   static fetchingGroup = defineAction({
-    type: 'GROUP_FETCHING' as const
+    type: 'xre.client.AdminGroup.GROUP_FETCHING' as const
   })
 
   static setAdminGroup = defineAction({
-    type: 'GROUP_ADMIN_RETRIEVED' as const,
+    type: 'xre.client.AdminGroup.GROUP_ADMIN_RETRIEVED' as const,
     list: matches.object as Validator<unknown, GroupResult>
   })
 
   static addAdminGroup = defineAction({
-    type: 'ADD_GROUP' as const,
+    type: 'xre.client.AdminGroup.ADD_GROUP' as const,
     item: matches.object as Validator<unknown, Group>
   })
 
   static updateGroup = defineAction({
-    type: 'GROUP_ADMIN_UPDATE' as const,
+    type: 'xre.client.AdminGroup.GROUP_ADMIN_UPDATE' as const,
     item: matches.object as Validator<unknown, Group>
   })
 
   static removeGroupAction = defineAction({
-    type: 'GROUP_ADMIN_DELETE' as const,
+    type: 'xre.client.AdminGroup.GROUP_ADMIN_DELETE' as const,
     item: matches.object as Validator<unknown, Group>
   })
 }

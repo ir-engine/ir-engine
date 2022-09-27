@@ -4,7 +4,6 @@ import { defineAction, defineState, getState, useState } from '@xrengine/hyperfl
 export const AppLoadingStates = {
   START_STATE: 'START_STATE' as const,
   SCENE_LOADING: 'SCENE_LOADING' as const,
-  SCENE_LOADED: 'SCENE_LOADED' as const,
   SUCCESS: 'SUCCESS' as const
 }
 
@@ -40,12 +39,12 @@ export const useLoadingState = () => useState(accessLoadingState())
 
 export class AppLoadingAction {
   static setLoadPercent = defineAction({
-    type: 'xre.client.AppLoadingAction.SET_LOADING_PERCENT' as const,
+    type: 'xre.client.AppLoading.SET_LOADING_PERCENT' as const,
     loadPercent: matches.number
   })
 
   static setLoadingState = defineAction({
-    type: 'xre.client.AppLoadingAction.SET_LOADING_STATE' as const,
+    type: 'xre.client.AppLoading.SET_LOADING_STATE' as const,
     state: matches.string as Validator<unknown, AppLoadingStatesType>
   })
 }

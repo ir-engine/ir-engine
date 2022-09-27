@@ -1,3 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const AvatarPendingComponent = createMappedComponent<true>('AvatarPendingComponent')
+type AvatarPendingComponentType = {
+  url: string
+}
+
+export const AvatarPendingComponent = createMappedComponent<AvatarPendingComponentType>('AvatarPendingComponent')

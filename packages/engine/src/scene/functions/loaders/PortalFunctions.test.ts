@@ -6,7 +6,7 @@ import { addComponent, getComponent, hasComponent } from '../../../ecs/functions
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Physics } from '../../../physics/classes/Physics'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { setTransformComponent } from '../../../transform/components/TransformComponent'
 import { NameComponent } from '../../components/NameComponent'
 import { PortalComponent, PortalComponentType } from '../../components/PortalComponent'
 import { deserializePortal } from './PortalFunctions'
@@ -28,11 +28,7 @@ describe('PortalFunctions', () => {
 
     addComponent(entity, NameComponent, { name: 'test-portal' })
 
-    addComponent(entity, TransformComponent, {
-      position: randomVector3.clone(),
-      rotation: new Quaternion(),
-      scale: new Vector3()
-    })
+    setTransformComponent(entity, randomVector3)
 
     const linkedPortalId = MathUtils.generateUUID()
 
@@ -60,6 +56,5 @@ describe('PortalFunctions', () => {
     const portalComponent = getComponent(entity, PortalComponent)
     assert.equal(portalComponent.location, 'test')
     assert.equal(portalComponent.linkedPortalId, linkedPortalId)
-    assert(Engine.instance.currentWorld.portalQuery().includes(entity))
   })
 })

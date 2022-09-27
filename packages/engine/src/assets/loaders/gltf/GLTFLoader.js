@@ -208,7 +208,7 @@ class GLTFLoader extends Loader {
 
 					scope.manager.itemEnd( url );
 
-				}, _onError );
+				}, _onError, url );
 
 			} catch ( e ) {
 
@@ -275,7 +275,7 @@ class GLTFLoader extends Loader {
 
 	}
 
-	parse( data, path, onLoad, onError ) {
+	parse( data, path, onLoad, onError, url = "" ) {
 
 		let content;
 		const extensions = {};
@@ -322,7 +322,7 @@ class GLTFLoader extends Loader {
 		}
 
 		const parser = new GLTFParser( json, {
-
+			url,
 			path: path || this.resourcePath || '',
 			crossOrigin: this.crossOrigin,
 			requestHeader: this.requestHeader,
@@ -3104,10 +3104,10 @@ class GLTFParser {
 
 				URL.revokeObjectURL( sourceURI );
 
+			} else {
+				texture.userData.src = sourceURI
 			}
-
 			texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType( sourceDef.uri );
-
 			return texture;
 
 		} ).catch( function ( error ) {

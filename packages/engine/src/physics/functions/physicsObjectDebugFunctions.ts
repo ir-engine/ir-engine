@@ -13,7 +13,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '@xrengine/engine/src/physics/types/PhysicsTypes'
@@ -22,12 +22,12 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFModel'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { createVector3Proxy } from '../../common/proxies/three'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../../networking/classes/Network'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -142,31 +142,24 @@ export const generatePhysicsObject = (
   const color = 0x00ff00 //getColorForBodyType(config.bodyType ? config.bodyType : 0)
   const material = new MeshBasicMaterial({ color: color })
   const mesh = new Mesh(geometry, material)
+  mesh.userData = config
 
-  mesh.userData['xrengine.collider.type'] = config.type
-  mesh.userData['xrengine.collider.bodyType'] = config.bodyType
-  mesh.userData['xrengine.collider.collisionLayer'] = config.collisionLayer
-  mesh.userData['xrengine.collider.collisionMask'] = config.collisionMask
-  mesh.userData['xrengine.collider.friction'] = config.friction
-  mesh.userData['xrengine.collider.restitution'] = config.restitution
+  const entity = createEntity()
+  setTransformComponent(entity)
 
   // Add empty model node
-  const entity = createEntity()
-  const uuid = getUUID()
-  let entityTreeNode = createEntityNode(entity, uuid)
-  createNewEditorNode(entityTreeNode, ScenePrefabs.model)
+  // const uuid = getUUID()
+  // let entityTreeNode = createEntityNode(entity, uuid)
+  // createNewEditorNode(entityTreeNode, ScenePrefabs.model)
 
-  const nameComponent = getComponent(entity, NameComponent)
-  nameComponent.name = 'physics_debug_' + uuid
+  // const nameComponent = getComponent(entity, NameComponent)
+  // nameComponent.name = 'physics_debug_' + uuid
 
-  const obj3d = mesh
-  obj3d.scale.copy(scale)
-  addComponent(entity, Object3DComponent, { value: obj3d })
+  addObjectToGroup(entity, mesh)
 
-  parseGLTFModel(entity)
+  Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, mesh.userData)
 
   const world = Engine.instance.currentWorld
-  addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
 
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)

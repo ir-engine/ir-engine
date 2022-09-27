@@ -5,13 +5,14 @@ import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
-import { IconButton, Tooltip } from '@mui/material'
+import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
 import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -20,7 +21,7 @@ import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { shouldPrefabDeserialize } from '../../functions/shouldDeserialize'
 import { useSelectionState } from '../../services/SelectionServices'
-import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
 export interface PrefabItemType {
@@ -30,8 +31,6 @@ export interface PrefabItemType {
   label: string // todo
   description?: string // todo
 }
-
-const ELEMENT_CONTEXT_ID = 'el-menu'
 
 const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
@@ -69,21 +68,20 @@ export const addPrefabElement = (
 }
 
 type PrefabListItemType = {
-  contextMenuId: string
   item: PrefabItemType
   onClick: (item: PrefabItemType) => void
+  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: PrefabItemType) => void
 }
 
 /**
  * AssetGridItem used to create grid item view.
  *
- * @param       {string} contextMenuId
- * @param       {ReactNode} tooltipComponent
  * @param       {PrefabItemType} item
  * @param       {Function} onClick
+ * @param       {Function} onContextMenu
  * @constructor
  */
-function PrefabListItem({ contextMenuId, item, onClick }: PrefabListItemType) {
+function PrefabListItem({ item, onClick, onContextMenu }: PrefabListItemType) {
   const onClickItem = useCallback(() => {
     onClick?.(item)
   }, [item, onClick])
@@ -96,19 +94,13 @@ function PrefabListItem({ contextMenuId, item, onClick }: PrefabListItemType) {
   }, [preview])
 
   return (
-    <ContextMenuTrigger
-      id={contextMenuId}
-      collect={() => {
-        return { item }
-      }}
-      holdToDisplay={-1}
-    >
+    <div onContextMenu={(event) => onContextMenu(event, item)}>
       <Tooltip title={item.label} placement="left" disableInteractive>
         <IconButton className={styles.element} disableRipple ref={drag} onClick={onClickItem}>
           <item.Icon />
         </IconButton>
       </Tooltip>
-    </ContextMenuTrigger>
+    </div>
   )
 }
 
@@ -127,6 +119,10 @@ export function ElementList() {
   const { t } = useTranslation()
   const selectionState = useSelectionState()
   const [prefabs, setPrefabs] = useState(getPrefabList())
+  const [selectedItem, setSelectedItem] = React.useState<undefined | PrefabItemType>(undefined)
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
 
   useEffect(() => {
     updatePrefabList()
@@ -144,19 +140,47 @@ export function ElementList() {
       const transformComponent = getComponent(node.entity, TransformComponent)
       if (transformComponent) {
         getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
+        const localTransformComponent = getComponent(node.entity, LocalTransformComponent)
+        if (localTransformComponent) {
+          localTransformComponent.position.copy(transformComponent.position)
+        }
       }
     }
   })
 
-  const placeObject = useCallback((_, trigger) => {
-    const node = addPrefabElement(trigger.item)
+  const placeObject = () => {
+    handleClose()
+
+    const node = addPrefabElement(selectedItem!)
     if (!node) return
 
     const transformComponent = getComponent(node.entity, TransformComponent)
     if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
-  }, [])
+  }
 
-  const placeObjectAtOrigin = useCallback((_, trigger) => addPrefabElement(trigger.item), [])
+  const placeObjectAtOrigin = () => {
+    handleClose()
+
+    addPrefabElement(selectedItem!)
+  }
+
+  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: PrefabItemType) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    setSelectedItem(item)
+    setAnchorEl(event.currentTarget)
+    setAnchorPosition({
+      left: event.clientX + 2,
+      top: event.clientY - 6
+    })
+  }
+
+  const handleClose = () => {
+    setSelectedItem(undefined)
+    setAnchorEl(null)
+    setAnchorPosition(undefined)
+  }
 
   return (
     <>
@@ -164,9 +188,9 @@ export function ElementList() {
         {prefabs.map((item) => (
           <MemoAssetGridItem
             key={item.prefabType}
-            contextMenuId={ELEMENT_CONTEXT_ID}
             item={item}
             onClick={addPrefabElement}
+            onContextMenu={onContextMenu}
           />
         ))}
       </div>
@@ -175,7 +199,7 @@ export function ElementList() {
         ref={dropRef}
         style={{ pointerEvents: isDragging ? 'auto' : 'none' }}
       ></div>
-      <ContextMenu id={ELEMENT_CONTEXT_ID}>
+      <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
         <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
       </ContextMenu>

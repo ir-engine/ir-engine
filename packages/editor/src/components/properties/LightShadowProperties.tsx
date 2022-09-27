@@ -2,9 +2,8 @@ import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 
@@ -45,7 +44,7 @@ const ShadowMapResolutionOptions = [
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
   node: EntityTreeNode
-  comp: ComponentConstructor<any, any>
+  comp: Component<any, any>
 }
 
 /**

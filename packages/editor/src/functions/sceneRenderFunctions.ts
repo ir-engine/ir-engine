@@ -1,11 +1,13 @@
 import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -14,8 +16,9 @@ import {
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
@@ -52,16 +55,19 @@ export const SceneState: SceneStateType = {
   editorEntity: null!
 }
 
-export async function initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
+export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
   SceneState.isInitialized = false
 
   if (!Engine.instance.currentWorld.scene) Engine.instance.currentWorld.scene = new Scene()
 
   // getting scene data
-  await loadSceneFromJSON(projectFile, [])
+  await updateSceneFromJSON(sceneData)
+  await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
 
-  Engine.instance.currentWorld.camera.position.set(0, 5, 10)
-  Engine.instance.currentWorld.camera.lookAt(new Vector3())
+  const camera = Engine.instance.currentWorld.camera
+  camera.position.set(0, 5, 10)
+  camera.lookAt(new Vector3())
+
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Gizmos)
@@ -81,9 +87,6 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
 
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
   SceneState.editorEntity = createEditorEntity()
-
-  // Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
-  Engine.instance.currentWorld.scene.add(SceneState.transformGizmo)
 
   // Require when changing scene
   if (!Engine.instance.currentWorld.scene.children.includes(InfiniteGridHelper.instance)) {
@@ -227,8 +230,8 @@ export function disposeScene() {
   EngineRenderer.instance.activeCSMLightEntity = null
   EngineRenderer.instance.directionalLightEntities = []
 
-  if (SceneState.gizmoEntity) removeEntity(SceneState.gizmoEntity, true)
-  if (SceneState.editorEntity) removeEntity(SceneState.editorEntity, true)
+  if (entityExists(SceneState.gizmoEntity)) removeEntity(SceneState.gizmoEntity, true)
+  if (entityExists(SceneState.editorEntity)) removeEntity(SceneState.editorEntity, true)
 
   if (Engine.instance.currentWorld.scene) {
     // Empty existing scene

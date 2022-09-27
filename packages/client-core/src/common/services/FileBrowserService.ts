@@ -50,16 +50,16 @@ export const useFileBrowserState = () => useState(accessFileBrowserState())
 
 export class FileBrowserAction {
   static filesFetching = defineAction({
-    type: 'FILES_FETCHING' as const
+    type: 'xre.client.FileBrowser.FILES_FETCHING' as const
   })
 
   static filesFetched = defineAction({
-    type: 'FILES_FETCHED' as const,
+    type: 'xre.client.FileBrowser.FILES_FETCHED' as const,
     files: matches.object as Validator<unknown, Paginated<FileContentType>>
   })
 
   static filesDeleted = defineAction({
-    type: 'FILES_DELETED' as const,
+    type: 'xre.client.FileBrowser.FILES_DELETED' as const,
     contentPath: matches.any
   })
 }

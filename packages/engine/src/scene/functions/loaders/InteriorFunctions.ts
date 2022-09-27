@@ -6,14 +6,14 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Interior } from '../../classes/Interior'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import {
   InteriorComponent,
   InteriorComponentType,
   SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES
 } from '../../components/InteriorComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeInterior: ComponentDeserializeFunction = (entity: Entity, data: InteriorComponentType) => {
@@ -22,12 +22,14 @@ export const deserializeInterior: ComponentDeserializeFunction = (entity: Entity
 }
 
 export const updateInterior: ComponentUpdateFunction = (entity: Entity) => {
-  if (!hasComponent(entity, Object3DComponent)) {
-    const obj3d = new Interior(entity)
-    addComponent(entity, Object3DComponent, { value: obj3d })
-  }
-  const obj3d = getComponent(entity, Object3DComponent).value as Interior
   const component = getComponent(entity, InteriorComponent)
+
+  if (!component.interior) {
+    component.interior = new Interior(entity)
+    addObjectToGroup(entity, component.interior)
+  }
+
+  const obj3d = component.interior
   if (obj3d.cubeMap !== component.cubeMap) {
     try {
       obj3d.cubeMap = component.cubeMap

@@ -1,4 +1,4 @@
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../functions/WorldNetworkActionReceptor'
@@ -12,7 +12,7 @@ export default async function WorldNetworkActionSystem() {
   const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
   const setUserTypingQueue = createActionQueue(WorldNetworkAction.setUserTyping.matches)
 
-  return () => {
+  const execute = () => {
     for (const action of spawnObjectQueue()) WorldNetworkActionReceptor.receiveSpawnObject(action)
     for (const action of registerSceneObjectQueue()) WorldNetworkActionReceptor.receiveRegisterSceneObject(action)
     for (const action of spawnDebugPhysicsObjectQueue())
@@ -24,4 +24,16 @@ export default async function WorldNetworkActionSystem() {
       WorldNetworkActionReceptor.receiveTransferAuthorityOfObject(action)
     for (const action of setUserTypingQueue()) WorldNetworkActionReceptor.receiveSetUserTyping(action)
   }
+
+  const cleanup = async () => {
+    removeActionQueue(spawnObjectQueue)
+    removeActionQueue(registerSceneObjectQueue)
+    removeActionQueue(spawnDebugPhysicsObjectQueue)
+    removeActionQueue(destroyObjectQueue)
+    removeActionQueue(requestAuthorityOverObjectQueue)
+    removeActionQueue(transferAuthorityOfObjectQueue)
+    removeActionQueue(setUserTypingQueue)
+  }
+
+  return { execute, cleanup }
 }

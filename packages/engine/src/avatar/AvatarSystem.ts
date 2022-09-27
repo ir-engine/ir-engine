@@ -1,6 +1,6 @@
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
@@ -12,7 +12,8 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeQuery
 } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectOwnedTag } from '../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
@@ -77,7 +78,7 @@ export default async function AvatarSystem(world: World) {
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
 
-  return () => {
+  const execute = () => {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
     for (const action of xrHandsConnectedQueue()) xrHandsConnectedReceptor(action)
 
@@ -116,6 +117,17 @@ export default async function AvatarSystem(world: World) {
       if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripRight)
     }
   }
+
+  const cleanup = async () => {
+    removeActionQueue(avatarDetailsQueue)
+    removeActionQueue(xrHandsConnectedQueue)
+    removeQuery(world, xrInputQuery)
+    removeQuery(world, xrHandsInputQuery)
+    removeQuery(world, xrLGripQuery)
+    removeQuery(world, xrRGripQuery)
+  }
+
+  return { execute, cleanup }
 }
 
 export function xrInputQueryExit(entity: Entity) {

@@ -1,6 +1,7 @@
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -81,7 +82,7 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
       }
     }
 
-    if (!includes && typeof entity === 'number') {
+    if (!includes && typeof entity === 'number' && entityExists(entity)) {
       removeComponent(entity, SelectTagComponent)
     }
   }

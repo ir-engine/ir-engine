@@ -2,7 +2,7 @@ import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, useLocation } from 'react-router-dom'
 
 import {
   ClientSettingService,
@@ -11,8 +11,9 @@ import {
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import InviteToast from '@xrengine/client-core/src/components/InviteToast'
 import { theme } from '@xrengine/client-core/src/theme'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthState, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -24,10 +25,17 @@ import RouterComp from '../route/public'
 
 import './styles.scss'
 
+import {
+  AdminCoilSettingService,
+  useCoilSettingState
+} from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@xrengine/client-core/src/API'
+import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+import Debug from '@xrengine/client-core/src/components/Debug'
+import { clientHost, serverHost } from '@xrengine/common/src/config'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
@@ -42,8 +50,11 @@ declare module '@mui/styles/defaultTheme' {
 
 const App = (): any => {
   const notistackRef = createRef<SnackbarProvider>()
-  const selfUser = useAuthState().user
+  const authState = useAuthState()
+  const selfUser = authState.user
   const clientSettingState = useClientSettingState()
+  const coilSettingState = useCoilSettingState()
+  const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
   const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
@@ -61,7 +72,6 @@ const App = (): any => {
       ;(window as any).env = (window as any).env ?? ''
     }
     initGA()
-
     logPageView()
   }, [])
 
@@ -85,9 +95,7 @@ const App = (): any => {
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
-      html.dataset.theme = currentTheme
-
+      html.dataset.theme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
       updateTheme()
     }
   }, [selfUser?.user_setting?.value])
@@ -123,6 +131,10 @@ const App = (): any => {
   }, [selfUser.id])
 
   useEffect(() => {
+    authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
+  }, [authState.isLoggedIn])
+
+  useEffect(() => {
     if (clientSetting) {
       setTitle(clientSetting?.title)
       setFavicon16(clientSetting?.favicon16px)
@@ -138,6 +150,9 @@ const App = (): any => {
   }, [clientThemeSettings])
 
   const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
+
+  const location = useLocation()
+  const oembedLink = `${serverHost}/oembed?url=${encodeURIComponent(`${clientHost}${location.pathname}`)}&format=json`
 
   const updateTheme = () => {
     if (clientThemeSettings) {
@@ -162,8 +177,10 @@ const App = (): any => {
         />
         <meta name="theme-color" content={clientThemeSettings?.[currentTheme]?.mainBackground || '#FFFFFF'} />
         {description && <meta name="description" content={description}></meta>}
+        {paymentPointer && <meta name="monetization" content={paymentPointer} />}
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
+        {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
       </Helmet>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
@@ -174,6 +191,11 @@ const App = (): any => {
             action={defaultAction}
           >
             <GlobalStyle />
+            <div style={{ pointerEvents: 'auto' }}>
+              <InviteToast />
+              <UIDialog />
+              <Debug />
+            </div>
             <RouterComp />
             {projectComponents.map((Component, i) => (
               <Component key={i} />

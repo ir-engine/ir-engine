@@ -19,7 +19,7 @@ import {
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { FogComponent, FogComponentType, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
@@ -87,11 +87,16 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity) => {
 
     if (fogComponent.type !== FogType.Exponential) {
       // For Brownian and Hieght fog
-      fogComponent.shaders?.forEach((s) => (s.uniforms.heightFactor.value = fogComponent.height))
+      if (fogComponent.shaders)
+        for (const s of fogComponent.shaders) s.uniforms.heightFactor.value = fogComponent.height
     }
 
     if (fogComponent.type === FogType.Brownian) {
-      fogComponent.shaders?.forEach((s) => (s.uniforms.fogTimeScale.value = fogComponent.timeScale))
+      if (fogComponent.shaders)
+        for (const s of fogComponent.shaders) {
+          s.uniforms.fogTimeScale.value = fogComponent.timeScale
+          s.uniforms.fogTime.value = Engine.instance.currentWorld.fixedElapsedSeconds
+        }
     }
   }
 }
@@ -137,7 +142,7 @@ const setupMaterialForFog = (entity: Entity) => {
 const restoreMaterialForFog = (entity: Entity) => {
   Engine.instance.currentWorld.scene.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
     if (typeof obj.material === 'undefined') return
-    if (obj.material.userData.fogPlugin) {
+    if (obj.material.userData?.fogPlugin) {
       removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
       delete obj.material.userData.fogPlugin
     }
@@ -184,6 +189,6 @@ export const createFogFromSceneNode = (sceneEntity: Entity) => {
   newFogComponent.shaders = fogComponent.shaders
   newFogComponent.timeScale = fogComponent.timeScale
 
-  addEntityNodeInTree(fogNode, Engine.instance.currentWorld.entityTree.rootNode)
+  addEntityNodeChild(fogNode, Engine.instance.currentWorld.entityTree.rootNode)
   updateFog(fogNode.entity)
 }

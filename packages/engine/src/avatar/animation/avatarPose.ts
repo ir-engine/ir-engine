@@ -1,4 +1,4 @@
-import { Matrix3, Matrix4, Quaternion, SkinnedMesh, Vector3, Vector4 } from 'three'
+import { Bone, Matrix3, Matrix4, Quaternion, SkinnedMesh, Vector3, Vector4 } from 'three'
 
 import { BoneStructure } from '../AvatarBoneMatching'
 
@@ -30,59 +30,47 @@ export function isSkeletonInTPose(rig: BoneStructure) {
   return cos >= 0.98
 }
 
+const vec1 = new Vector3()
+const vec2 = new Vector3()
+const quat = new Quaternion()
+const quat2 = new Quaternion()
+
+/**
+ * @param coformingBoneReference parent rerefence bone to conform to
+ * @param conformingBone bone to conform to
+ * @param targetBone target bone to derive angle from
+ * @param {1 | -1} side 1 is left, -1 is right
+ */
+const conformArmToTpose = (coformingBoneReference: Bone, conformingBone: Bone, targetBone: Bone, side: 1 | -1) => {
+  conformingBone.getWorldPosition(vec1)
+  targetBone.getWorldPosition(vec2)
+  vec2.sub(vec1).normalize()
+  coformingBoneReference!.getWorldQuaternion(quat2)
+  quat2.invert()
+  vec2.applyQuaternion(quat2)
+  vec1.set(side, 0, 0).applyQuaternion(quat2)
+  conformingBone.quaternion.premultiply(quat.setFromUnitVectors(vec2, vec1))
+  conformingBone.updateMatrixWorld()
+}
+
 /**
  * Attempts to rotate and straighten the arms so they create a T shape with avatar's body
  *
  * @param rig
  */
 export function makeTPose(rig: BoneStructure) {
-  const vec1 = new Vector3()
-  const vec2 = new Vector3()
-  const quat = new Quaternion()
-  const quat2 = new Quaternion()
-  const { LeftArm, LeftForeArm, LeftHand, RightArm, RightForeArm, RightHand } = rig
+  /**
+   * @todo add complete rig t-pose compliance here
+   * should we use the retargeting source skeleton as a reference?
+   */
 
-  // Left Upper Arm
-  LeftArm.getWorldPosition(vec1)
-  LeftForeArm.getWorldPosition(vec2)
-  vec2.sub(vec1).normalize()
-  quat2.identity()
-  LeftArm.parent?.matrixWorld.decompose(new Vector3(), quat2, new Vector3())
-  quat2.invert()
-  vec2.applyQuaternion(quat2)
-  vec1.set(1, 0, 0).applyQuaternion(quat2)
-  LeftArm.quaternion.premultiply(quat.setFromUnitVectors(vec2, vec1))
+  // conform from hips towards extremedies
 
-  // Align forearm
-  LeftForeArm.getWorldPosition(vec1)
-  LeftHand.getWorldPosition(vec2)
-  vec2.sub(vec1).normalize()
-  LeftArm.matrixWorld.decompose(new Vector3(), quat2, new Vector3())
-  quat2.invert()
-  vec2.applyQuaternion(quat2)
-  vec1.set(1, 0, 0).applyQuaternion(quat2)
-  LeftForeArm.quaternion.premultiply(quat.setFromUnitVectors(vec2, vec1))
+  conformArmToTpose(rig.LeftShoulder, rig.LeftArm, rig.LeftForeArm, 1)
+  conformArmToTpose(rig.LeftArm, rig.LeftForeArm, rig.LeftHand, 1)
 
-  // Right Upper Arm
-  RightArm.getWorldPosition(vec1)
-  RightForeArm.getWorldPosition(vec2)
-  vec2.sub(vec1).normalize()
-  quat2.identity()
-  RightArm.parent?.matrixWorld.decompose(new Vector3(), quat2, new Vector3())
-  quat2.invert()
-  vec2.applyQuaternion(quat2)
-  vec1.set(-1, 0, 0).applyQuaternion(quat2)
-  RightArm.quaternion.premultiply(quat.setFromUnitVectors(vec2, vec1))
-
-  // Align forearm
-  RightForeArm.getWorldPosition(vec1)
-  RightHand.getWorldPosition(vec2)
-  vec2.sub(vec1).normalize()
-  RightArm.matrixWorld.decompose(new Vector3(), quat2, new Vector3())
-  quat2.invert()
-  vec2.applyQuaternion(quat2)
-  vec1.set(-1, 0, 0).applyQuaternion(quat2)
-  RightForeArm.quaternion.premultiply(quat.setFromUnitVectors(vec2, vec1))
+  conformArmToTpose(rig.RightShoulder, rig.RightArm, rig.RightForeArm, -1)
+  conformArmToTpose(rig.RightArm, rig.RightForeArm, rig.RightHand, -1)
 }
 
 /**

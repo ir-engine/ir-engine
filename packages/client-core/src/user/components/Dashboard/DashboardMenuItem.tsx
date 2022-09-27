@@ -32,6 +32,7 @@ const DashboardMenuItem = ({ location }: Props) => {
     instance: false,
     invite: false,
     globalAvatars: false,
+    static_resource: false,
     benchmarking: false,
     routes: false,
     projects: false,

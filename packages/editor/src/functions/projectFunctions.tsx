@@ -1,7 +1,7 @@
 import { API } from '@xrengine/client-core/src/API'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -51,7 +51,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
 /**
  * Loads scene from provided project file.
  */
-export async function loadProjectScene(projectFile: SceneJson) {
+export async function loadProjectScene(projectData: SceneData) {
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
   clearHistory()
 
@@ -59,9 +59,7 @@ export async function loadProjectScene(projectFile: SceneJson) {
 
   await runPreprojectLoadTasks()
 
-  removeInputEvents()
-  disposePlayModeControls()
-  const errors = await initializeScene(projectFile)
+  const errors = await initializeScene(projectData)
 
   dispatchAction(EditorAction.projectLoaded({ loaded: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
@@ -80,7 +78,6 @@ export async function loadProjectScene(projectFile: SceneJson) {
  * Disposes project data
  */
 export function disposeProject() {
-  disposeScene()
   removeInputEvents()
   disposePlayModeControls()
   dispatchAction(EditorAction.projectLoaded({ loaded: false }))

@@ -8,7 +8,7 @@ import Checkbox from '@mui/material/Checkbox'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
 import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
-import { inviteColumns } from '../../common/variables/invite'
+import { InviteColumn, inviteColumns } from '../../common/variables/invite'
 import { AdminInviteService, useAdminInviteState } from '../../services/InviteService'
 import styles from '../../styles/admin.module.scss'
 import UpdateInviteModal from './UpdateInviteModal'
@@ -86,6 +86,17 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
 
   const createData = (invite: InviteInterface) => {
     return {
+      select: (
+        <>
+          <Checkbox
+            className={styles.checkbox}
+            checked={selectedInviteIds.has(invite.id)}
+            onChange={() => {
+              toggleSelection(invite.id)
+            }}
+          />
+        </>
+      ),
       id: invite.id,
       name: invite.invitee?.name || invite.token || '',
       passcode: invite.passcode,
@@ -116,31 +127,53 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
-      ),
-      select: (
-        <>
-          <Checkbox
-            checked={selectedInviteIds.has(invite.id)}
-            onChange={() => {
-              toggleSelection(invite.id)
-            }}
-          />
-        </>
       )
     }
   }
 
   const rows = invites.value.map((el) => createData(el))
 
+  let allSelected: boolean | undefined = undefined
+  if (invites.value.length === selectedInviteIds.size) {
+    allSelected = true
+  } else if (selectedInviteIds.size === 0) {
+    allSelected = false
+  }
+
+  const columns: InviteColumn[] = [
+    {
+      id: 'select',
+      label: (
+        <Checkbox
+          className={styles.checkbox}
+          checked={allSelected === true}
+          indeterminate={allSelected === undefined}
+          onChange={(_event, checked) => {
+            if (checked || allSelected === undefined) {
+              const set = new Set<string>()
+              invites.value.map((item) => set.add(item.id))
+              setSelectedInviteIds(set)
+            } else {
+              setSelectedInviteIds(new Set<string>())
+            }
+          }}
+        />
+      ),
+      minWidth: 65
+    },
+    ...inviteColumns
+  ]
+
   return (
     <React.Fragment>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
+        fieldOrderBy="id"
         setSortField={setSortField}
         setFieldOrder={setFieldOrder}
         rows={rows}
-        column={inviteColumns}
+        column={columns}
         page={page}
         rowsPerPage={rowsPerPage}
         count={inviteCount}

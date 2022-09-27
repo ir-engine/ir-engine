@@ -4,6 +4,7 @@ import { ImageFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
+import { StringInputProp } from './StringInput'
 
 /**
  * ImageInput used to render component view for image inputs.
@@ -12,7 +13,7 @@ import FileBrowserInput from './FileBrowserInput'
  * @param       {any} rest
  * @constructor
  */
-export function ImageInput({ onChange, ...rest }) {
+export function ImageInput({ onChange, ...rest }: StringInputProp) {
   return (
     <FileBrowserInput
       acceptFileTypes={ImageFileTypes}

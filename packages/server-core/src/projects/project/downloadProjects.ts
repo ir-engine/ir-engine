@@ -3,19 +3,20 @@ import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
-import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 
 /**
  * Downloads a specific project to the local file system from the storage provider cache
  * Then runs `npm install --legacy-peer-deps` inside the project to install it's dependencies
  * @param projectName
+ * @param storageProviderName
  * @returns {Promise<boolean>}
  */
-export const download = async (projectName: string) => {
-  const storageProvider = getStorageProvider()
+export const download = async (projectName: string, storageProviderName?: string) => {
+  const storageProvider = getStorageProvider(storageProviderName)
   try {
     logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
     const files = await getFileKeysRecursive(`projects/${projectName}/`)

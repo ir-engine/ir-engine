@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 
-import { AppLoadingAction, AppLoadingStates } from '@xrengine/client-core/src/common/services/AppLoadingService'
 import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
@@ -19,8 +18,16 @@ import { UserService, useUserState } from '@xrengine/client-core/src/user/servic
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  dispatchAction,
+  getState,
+  removeActionReceptor,
+  useHookEffect,
+  useHookstate
+} from '@xrengine/hyperflux'
 
+import { AppState } from '../../common/services/AppService'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
 import { UserServiceReceptor } from '../../user/services/UserService'
 import InstanceServerWarnings from './InstanceServerWarnings'
@@ -35,6 +42,10 @@ export const NetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
   const history = useHistory()
   const partyState = usePartyState()
+
+  const appState = useHookstate(getState(AppState))
+  const showTopShelf = appState.showTopShelf.value
+  const showBottomShelf = appState.showTopShelf.value
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()

@@ -5,11 +5,11 @@ import { Color } from 'three'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../../ecs/classes/EntityTree'
 import { World } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
+import { createEntityNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '../../../initializeEngine'
@@ -37,8 +37,6 @@ describe('InstancingFunctions', async () => {
     entity = createEntity()
     node = createEntityNode(entity)
     world = Engine.instance.currentWorld
-
-    addEntityNodeInTree(node)
   }
   beforeEach(async () => {
     sandbox = createSandbox()
@@ -52,17 +50,22 @@ describe('InstancingFunctions', async () => {
 
     await initSystems(world, [
       {
+        uuid: 'Instance',
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: Promise.resolve({
-          default: async () => {
-            let resolve: () => void
-            nextFixedStep = new Promise<void>((r) => (resolve = r))
-            return () => {
-              resolve()
+        systemLoader: () =>
+          Promise.resolve({
+            default: async () => {
+              let resolve: () => void
               nextFixedStep = new Promise<void>((r) => (resolve = r))
+              return {
+                execute: () => {
+                  resolve()
+                  nextFixedStep = new Promise<void>((r) => (resolve = r))
+                },
+                cleanup: async () => {}
+              }
             }
-          }
-        })
+          })
       }
     ])
   })

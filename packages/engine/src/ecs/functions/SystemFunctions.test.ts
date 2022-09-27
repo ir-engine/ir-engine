@@ -6,26 +6,31 @@ import { World } from '../classes/World'
 import { initSystems, unloadSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
-const MockSystemModulePromise = async () => {
+const MocksystemLoader = async () => {
   return {
     default: MockSystemInitialiser
   }
 }
 
 async function MockSystemInitialiser(world: World) {
-  return () => {}
+  return {
+    execute: () => {},
+    cleanup: async () => {}
+  }
 }
 
-const AnotherMockSystemModulePromise = async () => {
+const AnotherMocksystemLoader = async () => {
   return {
     default: AnotherMockSystemInitialiser
   }
 }
 
 async function AnotherMockSystemInitialiser(world: World) {
-  return () => {}
+  return {
+    execute: () => {},
+    cleanup: async () => {}
+  }
 }
-
 describe('SystemFunctions', () => {
   describe('initSystems', () => {
     it('can initialize systems', async () => {
@@ -34,7 +39,8 @@ describe('SystemFunctions', () => {
       const fixedPipeline = SystemUpdateType.FIXED
       await initSystems(world, [
         {
-          systemModulePromise: MockSystemModulePromise(),
+          uuid: 'Mock',
+          systemLoader: () => MocksystemLoader(),
           type: SystemUpdateType.FIXED,
           sceneSystem: true
         }
@@ -53,12 +59,14 @@ describe('SystemFunctions', () => {
       const fixedPipeline = SystemUpdateType.FIXED
       await initSystems(world, [
         {
-          systemModulePromise: MockSystemModulePromise(),
+          uuid: 'Mock',
+          systemLoader: () => MocksystemLoader(),
           type: fixedPipeline,
           sceneSystem: true
         },
         {
-          systemModulePromise: AnotherMockSystemModulePromise(),
+          uuid: 'Mock2',
+          systemLoader: () => AnotherMocksystemLoader(),
           type: fixedPipeline,
           sceneSystem: false
         }
@@ -82,12 +90,14 @@ describe('SystemFunctions', () => {
       const updatePipeline = SystemUpdateType.UPDATE
       await initSystems(world, [
         {
-          systemModulePromise: MockSystemModulePromise(),
+          uuid: 'Mock',
+          systemLoader: () => MocksystemLoader(),
           type: fixedPipeline,
           sceneSystem: true
         },
         {
-          systemModulePromise: AnotherMockSystemModulePromise(),
+          uuid: 'Mock2',
+          systemLoader: () => AnotherMocksystemLoader(),
           type: updatePipeline,
           sceneSystem: false
         }
@@ -114,7 +124,8 @@ describe('SystemFunctions', () => {
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {
-          systemModulePromise: MockSystemModulePromise(),
+          uuid: 'Mock',
+          systemLoader: () => MocksystemLoader(),
           type: pipelineType,
           sceneSystem: true
         }
@@ -133,12 +144,14 @@ describe('SystemFunctions', () => {
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {
-          systemModulePromise: MockSystemModulePromise(),
+          uuid: 'Mock',
+          systemLoader: () => MocksystemLoader(),
           type: pipelineType,
           sceneSystem: false
         },
         {
-          systemModulePromise: AnotherMockSystemModulePromise(),
+          uuid: 'Mock2',
+          systemLoader: () => AnotherMocksystemLoader(),
           type: pipelineType,
           sceneSystem: false
         }
@@ -157,12 +170,14 @@ describe('SystemFunctions', () => {
       const pipelineType = SystemUpdateType.FIXED
       await initSystems(world, [
         {
-          systemModulePromise: MockSystemModulePromise(),
+          uuid: 'Mock',
+          systemLoader: () => MocksystemLoader(),
           type: pipelineType,
           sceneSystem: true
         },
         {
-          systemModulePromise: AnotherMockSystemModulePromise(),
+          uuid: 'Mock2',
+          systemLoader: () => AnotherMocksystemLoader(),
           type: pipelineType,
           sceneSystem: false
         }

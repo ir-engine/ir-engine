@@ -5,7 +5,7 @@ import {
   InstancedBufferGeometry,
   Mesh,
   Object3D,
-  PlaneBufferGeometry,
+  PlaneGeometry,
   RawShaderMaterial,
   ShaderMaterial,
   UniformsUtils,
@@ -15,7 +15,6 @@ import {
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Entity } from '../../ecs/classes/Entity'
-import { Object3DWithEntity } from '../components/Object3DComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexShader = `
@@ -75,7 +74,7 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
   entity: Entity
 
   constructor(entity: Entity) {
-    const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
+    const planeGeometry = new PlaneGeometry(1, 1, 1, 1)
     const geometry = new InstancedBufferGeometry()
     geometry.index = planeGeometry.index
     geometry.attributes = planeGeometry.attributes
@@ -116,7 +115,7 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
   }
 
   updateParticles() {
-    const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
+    const planeGeometry = new PlaneGeometry(1, 1, 1, 1)
     const geometry = new InstancedBufferGeometry()
     geometry.index = planeGeometry.index
     geometry.attributes = planeGeometry.attributes

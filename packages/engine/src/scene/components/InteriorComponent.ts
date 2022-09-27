@@ -1,11 +1,13 @@
 import { Vector2 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { Interior } from '../classes/Interior'
 
 export type InteriorComponentType = {
   cubeMap: string
   tiling: number
   size: Vector2
+  interior?: Interior
 }
 
 export const InteriorComponent = createMappedComponent<InteriorComponentType>('InteriorComponent')

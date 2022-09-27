@@ -11,11 +11,11 @@ import { SceneObjectComponent } from '../../scene/components/SceneObjectComponen
 import { Engine } from '../classes/Engine'
 import { EngineActions } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { EntityTreeNode } from '../classes/EntityTree'
 import { World } from '../classes/World'
+import { EntityTreeNode } from '../functions/EntityTree'
 import { defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
-import { removeEntityNodeFromParent, traverseEntityNode } from './EntityTreeFunctions'
+import { removeEntityNodeFromParent, traverseEntityNode } from './EntityTree'
 import { unloadSystems } from './SystemFunctions'
 
 /** Reset the engine and remove everything from memory. */
@@ -60,8 +60,6 @@ export function dispose() {
     Engine.instance.currentWorld.scene = null!
   }
 
-  Engine.instance.currentWorld.camera = null!
-
   if (EngineRenderer.instance.renderer) {
     EngineRenderer.instance.renderer.clear(true, true, true)
     EngineRenderer.instance.renderer.dispose()
@@ -79,9 +77,6 @@ export const unloadScene = (world: World) => {
   const entitiesToRemove = [] as Entity[]
   const entityNodesToRemove = [] as EntityTreeNode[]
   const sceneObjectsToRemove = [] as Object3D[]
-
-  world.sceneDynamicallyLoadedEntities.clear()
-  world.sceneDynamicallyUnloadedEntities.clear()
 
   for (const entity of sceneQuery()) entitiesToRemove.push(entity)
 

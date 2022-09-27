@@ -3,6 +3,7 @@ import { AnimationClip, Bone, KeyframeTrack, Mesh, Object3D, PropertyBinding, Sk
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { ModelComponent } from '../components/ModelComponent'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 
 // Modified version of Don McCurdy's AnimationUtils.clone
@@ -112,8 +113,8 @@ export const getAnimationClips = (): AnimationClip[] => {
     if (comp.hasAvatarAnimations) {
       result.add(AnimationManager.instance._animations[comp.activeClipIndex])
     } else {
-      const obj3d = getComponent(entity, Object3DComponent).value
-      result.add(obj3d.animations[comp.activeClipIndex])
+      const scene = getComponent(entity, ModelComponent).scene.value!
+      if (scene) result.add(scene.animations[comp.activeClipIndex])
     }
   }
 

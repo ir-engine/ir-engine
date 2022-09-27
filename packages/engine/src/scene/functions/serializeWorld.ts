@@ -4,9 +4,9 @@ import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/inter
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { getAllComponents, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -18,10 +18,10 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
+    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
     if (
       sceneComponentID &&
-      !ignoreComponents?.includes(component._name) &&
+      !ignoreComponents?.includes(component.name) &&
       world.sceneLoadingRegistry.has(sceneComponentID)
     ) {
       const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize

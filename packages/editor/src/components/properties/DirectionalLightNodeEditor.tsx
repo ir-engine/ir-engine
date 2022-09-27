@@ -61,7 +61,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
     if (selectionState.propertyName.value === 'cameraFar') {
       EngineRenderer.instance.csm.updateProperty('shadow.camera.far', lightComponent.cameraFar)
     }
-  }, [selectionState.objectChangeCounter.value])
+  }, [selectionState.objectChangeCounter])
 
   return (
     <NodeEditor

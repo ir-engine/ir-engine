@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Vector2, Vector3 } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
@@ -26,6 +27,12 @@ Mesh.prototype.raycast = acceleratedRaycast
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
+declare module 'three/src/core/Object3D' {
+  export interface Object3D {
+    matrixWorldAutoUpdate: boolean
+  }
+}
+
 /**
  * Since we have complete control over matrix updates, we know that at any given point
  *  in execution time if the matrix will be up to date or a frame late, and we can simply
@@ -47,3 +54,5 @@ Object3D.prototype.getWorldDirection = function (target) {
   const e = this.matrixWorld.elements
   return target.set(e[8], e[9], e[10]).normalize()
 }
+
+globalThis.THREE = THREE

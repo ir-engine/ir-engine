@@ -6,20 +6,18 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { AvatarComponent } from '../components/AvatarComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const respawnAvatar = (entity: Entity) => {
   const { position } = getComponent(entity, SpawnPoseComponent)
   const networkObject = getComponent(entity, NetworkObjectComponent)
-  const avatarComponent = getComponent(entity, AvatarComponent)
   dispatchAction(
     WorldNetworkAction.teleportObject({
       object: {
         ownerId: networkObject.ownerId,
         networkId: networkObject.networkId
       },
-      position: new Vector3(position.x, position.y - avatarComponent.avatarHalfHeight, position.z),
+      position: new Vector3(position.x, position.y + 1, position.z),
       rotation: new Quaternion()
     })
   )

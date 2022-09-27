@@ -9,10 +9,8 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { XRAction } from '../xr/XRAction'
-import { XRHandsInputComponent, XRInputSourceComponent } from '../xr/XRComponents'
+import { XRHandsInputComponent } from '../xr/XRComponents'
 import { setupXRInputSourceComponent } from '../xr/XRFunctions'
-import { xrSessionChanged } from '../xr/XRSystem'
 import {
   avatarDetailsReceptor,
   setupHandIK,
@@ -82,7 +80,6 @@ describe('AvatarSystem', async () => {
     setupXRInputSourceContainer(entity)
     setupHeadIK(entity)
     setupHandIK(entity)
-    ;(XRInputSourceComponent as any)._setPrevious(entity, xrInput)
     xrInputQueryExit(entity)
 
     assert(!xrInput.container.parent)

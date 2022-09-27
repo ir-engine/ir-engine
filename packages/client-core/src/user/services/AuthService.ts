@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { serverHost } from '@xrengine/common/src/config'
 import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
@@ -25,7 +26,6 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
-import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { userPatched } from '../functions/userPatched'
 
@@ -41,8 +41,7 @@ export const AuthState = defineState({
     error: '',
     authUser: AuthUserSeed,
     user: UserSeed,
-    identityProvider: IdentityProviderSeed,
-    avatarList: [] as Array<AvatarInterface>
+    identityProvider: IdentityProviderSeed
   }),
 
   onCreate: (store, s) => {
@@ -85,10 +84,6 @@ export interface GithubLoginForm {
 
 export interface LinkedInLoginForm {
   email: string
-}
-
-export const avatarFetchedReceptor = (s: any, action: any) => {
-  return s.avatarList.set(action.avatarList)
 }
 
 export const AuthServiceReceptor = (action) => {
@@ -158,130 +153,122 @@ export const AuthServiceReceptor = (action) => {
     .when(AuthAction.updatedUserSettingsAction.matches, (action) => {
       return s.user.merge({ user_setting: action.data })
     })
-    .when(AuthAction.updateAvatarListAction.matches, (action) => {
-      return avatarFetchedReceptor(s, action)
-    })
 }
 
 export class AuthAction {
   static actionProcessing = defineAction({
-    type: 'ACTION_PROCESSING' as const,
+    type: 'xre.client.Auth.ACTION_PROCESSING' as const,
     processing: matches.boolean
   })
 
   static loginUserSuccessAction = defineAction({
-    type: 'LOGIN_USER_SUCCESS' as const,
+    type: 'xre.client.Auth.LOGIN_USER_SUCCESS' as const,
     authUser: matches.object as Validator<unknown, AuthUser>,
     message: matches.string
   })
 
   static loginUserErrorAction = defineAction({
-    type: 'LOGIN_USER_ERROR' as const,
+    type: 'xre.client.Auth.LOGIN_USER_ERROR' as const,
     message: matches.string
   })
 
   static loginUserByGithubSuccessAction = defineAction({
-    type: 'LOGIN_USER_BY_GITHUB_SUCCESS' as const,
+    type: 'xre.client.Auth.LOGIN_USER_BY_GITHUB_SUCCESS' as const,
     message: matches.string
   })
 
   static loginUserByGithubErrorAction = defineAction({
-    type: 'LOGIN_USER_BY_GITHUB_ERROR' as const,
+    type: 'xre.client.Auth.LOGIN_USER_BY_GITHUB_ERROR' as const,
     message: matches.string
   })
 
   static loginUserByLinkedinSuccessAction = defineAction({
-    type: 'LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
+    type: 'xre.client.Auth.LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
     message: matches.string
   })
 
   static loginUserByLinkedinErrorAction = defineAction({
-    type: 'LOGIN_USER_BY_LINKEDIN_ERROR' as const,
+    type: 'xre.client.Auth.LOGIN_USER_BY_LINKEDIN_ERROR' as const,
     message: matches.string
   })
 
   static didLogoutAction = defineAction({
-    type: 'LOGOUT_USER' as const
+    type: 'xre.client.Auth.LOGOUT_USER' as const
   })
 
   static registerUserByEmailSuccessAction = defineAction({
-    type: 'REGISTER_USER_BY_EMAIL_SUCCESS' as const,
+    type: 'xre.client.Auth.REGISTER_USER_BY_EMAIL_SUCCESS' as const,
     identityProvider: matches.object as Validator<unknown, IdentityProvider>,
     message: matches.string
   })
 
   static registerUserByEmailErrorAction = defineAction({
-    type: 'REGISTER_USER_BY_EMAIL_ERROR' as const,
+    type: 'xre.client.Auth.REGISTER_USER_BY_EMAIL_ERROR' as const,
     message: matches.string
   })
 
   static didVerifyEmailAction = defineAction({
-    type: 'DID_VERIFY_EMAIL' as const,
+    type: 'xre.client.Auth.DID_VERIFY_EMAIL' as const,
     result: matches.boolean
   })
 
   static didResendVerificationEmailAction = defineAction({
-    type: 'DID_RESEND_VERIFICATION_EMAIL' as const,
+    type: 'xre.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
     result: matches.boolean
   })
 
   static didForgotPasswordAction = defineAction({
-    type: 'DID_FORGOT_PASSWORD' as const,
+    type: 'xre.client.Auth.DID_FORGOT_PASSWORD' as const,
     result: matches.boolean
   })
 
   static didResetPasswordAction = defineAction({
-    type: 'DID_RESET_PASSWORD' as const,
+    type: 'xre.client.Auth.DID_RESET_PASSWORD' as const,
     result: matches.boolean
   })
 
   static didCreateMagicLinkAction = defineAction({
-    type: 'DID_CREATE_MAGICLINK' as const,
+    type: 'xre.client.Auth.DID_CREATE_MAGICLINK' as const,
     result: matches.boolean
   })
 
   static loadedUserDataAction = defineAction({
-    type: 'LOADED_USER_DATA' as const,
+    type: 'xre.client.Auth.LOADED_USER_DATA' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updatedUserSettingsAction = defineAction({
-    type: 'UPDATE_USER_SETTINGS' as const,
+    type: 'xre.client.Auth.UPDATE_USER_SETTINGS' as const,
     data: matches.object as Validator<unknown, UserSetting>
   })
 
   static avatarUpdatedAction = defineAction({
-    type: 'AVATAR_UPDATED' as const,
+    type: 'xre.client.Auth.AVATAR_UPDATED' as const,
     url: matches.any
   })
 
   static usernameUpdatedAction = defineAction({
-    type: 'USERNAME_UPDATED' as const,
+    type: 'xre.client.Auth.USERNAME_UPDATED' as const,
     name: matches.string
   })
 
   static userAvatarIdUpdatedAction = defineAction({
-    type: 'USERAVATARID_UPDATED' as const,
+    type: 'xre.client.Auth.USERAVATARID_UPDATED' as const,
     avatarId: matches.string
   })
 
   static userPatchedAction = defineAction({
-    type: 'USER_PATCHED' as const,
+    type: 'xre.client.Auth.USER_PATCHED' as const,
     params: matches.any
   })
 
   static userUpdatedAction = defineAction({
-    type: 'USER_UPDATED' as const,
+    type: 'xre.client.Auth.USER_UPDATED' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
-  static updateAvatarListAction = defineAction({
-    type: 'AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
-  })
-
   static apiKeyUpdatedAction = defineAction({
-    type: 'USER_API_KEY_UPDATED' as const,
+    type: 'xre.client.Auth.USER_API_KEY_UPDATED' as const,
     apiKey: matches.object as Validator<unknown, UserApiKey>
   })
 }
@@ -454,7 +441,7 @@ export const AuthService = {
         identityProvider: {
           id: 0,
           token: '',
-          type: 'chapiWallet',
+          type: 'didWallet',
           isVerified: true,
           userId: walletUser.id
         }

@@ -15,7 +15,7 @@ export default function FixedPipelineSystem(world: World) {
   // we should simply skip ahead.
   const maxTimeDifference = 2
 
-  return () => {
+  const execute = () => {
     const start = nowMilliseconds()
     let timeUsed = 0
     let updatesCount = 0
@@ -33,7 +33,7 @@ export default function FixedPipelineSystem(world: World) {
     let updatesLimitReached = updatesCount > updatesLimit
 
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-      engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
+      engineState.fixedTick.set(engineState.fixedTick.value + 1)
       engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
 
       for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.enabled && s.execute()
@@ -47,11 +47,25 @@ export default function FixedPipelineSystem(world: World) {
       accumulatorDepleted = accumulator < timestep
       timeout = timeUsed > limit
       updatesLimitReached = updatesCount >= updatesLimit
+
+      if (updatesLimitReached || accumulator > maxTimeDifference) {
+        logger.warn(
+          `[FixedPipelineSystem]: The FIXED pipeline is behind by %d seconds! catching up...`,
+          world.elapsedSeconds - world.fixedElapsedSeconds
+        )
+        engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
+        engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+      }
     }
 
-    if (updatesLimitReached || accumulator > maxTimeDifference) {
-      engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
-      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
-    }
+    if (world.elapsedSeconds - world.fixedElapsedSeconds > timestep)
+      logger.warn(
+        `[FixedPipelineSystem]: The FIXED pipeline is behind more than the fixed delta! %n`,
+        world.elapsedSeconds - world.fixedElapsedSeconds
+      )
   }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
 }
