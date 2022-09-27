@@ -124,6 +124,30 @@
   }
 }
 
+.fadeOutTop {
+  opacity: 0;
+  transform: translateY(-4rem);
+  visibility: hidden;
+  transition: all 0.6s;
+}
+
+.fadeOutBottom {
+  opacity: 0;
+  transform: translateY(4rem);
+  visibility: hidden;
+  transition: all 0.6s;
+}
+
+.animateTop {
+  animation: moveInTop 0.3s ease 0.3s;
+  animation-fill-mode: backwards;
+}
+
+.animateBottom {
+  animation: moveInBottom 0.3s ease 0.3s;
+  animation-fill-mode: backwards;
+}
+
 @keyframes moveInBottom {
   0% {
     opacity: 0;

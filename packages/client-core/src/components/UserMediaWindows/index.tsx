@@ -11,7 +11,7 @@ import { useShelfStyles } from '../Shelves/useShelfStyles'
 import UserMediaWindow from '../UserMediaWindow'
 import styles from './index.module.scss'
 
-const UserMediaWindows = (): JSX.Element => {
+export const UserMediaWindows = () => {
   const mediaState = useMediaStreamState()
   const nearbyLayerUsers = mediaState.nearbyLayerUsers
   const selfUserId = useState(accessAuthState().user.id)
@@ -58,5 +58,3 @@ const UserMediaWindows = (): JSX.Element => {
     </div>
   )
 }
-
-export default UserMediaWindows

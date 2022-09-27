@@ -81,7 +81,7 @@ interface ActiveMenu {
   params?: any
 }
 
-const UserMenu = (props: Props): any => {
+export const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<ActiveMenu>({ view: Views.Closed })
 
   const { bottomShelfStyle } = useShelfStyles()
@@ -134,5 +134,3 @@ const UserMenu = (props: Props): any => {
     </ActiveMenuContext.Provider>
   )
 }
-
-export default UserMenu

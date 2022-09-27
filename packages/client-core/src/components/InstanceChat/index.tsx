@@ -448,7 +448,6 @@ export const InstanceChatWrapper = () => {
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
-
   return (
     <>
       {engineState.connectedWorld.value ? (

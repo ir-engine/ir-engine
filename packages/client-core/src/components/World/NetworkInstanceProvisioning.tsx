@@ -29,11 +29,7 @@ import {
 
 import { AppState } from '../../common/services/AppService'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
-import { LoadingSystemState } from '../../systems/state/LoadingState'
 import { UserServiceReceptor } from '../../user/services/UserService'
-import { InstanceChatWrapper } from '../InstanceChat'
-import UserMediaWindows from '../UserMediaWindows'
-import styles from './index.module.scss'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const NetworkInstanceProvisioning = () => {
@@ -208,18 +204,7 @@ export const NetworkInstanceProvisioning = () => {
     currentChannelInstanceConnection?.connecting
   ])
 
-  const loadingSystemState = useHookstate(getState(LoadingSystemState))
-  const layoutOpacity = 1 - loadingSystemState.loadingScreenOpacity.value
-
-  return (
-    <>
-      <InstanceServerWarnings />
-      <div style={{ opacity: layoutOpacity }} className={`${styles.rightSidebar}`}>
-        <UserMediaWindows />
-        <InstanceChatWrapper />
-      </div>
-    </>
-  )
+  return <InstanceServerWarnings />
 }
 
 export default NetworkInstanceProvisioning

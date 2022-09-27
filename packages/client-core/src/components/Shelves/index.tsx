@@ -26,7 +26,7 @@ export const Shelves = () => {
   const BottomIconHider = showBottomShelf ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
 
   return (
-    <>
+    <div style={{ pointerEvents: 'auto' }}>
       <button
         type="button"
         className={`${showTopShelf ? styles.btn : styles.smBtn} ${showTopShelf ? styles.rotate : styles.rotateBack} ${
@@ -49,6 +49,6 @@ export const Shelves = () => {
       >
         <BottomIconHider />
       </button>
-    </>
+    </div>
   )
 }
