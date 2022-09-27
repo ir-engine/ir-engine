@@ -191,7 +191,7 @@ interface InstanceChatProps {
   newMessageLabel?: string
 }
 
-const InstanceChat = ({
+export const InstanceChat = ({
   styles = defaultStyles,
   MessageButton = MessageIcon,
   CloseButton = CloseIcon,
