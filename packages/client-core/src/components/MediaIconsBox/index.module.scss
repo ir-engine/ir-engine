@@ -5,7 +5,6 @@
   z-index: 5;
   width: 100%;
   justify-content: center;
-  pointer-events: "auto";
 
   .iconContainer {
     background: rgb(0 0 0 / 20%);
@@ -21,6 +20,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    pointer-events: auto;
 
     &::before {
       content: " ";

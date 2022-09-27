@@ -41,8 +41,7 @@ export const AuthState = defineState({
     error: '',
     authUser: AuthUserSeed,
     user: UserSeed,
-    identityProvider: IdentityProviderSeed,
-    avatarList: [] as Array<AvatarInterface>
+    identityProvider: IdentityProviderSeed
   }),
 
   onCreate: (store, s) => {
@@ -153,9 +152,6 @@ export const AuthServiceReceptor = (action) => {
     })
     .when(AuthAction.updatedUserSettingsAction.matches, (action) => {
       return s.user.merge({ user_setting: action.data })
-    })
-    .when(AuthAction.updateAvatarListAction.matches, (action) => {
-      return s.avatarList.set(action.avatarList)
     })
 }
 
@@ -269,11 +265,6 @@ export class AuthAction {
   static userUpdatedAction = defineAction({
     type: 'xre.client.Auth.USER_UPDATED' as const,
     user: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static updateAvatarListAction = defineAction({
-    type: 'xre.client.Auth.AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
   })
 
   static apiKeyUpdatedAction = defineAction({

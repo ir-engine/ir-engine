@@ -22,6 +22,7 @@ import { FriendServiceReceptor } from '@xrengine/client-core/src/social/services
 import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
+import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
 import {
   LocalStateServiceReceptor,
   StoredLocalAction,
@@ -51,6 +52,7 @@ function RouterComp() {
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
+    addActionReceptor(AvatarServiceReceptor)
     addActionReceptor(InviteServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(DialogServiceReceptor)
@@ -80,6 +82,7 @@ function RouterComp() {
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
+      removeActionReceptor(AvatarServiceReceptor)
       removeActionReceptor(InviteServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(DialogServiceReceptor)
