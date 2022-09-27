@@ -25,7 +25,6 @@ import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunct
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   PortalEffects,
-  revertAvatarToMovingStateFromTeleport,
   setAvatarToLocationTeleportingState
 } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
@@ -39,11 +38,12 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 type LoadEngineProps = {
   setClientReady: (ready: boolean) => void
+  injectedSystems?: SystemModuleType<any>[]
 }
 
-export const useLoadEngine = ({ setClientReady }: LoadEngineProps) => {
+export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEngineProps) => {
   useHookEffect(() => {
-    initClient().then(() => {
+    initClient(injectedSystems).then(() => {
       setClientReady(true)
     })
 
@@ -158,25 +158,9 @@ export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
   const loadingState = useLoadingState()
   const [clientReady, setClientReady] = useState(false)
 
+  useLoadEngine({ setClientReady, injectedSystems })
   useLocationSpawnAvatar()
   usePortalTeleport()
-
-  /**
-   * initialise the client
-   */
-  useHookEffect(() => {
-    initClient(injectedSystems).then(() => {
-      setClientReady(true)
-    })
-
-    addActionReceptor(SceneServiceReceptor)
-    addActionReceptor(LocationInstanceConnectionServiceReceptor)
-
-    return () => {
-      removeActionReceptor(SceneServiceReceptor)
-      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
-    }
-  }, [])
 
   /**
    * load the scene whenever it changes
