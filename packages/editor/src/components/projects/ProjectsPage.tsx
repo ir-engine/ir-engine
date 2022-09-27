@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
@@ -165,7 +166,7 @@ const ProjectsPage = () => {
   const projects = projectState.projects
 
   const { t } = useTranslation()
-  const history = useHistory()
+  const route = useRouter()
 
   const fetchInstalledProjects = async () => {
     setLoading(true)
@@ -230,7 +231,7 @@ const ProjectsPage = () => {
 
     dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
     dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
-    history.push(`/editor/${project.name}`)
+    route(`/editor/${project.name}`)
   }
 
   const onCreateProject = async (name) => {

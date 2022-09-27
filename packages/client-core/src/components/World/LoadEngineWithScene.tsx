@@ -1,6 +1,5 @@
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
 import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -30,6 +29,7 @@ import {
 import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
+import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
@@ -102,7 +102,7 @@ export const useLocationSpawnAvatar = () => {
 }
 
 export const usePortalTeleport = () => {
-  const history = useHistory()
+  const route = useRouter()
   const engineState = useEngineState()
   const locationState = useLocationState()
   const authState = useAuthState()
@@ -132,7 +132,7 @@ export const usePortalTeleport = () => {
         return
       }
 
-      history.push('/location/' + world.activePortal!.location)
+      route('/location/' + world.activePortal!.location)
       LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
 
       // shut down connection with existing world instance server
