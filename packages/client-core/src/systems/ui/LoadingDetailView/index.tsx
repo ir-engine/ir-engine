@@ -95,6 +95,7 @@ const LoadingDetailView = (props: {
       img.src = thumbnailUrl
     } else {
       setDefaultPalette(colors)
+      props.colorsLoadedCallback()
     }
 
     return () => {

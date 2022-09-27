@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useRouteMatch } from 'react-router-dom'
 
-import Layout from '@xrengine/client-core/src/components/Layout'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+import { LocationIcons } from '@xrengine/client-core/src/components/LocationIcons'
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLocationScene'
 import NetworkInstanceProvisioning from '@xrengine/client-core/src/components/World/NetworkInstanceProvisioning'
@@ -47,12 +47,13 @@ const LocationPage = () => {
   }, [locationState.currentLocation.location.sceneId])
 
   return (
-    <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
+    <>
       {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
       <LoadEngineWithScene injectedSystems={DefaultLocationSystems} />
       {offline ? <OfflineLocation /> : <NetworkInstanceProvisioning />}
       <LoadLocationScene />
-    </Layout>
+      <LocationIcons />
+    </>
   )
 }
 
