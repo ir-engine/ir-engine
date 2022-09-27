@@ -10,7 +10,7 @@ import { clearOutgoingActions, getState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
 import { setupSubdomain } from './NetworkFunctions'
 import { startWebRTC } from './WebRTCFunctions'
