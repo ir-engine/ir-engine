@@ -168,43 +168,44 @@ export default async function AvatarUISystem(world: World) {
       xrui.container.position.copy(_vector3)
       xrui.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
 
-      if (immersiveMedia && videoPreviewTimer === 0) {
-        const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-        const consumer = world.mediaNetwork!.consumers.find(
-          (consumer) => consumer._appData.peerId === ownerId && consumer._appData.mediaTag === 'cam-video'
-        ) as Consumer
-        const paused = consumer && (consumer as any).producerPaused
-        if (videoPreviewMesh.material.map) {
-          if (!consumer || paused) {
-            videoPreviewMesh.material.map = null!
-            videoPreviewMesh.visible = false
-          }
-        } else {
-          if (consumer && !paused && !applyingVideo.has(ownerId)) {
-            applyingVideo.set(ownerId, true)
-            const track = (consumer as any).track
-            const newVideoTrack = track.clone()
-            const newVideo = document.createElement('video')
-            newVideo.autoplay = true
-            newVideo.id = `${ownerId}_video_immersive`
-            newVideo.muted = true
-            newVideo.setAttribute('playsinline', 'true')
-            newVideo.srcObject = new MediaStream([newVideoTrack])
-            newVideo.play()
-            if (!newVideo.readyState) {
-              newVideo.onloadeddata = () => {
+      if (world.mediaNetwork)
+        if (immersiveMedia && videoPreviewTimer === 0) {
+          const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
+          const consumer = world.mediaNetwork!.consumers.find(
+            (consumer) => consumer._appData.peerId === ownerId && consumer._appData.mediaTag === 'cam-video'
+          ) as Consumer
+          const paused = consumer && (consumer as any).producerPaused
+          if (videoPreviewMesh.material.map) {
+            if (!consumer || paused) {
+              videoPreviewMesh.material.map = null!
+              videoPreviewMesh.visible = false
+            }
+          } else {
+            if (consumer && !paused && !applyingVideo.has(ownerId)) {
+              applyingVideo.set(ownerId, true)
+              const track = (consumer as any).track
+              const newVideoTrack = track.clone()
+              const newVideo = document.createElement('video')
+              newVideo.autoplay = true
+              newVideo.id = `${ownerId}_video_immersive`
+              newVideo.muted = true
+              newVideo.setAttribute('playsinline', 'true')
+              newVideo.srcObject = new MediaStream([newVideoTrack])
+              newVideo.play()
+              if (!newVideo.readyState) {
+                newVideo.onloadeddata = () => {
+                  applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
+                  videoPreviewMesh.visible = true
+                  applyingVideo.delete(ownerId)
+                }
+              } else {
                 applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
                 videoPreviewMesh.visible = true
                 applyingVideo.delete(ownerId)
               }
-            } else {
-              applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
-              videoPreviewMesh.visible = true
-              applyingVideo.delete(ownerId)
             }
           }
         }
-      }
 
       if (!immersiveMedia && videoPreviewMesh.material.map) {
         videoPreviewMesh.material.map = null!

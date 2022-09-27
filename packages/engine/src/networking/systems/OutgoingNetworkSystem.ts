@@ -1,3 +1,4 @@
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -16,10 +17,13 @@ const authoritativeNetworkTransformsQuery = defineQuery([
   TransformComponent
 ])
 
-const serializeAndSend = (world: World, serialize: Function) => {
-  const ents = authoritativeNetworkTransformsQuery(world)
+const serializeAndSend = (world: World, serialize: ReturnType<typeof createDataWriter>) => {
+  const ents = Engine.instance.isEditor ? networkTransformsQuery(world) : authoritativeNetworkTransformsQuery(world)
   if (ents.length > 0) {
-    const data = serialize(world, world.worldNetwork, ents)
+    const userId = Engine.instance.currentWorld.worldNetwork?.isHosting
+      ? Engine.instance.currentWorld.worldNetwork.hostId
+      : Engine.instance.userId
+    const data = serialize(world, world.worldNetwork, userId, ents)
 
     // todo: insert historian logic here
 

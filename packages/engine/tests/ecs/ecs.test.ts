@@ -83,7 +83,6 @@ describe('ECS', () => {
     const entities = world.entityQuery()
     assert(entities.includes(world.sceneEntity))
     assert(entities.includes(world.cameraEntity))
-    assert(entities.includes(world.localOriginEntity))
   })
 
   it('should add systems', async () => {

@@ -3,7 +3,7 @@ import '@feathersjs/transport-commons'
 import Sequelize from 'sequelize'
 
 import { Application, ServerMode } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { PartyUser } from './party-user.class'
 import partyUserDocs from './party-user.docs'
 import hooks from './party-user.hooks'

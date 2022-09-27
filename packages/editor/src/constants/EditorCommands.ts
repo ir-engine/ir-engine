@@ -1,4 +1,4 @@
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 
 import { AddObjectCommand, AddObjectCommandParams } from '../commands/AddObjectCommand'
 import { AddToSelectionCommand, AddToSelectionCommandParams } from '../commands/AddToSelectionCommand'

@@ -1,8 +1,8 @@
 import { Object3D } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import EntityTree, { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { findIndexOfEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTree, EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { findIndexOfEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 

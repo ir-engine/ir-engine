@@ -1,3 +1,4 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -8,6 +9,7 @@ import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/Av
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { getState } from '@xrengine/hyperflux'
 
 import { Check, Close, Delete, NavigateBefore, NavigateNext, PersonAdd } from '@mui/icons-material'
 import Card from '@mui/material/Card'
@@ -16,7 +18,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { LazyImage } from '../../../../common/components/LazyImage'
 import { useAuthState } from '../../../services/AuthService'
-import { AvatarService } from '../../../services/AvatarService'
+import { AvatarService, AvatarState } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 
@@ -33,7 +35,8 @@ const AvatarMenu = (props: Props) => {
 
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
-  const avatarList = authState.avatarList.value
+  const avatarState = useHookstate(getState(AvatarState))
+  const avatarList = avatarState.avatarList.value
 
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
@@ -66,11 +69,11 @@ const AvatarMenu = (props: Props) => {
   }, [isAvatarLoaded])
 
   useEffect(() => {
-    if (page * imgPerPage >= authState.avatarList.value.length) {
+    if (page * imgPerPage >= avatarState.avatarList.value.length) {
       if (page === 0) return
       setPage(page - 1)
     }
-  }, [authState.avatarList.value])
+  }, [avatarState.avatarList])
 
   useEffect(() => {
     window.addEventListener('resize', calculateMenuRadius)

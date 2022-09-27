@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Color, MathUtils, Texture } from 'three'
 
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
   extractDefaults,
   formatMaterialArgs,
@@ -11,8 +13,13 @@ import {
 } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialParms'
-import { MaterialOverrideComponent } from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
+import {
+  MaterialOverrideComponent,
+  MaterialOverrideComponentType
+} from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
+import { ModelComponentType } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/MaterialOverrideFunctions'
+import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Typography } from '@mui/material'
 import { Box } from '@mui/system'
@@ -25,18 +32,26 @@ import ColorInput from './ColorInput'
 import CompoundNumericInput from './CompoundNumericInput'
 import { ImagePreviewInputGroup } from './ImagePreviewInput'
 import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGroupVerticalContent } from './InputGroup'
+import { MaterialInput } from './MaterialInput'
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
 import StringInput, { ControlledStringInput } from './StringInput'
 import { TexturePreviewInputGroup } from './TexturePreviewInput'
 
-export default function MaterialAssignment({ entity, node, modelComponent, values, onChange }) {
+export default function MaterialAssignment({
+  entity,
+  node,
+  modelComponent,
+  values,
+  onChange
+}: {
+  entity: Entity
+  node: EntityTreeNode
+  modelComponent: State<ModelComponentType>
+  values: MaterialOverrideComponentType[]
+  onChange: (value) => void
+}) {
   let [count, setCount] = useState(values.length)
-  let [materialIDs, setMaterialIDs] = useState<any[]>(
-    [...MaterialLibrary.materials.entries()].map(([k, v]) => {
-      return { label: v.material.name, value: k }
-    })
-  )
 
   function texKey(index, k) {
     if (!values[index].uuid) {
@@ -68,10 +83,11 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     if (!values) values = []
     else preCount = values.length
     if (count == undefined || preCount == count) return
-    if (preCount > count) values.splice(count)
-    else
+    if (preCount > count) values = values.slice(0, count - 1)
+    else {
+      const nuMats = new Array()
       for (let i = 0; i < count - preCount; i++) {
-        values.push({
+        nuMats.push({
           entity: -1,
           targetEntity: node.entity,
           materialID: '',
@@ -81,6 +97,8 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
           uuid: MathUtils.generateUUID()
         })
       }
+      values.push(...nuMats)
+    }
     preCount = count
     onChange(values)
   }
@@ -90,7 +108,8 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
       const removing = values[idx]
       clearTexturePaths(removing, idx)
       values.splice(idx, 1)
-      if (removing.entity > -1) removeComponent(removing.entity, MaterialOverrideComponent)
+      if (removing.entity !== undefined && removing.entity > -1)
+        removeComponent(removing.entity, MaterialOverrideComponent)
       setCount(values.length)
       onChangeSize(values.length)
     }
@@ -124,124 +143,11 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
   }
 
   function MaterialAssignmentEntry(index) {
-    const assignment = modelComponent.materialOverrides[index]
+    const assignment = values[index]
     function setAssignmentProperty(prop) {
       return (value) => {
         assignment[prop] = value
         onChangeAssignment(assignment, index)
-      }
-    }
-
-    function getArguments(materialID) {
-      try {
-        const defaultArguments = materialIdToDefaultArgs(materialID)
-        const defaultValues = extractDefaults(defaultArguments)
-        const argStructure = defaultArguments
-        const argValues = formatMaterialArgs(
-          assignment.args ? { ...defaultValues, ...assignment.args } : defaultValues,
-          defaultArguments
-        )
-
-        function setArgsProp(prop) {
-          return (value) => {
-            if (!assignment.args) assignment.args = argValues
-            assignment.args[prop] = value
-            onChange(values)
-          }
-        }
-
-        function setArgArrayProp(prop, arrayIndex) {
-          return (value) => {
-            if (!assignment.args) assignment.args = argValues
-            assignment.args[prop][arrayIndex] = value
-            onChange(values)
-          }
-        }
-
-        if (argValues === undefined) {
-          console.warn('no default arguments detected for material ' + materialID)
-          return (
-            <div>
-              <p>No Arguments Detected</p>
-            </div>
-          )
-        }
-
-        function traverseArgs(args) {
-          const id = `${entity}-${index}-args`
-          return (
-            <CollapsibleBlock key={id} name="Arguments" label="Arguments">
-              {Object.entries(args).map(([k, v]: [string, any]) => {
-                let compKey = `${entity}-${index}-args-${k}`
-                switch (v.type) {
-                  case 'normalized-float':
-                  case 'float':
-                    return (
-                      <InputGroup key={compKey} name={k} label={k}>
-                        <CompoundNumericInput value={argValues[k]} onChange={setArgsProp(k)} min={v.min} max={v.max} />
-                      </InputGroup>
-                    )
-                  case 'color':
-                    return (
-                      <InputGroup key={compKey} name={k} label={k}>
-                        <ColorInput value={argValues[k]} onChange={setArgsProp(k)} />
-                      </InputGroup>
-                    )
-                  case 'vec2':
-                  case 'vec3':
-                    return (
-                      <InputGroup key={compKey} name={k} label={k}>
-                        {(argValues[k] as number[]).map((arrayVal, idx) => {
-                          return (
-                            <NumericInput
-                              key={`${compKey}-${idx}`}
-                              value={arrayVal}
-                              onChange={setArgArrayProp(k, idx)}
-                            />
-                          )
-                        })}
-                      </InputGroup>
-                    )
-                  case 'string':
-                    return (
-                      <InputGroup key={compKey} name={k} label={k}>
-                        <StringInput value={argValues[k]} onChange={setArgsProp(k)} />
-                      </InputGroup>
-                    )
-                  case 'boolean':
-                    return (
-                      <InputGroup key={compKey} name={k} label={k}>
-                        <BooleanInput value={argValues[k]} onChange={setArgsProp(k)} />
-                      </InputGroup>
-                    )
-                  case 'texture':
-                    const argKey = texKey(index, k)
-                    const setTexture = setArgsProp(k)
-                    function onChangeTexturePath(value) {
-                      const nuPaths = new Map(texturePaths.entries())
-                      nuPaths.set(argKey, value)
-                      setTexturePaths(nuPaths)
-                      if (assignment.args === undefined) assignment.args = argValues
-                      setTexture(value)
-                    }
-                    return (
-                      <TexturePreviewInputGroup
-                        key={compKey}
-                        name={k}
-                        label={k}
-                        value={texturePaths.get(argKey)}
-                        onChange={onChangeTexturePath}
-                      />
-                    )
-                }
-              })}
-            </CollapsibleBlock>
-          )
-        }
-        return traverseArgs(argStructure)
-      } catch (e) {
-        console.warn('Failed to get Material arguments:\nerror:' + e)
-        return <></>
       }
     }
 
@@ -260,19 +166,13 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
             name="Material ID"
             label={t('editor:properties.materialAssignment.lbl-materialID')}
           >
-            <SelectInput
+            <MaterialInput
               error={t('editor:properties.materialAssignment.error-materialID')}
               placeholder={t('editor:properties.materialAssignment.placeholder-materialID')}
               value={assignment.materialID}
               onChange={onChangeMaterialID}
-              options={materialIDs}
-              creatable={false}
-              isSearchable={true}
             />
           </InputGroup>
-
-          {getArguments(assignment.materialID)}
-
           <InputGroup
             key={`${entity}-${index}-patternTarget`}
             name={`Pattern Target`}
@@ -293,7 +193,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
             name="Pattern"
             label={t('editor:properties.materialAssignment.lbl-pattern')}
           >
-            <StringInput value={assignment.pattern} onChange={setAssignmentProperty('pattern')} />
+            <StringInput value={assignment.pattern as string} onChange={setAssignmentProperty('pattern')} />
           </InputGroup>
         </span>
         <div>
@@ -304,7 +204,6 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
       </div>
     )
   }
-
   return (
     <CollapsibleBlock label={'Material Overrides'}>
       <InputGroupVerticalContainerWide>
@@ -320,9 +219,9 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
           })()}
         <InputGroupVerticalContent>
           <div>
-            <label> Count: </label>
-            <ControlledStringInput value={count} onChange={onChangeSize} />
+            <label> Count: {count}</label>
             <Button onClick={onAddEntry}>+</Button>
+            {count > 0 && <Button onClick={onRemoveEntry(count - 1)}>-</Button>}
           </div>
           {values &&
             values.map((value, idx) => {

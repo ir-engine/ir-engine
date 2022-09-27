@@ -20,9 +20,9 @@ import {
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 import { refreshAppConfig } from '../../updateAppConfig'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'

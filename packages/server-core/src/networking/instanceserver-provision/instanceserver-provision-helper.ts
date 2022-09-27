@@ -1,7 +1,7 @@
 import { Paginated } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { LocationDataType } from '../../social/location/location.class'
 import { getFreeInstanceserver } from '../instance-provision/instance-provision.class'
 

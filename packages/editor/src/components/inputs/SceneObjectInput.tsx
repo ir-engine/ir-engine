@@ -3,7 +3,7 @@ import React from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { Object3D } from 'three'
 
-import EntityTree, { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityTree, EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { useHookEffect } from '@xrengine/hyperflux'
 
 import { ItemTypes } from '../../constants/AssetTypes'

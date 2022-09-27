@@ -2,8 +2,8 @@ import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { Component, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 

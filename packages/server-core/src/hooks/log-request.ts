@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 
-import logger from '../logger'
+import logger from '../ServerLogger'
 
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {

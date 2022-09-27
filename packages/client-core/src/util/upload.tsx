@@ -1,7 +1,8 @@
 import i18n from 'i18next'
 
+import { serverHost } from '@xrengine/common/src/config'
+
 import { accessAuthState } from '../user/services/AuthService'
-import { serverHost } from './config'
 import { RethrownError } from './errors'
 
 export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; promise: Promise<T[]> }

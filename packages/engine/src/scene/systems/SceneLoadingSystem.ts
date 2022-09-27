@@ -9,7 +9,6 @@ import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
 import {
   ComponentMap,
@@ -22,13 +21,16 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import {
-  addEntityNodeInTree,
+  addEntityNodeChild,
   createEntityNode,
   removeEntityNode,
-  removeEntityNodeRecursively
-} from '../../ecs/functions/EntityTreeFunctions'
+  removeEntityNodeRecursively,
+  updateRootNodeUuid
+} from '../../ecs/functions/EntityTree'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -79,13 +81,13 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
   return data
 }
 
-export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): Promise<EntityTreeNode[]> => {
+export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNode): Promise<EntityTreeNode[]> => {
   const entityMap = {} as { [key: string]: EntityTreeNode }
   const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root)
   const idMap = new Map<string, string>()
   const loadedEntities = Engine.instance.currentWorld.entityTree.uuidNodeMap
 
-  const root = Engine.instance.currentWorld.entityTree.rootNode
+  const root = assetRoot ?? Engine.instance.currentWorld.entityTree.rootNode
   const rootId = sceneData.root
 
   entities.forEach(([_uuid]) => {
@@ -116,13 +118,13 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
     let parentId = sceneEntity.parent
     if (parentId) {
       if (idMap.has(parentId)) parentId = idMap.get(parentId)!
-      if (parentId === sceneData.root) {
+      if (parentId === rootId) {
         sceneEntity.parent = root.uuid
         parentId = root.uuid
         result.push(node)
       }
     }
-    addEntityNodeInTree(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : undefined)
+    addEntityNodeChild(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : root)
   })
   return result
 }
@@ -194,6 +196,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   )
   /** @todo this will not  */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {
+    if (node === world.entityTree.rootNode) continue
     removeEntityNodeRecursively(node, false, world.entityTree)
   }
 
@@ -205,6 +208,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   world.sceneJson = sceneData.scene
 
   /** 4. update scene entities with new data, and load new ones */
+  updateRootNodeUuid(sceneData.scene.root, world.entityTree)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
   updateSceneEntitiesFromJSON(sceneData.scene.root, world)
 
@@ -230,7 +234,7 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
       //   reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
     } else {
       const node = createEntityNode(createEntity(), uuid)
-      addEntityNodeInTree(node, world.entityTree.uuidNodeMap.get(entityJson.parent!))
+      addEntityNodeChild(node, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
       deserializeSceneEntity(node, entityJson)
     }
   } catch (e) {
@@ -258,6 +262,7 @@ export const deserializeSceneEntity = (
       !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
   )
   for (const C of componentsToRemove) {
+    if (entityNode.entity === world.sceneEntity) if (C === VisibleComponent) continue
     if (C === GroupComponent || C === TransformComponent) continue
     console.log('removing component', C.name, C, entityNode.entity)
     removeComponent(entityNode.entity, C)
@@ -269,12 +274,6 @@ export const deserializeSceneEntity = (
       console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
       console.error(e)
     }
-  }
-
-  /** @todo do we need this still? */
-  if (!hasComponent(entityNode.entity, VisibleComponent)) {
-    const obj = getComponent(entityNode.entity, Object3DComponent)?.value
-    if (obj) obj.visible = false
   }
 
   return entityNode.entity

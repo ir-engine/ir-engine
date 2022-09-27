@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
+import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
@@ -94,6 +95,7 @@ const LoadingDetailView = (props: {
       img.src = thumbnailUrl
     } else {
       setDefaultPalette(colors)
+      props.colorsLoadedCallback()
     }
 
     return () => {
@@ -122,8 +124,7 @@ const LoadingDetailView = (props: {
   useEffect(() => {
     /** renderering is disabled on an HMD when a session is not active ,
      *   render it here whenever the loading screen changes */
-    if (Engine.instance.isHMD && !getState(XRState).sessionActive.value)
-      EngineRenderer.instance.execute(Engine.instance.tickRate)
+    if (isHMD && !getState(XRState).sessionActive.value) EngineRenderer.instance.execute(Engine.instance.tickRate)
   }, [engineState.loadingProgress, loadingSystemState.loadingScreenOpacity])
 
   const sceneLoaded = engineState.sceneLoaded.value

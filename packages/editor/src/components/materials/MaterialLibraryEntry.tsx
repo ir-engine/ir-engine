@@ -2,6 +2,8 @@ import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 import { Material } from 'three'
 
+import { MaterialSource } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
+
 import MaterialLibraryEntryIcon from '@mui/icons-material/LocalFloristOutlined'
 import { Grid } from '@mui/material'
 
@@ -13,6 +15,7 @@ export type MaterialLibraryEntryType = {
   uuid: string
   material: Material
   prototype: string
+  source: MaterialSource
   selected?: boolean
   active?: boolean
   isCollapsed?: boolean
@@ -73,7 +76,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
       }
     >
       <div className={styles.nodeContent}>
-        <Grid container spacing={1}>
+        <Grid container spacing={1} columns={16}>
           <Grid item xs={1}>
             <div className={styles.nodeIcon}>
               <MaterialLibraryEntryIcon className={styles.nodeIcon} />
@@ -84,6 +87,11 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
           </Grid>
           <Grid item xs={3}>
             <div>{node.prototype}</div>
+          </Grid>
+          <Grid item xs={3}>
+            <div>
+              {node.source.type}: {node.source.path}
+            </div>
           </Grid>
           <Grid item xs={3}>
             <div>{material.uuid}</div>

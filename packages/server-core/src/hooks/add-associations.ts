@@ -2,7 +2,7 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 
 import { Application } from '@xrengine/server-core/declarations'
 
-import logger from '../logger'
+import logger from '../ServerLogger'
 
 function processInclude(context: HookContext, includeCollection?: ModelType[]) {
   if (!includeCollection) {
