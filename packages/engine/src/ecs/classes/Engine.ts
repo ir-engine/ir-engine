@@ -58,8 +58,6 @@ export class Engine {
 
   isBot = false
 
-  isHMD = false
-
   /**
    * The current world
    */

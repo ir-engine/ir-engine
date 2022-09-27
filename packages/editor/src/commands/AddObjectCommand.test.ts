@@ -1,14 +1,10 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import EntityTree, { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  addEntityNodeChild,
-  createEntityNode,
-  emptyEntityTree
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTree, EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'

@@ -1,8 +1,8 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
   SnapMode,
   TransformMode,

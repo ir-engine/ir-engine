@@ -2,9 +2,9 @@ import { Matrix4 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { isEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
+import { isEntityNode } from '../../ecs/functions/EntityTree'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { Object3DComponent } from '../components/Object3DComponent'
 

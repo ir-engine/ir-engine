@@ -24,7 +24,7 @@ import {
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'

@@ -26,6 +26,7 @@ import { createActionQueue, dispatchAction, getState, removeActionQueue } from '
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { isHMD } from '../common/functions/isMobile'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
@@ -80,7 +81,6 @@ export class EngineRenderer {
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
 
   supportWebGL2: boolean
-  rendereringEnabled = true
   canvas: HTMLCanvasElement
 
   averageFrameTime = 1000 / 60
@@ -133,7 +133,7 @@ export class EngineRenderer {
       depth: false,
       canvas,
       context,
-      preserveDrawingBuffer: !Engine.instance.isHMD
+      preserveDrawingBuffer: !isHMD
     }
 
     this.canvas = canvas
@@ -146,7 +146,7 @@ export class EngineRenderer {
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
     this.renderer = renderer
-    this.renderer.physicallyCorrectLights = true
+    this.renderer.physicallyCorrectLights = !isHMD
     this.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
@@ -214,46 +214,43 @@ export class EngineRenderer {
    */
   execute(delta: number): void {
     if (this.xrManager.isPresenting) {
-      this.csm?.update()
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
       const state = accessEngineRendererState()
       const engineState = getEngineState()
       if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
-      if (this.rendereringEnabled) {
-        if (this.needsResize) {
-          const curPixelRatio = this.renderer.getPixelRatio()
-          const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
+      if (this.needsResize) {
+        const curPixelRatio = this.renderer.getPixelRatio()
+        const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
 
-          if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
+        if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
-          const width = window.innerWidth
-          const height = window.innerHeight
+        const width = window.innerWidth
+        const height = window.innerHeight
 
-          if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
-            const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
-            cam.aspect = width / height
-            cam.updateProjectionMatrix()
-          }
-
-          state.qualityLevel.value > 0 && this.csm?.updateFrustums()
-          // Effect composer calls renderer.setSize internally
-          this.effectComposer.setSize(width, height, true)
-          this.needsResize = false
+        if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
+          const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
+          cam.aspect = width / height
+          cam.updateProjectionMatrix()
         }
 
-        state.qualityLevel.value > 0 && this.csm?.update()
+        state.qualityLevel.value > 0 && this.csm?.updateFrustums()
+        // Effect composer calls renderer.setSize internally
+        this.effectComposer.setSize(width, height, true)
+        this.needsResize = false
+      }
 
-        /**
-         * Editor should always use post processing, even if no postprocessing schema is in the scene,
-         *   it still uses post processing for effects such as outline.
-         */
-        if (state.usePostProcessing.value || Engine.instance.isEditor) {
-          this.effectComposer.render(delta)
-        } else {
-          this.renderer.autoClear = true
-          this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
-        }
+      state.qualityLevel.value > 0 && this.csm?.update()
+
+      /**
+       * Editor should always use post processing, even if no postprocessing schema is in the scene,
+       *   it still uses post processing for effects such as outline.
+       */
+      if (state.usePostProcessing.value || Engine.instance.isEditor) {
+        this.effectComposer.render(delta)
+      } else {
+        this.renderer.autoClear = true
+        this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
       }
     }
   }
@@ -310,8 +307,7 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
     for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
 
-    if (!Engine.instance.isHMD || getState(XRState).sessionActive.value)
-      EngineRenderer.instance.execute(world.deltaSeconds)
+    if (!isHMD || getState(XRState).sessionActive.value) EngineRenderer.instance.execute(world.deltaSeconds)
   }
 
   const cleanup = async () => {

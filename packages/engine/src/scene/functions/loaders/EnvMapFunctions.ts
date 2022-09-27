@@ -17,6 +17,7 @@ import {
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { isHMD } from '../../../common/functions/isMobile'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -47,7 +48,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, 
 
 export const updateEnvMap = async (entity: Entity) => {
   const component = getComponent(entity, EnvmapComponent)
-  const obj3d = getComponent(entity, ModelComponent).scene!
+  const obj3d = getComponent(entity, ModelComponent).scene.value!
   if (!obj3d) return
 
   switch (component.type) {
@@ -182,6 +183,7 @@ function applyEnvMap(obj3d: Object3D, envmap: Texture | null) {
   if (obj3d instanceof Scene) {
     obj3d.environment = envmap
   } else {
+    if (isHMD) return
     obj3d.traverse((child: Mesh<any, MeshStandardMaterial>) => {
       if (child.material instanceof MeshMatcapMaterial) return
       if (child.material) child.material.envMap = envmap

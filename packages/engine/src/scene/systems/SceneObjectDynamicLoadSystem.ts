@@ -5,7 +5,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { removeEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { removeEntityNode } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   SCENE_COMPONENT_DYNAMIC_LOAD,

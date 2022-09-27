@@ -15,7 +15,7 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { iterateEntityNode, removeEntityNodeFromParent } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { iterateEntityNode, removeEntityNodeFromParent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { Physics } from '@xrengine/engine/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
@@ -28,7 +28,7 @@ import {
 import { serializeEntity, serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { updateSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 
-import { EntityTreeNode } from '../../../ecs/classes/EntityTree'
+import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
 
 export const deserializeLoadVolume: ComponentDeserializeFunction = (entity: Entity, data: LoadVolumeComponentType) => {
   const props = parseLoadVolumeProperties(data)

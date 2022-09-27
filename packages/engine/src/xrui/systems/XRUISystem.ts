@@ -131,31 +131,33 @@ export default async function XRUISystem(world: World) {
     const xrFrame = Engine.instance.xrFrame
     const xrManager = EngineRenderer.instance.xrManager
 
-    for (const entity of localXRInputQuery.enter()) {
-      xrui.interactionRays = [...xrFrame.session.inputSources].map((source, idx) => xrManager.getController(idx))
-    }
+    if (xrFrame) {
+      const localXRInput = localXRInputQuery().length
 
-    for (const entity of localXRInputQuery.exit()) {
-      xrui.interactionRays = [world.pointerScreenRaycaster.ray]
-    }
+      if (localXRInput && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
+        xrui.interactionRays = [...xrFrame.session.inputSources].map((source, idx) => xrManager.getController(idx))
 
-    if (xrFrame && xrInputSourceComponent) {
-      for (const [idx, source] of xrFrame.session.inputSources.entries()) {
-        if (source.targetRayMode === 'tracked-pointer') {
-          const controller =
-            source.handedness === 'left'
-              ? xrInputSourceComponent.controllerLeft
-              : xrInputSourceComponent.controllerRight
-          const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
-          updateControllerRayInteraction(controller)
-          if (input?.data?.has(GrabInput))
-            updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(GrabInput)!)
-        }
+      if (!localXRInput && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
+        xrui.interactionRays = [world.pointerScreenRaycaster.ray]
 
-        if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-          const targetRayPose = Engine.instance.xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
-          if (input?.data?.has(BaseInput.PRIMARY))
-            updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.PRIMARY)!)
+      if (xrInputSourceComponent) {
+        for (const [idx, source] of xrFrame.session.inputSources.entries()) {
+          if (source.targetRayMode === 'tracked-pointer') {
+            const controller =
+              source.handedness === 'left'
+                ? xrInputSourceComponent.controllerLeft
+                : xrInputSourceComponent.controllerRight
+            const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
+            updateControllerRayInteraction(controller)
+            if (input?.data?.has(GrabInput))
+              updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(GrabInput)!)
+          }
+
+          if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
+            const targetRayPose = Engine.instance.xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
+            if (input?.data?.has(BaseInput.PRIMARY))
+              updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.PRIMARY)!)
+          }
         }
       }
     }

@@ -3,6 +3,7 @@ import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } fro
 import { io as ioclient, Socket } from 'socket.io-client'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { instanceserverHost } from '@xrengine/common/src/config'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -24,7 +25,6 @@ import {
 import { accessChatState } from '../social/services/ChatService'
 import { accessLocationState } from '../social/services/LocationService'
 import { accessAuthState } from '../user/services/AuthService'
-import { instanceserverHost } from '../util/config'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientNetwork' })

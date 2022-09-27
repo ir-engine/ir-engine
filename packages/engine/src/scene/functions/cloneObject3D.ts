@@ -113,7 +113,7 @@ export const getAnimationClips = (): AnimationClip[] => {
     if (comp.hasAvatarAnimations) {
       result.add(AnimationManager.instance._animations[comp.activeClipIndex])
     } else {
-      const scene = getComponent(entity, ModelComponent).scene
+      const scene = getComponent(entity, ModelComponent).scene.value!
       if (scene) result.add(scene.animations[comp.activeClipIndex])
     }
   }

@@ -302,3 +302,6 @@ export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComp
 globalThis.XRE_getComponent = getComponent
 globalThis.XRE_getAllComponents = getAllComponents
 globalThis.XRE_getAllComponentData = getAllComponentData
+globalThis.XRE_addComponent = addComponent
+globalThis.XRE_setComponent = setComponent
+globalThis.XRE_removeComponent = removeComponent

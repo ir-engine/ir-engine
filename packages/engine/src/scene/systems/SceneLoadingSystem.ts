@@ -9,7 +9,6 @@ import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
 import {
   ComponentMap,
@@ -22,13 +21,14 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import {
   addEntityNodeChild,
   createEntityNode,
   removeEntityNode,
   removeEntityNodeRecursively,
   updateRootNodeUuid
-} from '../../ecs/functions/EntityTreeFunctions'
+} from '../../ecs/functions/EntityTree'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -262,6 +262,7 @@ export const deserializeSceneEntity = (
       !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
   )
   for (const C of componentsToRemove) {
+    if (entityNode.entity === world.sceneEntity) if (C === VisibleComponent) continue
     if (C === GroupComponent || C === TransformComponent) continue
     console.log('removing component', C.name, C, entityNode.entity)
     removeComponent(entityNode.entity, C)
@@ -273,12 +274,6 @@ export const deserializeSceneEntity = (
       console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
       console.error(e)
     }
-  }
-
-  /** @todo do we need this still? */
-  if (!hasComponent(entityNode.entity, VisibleComponent)) {
-    const obj = getComponent(entityNode.entity, Object3DComponent)?.value
-    if (obj) obj.visible = false
   }
 
   return entityNode.entity

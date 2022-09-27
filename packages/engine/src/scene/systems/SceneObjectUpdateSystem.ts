@@ -58,11 +58,7 @@ import {
   SCENE_COMPONENT_INTERIOR,
   SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES
 } from '../components/InteriorComponent'
-import {
-  ModelComponent,
-  SCENE_COMPONENT_MODEL,
-  SCENE_COMPONENT_MODEL_DEFAULT_VALUE
-} from '../components/ModelComponent'
+import { ModelComponent, SCENE_COMPONENT_MODEL } from '../components/ModelComponent'
 import {
   OceanComponent,
   SCENE_COMPONENT_OCEAN,
@@ -139,7 +135,7 @@ import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeImage, enterImage, serializeImage } from '../functions/loaders/ImageFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
-import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
+import { deserializeModel, serializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePortal, serializePortal, updatePortal } from '../functions/loaders/PortalFunctions'
 import {
@@ -363,14 +359,14 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.model, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
+    { name: SCENE_COMPONENT_MODEL, props: {} },
     { name: SCENE_COMPONENT_ENVMAP, props: SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
   ])
 
   world.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
-    defaultData: SCENE_COMPONENT_MODEL_DEFAULT_VALUE,
+    defaultData: {},
     deserialize: deserializeModel,
     serialize: serializeModel
   })
@@ -519,7 +515,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
         if (hasComponent(entity, PortalComponent)) updatePortal(entity)
-        if (hasComponent(entity, ModelComponent)) updateModel(entity)
         if (hasComponent(entity, GroundPlaneComponent)) updateGroundPlane(entity)
         if (hasComponent(entity, LoopAnimationComponent)) updateLoopAnimation(entity)
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
@@ -553,7 +548,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
     for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')
     for (const entity of portalQuery.enter()) updatePortal(entity)
-    for (const entity of modelQuery.enter()) updateModel(entity)
     for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
