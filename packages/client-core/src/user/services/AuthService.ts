@@ -441,7 +441,7 @@ export const AuthService = {
         identityProvider: {
           id: 0,
           token: '',
-          type: 'chapiWallet',
+          type: 'didWallet',
           isVerified: true,
           userId: walletUser.id
         }
