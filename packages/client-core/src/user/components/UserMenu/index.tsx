@@ -122,12 +122,14 @@ export const UserMenu = (props: Props): any => {
             )}
           </section>
           {currentActiveMenu && currentActiveMenu.view && (
-            <Panel
-              {...currentActiveMenu.params}
-              changeActiveMenu={(view, params) => {
-                setCurrentActiveMenu({ view, params })
-              }}
-            />
+            <div style={{ pointerEvents: 'auto' }}>
+              <Panel
+                {...currentActiveMenu.params}
+                changeActiveMenu={(view, params) => {
+                  setCurrentActiveMenu({ view, params })
+                }}
+              />
+            </div>
           )}
         </div>
       </ClickAwayListener>
