@@ -11,7 +11,7 @@ import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaCompo
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 
-import { executeCommandWithHistory, setPropertyOnEntityNode } from '../classes/History'
+import { executeCommandWithHistory, executeModifyPropertyCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 
 /**
@@ -36,7 +36,7 @@ export async function addMediaNode(
   if (contentType.startsWith('asset/')) {
     prefabType = ScenePrefabs.asset
     updateFunc = () =>
-      setPropertyOnEntityNode(
+      executeModifyPropertyCommand(
         {
           affectedNodes: [node],
           component: AssetComponent,
@@ -47,7 +47,7 @@ export async function addMediaNode(
   } else if (contentType.startsWith('model/gltf')) {
     prefabType = ScenePrefabs.model
     updateFunc = () =>
-      setPropertyOnEntityNode(
+      executeModifyPropertyCommand(
         {
           affectedNodes: [node],
           component: ModelComponent,
@@ -58,7 +58,7 @@ export async function addMediaNode(
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     prefabType = MediaPrefabs.video
     updateFunc = () =>
-      setPropertyOnEntityNode(
+      executeModifyPropertyCommand(
         {
           affectedNodes: [node],
           component: MediaComponent,
@@ -69,7 +69,7 @@ export async function addMediaNode(
   } else if (contentType.startsWith('image/')) {
     prefabType = ScenePrefabs.image
     updateFunc = () =>
-      setPropertyOnEntityNode(
+      executeModifyPropertyCommand(
         {
           affectedNodes: [node],
           component: ImageComponent,
@@ -80,7 +80,7 @@ export async function addMediaNode(
   } else if (contentType.startsWith('audio/')) {
     prefabType = MediaPrefabs.audio
     updateFunc = () =>
-      setPropertyOnEntityNode(
+      executeModifyPropertyCommand(
         {
           affectedNodes: [node],
           component: MediaComponent,
@@ -91,7 +91,7 @@ export async function addMediaNode(
   } else if (url.includes('.uvol')) {
     prefabType = MediaPrefabs.volumetric
     updateFunc = () =>
-      setPropertyOnEntityNode(
+      executeModifyPropertyCommand(
         {
           affectedNodes: [node],
           component: MediaComponent,

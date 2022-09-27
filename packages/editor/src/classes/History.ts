@@ -102,17 +102,6 @@ export function executeCommandWithHistory(command: CommandParamsType): void {
 }
 
 /**
- * Executes command with out history on selected entities.
- * @param command Command to be executed
- */
-export function executeCommandOnSelection(command: CommandParamsOmitAffectedNodes): void {
-  ;(command as CommandParamsType).affectedNodes = getEntityNodeArrayFromEntities(
-    accessSelectionState().selectedEntities.value
-  )
-  executeCommand(command as CommandParamsType)
-}
-
-/**
  * Executes command with history on selected entities.
  * @param command Command to be executed
  */
@@ -158,18 +147,6 @@ export function setPropertyOnSelectionEntities<C extends Component<any, any>>(
     ? [Engine.instance.currentWorld.entityTree.uuidNodeMap.get(editorState.lockPropertiesPanel.value)!]
     : getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
   executeModifyPropertyCommand(command as ModifyPropertyCommandParams<C>, withHistory)
-}
-
-/**
- * Sets property on the the nodes passed in command
- * @param command Node which will be updated
- * @param withHistory Whether to record this command to history or not
- */
-export function setPropertyOnEntityNode<C extends Component<any, any>>(
-  command: Omit<ModifyPropertyCommandParams<C>, 'type'>,
-  withHistory = true
-) {
-  executeModifyPropertyCommand(command, withHistory)
 }
 
 /**

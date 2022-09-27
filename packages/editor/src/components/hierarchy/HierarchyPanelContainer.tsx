@@ -20,7 +20,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
-import { executeCommandWithHistory, setPropertyOnEntityNode } from '../../classes/History'
+import { executeCommandWithHistory, executeModifyPropertyCommand, executeModifyPropertyCommand } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
@@ -405,7 +405,7 @@ export default function HierarchyPanel() {
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
-      setPropertyOnEntityNode({
+      executeModifyPropertyCommand({
         affectedNodes: [node.entityNode ?? node.obj3d],
         component: NameComponent,
         properties: [{ name }]
