@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
+// import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -256,9 +256,8 @@ const ProfileMenu = ({
    * Example function, requests a Verifiable Credential from the user's wallet.
    */
   async function handleRequestCredentialClick() {
-    const result = await navigator.credentials.get(vpRequestQuery)
-
-    console.log('VC Request query result:', result)
+    // const result = await navigator.credentials.get(vpRequestQuery)
+    // console.log('VC Request query result:', result)
   }
 
   async function handleWalletLoginClick() {
