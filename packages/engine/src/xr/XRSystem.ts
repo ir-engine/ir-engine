@@ -143,7 +143,11 @@ export default async function XRSystem(world: World) {
     removeActionQueue(xrSessionChangedQueue)
   }
 
-  return { execute, cleanup }
+  return {
+    execute,
+    cleanup,
+    subsystems: [() => import('./XRDepthOcclusionSystem')]
+  }
 }
 
 export function updateGamepadInput(source: XRInputSource) {

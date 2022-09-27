@@ -32,9 +32,21 @@ export const requestXRSession = createHookableFunction(
     try {
       const xrState = getState(XRState)
       const sessionInit = {
-        optionalFeatures: ['local-floor', 'hand-tracking', 'layers', 'dom-overlay', 'hit-test', 'light-estimation'],
+        optionalFeatures: [
+          'local-floor',
+          'hand-tracking',
+          'layers',
+          'dom-overlay',
+          'hit-test',
+          'light-estimation',
+          'depth-sensing'
+        ],
+        depthSensing: {
+          usagePreference: ['cpu-optimized', 'gpu-optimized'],
+          dataFormatPreference: ['luminance-alpha', 'float32']
+        },
         domOverlay: { root: document.body }
-      }
+      } as XRSessionInit
       const mode =
         action.mode ||
         (xrState.supportedSessionModes['immersive-ar'].value

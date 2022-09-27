@@ -3,6 +3,7 @@ import { Vector3 } from 'three'
 import { defineState, getState } from '@xrengine/hyperflux'
 
 import { Entity } from '../ecs/classes/Entity'
+import { DepthDataTexture } from './DepthDataTexture'
 
 export const XRState = defineState({
   name: 'XRState',
@@ -25,7 +26,9 @@ export const XRState = defineState({
     originReferenceSpace: null as XRReferenceSpace | null,
     viewerReferenceSpace: null as XRReferenceSpace | null,
     viewerHitTestSource: null as XRHitTestSource | null,
-    viewerHitTestEntity: NaN as Entity
+    viewerHitTestEntity: NaN as Entity,
+    /** Stores the depth map data - will exist if depth map is supported */
+    depthDataTexture: null as DepthDataTexture | null
   })
 })
 
