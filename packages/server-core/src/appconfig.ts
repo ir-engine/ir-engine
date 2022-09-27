@@ -4,7 +4,7 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
-import multiLogger from './logger'
+import multiLogger from './ServerLogger'
 
 const { register } = require('trace-unhandled')
 register()

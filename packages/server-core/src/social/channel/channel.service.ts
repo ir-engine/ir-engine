@@ -1,7 +1,7 @@
 import '@feathersjs/transport-commons'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { Channel } from './channel.class'
 import channelDocs from './channel.docs'
 import hooks from './channel.hooks'

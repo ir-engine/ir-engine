@@ -5,7 +5,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
 export type ProjectPermissionsDataType = ProjectPermissionInterface

@@ -4,8 +4,8 @@ import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
 
 import { Application } from '../../declarations'
-import logger from '../logger'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
+import logger from '../ServerLogger'
 
 export default (): Hook => {
   return async (context: HookContext<Application>): Promise<HookContext> => {

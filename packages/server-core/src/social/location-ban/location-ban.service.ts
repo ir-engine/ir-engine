@@ -1,6 +1,6 @@
 // Initializes the `location-ban` service on dpath `/location-ban`
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { LocationBan } from './location-ban.class'
 import locationBanDocs from './location-ban.docs'
 import hooks from './location-ban.hooks'

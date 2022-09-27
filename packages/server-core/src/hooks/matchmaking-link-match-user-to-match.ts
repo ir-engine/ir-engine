@@ -2,7 +2,7 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 
 import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
 
-import logger from '../logger'
+import logger from '../ServerLogger'
 
 interface AssignmentResponse extends OpenMatchTicketAssignment {
   instanceId: string
