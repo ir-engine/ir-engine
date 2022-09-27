@@ -4,8 +4,7 @@
 
 export type XRDepthInformation = {
   height: number
-  normTextureFromNormView: XRRigidTransform // ???? this is the one in the code
-  normDepthBufferFromNormView: XRRigidTransform // ???? this is the one in the mozilla docs
+  normDepthBufferFromNormView: XRRigidTransform
   rawValueToMeters: number
   width: number
 }

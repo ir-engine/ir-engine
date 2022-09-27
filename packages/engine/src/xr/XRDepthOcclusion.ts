@@ -2,9 +2,18 @@
  * Credit https://github.com/tentone/webxr-occlusion-lighting/tree/main/src/material
  */
 import { Material, Matrix4, ShaderMaterial, Shader as ShaderType, ShadowMaterial } from 'three'
+import { Mesh } from 'three'
+
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
+import { Engine } from '../ecs/classes/Engine'
+import { World } from '../ecs/classes/World'
+import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../scene/components/GroupComponent'
 import { DepthDataTexture } from './DepthDataTexture'
+import { XRAction } from './XRAction'
+import { XRState } from './XRState'
 import { XRCPUDepthInformation } from './XRTypes'
 
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
@@ -160,17 +169,14 @@ function updateDepthMaterials(frame: XRFrame, referenceSpace: XRReferenceSpace, 
  * @param {XRRigidTransform} normTextureFromNormViewMatrix - Matrix obtained from AR depth from frame.getDepthInformation(view).
  */
 function updateUniforms(materials: XRDepthOcclusionMaterialType[], depthInfo: XRCPUDepthInformation) {
-  const normTextureFromNormViewMatrix = depthInfo.normTextureFromNormView.matrix
+  const normTextureFromNormViewMatrix = depthInfo.normDepthBufferFromNormView.matrix
   const rawValueToMeters = depthInfo.rawValueToMeters
-
+  const width = Math.floor(window.devicePixelRatio * window.innerWidth)
+  const height = Math.floor(window.devicePixelRatio * window.innerHeight)
   for (const material of materials) {
     if (material.userData.DepthOcclusionPlugin) {
-      material.userData.DepthOcclusionPlugin.uniforms.uWidth.value = Math.floor(
-        window.devicePixelRatio * window.innerWidth
-      )
-      material.userData.DepthOcclusionPlugin.uniforms.uHeight.value = Math.floor(
-        window.devicePixelRatio * window.innerHeight
-      )
+      material.userData.DepthOcclusionPlugin.uniforms.uWidth.value = width
+      material.userData.DepthOcclusionPlugin.uniforms.uHeight.value = height
       material.userData.DepthOcclusionPlugin.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix)
       material.userData.DepthOcclusionPlugin.uniforms.uRawValueToMeters.value = rawValueToMeters
       material.uniformsNeedUpdate = true
@@ -184,4 +190,52 @@ export const XRDepthOcclusion = {
   removeDepthOBCPlugin,
   updateDepthMaterials,
   updateUniforms
+}
+
+/**
+ * Updates materials with XR depth map uniforms
+ * @param world
+ * @returns
+ */
+export default async function XRDepthOcclusionSystem(world: World) {
+  const groupComponent = defineQuery([GroupComponent])
+  const xrState = getState(XRState)
+  const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+
+  const execute = () => {
+    for (const action of xrSessionChangedQueue()) {
+      if (action.active) xrState.depthDataTexture.set(new DepthDataTexture())
+      else {
+        const depthDataTexture = xrState.depthDataTexture.value
+        if (depthDataTexture) {
+          depthDataTexture.dispose()
+          xrState.depthDataTexture.set(null)
+        }
+      }
+    }
+    const depthDataTexture = xrState.depthDataTexture.value
+    for (const entity of groupComponent()) {
+      for (const obj of getComponent(entity, GroupComponent)) {
+        obj.traverse((obj: Mesh<any, Material>) => {
+          if (obj.material) {
+            if (depthDataTexture) XRDepthOcclusion.implementDepthOBCPlugin(obj.material, depthDataTexture)
+            else XRDepthOcclusion.removeDepthOBCPlugin(obj.material)
+          }
+        })
+      }
+    }
+    if (depthDataTexture)
+      XRDepthOcclusion.updateDepthMaterials(
+        Engine.instance.xrFrame,
+        xrState.viewerReferenceSpace.value!,
+        depthDataTexture
+      )
+  }
+
+  const cleanup = async () => {
+    removeQuery(world, groupComponent)
+    removeActionQueue(xrSessionChangedQueue)
+  }
+
+  return { execute, cleanup }
 }

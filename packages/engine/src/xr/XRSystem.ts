@@ -146,7 +146,7 @@ export default async function XRSystem(world: World) {
   return {
     execute,
     cleanup,
-    subsystems: [() => import('./XRDepthOcclusionSystem')]
+    subsystems: [() => import('./XRDepthOcclusion')]
   }
 }
 
