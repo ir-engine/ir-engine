@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react'
+import React, { memo, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
@@ -6,9 +6,15 @@ import { MeshBasicMaterial } from 'three'
 
 import exportMaterialsGLTF from '@xrengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { materialFromId, registerMaterial } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { useHookEffect, useHookstate, useState } from '@xrengine/hyperflux'
+import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
+import {
+  entryId,
+  hashMaterialSource,
+  materialFromId,
+  registerMaterial
+} from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { MaterialLibrary, MaterialLibraryActions } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { createActionQueue, removeActionQueue, useHookEffect, useHookstate, useState } from '@xrengine/hyperflux'
 
 import { Divider, Grid, Stack } from '@mui/material'
 
@@ -27,19 +33,34 @@ export default function MaterialLibraryPanel() {
   const editorState = useEditorState()
   const selectionState = useSelectionState()
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
-
   const nodeChanges = useHookstate(0)
-  const createNodes = useCallback(() => {
-    const result = [...MaterialLibrary.materials.values()].map(({ material, prototype, src }) => ({
-      uuid: material.uuid,
-      material,
-      prototype,
-      source: src,
-      selected: selectionState.selectedEntities.value.some(
-        (selectedEntity) => typeof selectedEntity === 'string' && selectedEntity === material.uuid
-      ),
-      active: selectionState.selectedEntities.value.at(selectionState.selectedEntities.length - 1) === material.uuid
-    }))
+  const createNodes = useCallback((): MaterialLibraryEntryType[] => {
+    const result = [...MaterialLibrary.sources.values()].flatMap((srcComp) => {
+      return [
+        {
+          uuid: hashMaterialSource(srcComp.src),
+          type: LibraryEntryType.MATERIAL_SOURCE,
+          entry: srcComp,
+          selected: selectionState.selectedEntities.value.some(
+            (entity) => typeof entity === 'string' && entity === hashMaterialSource(srcComp.src)
+          ),
+          active: selectionState.selectedEntities.value.at(-1) === hashMaterialSource(srcComp.src)
+        },
+        ...srcComp.entries
+          .filter((uuid) => MaterialLibrary.materials.has(uuid))
+          .map((uuid) => {
+            return {
+              uuid,
+              type: LibraryEntryType.MATERIAL,
+              entry: materialFromId(uuid),
+              selected: selectionState.selectedEntities.value.some(
+                (entity) => typeof entity === 'string' && entity === uuid
+              ),
+              active: selectionState.selectedEntities.value.at(-1) === uuid
+            }
+          })
+      ]
+    })
     return result
   }, [])
 
@@ -49,7 +70,7 @@ export default function MaterialLibraryPanel() {
     if (!editorState.lockPropertiesPanel.get()) {
       executeCommandWithHistory({
         type: EditorCommands.REPLACE_SELECTION,
-        affectedNodes: [node.material.uuid]
+        affectedNodes: [entryId(node.entry, node.type)]
       })
     }
   }, [])
@@ -61,24 +82,6 @@ export default function MaterialLibraryPanel() {
   return (
     <>
       <div className={styles.panelContainer}>
-        <div className={styles.panelSection} style={{ height: 'auto' }}>
-          <Grid container spacing={1} columns={16}>
-            <Grid item xs={1}></Grid>
-            <Grid item xs={3}>
-              <b>Name</b>
-            </Grid>
-            <Grid item xs={3}>
-              <b>Prototype</b>
-            </Grid>
-            <Grid item xs={3}>
-              <b>Source</b>
-            </Grid>
-            <Grid item xs={3}>
-              <b>Uuid</b>
-            </Grid>
-          </Grid>
-          <div className={styles.divider} />
-        </div>
         <div className={styles.panelSection}>
           <AutoSizer>
             {({ width, height }) => (

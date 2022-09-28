@@ -23,5 +23,5 @@ export function getProjectName(path: string) {
 }
 
 export function modelResourcesPath(modelName: string) {
-  return `model-resources/${modelName}`
+  return `model-resources/${modelName.split('.').at(-2)!}`
 }

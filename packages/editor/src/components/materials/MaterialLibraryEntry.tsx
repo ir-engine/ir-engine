@@ -2,7 +2,14 @@ import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 import { Material } from 'three'
 
-import { MaterialSource } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
+import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
+import {
+  MaterialPrototypeComponent,
+  MaterialPrototypeComponentType
+} from '@xrengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
+import { MaterialSourceComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
+import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
+import { entryId, hashMaterialSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 
 import MaterialLibraryEntryIcon from '@mui/icons-material/LocalFloristOutlined'
 import { Grid } from '@mui/material'
@@ -13,9 +20,8 @@ import styles from '../hierarchy/styles.module.scss'
 
 export type MaterialLibraryEntryType = {
   uuid: string
-  material: Material
-  prototype: string
-  source: MaterialSource
+  type: LibraryEntryType
+  entry: MaterialComponentType | MaterialSourceComponentType | MaterialPrototypeComponentType
   selected?: boolean
   active?: boolean
   isCollapsed?: boolean
@@ -33,13 +39,13 @@ export type MaterialLibraryEntryProps = {
 }
 
 const getNodeElId = (node: MaterialLibraryEntryType) => {
-  return 'material-node-' + node.material.uuid
+  return 'material-node-' + entryId(node.entry, node.type)
 }
 
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const data = props.data
   const node = data.nodes[props.index]
-  const material = node.material
+  const material = node.entry
 
   const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
   const selectionState = useSelectionState()
@@ -49,14 +55,19 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
     item() {
       const selectedEntities = selectionState.selectedEntities.value
       const multiple = selectedEntities.length > 1
-      return {
-        type: ItemTypes.Material,
-        multiple,
-        value: material.uuid
+      switch (node.type) {
+        case LibraryEntryType.MATERIAL:
+          return {
+            type: ItemTypes.Material,
+            multiple,
+            value: (material as MaterialComponentType).material.uuid
+          }
+        default:
+          return null
       }
     },
     canDrag() {
-      return true
+      return node.type === LibraryEntryType.MATERIAL
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
@@ -83,18 +94,10 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
             </div>
           </Grid>
           <Grid item xs={3}>
-            <div>{material.name ? material.name : '[NO NAME]'}</div>
+            <div className={styles.nodeContent}>{node.type}</div>
           </Grid>
           <Grid item xs={3}>
-            <div>{node.prototype}</div>
-          </Grid>
-          <Grid item xs={3}>
-            <div>
-              {node.source.type}: {node.source.path}
-            </div>
-          </Grid>
-          <Grid item xs={3}>
-            <div>{material.uuid}</div>
+            <div className={styles.nodeContent}>{node.uuid}</div>
           </Grid>
         </Grid>
       </div>

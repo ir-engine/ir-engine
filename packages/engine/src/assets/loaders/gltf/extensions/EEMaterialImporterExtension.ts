@@ -9,14 +9,10 @@ import {
 import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
 import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
 import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
+import { ImporterExtension } from './ImporterExtension'
 
-export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
+export class EEMaterialImporterExtension extends ImporterExtension implements GLTFLoaderPlugin {
   name = 'EE_material'
-
-  parser: GLTFParser
-  constructor(parser) {
-    this.parser = parser
-  }
 
   getMaterialType(materialIndex: number) {
     const parser = this.parser

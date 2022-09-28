@@ -9,12 +9,15 @@ import {
   Texture
 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
 import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
-import { MaterialSource } from '../components/MaterialSource'
-import { MaterialLibrary } from '../MaterialLibrary'
+import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
+import { LibraryEntryType } from '../constants/LibraryEntry'
+import { MaterialLibrary, MaterialLibraryActions } from '../MaterialLibrary'
 
 export function extractDefaults(defaultArgs) {
   return formatMaterialArgs(
@@ -115,19 +118,20 @@ export function hashMaterialSource(src: MaterialSource): string {
 export function addMaterialSource(src: MaterialSource): boolean {
   const srcId = hashMaterialSource(src)
   if (!MaterialLibrary.sources.has(srcId)) {
-    MaterialLibrary.sources.set(srcId, [])
+    MaterialLibrary.sources.set(srcId, { src, entries: [] })
     return true
   } else return false
 }
 
 export function getSourceMaterials(src: MaterialSource): string[] | undefined {
-  return MaterialLibrary.sources.get(hashMaterialSource(src))
+  return MaterialLibrary.sources.get(hashMaterialSource(src))?.entries
 }
 
 export function removeMaterialSource(src: MaterialSource): boolean {
   const srcId = hashMaterialSource(src)
-  if (!MaterialLibrary.sources.has(srcId)) {
-    MaterialLibrary.sources.get(srcId)!.map((matId) => {
+  if (MaterialLibrary.sources.has(srcId)) {
+    const srcComp = MaterialLibrary.sources.get(srcId)!
+    srcComp.entries.map((matId) => {
       const toDelete = materialFromId(matId)
       Object.values(toDelete.parameters)
         .filter((val) => (val as Texture).isTexture)
@@ -135,6 +139,7 @@ export function removeMaterialSource(src: MaterialSource): boolean {
       toDelete.material.dispose()
       MaterialLibrary.materials.delete(matId)
     })
+    dispatchAction(MaterialLibraryActions.RemoveSource({ src: srcComp.src }))
     return true
   } else return false
 }
@@ -195,4 +200,19 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   nuMat.name = material.name
   nuMat.userData = material.userData
   registerMaterial(nuMat, materialEntry.src)
+  return nuMat
+}
+
+export function entryId(
+  entry: MaterialComponentType | MaterialPrototypeComponentType | MaterialSourceComponentType,
+  type: LibraryEntryType
+) {
+  switch (type) {
+    case LibraryEntryType.MATERIAL:
+      return (entry as MaterialComponentType).material.uuid
+    case LibraryEntryType.MATERIAL_PROTOTYPE:
+      return (entry as MaterialPrototypeComponentType).prototypeId
+    case LibraryEntryType.MATERIAL_SOURCE:
+      return hashMaterialSource((entry as MaterialSourceComponentType).src)
+  }
 }

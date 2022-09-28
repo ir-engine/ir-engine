@@ -271,6 +271,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                         mesh.material[currentMaterialId.value] = MaterialLibrary.materials.get(nuId)!.material
                       } else {
                         mesh.material = MaterialLibrary.materials.get(nuId)!.material
+                        mesh.material.needsUpdate = true
                       }
                     }
                   }}
