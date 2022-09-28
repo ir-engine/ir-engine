@@ -122,8 +122,8 @@ export default async function XRSystem(world: World) {
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
-      const session = EngineRenderer.instance.xrManager!.getSession()!
-      for (const source of session.inputSources) updateGamepadInput(source)
+      const session = EngineRenderer.instance.xrManager!.getSession()
+      if (session?.inputSources) for (const source of session.inputSources) updateGamepadInput(source)
 
       if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
         for (const entity of xrHitTestQuery()) updateHitTest(entity)
