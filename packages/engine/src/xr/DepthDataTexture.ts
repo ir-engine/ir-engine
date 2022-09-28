@@ -13,9 +13,7 @@ import { XRCPUDepthInformation } from './XRTypes'
  * This depth has to be unpacked in shader and multiplied by the normalization matrix to obtain rectified UV coordinates.
  */
 export class DepthDataTexture extends DataTexture {
-  constructor() {
-    const width = 160
-    const height = 90
+  constructor(width, height) {
     const data = new Uint8Array(width * height)
 
     super(data, width, height, RGFormat, UnsignedByteType)
@@ -33,7 +31,7 @@ export class DepthDataTexture extends DataTexture {
    */
   updateDepth(depthInfo: XRCPUDepthInformation) {
     const dataBuffer = depthInfo.data
-    this.image.data = new Uint8Array(dataBuffer.buffer, dataBuffer.byteOffset, dataBuffer.byteLength)
+    this.image.data = new Uint8Array(dataBuffer)
     this.needsUpdate = true
   }
 }

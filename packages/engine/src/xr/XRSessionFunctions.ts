@@ -175,6 +175,11 @@ const setupARSession = (world = Engine.instance.currentWorld) => {
 
   setupWebXRLightprobe()
 
+  session.updateRenderState({
+    depthNear: 0.01,
+    depthFar: 10.0
+  })
+
   world.scene.background = null
 }
 
