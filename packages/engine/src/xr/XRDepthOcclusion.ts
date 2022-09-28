@@ -1,19 +1,7 @@
 /**
  * Adapted from https://github.com/tentone/webxr-occlusion-lighting/tree/main/src/material
  */
-import {
-  Material,
-  Matrix4,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  Shader,
-  ShaderMaterial,
-  Shader as ShaderType,
-  ShadowMaterial,
-  SphereGeometry,
-  Vector2
-} from 'three'
+import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
@@ -21,6 +9,7 @@ import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompi
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
@@ -31,6 +20,7 @@ import { XRCPUDepthInformation } from './XRTypes'
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
 
 type XRDepthOcclusionMaterialType = Omit<ShaderMaterial, 'userData'> & {
+  shader?: Shader
   userData: {
     DepthOcclusionPlugin?: {
       uniforms: {
@@ -41,12 +31,12 @@ type XRDepthOcclusionMaterialType = Omit<ShaderMaterial, 'userData'> & {
         uRawValueToMeters: { value: number }
       }
       id: typeof DepthOcclusionPluginID
-      compile: (shader: ShaderType) => void
+      compile: (shader: Shader) => void
     }
   }
 }
 
-const XRDepthOcclusionMaterials = [] as Shader[]
+const XRDepthOcclusionMaterials = [] as XRDepthOcclusionMaterialType[]
 
 /**
  * Create a augmented reality occlusion enabled material from a standard three.js material.
@@ -56,9 +46,8 @@ const XRDepthOcclusionMaterials = [] as Shader[]
  * @param {Material} mat - Material to be transformed into an augmented material.
  * @param {Texture} depthMap - Depth map bound to the material. A single depth map should be used for all AR materials.
  */
-function implementDepthOBCPlugin(material: Material, depthMap: DepthDataTexture) {
+function addDepthOBCPlugin(material: Material, depthMap: DepthDataTexture) {
   const mat = material as XRDepthOcclusionMaterialType
-
   if (mat.userData.DepthOcclusionPlugin) return
 
   mat.userData.DepthOcclusionPlugin = {
@@ -70,12 +59,13 @@ function implementDepthOBCPlugin(material: Material, depthMap: DepthDataTexture)
       uOcclusionEnabled: { value: true },
       uRawValueToMeters: { value: 0.0 }
     },
-    compile: function (shader: ShaderType) {
-      // Pass uniforms from userData to the
-      console.log('depth uniforms', mat.userData.DepthOcclusionPlugin.uniforms)
+    compile: function (shader: Shader) {
+      if (!mat.userData.DepthOcclusionPlugin) return
+      // Pass uniforms from userData to the shader
       for (const key in mat.userData.DepthOcclusionPlugin.uniforms) {
         shader.uniforms[key] = mat.userData.DepthOcclusionPlugin.uniforms[key]
       }
+      mat.shader = shader
 
       // Fragment variables
       shader.fragmentShader =
@@ -93,10 +83,7 @@ function implementDepthOBCPlugin(material: Material, depthMap: DepthDataTexture)
         fragmentEntryPoint = '#include <fog_fragment>'
       }
 
-      fragmentEntryPoint = `void main() {`
-
       // Fragment depth logic
-
       shader.fragmentShader = shader.fragmentShader.replace(
         'void main',
         `float getDepthInMeters(in sampler2D depthText, in vec2 uv)
@@ -127,37 +114,6 @@ function implementDepthOBCPlugin(material: Material, depthMap: DepthDataTexture)
         `
       )
 
-      // shader.fragmentShader = `
-      // uniform sampler2D uDepthTexture;
-      // uniform float uWidth;
-      // uniform float uHeight;
-      // uniform vec2 uResolution;
-      // uniform mat4 uUvTransform;
-      // uniform bool uOcclusionEnabled;
-      // uniform float uRawValueToMeters;
-      // varying float vDepth;
-
-      // float getDepthInMeters(in sampler2D depthText, in vec2 uv)
-      // {
-      //   vec2 packedDepth = texture2D(depthText, uv).rg;
-      //   return dot(packedDepth, vec2(255.0, 256.0 * 255.0)) * uRawValueToMeters;
-      // }
-
-      // void main() {
-      //   float x = gl_FragCoord.x / uWidth;
-      //   float y = gl_FragCoord.y / uHeight;
-      //   // vec2 uv = gl_FragCoord.xy / uResolution;
-      //   // vec2 depthUV = (uUvTransform * vec4(uv, 0, 1)).xy;
-      //   // float depth = getDepthInMeters(uDepthTexture, depthUV);
-      //   // if (depth < vDepth)
-      //   // {
-      //   //   discard;
-      //   // }
-      //   // gl_FragColor = vec4(uv, 0.0, 1.0);
-      //   gl_FragColor = vec4(x, y, 0.0, 1.0);
-      // }
-      // `
-
       // Vertex variables
       shader.vertexShader =
         `
@@ -172,20 +128,24 @@ function implementDepthOBCPlugin(material: Material, depthMap: DepthDataTexture)
         vDepth = gl_Position.z;
         `
       )
-      XRDepthOcclusionMaterials.push(shader)
     }
   }
 
   addOBCPlugin(mat, mat.userData.DepthOcclusionPlugin)
   mat.needsUpdate = true
+
+  XRDepthOcclusionMaterials.push(mat)
 }
 
 function removeDepthOBCPlugin(material: Material) {
   const mat = material as XRDepthOcclusionMaterialType
   if (!mat.userData.DepthOcclusionPlugin) return
+
+  /** remove plugin */
   removeOBCPlugin(mat, mat.userData.DepthOcclusionPlugin)
   delete mat.userData.DepthOcclusionPlugin
   XRDepthOcclusionMaterials.splice(XRDepthOcclusionMaterials.indexOf(mat), 1)
+
   mat.needsUpdate = true
 }
 
@@ -194,6 +154,7 @@ function updateDepthMaterials(frame: XRFrame, referenceSpace: XRReferenceSpace, 
   const viewerPose = frame.getViewerPose(referenceSpace)
   if (viewerPose) {
     for (const view of viewerPose.views) {
+      // @ts-ignore - frame.getDepthInformation has no type currently
       const depthInfo = frame.getDepthInformation(view)
       if (depthInfo) {
         if (!xrState.depthDataTexture.value) {
@@ -221,15 +182,17 @@ function updateUniforms(materials: XRDepthOcclusionMaterialType[], depthInfo: XR
   const width = Math.floor(window.devicePixelRatio * window.innerWidth)
   const height = Math.floor(window.devicePixelRatio * window.innerHeight)
   for (const material of materials) {
-    material.uniforms.uResolution.value.set(width, height)
-    material.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix)
-    material.uniforms.uRawValueToMeters.value = rawValueToMeters
+    if (material.userData.DepthOcclusionPlugin && material.shader) {
+      material.shader.uniforms.uResolution.value.set(width, height)
+      material.shader.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix)
+      material.shader.uniforms.uRawValueToMeters.value = rawValueToMeters
+    }
   }
 }
 
 export const XRDepthOcclusion = {
   XRDepthOcclusionMaterials,
-  implementDepthOBCPlugin,
+  addDepthOBCPlugin,
   removeDepthOBCPlugin,
   updateDepthMaterials,
   updateUniforms
@@ -257,11 +220,17 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const xrState = getState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
-  const depthTexture = _createDepthDebugCanvas(true)
+  const useDepthTextureDebug = false
+  const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
-      if (!action.active) {
+      if (action.active) {
+        EngineRenderer.instance.xrSession.updateRenderState({
+          depthNear: 0.1,
+          depthFar: 100.0
+        })
+      } else {
         const depthDataTexture = xrState.depthDataTexture.value
         if (depthDataTexture) {
           depthDataTexture.dispose()
@@ -274,7 +243,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
       for (const obj of getComponent(entity, GroupComponent)) {
         obj.traverse((obj: Mesh<any, Material>) => {
           if (obj.material) {
-            if (depthDataTexture) XRDepthOcclusion.implementDepthOBCPlugin(obj.material, depthDataTexture)
+            if (depthDataTexture) XRDepthOcclusion.addDepthOBCPlugin(obj.material, depthDataTexture)
             else XRDepthOcclusion.removeDepthOBCPlugin(obj.material)
           }
         })

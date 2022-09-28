@@ -31,6 +31,8 @@ export class DepthDataTexture extends DataTexture {
    */
   updateDepth(depthInfo: XRCPUDepthInformation) {
     const dataBuffer = depthInfo.data
+    // ImageData is incorrectly type as readonly
+    // @ts-ignore
     this.image.data = new Uint8Array(dataBuffer)
     this.needsUpdate = true
   }
