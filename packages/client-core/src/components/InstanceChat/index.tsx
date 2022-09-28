@@ -1,5 +1,6 @@
 import { useHookstate } from '@hookstate/core'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState, useTransition } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
@@ -7,7 +8,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import multiLogger from '@xrengine/common/src/logger'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
@@ -22,8 +23,11 @@ import CardContent from '@mui/material/CardContent'
 import Fab from '@mui/material/Fab'
 import TextField from '@mui/material/TextField'
 
+import { AppAction } from '../../common/services/AppService'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
+import { useShelfStyles } from '../Shelves/useShelfStyles'
 import defaultStyles from './index.module.scss'
+import styles from './index.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:chat' })
 
@@ -185,20 +189,13 @@ interface InstanceChatProps {
   MessageButton?: any
   CloseButton?: any
   newMessageLabel?: string
-  setBottomDrawerOpen?: any
-  animate?: any
-  hideOtherMenus?: any
-  setShowTouchPad?: any
 }
 
-const InstanceChat = ({
+export const InstanceChat = ({
   styles = defaultStyles,
   MessageButton = MessageIcon,
   CloseButton = CloseIcon,
-  newMessageLabel = 'World Chat...',
-  animate,
-  hideOtherMenus,
-  setShowTouchPad
+  newMessageLabel = 'World Chat...'
 }: InstanceChatProps): any => {
   const [chatWindowOpen, setChatWindowOpen] = useState(false)
   const [unreadMessages, setUnreadMessages] = useState(false)
@@ -263,6 +260,12 @@ const InstanceChat = ({
     }, 5000)
   }, [chatState.messageCreated])
 
+  const hideOtherMenus = () => {
+    dispatchAction(AppAction.showTopShelf({ show: false }))
+    dispatchAction(AppAction.showBottomShelf({ show: false }))
+    dispatchAction(AppAction.showTouchPad({ show: false }))
+  }
+
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
     if (!chatWindowOpen) {
@@ -288,7 +291,7 @@ const InstanceChat = ({
         onClick={() => {
           setChatWindowOpen(false)
           setUnreadMessages(false)
-          if (isMobile) setShowTouchPad(true)
+          dispatchAction(AppAction.showTouchPad({ show: true }))
         }}
         className={styles.backdrop + ' ' + (!chatWindowOpen ? styles.hideBackDrop : '')}
       ></div>
@@ -399,7 +402,13 @@ const InstanceChat = ({
           </div>
           <div
             className={`${styles.iconCallChat} ${
-              isInitRender ? animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
+              isInitRender
+                ? styles.animateBottom
+                : !chatWindowOpen
+                ? isMobile
+                  ? styles.animateTop
+                  : styles.animateLeft
+                : ''
             } ${!chatWindowOpen ? '' : styles.chatOpen}`}
           >
             <Badge
@@ -422,7 +431,7 @@ const InstanceChat = ({
                   <CloseButton
                     onClick={() => {
                       toggleChatWindow()
-                      if (isMobile) setShowTouchPad(true)
+                      dispatchAction(AppAction.showTouchPad({ show: true }))
                     }}
                   />
                 )}
@@ -435,4 +444,23 @@ const InstanceChat = ({
   )
 }
 
-export default InstanceChat
+export const InstanceChatWrapper = () => {
+  const engineState = useHookstate(getState(EngineState))
+  const { t } = useTranslation()
+  const { bottomShelfStyle } = useShelfStyles()
+  return (
+    <>
+      {engineState.connectedWorld.value ? (
+        <div className={bottomShelfStyle}>
+          <InstanceChat />
+        </div>
+      ) : (
+        <div className={styles.modalConnecting}>
+          <div className={styles.modalConnectingTitle}>
+            <p>{t('common:loader.connecting')}</p>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}

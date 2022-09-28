@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import { Color, MathUtils, Texture } from 'three'
 
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
   extractDefaults,
   formatMaterialArgs,

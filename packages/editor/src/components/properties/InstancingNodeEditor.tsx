@@ -9,7 +9,7 @@ import {
   getOrAddComponent,
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
   InstancingStagingComponent,

@@ -17,9 +17,9 @@ import { pipe } from '@xrengine/common/src/utils/pipe'
 
 import { Application, ServerTypeMode } from '../declarations'
 import config from './appconfig'
-import { elasticOnlyLogger, logger } from './logger'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import sequelize from './sequelize'
+import { elasticOnlyLogger, logger } from './ServerLogger'
 import services from './services'
 import authentication from './user/authentication'
 

@@ -7,8 +7,7 @@ import type SocketIO from 'socket.io'
 import io from 'socket.io-client'
 
 import type { ServiceTypes } from '@xrengine/common/declarations'
-
-import { serverHost } from './util/config'
+import { serverHost } from '@xrengine/common/src/config'
 
 type FeathersClient = FeathersApplication<ServiceTypes> &
   AuthenticationClient & {

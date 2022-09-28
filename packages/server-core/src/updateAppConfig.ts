@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import { DataTypes, Sequelize } from 'sequelize'
 
 import appConfig from './appconfig'
-import logger from './logger'
+import logger from './ServerLogger'
 
 dotenv.config()
 const db = {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import { ControlledStringInput } from './StringInput'

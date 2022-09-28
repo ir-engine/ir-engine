@@ -1,4 +1,4 @@
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export default function traverseEarlyOut(

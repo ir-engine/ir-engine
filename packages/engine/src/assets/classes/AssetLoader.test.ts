@@ -6,7 +6,6 @@ import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/ini
 
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
-// import rewire from 'rewire'
 import { AssetLoader } from './AssetLoader'
 
 /**

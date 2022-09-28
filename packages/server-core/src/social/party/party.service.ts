@@ -1,7 +1,7 @@
 import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 
 import { Application, ServerMode } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { Party } from './party.class'
 import partyDocs from './party.docs'
 import hooks from './party.hooks'

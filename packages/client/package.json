@@ -70,10 +70,9 @@
     "sass": "1.50.0",
     "socket.io-client": "4.4.1",
     "ts-node": "10.8.2",
-    "vite": "2.9.4",
+    "vite": "3.1.0",
     "vite-plugin-compression": "0.5.1",
-    "vite-plugin-html": "2.1.2",
-    "vite-plugin-optimize-persist": "0.1.2",
+    "vite-plugin-html": "3.2.0",
     "vite-plugin-package-config": "0.1.1",
     "yuka": "0.7.7"
   },

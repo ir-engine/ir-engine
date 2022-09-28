@@ -37,13 +37,13 @@ import {
   hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
-import { initializeEntityTree } from '../functions/EntityTreeFunctions'
+import { initializeEntityTree } from '../functions/EntityTree'
+import { EntityTree } from '../functions/EntityTree'
 import { SystemInstance } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
 import { Entity } from './Entity'
-import EntityTree from './EntityTree'
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10

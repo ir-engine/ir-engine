@@ -7,7 +7,7 @@ import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
 interface PartyRemoveParams extends Params {

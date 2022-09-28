@@ -17,7 +17,7 @@ import {
 import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from '@xrengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 
 /**
  * @todo gl is problematic, we need to look into a better way to handle this

@@ -9,7 +9,7 @@ import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/I
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import getLocalServerIp from '../../util/get-local-server-ip'
 
 const releaseRegex = /^([a-zA-Z0-9]+)-/

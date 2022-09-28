@@ -10,7 +10,6 @@ import {
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import { modelResourcesPath, pathResolver } from '@xrengine/engine/src/assets/functions/pathResolver'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   ComponentType,
@@ -18,6 +17,7 @@ import {
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'

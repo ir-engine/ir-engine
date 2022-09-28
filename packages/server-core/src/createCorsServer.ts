@@ -2,7 +2,7 @@ import cors_proxy from 'cors-anywhere'
 import net from 'net'
 
 import config from './appconfig'
-import logger from './logger'
+import logger from './ServerLogger'
 
 const createCorsServer = (useSSL, certOptions, port) => {
   cors_proxy

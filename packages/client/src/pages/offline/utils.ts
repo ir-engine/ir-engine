@@ -1,5 +1,5 @@
-import { corsProxyPath } from '@xrengine/client-core/src/util/config'
 import { SceneActions } from '@xrengine/client-core/src/world/services/SceneService'
+import { corsProxyPath } from '@xrengine/common/src/config'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
 

@@ -81,9 +81,12 @@ export const loadAvatarForUser = async (
     }
   }
 
-  setComponent(entity, AvatarPendingComponent, true)
+  setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   const parent = await loadAvatarModelAsset(avatarURL)
-  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
+
+  /** hack a cancellable promise - check if the url we start with is the one we end up with */
+  if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
+    return
 
   setupAvatarForUser(entity, parent)
 

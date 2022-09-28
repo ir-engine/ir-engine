@@ -7,7 +7,7 @@ import { Location as LocationType } from '@xrengine/common/src/interfaces/Locati
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
 export type LocationDataType = LocationType

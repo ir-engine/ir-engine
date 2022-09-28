@@ -6,7 +6,7 @@ import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface
 
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { UnauthorizedException } from '../../util/exceptions/exception'
 import { UserParams } from '../user/user.class'
 import { AvatarCreateArguments, AvatarPatchArguments } from './avatar-helper'
