@@ -33,18 +33,20 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const parser = this.parser
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
-    const pending = []
     const extension: EEMaterialExtensionType = materialDef.extensions[this.name]
     const defaultArgs = MaterialLibrary.materials.has(extension.uuid)
       ? materialIdToDefaultArgs(extension.uuid)!
       : prototypeFromId(extension.prototype).arguments
-    Object.entries(extension.args).map(async ([k, v]) => {
-      materialParams[k] = v
-    })
     return Promise.all(
-      Object.entries(defaultArgs)
-        .filter(([k, v]) => v.type === 'texture' && materialParams[k])
-        .map(async ([k, v]) => parser.assignTexture(materialParams, k, materialParams[k]))
+      Object.entries(extension.args).map(async ([k, v]) => {
+        materialParams[k] = v
+      })
+    ).then(() =>
+      Promise.all(
+        Object.entries(defaultArgs)
+          .filter(([k, v]) => v.type === 'texture' && materialParams[k])
+          .map(async ([k, v]) => parser.assignTexture(materialParams, k, materialParams[k]))
+      )
     )
   }
 }

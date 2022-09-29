@@ -4,12 +4,14 @@ import {
   Mesh,
   PerspectiveCamera,
   PlaneGeometry,
+  RepeatWrapping,
   Scene,
   ShaderMaterial,
   Texture,
   Uniform,
   Vector2,
-  WebGLRenderer
+  WebGLRenderer,
+  Wrapping
 } from 'three'
 
 function initializeTemporaryRenderer() {
@@ -112,6 +114,8 @@ export default async function createReadableTexture(
     result.offset = map.offset
     result.repeat = map.repeat
     result.rotation = map.rotation
+    result.wrapS = map.wrapS
+    result.wrapT = map.wrapT
     return result
   } else return image.src
 }
