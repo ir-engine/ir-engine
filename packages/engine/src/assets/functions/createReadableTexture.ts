@@ -8,6 +8,7 @@ import {
   ShaderMaterial,
   Texture,
   Uniform,
+  Vector2,
   WebGLRenderer
 } from 'three'
 
@@ -73,10 +74,13 @@ export default async function createReadableTexture(
   if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
     return options?.url ? map.source.data.src : map
   }
-  let blit: Texture = map
+  let blit: Texture = map.clone()
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
   }
+  blit.repeat = new Vector2(1, 1)
+  blit.offset = new Vector2(0, 0)
+  blit.rotation = 0
   const temporaryRenderer = getTemporaryRenderer()
   const temporaryScene = getTemporaryScene()
   blitMaterial.uniforms['blitTexture'].value = blit
@@ -103,6 +107,11 @@ export default async function createReadableTexture(
   if (!result) throw new Error('Error creating blob')
   const image = new Image(map.image.width, map.image.height)
   image.src = URL.createObjectURL(result)
-  if (!options?.url) return new Texture(image)
-  else return image.src
+  if (!options?.url) {
+    const result = new Texture(image)
+    result.offset = map.offset
+    result.repeat = map.repeat
+    result.rotation = map.rotation
+    return result
+  } else return image.src
 }

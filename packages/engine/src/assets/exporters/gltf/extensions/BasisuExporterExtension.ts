@@ -68,7 +68,10 @@ export default class BasisuExporterExtension extends ExporterExtension implement
       })
     materials.map((material) => {
       const textures = Object.entries(material).filter(
-        ([k, val]) => (val as CompressedTexture)?.isCompressedTexture || (val as CubeTexture)?.isCubeTexture
+        ([k, val]) =>
+          (val as CompressedTexture)?.isCompressedTexture ||
+          (val as CubeTexture)?.isCubeTexture ||
+          ((val as Texture)?.isTexture && !(val as Texture).image.src)
       )
       textures.map(([field, texture]: [string, CompressedTexture]) => this.addReplacement(material, field, texture))
     })
@@ -86,13 +89,13 @@ export default class BasisuExporterExtension extends ExporterExtension implement
   writeTexture(_texture: CompressedTexture, textureDef) {
     if (!_texture.isCompressedTexture) return
     const writer = this.writer
-    writer.pending.push(
+    /*writer.pending.push(
       new Promise(async (resolve) => {
         const texture = (await createReadableTexture(_texture)) as Texture
         textureDef.source = writer.processImage(texture.image, texture.format, texture.flipY)
         textureDef.sampler = this.sampler
-        resolve(null)
-        /* const image: HTMLCanvasElement = texture.image
+        resolve(null)*/
+    /* const image: HTMLCanvasElement = texture.image
 
         const ktx2write = new KTX2Encoder()
         const imageDef: any = {
@@ -134,7 +137,7 @@ export default class BasisuExporterExtension extends ExporterExtension implement
         }
       })
     )*/
-      })
-    )
+    /*})
+    )*/
   }
 }

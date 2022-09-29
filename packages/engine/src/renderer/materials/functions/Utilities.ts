@@ -172,6 +172,10 @@ export function registerMaterialPrototype(prototype: MaterialPrototypeComponentT
   MaterialLibrary.prototypes.set(prototype.prototypeId, prototype)
 }
 
+export function materialsFromSource(src: MaterialSource) {
+  return getSourceMaterials(src)?.map(materialFromId)
+}
+
 export function changeMaterialPrototype(material: Material, protoId: string) {
   const materialEntry = materialFromId(material.uuid)
   if (materialEntry.prototype === protoId) return

@@ -15,6 +15,8 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
+import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
+import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -24,7 +26,7 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
 import BooleanInput from '../inputs/BooleanInput'
-import { PropertiesPanelButton } from '../inputs/Button'
+import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
@@ -105,7 +107,15 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-
+      <Button
+        onClick={() => {
+          materialsFromSource({ type: 'Model', path: modelComponent.src })?.map((matComponent) => {
+            bakeToVertices(matComponent.material, modelComponent.scene)
+          })
+        }}
+      >
+        Bake To Vertices
+      </Button>
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput value={modelComponent.generateBVH} onChange={updateProperty(ModelComponent, 'generateBVH')} />
       </InputGroup>
@@ -142,6 +152,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         values={JSON.parse(JSON.stringify(modelState.materialOverrides.value))}
         onChange={updateProperty(ModelComponent, 'materialOverrides')}
       />
+
       {!exporting && modelComponent.src && (
         <Well>
           <ModelInput value={exportPath} onChange={setExportPath} />

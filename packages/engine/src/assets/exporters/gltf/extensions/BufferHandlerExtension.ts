@@ -4,6 +4,7 @@ import matches, { Validator } from 'ts-matches'
 
 import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 
+import { AssetLoader } from '../../../classes/AssetLoader'
 import { getFileName, getProjectName, modelResourcesPath } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -37,6 +38,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
 
   beforeParse(input: Object3D<Event> | Object3D<Event>[]) {
     const writer = this.writer
+    if (writer.options.embedImages) return
     this.projectName = getProjectName(writer.options.path!)
     this.modelName = getFileName(writer.options.path!)
 
@@ -90,6 +92,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
           buffer
         }
         imageDef.uri = uri
+        imageDef.mimeType = `image/${AssetLoader.getAssetType(uri)}`
         dispatchAction(BufferHandlerExtension.saveBuffer({ saveParms, projectName, modelName }))
       })
     )
