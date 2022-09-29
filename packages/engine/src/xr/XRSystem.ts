@@ -2,8 +2,10 @@ import { PerspectiveCamera } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { iOS } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { createEntity } from '../ecs/functions/EntityFunctions'
+import { SystemDefintion } from '../ecs/functions/SystemFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -143,10 +145,14 @@ export default async function XRSystem(world: World) {
     removeActionQueue(xrSessionChangedQueue)
   }
 
+  // testing - replace iOS with AR support check
+  let iOS = true
+  const _8thwall = iOS ? [() => import('./8thwall/XR8')] : ([] as SystemDefintion[])
+
   return {
     execute,
     cleanup,
-    subsystems: [() => import('./XRDepthOcclusion')]
+    subsystems: [() => import('./XRDepthOcclusion'), ..._8thwall]
   }
 }
 
