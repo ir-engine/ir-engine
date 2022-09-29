@@ -68,7 +68,8 @@ export let XRExtras
 const initialize8thwallDevice = () => {
   XR8.addCameraPipelineModules([
     XR8.GlTextureRenderer.pipelineModule(), // Draws the camera feed.
-    // XR8.XrController.pipelineModule(),           // Enables SLAM tracking.
+    XR8.Threejs.pipelineModule(),
+    XR8.XrController.pipelineModule(), // Enables SLAM tracking.
     // window.LandingPage.pipelineModule(),         // Detects unsupported browsers and gives hints.
     // XRExtras.Loading.pipelineModule(),           // Manages the loading screen on startup.
     XRExtras.RuntimeError.pipelineModule() // Shows an error image on runtime error.

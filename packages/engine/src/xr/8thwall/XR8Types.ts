@@ -3,5 +3,6 @@ export type XR8Type = {
   addCameraPipelineModule
   GlTextureRenderer
   XrController
+  Threejs
   run: (props: { canvas: HTMLCanvasElement }) => void
 }

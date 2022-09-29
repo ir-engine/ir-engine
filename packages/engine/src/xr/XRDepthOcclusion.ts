@@ -149,12 +149,21 @@ function removeDepthOBCPlugin(material: Material) {
   mat.needsUpdate = true
 }
 
-function updateDepthMaterials(frame: XRFrame, referenceSpace: XRReferenceSpace, depthTexture?: DepthCanvasTexture) {
+/** frame.getDepthInformation has no type currently */
+type getDepthInformationType = {
+  getDepthInformation: (view: XRView) => XRCPUDepthInformation
+}
+
+function updateDepthMaterials(
+  frame: XRFrame & getDepthInformationType,
+  referenceSpace: XRReferenceSpace,
+  depthTexture?: DepthCanvasTexture
+) {
+  if (!frame || !frame.getDepthInformation) return
   const xrState = getState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
   if (viewerPose) {
     for (const view of viewerPose.views) {
-      // @ts-ignore - frame.getDepthInformation has no type currently
       const depthInfo = frame.getDepthInformation(view)
       if (depthInfo) {
         if (!xrState.depthDataTexture.value) {
@@ -249,8 +258,11 @@ export default async function XRDepthOcclusionSystem(world: World) {
         })
       }
     }
-    if (Engine.instance.xrFrame)
-      XRDepthOcclusion.updateDepthMaterials(Engine.instance.xrFrame, xrState.viewerReferenceSpace.value!, depthTexture)
+    XRDepthOcclusion.updateDepthMaterials(
+      Engine.instance.xrFrame as any,
+      xrState.viewerReferenceSpace.value!,
+      depthTexture
+    )
   }
 
   const cleanup = async () => {
