@@ -8,7 +8,7 @@ import { XREPipeline } from './WebXR8thwallProxy'
 import { XR8CameraModule } from './XR8CameraModule'
 import { XR8Type } from './XR8Types'
 
-const apikey = ''
+const apikey = process.env['VITE_8TH_WALL']
 
 type XR8Assets = {
   xr8Script: HTMLScriptElement
