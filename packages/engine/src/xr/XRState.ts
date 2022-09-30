@@ -25,7 +25,10 @@ export const XRState = defineState({
     originReferenceSpace: null as XRReferenceSpace | null,
     viewerReferenceSpace: null as XRReferenceSpace | null,
     viewerHitTestSource: null as XRHitTestSource | null,
-    viewerHitTestEntity: NaN as Entity
+    viewerHitTestEntity: NaN as Entity,
+
+    sceneRotationOffset: 0,
+    sceneDollhouseScale: 0.02
   })
 })
 

@@ -1,6 +1,6 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
-import { Object3D, Raycaster, Scene } from 'three'
+import { AxesHelper, Object3D, Raycaster, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -25,7 +25,11 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -34,7 +38,8 @@ import {
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent
+  hasComponent,
+  setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { EntityTree, initializeEntityTree } from '../functions/EntityTree'
@@ -59,15 +64,16 @@ export class World {
 
     initializeEntityTree(this)
 
-    this.originReferenceEntity = createEntity()
-    addComponent(this.originReferenceEntity, NameComponent, { name: 'origin' })
-    setTransformComponent(this.originReferenceEntity)
+    this.xrOriginEntity = createEntity()
+    addComponent(this.xrOriginEntity, NameComponent, { name: 'xr-origin' })
+    setTransformComponent(this.xrOriginEntity)
+    setComponent(this.xrOriginEntity, VisibleComponent, true)
 
     this.cameraEntity = createEntity()
-    addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
+    addComponent(this.cameraEntity, NameComponent, { name: 'xr-camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
-    setLocalTransformComponent(this.cameraEntity, this.originReferenceEntity)
+    setLocalTransformComponent(this.cameraEntity, this.xrOriginEntity)
     addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
 
     /** @todo */
@@ -177,9 +183,9 @@ export class World {
   sceneEntity: Entity = NaN as Entity
 
   /**
-   * The origin reference space entity
+   * The xr origin reference space entity
    */
-  originReferenceEntity: Entity = NaN as Entity
+  xrOriginEntity: Entity = NaN as Entity
 
   /**
    * The camera entity

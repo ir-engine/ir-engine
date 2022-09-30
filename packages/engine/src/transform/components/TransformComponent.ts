@@ -4,7 +4,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type TransformComponentType = {
   position: Vector3
@@ -79,6 +79,7 @@ export function setLocalTransformComponent(
   scale = new Vector3(1, 1, 1)
 ) {
   if (entity === parentEntity) throw new Error('Tried to parent entity to self - this is not allowed')
+  if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
   return setComponent(entity, LocalTransformComponent, {
     parentEntity,
