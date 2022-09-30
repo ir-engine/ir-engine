@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Object3D } from 'three'
+import { MeshStandardMaterial, Object3D } from 'three'
 
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
@@ -110,7 +110,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <Button
         onClick={() => {
           materialsFromSource({ type: 'Model', path: modelComponent.src })?.map((matComponent) => {
-            bakeToVertices(matComponent.material, modelComponent.scene)
+            bakeToVertices<MeshStandardMaterial>(
+              matComponent.material as MeshStandardMaterial,
+              [
+                { field: 'map', attribName: 'uv' },
+                { field: 'lightMap', attribName: 'uv2' }
+              ],
+              modelComponent.scene
+            )
           })
         }}
       >

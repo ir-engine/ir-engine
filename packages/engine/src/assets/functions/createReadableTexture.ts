@@ -35,7 +35,7 @@ function initializeTemporaryScene() {
             uniform sampler2D blitTexture; 
             varying vec2 vUv;
             void main(){ 
-                gl_FragColor = vec4(vUv.xy, 0, 1);
+                gl_FragColor = vec4(vUv.x, -vUv.y, 0, 1);
                 gl_FragColor = texture2D( blitTexture, vUv);
             }`
   })

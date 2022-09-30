@@ -191,7 +191,10 @@ export default function MaterialEditor({ material }: { ['material']: Material })
       {
         <Button
           onClick={async () => {
-            bakeToVertices(material)
+            bakeToVertices(material as MeshStandardMaterial, [
+              { field: 'map', attribName: 'uv' },
+              { field: 'lightMap', attribName: 'uv2' }
+            ])
           }}
         >
           Bake Light Map to Vertex Colors
