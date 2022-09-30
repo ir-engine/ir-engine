@@ -16,7 +16,6 @@ export const XRState = defineState({
       'immersive-vr': false
     },
     sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
-    using8thWall: false,
     /**
      * The `avatarControlMode` property can be 'auto', 'attached', or 'detached'.
      * When `avatarControlMode` is 'attached' the avatar's head is attached to the XR display.

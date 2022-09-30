@@ -2,10 +2,8 @@ import { PerspectiveCamera } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { iOS, isMobile } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { SystemDefintion } from '../ecs/functions/SystemFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -145,13 +143,10 @@ export default async function XRSystem(world: World) {
     removeActionQueue(xrSessionChangedQueue)
   }
 
-  xrState.using8thWall.set(false) //isMobile && (!navigator.xr || !await navigator.xr.isSessionSupported('immersive-ar')))
-  const _8thwall = xrState.using8thWall.value ? [() => import('./8thwall/XR8')] : ([] as SystemDefintion[])
-
   return {
     execute,
     cleanup,
-    subsystems: [() => import('./XRDepthOcclusion'), ..._8thwall]
+    subsystems: [() => import('./XRDepthOcclusion'), () => import('./8thwall/XR8')]
   }
 }
 

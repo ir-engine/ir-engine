@@ -159,7 +159,6 @@ function updateDepthMaterials(
   referenceSpace: XRReferenceSpace,
   depthTexture?: DepthCanvasTexture
 ) {
-  if (!frame || !frame.getDepthInformation) return
   const xrState = getState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
   if (viewerPose) {
@@ -248,17 +247,20 @@ export default async function XRDepthOcclusionSystem(world: World) {
         }
       }
     }
+    const xrFrame = Engine.instance.xrFrame as XRFrame & getDepthInformationType
+    const depthSupported = typeof xrFrame?.getDepthInformation === 'function'
     const depthDataTexture = xrState.depthDataTexture.value
     for (const entity of groupComponent()) {
       for (const obj of getComponent(entity, GroupComponent)) {
         obj.traverse((obj: Mesh<any, Material>) => {
           if (obj.material) {
-            if (depthDataTexture) XRDepthOcclusion.addDepthOBCPlugin(obj.material, depthDataTexture)
+            if (depthDataTexture && depthSupported) XRDepthOcclusion.addDepthOBCPlugin(obj.material, depthDataTexture)
             else XRDepthOcclusion.removeDepthOBCPlugin(obj.material)
           }
         })
       }
     }
+    if (!depthSupported) return
     XRDepthOcclusion.updateDepthMaterials(
       Engine.instance.xrFrame as any,
       xrState.viewerReferenceSpace.value!,

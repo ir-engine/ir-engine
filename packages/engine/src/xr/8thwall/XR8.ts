@@ -2,13 +2,17 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
+import { isMobile } from '../../common/functions/isMobile'
 import { World } from '../../ecs/classes/World'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
+import { VPSComponent } from '../../scene/components/VPSComponent'
+import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRAction } from '../XRAction'
 import { XRHitTestComponent } from '../XRComponents'
-import { endXRSession, requestXRSession, setupARSession } from '../XRSessionFunctions'
+import { endXRSession, requestXRSession } from '../XRSessionFunctions'
 import { XRState } from '../XRState'
 import { XREPipeline } from './WebXR8thwallProxy'
 import { XR8CameraModule } from './XR8CameraModule'
@@ -73,7 +77,7 @@ export let XRExtras
 
 const initialize8thwallDevice = (world: World) => {
   XR8.addCameraPipelineModules([
-    XR8.GlTextureRenderer.pipelineModule(), // Draws the camera feed.
+    XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
     XR8.Threejs.pipelineModule(),
     XR8.XrController.pipelineModule({
       // enableLighting: true
@@ -81,7 +85,7 @@ const initialize8thwallDevice = (world: World) => {
       // imageTargets: true,
       // enableVps: true
     }),
-    XRExtras.RuntimeError.pipelineModule() // Shows an error image on runtime error.
+    XRExtras.RuntimeError.pipelineModule()
   ])
 
   const cameraCanvas = document.createElement('canvas')
@@ -96,9 +100,6 @@ const initialize8thwallDevice = (world: World) => {
   XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
   XR8.addCameraPipelineModule(XREPipeline(world))
 
-  const engineContainer = document.getElementById('engine-container')!
-  engineContainer.appendChild(cameraCanvas)
-
   return cameraCanvas
 }
 
@@ -107,39 +108,108 @@ class XRSessionProxy extends EventDispatcher {
     super()
   }
   async requestReferenceSpace() {
+    /** @todo support reference space */
     return null
   }
 }
 
-export default async function XR8System(world: World) {
-  const _8thwallScript = await initialize8thwall()
-  const xrState = getState(XRState)
-  xrState.supportedSessionModes['immersive-ar'].set(true)
+const skyboxQuery = defineQuery([SkyboxComponent])
 
-  const cameraCanvas = initialize8thwallDevice(world)
+export default async function XR8System(world: World) {
+  let _8thwallScripts = null as XR8Assets | null
+  const xrState = getState(XRState)
+
+  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
+
+  const vpsComponent = defineQuery([VPSComponent])
+
+  let cameraCanvas: HTMLCanvasElement | null = null
+
+  let originalRequestXRSessionImplementation = requestXRSession.implementation
+  let originalEndXRSessionImplementation = endXRSession.implementation
 
   let prevFollowCamera
-  requestXRSession.implementation = async (action) => {
-    prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-    removeComponent(world.cameraEntity, FollowCameraComponent)
-    XR8.run({ canvas: cameraCanvas })
-    dispatchAction(XRAction.sessionChanged({ active: true }))
 
-    EngineRenderer.instance.xrSession = new XRSessionProxy() as any as XRSession
-    xrState.sessionActive.set(true)
+  const overrideXRSessionFunctions = () => {
+    if (requestXRSession.implementation !== originalRequestXRSessionImplementation) return
 
-    setupARSession(world)
-    xrState.sessionMode.set('immersive-ar')
+    xrState.supportedSessionModes['immersive-ar'].set(true)
+
+    requestXRSession.implementation = async (action) => {
+      /** Initialize 8th wall if not previously initialized */
+      if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
+      if (!cameraCanvas) cameraCanvas = initialize8thwallDevice(world)
+
+      XR8.run({ canvas: cameraCanvas })
+      const engineContainer = document.getElementById('engine-container')!
+      engineContainer.appendChild(cameraCanvas)
+
+      EngineRenderer.instance.xrSession = new XRSessionProxy() as any as XRSession
+      xrState.sessionActive.set(true)
+      xrState.sessionMode.set('immersive-ar')
+
+      prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
+      removeComponent(world.cameraEntity, FollowCameraComponent)
+
+      dispatchAction(XRAction.sessionChanged({ active: true }))
+    }
+
+    endXRSession.implementation = async () => {
+      XR8.stop()
+      xrState.sessionActive.set(false)
+      xrState.sessionMode.set('none')
+      EngineRenderer.instance.xrSession = null!
+
+      xrState.originReferenceSpace.set(null)
+      xrState.viewerReferenceSpace.set(null)
+
+      const engineContainer = document.getElementById('engine-container')!
+      engineContainer.removeChild(cameraCanvas!)
+
+      addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+      const skybox = skyboxQuery()[0]
+      if (skybox) updateSkybox(skybox)
+      dispatchAction(XRAction.sessionChanged({ active: false }))
+    }
   }
 
-  endXRSession.implementation = async () => {
-    addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
-    dispatchAction(XRAction.sessionChanged({ active: false }))
+  /** When VPS support is no longer needed, or this system is no longer required, revert xr session implementations */
+  const revertXRSessionFunctions = () => {
+    if (requestXRSession.implementation === originalRequestXRSessionImplementation) return
+
+    requestXRSession.implementation = originalRequestXRSessionImplementation
+    endXRSession.implementation = originalEndXRSessionImplementation
+
+    /** revert overridden ar support to whatever it actually is */
+    navigator.xr
+      ?.isSessionSupported('immersive-ar')
+      .then((supported) => xrState.supportedSessionModes['immersive-ar'].set(supported))
   }
+
+  if (using8thWall) overrideXRSessionFunctions()
 
   let lastSeenBackground = world.scene.background
 
   const execute = () => {
+    /**
+     * Scenes that specify that they have VPS should override using webxr to use 8thwall.
+     * - this will not cover the problem of going through a portal to a scene that has VPS,
+     *     or exiting one that does to one that does not. This requires exiting the immersive
+     *     session, changing the overrides, and entering the session again
+     */
+    if (!using8thWall) {
+      /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
+      const usingVPS = vpsComponent().length
+      if (usingVPS) overrideXRSessionFunctions()
+      else revertXRSessionFunctions()
+    }
+
+    if (!XR8) return
+
+    /**
+     * Update the background to be invisble if the AR session is active,
+     * as well as updating the camera transform from the 8thwall camera
+     */
     const sessionActive = xrState.sessionActive.value
     const xr8scene = XR8.Threejs.xrScene()
     if (sessionActive && xr8scene) {
@@ -155,6 +225,7 @@ export default async function XR8System(world: World) {
       return
     }
 
+    /** Run viewer hit test logic from the 8thwall controller */
     const hitTestResults = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
     const viewerHitTestEntity = xrState.viewerHitTestEntity.value
     const hitTestComponent = getComponent(viewerHitTestEntity, XRHitTestComponent)
@@ -173,9 +244,12 @@ export default async function XR8System(world: World) {
   }
 
   const cleanup = async () => {
-    _8thwallScript.xr8Script.remove()
-    _8thwallScript.xrExtrasScript.remove()
-    cameraCanvas.remove()
+    if (_8thwallScripts) {
+      _8thwallScripts.xr8Script.remove()
+      _8thwallScripts.xrExtrasScript.remove()
+    }
+    if (cameraCanvas) cameraCanvas.remove()
+    revertXRSessionFunctions()
   }
 
   return {

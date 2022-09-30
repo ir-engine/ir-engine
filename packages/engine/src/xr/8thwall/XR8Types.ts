@@ -9,6 +9,7 @@ export type XR8Type = {
     xrScene: () => { renderer: WebGLRenderer; scene: Scene; camera: PerspectiveCamera }
     pipelineModule: () => any
   }
+  stop: () => void
   run: (props: { canvas: HTMLCanvasElement }) => void
 }
 

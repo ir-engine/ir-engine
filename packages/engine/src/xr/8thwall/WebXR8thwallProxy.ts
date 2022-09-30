@@ -35,6 +35,7 @@ export const XREPipeline = (world: World) => {
       const { processCpuResult } = props
       // console.log(processCpuResult)
       if (processCpuResult.reality) {
+        /** @todo support lighting */
       }
     },
     onVideoSizeChange: () => {},

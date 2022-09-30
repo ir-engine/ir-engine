@@ -142,7 +142,7 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   const session = EngineRenderer.instance.xrSession
 
-  // EngineRenderer.instance.canvas.style.display = 'none'
+  EngineRenderer.instance.canvas.style.display = 'none'
 
   session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
     const xrState = getState(XRState)
