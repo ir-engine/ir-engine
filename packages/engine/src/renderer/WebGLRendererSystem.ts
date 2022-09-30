@@ -216,7 +216,7 @@ export class EngineRenderer {
     const activeSession = getState(XRState).sessionActive.value
 
     /** Disable rendering on HMDs when not in a session to improve experience */
-    if (!isHMD || activeSession) return
+    if (isHMD && !activeSession) return
 
     /** Postprocessing does not support multipass yet, so just use basic renderer */
     if (isHMD && activeSession) {
