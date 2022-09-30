@@ -115,7 +115,7 @@ export default async function XRSystem(world: World) {
 
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
-    if (EngineRenderer.instance.xrManager?.isPresenting) {
+    if (EngineRenderer.instance.xrSession) {
       updateXRInput()
 
       // Assume world.camera.layers is source of truth for all xr cameras

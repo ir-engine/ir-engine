@@ -1,30 +1,8 @@
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { patchNavigator } from '../webxr-emulator/patchNavigator'
-import { XRAction } from '../XRAction'
+import { World } from '../../ecs/classes/World'
 import { XR8 } from './XR8'
+import { onUpdate } from './XR8Types'
 
-const startPolyfill = () => {
-  try {
-    patchNavigator()
-  } catch (e) {
-    console.error(e)
-  }
-
-  // override session supported request, it hangs indefinitely for some reason
-  ;(navigator as any).xr.isSessionSupported = () => {
-    return true
-  }
-
-  console.log('request session')
-
-  dispatchAction(XRAction.requestSession({ mode: 'immersive-ar' }))
-}
-
-export const XREPipeline = () => {
-  setTimeout(() => {
-    startPolyfill()
-  }, 5000)
+export const XREPipeline = (world: World) => {
   return {
     name: 'XREPipeline',
     onAppResourcesLoaded: () => {},
@@ -42,22 +20,17 @@ export const XREPipeline = () => {
     onRender: () => {},
     onResume: () => {},
     onStart: () => {
-      const { scene, camera } = XR8.Threejs.xrScene()
+      const { camera } = XR8.Threejs.xrScene()
+      /** sync camera */
       XR8.XrController.updateCameraProjectionMatrix({
         origin: camera.position,
         facing: camera.quaternion
       })
     },
-    onUpdate: () => {
-      // console.log('onupdate')
-      // XR8.XrController.updateCameraProjectionMatrix({
-      //   origin: globalThis.position,
-      //   facing: globalThis.quaternion
-      // })
-      // XR8.XrController.updateCameraProjectionMatrix({
-      //   origin: Engine.instance.currentWorld.camera.position,
-      //   facing: Engine.instance.currentWorld.camera.quaternion,
-      // })
+    onUpdate: (props: onUpdate) => {
+      const { processCpuResult } = props
+      if (processCpuResult.reality) {
+      }
     },
     onVideoSizeChange: () => {},
     requiredPermission: () => {}

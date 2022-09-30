@@ -3,7 +3,11 @@ import { getState } from '@xrengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHitTestComponent } from '../XRComponents'
+import { XRState } from '../XRState'
 import { XREPipeline } from './WebXR8thwallProxy'
 import { XR8CameraModule } from './XR8CameraModule'
 import { XR8Type } from './XR8Types'
@@ -65,13 +69,16 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
 export let XR8: XR8Type
 export let XRExtras
 
-const initialize8thwallDevice = () => {
+const initialize8thwallDevice = (world: World) => {
   XR8.addCameraPipelineModules([
     XR8.GlTextureRenderer.pipelineModule(), // Draws the camera feed.
     XR8.Threejs.pipelineModule(),
-    XR8.XrController.pipelineModule(), // Enables SLAM tracking.
-    // window.LandingPage.pipelineModule(),         // Detects unsupported browsers and gives hints.
-    // XRExtras.Loading.pipelineModule(),           // Manages the loading screen on startup.
+    XR8.XrController.pipelineModule({
+      enableLighting: true
+      // enableWorldPoints: true,
+      // imageTargets: true,
+      // enableVps: true
+    }),
     XRExtras.RuntimeError.pipelineModule() // Shows an error image on runtime error.
   ])
 
@@ -85,25 +92,45 @@ const initialize8thwallDevice = () => {
   cameraCanvas.style.userSelect = 'none'
 
   XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
-  XR8.addCameraPipelineModule(XREPipeline())
+  XR8.addCameraPipelineModule(XREPipeline(world))
 
   XR8.run({ canvas: cameraCanvas })
 
   const engineContainer = document.getElementById('engine-container')!
   engineContainer.appendChild(cameraCanvas)
 
-  Engine.instance.currentWorld.scene.background = null
-
   return cameraCanvas
 }
 
 export default async function XR8System(world: World) {
   const _8thwallScript = await initialize8thwall()
-  const cameraCanvas = initialize8thwallDevice()
+  const cameraCanvas = initialize8thwallDevice(world)
+  const xrState = getState(XRState)
 
   const execute = () => {
-    /** temporary */
-    Engine.instance.currentWorld.scene.background = null
+    const xr8scene = XR8.Threejs.xrScene()
+    if (xr8scene) {
+      const { scene, camera } = xr8scene
+      scene.children = [...world.scene.children, camera]
+    } else {
+      return
+    }
+
+    const hitTestResults = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
+    const viewerHitTestEntity = xrState.viewerHitTestEntity.value
+    const hitTestComponent = getComponent(viewerHitTestEntity, XRHitTestComponent)
+
+    if (hitTestResults.length) {
+      const { position, rotation } = hitTestResults[0]
+      const transform = getComponent(viewerHitTestEntity, TransformComponent)
+      transform.position.copy(position)
+      transform.rotation.copy(rotation)
+      transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+      transform.matrixInverse.copy(transform.matrix).invert()
+      hitTestComponent.hasHit.set(true)
+    } else {
+      hitTestComponent.hasHit.set(false)
+    }
   }
 
   const cleanup = async () => {

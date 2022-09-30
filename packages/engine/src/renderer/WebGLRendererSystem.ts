@@ -213,47 +213,52 @@ export class EngineRenderer {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    // if (this.xrManager.isPresenting) {
-    //   this.renderer.autoClear = true
-    //   this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
-    // } else {
-    const state = accessEngineRendererState()
-    const engineState = getEngineState()
-    if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
-    if (this.needsResize) {
-      const curPixelRatio = this.renderer.getPixelRatio()
-      const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
+    const activeSession = getState(XRState).sessionActive.value
 
-      if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
+    /** Disable rendering on HMDs when not in a session to improve experience */
+    if (!isHMD || activeSession) return
 
-      const width = window.innerWidth
-      const height = window.innerHeight
+    /** Postprocessing does not support multipass yet, so just use basic renderer */
+    if (isHMD && activeSession) {
+      this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
+    } else {
+      const state = accessEngineRendererState()
+      const engineState = getEngineState()
+      if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
+      if (this.needsResize) {
+        const curPixelRatio = this.renderer.getPixelRatio()
+        const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
 
-      if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
-        const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
-        cam.aspect = width / height
-        cam.updateProjectionMatrix()
+        if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
+
+        const width = window.innerWidth
+        const height = window.innerHeight
+
+        if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
+          const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
+          cam.aspect = width / height
+          cam.updateProjectionMatrix()
+        }
+
+        state.qualityLevel.value > 0 && this.csm?.updateFrustums()
+        // Effect composer calls renderer.setSize internally
+        this.effectComposer.setSize(width, height, true)
+        this.needsResize = false
       }
 
-      state.qualityLevel.value > 0 && this.csm?.updateFrustums()
-      // Effect composer calls renderer.setSize internally
-      this.effectComposer.setSize(width, height, true)
-      this.needsResize = false
-    }
+      state.qualityLevel.value > 0 && this.csm?.update()
 
-    state.qualityLevel.value > 0 && this.csm?.update()
-
-    /**
-     * Editor should always use post processing, even if no postprocessing schema is in the scene,
-     *   it still uses post processing for effects such as outline.
-     */
-    if (state.usePostProcessing.value || Engine.instance.isEditor) {
-      this.effectComposer.render(delta)
-    } else {
-      this.renderer.autoClear = true
-      this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
+      /**
+       * Editor should always use post processing, even if no postprocessing schema is in the scene,
+       *   it still uses post processing for effects such as outline.
+       */
+      if (state.usePostProcessing.value || Engine.instance.isEditor) {
+        this.effectComposer.render(delta)
+      } else {
+        this.renderer.autoClear = true
+        this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
+      }
     }
-    // }
   }
 
   /**
@@ -308,7 +313,7 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
     for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
 
-    if (!isHMD || getState(XRState).sessionActive.value) EngineRenderer.instance.execute(world.deltaSeconds)
+    EngineRenderer.instance.execute(world.deltaSeconds)
   }
 
   const cleanup = async () => {
