@@ -1,4 +1,5 @@
 import { World } from '../../ecs/classes/World'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XR8 } from './XR8'
 import { onUpdate } from './XR8Types'
 
@@ -20,7 +21,10 @@ export const XREPipeline = (world: World) => {
     onRender: () => {},
     onResume: () => {},
     onStart: () => {
-      const { camera } = XR8.Threejs.xrScene()
+      const { camera, renderer } = XR8.Threejs.xrScene()
+      renderer.render = (scene, camera) => {
+        /** disable the 8thwall threejs renderer */
+      }
       /** sync camera */
       XR8.XrController.updateCameraProjectionMatrix({
         origin: camera.position,
@@ -29,6 +33,7 @@ export const XREPipeline = (world: World) => {
     },
     onUpdate: (props: onUpdate) => {
       const { processCpuResult } = props
+      // console.log(processCpuResult)
       if (processCpuResult.reality) {
       }
     },

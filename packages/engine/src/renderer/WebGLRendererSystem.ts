@@ -218,7 +218,7 @@ export class EngineRenderer {
     /** Disable rendering on HMDs when not in a session to improve experience */
     if (isHMD && !activeSession) return
 
-    /** Postprocessing does not support multipass yet, so just use basic renderer */
+    /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
     if (isHMD && activeSession) {
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {

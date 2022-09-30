@@ -2,7 +2,7 @@ import { PerspectiveCamera } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { iOS } from '../common/functions/isMobile'
+import { iOS, isMobile } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { SystemDefintion } from '../ecs/functions/SystemFunctions'
@@ -145,9 +145,8 @@ export default async function XRSystem(world: World) {
     removeActionQueue(xrSessionChangedQueue)
   }
 
-  // testing - replace iOS with AR support check
-  let iOS = true
-  const _8thwall = iOS ? [() => import('./8thwall/XR8')] : ([] as SystemDefintion[])
+  xrState.using8thWall.set(false) //isMobile && (!navigator.xr || !await navigator.xr.isSessionSupported('immersive-ar')))
+  const _8thwall = xrState.using8thWall.value ? [() => import('./8thwall/XR8')] : ([] as SystemDefintion[])
 
   return {
     execute,

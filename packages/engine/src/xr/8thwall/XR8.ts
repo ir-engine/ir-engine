@@ -1,12 +1,14 @@
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { World } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRAction } from '../XRAction'
 import { XRHitTestComponent } from '../XRComponents'
+import { endXRSession, requestXRSession, setupARSession } from '../XRSessionFunctions'
 import { XRState } from '../XRState'
 import { XREPipeline } from './WebXR8thwallProxy'
 import { XR8CameraModule } from './XR8CameraModule'
@@ -74,7 +76,7 @@ const initialize8thwallDevice = (world: World) => {
     XR8.GlTextureRenderer.pipelineModule(), // Draws the camera feed.
     XR8.Threejs.pipelineModule(),
     XR8.XrController.pipelineModule({
-      enableLighting: true
+      // enableLighting: true
       // enableWorldPoints: true,
       // imageTargets: true,
       // enableVps: true
@@ -94,25 +96,62 @@ const initialize8thwallDevice = (world: World) => {
   XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
   XR8.addCameraPipelineModule(XREPipeline(world))
 
-  XR8.run({ canvas: cameraCanvas })
-
   const engineContainer = document.getElementById('engine-container')!
   engineContainer.appendChild(cameraCanvas)
 
   return cameraCanvas
 }
 
+class XRSessionProxy extends EventDispatcher {
+  constructor() {
+    super()
+  }
+  async requestReferenceSpace() {
+    return null
+  }
+}
+
 export default async function XR8System(world: World) {
   const _8thwallScript = await initialize8thwall()
-  const cameraCanvas = initialize8thwallDevice(world)
   const xrState = getState(XRState)
+  xrState.supportedSessionModes['immersive-ar'].set(true)
+
+  const cameraCanvas = initialize8thwallDevice(world)
+
+  let prevFollowCamera
+  requestXRSession.implementation = async (action) => {
+    prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
+    removeComponent(world.cameraEntity, FollowCameraComponent)
+    XR8.run({ canvas: cameraCanvas })
+    dispatchAction(XRAction.sessionChanged({ active: true }))
+
+    EngineRenderer.instance.xrSession = new XRSessionProxy() as any as XRSession
+    xrState.sessionActive.set(true)
+
+    setupARSession(world)
+    xrState.sessionMode.set('immersive-ar')
+  }
+
+  endXRSession.implementation = async () => {
+    addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+    dispatchAction(XRAction.sessionChanged({ active: false }))
+  }
+
+  let lastSeenBackground = world.scene.background
 
   const execute = () => {
+    const sessionActive = xrState.sessionActive.value
     const xr8scene = XR8.Threejs.xrScene()
-    if (xr8scene) {
-      const { scene, camera } = xr8scene
-      scene.children = [...world.scene.children, camera]
+    if (sessionActive && xr8scene) {
+      if (world.scene.background) lastSeenBackground = world.scene.background
+      world.scene.background = null
+      const { camera } = xr8scene
+      world.camera.position.copy(camera.position)
+      world.camera.quaternion.copy(camera.quaternion)
+      world.dirtyTransforms.add(world.cameraEntity)
     } else {
+      if (!world.scene.background && lastSeenBackground) world.scene.background = lastSeenBackground
+      lastSeenBackground = null
       return
     }
 

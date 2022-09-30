@@ -235,10 +235,11 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
       if (action.active) {
-        EngineRenderer.instance.xrSession.updateRenderState({
-          depthNear: 0.1,
-          depthFar: 100.0
-        })
+        if (EngineRenderer.instance.xrSession?.updateRenderState)
+          EngineRenderer.instance.xrSession.updateRenderState({
+            depthNear: 0.1,
+            depthFar: 100.0
+          })
       } else {
         const depthDataTexture = xrState.depthDataTexture.value
         if (depthDataTexture) {
