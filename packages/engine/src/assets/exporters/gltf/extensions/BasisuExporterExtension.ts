@@ -45,7 +45,7 @@ export default class BasisuExporterExtension extends ExporterExtension implement
       entry.originals.push({ material, field })
       if (!(texture as CubeTexture).isCubeTexture) {
         texturePromise = new Promise<Texture>((resolve) => {
-          createReadableTexture(texture).then((replacement: Texture) => {
+          createReadableTexture(texture, { flipY: true }).then((replacement: Texture) => {
             material[field] = replacement
             resolve(replacement)
           })
