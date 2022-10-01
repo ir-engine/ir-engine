@@ -168,7 +168,7 @@ export default async function XRSystem(world: World) {
 
     const buttonClicks = buttonClickedQueue()
 
-    if (EngineRenderer.instance.xrManager?.isPresenting) {
+    if (EngineRenderer.instance.xrSession) {
       if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
         for (const entity of xrHitTestQuery()) updateHitTest(entity)
       }
@@ -227,8 +227,8 @@ export default async function XRSystem(world: World) {
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
-      const session = EngineRenderer.instance.xrManager!.getSession()
-      if (session?.inputSources) for (const source of session.inputSources) updateGamepadInput(source)
+      const session = EngineRenderer.instance.xrSession
+      if (session.inputSources) for (const source of session.inputSources) updateGamepadInput(source)
     }
 
     //XR Controller mesh animation update
