@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
+import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -36,7 +37,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
-  const history = useHistory()
+  const route = useRouter()
   const editorState = useEditorState()
   const [DialogComponent, setDialogComponent] = useDialog()
 
@@ -82,7 +83,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
         dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
         dispatchAction(EngineActions.sceneUnloaded({}))
         disposeProject()
-        history.push(`/editor/${editorState.projectName.value}`)
+        route(`/editor/${editorState.projectName.value}`)
       }
 
       fetchItems()
@@ -121,7 +122,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
     dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
-    history.push(`/editor/${editorState.projectName.value}/${newName}`)
+    route(`/editor/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
   }

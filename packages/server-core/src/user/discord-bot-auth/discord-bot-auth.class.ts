@@ -6,7 +6,7 @@ import { SequelizeServiceOptions } from 'feathers-sequelize/types'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 
 export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
   app: Application

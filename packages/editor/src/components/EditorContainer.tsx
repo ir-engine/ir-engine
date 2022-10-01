@@ -5,10 +5,9 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
-import Debug from '@xrengine/client-core/src/components/Debug'
+import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -142,7 +141,7 @@ const EditorContainer = () => {
   const [editorReady, setEditorReady] = useState(false)
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
-  const history = useHistory()
+  const route = useRouter()
   const dockPanelRef = useRef<DockLayout>(null)
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
@@ -190,7 +189,7 @@ const EditorContainer = () => {
   const reRouteToLoadScene = async (newSceneName: string) => {
     if (sceneName.value === newSceneName) return
     if (!projectName.value || !newSceneName) return
-    history.push(`/editor/${projectName.value}/${newSceneName}`)
+    route(`/editor/${projectName.value}/${newSceneName}`)
   }
 
   const loadScene = async (sceneName: string) => {
@@ -261,7 +260,7 @@ const EditorContainer = () => {
   }
 
   const onCloseProject = () => {
-    history.push('/editor')
+    route('/editor')
   }
 
   const onSaveAs = async () => {
@@ -608,9 +607,6 @@ const EditorContainer = () => {
   }
   return (
     <>
-      <div style={{ pointerEvents: 'auto' }}>
-        <Debug />
-      </div>
       <div
         id="editor-container"
         className={styles.editorContainer}

@@ -166,7 +166,7 @@ export default async function XRSystem(world: World) {
 
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
-    if (EngineRenderer.instance.xrManager?.isPresenting) {
+    if (EngineRenderer.instance.xrManager) {
       if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
         for (const entity of xrHitTestQuery()) updateHitTest(entity)
       }
@@ -237,7 +237,11 @@ export default async function XRSystem(world: World) {
     removeActionQueue(xrSessionChangedQueue)
   }
 
-  return { execute, cleanup }
+  return {
+    execute,
+    cleanup,
+    subsystems: [() => import('./XRDepthOcclusion'), () => import('./8thwall/XR8')]
+  }
 }
 
 export function updateGamepadInput(source: XRInputSource) {

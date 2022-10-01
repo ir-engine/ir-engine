@@ -11,6 +11,7 @@ import {
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import InviteToast from '@xrengine/client-core/src/components/InviteToast'
 import { theme } from '@xrengine/client-core/src/theme'
 import { AuthState, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
@@ -29,8 +30,10 @@ import {
   useCoilSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@xrengine/client-core/src/API'
+import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
-import { clientHost, serverHost } from '@xrengine/client-core/src/util/config'
+import Debug from '@xrengine/client-core/src/components/Debug'
+import { clientHost, serverHost } from '@xrengine/common/src/config'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
@@ -188,6 +191,11 @@ const App = (): any => {
             action={defaultAction}
           >
             <GlobalStyle />
+            <div style={{ pointerEvents: 'auto' }}>
+              <InviteToast />
+              <UIDialog />
+              <Debug />
+            </div>
             <RouterComp />
             {projectComponents.map((Component, i) => (
               <Component key={i} />

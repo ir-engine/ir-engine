@@ -21,7 +21,7 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'

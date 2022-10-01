@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
@@ -13,20 +13,23 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { AppLoadingServiceReceptor } from '@xrengine/client-core/src/common/services/AppLoadingService'
+import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/AppService'
 import { DialogServiceReceptor } from '@xrengine/client-core/src/common/services/DialogService'
 import { MediaInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ProjectServiceReceptor } from '@xrengine/client-core/src/common/services/ProjectService'
+import { RouterServiceReceptor, RouterState, useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { FriendServiceReceptor } from '@xrengine/client-core/src/social/services/FriendService'
 import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
+import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
 import {
   LocalStateServiceReceptor,
   StoredLocalAction,
   StoredLocalStoreService
 } from '@xrengine/client-core/src/util/StoredLocalState'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
@@ -41,19 +44,25 @@ function RouterComp() {
   const clientSettingsState = useClientSettingState()
   const authSettingsState = useAuthSettingState()
   const location = useLocation()
+  const history = useHistory()
   const [routesReady, setRoutesReady] = useState(false)
+  const routerState = useHookstate(getState(RouterState))
+  const route = useRouter()
 
   InviteService.useAPIListeners()
 
   useEffect(() => {
+    addActionReceptor(RouterServiceReceptor)
     addActionReceptor(LocalStateServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
+    addActionReceptor(AvatarServiceReceptor)
     addActionReceptor(InviteServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(DialogServiceReceptor)
     addActionReceptor(AppLoadingServiceReceptor)
+    addActionReceptor(AppServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
@@ -74,19 +83,34 @@ function RouterComp() {
     })
 
     return () => {
+      removeActionReceptor(RouterServiceReceptor)
       removeActionReceptor(LocalStateServiceReceptor)
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
+      removeActionReceptor(AvatarServiceReceptor)
       removeActionReceptor(InviteServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(DialogServiceReceptor)
+      removeActionReceptor(AppServiceReceptor)
       removeActionReceptor(AppLoadingServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
       removeActionReceptor(MediaInstanceConnectionServiceReceptor)
       removeActionReceptor(FriendServiceReceptor)
     }
   }, [])
+
+  useEffect(() => {
+    if (location.pathname !== routerState.pathname.value) {
+      route(location.pathname)
+    }
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (location.pathname !== routerState.pathname.value) {
+      history.push(routerState.pathname.value)
+    }
+  }, [routerState.pathname])
 
   useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes

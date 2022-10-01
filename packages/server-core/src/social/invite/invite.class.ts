@@ -10,7 +10,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { sendInvite } from '../../hooks/send-invite'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
 interface InviteRemoveParams extends UserParams {

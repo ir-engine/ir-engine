@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk'
 
 import config from '../../appconfig'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 
 export async function sendSmsWithAWS(phone: string, text: string): Promise<void> {
   const params = {

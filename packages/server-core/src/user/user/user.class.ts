@@ -7,7 +7,7 @@ import { Op } from 'sequelize'
 import { CreateEditUser, UserInterface, UserScope } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export interface UserParams extends Params {

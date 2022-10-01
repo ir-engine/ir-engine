@@ -6,8 +6,8 @@ import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/Pr
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import logger from '../../ServerLogger'
 
 export const retriggerBuilderService = async (app: Application, storageProviderName?: string) => {
   try {
@@ -58,7 +58,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
   let isRebuilding = true
 
   // check k8s to find the status of builder service
-  if (app.k8DefaultClient) {
+  if (app.k8DefaultClient && !config.server.local) {
     try {
       logger.info('Attempting to check k8s rebuild status')
 

@@ -13,11 +13,11 @@ import templateProjectJson from '@xrengine/projects/template-project/package.jso
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
