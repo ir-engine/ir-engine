@@ -1,4 +1,13 @@
-import { AxesHelper, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, RingGeometry, Vector3 } from 'three'
+import {
+  AxesHelper,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  Quaternion,
+  RingGeometry,
+  Vector3
+} from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
@@ -6,6 +15,7 @@ import { V_010 } from '../common/constants/MathConstants'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { createEntity } from '../ecs/functions/EntityFunctions'
+import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { GamepadAxis, TouchInputs } from '../input/enums/InputEnums'
 import { addObjectToGroup, GroupComponent, removeGroupComponent } from '../scene/components/GroupComponent'
@@ -40,7 +50,6 @@ import { updateXRControllerAnimations } from './XRControllerFunctions'
 import { setupLocalXRInputs } from './XRFunctions'
 import { endXRSession, requestXRSession, xrSessionChanged } from './XRSessionFunctions'
 import { getControlMode, XRState } from './XRState'
-import { InputComponent } from '../input/components/InputComponent'
 
 const updateXRCameraTransform = (camera: PerspectiveCamera, originMatrix: Matrix4) => {
   camera.matrixWorld.multiplyMatrices(originMatrix, camera.matrix)
@@ -132,7 +141,7 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 
   const touchInput = world.inputState.get(TouchInputs.Touch1Movement)
   if (touchInput && touchInput.lifecycleState === 'Changed') {
-    xrState.sceneRotationOffset.set((val) => val += touchInput.value[0] / (world.deltaSeconds * 2))
+    xrState.sceneRotationOffset.set((val) => (val += touchInput.value[0] / (world.deltaSeconds * 2)))
   }
 
   const hitLocalTransform = getComponent(viewerHitTestEntity, LocalTransformComponent)
@@ -148,7 +157,6 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const targetRotation = hitLocalTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
   )
-
 
   smoothedViewerHitResultPose.position.lerp(targetPosition, lerpAlpha)
   smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)

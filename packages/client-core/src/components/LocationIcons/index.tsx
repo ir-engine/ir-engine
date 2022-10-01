@@ -5,11 +5,11 @@ import { UserMenu } from '@xrengine/client-core/src/user/components/UserMenu'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
+import { ARPlacement } from '../ARPlacement'
 import { Fullscreen } from '../Fullscreen'
 import { InstanceChatWrapper } from '../InstanceChat'
 import { MediaIconsBox } from '../MediaIconsBox'
 import { Shelves } from '../Shelves'
-import { ARPlacement } from '../ARPlacement'
 import { UserMediaWindows } from '../UserMediaWindows'
 import styles from './index.module.scss'
 
