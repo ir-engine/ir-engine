@@ -71,6 +71,7 @@ export default async function XRSystem(world: World) {
       () => import('./XRHitTestSystem'),
       () => import('./XRCameraSystem'),
       () => import('./XRDepthOcclusion'),
+      () => import('./XRScenePlacementShader'),
       () => import('./8thwall/XR8')
     ]
   }
