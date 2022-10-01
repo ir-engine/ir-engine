@@ -69,6 +69,10 @@
     "low-frame-error": "Detected a poor perfomance consider enabling Use Hardware acceleration in your browser and relauch your browser",
     "low-frame-title": "Enable hardware acceleration for better experience!"
   },
+  "ar": {
+    "placeScene": "Place Scene",
+    "done": "Done"
+  },
   "error": {
     "loading-error": "Failed to load user data",
     "validation-error": "Please input valid {{type}}",

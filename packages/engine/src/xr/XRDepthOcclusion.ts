@@ -228,17 +228,13 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const xrState = getState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
-  const useDepthTextureDebug = false
+  const useDepthTextureDebug = true
   const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
       if (action.active) {
-        if (EngineRenderer.instance.xrSession?.updateRenderState)
-          EngineRenderer.instance.xrSession.updateRenderState({
-            depthNear: 0.1,
-            depthFar: 100.0
-          })
+        //
       } else {
         const depthDataTexture = xrState.depthDataTexture.value
         if (depthDataTexture) {

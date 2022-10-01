@@ -1,4 +1,4 @@
-import { AxesHelper, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, RingGeometry, Vector3 } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
@@ -7,8 +7,8 @@ import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { BaseInput } from '../input/enums/BaseInput'
-import { GamepadAxis } from '../input/enums/InputEnums'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { GamepadAxis, TouchInputs } from '../input/enums/InputEnums'
+import { addObjectToGroup, GroupComponent, removeGroupComponent } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
@@ -27,6 +27,7 @@ import {
   addComponent,
   defineQuery,
   getComponent,
+  hasComponent,
   removeQuery,
   setComponent
 } from './../ecs/functions/ComponentFunctions'
@@ -39,6 +40,7 @@ import { updateXRControllerAnimations } from './XRControllerFunctions'
 import { setupLocalXRInputs } from './XRFunctions'
 import { endXRSession, requestXRSession, xrSessionChanged } from './XRSessionFunctions'
 import { getControlMode, XRState } from './XRState'
+import { InputComponent } from '../input/components/InputComponent'
 
 const updateXRCameraTransform = (camera: PerspectiveCamera, originMatrix: Matrix4) => {
   camera.matrixWorld.multiplyMatrices(originMatrix, camera.matrix)
@@ -111,6 +113,65 @@ export const updateHitTest = (entity: Entity) => {
   }
 }
 
+const _vecPosition = new Vector3()
+const _vecScale = new Vector3()
+const _quat = new Quaternion()
+
+const smoothedViewerHitResultPose = {
+  position: new Vector3(),
+  rotation: new Quaternion()
+}
+const smoothedSceneScale = new Vector3()
+
+export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
+  const xrState = getState(XRState)
+
+  const viewerHitTestEntity = xrState.viewerHitTestEntity.value
+
+  updateEntityTransform(viewerHitTestEntity)
+
+  const touchInput = world.inputState.get(TouchInputs.Touch1Movement)
+  if (touchInput && touchInput.lifecycleState === 'Changed') {
+    xrState.sceneRotationOffset.set((val) => val += touchInput.value[0] / (world.deltaSeconds * 2))
+  }
+
+  const hitLocalTransform = getComponent(viewerHitTestEntity, LocalTransformComponent)
+  const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+  const dist = cameraLocalTransform.position.distanceTo(hitLocalTransform.position)
+
+  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
+  const lifeSize = dist > 1 && upDir.angleTo(V_010) < Math.PI * 0.02
+
+  const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
+  const targetScale = _vecScale.setScalar(lifeSize ? 1 : 1 / xrState.sceneDollhouseScale.value)
+  const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScale.x)
+  const targetRotation = hitLocalTransform.rotation.multiply(
+    _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
+  )
+
+
+  smoothedViewerHitResultPose.position.lerp(targetPosition, lerpAlpha)
+  smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
+  smoothedSceneScale.lerp(targetScale, lerpAlpha)
+
+  /*
+  Set the world origin based on the scene anchor
+  */
+  const worldOriginTransform = getComponent(world.xrOriginEntity, TransformComponent)
+  worldOriginTransform.matrix.compose(
+    smoothedViewerHitResultPose.position,
+    smoothedViewerHitResultPose.rotation,
+    _vecScale.setScalar(1)
+  )
+  worldOriginTransform.matrix.invert()
+  worldOriginTransform.matrix.scale(smoothedSceneScale)
+  worldOriginTransform.matrix.decompose(
+    worldOriginTransform.position,
+    worldOriginTransform.rotation,
+    worldOriginTransform.scale
+  )
+}
+
 /**
  * System for XR session and input handling
  */
@@ -137,11 +198,8 @@ export default async function XRSystem(world: World) {
   setComponent(viewerHitTestEntity, VisibleComponent, true)
   setComponent(viewerHitTestEntity, XRHitTestComponent, null)
 
-  const smoothedViewerHitResultPose = {
-    position: new Vector3(),
-    rotation: new Quaternion()
-  }
-  const smoothedSceneScale = new Vector3()
+  const xrViewerHitTestMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
+  xrViewerHitTestMesh.geometry.rotateX(-Math.PI / 2)
 
   // addObjectToGroup(viewerHitTestEntity, new AxesHelper(10))
 
@@ -152,11 +210,6 @@ export default async function XRSystem(world: World) {
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
   const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
-  const buttonClickedQueue = createActionQueue(EngineActions.buttonClicked.matches)
-
-  const _vecPosition = new Vector3()
-  const _vecScale = new Vector3()
-  const _quat = new Quaternion()
 
   const execute = () => {
     const xrRequestSessionAction = xrRequestSessionQueue().pop()
@@ -166,57 +219,26 @@ export default async function XRSystem(world: World) {
 
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
-    const buttonClicks = buttonClickedQueue()
-
     if (EngineRenderer.instance.xrSession) {
       if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
         for (const entity of xrHitTestQuery()) updateHitTest(entity)
       }
 
-      for (const action of buttonClicks) {
-        if (action.clicked && action.button === BaseInput.PRIMARY) {
-          xrState.scenePlacementMode.set((v) => !v)
-        }
+      if (xrState.scenePlacementMode.value) {
+        updatePlacementMode(world)
       }
 
-      if (xrState.scenePlacementMode.value) {
-        updateEntityTransform(viewerHitTestEntity)
-        const hitLocalTransform = getComponent(viewerHitTestEntity, LocalTransformComponent)
-        const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
-        const dist = cameraLocalTransform.position.distanceTo(hitLocalTransform.position)
-
-        const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
-        const lifeSize = dist > 1 && upDir.angleTo(V_010) < Math.PI * 0.02
-
-        const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
-        const targetScale = _vecScale.setScalar(lifeSize ? 1 : 1 / xrState.sceneDollhouseScale.value)
-        const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScale.x)
-        const targetRotation = hitLocalTransform.rotation.multiply(
-          _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
-        )
-
-        smoothedViewerHitResultPose.position.lerp(targetPosition, lerpAlpha)
-        smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
-        smoothedSceneScale.lerp(targetScale, lerpAlpha)
-
-        /*
-        Set the world origin based on the scene anchor
-        */
-        const worldOriginTransform = getComponent(world.xrOriginEntity, TransformComponent)
-        worldOriginTransform.matrix.compose(
-          smoothedViewerHitResultPose.position,
-          smoothedViewerHitResultPose.rotation,
-          _vecScale.setScalar(1)
-        )
-        worldOriginTransform.matrix.invert()
-        worldOriginTransform.matrix.scale(smoothedSceneScale)
-        worldOriginTransform.matrix.decompose(
-          worldOriginTransform.position,
-          worldOriginTransform.rotation,
-          worldOriginTransform.scale
-        )
-      } else {
-        // update worldOriginTransform based on xr anchor
+      /**
+       * Hit Test Helper
+       */
+      for (const entity of xrHitTestQuery()) {
+        const hasHit = getComponent(entity, XRHitTestComponent).hasHit.value
+        if (hasHit && !hasComponent(entity, GroupComponent)) {
+          addObjectToGroup(entity, xrViewerHitTestMesh)
+        }
+        if (!hasHit && hasComponent(entity, GroupComponent)) {
+          removeGroupComponent(entity)
+        }
       }
 
       updateXRInput(world)
@@ -293,11 +315,3 @@ export function updateGamepadInput(source: XRInputSource) {
     }
   }
 }
-/*
-
-
-const worldOriginTransform = XRE_getComponent(2, ComponentMap.get('TransformComponent'))
-worldOriginTransform.scale.setScalar(10)
-
-
-*/
