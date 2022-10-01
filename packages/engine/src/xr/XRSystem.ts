@@ -166,51 +166,58 @@ export default async function XRSystem(world: World) {
 
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
-    if (EngineRenderer.instance.xrManager) {
+    const buttonClicks = buttonClickedQueue()
+
+    if (EngineRenderer.instance.xrManager?.isPresenting) {
       if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
         for (const entity of xrHitTestQuery()) updateHitTest(entity)
       }
 
-      updateEntityTransform(viewerHitTestEntity)
-      const hitLocalTransform = getComponent(viewerHitTestEntity, LocalTransformComponent)
-      const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
-      const dist = cameraLocalTransform.position.distanceTo(hitLocalTransform.position)
+      for (const action of buttonClicks) {
+        if (action.clicked && action.button === BaseInput.PRIMARY) {
+          xrState.scenePlacementMode.set((v) => !v)
+        }
+      }
 
-      const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
-      const lifeSize = dist > 1 && upDir.angleTo(V_010) < Math.PI * 0.02
+      if (xrState.scenePlacementMode.value) {
+        updateEntityTransform(viewerHitTestEntity)
+        const hitLocalTransform = getComponent(viewerHitTestEntity, LocalTransformComponent)
+        const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+        const dist = cameraLocalTransform.position.distanceTo(hitLocalTransform.position)
 
-      const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
-      const targetScale = _vecScale.setScalar(lifeSize ? 1 : 1 / xrState.sceneDollhouseScale.value)
-      const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScale.x)
-      const targetRotation = hitLocalTransform.rotation.multiply(
-        _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
-      )
-      smoothedViewerHitResultPose.position.lerp(targetPosition, lerpAlpha)
-      smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
-      smoothedSceneScale.lerp(targetScale, lerpAlpha)
+        const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
+        const lifeSize = dist > 1 && upDir.angleTo(V_010) < Math.PI * 0.02
 
-      // for (const action o  f buttonClickedQueue()) {
-      //   if (action.clicked && action.button === BaseInput.PRIMARY) {
+        const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
+        const targetScale = _vecScale.setScalar(lifeSize ? 1 : 1 / xrState.sceneDollhouseScale.value)
+        const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScale.x)
+        const targetRotation = hitLocalTransform.rotation.multiply(
+          _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
+        )
 
-      /*
-      Set the world origin based on the scene anchor
-      */
-      const worldOriginTransform = getComponent(world.xrOriginEntity, TransformComponent)
-      worldOriginTransform.matrix.compose(
-        smoothedViewerHitResultPose.position,
-        smoothedViewerHitResultPose.rotation,
-        _vecScale.setScalar(1)
-      )
-      worldOriginTransform.matrix.invert()
-      worldOriginTransform.matrix.scale(smoothedSceneScale)
-      worldOriginTransform.matrix.decompose(
-        worldOriginTransform.position,
-        worldOriginTransform.rotation,
-        worldOriginTransform.scale
-      )
+        smoothedViewerHitResultPose.position.lerp(targetPosition, lerpAlpha)
+        smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
+        smoothedSceneScale.lerp(targetScale, lerpAlpha)
 
-      //   }
-      // }
+        /*
+        Set the world origin based on the scene anchor
+        */
+        const worldOriginTransform = getComponent(world.xrOriginEntity, TransformComponent)
+        worldOriginTransform.matrix.compose(
+          smoothedViewerHitResultPose.position,
+          smoothedViewerHitResultPose.rotation,
+          _vecScale.setScalar(1)
+        )
+        worldOriginTransform.matrix.invert()
+        worldOriginTransform.matrix.scale(smoothedSceneScale)
+        worldOriginTransform.matrix.decompose(
+          worldOriginTransform.position,
+          worldOriginTransform.rotation,
+          worldOriginTransform.scale
+        )
+      } else {
+        // update worldOriginTransform based on xr anchor
+      }
 
       updateXRInput(world)
 
