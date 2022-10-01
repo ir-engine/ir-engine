@@ -37,7 +37,7 @@ export const ARPlacement = () => {
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
         <LocationSearchingIcon />
-        <div>{inPlacementMode ? t('common:ar.done') : t('common:ar.placeScene')}</div>
+        <div style={{ margin: '3px' }}>{inPlacementMode ? t('common:ar.done') : t('common:ar.placeScene')}</div>
       </button>
     </div>
   )
