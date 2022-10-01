@@ -1,5 +1,3 @@
-import { Vector3 } from 'three'
-
 import { defineState, getState } from '@xrengine/hyperflux'
 
 import { Entity } from '../ecs/classes/Entity'
