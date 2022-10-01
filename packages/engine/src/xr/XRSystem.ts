@@ -113,7 +113,7 @@ export default async function XRSystem(world: World) {
 
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
-    if (EngineRenderer.instance.xrManager?.isPresenting) {
+    if (EngineRenderer.instance.xrSession) {
       updateXRInput()
 
       // Assume world.camera.layers is source of truth for all xr cameras
@@ -146,7 +146,7 @@ export default async function XRSystem(world: World) {
   return {
     execute,
     cleanup,
-    subsystems: [() => import('./XRDepthOcclusion')]
+    subsystems: [() => import('./XRDepthOcclusion'), () => import('./8thwall/XR8')]
   }
 }
 

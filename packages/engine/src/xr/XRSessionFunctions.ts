@@ -135,11 +135,11 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-const setupVRSession = (world = Engine.instance.currentWorld) => {
+export const setupVRSession = (world = Engine.instance.currentWorld) => {
   setupXRInputSourceComponent(world.localClientEntity)
 }
 
-const setupARSession = (world = Engine.instance.currentWorld) => {
+export const setupARSession = (world = Engine.instance.currentWorld) => {
   const session = EngineRenderer.instance.xrSession
 
   EngineRenderer.instance.canvas.style.display = 'none'

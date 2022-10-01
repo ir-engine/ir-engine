@@ -213,7 +213,13 @@ export class EngineRenderer {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if (this.xrManager.isPresenting) {
+    const activeSession = getState(XRState).sessionActive.value
+
+    /** Disable rendering on HMDs when not in a session to improve experience */
+    if (isHMD && !activeSession) return
+
+    /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
+    if (isHMD && activeSession) {
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
       const state = accessEngineRendererState()
@@ -307,7 +313,7 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
     for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
 
-    if (!isHMD || getState(XRState).sessionActive.value) EngineRenderer.instance.execute(world.deltaSeconds)
+    EngineRenderer.instance.execute(world.deltaSeconds)
   }
 
   const cleanup = async () => {
