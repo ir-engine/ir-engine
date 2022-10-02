@@ -28,7 +28,7 @@
     "crypto-ld": "^6.0.0"
   },
   "devDependencies": {
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "10.0.0",
     "cross-env": "7.0.3",
     "rimraf": "3.0.2"
   },
