@@ -41,7 +41,6 @@ export default async function EditorCameraSystem(world: World) {
       if (cameraComponent.zoomDelta) {
         const distance = transform.position.distanceTo(cameraComponent.center)
         delta.set(0, 0, cameraComponent.zoomDelta * distance * ZOOM_SPEED)
-        console.log(delta.length(), distance)
         if (delta.length() < distance) {
           delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
           transform.position.add(delta)
