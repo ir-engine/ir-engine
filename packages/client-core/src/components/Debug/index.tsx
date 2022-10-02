@@ -127,7 +127,6 @@ export const Debug = ({ showingStateRef }) => {
 
   const namedEntities = useHookstate({})
   const entityTree = useHookstate({})
-
   const pipelines = Engine.instance.currentWorld.pipelines
 
   namedEntities.set(renderAllEntities())
@@ -177,20 +176,37 @@ export const Debug = ({ showingStateRef }) => {
           data={pipelines}
           postprocessValue={(v: SystemInstance) => {
             if (!v?.name) return v
-            const s = new String(`${v?.name} - ${v.uuid}`) as any
+            const s = new String(v.sceneSystem ? v.name : v.uuid) as any
+            if (v.subsystems?.length) {
+              s.parentSystem = v
+              return {
+                [s]: s,
+                subsystems: v.subsystems
+              }
+            }
             s.instance = v
             return s
           }} // yes, all this is a hack. We probably shouldn't use JSONTree for this
-          valueRenderer={(raw, value: { instance: SystemInstance }) => (
-            <>
-              <input
-                type="checkbox"
-                checked={value?.instance?.enabled}
-                onChange={() => (value.instance.enabled = !value.instance.enabled)}
-              ></input>{' '}
-              — {value}
-            </>
-          )}
+          valueRenderer={(raw, value: { instance: SystemInstance; parentSystem: SystemInstance }) => {
+            return value.parentSystem ? (
+              <>
+                <input
+                  type="checkbox"
+                  checked={value?.parentSystem?.enabled}
+                  onChange={() => (value.parentSystem.enabled = !value.parentSystem.enabled)}
+                ></input>
+              </>
+            ) : (
+              <>
+                <input
+                  type="checkbox"
+                  checked={value?.instance?.enabled}
+                  onChange={() => (value.instance.enabled = !value.instance.enabled)}
+                ></input>{' '}
+                — {value}
+              </>
+            )
+          }}
           shouldExpandNode={(keyPath, data, level) => level > 0}
         />
       </div>
