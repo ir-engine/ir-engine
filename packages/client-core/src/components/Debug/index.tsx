@@ -1,5 +1,4 @@
 import { getEntityComponents } from 'bitecs'
-import { merge } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
@@ -128,39 +127,7 @@ export const Debug = ({ showingStateRef }) => {
 
   const namedEntities = useHookstate({})
   const entityTree = useHookstate({})
-
-  const getSubSystemDefinition = (systems: SystemInstance[]) => {
-    return systems.reduce((r, system) => {
-      return merge(r, {
-        [`${system.name}`]: {
-          enabled: system.enabled,
-          subsystems: getSubSystemDefinition(system.subsystems)
-        }
-      })
-    }, {})
-  }
-
-  const getSystemDefinition = (systems: SystemInstance[]) => {
-    return systems.reduce((r, system) => {
-      return merge(r, {
-        [`${system?.name} - ${system.uuid}`]: {
-          enabled: system.enabled,
-          subsystems: getSubSystemDefinition(system.subsystems)
-        }
-      })
-    }, {})
-  }
-
   const pipelines = Engine.instance.currentWorld.pipelines
-  // Object.entries(Engine.instance.currentWorld.pipelines).map(([pipeline, systems]) => {
-  //   const s = getSystemDefinition(systems)
-  //   console.log(s)
-  //   return {
-  //     [pipeline]: s
-  //   }
-  // }).reduce((r, pipeline) => { return Object.assign(r, pipeline) }, {})
-
-  // console.log(pipelines)
 
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTree(tree.rootNode))
