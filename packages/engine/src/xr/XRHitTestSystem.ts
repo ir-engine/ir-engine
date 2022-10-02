@@ -49,6 +49,11 @@ const smoothedViewerHitResultPose = {
 }
 const smoothedSceneScale = new Vector3()
 
+/**
+ * Sets the origin reference space entity's transform to the results of
+ * a hit test performed from the viewer's reference space.
+ * @param entity
+ */
 export const updateHitTest = (entity: Entity) => {
   const xrState = getState(XRState)
   const xrFrame = Engine.instance.xrFrame
@@ -68,6 +73,11 @@ export const updateHitTest = (entity: Entity) => {
   }
 }
 
+/**
+ * Updates the transform of the origin reference space to manipulate the
+ * camera inversely to represent scaling the scene.
+ * @param world
+ */
 export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const xrState = getState(XRState)
 
@@ -75,6 +85,7 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 
   updateEntityTransform(viewerHitTestEntity)
 
+  /** Swipe to rotate */
   const touchInput = world.inputState.get(TouchInputs.Touch1Movement)
   if (touchInput && touchInput.lifecycleState === 'Changed') {
     xrState.sceneRotationOffset.set((val) => (val += touchInput.value[0] / (world.deltaSeconds * 2)))
@@ -101,7 +112,7 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   /*
   Set the world origin based on the scene anchor
   */
-  const worldOriginTransform = getComponent(world.xrOriginEntity, TransformComponent)
+  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
   worldOriginTransform.matrix.compose(
     smoothedViewerHitResultPose.position,
     smoothedViewerHitResultPose.rotation,
@@ -126,7 +137,7 @@ export default async function XRHitTestSystem(world: World) {
 
   const viewerHitTestEntity = createEntity()
   setComponent(viewerHitTestEntity, NameComponent, { name: 'xr-viewer-hit-test' })
-  setLocalTransformComponent(viewerHitTestEntity, world.xrOriginEntity)
+  setLocalTransformComponent(viewerHitTestEntity, world.originEntity)
   setComponent(viewerHitTestEntity, VisibleComponent, true)
   setComponent(viewerHitTestEntity, XRHitTestComponent, null)
 

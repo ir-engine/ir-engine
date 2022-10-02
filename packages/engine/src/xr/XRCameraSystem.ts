@@ -36,7 +36,7 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
   /*
    * xr cameras also have to have their world transforms updated relative to the origin, as these are used for actual rendering
    */
-  const originTransform = getComponent(world.xrOriginEntity, TransformComponent)
+  const originTransform = getComponent(world.originEntity, TransformComponent)
   const cameraXR = EngineRenderer.instance.xrManager.getCamera()
   updateXRCameraTransform(cameraXR, originTransform.matrix)
   for (const camera of cameraXR.cameras) updateXRCameraTransform(camera, originTransform.matrix)

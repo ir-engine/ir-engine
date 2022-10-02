@@ -6,7 +6,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
-import LocationSearchingIcon from '@mui/icons-material/LocationSearching'
+import AnchorIcon from '@mui/icons-material/Anchor'
 
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
@@ -27,7 +27,7 @@ export const ARPlacement = () => {
   }
 
   return (
-    <div style={{ top: inPlacementMode ? '50%' : '12px' }} className={`${styles.drawerBox} ${topShelfStyle}`}>
+    <div className={`${styles.arPlacement} ${topShelfStyle}`}>
       <button
         type="button"
         id="UserXR"
@@ -36,7 +36,7 @@ export const ARPlacement = () => {
         onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
-        <LocationSearchingIcon />
+        {!inPlacementMode && <AnchorIcon />}
         <div style={{ margin: '3px' }}>{inPlacementMode ? t('common:ar.done') : t('common:ar.placeScene')}</div>
       </button>
     </div>

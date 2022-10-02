@@ -64,16 +64,16 @@ export class World {
 
     initializeEntityTree(this)
 
-    this.xrOriginEntity = createEntity()
-    addComponent(this.xrOriginEntity, NameComponent, { name: 'xr-origin' })
-    setTransformComponent(this.xrOriginEntity)
-    setComponent(this.xrOriginEntity, VisibleComponent, true)
+    this.originEntity = createEntity()
+    addComponent(this.originEntity, NameComponent, { name: 'origin' })
+    setTransformComponent(this.originEntity)
+    setComponent(this.originEntity, VisibleComponent, true)
 
     this.cameraEntity = createEntity()
-    addComponent(this.cameraEntity, NameComponent, { name: 'xr-camera' })
+    addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
-    setLocalTransformComponent(this.cameraEntity, this.xrOriginEntity)
+    setLocalTransformComponent(this.cameraEntity, this.originEntity)
     addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
 
     /** @todo */
@@ -185,7 +185,7 @@ export class World {
   /**
    * The xr origin reference space entity
    */
-  xrOriginEntity: Entity = NaN as Entity
+  originEntity: Entity = NaN as Entity
 
   /**
    * The camera entity
