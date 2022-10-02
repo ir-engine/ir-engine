@@ -6,7 +6,7 @@ export const CameraComponent = defineComponent({
   name: 'CameraComponent',
   onAdd: (entity) => {
     return {
-      camera: new PerspectiveCamera(60, 1, 0.1, 10000) as PerspectiveCamera | OrthographicCamera
+      camera: new PerspectiveCamera(60, 1, 0.001, 10000) as PerspectiveCamera | OrthographicCamera
     }
   },
   onRemove: (entity, component) => {

@@ -125,6 +125,6 @@ export const ObjectFitFunctions = {
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {
     container.scale.setScalar(Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(position) / 3))
     container.position.copy(position)
-    container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+    container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrixWorld)
   }
 }

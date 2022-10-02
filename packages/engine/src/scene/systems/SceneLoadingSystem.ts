@@ -30,7 +30,6 @@ import {
   updateRootNodeUuid
 } from '../../ecs/functions/EntityTree'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -44,6 +43,7 @@ export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: stri
   const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
+  addEntityNodeChild(entityNode, Engine.instance.currentWorld.entityTree.rootNode)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, { name: prefabType, components: cloneDeep(components) })
 }

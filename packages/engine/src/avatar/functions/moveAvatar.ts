@@ -20,7 +20,6 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getControlMode, XRState } from '../../xr/XRState'
-import { updateXRInput } from '../../xr/XRSystem'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -210,8 +209,6 @@ export const updateReferenceSpace = (entity: Entity) => {
     const xrRigidTransform = new XRRigidTransform(avatarTransform.position, quat)
     const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
-    // maybe?
-    updateXRInput()
   }
 }
 

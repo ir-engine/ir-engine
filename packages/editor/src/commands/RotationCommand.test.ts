@@ -54,43 +54,6 @@ describe('RotationCommand', () => {
     }
   })
 
-  describe('prepare function', async () => {
-    it('sets space to local space if it is not passed', () => {
-      RotationCommand.prepare(command)
-
-      assert.equal(command.space, TransformSpace.Local)
-    })
-
-    it('will not set space to local space if it is passed', () => {
-      command.space = TransformSpace.LocalSelection
-      RotationCommand.prepare(command)
-      assert.equal(command.space, TransformSpace.LocalSelection)
-    })
-
-    it('creates "undo" object if history is enabled', () => {
-      command.keepHistory = true
-      command.rotations = [getRandomEuler()]
-      RotationCommand.prepare(command)
-
-      assert(command.undo)
-      command.undo.rotations.forEach((roatiaon, i) => {
-        assert.equal(command.undo?.space, TransformSpace.Local)
-        assert(
-          roatiaon.equals(
-            getComponent((command.affectedNodes[i] as EntityTreeNode).entity, Object3DComponent).value.rotation
-          )
-        )
-      })
-    })
-
-    it('does not create "undo" object if history is disabled', () => {
-      command.keepHistory = false
-      RotationCommand.prepare(command)
-
-      assert.equal(command.undo, undefined)
-    })
-  })
-
   describe('emitEventAfter function', async () => {
     it('will not emit any event if "preventEvents" is true', () => {
       command.preventEvents = true

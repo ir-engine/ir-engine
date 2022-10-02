@@ -4,6 +4,7 @@ import { Color, DirectionalLight, Scene, Vector2 } from 'three'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../../components/DirectionalLightComponent'
@@ -18,6 +19,9 @@ describe('DirectionalLightFunctions', () => {
       EngineRenderer.instance.directionalLightEntities = []
 
       const entity = createEntity()
+      const node = createEntityNode(entity)
+      const world = Engine.instance.currentWorld
+      addEntityNodeChild(node, world.entityTree.rootNode)
 
       const color = new Color('green')
       const sceneComponentData = {
@@ -54,6 +58,8 @@ describe('DirectionalLightFunctions', () => {
       EngineRenderer.instance.isCSMEnabled = false
 
       const entity = createEntity()
+      const node = createEntityNode(entity)
+      addEntityNodeChild(node, world.entityTree.rootNode)
 
       const color = new Color('green')
       const sceneComponentData = {

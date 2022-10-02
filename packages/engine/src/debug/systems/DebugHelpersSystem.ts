@@ -86,9 +86,6 @@ export default async function DebugHelpersSystem(world: World) {
     AssetLoader.loadAsync(GLTF_PATH)
   ])
 
-  const xrViewerHitTestMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
-  xrViewerHitTestMesh.geometry.rotateX(-Math.PI / 2)
-
   spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
 
   const editorHelpers = new Map<Entity, Object3D>()
@@ -122,7 +119,6 @@ export default async function DebugHelpersSystem(world: World) {
   const avatarAnimationQuery = defineQuery([AvatarAnimationComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
-  const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
@@ -573,20 +569,6 @@ export default async function DebugHelpersSystem(world: World) {
           helper?.position.copy(getComponent(entity, TransformComponent).position)
         }
     }
-
-    /**
-     * XR Hit Test
-     */
-
-    for (const entity of xrHitTestQuery()) {
-      const hasHit = getComponent(entity, XRHitTestComponent).hasHit.value
-      if (debugEnabled && hasHit && !hasComponent(entity, GroupComponent)) {
-        addObjectToGroup(entity, xrViewerHitTestMesh)
-      }
-      if ((!debugEnabled || !hasHit) && hasComponent(entity, GroupComponent)) {
-        removeGroupComponent(entity)
-      }
-    }
   }
 
   const cleanup = async () => {
@@ -608,7 +590,6 @@ export default async function DebugHelpersSystem(world: World) {
     removeQuery(world, avatarAnimationQuery)
     removeQuery(world, navmeshQuery)
     removeQuery(world, audioHelper)
-    removeQuery(world, xrHitTestQuery)
 
     removeActionQueue(debugActionQueue)
   }

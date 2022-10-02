@@ -4,8 +4,8 @@ import { MathUtils } from 'three'
 import { createEngine } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
-import { EntityTreeNode } from '../functions/EntityTree'
-import { createEntity } from './EntityFunctions'
+import { createEntity } from '../functions/EntityFunctions'
+import { EntityTreeNode } from './EntityTree'
 import {
   addEntityNodeChild,
   addToEntityTreeMaps,

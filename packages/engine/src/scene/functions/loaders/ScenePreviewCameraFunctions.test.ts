@@ -6,6 +6,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { setTransformComponent, TransformComponent } from '../../../transform/components/TransformComponent'
 
@@ -21,12 +22,9 @@ describe('ScenePreviewCameraFunctions', () => {
     createEngine()
     Engine.instance.isEditor = false
     entity = createEntity()
-    setTransformComponent(
-      entity,
-      new Vector3(Math.random(), Math.random(), Math.random()),
-      new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
-      new Vector3(Math.random(), Math.random(), Math.random())
-    )
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
   })
 
   // describe('updateScenePreviewCamera()', () => {
