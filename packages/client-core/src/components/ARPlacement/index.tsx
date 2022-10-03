@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import AnchorIcon from '@mui/icons-material/Anchor'
 
@@ -23,7 +23,11 @@ export const ARPlacement = () => {
   if (!supportsAR || !engineState.sceneLoaded.value || !xrSessionActive) return <></>
 
   const place = () => {
-    xrState.scenePlacementMode.set((val) => !val)
+    dispatchAction(
+      XRAction.changePlacementMode({
+        active: !inPlacementMode
+      })
+    )
   }
 
   return (

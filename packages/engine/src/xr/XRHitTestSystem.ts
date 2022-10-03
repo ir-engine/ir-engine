@@ -1,25 +1,20 @@
-import {
-  Material,
-  Matrix4,
-  Mesh,
-  MeshBasicMaterial,
-  Quaternion,
-  RingGeometry,
-  Shader,
-  ShaderMaterial,
-  ShadowMaterial,
-  Vector2,
-  Vector3
-} from 'three'
+import { Mesh, MeshBasicMaterial, Quaternion, RingGeometry, Vector3 } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
-import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  removeQuery,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { TouchInputs } from '../input/enums/InputEnums'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
@@ -32,12 +27,8 @@ import {
   TransformComponent
 } from '../transform/components/TransformComponent'
 import { updateEntityTransform } from '../transform/systems/TransformSystem'
-import { DepthCanvasTexture } from './DepthCanvasTexture'
-import { DepthDataTexture } from './DepthDataTexture'
-import { XRAction } from './XRAction'
-import { XRHitTestComponent } from './XRComponents'
-import { XRState } from './XRState'
-import { XRCPUDepthInformation } from './XRTypes'
+import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
+import { XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
 const _vecScale = new Vector3()
@@ -56,21 +47,25 @@ const smoothedSceneScale = new Vector3()
  */
 export const updateHitTest = (entity: Entity) => {
   const xrState = getState(XRState)
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = Engine.instance.xrFrame!
 
   const hitTestComponent = getComponent(entity, XRHitTestComponent)
-  const transform = getComponent(entity, LocalTransformComponent)
-  const hitTestResults = xrFrame.getHitTestResults(xrState.viewerHitTestSource.value!)
 
-  if (hitTestResults.length) {
-    const hit = hitTestResults[0]
-    const hitData = hit.getPose(xrState.originReferenceSpace.value!)!
-    transform.matrix.fromArray(hitData.transform.matrix)
-    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-    hitTestComponent.hasHit.set(true)
-  } else {
-    hitTestComponent.hasHit.set(false)
+  if (hitTestComponent.hitTestSource.value) {
+    const transform = getComponent(entity, LocalTransformComponent)
+    const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource.value!)
+
+    if (hitTestResults.length) {
+      const hit = hitTestResults[0]
+      const hitData = hit.getPose(xrState.originReferenceSpace.value!)!
+      transform.matrix.fromArray(hitData.transform.matrix)
+      transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+      hitTestComponent.hitTestResult.set(hit)
+      return hit
+    }
   }
+
+  hitTestComponent.hitTestResult.set(null)
 }
 
 /**
@@ -127,6 +122,21 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   )
 }
 
+export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorld) => {
+  const xrState = getState(XRState)
+  const anchor = getComponent(entity, XRAnchorComponent).anchor.value
+  const xrFrame = Engine.instance.xrFrame!
+  if (anchor) {
+    const pose = xrFrame.getPose(anchor.anchorSpace, xrState.originReferenceSpace.value!)
+    if (pose) {
+      const transform = getComponent(entity, LocalTransformComponent) ?? getComponent(entity, TransformComponent)
+      transform.position.copy(pose.transform.position as any as Vector3)
+      transform.rotation.copy(pose.transform.orientation as any as Quaternion)
+      world.dirtyTransforms.add(entity)
+    }
+  }
+}
+
 /**
  * Updates materials with XR depth map uniforms
  * @param world
@@ -139,7 +149,10 @@ export default async function XRHitTestSystem(world: World) {
   setComponent(viewerHitTestEntity, NameComponent, { name: 'xr-viewer-hit-test' })
   setLocalTransformComponent(viewerHitTestEntity, world.originEntity)
   setComponent(viewerHitTestEntity, VisibleComponent, true)
-  setComponent(viewerHitTestEntity, XRHitTestComponent, null)
+  setComponent(viewerHitTestEntity, XRHitTestComponent, { hitTestSource: null })
+
+  const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+  const changePlacementModeQueue = createActionQueue(XRAction.changePlacementMode.matches)
 
   xrState.viewerHitTestEntity.set(viewerHitTestEntity)
 
@@ -149,23 +162,66 @@ export default async function XRHitTestSystem(world: World) {
   xrViewerHitTestMesh.geometry.rotateX(-Math.PI / 2)
 
   const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
+  const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
   const execute = () => {
-    if (!EngineRenderer.instance.xrSession) return
+    if (!Engine.instance.xrFrame) return
+
+    for (const action of xrSessionChangedQueue()) {
+      if (action.active) {
+        if (xrState.sessionMode.value === 'immersive-ar') {
+          const session = EngineRenderer.instance.xrSession
+          session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
+            const xrState = getState(XRState)
+            xrState.viewerReferenceSpace.set(viewerReferenceSpace)
+            if ('requestHitTestSource' in session) {
+              session.requestHitTestSource!({ space: viewerReferenceSpace })!.then((source) => {
+                xrState.viewerHitTestSource.set(source)
+                getComponent(viewerHitTestEntity, XRHitTestComponent).hitTestSource.set(source)
+              })
+            }
+          })
+        }
+      } else {
+        xrState.viewerReferenceSpace.set(null)
+        removeComponent(world.originEntity, XRAnchorComponent)
+      }
+    }
+
+    const changePlacementModeActions = changePlacementModeQueue()
+    for (const action of changePlacementModeActions) {
+      XRReceptors.scenePlacementMode(action)
+    }
 
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
-      for (const entity of xrHitTestQuery()) updateHitTest(entity)
+      for (const entity of xrHitTestQuery()) {
+        const hit = updateHitTest(entity)
+        if (
+          entity === viewerHitTestEntity &&
+          hit &&
+          changePlacementModeActions.length &&
+          !changePlacementModeActions[0].active &&
+          typeof hit.createAnchor === 'function'
+        ) {
+          // @ts-ignore - types are incorrect for hit.createAnchor
+          hit.createAnchor().then((anchor: XRAnchor) => {
+            setComponent(world.originEntity, XRAnchorComponent, { anchor })
+          })
+        }
+      }
     }
 
     if (xrState.scenePlacementMode.value) {
       updatePlacementMode(world)
     }
 
+    for (const entity of xrAnchorQuery()) updateAnchor(entity, world)
+
     /**
      * Hit Test Helper
      */
     for (const entity of xrHitTestQuery()) {
-      const hasHit = getComponent(entity, XRHitTestComponent).hasHit.value
+      const hasHit = getComponent(entity, XRHitTestComponent).hitTestResult.value
       if (hasHit && !hasComponent(entity, GroupComponent)) {
         addObjectToGroup(entity, xrViewerHitTestMesh)
       }
@@ -177,6 +233,7 @@ export default async function XRHitTestSystem(world: World) {
 
   const cleanup = async () => {
     removeQuery(world, xrHitTestQuery)
+    removeActionQueue(xrSessionChangedQueue)
   }
 
   return { execute, cleanup }

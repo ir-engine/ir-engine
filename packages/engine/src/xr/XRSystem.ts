@@ -9,12 +9,11 @@ import { defineQuery, getComponent, removeQuery } from './../ecs/functions/Compo
 import { InputType } from './../input/enums/InputType'
 import { GamepadMapping } from './../input/functions/GamepadInput'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { XRAction } from './XRAction'
 import { XRInputSourceComponent } from './XRComponents'
 import { updateXRControllerAnimations } from './XRControllerFunctions'
 import { setupLocalXRInputs } from './XRFunctions'
 import { endXRSession, requestXRSession, xrSessionChanged } from './XRSessionFunctions'
-import { XRState } from './XRState'
+import { XRAction, XRState } from './XRState'
 
 /**
  * System for XR session and input handling
@@ -70,7 +69,7 @@ export default async function XRSystem(world: World) {
     subsystems: [
       () => import('./XRHitTestSystem'),
       () => import('./XRCameraSystem'),
-      () => import('./XRDepthOcclusion'),
+      // () => import('./XRDepthOcclusion'),
       () => import('./XRScenePlacementShader'),
       () => import('./8thwall/XR8')
     ]
