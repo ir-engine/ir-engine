@@ -5,6 +5,7 @@ import { UserMenu } from '@xrengine/client-core/src/user/components/UserMenu'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
+import { ARPlacement } from '../ARPlacement'
 import { Fullscreen } from '../Fullscreen'
 import { InstanceChatWrapper } from '../InstanceChat'
 import { MediaIconsBox } from '../MediaIconsBox'
@@ -24,6 +25,7 @@ export const LocationIcons = () => {
           <InstanceChatWrapper />
         </div>
         <Shelves />
+        <ARPlacement />
         <MediaIconsBox />
         <TouchGamepad />
         <Fullscreen />

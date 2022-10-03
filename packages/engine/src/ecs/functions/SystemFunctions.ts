@@ -31,6 +31,7 @@ export interface SystemInstance extends SystemInstanceData {
   type: SystemUpdateType
   sceneSystem: boolean
   enabled: boolean
+  subsystems: SystemInstance[]
 }
 
 export type SystemSyncFunctionType<A> = {
@@ -90,13 +91,24 @@ const loadSystemInjection = async (world: World, s: SystemFactoryType<any>, type
     logger.info(`${name} (${s.uuid}) ready`)
     const subsystems = system.subsystems
       ? await Promise.all(
-          system.subsystems.map(async (subsystem, i) =>
-            loadSystemInjection(world, {
-              systemModule: await subsystem(),
-              uuid: `${s.uuid} - subsystem ${i}`,
-              type: 'SUB_SYSTEM' as any
-            })
-          )
+          system.subsystems.map(async (subsystemInit, i) => {
+            const subsystem = await subsystemInit()
+            const name = subsystem.default.name
+            const uuid = name
+            const type = 'SUB_SYSTEM' as any
+            return {
+              uuid,
+              name,
+              type,
+              sceneSystem: s.sceneSystem,
+              enabled: true,
+              ...(await loadSystemInjection(world, {
+                systemModule: subsystem,
+                uuid,
+                type
+              }))
+            }
+          })
         )
       : []
     return {

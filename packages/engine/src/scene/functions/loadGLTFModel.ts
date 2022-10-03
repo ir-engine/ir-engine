@@ -16,8 +16,11 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -113,6 +116,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
+    // setTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
     setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
     addObjectToGroup(e, mesh)
     addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent._name])

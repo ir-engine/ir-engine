@@ -79,7 +79,6 @@ export const requestXRSession = createHookableFunction(
       const onSessionEnd = () => {
         xrState.sessionActive.set(false)
         xrState.sessionMode.set('none')
-        EngineRenderer.instance.canvas.style.display = ''
         EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
         EngineRenderer.instance.xrSession = null!
         EngineRenderer.instance.xrManager.setSession(null!)
@@ -135,14 +134,12 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-const setupVRSession = (world = Engine.instance.currentWorld) => {
+export const setupVRSession = (world = Engine.instance.currentWorld) => {
   setupXRInputSourceComponent(world.localClientEntity)
 }
 
-const setupARSession = (world = Engine.instance.currentWorld) => {
+export const setupARSession = (world = Engine.instance.currentWorld) => {
   const session = EngineRenderer.instance.xrSession
-
-  EngineRenderer.instance.canvas.style.display = 'none'
 
   session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
     const xrState = getState(XRState)

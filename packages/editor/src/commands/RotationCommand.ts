@@ -6,7 +6,7 @@ import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupCompo
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { updateEntityTransform } from '@xrengine/engine/src/transform/systems/TransformSystem'
 import { dispatchAction } from '@xrengine/hyperflux'

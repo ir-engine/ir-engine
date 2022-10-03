@@ -1,16 +1,15 @@
 import { PerspectiveCamera } from 'three'
 
-import { CameraComponent } from '@xrengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { accessEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { getCanvasBlob } from './thumbnails'
 

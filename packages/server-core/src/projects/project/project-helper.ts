@@ -58,7 +58,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
   let isRebuilding = true
 
   // check k8s to find the status of builder service
-  if (app.k8DefaultClient) {
+  if (app.k8DefaultClient && !config.server.local) {
     try {
       logger.info('Attempting to check k8s rebuild status')
 

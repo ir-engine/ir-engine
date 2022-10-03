@@ -1,28 +1,29 @@
 import { MathUtils } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
-import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
-import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { addComponent, getComponent, setComponent } from './ComponentFunctions'
-import { createEntity, entityExists, removeEntity } from './EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '../functions/ComponentFunctions'
+import { createEntity, entityExists, removeEntity } from '../functions/EntityFunctions'
 
+// Data structure to hold parent child relationship between entities
 export interface EntityTree {
   rootNode: EntityTreeNode
   entityNodeMap: Map<Entity, EntityTreeNode>
   uuidNodeMap: Map<string, EntityTreeNode>
 }
-
 export type EntityTreeNode = {
   type: 'EntityNode'
   entity: Entity
@@ -62,6 +63,8 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   world.sceneEntity = createEntity()
   addComponent(world.sceneEntity, NameComponent, { name: 'scene' })
   addComponent(world.sceneEntity, VisibleComponent, true)
+  setTransformComponent(world.sceneEntity)
+  // addObjectToGroup(world.sceneEntity, world.scene)
 
   world.entityTree = {
     rootNode: createEntityNode(world.sceneEntity),
@@ -116,7 +119,6 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
     children: []
   }
   addComponent(entity, SceneObjectComponent, true)
-  setTransformComponent(entity)
   return node
 }
 
@@ -139,6 +141,8 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
 
   node.parentEntity = parent.entity
   addToEntityTreeMaps(node)
+
+  if (!hasComponent(node.entity, TransformComponent)) setTransformComponent(node.entity)
 
   updateEntityTransform(parent.entity)
   updateEntityTransform(node.entity)

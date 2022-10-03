@@ -59,7 +59,7 @@ export const TouchGamepad = () => {
   const availableInteractable = interactState.available.value?.[0]
   const appState = useHookstate(getState(AppState))
 
-  if (!isTouchAvailable || isHMD || appState.showTouchPad.value) return <></>
+  if (!isTouchAvailable || isHMD || !appState.showTouchPad.value) return <></>
 
   const buttons = buttonsConfig.map((value, index) => {
     return (

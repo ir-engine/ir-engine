@@ -53,7 +53,7 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
         const configExtension = await viteConfigExtension()
         config.plugins = [...config.plugins!, ...configExtension.default.plugins]
         delete configExtension.default.plugins
-        merge(config, configExtension.default)
+        config = merge(config, configExtension.default)
       }
     }
   }

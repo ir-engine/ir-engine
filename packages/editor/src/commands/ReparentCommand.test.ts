@@ -52,9 +52,10 @@ describe('ReparentCommand', () => {
 
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
     Engine.instance.currentWorld.entityTree.entityNodeMap.forEach((node) => {
-      addObjectToGroup(node.entity, new Object3D())
+      if (node === Engine.instance.currentWorld.entityTree.rootNode) return
       const transform = getRandomTransform()
       setTransformComponent(node.entity, transform.position, transform.rotation, transform.scale)
+      addObjectToGroup(node.entity, new Object3D())
     })
 
     command = {

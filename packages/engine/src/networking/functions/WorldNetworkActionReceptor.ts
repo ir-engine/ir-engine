@@ -1,4 +1,5 @@
 import { none } from '@hookstate/core'
+import { Quaternion, Vector3 } from 'three'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -13,7 +14,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -37,10 +38,13 @@ const receiveSpawnObject = (
     addComponent(entity, NetworkObjectAuthorityTag, true)
   }
 
-  const transform = setTransformComponent(entity)
-  action.position && transform.position.copy(action.position)
-  action.rotation && transform.rotation.copy(action.rotation)
-  transform.scale.setScalar(1)
+  const position = new Vector3()
+  const rotation = new Quaternion()
+
+  if (action.position) position.copy(action.position)
+  if (action.rotation) rotation.copy(action.rotation)
+
+  const transform = setTransformComponent(entity, position, rotation)
 
   // set cached action refs to the new components so they stay up to date with future movements
   action.position = transform.position

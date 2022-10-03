@@ -19,6 +19,7 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
@@ -58,22 +59,28 @@ export const SceneState: SceneStateType = {
 export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
   SceneState.isInitialized = false
 
-  if (!Engine.instance.currentWorld.scene) Engine.instance.currentWorld.scene = new Scene()
+  const world = Engine.instance.currentWorld
+
+  if (!world.scene) world.scene = new Scene()
 
   // getting scene data
   await updateSceneFromJSON(sceneData)
   await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
 
-  const camera = Engine.instance.currentWorld.camera
+  const camera = world.camera
+  const localTransform = getComponent(world.cameraEntity, LocalTransformComponent)
   camera.position.set(0, 5, 10)
   camera.lookAt(new Vector3())
+  localTransform.position.copy(camera.position)
+  localTransform.rotation.copy(camera.quaternion)
+  world.dirtyTransforms.add(world.cameraEntity)
 
-  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
-  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
-  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Gizmos)
+  world.camera.layers.enable(ObjectLayers.Scene)
+  world.camera.layers.enable(ObjectLayers.NodeHelper)
+  world.camera.layers.enable(ObjectLayers.Gizmos)
 
-  removeComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
-  addComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent, {
+  removeComponent(world.cameraEntity, EditorCameraComponent)
+  addComponent(world.cameraEntity, EditorCameraComponent, {
     center: new Vector3(),
     zoomDelta: 0,
     isOrbiting: false,
@@ -89,9 +96,9 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   SceneState.editorEntity = createEditorEntity()
 
   // Require when changing scene
-  if (!Engine.instance.currentWorld.scene.children.includes(InfiniteGridHelper.instance)) {
+  if (!world.scene.children.includes(InfiniteGridHelper.instance)) {
     InfiniteGridHelper.instance = new InfiniteGridHelper()
-    Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
+    world.scene.add(InfiniteGridHelper.instance)
   }
 
   SceneState.isInitialized = true
