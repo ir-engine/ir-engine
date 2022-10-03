@@ -1,8 +1,11 @@
 import React, { Fragment, useEffect } from 'react'
-import { Color, Material, Mesh, Texture } from 'three'
+import { BufferAttribute, Color, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, Texture } from 'three'
 
+import styles from '@xrengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
 import {
   changeMaterialPrototype,
   materialFromId,
@@ -11,13 +14,17 @@ import {
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
+import { Box, Divider, Stack } from '@mui/material'
+
 import { executeCommandWithHistory } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
 import { accessSelectionState } from '../../services/SelectionServices'
+import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
+import Well from '../layout/Well'
 
 export default function MaterialEditor({ material }: { ['material']: Material }) {
   if (material === undefined) return <></>
@@ -71,7 +78,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   )
   const thumbnails = useHookstate(new Map<string, string>())
   const defaults = useHookstate(new Object())
-  const clearingThumbs = useHookstate(null)
+  const matSrc = useHookstate(materialFromId(matId.value).src)
 
   const clearThumbs = async () => {
     thumbnails.promised && (await thumbnails.promise)
@@ -83,7 +90,9 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   useHookEffect(() => {
     clearThumbs().then(() => {
       matName.set(material.name)
-      matPrototype.set(materialFromId(material.uuid).prototype)
+      const matEntry = materialFromId(material.uuid)
+      matPrototype.set(matEntry.prototype)
+      matSrc.set(matEntry.src)
       thumbnails.set(createThumbnails())
       defaults.set(createDefaults())
     })
@@ -121,6 +130,29 @@ export default function MaterialEditor({ material }: { ['material']: Material })
           />
         </InputGroup>
       )}
+      <InputGroup name="Source" label="Source">
+        <div className={styles.contentContainer}>
+          <Box className="Box" sx={{ padding: '8px', overflow: 'scroll' }}>
+            <Stack className="Stack" spacing={2} direction="column" alignContent={'center'}>
+              <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}>
+                <div>
+                  <label>Type:</label>
+                </div>
+                <div>{matSrc.value.type}</div>
+              </Stack>
+              <Stack className="Stack" spacing={2} direction="row">
+                <div>
+                  <label>Path:</label>
+                </div>
+                <div>{matSrc.value.path}</div>
+              </Stack>
+            </Stack>
+          </Box>
+        </div>
+      </InputGroup>
+      <br />
+      <Divider className={styles.divider} />
+      <br />
       <ParameterInput
         entity={material.uuid}
         values={thumbnails.promised ? {} : material}
@@ -156,6 +188,18 @@ export default function MaterialEditor({ material }: { ['material']: Material })
         }}
         defaults={thumbnails.promised || defaults.promised ? {} : defaults.value}
       />
+      {
+        <Button
+          onClick={async () => {
+            bakeToVertices(material as MeshStandardMaterial, [
+              { field: 'map', attribName: 'uv' },
+              { field: 'lightMap', attribName: 'uv2' }
+            ])
+          }}
+        >
+          Bake Light Map to Vertex Colors
+        </Button>
+      }
     </Fragment>
   )
 }

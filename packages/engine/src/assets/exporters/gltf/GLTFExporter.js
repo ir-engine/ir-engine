@@ -452,7 +452,7 @@ class GLTFWriter {
 
 		}
 
-		this.processInput( input );
+		await this.processInput( input );
 		let pendingCount
 		do {
 			pendingCount = this.pending.length
@@ -1110,6 +1110,10 @@ class GLTFWriter {
 
 		const imageDef = { mimeType: mimeType };
 
+		this._invokeAll( function (ext) {
+			ext.writeImage && ext.writeImage( image, imageDef );
+		})
+
 		if ( options.embedImages ) {
 			//check if image already has an object url
 			if(options.binary === true && /^blob:/.test(image.src)) {
@@ -1212,10 +1216,11 @@ class GLTFWriter {
 		} else {
 			//only save urls without serializing any images into bufferviews
 			imageDef.uri = image.src
-			const extension = image.src.split('.').at(-1)
+			const extension = image.src?.split('.').at(-1) ?? 'png'
 			imageDef.mimeType = `image/${extension}`
 			if (imageDef.mimeType === 'image/jpg') 
 				imageDef.mimeType = 'image/jpeg'
+			
 		}
 		const index = json.images.push( imageDef ) - 1;
 		cachedImages[ key ] = index;
@@ -1589,11 +1594,11 @@ class GLTFWriter {
 			}
 
 		}
-
+		
 		if ( originalNormal !== undefined ) geometry.setAttribute( 'normal', originalNormal );
-
+		const isMultiMaterial = Array.isArray( mesh.material );
 		// Skip if no exportable attributes found
-		if ( Object.keys( attributes ).length === 0 ) return null;
+		if ( Object.keys( attributes ).length === 0 && !isMultiMaterial ) return null;
 
 		// Morph targets
 		if ( mesh.morphTargetInfluences !== undefined && mesh.morphTargetInfluences.length > 0 ) {
@@ -1694,7 +1699,7 @@ class GLTFWriter {
 
 		}
 
-		const isMultiMaterial = Array.isArray( mesh.material );
+		
 
 		if ( isMultiMaterial && geometry.groups.length === 0 ) return null;
 
@@ -2138,54 +2143,51 @@ class GLTFWriter {
 	/**
 	 * @param {THREE.Object3D|Array<THREE.Object3D>} input
 	 */
-	processInput( input ) {
+	async processInput(input) {
 
 		const options = this.options;
 
-		input = input instanceof Array ? input : [ input ];
+		input = input instanceof Array ? input : [input];
 
-		this._invokeAll( function ( ext ) {
+		this._invokeAll(function (ext) {
 
-			ext.beforeParse && ext.beforeParse( input );
+			ext.beforeParse && ext.beforeParse(input);
 
-		} );
-
+		});
+		await Promise.allSettled(this.pending)
 		const objectsWithoutScene = [];
 
-		for ( let i = 0; i < input.length; i ++ ) {
+		for (let i = 0; i < input.length; i++) {
 
-			if ( input[ i ] instanceof Scene ) {
+			if (input[i] instanceof Scene) {
 
-				this.processScene( input[ i ] );
+				this.processScene(input[i]);
 
 			} else {
 
-				objectsWithoutScene.push( input[ i ] );
+				objectsWithoutScene.push(input[i]);
 
 			}
 
 		}
+		if (objectsWithoutScene.length > 0) this.processObjects(objectsWithoutScene);
 
-		if ( objectsWithoutScene.length > 0 ) this.processObjects( objectsWithoutScene );
+		for (let i = 0; i < this.skins.length; ++i) {
 
-		for ( let i = 0; i < this.skins.length; ++ i ) {
-
-			this.processSkin( this.skins[ i ] );
-
-		}
-
-		for ( let i = 0; i < options.animations.length; ++ i ) {
-
-			this.processAnimation( options.animations[ i ], input[ 0 ] );
+			this.processSkin(this.skins[i]);
 
 		}
 
-		this._invokeAll( function ( ext ) {
+		for (let i = 0; i < options.animations.length; ++i) {
 
-			ext.afterParse && ext.afterParse( input );
+			this.processAnimation(options.animations[i], input[0]);
 
-		} );
+		}
 
+		await Promise.allSettled(this.pending)
+		this._invokeAll(function (ext) {
+			ext.afterParse && ext.afterParse(input);
+		})
 	}
 
 	_invokeAll( func ) {

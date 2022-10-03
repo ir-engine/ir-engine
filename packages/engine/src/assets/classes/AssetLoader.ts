@@ -15,6 +15,7 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
+  RepeatWrapping,
   ShaderMaterial,
   SkinnedMesh,
   Texture,
@@ -316,6 +317,11 @@ const assetLoadCallback =
       if (asset.userData) asset.userData.type = assetType
 
       AssetLoader.processModelAsset(asset.scene, args)
+    }
+    if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
+      const texture = asset as Texture
+      texture.wrapS = RepeatWrapping
+      texture.wrapT = RepeatWrapping
     }
 
     onLoad(asset)
