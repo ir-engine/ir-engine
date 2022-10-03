@@ -268,7 +268,6 @@ export default async function XR8System(world: World) {
       world.camera.quaternion.copy(camera.quaternion).normalize()
       /** 8thwall always expects the camera to be unscaled */
       world.camera.scale.set(1, 1, 1)
-      world.dirtyTransforms.add(world.cameraEntity)
     } else {
       if (!world.scene.background && lastSeenBackground) world.scene.background = lastSeenBackground
       lastSeenBackground = null
