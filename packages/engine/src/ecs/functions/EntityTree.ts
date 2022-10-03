@@ -16,10 +16,14 @@ import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import { addComponent, getComponent, setComponent } from './ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from './EntityFunctions'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 
 export interface EntityTree {
   rootNode: EntityTreeNode
   entityNodeMap: Map<Entity, EntityTreeNode>
+  /**
+   * @deprecated use world.entitiesByUUID
+   */
   uuidNodeMap: Map<string, EntityTreeNode>
 }
 
@@ -65,17 +69,17 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
 
   world.entityTree = {
     rootNode: createEntityNode(world.sceneEntity),
-    entityNodeMap: new Map(),
-    uuidNodeMap: new Map()
+    entityNodeMap: new Map()
   } as EntityTree
 
   world.entityTree.entityNodeMap.set(world.entityTree.rootNode.entity, world.entityTree.rootNode)
-  world.entityTree.uuidNodeMap.set(world.entityTree.rootNode.uuid, world.entityTree.rootNode)
+  setComponent(world.entityTree.rootNode.entity, UUIDComponent, world.entityTree.rootNode.uuid)
 }
 
 export function updateRootNodeUuid(uuid: string, tree = Engine.instance.currentWorld.entityTree) {
   tree.uuidNodeMap.delete(tree.rootNode.uuid)
   tree.uuidNodeMap.set(uuid, tree.rootNode)
+  
   tree.rootNode.uuid = uuid
   tree.rootNode.parentEntity = undefined
 }

@@ -10,6 +10,7 @@ const StyledPropertyGroup = (styled as any).div`
   flex-shrink: 0;
   width: 100%;
   padding-top: 4px;
+  padding-bottom: 4px;
   border-top: 1px solid var(--border);
 `
 

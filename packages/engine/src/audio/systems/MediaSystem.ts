@@ -178,7 +178,27 @@ export default async function MediaSystem(world: World) {
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
   const mediaQuery = defineQuery([MediaComponent])
-  const videoQuery = defineQuery([MediaElementComponent, VideoComponent])
+  const mediaElementQuery = defineQuery([MediaElementComponent])
+
+  const videoQuery = defineQuery([VideoComponent])
+
+  const videoWithMediaQuery = defineReactiveQuery([VideoComponent], () => {
+    const videos = useQuery(videoQuery)
+    for (const entity of videos) {
+
+    }
+    const mediaEntityUUID = getComponent(entity, VideoComponent).mediaEntity.value
+    return mediaEntityUUID ? world.entityTree.uuidNodeMap.get(mediaEntityUUID)?.entity : entity
+  }) 
+  
+  const videoQuery
+  const videoWithMediaQuery2 = defineComplexQuery((entity) => {
+
+    const mediaEntityUUID = getComponent(entity, VideoComponent).mediaEntity.value
+    const mediaEntity = mediaEntityUUID ? world.entityTree.uuidNodeMap.get(mediaEntityUUID)?.entity : entity
+    return entity
+  })
+
   const volumetricQuery = defineQuery([MediaElementComponent, VolumetricComponent])
 
   await Promise.all(
@@ -201,7 +221,16 @@ export default async function MediaSystem(world: World) {
       setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }
 
-    for (const entity of videoQuery.enter()) enterVideo(entity)
+    const mediaElements = mediaElementQuery()
+
+    for (const entity of videoQuery()) {
+      const mediaEntityUUID = getComponent(entity, VideoComponent).mediaEntity.value
+      const mediaEntity = mediaEntityUUID ? world.entityTree.uuidNodeMap.get(mediaEntityUUID)?.entity : entity
+      const media = getComponent(mediaEntity, MediaElementComponent)
+
+      enterVideo(entity, )
+    }
+
     for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
   }

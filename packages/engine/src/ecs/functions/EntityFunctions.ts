@@ -1,3 +1,4 @@
+import { addStateReactor } from '@xrengine/hyperflux'
 import * as bitECS from 'bitecs'
 
 import { Engine } from '../classes/Engine'
@@ -23,4 +24,11 @@ export const removeEntity = (entity: Entity, immediately = false, world = Engine
 
 export const entityExists = (entity: Entity, world = Engine.instance.currentWorld) => {
   return bitECS.entityExists(world, entity)
+}
+
+
+export const addEntityReactor = (entity: Entity, reactor:(entity:Entity) => void) => {
+  addStateReactor(() => {
+    reactor(entity)
+  })
 }

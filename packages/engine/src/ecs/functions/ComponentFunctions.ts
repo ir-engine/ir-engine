@@ -7,6 +7,8 @@ import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
+import { createState, State, StateMethods, useState } from '@xrengine/hyperflux/functions/StateFunctions'
+import { useEffect } from 'react'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -16,21 +18,20 @@ bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 /**
  * @todo move this to engine scope
  */
-export const ComponentMap = new Map<string, Component<unknown, unknown, unknown>>()
+export const ComponentMap = new Map<string, Component<any, any, any>>()
 globalThis.ComponentMap = ComponentMap
 
 export interface ComponentPartial<ComponentType = unknown, Schema = unknown, JSON = unknown> {
   name: string
   schema?: Schema
-  isTag?: boolean
-  onAdd?: (entity: Entity) => ComponentType
+  onAdd?: (entity: Entity, world:World) => ComponentType
   toJSON?: (entity: Entity, component: ComponentType) => JSON
   onUpdate?: (entity: Entity, component: ComponentType, json: DeepReadonly<Partial<JSON>>) => void
   onRemove?: (entity: Entity, component: ComponentType) => void
 }
-export interface Component<ComponentType = unknown, Schema = unknown, JSON = unknown>
+export interface Component<ComponentType = any, Schema = unknown, JSON = unknown>
   extends ComponentPartial<ComponentType, Schema, JSON> {
-  onAdd: (entity: Entity) => ComponentType
+  onAdd: (entity: Entity, world:World) => ComponentType
   toJSON: (entity: Entity, component: ComponentType) => JSON
   onUpdate: (entity: Entity, component: ComponentType, json: DeepReadonly<Partial<JSON>>) => void
   onRemove: (entity: Entity, component: ComponentType) => void
@@ -38,22 +39,23 @@ export interface Component<ComponentType = unknown, Schema = unknown, JSON = unk
    * @deprecated use `name`
    */
   _name: string // backwards-compat; to be removed
-  map: Map<number, ComponentType>
+  map: StateMethods<Record<Entity, ComponentType>>
 }
 
 export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
-export type ComponentType<C extends Component> = NonNullable<ReturnType<C['map']['get']>>
+export type ComponentType<C extends Component> = NonNullable<C['map']['value'][keyof C['map']['value']]>
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 
-export const defineComponent = <ComponentType, Schema extends bitECS.ISchema = {}, JSON = unknown>(
-  def: ComponentPartial<ComponentType, Schema, JSON>
+export const defineComponent = <
+  ComponentType, 
+  Schema extends bitECS.ISchema, 
+  JSON, 
+  ComponentExtras
+>(
+  def: ComponentPartial<ComponentType, Schema, JSON> & ComponentExtras
 ) => {
-  const Component = bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) as Component<
-    ComponentType,
-    Schema,
-    JSON
-  > &
-    SoAComponentType<Schema>
+  const Component = bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) as ComponentExtras & SoAComponentType<Schema> &
+    Component<ComponentType, Schema, JSON>
   Component.onAdd = (entity) => {
     return {} as any
   }
@@ -63,8 +65,9 @@ export const defineComponent = <ComponentType, Schema extends bitECS.ISchema = {
     return undefined as any
   }
   Object.assign(Component, def)
+  
   Component._name = Component.name // backwards-compat; to be removed
-  if (!def.isTag) Component.map = new Map()
+  Component.map = createState({} as Record<Entity, ComponentType>)
   ComponentMap.set(Component.name, Component)
   return Component
 }
@@ -78,7 +81,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
 ) => {
   const Component = defineComponent<ComponentType, Schema, ComponentType>({ name, schema })
   Component.onUpdate = (entity, component, json) => {
-    Component.map!.set(entity, json as any)
+    Component.map[entity].set(json)
   }
   return Component
 }
@@ -98,8 +101,8 @@ export const getComponent = <ComponentType>(
   if (!component.map) {
     throw new Error('[getComponent]: tag components have no data')
   }
-  if (getRemoved) return component.map?.get(entity)!
-  if (bitECS.hasComponent(world, component, entity)) return component.map?.get(entity)!
+  if (getRemoved) return component.map[entity].value
+  if (bitECS.hasComponent(world, component, entity)) return component.map[entity].value
   return null!
 }
 
@@ -127,13 +130,14 @@ export const setComponent = <C extends Component>(
     throw new Error('[setComponent]: world is undefined')
   }
   if (!hasComponent(entity, component)) {
-    const c = component.onAdd(entity)
-    component.map?.set(entity, c)
+    const c = component.onAdd(entity, world)
+    component.map[entity].set(c)
     bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   }
-  const c = component.map?.get(entity)! as ComponentType<C>
+  const c = component.map[entity].value as ComponentType<C>
   component.onUpdate(entity, c, args as Readonly<SerializedComponentType<C>>)
-  return component.map?.get(entity)! as ComponentType<C>
+  component.map[entity].set(c)
+  return component.map[entity].value as ComponentType<C>
 }
 
 /**
@@ -223,7 +227,7 @@ export const removeComponent = <T, S, J>(
     throw new Error('[removeComponent]: world is undefined')
   }
   bitECS.removeComponent(world, component, entity, false)
-  const c = component.map?.get(entity)!
+  const c = component.map[entity].value!
   component.onRemove(entity, c)
 }
 
@@ -293,6 +297,30 @@ export function removeQuery(world: World, query: ReturnType<typeof defineQuery>)
   bitECS.removeQuery(world, query._query)
   bitECS.removeQuery(world, query._enterQuery)
   bitECS.removeQuery(world, query._exitQuery)
+}
+
+/**
+ * Use a query in a reactive context (a React component)
+ */
+export function useQuery(query:Query, world=Engine.instance.currentWorld) {
+  const state = useState([] as Entity[])
+  useEffect(() => {
+    state.set(query(world))
+    const queryState = {query, state}
+    world.reactiveQueryStates.add(queryState)
+    return () => {
+      removeQuery(world, query)
+      world.reactiveQueryStates.delete(queryState)
+    }
+  }, [query, world])
+  return state.value
+}
+
+/**
+ * Use a component in a reactive context (a React component)
+ */
+export function useComponent<C extends Component<any>>(entity:Entity, Component:C) {
+  return useState(Component.map[entity]).value
 }
 
 export type Query = ReturnType<typeof defineQuery>

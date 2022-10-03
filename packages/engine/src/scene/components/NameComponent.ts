@@ -1,7 +1,20 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createState } from '@xrengine/hyperflux/functions/StateFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type NameComponentType = {
-  name: string
-}
+export const NameComponent = defineComponent({
 
-export const NameComponent = createMappedComponent<NameComponentType>('NameComponent')
+  name: 'NameComponent',
+
+  onAdd: () => '',
+
+  toJSON: (entity, component) => component,
+
+  onUpdate: (entity, _, name) => {
+    NameComponent.map[entity].set(name)
+    NameComponent.entitiesByName[name].set(entity)
+  },
+
+  entitiesByName: createState({} as Record<string, Entity>)
+  
+})

@@ -9,7 +9,8 @@ import {
   PlaneGeometry,
   SphereGeometry,
   sRGBEncoding,
-  Texture
+  Texture,
+  Vector2
 } from 'three'
 
 import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
@@ -141,13 +142,18 @@ export const ImageComponent = defineComponent({
   }
 })
 
+const _size = new Vector2
+export function getTextureSize(texture:Texture | CompressedTexture | null, size:Vector2 = _size) {
+  const image = texture?.image as (HTMLImageElement & HTMLCanvasElement & HTMLVideoElement) | undefined
+  const width = image?.videoWidth || image?.naturalWidth || image?.width || 0
+  const height = image?.videoHeight || image?.naturalHeight || image?.height || 0
+  return size.set(width, height)
+}
+
 export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
   if (!mesh.material.map) return
 
-  const map = mesh.material.map as Texture | CompressedTexture | undefined
-  const image = map?.image as (HTMLImageElement & HTMLCanvasElement & HTMLVideoElement) | undefined
-  const width = image?.videoWidth || image?.naturalWidth || image?.width
-  const height = image?.videoHeight || image?.naturalHeight || image?.height
+  const {width, height} = getTextureSize(mesh.material.map)
 
   if (!width || !height) return
 

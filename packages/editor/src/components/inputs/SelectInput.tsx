@@ -9,54 +9,30 @@ import TextField from '@mui/material/TextField'
 
 import styles from './selectInput.module.scss'
 
-interface SelectInputProp {
-  value: any
-  options: Array<{ label: string; value: any }>
-  onChange?: (value: any) => void
+interface SelectInputProp<T> {
+  value: T | string,
+  options: Array<{ label: string; value: T }>
+  onChange?: (value: T | string) => void
   placeholder?: string
   disabled?: boolean
-  error?: any
-  styles?: any
-  creatable?: any
+  creatable?: boolean
   className?: string
   isSearchable?: boolean
-  filterOption?: (option: any, searchString: string) => boolean
-  getOptionLabel?: (option: any) => any
-  formatCreateLabel?: (value: any) => any
-  isValidNewOption?: (value: any) => boolean
 }
-
-/**
- *
- * @param {any} value
- * @param {any} options
- * @param {function} onChange
- * @param {string} placeholder
- * @param {boolean} disabled
- * @param {any} error
- * @param {any} styles
- * @param {any} creatable
- * @param {any} rest
- * @returns
- */
-export function SelectInput({
+export function SelectInput<T extends string | ReadonlyArray<string> | number | undefined>({
   value,
   options,
-  placeholder,
+  onChange,
+  placeholder = 'Select...',
   disabled,
   creatable,
-  isSearchable,
-  onChange
-}: SelectInputProp) {
-  let v
-  if (isSearchable) {
-    v = options.find((el) => el.value === value)?.label
-  }
+  isSearchable
+}: SelectInputProp<T>) {
 
   const [valueSelected, setValue] = React.useState(value)
-  const [valueAutoSelected, setAutoValue] = React.useState(v)
+  const [valueAutoSelected, setAutoValue] = React.useState(options.find((el) => el.value === value)?.label)
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleChange = (event: SelectChangeEvent<T>) => {
     setValue(event.target.value)
     onChange?.(event.target.value)
   }
@@ -122,9 +98,9 @@ export function SelectInput({
         }}
         IconComponent={ExpandMoreIcon}
       >
-        {options.map((el, index) => (
-          <MenuItem value={el.value} key={el.value + String(index)} classes={{ root: styles.menuItem }}>
-            {el.label}
+        {options.map((option, index) => (
+          <MenuItem value={option.value} key={String(option.value) + String(index)} classes={{ root: styles.menuItem }}>
+            {option.label}
           </MenuItem>
         ))}
       </Select>
@@ -132,18 +108,6 @@ export function SelectInput({
   )
 
   return <>{Component}</>
-}
-
-SelectInput.defaultProps = {
-  value: null,
-  placeholder: 'Select...',
-  optionNotFoundPlaceholder: 'Error',
-  onChange: () => {},
-  styles: {},
-  error: false,
-  disabled: false,
-  creatable: false,
-  isSearchable: false
 }
 
 export default SelectInput

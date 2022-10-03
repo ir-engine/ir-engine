@@ -34,7 +34,8 @@ import {
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent
+  hasComponent,
+  Query
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTree'
@@ -44,6 +45,9 @@ import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
 import { Entity } from './Entity'
+import { State } from '@hookstate/core'
+import { createState, none } from '@xrengine/hyperflux/functions/StateFunctions'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -196,6 +200,8 @@ export class World {
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()
 
+  reactiveQueryStates = new Set<{query:Query, state:State<Entity[]>}>()
+
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
 
@@ -218,29 +224,14 @@ export class World {
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstance[] }
 
-  #nameMap = new Map<string, Entity>()
-  #nameQuery = defineQuery([NameComponent])
-
   /**
    * Entities mapped by name
+   * @deprecated use entitiesByName
    */
-  get namedEntities() {
-    const nameMap = this.#nameMap
-    for (const entity of this.#nameQuery.enter()) {
-      const { name } = getComponent(entity, NameComponent)
-      if (nameMap.has(name)) {
-        logger.warn(`An Entity with name "${name}" already exists.`)
-      }
-      nameMap.set(name, entity)
-      const obj3d = getComponent(entity, Object3DComponent)?.value
-      if (obj3d) obj3d.name = name
-    }
-    for (const entity of this.#nameQuery.exit()) {
-      const { name } = getComponent(entity, NameComponent, true)
-      nameMap.delete(name)
-    }
-    return nameMap as ReadonlyMap<string, Entity>
-  }
+   get namedEntities() {return new Map(Object.entries(this.entitiesByName.value)) }
+
+  entitiesByName = createState({} as Record<string, Entity>)
+  entitiesByUuid = createState({} as Record<string, Entity>)
 
   /**
    * Network object query
@@ -342,6 +333,14 @@ export class World {
     for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
 
     for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
+
+    for (const {query, state} of this.reactiveQueryStates) {
+      const entitiesAdded = query.enter()
+      const entitiesRemoved = query.exit()
+      if (entitiesAdded || entitiesRemoved) {
+        state.set(query())
+      }
+    }
 
     const end = nowMilliseconds()
     const duration = end - start
