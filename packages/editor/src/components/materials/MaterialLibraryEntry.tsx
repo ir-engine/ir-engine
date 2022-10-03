@@ -11,7 +11,10 @@ import { MaterialSourceComponentType } from '@xrengine/engine/src/renderer/mater
 import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
 import { entryId, hashMaterialSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 
-import MaterialLibraryEntryIcon from '@mui/icons-material/LocalFloristOutlined'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
+import MaterialSourceIcon from '@mui/icons-material/YardTwoTone'
 import { Grid } from '@mui/material'
 
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -30,6 +33,7 @@ export type MaterialLibraryEntryType = {
 export type MaterialLibraryEntryData = {
   nodes: MaterialLibraryEntryType[]
   onClick: (e: MouseEvent, node: MaterialLibraryEntryType) => void
+  onCollapse: (e: MouseEvent, node: MaterialLibraryEntryType) => void
 }
 
 export type MaterialLibraryEntryProps = {
@@ -42,13 +46,36 @@ const getNodeElId = (node: MaterialLibraryEntryType) => {
   return 'material-node-' + entryId(node.entry, node.type)
 }
 
+const nodeDisplayName = (node: MaterialLibraryEntryType) => {
+  switch (node.type) {
+    case LibraryEntryType.MATERIAL:
+      const materialEntry = node.entry as MaterialComponentType
+      return materialEntry.material.name
+    case LibraryEntryType.MATERIAL_SOURCE:
+      const srcEntry = node.entry as MaterialSourceComponentType
+      return srcEntry.src.path
+    case LibraryEntryType.MATERIAL_PROTOTYPE:
+      const prototypeEntry = node.entry as MaterialPrototypeComponentType
+      return prototypeEntry.prototypeId
+  }
+}
+
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const data = props.data
   const node = data.nodes[props.index]
   const material = node.entry
 
-  const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
   const selectionState = useSelectionState()
+
+  const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
+
+  const onCollapseNode = useCallback(
+    (e: MouseEvent) => {
+      e.stopPropagation()
+      data.onCollapse(e, node)
+    },
+    [node, data.onCollapse]
+  )
 
   const [_dragProps, drag, preview] = useDrag({
     type: ItemTypes.Material,
@@ -79,25 +106,37 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
       style={props.style}
       ref={drag}
       id={getNodeElId(node)}
-      onClick={onClickNode}
       className={
         styles.treeNodeContainer +
         (node.selected ? ' ' + styles.selected : '') +
         (node.active ? ` ${styles.selected}` : '')
       }
     >
-      <div className={styles.nodeContent}>
-        <Grid container spacing={1} columns={16}>
+      <div className={styles.nodeContent} onClick={onClickNode}>
+        <Grid container columns={16}>
           <Grid item xs={1}>
-            <div className={styles.nodeIcon}>
-              <MaterialLibraryEntryIcon className={styles.nodeIcon} />
-            </div>
+            {node.type === LibraryEntryType.MATERIAL_SOURCE ? (
+              node.isCollapsed ? (
+                <ArrowRightIcon className={styles.collapseButton} onClick={onCollapseNode} />
+              ) : (
+                <ArrowDropDownIcon className={styles.collapseButton} onClick={onCollapseNode} />
+              )
+            ) : (
+              <div className={styles.spacer} />
+            )}
           </Grid>
-          <Grid item xs={3}>
-            <div className={styles.nodeContent}>{node.type}</div>
-          </Grid>
-          <Grid item xs={3}>
-            <div className={styles.nodeContent}>{node.uuid}</div>
+          <Grid item xs>
+            <Grid container spacing={1} columns={15}>
+              <Grid item xs={1}>
+                <div className={styles.nodeIcon}>
+                  {node.type === LibraryEntryType.MATERIAL && <MaterialComponentIcon className={styles.nodeIcon} />}
+                  {node.type === LibraryEntryType.MATERIAL_SOURCE && <MaterialSourceIcon className={styles.nodeIcon} />}
+                </div>
+              </Grid>
+              <Grid item xs>
+                <div className={styles.nodeContent}>{nodeDisplayName(node)}</div>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </div>

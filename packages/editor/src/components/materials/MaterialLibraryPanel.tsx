@@ -34,31 +34,37 @@ export default function MaterialLibraryPanel() {
   const selectionState = useSelectionState()
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useHookstate(0)
+  const collapsedNodes = useHookstate(new Set<string>())
   const createNodes = useCallback((): MaterialLibraryEntryType[] => {
     const result = [...MaterialLibrary.sources.values()].flatMap((srcComp) => {
+      const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
+      const isCollapsed = collapsedNodes.value.has(uuid)
       return [
         {
-          uuid: hashMaterialSource(srcComp.src),
+          uuid,
           type: LibraryEntryType.MATERIAL_SOURCE,
           entry: srcComp,
           selected: selectionState.selectedEntities.value.some(
-            (entity) => typeof entity === 'string' && entity === hashMaterialSource(srcComp.src)
+            (entity) => typeof entity === 'string' && entity === uuid
           ),
-          active: selectionState.selectedEntities.value.at(-1) === hashMaterialSource(srcComp.src)
+          active: selectionState.selectedEntities.value.at(-1) === uuid,
+          isCollapsed
         },
-        ...srcComp.entries
-          .filter((uuid) => MaterialLibrary.materials.has(uuid))
-          .map((uuid) => {
-            return {
-              uuid,
-              type: LibraryEntryType.MATERIAL,
-              entry: materialFromId(uuid),
-              selected: selectionState.selectedEntities.value.some(
-                (entity) => typeof entity === 'string' && entity === uuid
-              ),
-              active: selectionState.selectedEntities.value.at(-1) === uuid
-            }
-          })
+        ...(isCollapsed
+          ? []
+          : srcComp.entries
+              .filter((uuid) => MaterialLibrary.materials.has(uuid))
+              .map((uuid) => {
+                return {
+                  uuid,
+                  type: LibraryEntryType.MATERIAL,
+                  entry: materialFromId(uuid),
+                  selected: selectionState.selectedEntities.value.some(
+                    (entity) => typeof entity === 'string' && entity === uuid
+                  ),
+                  active: selectionState.selectedEntities.value.at(-1) === uuid
+                }
+              }))
       ]
     })
     return result
@@ -73,6 +79,22 @@ export default function MaterialLibraryPanel() {
         affectedNodes: [entryId(node.entry, node.type)]
       })
     }
+  }, [])
+
+  const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
+    const isCollapsed = collapsedNodes.value.has(node.uuid)
+    if (isCollapsed) {
+      collapsedNodes.merge((_collapsedNodes) => {
+        _collapsedNodes.delete(node.uuid)
+        return _collapsedNodes
+      })
+    } else {
+      collapsedNodes.merge((_collapsedNodes) => {
+        _collapsedNodes.add(node.uuid)
+        return _collapsedNodes
+      })
+    }
+    nodeChanges.set(nodeChanges.get() + 1)
   }, [])
 
   useHookEffect(() => {
@@ -92,7 +114,8 @@ export default function MaterialLibraryPanel() {
                 itemCount={nodes.length}
                 itemData={{
                   nodes: nodes.get(),
-                  onClick
+                  onClick,
+                  onCollapse
                 }}
                 itemKey={(index, _) => index}
                 innerElementType="ul"
