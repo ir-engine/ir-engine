@@ -21,6 +21,15 @@
   border-color: var(--panelBackground);
 }
 
+.deleteButton {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  color: #a22;
+  background: transparent;
+}
+
 .contextMenu {
   :global(.MuiMenu-paper) {
     background-color: var(--dropdownMenuBackground);

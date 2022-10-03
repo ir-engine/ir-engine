@@ -152,7 +152,13 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
   if (args.parms.useMeshQuantization) {
     document.createExtension(MeshQuantization).setRequired(true)
-    await document.transform(quantize())
+    await document.transform(
+      quantize({
+        quantizeColor: 8,
+        quantizeNormal: 8,
+        quantizePosition: 14
+      })
+    )
   }
   if (args.parms.useDraco) {
     await document.transform(

@@ -1,13 +1,4 @@
-import {
-  Color,
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
-  MeshMatcapMaterial,
-  MeshStandardMaterial,
-  Texture
-} from 'three'
+import { Color, Material, Mesh, Texture } from 'three'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -139,6 +130,7 @@ export function removeMaterialSource(src: MaterialSource): boolean {
       toDelete.material.dispose()
       MaterialLibrary.materials.delete(matId)
     })
+    MaterialLibrary.sources.delete(srcId)
     dispatchAction(MaterialLibraryActions.RemoveSource({ src: srcComp.src }))
     return true
   } else return false
