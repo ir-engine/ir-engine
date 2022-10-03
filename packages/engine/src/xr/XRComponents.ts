@@ -164,6 +164,10 @@ export const XRAnchorComponent = defineComponent({
     if (json.anchor) component.anchor.set(json.anchor)
   },
 
+  onRemove: (entity, component) => {
+    component.anchor.value.delete()
+  },
+
   toJSON: () => {
     return null! as {
       anchor: XRAnchor

@@ -196,17 +196,24 @@ export default async function XRHitTestSystem(world: World) {
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
       for (const entity of xrHitTestQuery()) {
         const hit = updateHitTest(entity)
-        if (
-          entity === viewerHitTestEntity &&
-          hit &&
-          changePlacementModeActions.length &&
-          !changePlacementModeActions[0].active &&
-          typeof hit.createAnchor === 'function'
-        ) {
-          // @ts-ignore - types are incorrect for hit.createAnchor
-          hit.createAnchor().then((anchor: XRAnchor) => {
-            setComponent(world.originEntity, XRAnchorComponent, { anchor })
-          })
+        if (entity === viewerHitTestEntity && hit && changePlacementModeActions.length) {
+          if (changePlacementModeActions[0].active) {
+            removeComponent(world.originEntity, XRAnchorComponent)
+          } else {
+            // detect support for anchors
+            if (typeof hit.createAnchor === 'function') {
+              const transform = getComponent(entity, TransformComponent)
+              // @ts-ignore - types are incorrect for hit.createAnchor
+              Engine.instance.xrFrame
+                .createAnchor(
+                  new XRRigidTransform(transform.position, transform.rotation),
+                  xrState.originReferenceSpace.value as XRSpace
+                )
+                .then((anchor: XRAnchor) => {
+                  setComponent(world.originEntity, XRAnchorComponent, { anchor })
+                })
+            }
+          }
         }
       }
     }
