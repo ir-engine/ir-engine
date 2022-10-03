@@ -24,6 +24,7 @@ import { VisibleComponent } from '../scene/components/VisibleComponent'
 import {
   LocalTransformComponent,
   setLocalTransformComponent,
+  setTransformComponent,
   TransformComponent
 } from '../transform/components/TransformComponent'
 import { updateEntityTransform } from '../transform/systems/TransformSystem'
@@ -54,7 +55,6 @@ export const updateHitTest = (entity: Entity) => {
   if (hitTestComponent.hitTestSource.value) {
     const transform = getComponent(entity, LocalTransformComponent)
     const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource.value!)
-
     if (hitTestResults.length) {
       const hit = hitTestResults[0]
       const hitData = hit.getPose(xrState.originReferenceSpace.value!)!
@@ -142,7 +142,7 @@ export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorl
  * @param world
  * @returns
  */
-export default async function XRHitTestSystem(world: World) {
+export default async function XRAnchorSystem(world: World) {
   const xrState = getState(XRState)
 
   const scenePlacementEntity = createEntity()
@@ -165,8 +165,6 @@ export default async function XRHitTestSystem(world: World) {
   const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
   const execute = () => {
-    if (!Engine.instance.xrFrame) return
-
     for (const action of xrSessionChangedQueue()) {
       if (action.active) {
         if (xrState.sessionMode.value === 'immersive-ar') {
@@ -183,10 +181,14 @@ export default async function XRHitTestSystem(world: World) {
           })
         }
       } else {
+        setTransformComponent(world.originEntity) // reset world origin
         xrState.viewerReferenceSpace.set(null)
-        removeComponent(world.originEntity, XRAnchorComponent)
+        xrState.scenePlacementMode.set(false)
+        hasComponent(world.originEntity, XRAnchorComponent) && removeComponent(world.originEntity, XRAnchorComponent)
       }
     }
+
+    if (!Engine.instance.xrFrame) return
 
     const changePlacementModeActions = changePlacementModeQueue()
     for (const action of changePlacementModeActions) {
@@ -198,7 +200,7 @@ export default async function XRHitTestSystem(world: World) {
         const hit = updateHitTest(entity)
         if (entity === scenePlacementEntity && hit && changePlacementModeActions.length) {
           if (changePlacementModeActions[0].active) {
-            removeComponent(entity, XRAnchorComponent)
+            hasComponent(entity, XRAnchorComponent) && removeComponent(entity, XRAnchorComponent)
           } else {
             // detect support for anchors
             if (typeof hit.createAnchor === 'function') {

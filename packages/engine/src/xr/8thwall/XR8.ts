@@ -1,8 +1,11 @@
+import { Matrix4, Quaternion, Vector3 } from 'three'
+
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { isMobile } from '../../common/functions/isMobile'
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -102,14 +105,59 @@ const initialize8thwallDevice = (world: World) => {
   return cameraCanvas
 }
 
+class XRHitTestResultProxy {
+  #mat4: Matrix4
+  constructor(position: Vector3, rotation: Quaternion) {
+    this.#mat4 = new Matrix4().compose(
+      new Vector3().copy(position),
+      new Quaternion().copy(rotation).normalize(),
+      new Vector3(1, 1, 1)
+    )
+  }
+
+  /** for now, assume it is always relative to the absolute world origin (0, 0, 0) */
+  getPose(baseSpace: XRSpace) {
+    const scope = this
+    return {
+      get transform() {
+        return {
+          get matrix() {
+            return scope.#mat4.toArray()
+          }
+        }
+      }
+    } as unknown as Partial<XRPose>
+  }
+
+  // not supported
+  createAnchor = undefined
+}
+
 class XRSessionProxy extends EventDispatcher {
-  constructor() {
-    super()
+  async requestReferenceSpace(type: 'local' | 'viewer') {
+    const space = {}
+    return space as XRReferenceSpace
   }
-  async requestReferenceSpace() {
-    /** @todo support reference space */
-    return null
+
+  async requestHitTestSource(args: { space: XRReferenceSpace }) {
+    const source = {}
+    return source as XRHitTestSource
   }
+}
+
+/**
+ * currently, the hit test proxy only supports viewer space
+ */
+class XRFrameProxy {
+  getHitTestResults(source: XRHitTestSource) {
+    const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
+    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position, rotation))
+  }
+
+  /**
+   * XRFrame.getPose is only currently used for anchors and controllers, which are not implemented in 8thwall
+   */
+  getPose = undefined
 }
 
 const skyboxQuery = defineQuery([SkyboxComponent])
@@ -118,7 +166,7 @@ export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
   const xrState = getState(XRState)
 
-  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
+  const using8thWall = true //isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
 
   const vpsComponent = defineQuery([VPSComponent])
 
@@ -224,22 +272,7 @@ export default async function XR8System(world: World) {
       return
     }
 
-    /** Run viewer hit test logic from the 8thwall controller */
-    const hitTestResults = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    const viewerHitTestEntity = xrState.viewerHitTestEntity.value
-    const hitTestComponent = getComponent(viewerHitTestEntity, XRHitTestComponent)
-
-    if (hitTestResults.length) {
-      const { position, rotation } = hitTestResults[0]
-      const transform = getComponent(viewerHitTestEntity, TransformComponent)
-      transform.position.copy(position)
-      transform.rotation.copy(rotation)
-      transform.matrix.compose(transform.position, transform.rotation, transform.scale)
-      transform.matrixInverse.copy(transform.matrix).invert()
-      hitTestComponent.hasHit.set(true)
-    } else {
-      hitTestComponent.hasHit.set(false)
-    }
+    Engine.instance.xrFrame = new XRFrameProxy() as any as XRFrame
   }
 
   const cleanup = async () => {

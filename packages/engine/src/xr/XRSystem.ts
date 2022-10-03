@@ -67,11 +67,11 @@ export default async function XRSystem(world: World) {
     execute,
     cleanup,
     subsystems: [
-      () => import('./XRHitTestSystem'),
+      () => import('./8thwall/XR8'),
+      () => import('./XRAnchorSystem'),
       () => import('./XRCameraSystem'),
       // () => import('./XRDepthOcclusion'),
-      () => import('./XRScenePlacementShader'),
-      () => import('./8thwall/XR8')
+      () => import('./XRScenePlacementShader')
     ]
   }
 }

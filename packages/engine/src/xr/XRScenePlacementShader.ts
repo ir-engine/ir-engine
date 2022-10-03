@@ -22,7 +22,7 @@ type ScenePlacementMaterialType = {
  * @param world
  * @returns
  */
-export default async function XRDepthOcclusionSystem(world: World) {
+export default async function XRScenePlacementShader(world: World) {
   const sceneQuery = defineQuery([GroupComponent, SceneObjectComponent])
   const xrState = getState(XRState)
 
