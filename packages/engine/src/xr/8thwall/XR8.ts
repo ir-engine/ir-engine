@@ -263,8 +263,11 @@ export default async function XR8System(world: World) {
       if (world.scene.background) lastSeenBackground = world.scene.background
       world.scene.background = null
       const { camera } = xr8scene
+      /** update the camera in world space as updateXRInput will update it to local space */
       world.camera.position.copy(camera.position)
-      world.camera.quaternion.copy(camera.quaternion)
+      world.camera.quaternion.copy(camera.quaternion).normalize()
+      /** 8thwall always expects the camera to be unscaled */
+      world.camera.scale.set(1, 1, 1)
       world.dirtyTransforms.add(world.cameraEntity)
     } else {
       if (!world.scene.background && lastSeenBackground) world.scene.background = lastSeenBackground
