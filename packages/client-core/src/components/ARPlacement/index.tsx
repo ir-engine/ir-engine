@@ -12,7 +12,7 @@ import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const ARPlacement = () => {
-  const { topShelfStyle } = useShelfStyles()
+  const { bottomShelfStyle } = useShelfStyles()
   const { t } = useTranslation()
 
   const engineState = useEngineState()
@@ -31,7 +31,7 @@ export const ARPlacement = () => {
   }
 
   return (
-    <div className={`${styles.arPlacement} ${topShelfStyle}`}>
+    <div className={`${styles.arPlacement} ${bottomShelfStyle}`}>
       <button
         type="button"
         id="UserXR"

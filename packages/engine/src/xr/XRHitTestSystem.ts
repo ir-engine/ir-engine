@@ -129,7 +129,7 @@ export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorl
   if (anchor) {
     const pose = xrFrame.getPose(anchor.anchorSpace, xrState.originReferenceSpace.value!)
     if (pose) {
-      const transform = getComponent(entity, LocalTransformComponent) ?? getComponent(entity, TransformComponent)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.copy(pose.transform.position as any as Vector3)
       transform.rotation.copy(pose.transform.orientation as any as Quaternion)
       world.dirtyTransforms.add(entity)
@@ -145,16 +145,16 @@ export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorl
 export default async function XRHitTestSystem(world: World) {
   const xrState = getState(XRState)
 
-  const viewerHitTestEntity = createEntity()
-  setComponent(viewerHitTestEntity, NameComponent, { name: 'xr-viewer-hit-test' })
-  setLocalTransformComponent(viewerHitTestEntity, world.originEntity)
-  setComponent(viewerHitTestEntity, VisibleComponent, true)
-  setComponent(viewerHitTestEntity, XRHitTestComponent, { hitTestSource: null })
+  const scenePlacementEntity = createEntity()
+  setComponent(scenePlacementEntity, NameComponent, { name: 'xr-scene-placement' })
+  setLocalTransformComponent(scenePlacementEntity, world.originEntity)
+  setComponent(scenePlacementEntity, VisibleComponent, true)
+  setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource: null })
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
   const changePlacementModeQueue = createActionQueue(XRAction.changePlacementMode.matches)
 
-  xrState.viewerHitTestEntity.set(viewerHitTestEntity)
+  xrState.viewerHitTestEntity.set(scenePlacementEntity)
 
   // addObjectToGroup(viewerHitTestEntity, new AxesHelper(10))
 
@@ -177,7 +177,7 @@ export default async function XRHitTestSystem(world: World) {
             if ('requestHitTestSource' in session) {
               session.requestHitTestSource!({ space: viewerReferenceSpace })!.then((source) => {
                 xrState.viewerHitTestSource.set(source)
-                getComponent(viewerHitTestEntity, XRHitTestComponent).hitTestSource.set(source)
+                getComponent(scenePlacementEntity, XRHitTestComponent).hitTestSource.set(source)
               })
             }
           })
@@ -196,22 +196,16 @@ export default async function XRHitTestSystem(world: World) {
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
       for (const entity of xrHitTestQuery()) {
         const hit = updateHitTest(entity)
-        if (entity === viewerHitTestEntity && hit && changePlacementModeActions.length) {
+        if (entity === scenePlacementEntity && hit && changePlacementModeActions.length) {
           if (changePlacementModeActions[0].active) {
-            removeComponent(world.originEntity, XRAnchorComponent)
+            removeComponent(entity, XRAnchorComponent)
           } else {
             // detect support for anchors
             if (typeof hit.createAnchor === 'function') {
-              const transform = getComponent(entity, TransformComponent)
-              // @ts-ignore - types are incorrect for hit.createAnchor
-              Engine.instance.xrFrame
-                .createAnchor(
-                  new XRRigidTransform(transform.position, transform.rotation),
-                  xrState.originReferenceSpace.value as XRSpace
-                )
-                .then((anchor: XRAnchor) => {
-                  setComponent(world.originEntity, XRAnchorComponent, { anchor })
-                })
+              // @ts-ignore - types are incorrect for frame.createAnchor
+              hit.createAnchor().then((anchor: XRAnchor) => {
+                setComponent(entity, XRAnchorComponent, { anchor })
+              })
             }
           }
         }
