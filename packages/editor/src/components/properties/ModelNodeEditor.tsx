@@ -1,11 +1,8 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MeshStandardMaterial, Object3D } from 'three'
+import { Object3D } from 'three'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@xrengine/engine/src/assets/enum/AssetClass'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -17,26 +14,19 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
-import { MaterialSource } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
-import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
-import { batchSetMaterialProperty } from '@xrengine/engine/src/renderer/materials/functions/batchEditMaterials'
-import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { useHookstate } from '@xrengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
 import BooleanInput from '../inputs/BooleanInput'
-import { Button, PropertiesPanelButton } from '../inputs/Button'
+import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
-import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import Well from '../layout/Well'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
@@ -100,31 +90,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     await exportGLTF(entity, exportPath)
     setExporting(false)
   }
-  const vertexBakeOptions = useHookstate({
-    map: true,
-    lightMap: true,
-    matcapPath: ''
-  })
-
-  const doVertexBake = useCallback(async () => {
-    const attribs = [
-      ...(vertexBakeOptions.map.value ? [{ field: 'map', attribName: 'uv' }] : []),
-      ...(vertexBakeOptions.lightMap.value ? [{ field: 'lightMap', attribName: 'uv2' }] : [])
-    ] as { field: keyof MeshStandardMaterial; attribName: string }[]
-    const src: MaterialSource = { type: 'Model', path: modelComponent.src }
-    await Promise.all(
-      materialsFromSource(src)?.map((matComponent) =>
-        bakeToVertices<MeshStandardMaterial>(
-          matComponent.material as MeshStandardMaterial,
-          attribs,
-          modelComponent.scene
-        )
-      ) ?? []
-    )
-    if ([AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(vertexBakeOptions.matcapPath.value))) {
-      batchSetMaterialProperty(src, 'matcap', await AssetLoader.loadAsync(vertexBakeOptions.matcapPath.value))
-    }
-  }, [])
 
   return (
     <NodeEditor
@@ -138,31 +103,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-      <InputGroup name="map" label="map">
-        <BooleanInput
-          value={vertexBakeOptions.map.value}
-          onChange={(val: boolean) => {
-            vertexBakeOptions.map.set(val)
-          }}
-        />
-      </InputGroup>
-      <InputGroup name="lightMap" label="lightMap">
-        <BooleanInput
-          value={vertexBakeOptions.lightMap.value}
-          onChange={(val: boolean) => {
-            vertexBakeOptions.lightMap.set(val)
-          }}
-        />
-      </InputGroup>
-      <InputGroup name="matcap" label="matcap">
-        <TexturePreviewInput
-          value={vertexBakeOptions.matcapPath.value}
-          onChange={(val: string) => {
-            vertexBakeOptions.matcapPath.set(val)
-          }}
-        />
-      </InputGroup>
-      <Button onClick={doVertexBake}>Bake To Vertices</Button>
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput value={modelComponent.generateBVH} onChange={updateProperty(ModelComponent, 'generateBVH')} />
       </InputGroup>
