@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -18,7 +17,6 @@ import { EquippableComponent } from '@xrengine/engine/src/interaction/components
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -105,7 +103,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput value={modelComponent.generateBVH} onChange={updateProperty(ModelComponent, 'generateBVH')} />
       </InputGroup>
@@ -142,6 +139,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         values={JSON.parse(JSON.stringify(modelState.materialOverrides.value))}
         onChange={updateProperty(ModelComponent, 'materialOverrides')}
       />
+
       {!exporting && modelComponent.src && (
         <Well>
           <ModelInput value={exportPath} onChange={setExportPath} />

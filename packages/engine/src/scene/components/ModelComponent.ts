@@ -8,7 +8,7 @@ import { DependencyTree } from '../../assets/classes/DependencyTree'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { removeMaterialSource } from '../../renderer/materials/functions/Utilities'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -17,7 +17,7 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { initializeOverride } from '../functions/loaders/MaterialOverrideFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MaterialOverrideComponentType } from './MaterialOverrideComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
@@ -48,9 +48,11 @@ export const ModelComponent = defineComponent({
       const sourceChanged = !model.scene || model.scene.userData.src !== model.src
       if (sourceChanged) {
         try {
+          if (model.scene && model.scene.userData.src !== model.src) {
+            removeMaterialSource({ type: 'Model', path: model.scene.userData.src })
+          }
           const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
           DependencyTree.add(uuid)
-
           let scene: Scene
           switch (/\.[\d\s\w]+$/.exec(model.src)?.[0]) {
             case '.glb':
@@ -86,7 +88,6 @@ export const ModelComponent = defineComponent({
       }
       const scene = model.scene!
       enableObjectLayer(scene, ObjectLayers.Camera, model.generateBVH)
-
       if (isClient && model.materialOverrides.length > 0) {
         const overrides = await Promise.all(
           model.materialOverrides.map((override, i) => initializeOverride(entity, override)?.())
@@ -95,13 +96,13 @@ export const ModelComponent = defineComponent({
         )
         state.materialOverrides.set(overrides)
       }
-
       hasComponent(entity, SceneAssetPendingTagComponent) && removeComponent(entity, SceneAssetPendingTagComponent)
     }
 
     state.src.subscribe(updateSrc)
     return state as typeof state & StateMethodsDestroy
   },
+
   toJSON: (entity, component) => {
     const model = component.value
     const overrides = model.materialOverrides.map((_override) => {
@@ -137,6 +138,10 @@ export const ModelComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
+    if (component.scene.value) {
+      removeObjectFromGroup(entity, component.scene.value)
+      component.scene.set(undefined)
+    }
     removeMaterialSource({ type: 'Model', path: component.src.value })
   }
 })
