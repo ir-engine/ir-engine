@@ -11,6 +11,7 @@ export const XRState = defineState({
   name: 'XRState',
   initial: () => ({
     sessionActive: false,
+    requestingSession: false,
     scenePlacementMode: false,
     supportedSessionModes: {
       inline: false,

@@ -28,8 +28,9 @@ const skyboxQuery = defineQuery([SkyboxComponent])
  */
 export const requestXRSession = createHookableFunction(
   async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
+    const xrState = getState(XRState)
+    if (xrState.requestingSession.value) return
     try {
-      const xrState = getState(XRState)
       const sessionInit = {
         optionalFeatures: [
           'local-floor',
@@ -55,6 +56,7 @@ export const requestXRSession = createHookableFunction(
           ? 'immersive-vr'
           : 'inline')
 
+      xrState.requestingSession.set(true)
       const session = await navigator.xr!.requestSession(mode, sessionInit)
 
       await EngineRenderer.instance.xrManager.setSession(session)
@@ -104,6 +106,8 @@ export const requestXRSession = createHookableFunction(
     } catch (e) {
       console.error('Failed to create XR Session', e)
     }
+
+    xrState.requestingSession.set(false)
   }
 )
 
