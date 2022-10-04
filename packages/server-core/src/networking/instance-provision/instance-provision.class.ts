@@ -244,6 +244,8 @@ export async function checkForDuplicatedAssignments(
     return getFreeInstanceserver(app, iteration + 1, locationId, channelId)
   }
 
+  // set room code record assignResult.id
+
   const split = ipAddress.split(':')
   return {
     id: assignResult.id,
