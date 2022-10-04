@@ -59,6 +59,8 @@ export const addClientInputListeners = () => {
     })
   }
 
+  addListener(document, 'gesturestart', preventDefault)
+
   addListener(canvas, 'contextmenu', handleContextMenu)
 
   addListener(canvas, 'mousemove', handleMouseMovement)
