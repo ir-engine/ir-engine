@@ -8,6 +8,7 @@ import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import AnchorIcon from '@mui/icons-material/Anchor'
 
+import { AppAction } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
@@ -28,10 +29,12 @@ export const ARPlacement = () => {
         active: !inPlacementMode
       })
     )
+    dispatchAction(AppAction.showTopShelf({ show: false }))
+    dispatchAction(AppAction.showBottomShelf({ show: false }))
   }
 
   return (
-    <div className={`${styles.arPlacement} ${bottomShelfStyle}`}>
+    <div className={`${styles.arPlacement} ${inPlacementMode ? `` : bottomShelfStyle}`}>
       <button
         type="button"
         id="UserXR"
