@@ -14,12 +14,11 @@ import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { XRAction } from './XRAction'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
 import { cleanXRInputs } from './XRControllerFunctions'
 import { XREstimatedLight } from './XREstimatedLight'
 import { setupXRInputSourceComponent } from './XRFunctions'
-import { getControlMode, XRState } from './XRState'
+import { getControlMode, XRAction, XRState } from './XRState'
 
 const skyboxQuery = defineQuery([SkyboxComponent])
 
@@ -39,7 +38,8 @@ export const requestXRSession = createHookableFunction(
           'dom-overlay',
           'hit-test',
           'light-estimation',
-          'depth-sensing'
+          'depth-sensing',
+          'anchors'
         ],
         depthSensing: {
           usagePreference: ['cpu-optimized', 'gpu-optimized'],
@@ -139,18 +139,6 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {
 }
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
-  const session = EngineRenderer.instance.xrSession
-
-  session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
-    const xrState = getState(XRState)
-    xrState.viewerReferenceSpace.set(viewerReferenceSpace)
-    if ('requestHitTestSource' in session) {
-      session.requestHitTestSource!({ space: viewerReferenceSpace })!.then((source) => {
-        xrState.viewerHitTestSource.set(source)
-      })
-    }
-  })
-
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
    * This gets piped into the input system as a TouchInput.Touch

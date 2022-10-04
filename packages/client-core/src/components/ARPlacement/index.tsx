@@ -3,16 +3,17 @@ import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import AnchorIcon from '@mui/icons-material/Anchor'
 
+import { AppAction } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const ARPlacement = () => {
-  const { topShelfStyle } = useShelfStyles()
+  const { bottomShelfStyle } = useShelfStyles()
   const { t } = useTranslation()
 
   const engineState = useEngineState()
@@ -23,11 +24,17 @@ export const ARPlacement = () => {
   if (!supportsAR || !engineState.sceneLoaded.value || !xrSessionActive) return <></>
 
   const place = () => {
-    xrState.scenePlacementMode.set((val) => !val)
+    dispatchAction(
+      XRAction.changePlacementMode({
+        active: !inPlacementMode
+      })
+    )
+    dispatchAction(AppAction.showTopShelf({ show: false }))
+    dispatchAction(AppAction.showBottomShelf({ show: false }))
   }
 
   return (
-    <div className={`${styles.arPlacement} ${topShelfStyle}`}>
+    <div className={`${styles.arPlacement} ${inPlacementMode ? `` : bottomShelfStyle}`}>
       <button
         type="button"
         id="UserXR"

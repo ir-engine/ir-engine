@@ -13,8 +13,7 @@ import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
-import { XRAction } from './XRAction'
-import { XRState } from './XRState'
+import { XRAction, XRState } from './XRState'
 import { XRCPUDepthInformation } from './XRTypes'
 
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
@@ -159,6 +158,7 @@ function updateDepthMaterials(
   referenceSpace: XRReferenceSpace,
   depthTexture?: DepthCanvasTexture
 ) {
+  if (!frame) return
   const xrState = getState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
   if (viewerPose) {
