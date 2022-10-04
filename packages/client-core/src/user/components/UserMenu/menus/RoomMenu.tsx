@@ -18,13 +18,15 @@ import Typography from '@mui/material/Typography'
 
 import styles from './RoomMenu.scss'
 
-interface Props {}
+interface Props {
+  location: string
+}
 
 const numberize = (str: string) => {
   return str.match(/\d/g)?.join('') || ''
 }
 
-const RoomMenu = ({}: Props): JSX.Element => {
+const RoomMenu = ({ location }: Props): JSX.Element => {
   const { t } = useTranslation()
   const route = useRouter()
   const [source, setSource] = useState('create')
@@ -56,14 +58,14 @@ const RoomMenu = ({}: Props): JSX.Element => {
 
   const handleJoin = () => {
     if (validate()) {
-      route('/location/alpha')
+      route(`/location/${location}`)
       dispatchAction(XRAction.requestSession({}))
     }
   }
 
   const handleCreate = () => {
     if (validate()) {
-      route('/location/alpha')
+      route(`/location/${location}?roomCode=${roomCode}`)
       dispatchAction(XRAction.requestSession({}))
     }
   }

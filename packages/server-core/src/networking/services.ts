@@ -5,6 +5,7 @@ import Instance from './instance/instance.service'
 import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
 import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
 import InstanceServerSubdomainProvision from './instanceserver-subdomain-provision/instanceserver-subdomain-provision.service'
+import RoomInstance from './room-instance/room-instance.service'
 
 export default [
   Instance,
@@ -13,5 +14,6 @@ export default [
   InstanceServerSubdomainProvision,
   InstanceProvision,
   InstanceAttendance,
-  InstanceAuthorizedUser
+  InstanceAuthorizedUser,
+  RoomInstance
 ]
