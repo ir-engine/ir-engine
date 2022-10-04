@@ -30,7 +30,6 @@ export const XRState = defineState({
     viewerHitTestSource: null as XRHitTestSource | null,
     viewerHitTestEntity: NaN as Entity,
     sceneRotationOffset: 0,
-    sceneDollhouseScale: 0.02,
     /** Stores the depth map data - will exist if depth map is supported */
     depthDataTexture: null as DepthDataTexture | null
   })

@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, Quaternion, RingGeometry, Vector3 } from 'three'
+import { MathUtils, Mesh, MeshBasicMaterial, Plane, Quaternion, RingGeometry, Vector3 } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
@@ -68,6 +68,8 @@ export const updateHitTest = (entity: Entity) => {
   hitTestComponent.hitTestResult.set(null)
 }
 
+const _plane = new Plane()
+
 /**
  * Updates the transform of the origin reference space to manipulate the
  * camera inversely to represent scaling the scene.
@@ -91,18 +93,32 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const dist = cameraLocalTransform.position.distanceTo(hitLocalTransform.position)
 
   const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
-  const lifeSize = dist > 1 && upDir.angleTo(V_010) < Math.PI * 0.02
+  const lifeSize = dist > 2 && upDir.angleTo(V_010) < Math.PI * 0.02
 
-  const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
-  const targetScale = _vecScale.setScalar(lifeSize ? 1 : 1 / xrState.sceneDollhouseScale.value)
-  const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScale.x)
+  /**
+   * Lock lifesize to 1:1, whereas dollhouse mode uses
+   * the distance from the camera to the hit test plane.
+   */
+  const targetScale = lifeSize
+    ? 1
+    : 1 /
+      MathUtils.clamp(
+        _plane
+          .setFromNormalAndCoplanarPoint(upDir, hitLocalTransform.position)
+          .distanceToPoint(cameraLocalTransform.position) * 0.1,
+        0.01,
+        1
+      )
+  const targetScaleVector = _vecScale.setScalar(targetScale)
+  const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScaleVector.x)
   const targetRotation = hitLocalTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
   )
 
+  const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
   smoothedViewerHitResultPose.position.lerp(targetPosition, lerpAlpha)
   smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
-  smoothedSceneScale.lerp(targetScale, lerpAlpha)
+  smoothedSceneScale.lerp(targetScaleVector, lerpAlpha)
 
   /*
   Set the world origin based on the scene anchor
