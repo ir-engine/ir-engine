@@ -275,7 +275,7 @@
 }
 
 body {
-  overflow: auto;
+  overflow: hidden;
   color: var(--textColor);
   overscroll-behavior-y: contain;
   background-color: var(--mainBackground);
