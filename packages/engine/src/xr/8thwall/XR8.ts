@@ -183,6 +183,9 @@ export default async function XR8System(world: World) {
     xrState.supportedSessionModes['immersive-ar'].set(true)
 
     requestXRSession.implementation = async (action) => {
+      if (xrState.requestingSession.value) return
+      xrState.requestingSession.set(true)
+
       /** Initialize 8th wall if not previously initialized */
       if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
       if (!cameraCanvas) cameraCanvas = initialize8thwallDevice(world)
@@ -198,6 +201,7 @@ export default async function XR8System(world: World) {
       prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
 
+      xrState.requestingSession.set(false)
       dispatchAction(XRAction.sessionChanged({ active: true }))
     }
 

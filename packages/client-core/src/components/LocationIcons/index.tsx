@@ -11,6 +11,7 @@ import { InstanceChatWrapper } from '../InstanceChat'
 import { MediaIconsBox } from '../MediaIconsBox'
 import { Shelves } from '../Shelves'
 import { UserMediaWindows } from '../UserMediaWindows'
+import { XRLoading } from '../XRLoading'
 import styles from './index.module.scss'
 
 export const LocationIcons = () => {
@@ -26,6 +27,7 @@ export const LocationIcons = () => {
         </div>
         <Shelves />
         <ARPlacement />
+        <XRLoading />
         <MediaIconsBox />
         <TouchGamepad />
         <Fullscreen />
