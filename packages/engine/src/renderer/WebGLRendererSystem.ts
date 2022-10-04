@@ -130,7 +130,8 @@ export class EngineRenderer {
       powerPreference: 'high-performance',
       stencil: false,
       antialias: false,
-      depth: false,
+      depth: true,
+      logarithmicDepthBuffer: true,
       canvas,
       context,
       preserveDrawingBuffer: !isHMD
