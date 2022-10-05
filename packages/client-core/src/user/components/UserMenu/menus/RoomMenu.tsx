@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import adminStyles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
+import { RoomService } from '@xrengine/client-core/src/common/services/RoomService'
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import menuStyles from '@xrengine/client-core/src/user/components/UserMenu/index.module.scss'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
@@ -16,7 +17,6 @@ import RadioGroup from '@mui/material/RadioGroup'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { RoomService } from '../../../../common/services/RoomService'
 import styles from './RoomMenu.scss'
 
 interface Props {
