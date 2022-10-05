@@ -1,5 +1,4 @@
-import { Not } from 'bitecs'
-import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -13,6 +12,8 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import MeshMatcapMaterial from '../../renderer/materials/constants/material-prototypes/MeshMatcapMaterial.mat'
+import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
@@ -36,6 +37,8 @@ export class SceneOptions {
   envMapIntensity = 1
   boxProjection = false
 }
+
+export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
 const updateObject = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as (Object3DWithEntity & Mesh<any, MeshStandardMaterial>)[]
@@ -111,7 +114,7 @@ export default async function SceneObjectSystem(world: World) {
     if (isMobileOrHMD) {
       world.scene.traverse((obj: Mesh<any, any>) => {
         if (obj.material)
-          if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
+          if (ExpensiveMaterials.has(obj.material.constructor)) {
             obj.material.dispose()
             obj.material = new MeshLambertMaterial({
               color: obj.material.color,
