@@ -68,6 +68,8 @@ export const requestXRSession = createHookableFunction(
 
       await xrManager.setSession(xrSession)
 
+      EngineRenderer.instance.renderer.getContext().canvas.style.display = 'none'
+
       xrState.sessionActive.set(true)
 
       const referenceSpace = xrManager.getReferenceSpace()
@@ -85,6 +87,8 @@ export const requestXRSession = createHookableFunction(
       removeComponent(world.cameraEntity, FollowCameraComponent)
 
       const onSessionEnd = () => {
+        EngineRenderer.instance.renderer.getContext().canvas.style.display = 'auto'
+
         xrState.sessionActive.set(false)
         xrState.sessionMode.set('none')
         xrManager.removeEventListener('sessionend', onSessionEnd)
