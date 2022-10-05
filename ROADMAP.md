@@ -22,41 +22,44 @@ Q2
 
 Q3
 
-- [ ] Full WebXR Mobile / Headset AR
-- [ ] Improved CMS
-- [ ] P2P networking mode
-- [ ] Private Audio/Video Parties
-- [ ] Progressive Web App
-- [ ] Chairs
-- [ ] World replay via save/load ECS from disk
-- [ ] ESM over HTTPs for realtime plugin updates
-- [ ] User Data System & DID Wallet Inventory
-- [ ] GLTF ECS Extension Standard
-- [ ] Computer vision based full body IK 
-- [ ] RTMFP & restream.io
-- [ ] Project Asset Registry
+- [x] Full WebXR Mobile / Headset AR
+- [x] Improved CMS
+- [x] Private Audio/Video Parties
+- [x] Progressive Web App
+- [x] Oembed
+- [x] User Data System & DID Wallet Inventory
+- [x] RTMFP & restream.io
+- [x] Friend System
+- [x] Dynamic Object Loading
+- [x] Material Editor
+- [x] New ECS Spec
 
 Q4 
 
-- [ ] Mobile App for Interoperable DID Social Account
-- [ ] WebGPU & ECS Renderer
+- [ ] Project Versioning Overhaul
+- [ ] 8thwall & Lightship VPS
 - [ ] Navmesh & Autopilot
 - [ ] Live Editor & Immersive Editor
-- [ ] Spatial Scene Segmentation
-- [ ] Object Persistence
 - [ ] Occlusion Culling
-- [ ] P2P Connection
 - [ ] Instant Realtime portals
-- [ ] Cars
-- [ ] SFU Chaining
-- [ ] Friend System
-- [ ] Migrate from Sequelize & MariaDB to Prisma & Postgres
-- [ ] Automated WebXR Tests with Puppeteer
+- [ ] Chairs
+- [ ] ESM over HTTPs for realtime plugin updates
+- [ ] GLTF ECS Extension Standard
+- [ ] World replay via save/load ECS from disk
 
 ## 2023+
 
-- [ ] Better WebXR
 - [ ] Entity & Asset Servers
+- [ ] Mobile App for Interoperable DID Social Account
+- [ ] P2P Connection
+- [ ] P2P networking mode
+- [ ] Spatial Scene Segmentation
+- [ ] WebGPU & ECS Renderer
+- [ ] SFU Chaining
+- [ ] Migrate from Sequelize & MariaDB to Prisma & Postgres
+- [ ] Automated WebXR Tests with Puppeteer
+- [ ] Object Persistence
+- [ ] Computer vision based full body IK 
 - [ ] '/me' Profile, Avatar & Inventory Route
 - [ ] Spatial Segmentation
 - [ ] Dynamic Server Stitching
