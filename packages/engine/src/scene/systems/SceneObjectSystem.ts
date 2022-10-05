@@ -6,7 +6,7 @@ import { getState } from '@xrengine/hyperflux'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
-import { isHMD } from '../../common/functions/isMobile'
+import { isHMD, isMobileOrHMD } from '../../common/functions/isMobile'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -107,8 +107,8 @@ export default async function SceneObjectSystem(world: World) {
       }
     }
 
-    /** ensure the HMD has no heavy materials */
-    if (isHMD) {
+    /** ensure the mobile or hmd has no heavy materials */
+    if (isMobileOrHMD) {
       world.scene.traverse((obj: Mesh<any, any>) => {
         if (obj.material)
           if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {

@@ -12,12 +12,12 @@ if (typeof navigator !== 'undefined' && typeof globalThis?.window !== 'undefined
     )
 }
 
-export const isMobile = mobileOrTablet
-
 export const iOS =
   typeof navigator !== 'undefined' &&
   (['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) ||
     (navigator.userAgent.includes('Mac') && 'ontouchend' in document))
+
+export const isMobile = mobileOrTablet || iOS
 
 export const isSafari =
   typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent.toLowerCase())
