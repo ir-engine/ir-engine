@@ -128,8 +128,7 @@ export default async function SceneObjectSystem(world: World) {
             obj.material = new MeshLambertMaterial({
               ...obj.material,
               color: onlyEmmisive ? new Color('white') : obj.material.color,
-              map: obj.material.map ?? obj.material.emissiveMap,
-              envMap: null // obj.material.envMap,
+              map: obj.material.map ?? obj.material.emissiveMap
             })
             obj.material.needsUpdate = true
           }
