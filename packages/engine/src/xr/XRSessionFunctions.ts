@@ -59,7 +59,7 @@ export const requestXRSession = createHookableFunction(
           : 'inline')
 
       xrState.requestingSession.set(true)
-      const xrSession = await navigator.xr!.requestSession(mode, sessionInit)
+      const xrSession = (EngineRenderer.instance.xrSession = await navigator.xr!.requestSession(mode, sessionInit))
 
       // @ts-ignore
       if (xrSession.interactionMode === 'screen-space') {
