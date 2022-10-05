@@ -47,7 +47,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
 
   const validate = () => {
     if (roomCode.length !== 6) {
-      setError(t('user:roomMenu.rootCodeLength'))
+      setError(t('user:roomMenu.roomCodeLength'))
       return false
     }
 
