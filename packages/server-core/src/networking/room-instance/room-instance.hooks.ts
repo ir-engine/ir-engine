@@ -1,14 +1,16 @@
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import authenticate from '../../hooks/authenticate'
+
 export default {
   before: {
-    all: [iff(isProvider('external'), disallow())],
+    all: [authenticate()],
     find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    get: [iff(isProvider('external'), disallow())],
+    create: [iff(isProvider('external'), disallow())],
+    update: [iff(isProvider('external'), disallow())],
+    patch: [iff(isProvider('external'), disallow())],
+    remove: [iff(isProvider('external'), disallow())]
   },
 
   after: {

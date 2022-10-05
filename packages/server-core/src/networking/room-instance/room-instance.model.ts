@@ -1,15 +1,14 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
+import { RoomInterface } from '@xrengine/common/src/interfaces/RoomInterface'
 import { Application } from '@xrengine/server-core/declarations'
-
-import { RoomInstanceInterface } from './RoomInstanceInterface'
 
 /**
  * This model contains discord channel
  */
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const RoomInstance = sequelizeClient.define<Model<RoomInstanceInterface>>(
+  const RoomInstance = sequelizeClient.define<Model<RoomInterface>>(
     'room_instance',
     {
       id: {

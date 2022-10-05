@@ -1,10 +1,9 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
+import { RoomInterface as Room } from '@xrengine/common/src/interfaces/RoomInterface'
 import { Application } from '@xrengine/server-core/declarations'
 
-import { RoomInstanceInterface } from './RoomInstanceInterface'
-
-export class RoomInstance<T = RoomInstanceInterface> extends Service<T> {
+export class RoomInstance<T = Room> extends Service<T> {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {

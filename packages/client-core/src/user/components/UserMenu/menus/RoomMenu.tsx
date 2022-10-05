@@ -16,22 +16,33 @@ import RadioGroup from '@mui/material/RadioGroup'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
+import { RoomService } from '../../../../common/services/RoomService'
 import styles from './RoomMenu.scss'
 
 interface Props {
   location: string
 }
 
+const roomCodeCharacters = '123456789'
+
 const numberize = (str: string) => {
-  return str.match(/\d/g)?.join('') || ''
+  const chars = str.split('')
+  const validChars = chars.map((char) => (roomCodeCharacters.includes(char) ? char : ''))
+  return validChars.join('')
+}
+
+const generateRoomCode = () => {
+  let code = ''
+  for (let i = 0; i < 6; i++) code += roomCodeCharacters.charAt(Math.floor(Math.random() * roomCodeCharacters.length))
+  return code
 }
 
 const RoomMenu = ({ location }: Props): JSX.Element => {
   const { t } = useTranslation()
   const route = useRouter()
-  const [source, setSource] = useState('create')
-  const defaultCode = numberize(Math.floor(Math.random() * 999999).toString())
+  const defaultCode = generateRoomCode()
   const [roomCode, setRoomCode] = useState(defaultCode)
+  const [source, setSource] = useState('create')
   const [error, setError] = useState('')
 
   const validate = () => {
@@ -44,27 +55,43 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
     return true
   }
 
-  const handleChange = (e) => {
+  const handleSourceChange = (e) => {
     const { value } = e.target
 
-    const defaultCode = numberize(Math.floor(Math.random() * 999999).toString())
+    const defaultCode = generateRoomCode()
+    setError('')
     setRoomCode(value === 'create' ? defaultCode : '')
     setSource(value)
   }
 
-  const handleRoomCode = (e) => {
-    setRoomCode(numberize(e.target.value))
+  const handleRoomCode = async (e) => {
+    const number = numberize(e.target.value)
+    setRoomCode(number)
   }
 
-  const handleJoin = () => {
+  const handleJoin = async () => {
     if (validate()) {
-      route(`/location/${location}`)
+      const rooms = await RoomService.fetchRoom(roomCode)
+
+      if (rooms.data.length === 0) {
+        setError(t('user:roomMenu.invalidRoomCode'))
+        return
+      }
+
+      route(`/location/${location}?roomCode=${rooms.data[0].roomCode}&instanceId=${rooms.data[0].instanceId}`)
       dispatchAction(XRAction.requestSession({}))
     }
   }
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (validate()) {
+      const rooms = await RoomService.fetchRoom(roomCode)
+
+      if (rooms.data.length !== 0) {
+        setError(t('user:roomMenu.duplicateRoomCode'))
+        return
+      }
+
       route(`/location/${location}?roomCode=${roomCode}`)
       dispatchAction(XRAction.requestSession({}))
     }
@@ -77,7 +104,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
       <div className={`${menuStyles.menuPanel} roomMenu`}>
         <div className={menuStyles.settingPanel}>
           <FormControl className={adminStyles.radioField} fullWidth>
-            <RadioGroup value={source} onChange={handleChange}>
+            <RadioGroup value={source} onChange={handleSourceChange}>
               <FormControlLabel
                 value="create"
                 control={<Radio />}

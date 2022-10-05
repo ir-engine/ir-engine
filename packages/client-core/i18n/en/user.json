@@ -420,6 +420,8 @@
     "joinRoomCode": "Provide the existing room code",
     "create": "Create",
     "join": "Join",
-    "rootCodeLength": "Room code must be of 6 digits"
+    "rootCodeLength": "Room code must be of 6 digits. No zeros allowed",
+    "duplicateRoomCode": "A room with this code already exists. Please select a different room code.",
+    "invalidRoomCode": "Unable to find a room with this code. Please enter a valid room code."
   }
 }

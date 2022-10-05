@@ -7,6 +7,7 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { RoomInterface } from '@xrengine/common/src/interfaces/RoomInterface'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -377,6 +378,11 @@ const shutdownServer = async (app: Application, instanceId: string) => {
     await app.service('instance').patch(instanceId, {
       ended: true
     })
+
+    const rooms = (await app.service('room-instance').find({ query: { instanceId } })) as Paginated<RoomInterface>
+    for (const room of rooms.data) {
+      await app.service('room-instance').remove(room.id)
+    }
   } catch (err) {
     logger.error(err)
   }
