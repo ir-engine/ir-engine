@@ -20,6 +20,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
+import PropertyGroup from './PropertyGroup'
 
 /**
  * ToneMappingOptions array containing tone mapping type options.
@@ -83,11 +84,14 @@ export const RenderSettingsEditor = () => {
   const settings = sceneMetadata.get({ noproxy: true })
 
   return (
-    <>
+    <PropertyGroup
+      name={t('editor:properties.renderSettings.name')}
+      description={t('editor:properties.renderSettings.description')}
+    >
       <InputGroup
         name="LODs"
-        label={t('editor:properties.scene.lbl-lods')}
-        info={t('editor:properties.scene.info-lods')}
+        label={t('editor:properties.renderSettings.lbl-lods')}
+        info={t('editor:properties.renderSettings.info-lods')}
       >
         <Vector3Input
           hideLabels
@@ -100,15 +104,15 @@ export const RenderSettingsEditor = () => {
       </InputGroup>
       <InputGroup
         name="Use Cascading Shadow Maps"
-        label={t('editor:properties.scene.lbl-csm')}
-        info={t('editor:properties.scene.info-csm')}
+        label={t('editor:properties.renderSettings.lbl-csm')}
+        info={t('editor:properties.renderSettings.info-csm')}
       >
         <BooleanInput value={settings.csm} onChange={(val) => sceneMetadata.csm.set(val)} />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"
-        label={t('editor:properties.scene.lbl-toneMapping')}
-        info={t('editor:properties.scene.info-toneMapping')}
+        label={t('editor:properties.renderSettings.lbl-toneMapping')}
+        info={t('editor:properties.renderSettings.info-toneMapping')}
       >
         <SelectInput
           options={ToneMappingOptions}
@@ -118,8 +122,8 @@ export const RenderSettingsEditor = () => {
       </InputGroup>
       <InputGroup
         name="Tone Mapping Exposure"
-        label={t('editor:properties.scene.lbl-toneMappingExposure')}
-        info={t('editor:properties.scene.info-toneMappingExposure')}
+        label={t('editor:properties.renderSettings.lbl-toneMappingExposure')}
+        info={t('editor:properties.renderSettings.info-toneMappingExposure')}
       >
         <CompoundNumericInput
           min={0}
@@ -131,8 +135,8 @@ export const RenderSettingsEditor = () => {
       </InputGroup>
       <InputGroup
         name="Shadow Map Type"
-        label={t('editor:properties.scene.lbl-shadowMapType')}
-        info={t('editor:properties.scene.info-shadowMapType')}
+        label={t('editor:properties.renderSettings.lbl-shadowMapType')}
+        info={t('editor:properties.renderSettings.info-shadowMapType')}
       >
         <SelectInput
           options={ShadowTypeOptions}
@@ -140,6 +144,6 @@ export const RenderSettingsEditor = () => {
           onChange={(val) => sceneMetadata.shadowMapType.set(val)}
         />
       </InputGroup>
-    </>
+    </PropertyGroup>
   )
 }

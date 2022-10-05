@@ -1,4 +1,5 @@
 import React, { ChangeEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
@@ -12,6 +13,8 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
+import NodeEditor from './NodeEditor'
+import PropertyGroup from './PropertyGroup'
 
 enum PropertyTypes {
   BlendFunction,
@@ -161,6 +164,7 @@ const PredicationMode = [
 
 export const PostProcessingNodeEditor = () => {
   const sceneMetadata = useState(Engine.instance.currentWorld.sceneMetadata).postprocessing
+  const { t } = useTranslation()
 
   const postprocessing = sceneMetadata.get({ noproxy: true })
   if (!postprocessing) return null
@@ -313,5 +317,12 @@ export const PostProcessingNodeEditor = () => {
     return <div>{items}</div>
   }
 
-  return <> {renderEffects()} </>
+  return (
+    <PropertyGroup
+      name={t('editor:properties.postprocessing.name')}
+      description={t('editor:properties.postprocessing.description')}
+    >
+      {renderEffects()}
+    </PropertyGroup>
+  )
 }

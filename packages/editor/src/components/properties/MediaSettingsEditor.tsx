@@ -10,18 +10,21 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
+import PropertyGroup from './PropertyGroup'
 
 export const MediaSettingsEditor = () => {
   const { t } = useTranslation()
   const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.mediaSettings)
   const settings = sceneMetadata.get({ noproxy: true })
-
   return (
-    <>
+    <PropertyGroup
+      name={t('editor:properties.mediaSettings.name')}
+      description={t('editor:properties.mediaSettings.description')}
+    >
       <InputGroup
         name="Media Distance Model"
-        label={t('editor:properties.scene.lbl-mediaDistanceModel')}
-        info={t('editor:properties.scene.info-mediaDistanceModel')}
+        label={t('editor:properties.mediaSettings.lbl-mediaDistanceModel')}
+        info={t('editor:properties.mediaSettings.info-mediaDistanceModel')}
       >
         <SelectInput
           options={DistanceModelOptions}
@@ -31,8 +34,8 @@ export const MediaSettingsEditor = () => {
       </InputGroup>
       <InputGroup
         name="Use Immersive Media"
-        label={t('editor:properties.scene.lbl-immersiveMedia')}
-        info={t('editor:properties.scene.info-immersiveMedia')}
+        label={t('editor:properties.mediaSettings.lbl-immersiveMedia')}
+        info={t('editor:properties.mediaSettings.info-immersiveMedia')}
       >
         <BooleanInput value={settings.immersiveMedia} onChange={(val) => sceneMetadata.immersiveMedia.set(val)} />
       </InputGroup>
@@ -40,8 +43,8 @@ export const MediaSettingsEditor = () => {
       {settings.distanceModel === DistanceModel.Linear ? (
         <InputGroup
           name="Media Rolloff Factor"
-          label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
-          info={t('editor:properties.scene.info-mediaRolloffFactor')}
+          label={t('editor:properties.mediaSettings.lbl-mediaRolloffFactor')}
+          info={t('editor:properties.mediaSettings.info-mediaRolloffFactor')}
         >
           <CompoundNumericInput
             min={0}
@@ -56,8 +59,8 @@ export const MediaSettingsEditor = () => {
       ) : (
         <NumericInputGroup
           name="Media Rolloff Factor"
-          label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
-          info={t('editor:properties.scene.info-mediaRolloffFactorInfinity')}
+          label={t('editor:properties.mediaSettings.lbl-mediaRolloffFactor')}
+          info={t('editor:properties.mediaSettings.info-mediaRolloffFactorInfinity')}
           min={0}
           smallStep={0.1}
           mediumStep={1}
@@ -68,8 +71,8 @@ export const MediaSettingsEditor = () => {
       )}
       <NumericInputGroup
         name="Media Ref Distance"
-        label={t('editor:properties.scene.lbl-mediaRefDistance')}
-        info={t('editor:properties.scene.info-mediaRefDistance')}
+        label={t('editor:properties.mediaSettings.lbl-mediaRefDistance')}
+        info={t('editor:properties.mediaSettings.info-mediaRefDistance')}
         min={0}
         smallStep={0.1}
         mediumStep={1}
@@ -80,8 +83,8 @@ export const MediaSettingsEditor = () => {
       />
       <NumericInputGroup
         name="Media Max Distance"
-        label={t('editor:properties.scene.lbl-mediaMaxDistance')}
-        info={t('editor:properties.scene.info-mediaMaxDistance')}
+        label={t('editor:properties.mediaSettings.lbl-mediaMaxDistance')}
+        info={t('editor:properties.mediaSettings.info-mediaMaxDistance')}
         min={0}
         smallStep={0.1}
         mediumStep={1}
@@ -92,8 +95,8 @@ export const MediaSettingsEditor = () => {
       />
       <NumericInputGroup
         name="Media Cone Inner Angle"
-        label={t('editor:properties.scene.lbl-mediaConeInnerAngle')}
-        info={t('editor:properties.scene.info-mediaConeInnerAngle')}
+        label={t('editor:properties.mediaSettings.lbl-mediaConeInnerAngle')}
+        info={t('editor:properties.mediaSettings.info-mediaConeInnerAngle')}
         min={0}
         max={360}
         smallStep={0.1}
@@ -105,8 +108,8 @@ export const MediaSettingsEditor = () => {
       />
       <NumericInputGroup
         name="Media Cone Outer Angle"
-        label={t('editor:properties.scene.lbl-mediaConeOuterAngle')}
-        info={t('editor:properties.scene.info-mediaConeOuterAngle')}
+        label={t('editor:properties.mediaSettings.lbl-mediaConeOuterAngle')}
+        info={t('editor:properties.mediaSettings.info-mediaConeOuterAngle')}
         min={0}
         max={360}
         smallStep={0.1}
@@ -118,8 +121,8 @@ export const MediaSettingsEditor = () => {
       />
       <InputGroup
         name="Media Cone Outer Gain"
-        label={t('editor:properties.scene.lbl-mediaConeOuterGain')}
-        info={t('editor:properties.scene.info-mediaConeOuterGain')}
+        label={t('editor:properties.mediaSettings.lbl-mediaConeOuterGain')}
+        info={t('editor:properties.mediaSettings.info-mediaConeOuterGain')}
       >
         <CompoundNumericInput
           min={0}
@@ -129,6 +132,6 @@ export const MediaSettingsEditor = () => {
           onChange={(val) => sceneMetadata.coneOuterGain.set(val)}
         />
       </InputGroup>
-    </>
+    </PropertyGroup>
   )
 }
