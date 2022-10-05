@@ -1,4 +1,12 @@
-import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import {
+  Color,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  MeshPhongMaterial,
+  MeshStandardMaterial,
+  Vector3
+} from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -116,12 +124,14 @@ export default async function SceneObjectSystem(world: World) {
         if (obj.material)
           if (ExpensiveMaterials.has(obj.material.constructor)) {
             obj.material.dispose()
+            const onlyEmmisive = obj.material.emissiveMap && !obj.material.map
             obj.material = new MeshLambertMaterial({
-              color: obj.material.color,
-              flatShading: obj.material.flatShading,
-              map: obj.material.map,
-              fog: obj.material.fog
+              ...obj.material,
+              color: onlyEmmisive ? new Color('white') : obj.material.color,
+              map: obj.material.map ?? obj.material.emissiveMap,
+              envMap: null // obj.material.envMap,
             })
+            obj.material.needsUpdate = true
           }
       })
     }
