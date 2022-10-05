@@ -31,7 +31,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
     return
   }
 
-  const postprocessing = getState(Engine.instance.currentWorld.sceneMetadata).get({ noproxy: true }).postprocessing
+  const postprocessing = Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true }).postprocessing
   if (!postprocessing) return
 
   const postProcessingEffects = postprocessing.effects as EffectPropsSchema

@@ -1,4 +1,5 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
+import { subscribable } from '@hookstate/subscribable'
 import * as bitecs from 'bitecs'
 import {
   AxesHelper,
@@ -16,6 +17,7 @@ import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneI
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { defineState, getState } from '@xrengine/hyperflux'
+import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -169,9 +171,8 @@ export class World {
   sceneJson = null! as SceneJson
 
   /** stores a hookstate copy of scene metadata */
-  sceneMetadata = defineState({
-    name: 'SceneMetadataState',
-    initial: {
+  sceneMetadata = hookstate(
+    {
       postprocessing: {
         enabled: false,
         effects: defaultPostProcessingSchema
@@ -193,8 +194,9 @@ export class World {
         toneMappingExposure: 0.8,
         shadowMapType: PCFSoftShadowMap as ShadowMapType
       }
-    }
-  })
+    },
+    subscribable()
+  )
 
   /**
    * The scene entity

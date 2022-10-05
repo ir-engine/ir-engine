@@ -208,7 +208,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   world.sceneJson = sceneData.scene
 
   /** @todo - check for removed metadata types */
-  getState(world.sceneMetadata).merge(sceneData.scene.metadata as any)
+  world.sceneMetadata.merge((sceneData.scene.metadata as any) ?? {})
 
   /** 4. update scene entities with new data, and load new ones */
   updateRootNodeUuid(sceneData.scene.root, world.entityTree)

@@ -160,7 +160,7 @@ const PredicationMode = [
 ]
 
 export const PostProcessingNodeEditor = () => {
-  const sceneMetadata = useState(getState(Engine.instance.currentWorld.sceneMetadata)).postprocessing
+  const sceneMetadata = useState(Engine.instance.currentWorld.sceneMetadata).postprocessing
 
   const postprocessing = sceneMetadata.get({ noproxy: true })
   if (!postprocessing) return null

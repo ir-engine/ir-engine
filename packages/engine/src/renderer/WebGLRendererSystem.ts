@@ -317,10 +317,10 @@ export default async function WebGLRendererSystem(world: World) {
     else disposeCSM()
   }
 
-  getState(world.sceneMetadata).renderSettings.toneMapping.subscribe(updateToneMapping)
-  getState(world.sceneMetadata).renderSettings.toneMappingExposure.subscribe(updateToneMappingExposure)
-  getState(world.sceneMetadata).renderSettings.shadowMapType.subscribe(updateShadowMapType)
-  getState(world.sceneMetadata).renderSettings.csm.subscribe(updateCSM)
+  world.sceneMetadata.renderSettings.toneMapping.subscribe(updateToneMapping)
+  world.sceneMetadata.renderSettings.toneMappingExposure.subscribe(updateToneMappingExposure)
+  world.sceneMetadata.renderSettings.shadowMapType.subscribe(updateShadowMapType)
+  world.sceneMetadata.renderSettings.csm.subscribe(updateCSM)
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)

@@ -90,7 +90,7 @@ export const serializeWorld = (
     if (entity.parent) entity.parent = entityUuid[entity.parent]
   })
 
-  sceneJson.metadata = getState(Engine.instance.currentWorld.sceneMetadata).get({ noproxy: true })
+  sceneJson.metadata = Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true })
 
   return sceneJson
 }

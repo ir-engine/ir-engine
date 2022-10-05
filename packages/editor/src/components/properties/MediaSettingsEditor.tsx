@@ -13,7 +13,7 @@ import SelectInput from '../inputs/SelectInput'
 
 export const MediaSettingsEditor = () => {
   const { t } = useTranslation()
-  const sceneMetadata = useHookstate(getState(Engine.instance.currentWorld.sceneMetadata).mediaSettings)
+  const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.mediaSettings)
   const settings = sceneMetadata.get({ noproxy: true })
 
   return (

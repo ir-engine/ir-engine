@@ -100,7 +100,7 @@ export default async function PositionalAudioSystem(world: World) {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
     const immersiveMedia = shouldUseImmersiveMedia()
-    const positionalAudioSettings = getState(Engine.instance.currentWorld.sceneMetadata).mediaSettings.value
+    const positionalAudioSettings = Engine.instance.currentWorld.sceneMetadata.mediaSettings.value
 
     /**
      * Scene Objects
