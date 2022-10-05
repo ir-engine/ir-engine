@@ -80,6 +80,7 @@ const ShadowTypeOptions = [
 export const RenderSettingsEditor = () => {
   const { t } = useTranslation()
   const sceneMetadata = useHookstate(getState(Engine.instance.currentWorld.sceneMetadata).renderSettings)
+  const settings = sceneMetadata.get({ noproxy: true })
 
   return (
     <>
@@ -90,7 +91,7 @@ export const RenderSettingsEditor = () => {
       >
         <Vector3Input
           hideLabels
-          value={sceneMetadata.LODs}
+          value={settings.LODs}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
@@ -102,7 +103,7 @@ export const RenderSettingsEditor = () => {
         label={t('editor:properties.scene.lbl-csm')}
         info={t('editor:properties.scene.info-csm')}
       >
-        <BooleanInput value={sceneMetadata.csm.value} onChange={(val) => sceneMetadata.csm.set(val)} />
+        <BooleanInput value={settings.csm} onChange={(val) => sceneMetadata.csm.set(val)} />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"
@@ -111,7 +112,7 @@ export const RenderSettingsEditor = () => {
       >
         <SelectInput
           options={ToneMappingOptions}
-          value={sceneMetadata.toneMapping.value}
+          value={settings.toneMapping}
           onChange={(val) => sceneMetadata.toneMapping.set(val)}
         />
       </InputGroup>
@@ -124,7 +125,7 @@ export const RenderSettingsEditor = () => {
           min={0}
           max={10}
           step={0.1}
-          value={sceneMetadata.toneMappingExposure.value}
+          value={settings.toneMappingExposure}
           onChange={(val) => sceneMetadata.toneMappingExposure.set(val)}
         />
       </InputGroup>
@@ -135,7 +136,7 @@ export const RenderSettingsEditor = () => {
       >
         <SelectInput
           options={ShadowTypeOptions}
-          value={sceneMetadata.shadowMapType.value ?? -1}
+          value={settings.shadowMapType ?? -1}
           onChange={(val) => sceneMetadata.shadowMapType.set(val)}
         />
       </InputGroup>

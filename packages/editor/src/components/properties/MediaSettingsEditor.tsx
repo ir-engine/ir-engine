@@ -14,6 +14,7 @@ import SelectInput from '../inputs/SelectInput'
 export const MediaSettingsEditor = () => {
   const { t } = useTranslation()
   const sceneMetadata = useHookstate(getState(Engine.instance.currentWorld.sceneMetadata).mediaSettings)
+  const settings = sceneMetadata.get({ noproxy: true })
 
   return (
     <>
@@ -24,7 +25,7 @@ export const MediaSettingsEditor = () => {
       >
         <SelectInput
           options={DistanceModelOptions}
-          value={sceneMetadata.distanceModel.value}
+          value={settings.distanceModel}
           onChange={(val) => sceneMetadata.distanceModel.set(val)}
         />
       </InputGroup>
@@ -33,13 +34,10 @@ export const MediaSettingsEditor = () => {
         label={t('editor:properties.scene.lbl-immersiveMedia')}
         info={t('editor:properties.scene.info-immersiveMedia')}
       >
-        <BooleanInput
-          value={sceneMetadata.immersiveMedia.value}
-          onChange={(val) => sceneMetadata.immersiveMedia.set(val)}
-        />
+        <BooleanInput value={settings.immersiveMedia} onChange={(val) => sceneMetadata.immersiveMedia.set(val)} />
       </InputGroup>
 
-      {sceneMetadata.distanceModel.value === DistanceModel.Linear ? (
+      {settings.distanceModel === DistanceModel.Linear ? (
         <InputGroup
           name="Media Rolloff Factor"
           label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
@@ -51,7 +49,7 @@ export const MediaSettingsEditor = () => {
             smallStep={0.001}
             mediumStep={0.01}
             largeStep={0.1}
-            value={sceneMetadata.rolloffFactor.value}
+            value={settings.rolloffFactor}
             onChange={(val) => sceneMetadata.rolloffFactor.set(val)}
           />
         </InputGroup>
@@ -64,7 +62,7 @@ export const MediaSettingsEditor = () => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={sceneMetadata.rolloffFactor.value}
+          value={settings.rolloffFactor}
           onChange={(val) => sceneMetadata.rolloffFactor.set(val)}
         />
       )}
@@ -76,7 +74,7 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={sceneMetadata.refDistance.value}
+        value={settings.refDistance}
         onChange={(val) => sceneMetadata.refDistance.set(val)}
         unit="m"
       />
@@ -88,7 +86,7 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={sceneMetadata.maxDistance.value}
+        value={settings.maxDistance}
         onChange={(val) => sceneMetadata.maxDistance.set(val)}
         unit="m"
       />
@@ -101,7 +99,7 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={sceneMetadata.coneInnerAngle.value}
+        value={settings.coneInnerAngle}
         onChange={(val) => sceneMetadata.coneInnerAngle.set(val)}
         unit="°"
       />
@@ -114,7 +112,7 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={sceneMetadata.coneOuterAngle.value}
+        value={settings.coneOuterAngle}
         onChange={(val) => sceneMetadata.coneOuterAngle.set(val)}
         unit="°"
       />
@@ -127,7 +125,7 @@ export const MediaSettingsEditor = () => {
           min={0}
           max={1}
           step={0.01}
-          value={sceneMetadata.coneOuterGain.value}
+          value={settings.coneOuterGain}
           onChange={(val) => sceneMetadata.coneOuterGain.set(val)}
         />
       </InputGroup>
