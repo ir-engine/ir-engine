@@ -77,18 +77,13 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
 export let XR8: XR8Type
 export let XRExtras
 
-const initialize8thwallDevice = (world: World) => {
-  XR8.addCameraPipelineModules([
-    XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
-    XR8.Threejs.pipelineModule(),
-    XR8.XrController.pipelineModule({
-      // enableLighting: true
-      // enableWorldPoints: true,
-      // imageTargets: true,
-      // enableVps: true
-    }),
-    XRExtras.RuntimeError.pipelineModule()
-  ])
+const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null, world: World) => {
+  if (existingCanvas) {
+    const engineContainer = document.getElementById('engine-container')!
+    engineContainer.appendChild(existingCanvas)
+    XR8.run({ canvas: existingCanvas })
+    return existingCanvas
+  }
 
   const cameraCanvas = document.createElement('canvas')
   cameraCanvas.id = 'camera-canvas'
@@ -99,10 +94,53 @@ const initialize8thwallDevice = (world: World) => {
   cameraCanvas.style.pointerEvents = 'none'
   cameraCanvas.style.userSelect = 'none'
 
-  XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
-  XR8.addCameraPipelineModule(XREPipeline(world))
+  const engineContainer = document.getElementById('engine-container')!
+  engineContainer.appendChild(cameraCanvas)
 
-  return cameraCanvas
+  const requiredPermissions = XR8.XrPermissions.permissions()
+  return new Promise<HTMLCanvasElement>((resolve, reject) => {
+    XR8.addCameraPipelineModules([
+      XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
+      XR8.Threejs.pipelineModule(),
+      XR8.XrController.pipelineModule({
+        // enableLighting: true
+        // enableWorldPoints: true,
+        // imageTargets: true,
+        // enableVps: true
+      }),
+      XRExtras.RuntimeError.pipelineModule()
+    ])
+
+    XR8.addCameraPipelineModule({
+      name: 'XRE_camera_persmissions',
+      onCameraStatusChange: (args) => {
+        const { status, reason } = args
+        console.log(`[XR8] Camera Status Change: ${status}`)
+        if (status == 'requesting') {
+          return
+        } else if (status == 'hasStream') {
+          return
+        } else if (status == 'hasVideo') {
+          resolve(cameraCanvas)
+        } else if (status == 'failed') {
+          console.error(args)
+          reject(`[XR8] Failed to get camera feed with reason ${reason}`)
+        }
+      },
+      requiredPermissions: () => [
+        requiredPermissions.CAMERA,
+        requiredPermissions.DEVICE_MOTION,
+        requiredPermissions.DEVICE_ORIENTATION
+        // requiredPermissions.DEVICE_GPS,
+        // requiredPermissions.MICROPHONE
+      ]
+    })
+
+    XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
+    XR8.addCameraPipelineModule(XREPipeline(world))
+
+    XR8.run({ canvas: cameraCanvas })
+  })
 }
 
 class XRHitTestResultProxy {
@@ -186,13 +224,15 @@ export default async function XR8System(world: World) {
       if (xrState.requestingSession.value) return
       xrState.requestingSession.set(true)
 
-      /** Initialize 8th wall if not previously initialized */
-      if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
-      if (!cameraCanvas) cameraCanvas = initialize8thwallDevice(world)
-
-      XR8.run({ canvas: cameraCanvas })
-      const engineContainer = document.getElementById('engine-container')!
-      engineContainer.appendChild(cameraCanvas)
+      try {
+        /** Initialize 8th wall if not previously initialized */
+        if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
+        cameraCanvas = await initialize8thwallDevice(cameraCanvas, world)
+      } catch (e) {
+        xrState.requestingSession.set(false)
+        console.error(e)
+        return
+      }
 
       EngineRenderer.instance.xrSession = new XRSessionProxy() as any as XRSession
       xrState.sessionActive.set(true)
