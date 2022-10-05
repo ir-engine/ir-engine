@@ -1,12 +1,4 @@
-import {
-  Color,
-  Mesh,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
-  MeshPhongMaterial,
-  MeshStandardMaterial,
-  Vector3
-} from 'three'
+import { Color, Mesh, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -20,14 +12,12 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import MeshMatcapMaterial from '../../renderer/materials/constants/material-prototypes/MeshMatcapMaterial.mat'
 import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
-import { SceneTagComponent } from '../components/SceneTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 

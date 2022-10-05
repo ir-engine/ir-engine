@@ -14,14 +14,15 @@ import {
 } from 'postprocessing'
 import {
   PerspectiveCamera,
+  ShadowMapType,
   sRGBEncoding,
+  ToneMapping,
   WebGL1Renderer,
   WebGLRenderer,
   WebGLRendererParameters,
   WebXRManager
 } from 'three'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
@@ -33,7 +34,6 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { matchActionOnce } from '../networking/functions/matchActionOnce'
 import { XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import {
@@ -43,6 +43,7 @@ import {
   restoreEngineRendererData
 } from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
+import { disposeCSM, enableCSM, updateShadowMap } from './functions/RenderSettingsFunction'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -301,6 +302,25 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolHeightActions = createActionQueue(EngineRendererAction.changeGridToolHeight.matches)
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
   const restoreStorageDataActions = createActionQueue(EngineRendererAction.restoreStorageData.matches)
+
+  const updateToneMapping = (val: ToneMapping) => {
+    EngineRenderer.instance.renderer.toneMapping = val
+  }
+  const updateToneMappingExposure = (val: number) => {
+    EngineRenderer.instance.renderer.toneMappingExposure = val
+  }
+  const updateShadowMapType = (type: ShadowMapType) => {
+    updateShadowMap(type > -1, type)
+  }
+  const updateCSM = (enabled: boolean) => {
+    if (enabled) enableCSM()
+    else disposeCSM()
+  }
+
+  getState(world.sceneMetadata).renderSettings.toneMapping.subscribe(updateToneMapping)
+  getState(world.sceneMetadata).renderSettings.toneMappingExposure.subscribe(updateToneMappingExposure)
+  getState(world.sceneMetadata).renderSettings.shadowMapType.subscribe(updateShadowMapType)
+  getState(world.sceneMetadata).renderSettings.csm.subscribe(updateCSM)
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)

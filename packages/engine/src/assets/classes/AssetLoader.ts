@@ -22,6 +22,8 @@ import {
   TextureLoader
 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -157,6 +159,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
+  const LODState = getState(Engine.instance.currentWorld.sceneMetadata).renderSettings.LODs.value
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {
@@ -180,7 +183,7 @@ const handleLODs = (asset: Object3D): Object3D => {
     value[0].object.parent?.add(lod)
 
     value.forEach(({ level, object }) => {
-      lod.addLevel(object, Engine.instance.currentWorld.LOD_DISTANCES[level])
+      lod.addLevel(object, LODState[level])
     })
   })
 

@@ -1,4 +1,5 @@
-import { createState, SetInitialStateAction, State } from '@hookstate/core'
+import { createState, hookstate, SetInitialStateAction, State } from '@hookstate/core'
+import { Subscribable, subscribable } from '@hookstate/subscribable'
 import React from 'react'
 import Reconciler from 'react-reconciler'
 
@@ -13,7 +14,7 @@ const logger = multiLogger.child({ component: 'hyperflux:State' })
 type StateDefinition<S> = {
   name: string
   initial: SetInitialStateAction<S>
-  onCreate?: (store: HyperStore, state: State<S>) => void
+  onCreate?: (store: HyperStore, state: State<S, Subscribable>) => void
 }
 
 function defineState<S>(definition: StateDefinition<S>) {
@@ -31,13 +32,13 @@ function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux
     typeof StateDefinition.initial === 'function'
       ? (StateDefinition.initial as Function)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
-  store.state[StateDefinition.name] = createState(initial)
+  store.state[StateDefinition.name] = hookstate(initial, subscribable())
   if (StateDefinition.onCreate) StateDefinition.onCreate(store, getState(StateDefinition, store))
 }
 
 function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
   if (!store.state[StateDefinition.name]) registerState(StateDefinition, store)
-  return store.state[StateDefinition.name] as State<S>
+  return store.state[StateDefinition.name] as State<S, Subscribable>
 }
 
 const ReactorReconciler = Reconciler({

@@ -1,12 +1,21 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
-import { AxesHelper, Object3D, Raycaster, Scene } from 'three'
+import {
+  AxesHelper,
+  LinearToneMapping,
+  Object3D,
+  PCFSoftShadowMap,
+  Raycaster,
+  Scene,
+  ShadowMapType,
+  ToneMapping
+} from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { getState } from '@xrengine/hyperflux'
+import { defineState, getState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -25,6 +34,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { defaultPostProcessingSchema } from '../../scene/constants/PostProcessing'
 import {
   setLocalTransformComponent,
   setTransformComponent,
@@ -158,24 +168,33 @@ export class World {
 
   sceneJson = null! as SceneJson
 
-  // sceneDynamicallyUnloadedEntities = new Map<
-  //   string,
-  //   {
-  //     json: EntityJson
-  //     position: Vector3
-  //     distance: number
-  //   }
-  // >()
-
-  // sceneDynamicallyLoadedEntities = new Map<
-  //   Entity,
-  //   {
-  //     json: EntityJson
-  //     position: Vector3
-  //     distance: number
-  //     uuid: string
-  //   }
-  // >()
+  /** stores a hookstate copy of scene metadata */
+  sceneMetadata = defineState({
+    name: 'SceneMetadataState',
+    initial: {
+      postprocessing: {
+        enabled: false,
+        effects: defaultPostProcessingSchema
+      },
+      mediaSettings: {
+        immersiveMedia: false,
+        refDistance: 20,
+        rolloffFactor: 1,
+        maxDistance: 10000,
+        distanceModel: 'linear' as DistanceModelType,
+        coneInnerAngle: 360,
+        coneOuterAngle: 0,
+        coneOuterGain: 0
+      },
+      renderSettings: {
+        LODs: DEFAULT_LOD_DISTANCES,
+        csm: true,
+        toneMapping: LinearToneMapping as ToneMapping,
+        toneMappingExposure: 0.8,
+        shadowMapType: PCFSoftShadowMap as ShadowMapType
+      }
+    }
+  })
 
   /**
    * The scene entity
@@ -330,8 +349,6 @@ export class World {
   createNetworkId(): NetworkId {
     return ++this.#availableNetworkId as NetworkId
   }
-
-  LOD_DISTANCES = DEFAULT_LOD_DISTANCES
 
   /**
    * Execute systems on this world

@@ -1,12 +1,12 @@
 import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { isClient } from '../../common/functions/isClient'
 import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
-import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
-import { EffectMap, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
+import { EffectMap, EffectPropsSchema, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
 import { accessEngineRendererState } from '../EngineRendererState'
 import { EngineRenderer } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
@@ -31,10 +31,10 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
     return
   }
 
-  const comps = getAllComponentsOfType(PostprocessingComponent)
+  const postprocessing = getState(Engine.instance.currentWorld.sceneMetadata).get({ noproxy: true }).postprocessing
+  if (!postprocessing) return
 
-  if (!comps.length) return
-  const postProcessing = comps[0]
+  const postProcessingEffects = postprocessing.effects as EffectPropsSchema
 
   const effects: any[] = []
   const effectKeys = EffectMap.keys()
@@ -54,7 +54,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
   })
 
   for (let key of effectKeys) {
-    const effect = postProcessing.options[key]
+    const effect = postProcessingEffects[key]
 
     if (!effect || !effect.isActive) continue
     const effectClass = EffectMap.get(key)?.EffectClass

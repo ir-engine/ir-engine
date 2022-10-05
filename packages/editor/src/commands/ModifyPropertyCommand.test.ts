@@ -12,7 +12,7 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
+import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -106,7 +106,7 @@ describe('ModifyPropertyCommand', () => {
         type: EditorCommands.MODIFY_PROPERTY,
         affectedNodes: nodes,
         properties: [getRandomValues(), getRandomValues()],
-        component: RenderSettingComponent
+        component: GroundPlaneComponent
       }
 
       assert(!ModifyPropertyCommand.shouldUpdate?.(command, newCommand))

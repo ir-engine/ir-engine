@@ -1,22 +1,17 @@
 import React, { ChangeEvent } from 'react'
-import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
+import { getState, useState } from '@xrengine/hyperflux'
 
-import LooksIcon from '@mui/icons-material/Looks'
 import Checkbox from '@mui/material/Checkbox'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
-import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
 
 enum PropertyTypes {
   BlendFunction,
@@ -164,27 +159,24 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
-export const PostProcessingNodeEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
+export const PostProcessingNodeEditor = () => {
+  const sceneMetadata = useState(getState(Engine.instance.currentWorld.sceneMetadata)).postprocessing
+
+  const postprocessing = sceneMetadata.get({ noproxy: true })
+  if (!postprocessing) return null
 
   const onChangeCheckBox = (e: ChangeEvent<HTMLInputElement>, effect: Effects) => {
-    setPropertyOnSelectionEntities({
-      component: PostprocessingComponent,
-      properties: [{ ['options.' + effect + '.isActive']: e.target.checked }]
-    })
+    sceneMetadata.effects[effect].isActive.set(e.target.checked)
   }
 
   const onChangeNodeSetting = (propertyPath: string, value: any) => {
-    setPropertyOnSelectionEntities({
-      component: PostprocessingComponent,
-      properties: [{ ['options.' + propertyPath]: value }]
-    })
+    sceneMetadata.effects[propertyPath].set(value)
   }
 
   const getPropertyValue = (keys: string[]): any => {
     if (keys.length < 1) return null
 
-    let value = postprocessingComponent.options
+    let value = postprocessing.effects
 
     keys.forEach((element) => {
       if (value[element] != null && value[element] !== '') {
@@ -223,7 +215,6 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.BlendFunction:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={BlendFunctionSelect}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -244,7 +235,6 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.KernelSize:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={KernelSizeSelect}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -255,7 +245,6 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.SMAAPreset:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={SMAAPreset}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -266,7 +255,6 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.EdgeDetectionMode:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={EdgeDetectionMode}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -277,7 +265,6 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.PredicationMode:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={PredicationMode}
             onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
             value={getPropertyValue(propertyPath)}
@@ -316,29 +303,15 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
           <Checkbox
             classes={{ checked: styles.checkbox }}
             onChange={(e) => onChangeCheckBox(e, effect)}
-            checked={postprocessingComponent.options[effect]?.isActive}
+            checked={postprocessing.effects[effect].isActive}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
-          {postprocessingComponent.options[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )
     })
     return <div>{items}</div>
   }
 
-  const postprocessingComponent = getComponent(props.node.entity, PostprocessingComponent)
-
-  return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.postprocessing.name')}
-      description={t('editor:properties.postprocessing.description')}
-    >
-      {renderEffects()}
-    </NodeEditor>
-  )
+  return <> {renderEffects()} </>
 }
-
-PostProcessingNodeEditor.iconComponent = LooksIcon
-
-export default PostProcessingNodeEditor

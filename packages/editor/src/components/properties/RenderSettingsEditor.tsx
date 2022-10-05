@@ -1,0 +1,144 @@
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import {
+  ACESFilmicToneMapping,
+  BasicShadowMap,
+  CineonToneMapping,
+  LinearToneMapping,
+  NoToneMapping,
+  PCFShadowMap,
+  PCFSoftShadowMap,
+  ReinhardToneMapping,
+  VSMShadowMap
+} from 'three'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getState, useHookstate } from '@xrengine/hyperflux'
+
+import BooleanInput from '../inputs/BooleanInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
+import Vector3Input from '../inputs/Vector3Input'
+
+/**
+ * ToneMappingOptions array containing tone mapping type options.
+ *
+ * @type {Array}
+ */
+const ToneMappingOptions = [
+  {
+    label: 'No Tone Mapping',
+    value: NoToneMapping
+  },
+  {
+    label: 'Linear Tone Mapping',
+    value: LinearToneMapping
+  },
+  {
+    label: 'Reinhard Tone Mapping',
+    value: ReinhardToneMapping
+  },
+  {
+    label: 'Cineon Tone Mapping',
+    value: CineonToneMapping
+  },
+  {
+    label: 'ACES Filmic Tone Mapping',
+    value: ACESFilmicToneMapping
+  }
+]
+
+/**
+ * ShadowTypeOptions array containing shadow type options.
+ *
+ * @type {Array}
+ */
+const ShadowTypeOptions = [
+  {
+    label: 'No Shadow Map',
+    value: -1
+  },
+  {
+    label: 'Basic Shadow Map',
+    value: BasicShadowMap
+  },
+  {
+    label: 'PCF Shadow Map',
+    value: PCFShadowMap
+  },
+  {
+    label: 'PCF Soft Shadow Map',
+    value: PCFSoftShadowMap
+  },
+  {
+    label: 'VSM Shadow Map',
+    value: VSMShadowMap
+  }
+]
+
+export const RenderSettingsEditor = () => {
+  const { t } = useTranslation()
+  const sceneMetadata = useHookstate(getState(Engine.instance.currentWorld.sceneMetadata).renderSettings)
+
+  return (
+    <>
+      <InputGroup
+        name="LODs"
+        label={t('editor:properties.scene.lbl-lods')}
+        info={t('editor:properties.scene.info-lods')}
+      >
+        <Vector3Input
+          hideLabels
+          value={sceneMetadata.LODs}
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={1}
+          onChange={(val) => sceneMetadata.LODs.set(val)}
+        />
+      </InputGroup>
+      <InputGroup
+        name="Use Cascading Shadow Maps"
+        label={t('editor:properties.scene.lbl-csm')}
+        info={t('editor:properties.scene.info-csm')}
+      >
+        <BooleanInput value={sceneMetadata.csm.value} onChange={(val) => sceneMetadata.csm.set(val)} />
+      </InputGroup>
+      <InputGroup
+        name="Tone Mapping"
+        label={t('editor:properties.scene.lbl-toneMapping')}
+        info={t('editor:properties.scene.info-toneMapping')}
+      >
+        <SelectInput
+          options={ToneMappingOptions}
+          value={sceneMetadata.toneMapping.value}
+          onChange={(val) => sceneMetadata.toneMapping.set(val)}
+        />
+      </InputGroup>
+      <InputGroup
+        name="Tone Mapping Exposure"
+        label={t('editor:properties.scene.lbl-toneMappingExposure')}
+        info={t('editor:properties.scene.info-toneMappingExposure')}
+      >
+        <CompoundNumericInput
+          min={0}
+          max={10}
+          step={0.1}
+          value={sceneMetadata.toneMappingExposure.value}
+          onChange={(val) => sceneMetadata.toneMappingExposure.set(val)}
+        />
+      </InputGroup>
+      <InputGroup
+        name="Shadow Map Type"
+        label={t('editor:properties.scene.lbl-shadowMapType')}
+        info={t('editor:properties.scene.info-shadowMapType')}
+      >
+        <SelectInput
+          options={ShadowTypeOptions}
+          value={sceneMetadata.shadowMapType.value ?? -1}
+          onChange={(val) => sceneMetadata.shadowMapType.set(val)}
+        />
+      </InputGroup>
+    </>
+  )
+}
