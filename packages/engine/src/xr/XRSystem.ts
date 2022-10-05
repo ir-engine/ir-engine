@@ -53,6 +53,11 @@ export default async function XRSystem(world: World) {
 
     //XR Controller mesh animation update
     for (const entity of xrControllerQuery()) updateXRControllerAnimations(getComponent(entity, XRInputSourceComponent))
+
+    // when using dom overlay in xr session, we need to ensure that canvas is not displayed twice
+    const canvasStyle = EngineRenderer.instance.renderer.domElement.style
+    if ((!session || xrState.is8thWallActive.value) && canvasStyle.display !== 'auto') canvasStyle.display = 'auto'
+    else if (canvasStyle.display !== 'none') canvasStyle.display = 'none'
   }
 
   const cleanup = async () => {
