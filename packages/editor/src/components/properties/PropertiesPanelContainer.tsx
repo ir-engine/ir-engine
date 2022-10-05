@@ -218,7 +218,6 @@ export const PropertiesPanelContainer = () => {
         </div>} */}
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
-          console.log(c, Editor)
           // nodeEntity is used as key here to signal to React when the entity has changed,
           // and to prevent state from being recycled between editor instances, which
           // can cause hookstate to throw errors.
