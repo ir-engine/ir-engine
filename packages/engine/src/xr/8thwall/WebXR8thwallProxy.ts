@@ -1,5 +1,4 @@
 import { World } from '../../ecs/classes/World'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XR8 } from './XR8'
 import { onUpdate } from './XR8Types'
 
