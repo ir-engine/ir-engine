@@ -123,14 +123,15 @@ export default async function SceneObjectSystem(world: World) {
       world.scene.traverse((obj: Mesh<any, any>) => {
         if (obj.material)
           if (ExpensiveMaterials.has(obj.material.constructor)) {
-            obj.material.dispose()
-            const onlyEmmisive = obj.material.emissiveMap && !obj.material.map
-            obj.material = new MeshLambertMaterial({
-              ...obj.material,
-              color: onlyEmmisive ? new Color('white') : obj.material.color,
-              map: obj.material.map ?? obj.material.emissiveMap
-            })
-            obj.material.needsUpdate = true
+            const prevMaterial = obj.material
+            const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+            prevMaterial.dispose()
+            obj.material = new MeshBasicMaterial().copy(prevMaterial)
+            obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
+            obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
+
+            // todo: find out why leaving the envMap makes basic & lambert materials transparent here
+            obj.material.envMap = null
           }
       })
     }
