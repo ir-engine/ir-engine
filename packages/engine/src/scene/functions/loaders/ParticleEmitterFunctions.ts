@@ -34,10 +34,8 @@ import { ParticleSystemActions } from '../../systems/ParticleSystem'
 import { DefaultArguments, ParticleLibrary } from '../particles/ParticleLibrary'
 
 export const disposeParticleSystem = (entity: Entity) => {
-  const obj3d = getComponent(entity, Object3DComponent)?.value
-  if (!obj3d) return
   dispatchAction(
-    ParticleSystemActions.disposeParticleSystem({
+    ParticleSystemActions.destroyParticleSystem({
       entity
     })
   )
@@ -67,13 +65,6 @@ export const initializeParticleSystem = async (entity: Entity) => {
       system.addRenderer(new SpriteRenderer(world.scene, THREE))
       break
   }
-
-  if (!hasComponent(entity, UpdatableComponent)) addComponent(entity, UpdatableComponent, true)
-  setCallback(entity, UpdatableCallback, (dt) => {
-    system.emitters.map((emitter) => emitter.setPosition(transform.position))
-    system.update(dt)
-  })
-
   return system
 }
 
@@ -84,15 +75,9 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   const comp = parseParticleEmitterProperties(data)
   setComponent(entity, ParticleEmitterComponent, comp)
   dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))
-  //initializeParticleSystem(entity)
-  //updateParticleEmitter(entity, comp)
 }
 
-export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity) => {
-  //dispatchAction(ParticleSystemActions.createParticleSystem({entity}))
-  //initializeParticleSystem(entity)
-  //initializeParticleSystem(entity)
-}
+export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity) => {}
 
 export const serializeParticleEmitter: ComponentSerializeFunction = (entity: Entity) => {
   const result = { ...getComponent(entity, ParticleEmitterComponent) }

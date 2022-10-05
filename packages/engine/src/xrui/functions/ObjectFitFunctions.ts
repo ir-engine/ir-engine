@@ -1,6 +1,8 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
 import { Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+
 import { getState } from '@xrengine/hyperflux'
+
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
@@ -51,7 +53,10 @@ export const ObjectFitFunctions = {
     return scale
   },
 
-  computeFrustumSizeAtDistance: (distance: number, camera = Engine.instance.currentWorld.camera as PerspectiveCamera) => {
+  computeFrustumSizeAtDistance: (
+    distance: number,
+    camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+  ) => {
     // const vFOV = camera.fov * DEG2RAD
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
     const inverseProjection = camera.projectionMatrixInverse
@@ -128,6 +133,6 @@ export const ObjectFitFunctions = {
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {
     container.scale.setScalar(Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(position) / 3))
     container.position.copy(position)
-    container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+    container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrixWorld)
   }
 }

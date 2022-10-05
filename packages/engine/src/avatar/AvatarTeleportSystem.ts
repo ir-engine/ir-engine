@@ -19,6 +19,7 @@ import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { setTransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { teleportAvatar } from './functions/moveAvatar'
@@ -100,6 +101,7 @@ export default async function AvatarTeleportSystem(world: World) {
   guideCursor.visible = false
 
   const guideCursorEntity = createEntity()
+  setTransformComponent(guideCursorEntity)
   addObjectToGroup(guideCursorEntity, guideCursor)
 
   let canTeleport = false

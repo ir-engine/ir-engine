@@ -56,7 +56,9 @@ const updateAudioPanner = (
   endTime: number,
   settings = Engine.instance.spatialAudioSettings
 ) => {
+  if (isNaN(position.x)) return
   _rot.set(0, 0, 1).applyQuaternion(rotation)
+  if (isNaN(_rot.x)) return
   panner.positionX.linearRampToValueAtTime(position.x, endTime)
   panner.positionY.linearRampToValueAtTime(position.y, endTime)
   panner.positionZ.linearRampToValueAtTime(position.z, endTime)
@@ -258,7 +260,9 @@ export default async function PositionalAudioSystem(world: World) {
      * Update camera listener position
      */
     const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    if (isNaN(position.x)) return
     _rot.set(0, 0, -1).applyQuaternion(rotation)
+    if (isNaN(_rot.x)) return
     audioContext.listener.positionX.linearRampToValueAtTime(position.x, endTime)
     audioContext.listener.positionY.linearRampToValueAtTime(position.y, endTime)
     audioContext.listener.positionZ.linearRampToValueAtTime(position.z, endTime)

@@ -135,11 +135,42 @@ export const XRHitTestComponent = defineComponent({
 
   onAdd: (entity) => {
     return hookstate({
-      hasHit: false
+      hitTestSource: null as XRHitTestSource | null,
+      hitTestResult: null as XRHitTestResult | null
     })
   },
 
+  onUpdate: (entity, component, json) => {
+    if (json.hitTestSource) component.hitTestSource.set(json.hitTestSource)
+  },
+
   toJSON: () => {
-    return null! as any
+    return null! as {
+      hitTestSource: XRHitTestSource | null
+    }
+  }
+})
+
+export const XRAnchorComponent = defineComponent({
+  name: 'XRAnchor',
+
+  onAdd: (entity) => {
+    return hookstate({
+      anchor: null! as XRAnchor
+    })
+  },
+
+  onUpdate: (entity, component, json) => {
+    if (json.anchor) component.anchor.set(json.anchor)
+  },
+
+  onRemove: (entity, component) => {
+    component.anchor.value.delete()
+  },
+
+  toJSON: () => {
+    return null! as {
+      anchor: XRAnchor
+    }
   }
 })

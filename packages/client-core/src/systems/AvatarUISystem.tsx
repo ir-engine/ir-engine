@@ -52,7 +52,7 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
   contextMenuXRUI.container.position.y += avatarHeight - 0.3
   contextMenuXRUI.container.position.x += 0.1
   contextMenuXRUI.container.position.z += contextMenuXRUI.container.position.z > cameraPosition.z ? -0.4 : 0.4
-  contextMenuXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+  contextMenuXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrixWorld)
 }
 
 export default async function AvatarUISystem(world: World) {
@@ -166,7 +166,7 @@ export default async function AvatarUISystem(world: World) {
 
       xrui.container.scale.setScalar(1.3 * Math.max(1, dist / 6) * Math.max(springAlpha, 0.001))
       xrui.container.position.copy(_vector3)
-      xrui.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+      xrui.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrixWorld)
 
       if (world.mediaNetwork)
         if (immersiveMedia && videoPreviewTimer === 0) {

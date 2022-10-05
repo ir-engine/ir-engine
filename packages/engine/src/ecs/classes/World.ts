@@ -1,12 +1,14 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
+import { State } from '@hookstate/core'
 import * as bitecs from 'bitecs'
-import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
+import { AxesHelper, Object3D, Raycaster, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getState } from '@xrengine/hyperflux'
+import { createState, none } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -19,13 +21,18 @@ import { InputAlias } from '../../input/types/InputAlias'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
-import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -35,19 +42,16 @@ import {
   EntityRemovedComponent,
   getComponent,
   hasComponent,
-  Query
+  Query,
+  setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
-import { initializeEntityTree } from '../functions/EntityTree'
-import { EntityTree } from '../functions/EntityTree'
+import { EntityTree, initializeEntityTree } from '../functions/EntityTree'
 import { SystemInstance } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
 import { Entity } from './Entity'
-import { State } from '@hookstate/core'
-import { createState, none } from '@xrengine/hyperflux/functions/StateFunctions'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -64,10 +68,16 @@ export class World {
 
     initializeEntityTree(this)
 
+    this.originEntity = createEntity()
+    addComponent(this.originEntity, NameComponent, { name: 'origin' })
+    setTransformComponent(this.originEntity)
+    setComponent(this.originEntity, VisibleComponent, true)
+
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
+    setLocalTransformComponent(this.cameraEntity, this.originEntity)
     addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
 
     /** @todo */
@@ -177,6 +187,11 @@ export class World {
   sceneEntity: Entity = NaN as Entity
 
   /**
+   * The xr origin reference space entity
+   */
+  originEntity: Entity = NaN as Entity
+
+  /**
    * The camera entity
    */
   cameraEntity: Entity = NaN as Entity
@@ -200,7 +215,7 @@ export class World {
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()
 
-  reactiveQueryStates = new Set<{query:Query, state:State<Entity[]>}>()
+  reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
@@ -228,7 +243,9 @@ export class World {
    * Entities mapped by name
    * @deprecated use entitiesByName
    */
-   get namedEntities() {return new Map(Object.entries(this.entitiesByName.value)) }
+  get namedEntities() {
+    return new Map(Object.entries(this.entitiesByName.value))
+  }
 
   entitiesByName = createState({} as Record<string, Entity>)
   entitiesByUuid = createState({} as Record<string, Entity>)
@@ -334,7 +351,7 @@ export class World {
 
     for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
 
-    for (const {query, state} of this.reactiveQueryStates) {
+    for (const { query, state } of this.reactiveQueryStates) {
       const entitiesAdded = query.enter()
       const entitiesRemoved = query.exit()
       if (entitiesAdded || entitiesRemoved) {

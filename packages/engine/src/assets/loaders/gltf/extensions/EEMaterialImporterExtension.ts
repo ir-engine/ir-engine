@@ -9,14 +9,10 @@ import {
 import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
 import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
 import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
+import { ImporterExtension } from './ImporterExtension'
 
-export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
+export class EEMaterialImporterExtension extends ImporterExtension implements GLTFLoaderPlugin {
   name = 'EE_material'
-
-  parser: GLTFParser
-  constructor(parser) {
-    this.parser = parser
-  }
 
   getMaterialType(materialIndex: number) {
     const parser = this.parser
@@ -37,18 +33,20 @@ export class EEMaterialImporterExtension implements GLTFLoaderPlugin {
     const parser = this.parser
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
-    const pending = []
     const extension: EEMaterialExtensionType = materialDef.extensions[this.name]
     const defaultArgs = MaterialLibrary.materials.has(extension.uuid)
       ? materialIdToDefaultArgs(extension.uuid)!
       : prototypeFromId(extension.prototype).arguments
-    Object.entries(extension.args).map(async ([k, v]) => {
-      materialParams[k] = v
-    })
     return Promise.all(
-      Object.entries(defaultArgs)
-        .filter(([k, v]) => v.type === 'texture' && materialParams[k])
-        .map(async ([k, v]) => parser.assignTexture(materialParams, k, materialParams[k]))
+      Object.entries(extension.args).map(async ([k, v]) => {
+        materialParams[k] = v
+      })
+    ).then(() =>
+      Promise.all(
+        Object.entries(defaultArgs)
+          .filter(([k, v]) => v.type === 'texture' && materialParams[k])
+          .map(async ([k, v]) => parser.assignTexture(materialParams, k, materialParams[k]))
+      )
     )
   }
 }

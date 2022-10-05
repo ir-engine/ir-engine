@@ -19,6 +19,7 @@ import { Divider } from '@mui/material'
 import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
 import { accessSelectionState } from '../../services/SelectionServices'
+import GeometryEditor from '../geometry/GeometryEditor'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -250,6 +251,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
             <InputGroup name="Current Geometry" label="Current Geometry">
               <SelectInput options={geometryIds.value!} value={mesh.geometry.uuid} />
             </InputGroup>
+            <GeometryEditor geometry={mesh.geometry} />
           </CollapsibleBlock>
           <CollapsibleBlock label={'Materials'}>
             {materialIds.value?.length > 0 && (
@@ -271,6 +273,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                         mesh.material[currentMaterialId.value] = MaterialLibrary.materials.get(nuId)!.material
                       } else {
                         mesh.material = MaterialLibrary.materials.get(nuId)!.material
+                        mesh.material.needsUpdate = true
                       }
                     }
                   }}

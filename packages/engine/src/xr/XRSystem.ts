@@ -1,76 +1,19 @@
-import { PerspectiveCamera } from 'three'
-
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { Entity } from '../ecs/classes/Entity'
-import { createEntity } from '../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
-import { NameComponent } from '../scene/components/NameComponent'
-import { VisibleComponent } from '../scene/components/VisibleComponent'
-import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { BinaryValue } from './../common/enums/BinaryValue'
 import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { Engine } from './../ecs/classes/Engine'
 import { World } from './../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery, setComponent } from './../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { GamepadMapping } from './../input/functions/GamepadInput'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { XRAction } from './XRAction'
-import { XRHitTestComponent, XRInputSourceComponent } from './XRComponents'
+import { XRInputSourceComponent } from './XRComponents'
 import { updateXRControllerAnimations } from './XRControllerFunctions'
 import { setupLocalXRInputs } from './XRFunctions'
 import { endXRSession, requestXRSession, xrSessionChanged } from './XRSessionFunctions'
-import { getControlMode, XRState } from './XRState'
-
-export const updateXRInput = () => {
-  const xrManager = EngineRenderer.instance.xrManager
-  const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
-
-  xrManager.updateCamera(camera)
-
-  if (getControlMode() === 'attached') {
-    const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
-    const head = xrInputSourceComponent.head
-    head.quaternion.copy(camera.quaternion)
-    head.position.copy(camera.position)
-
-    camera.updateMatrix()
-    camera.updateMatrixWorld(true)
-    head.updateMatrix()
-    head.updateMatrixWorld(true)
-  }
-
-  // TODO: uncomment the following when three.js fixes WebXRManager
-  // const xrFrame = Engine.instance.xrFrame
-  // for (let i = 0; i < xrManager.controllers.length; i++) {
-  //   const inputSource = xrManager.controllerInputSources[i]
-  //   const controller = xrManager.controllers[i]
-  //   if (inputSource !== null && controller !== undefined) {
-  //     controller.update(inputSource, xrFrame, xrManager.getReferenceSpace())
-  //   }
-  // }
-}
-
-export const updateHitTest = (entity: Entity) => {
-  const xrState = getState(XRState)
-  const xrFrame = Engine.instance.xrFrame
-
-  const hitTestComponent = getComponent(entity, XRHitTestComponent)
-  const transform = getComponent(entity, TransformComponent)
-  const hitTestResults = xrFrame.getHitTestResults(xrState.viewerHitTestSource.value!)
-
-  if (hitTestResults.length) {
-    const hit = hitTestResults[0]
-    const hitData = hit.getPose(xrState.originReferenceSpace.value!)!
-    transform.matrix.fromArray(hitData.transform.matrix)
-    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-    transform.matrixInverse.copy(transform.matrix).invert()
-    hitTestComponent.hasHit.set(true)
-  } else {
-    hitTestComponent.hasHit.set(false)
-  }
-}
+import { XRAction, XRState } from './XRState'
 
 /**
  * System for XR session and input handling
@@ -92,15 +35,7 @@ export default async function XRSystem(world: World) {
   updateSessionSupport()
   setupLocalXRInputs()
 
-  const viewerHitTestEntity = createEntity()
-  setComponent(viewerHitTestEntity, NameComponent, { name: 'AR Viewer Hit Test' })
-  setTransformComponent(viewerHitTestEntity)
-  setComponent(viewerHitTestEntity, VisibleComponent, true)
-  setComponent(viewerHitTestEntity, XRHitTestComponent, null)
-  xrState.viewerHitTestEntity.set(viewerHitTestEntity)
-
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
-  const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
   const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
@@ -113,22 +48,8 @@ export default async function XRSystem(world: World) {
 
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
-    if (EngineRenderer.instance.xrSession) {
-      updateXRInput()
-
-      // Assume world.camera.layers is source of truth for all xr cameras
-      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
-      const xrCamera = EngineRenderer.instance.xrManager.getCamera()
-      xrCamera.layers.mask = camera.layers.mask
-      for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
-
-      const session = EngineRenderer.instance.xrManager!.getSession()
-      if (session?.inputSources) for (const source of session.inputSources) updateGamepadInput(source)
-
-      if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
-        for (const entity of xrHitTestQuery()) updateHitTest(entity)
-      }
-    }
+    const session = EngineRenderer.instance.xrSession
+    if (session?.inputSources) for (const source of session.inputSources) updateGamepadInput(source)
 
     //XR Controller mesh animation update
     for (const entity of xrControllerQuery()) updateXRControllerAnimations(getComponent(entity, XRInputSourceComponent))
@@ -137,7 +58,6 @@ export default async function XRSystem(world: World) {
   const cleanup = async () => {
     navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
     removeQuery(world, xrControllerQuery)
-    removeQuery(world, xrHitTestQuery)
     removeActionQueue(xrRequestSessionQueue)
     removeActionQueue(xrEndSessionQueue)
     removeActionQueue(xrSessionChangedQueue)
@@ -146,7 +66,13 @@ export default async function XRSystem(world: World) {
   return {
     execute,
     cleanup,
-    subsystems: [() => import('./XRDepthOcclusion'), () => import('./8thwall/XR8')]
+    subsystems: [
+      () => import('./8thwall/XR8'),
+      () => import('./XRAnchorSystem'),
+      () => import('./XRCameraSystem'),
+      // () => import('./XRDepthOcclusion'),
+      () => import('./XRScenePlacementShader')
+    ]
   }
 }
 

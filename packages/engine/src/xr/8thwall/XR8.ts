@@ -1,8 +1,11 @@
+import { Matrix4, Quaternion, Vector3 } from 'three'
+
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { isMobile } from '../../common/functions/isMobile'
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -10,10 +13,9 @@ import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { VPSComponent } from '../../scene/components/VPSComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRAction } from '../XRAction'
 import { XRHitTestComponent } from '../XRComponents'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
-import { XRState } from '../XRState'
+import { XRAction, XRState } from '../XRState'
 import { XREPipeline } from './WebXR8thwallProxy'
 import { XR8CameraModule } from './XR8CameraModule'
 import { XR8Type } from './XR8Types'
@@ -75,18 +77,13 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
 export let XR8: XR8Type
 export let XRExtras
 
-const initialize8thwallDevice = (world: World) => {
-  XR8.addCameraPipelineModules([
-    XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
-    XR8.Threejs.pipelineModule(),
-    XR8.XrController.pipelineModule({
-      // enableLighting: true
-      // enableWorldPoints: true,
-      // imageTargets: true,
-      // enableVps: true
-    }),
-    XRExtras.RuntimeError.pipelineModule()
-  ])
+const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null, world: World) => {
+  if (existingCanvas) {
+    const engineContainer = document.getElementById('engine-container')!
+    engineContainer.appendChild(existingCanvas)
+    XR8.run({ canvas: existingCanvas })
+    return existingCanvas
+  }
 
   const cameraCanvas = document.createElement('canvas')
   cameraCanvas.id = 'camera-canvas'
@@ -97,20 +94,108 @@ const initialize8thwallDevice = (world: World) => {
   cameraCanvas.style.pointerEvents = 'none'
   cameraCanvas.style.userSelect = 'none'
 
-  XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
-  XR8.addCameraPipelineModule(XREPipeline(world))
+  const engineContainer = document.getElementById('engine-container')!
+  engineContainer.appendChild(cameraCanvas)
 
-  return cameraCanvas
+  const requiredPermissions = XR8.XrPermissions.permissions()
+  return new Promise<HTMLCanvasElement>((resolve, reject) => {
+    XR8.addCameraPipelineModules([
+      XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
+      XR8.Threejs.pipelineModule(),
+      XR8.XrController.pipelineModule({
+        // enableLighting: true
+        // enableWorldPoints: true,
+        // imageTargets: true,
+        // enableVps: true
+      }),
+      XRExtras.RuntimeError.pipelineModule()
+    ])
+
+    XR8.addCameraPipelineModule({
+      name: 'XRE_camera_persmissions',
+      onCameraStatusChange: (args) => {
+        const { status, reason } = args
+        console.log(`[XR8] Camera Status Change: ${status}`)
+        if (status == 'requesting') {
+          return
+        } else if (status == 'hasStream') {
+          return
+        } else if (status == 'hasVideo') {
+          resolve(cameraCanvas)
+        } else if (status == 'failed') {
+          console.error(args)
+          reject(`[XR8] Failed to get camera feed with reason ${reason}`)
+        }
+      },
+      requiredPermissions: () => [
+        requiredPermissions.CAMERA,
+        requiredPermissions.DEVICE_MOTION,
+        requiredPermissions.DEVICE_ORIENTATION
+        // requiredPermissions.DEVICE_GPS,
+        // requiredPermissions.MICROPHONE
+      ]
+    })
+
+    XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
+    XR8.addCameraPipelineModule(XREPipeline(world))
+
+    XR8.run({ canvas: cameraCanvas })
+  })
+}
+
+class XRHitTestResultProxy {
+  #mat4: Matrix4
+  constructor(position: Vector3, rotation: Quaternion) {
+    this.#mat4 = new Matrix4().compose(
+      new Vector3().copy(position),
+      new Quaternion().copy(rotation).normalize(),
+      new Vector3(1, 1, 1)
+    )
+  }
+
+  /** for now, assume it is always relative to the absolute world origin (0, 0, 0) */
+  getPose(baseSpace: XRSpace) {
+    const scope = this
+    return {
+      get transform() {
+        return {
+          get matrix() {
+            return scope.#mat4.toArray()
+          }
+        }
+      }
+    } as unknown as Partial<XRPose>
+  }
+
+  // not supported
+  createAnchor = undefined
 }
 
 class XRSessionProxy extends EventDispatcher {
-  constructor() {
-    super()
+  async requestReferenceSpace(type: 'local' | 'viewer') {
+    const space = {}
+    return space as XRReferenceSpace
   }
-  async requestReferenceSpace() {
-    /** @todo support reference space */
-    return null
+
+  async requestHitTestSource(args: { space: XRReferenceSpace }) {
+    const source = {}
+    return source as XRHitTestSource
   }
+}
+
+/**
+ * currently, the hit test proxy only supports viewer space
+ */
+class XRFrameProxy {
+  getHitTestResults(source: XRHitTestSource) {
+    const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
+    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position, rotation))
+  }
+
+  /**
+   * XRFrame.getPose is only currently used for anchors and controllers, which are not implemented in 8thwall
+   */
+  getPose = undefined
 }
 
 const skyboxQuery = defineQuery([SkyboxComponent])
@@ -136,13 +221,18 @@ export default async function XR8System(world: World) {
     xrState.supportedSessionModes['immersive-ar'].set(true)
 
     requestXRSession.implementation = async (action) => {
-      /** Initialize 8th wall if not previously initialized */
-      if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
-      if (!cameraCanvas) cameraCanvas = initialize8thwallDevice(world)
+      if (xrState.requestingSession.value) return
+      xrState.requestingSession.set(true)
 
-      XR8.run({ canvas: cameraCanvas })
-      const engineContainer = document.getElementById('engine-container')!
-      engineContainer.appendChild(cameraCanvas)
+      try {
+        /** Initialize 8th wall if not previously initialized */
+        if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
+        cameraCanvas = await initialize8thwallDevice(cameraCanvas, world)
+      } catch (e) {
+        xrState.requestingSession.set(false)
+        console.error(e)
+        return
+      }
 
       EngineRenderer.instance.xrSession = new XRSessionProxy() as any as XRSession
       xrState.sessionActive.set(true)
@@ -151,6 +241,7 @@ export default async function XR8System(world: World) {
       prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
 
+      xrState.requestingSession.set(false)
       dispatchAction(XRAction.sessionChanged({ active: true }))
     }
 
@@ -216,31 +307,18 @@ export default async function XR8System(world: World) {
       if (world.scene.background) lastSeenBackground = world.scene.background
       world.scene.background = null
       const { camera } = xr8scene
+      /** update the camera in world space as updateXRInput will update it to local space */
       world.camera.position.copy(camera.position)
-      world.camera.quaternion.copy(camera.quaternion)
-      world.dirtyTransforms.add(world.cameraEntity)
+      world.camera.quaternion.copy(camera.quaternion).normalize()
+      /** 8thwall always expects the camera to be unscaled */
+      world.camera.scale.set(1, 1, 1)
     } else {
       if (!world.scene.background && lastSeenBackground) world.scene.background = lastSeenBackground
       lastSeenBackground = null
       return
     }
 
-    /** Run viewer hit test logic from the 8thwall controller */
-    const hitTestResults = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    const viewerHitTestEntity = xrState.viewerHitTestEntity.value
-    const hitTestComponent = getComponent(viewerHitTestEntity, XRHitTestComponent)
-
-    if (hitTestResults.length) {
-      const { position, rotation } = hitTestResults[0]
-      const transform = getComponent(viewerHitTestEntity, TransformComponent)
-      transform.position.copy(position)
-      transform.rotation.copy(rotation)
-      transform.matrix.compose(transform.position, transform.rotation, transform.scale)
-      transform.matrixInverse.copy(transform.matrix).invert()
-      hitTestComponent.hasHit.set(true)
-    } else {
-      hitTestComponent.hasHit.set(false)
-    }
+    Engine.instance.xrFrame = new XRFrameProxy() as any as XRFrame
   }
 
   const cleanup = async () => {

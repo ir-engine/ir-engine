@@ -1,5 +1,4 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { Not } from 'bitecs'
 import {
   AdditiveBlending,
   Box3,
@@ -28,7 +27,6 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { Physics, RaycastArgs } from '../physics/classes/Physics'
-import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
@@ -37,7 +35,6 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
-import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'

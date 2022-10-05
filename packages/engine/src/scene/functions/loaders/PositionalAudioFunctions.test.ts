@@ -4,9 +4,11 @@ import { Object3D } from 'three'
 
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializePositionalAudio } from './PositionalAudioFunctions'
@@ -71,6 +73,9 @@ describe.skip('AudioFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
   })
 
   const sceneComponentData = {

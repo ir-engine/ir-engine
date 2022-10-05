@@ -52,8 +52,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   getComponent(entity, GroupComponent).push(obj)
 
-  if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
-
   const transform = getComponent(entity, TransformComponent)
   const world = Engine.instance.currentWorld
   obj.position.copy(transform.position)

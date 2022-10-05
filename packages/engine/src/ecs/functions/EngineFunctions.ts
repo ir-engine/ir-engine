@@ -12,10 +12,9 @@ import { Engine } from '../classes/Engine'
 import { EngineActions } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
-import { EntityTreeNode } from '../functions/EntityTree'
+import { EntityTreeNode, removeEntityNodeFromParent, traverseEntityNode } from '../functions/EntityTree'
 import { defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
-import { removeEntityNodeFromParent, traverseEntityNode } from './EntityTree'
 import { unloadSystems } from './SystemFunctions'
 
 /** Reset the engine and remove everything from memory. */

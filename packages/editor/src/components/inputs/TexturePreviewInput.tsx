@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Texture } from 'three'
+import { Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { ImageFileTypes, VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
@@ -59,8 +59,8 @@ export default function TexturePreviewInput({
     : texture?.isTexture
     ? texture.source?.data?.src ?? texture?.userData?.src ?? (preview ? 'BLOB' : '')
     : src
-  const offset = useHookstate(texture?.offset.clone())
-  const scale = useHookstate(texture?.repeat.clone())
+  const offset = useHookstate(typeof texture?.offset?.clone === 'function' ? texture.offset.clone() : new Vector2(0, 0))
+  const scale = useHookstate(typeof texture?.repeat?.clone === 'function' ? texture.repeat.clone() : new Vector2(1, 1))
   return (
     <ImageContainer>
       <Stack>

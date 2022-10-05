@@ -13,8 +13,7 @@ import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
-import { XRAction } from './XRAction'
-import { XRState } from './XRState'
+import { XRAction, XRState } from './XRState'
 import { XRCPUDepthInformation } from './XRTypes'
 
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
@@ -159,6 +158,7 @@ function updateDepthMaterials(
   referenceSpace: XRReferenceSpace,
   depthTexture?: DepthCanvasTexture
 ) {
+  if (!frame) return
   const xrState = getState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
   if (viewerPose) {
@@ -224,7 +224,7 @@ const _createDepthDebugCanvas = (enabled: boolean) => {
  * @returns
  */
 export default async function XRDepthOcclusionSystem(world: World) {
-  const groupComponent = defineQuery([GroupComponent])
+  const groupQuery = defineQuery([GroupComponent])
   const xrState = getState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
@@ -234,11 +234,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
       if (action.active) {
-        if (EngineRenderer.instance.xrSession?.updateRenderState)
-          EngineRenderer.instance.xrSession.updateRenderState({
-            depthNear: 0.1,
-            depthFar: 100.0
-          })
+        //
       } else {
         const depthDataTexture = xrState.depthDataTexture.value
         if (depthDataTexture) {
@@ -250,7 +246,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
     const xrFrame = Engine.instance.xrFrame as XRFrame & getDepthInformationType
     const depthSupported = typeof xrFrame?.getDepthInformation === 'function'
     const depthDataTexture = xrState.depthDataTexture.value
-    for (const entity of groupComponent()) {
+    for (const entity of groupQuery()) {
       for (const obj of getComponent(entity, GroupComponent)) {
         obj.traverse((obj: Mesh<any, Material>) => {
           if (obj.material) {
@@ -269,7 +265,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, groupComponent)
+    removeQuery(world, groupQuery)
     removeActionQueue(xrSessionChangedQueue)
   }
 

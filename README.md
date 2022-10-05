@@ -54,14 +54,14 @@ Guest Demos
 
 Host Demos 
 
-- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
-- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/editor)
+- [Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
+- [XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/editor)
 
-## XRE XRModule
+## XRModule
 
 ### [Library of XRModules](https://github.com/XRFoundation?q=xre-project)
 
-Create composable plug-ins for XREngine scenes with XRModule Projects
+Create composable plug-ins for Ethereal Engine scenes with XRModule Projects
 
 ### [Create XRModule Projects](https://xrfoundation.github.io/ethereal-engine-docs/docs/concepts/projects_api)
 
@@ -71,11 +71,11 @@ Pictured below is an example of 4 projects installed. By default, only the defau
 
 In a production environment, the builder process will install all projects according to the project database table and will download files from the storage provider. In a local development environment, the local file system is always the source of truth. Any project folders added or removed from the file system will be automatically added or removed from the database. This is to ensure there is no accidental loss of data, as these project folders are all git repositories.
 
-## Launch XREngine with Control Center Install - ***RECOMMENDED***
+## Launch Ethereal Engine with Control Center Install - ***RECOMMENDED***
 
 ### [Use Metaverse Control Plane Managment GUI](https://github.com/XRFoundation/XREngine-Control-Center)
 
-Best for simple self hosting, advanced editor content creation, and XRE Pack Project development.
+Best for simple self hosting, advanced editor content creation, and XRProject Pack Project development.
 
 ## Advanced Development Install
 
@@ -88,10 +88,10 @@ To install Ethereal Engine locally, the following pre-reqs are required.
   or [`asdf`](https://github.com/asdf-vm/asdf).)
 * C++ (for `node-gyp`), Python >=3.6 + [PIP](https://pypi.org/project/pip/), `make`
   and other build tools, for compiling Mediasoup.
-  Although most of XREngine is written in TypeScript, it uses a [Mediasoup](https://mediasoup.org/)
+  Although most of Ethereal Engine is written in TypeScript, it uses a [Mediasoup](https://mediasoup.org/)
   engine for WebRTC conferencing. See the [Mediasoup install instructions](https://mediasoup.org/documentation/v3/mediasoup/installation/)
   for more details.
-* Docker. (Although Docker is technically optional, running XREngine requires starting up
+* Docker. (Although Docker is technically optional, running Ethereal Engine requires starting up
   half a dozen different services, and using Docker Compose will make your life dramatically
   easier.)
 * MariaDB and Redis. (If you're using Docker, containers for MariaDB and Redis 
@@ -106,10 +106,10 @@ for more details.
 
 ### Documentation
 
-* [General XREngine documentation](https://xrfoundation.github.io/ethereal-engine-docs/docs)
+* [General Ethereal Engine documentation](https://xrfoundation.github.io/ethereal-engine-docs/docs)
 * [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/ethereal-engine-docs/docs/generated/common/)
 * [Avatar, Scene & Asset Pipeline](https://github.com/XRFoundation/XREngine/wiki/Avatar,-Scene-&-Asset-Pipeline)
-* [Why are we building XREngine?](https://xrfoundation.github.io/ethereal-engine-docs/docs/)
+* [Why are we building Ethereal Engine?](https://xrfoundation.github.io/ethereal-engine-docs/docs/)
 
 ## Contributing
 
@@ -118,7 +118,7 @@ for more details.
 * See the **[Contributing Guide](CONTRIBUTING.md)** and corresponding
   [wiki entry](https://github.com/XRFoundation/XREngine/wiki/Contributing)
   for more details.
-* Version numbering of the XREngine monorepo follows the
+* Version numbering of the Ethereal Engine monorepo follows the
   [Semantic versioning](http://semver.org/) approach.
 * We use the [Prettier.io](https://prettier.io/) formatter for our code style.
 * [Standard Readme](https://github.com/RichardLitt/standard-readme) for
@@ -143,7 +143,7 @@ you find who you need to talk to.
 ### [Sponsorship](https://opencollective.com/etherealengine) [![Open Collective](https://opencollective.com/etherealengine/tiers/badge.svg)](https://opencollective.com/etherealengine)
 
 ## License
-[MIT](LICENSE) - Copyright (c) 2020-2022 Ethereal Engine team, formally XREngine by XR Foundation
+[MIT](LICENSE) - Copyright (c) 2020-2022 Ethereal Engine team, formerly known as XREngine by XR Foundation
 
 
 [Release History and Author Archive](/HISTORY.md)

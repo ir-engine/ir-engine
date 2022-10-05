@@ -8,7 +8,7 @@ import {
   SCENE_COMPONENT_DYNAMIC_LOAD,
   SceneDynamicLoadTagComponent
 } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'

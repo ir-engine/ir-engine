@@ -154,7 +154,7 @@ export default async function XRUISystem(world: World) {
           }
 
           if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-            const targetRayPose = Engine.instance.xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
+            const targetRayPose = xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
             if (input?.data?.has(BaseInput.PRIMARY))
               updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.PRIMARY)!)
           }

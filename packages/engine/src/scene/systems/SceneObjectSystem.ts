@@ -1,22 +1,25 @@
-import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
-import { isHMD } from '../../common/functions/isMobile'
+import { isHMD, isMobileOrHMD } from '../../common/functions/isMobile'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import MeshMatcapMaterial from '../../renderer/materials/constants/material-prototypes/MeshMatcapMaterial.mat'
+import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
+import { SceneTagComponent } from '../components/SceneTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
@@ -34,6 +37,8 @@ export class SceneOptions {
   envMapIntensity = 1
   boxProjection = false
 }
+
+export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
 const updateObject = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as (Object3DWithEntity & Mesh<any, MeshStandardMaterial>)[]
@@ -105,11 +110,11 @@ export default async function SceneObjectSystem(world: World) {
       }
     }
 
-    /** ensure the HMD has no heavy materials */
-    if (isHMD) {
+    /** ensure the mobile or hmd has no heavy materials */
+    if (isMobileOrHMD) {
       world.scene.traverse((obj: Mesh<any, any>) => {
         if (obj.material)
-          if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
+          if (ExpensiveMaterials.has(obj.material.constructor)) {
             obj.material.dispose()
             obj.material = new MeshLambertMaterial({
               color: obj.material.color,
