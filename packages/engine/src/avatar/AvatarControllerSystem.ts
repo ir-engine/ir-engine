@@ -19,7 +19,7 @@ import {
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
-import { GamepadAxis } from '../input/enums/InputEnums'
+import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
@@ -29,7 +29,7 @@ import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import { moveLocalAvatar } from './functions/moveAvatar'
+import { moveAvatarWithTeleport, moveAvatarWithVelocity, updateAvatarControllerOnGround } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -103,8 +103,14 @@ export default async function AvatarControllerSystem(world: World) {
 
     const controller = getComponent(controlledEntity, AvatarControllerComponent)
     if (hasComponent(controlledEntity, AvatarControllerComponent)) {
+      updateAvatarControllerOnGround(controlledEntity)
       if (controller?.movementEnabled) {
-        moveLocalAvatar(controlledEntity)
+        const avatarInputState = getState(AvatarInputSettingsState)
+        if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) {
+          moveAvatarWithTeleport(controlledEntity)
+        } else {
+          moveAvatarWithVelocity(controlledEntity)
+        }
       }
 
       const rigidbody = getComponent(controlledEntity, RigidBodyComponent)

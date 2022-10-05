@@ -10,7 +10,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -25,7 +24,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent'
 import { AvatarTeleportTagComponent } from '../components/AvatarTeleportTagComponent'
-import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './createAvatar'
 
 const _vec3 = new Vector3()
@@ -56,22 +54,19 @@ const avatarStepRaycast = {
 }
 
 /**
- * moves the avatar according to physics contacts, velocity, gravity and step testing
+ * Updates the avatar's isInAir property based on current physics contacts points
  * @param entity
  */
-export const moveLocalAvatar = (entity: Entity) => {
+export const updateAvatarControllerOnGround = (entity: Entity) => {
   const controller = getComponent(entity, AvatarControllerComponent)
 
-  let onGround = false
-
-  /**
-   * Use physics contacts to detemine if avatar is grounded
-   */
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const collidersInContactWithFeet = [] as Collider[]
   physicsWorld.contactsWith(controller.bodyCollider, (otherCollider) => {
     if (otherCollider) collidersInContactWithFeet.push(otherCollider)
   })
+
+  let onGround = false
 
   for (const otherCollider of collidersInContactWithFeet) {
     physicsWorld.contactPair(controller.bodyCollider, otherCollider, (manifold, flipped) => {
@@ -86,10 +81,6 @@ export const moveLocalAvatar = (entity: Entity) => {
   }
 
   controller.isInAir = !onGround
-
-  const avatarInputState = getState(AvatarInputSettingsState)
-  if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) moveAvatarWithTeleport(entity)
-  else moveAvatarWithVelocity(entity)
 }
 
 /**
@@ -98,28 +89,46 @@ export const moveLocalAvatar = (entity: Entity) => {
  */
 export const moveAvatarWithVelocity = (entity: Entity) => {
   const camera = Engine.instance.currentWorld.camera
-  const timeStep = getState(EngineState).fixedDeltaSeconds.value
-
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
-  const isInVR = getControlMode() === 'attached'
-
-  const rigidbody = getComponent(entity, RigidBodyComponent)
-  const controller = getComponent(entity, AvatarControllerComponent)
-
-  /**
-   * Do movement via velocity spring and collider velocity
-   */
   const cameraDirection = camera.getWorldDirection(_vec3).setY(0).normalize()
   const forwardOrientation = _quat.setFromUnitVectors(AvatarDirection.Forward, cameraDirection)
 
-  controller.velocitySimulator.target.copy(controller.localMovementDirection)
-  controller.velocitySimulator.simulate(timeStep * (controller.isInAir ? 0.2 : 1))
-  const velocitySpringDirection = controller.velocitySimulator.position
+  avatarApplyVelocity(entity, forwardOrientation)
+  avatarApplyRotation(entity)
+  avatarStepOverObstacles(entity, forwardOrientation)
+}
+
+/**
+ * Rotates the avatar
+ * - if we are in attached mode, we dont need to do any extra rotation
+ *     as this is done via the webxr camera automatically
+ */
+export const avatarApplyRotation = (entity: Entity) => {
+  const isInVR = getControlMode() === 'attached'
+  if (!isInVR) {
+    if (hasComponent(entity, AvatarHeadDecapComponent)) {
+      rotateBodyTowardsCameraDirection(entity)
+    } else {
+      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
+    }
+  }
+}
+
+/**
+ * Avatar movement via velocity spring and collider velocity
+ */
+export const avatarApplyVelocity = (entity, forwardOrientation) => {
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const timeStep = getState(EngineState).fixedDeltaSeconds.value
+  const isInVR = getControlMode() === 'attached'
 
   // always walk in VR
   controller.currentSpeed =
     controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
+
+  controller.velocitySimulator.target.copy(controller.localMovementDirection)
+  controller.velocitySimulator.simulate(timeStep * (controller.isInAir ? 0.2 : 1))
+  const velocitySpringDirection = controller.velocitySimulator.position
 
   const prevVelocity = rigidBody.body.linvel()
   const currentVelocity = _vec3
@@ -142,20 +151,15 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
     }
   }
 
-  rigidbody.body.setLinvel(currentVelocity, true)
+  rigidBody.body.setLinvel(currentVelocity, true)
+}
 
-  /**
-   * Do rotation
-   * - if we are in attached mode, we dont need to do any extra rotation
-   *     as this is done via the webxr camera automatically
-   */
-  if (!isInVR) {
-    if (hasComponent(entity, AvatarHeadDecapComponent)) {
-      rotateBodyTowardsCameraDirection(entity)
-    } else {
-      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
-    }
-  }
+export const avatarStepOverObstacles = (entity: Entity, forwardOrientation: Quaternion) => {
+  const transform = getComponent(entity, TransformComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+
+  const velocitySpringDirection = controller.velocitySimulator.position
 
   /**
    * Step over small obstacles
@@ -175,9 +179,9 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
       _vec3.copy(hits[0].normal as Vector3)
       const angle = _vec3.angleTo(V_010)
       if (angle < stepAngle) {
-        const pos = rigidbody.body.translation()
+        const pos = rigidBody.body.translation()
         pos.y += stepHeight - hits[0].distance
-        rigidbody.body.setTranslation(pos, true)
+        rigidBody.body.setTranslation(pos, true)
       }
     }
   }
