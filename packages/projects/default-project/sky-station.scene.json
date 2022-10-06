@@ -1,61 +1,124 @@
 {
-  "version": 4,
+  "version": 0,
+  "metadata": {
+    "postprocessing": {
+      "enabled": true,
+      "effects": {
+        "SMAAEffect": {
+          "isActive": true,
+          "blendFunction": 13,
+          "preset": 2,
+          "edgeDetectionMode": 2,
+          "predicationMode": 0
+        },
+        "OutlineEffect": {
+          "isActive": true,
+          "blendFunction": 16,
+          "patternTexture": null,
+          "edgeStrength": 1,
+          "pulseSpeed": 0,
+          "visibleEdgeColor": 16777215,
+          "hiddenEdgeColor": 16777215,
+          "resolutionScale": 0.5,
+          "width": -1,
+          "height": -1,
+          "kernelSize": 0,
+          "blur": false,
+          "xRay": true
+        },
+        "SSAOEffect": {
+          "isActive": false,
+          "blendFunction": 10,
+          "distanceScaling": true,
+          "depthAwareUpsampling": true,
+          "samples": 16,
+          "rings": 7,
+          "distanceThreshold": 0.125,
+          "distanceFalloff": 0.02,
+          "minRadiusScale": 1,
+          "bias": 0.25,
+          "radius": 0.01,
+          "intensity": 2,
+          "fade": 0.05
+        },
+        "DepthOfFieldEffect": {
+          "isActive": false,
+          "blendFunction": 13,
+          "focusDistance": 0.02,
+          "focalLength": 0.5,
+          "bokehScale": 1
+        },
+        "BloomEffect": {
+          "isActive": true,
+          "blendFunction": 18,
+          "kernelSize": 2,
+          "luminanceThreshold": 0.68,
+          "luminanceSmoothing": 1,
+          "intensity": 0.84
+        },
+        "ToneMappingEffect": {
+          "isActive": false,
+          "blendFunction": 13,
+          "adaptive": true,
+          "resolution": 512,
+          "middleGrey": 0.6,
+          "maxLuminance": 32,
+          "averageLuminance": 1,
+          "adaptationRate": 2
+        },
+        "BrightnessContrastEffect": {
+          "isActive": false,
+          "brightness": 0.05,
+          "contrast": 0.1
+        },
+        "HueSaturationEffect": {
+          "isActive": false,
+          "hue": 0,
+          "saturation": -0.15
+        },
+        "ColorDepthEffect": {
+          "isActive": false,
+          "bits": 16
+        },
+        "LinearTosRGBEffect": {
+          "isActive": false
+        }
+      }
+    },
+    "mediaSettings": {
+      "immersiveMedia": false,
+      "refDistance": 20,
+      "rolloffFactor": 1,
+      "maxDistance": 10000,
+      "distanceModel": "linear",
+      "coneInnerAngle": 360,
+      "coneOuterAngle": 0,
+      "coneOuterGain": 0
+    },
+    "renderSettings": {
+      "LODs": {
+        "x": 5,
+        "y": 15,
+        "z": 30
+      },
+      "csm": false,
+      "toneMapping": 1,
+      "toneMappingExposure": 0.8,
+      "shadowMapType": 2
+    },
+    "fog": {
+      "type": "linear",
+      "color": 16777215,
+      "near": 1,
+      "far": 200,
+      "density": 0.005,
+      "height": 0.05,
+      "timeScale": 1
+    }
+  },
   "entities": {
     "1b731841-172a-4141-89cb-d1cceeec748f": {
-      "components": [
-        {
-          "name": "audio-settings",
-          "props": {
-            "refDistance": 20,
-            "rolloffFactor": 1,
-            "maxDistance": 10000,
-            "distanceModel": "linear",
-            "coneInnerAngle": 360,
-            "coneOuterAngle": 0,
-            "coneOuterGain": 0
-          }
-        },
-        {
-          "name": "renderer-settings",
-          "props": {
-            "LODs": {
-              "x": 5,
-              "y": 15,
-              "z": 30
-            },
-            "overrideRendererSettings": true,
-            "csm": false,
-            "toneMapping": 1,
-            "toneMappingExposure": 0.8,
-            "shadowMapType": 2
-          }
-        },
-        {
-          "name": "envmapbake",
-          "props": {
-            "bakeType": "Baked",
-            "resolution": 2048,
-            "refreshMode": "OnAwake",
-            "envMapOrigin": "__$project$__/default-project/sky-station.envmap.png",
-            "boxProjection": true,
-            "bakePosition": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "bakePositionOffset": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "bakeScale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        }
-      ],
+      "components": [],
       "name": "sky-station"
     },
     "1e8b1451-a87f-4cd4-8556-d0732f328a3c": {
@@ -154,103 +217,6 @@
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 2,
       "name": "spawn point"
-    },
-    "c0ac9351-7839-4d06-99bd-660f4575730a": {
-      "components": [
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "postprocessing",
-          "props": {
-            "options": {
-              "SMAAEffect": {
-                "isActive": true,
-                "blendFunction": 13,
-                "preset": 2,
-                "edgeDetectionMode": 2,
-                "predicationMode": 0
-              },
-              "OutlineEffect": {
-                "isActive": true,
-                "blendFunction": 16,
-                "patternTexture": null,
-                "edgeStrength": 1,
-                "pulseSpeed": 0,
-                "visibleEdgeColor": 16777215,
-                "hiddenEdgeColor": 16777215,
-                "resolutionScale": 0.5,
-                "width": -1,
-                "height": -1,
-                "kernelSize": 0,
-                "blur": false,
-                "xRay": true
-              },
-              "SSAOEffect": {
-                "isActive": false,
-                "blendFunction": 10,
-                "distanceScaling": true,
-                "depthAwareUpsampling": true,
-                "samples": 16,
-                "rings": 7,
-                "distanceThreshold": 0.125,
-                "distanceFalloff": 0.02,
-                "minRadiusScale": 1,
-                "bias": 0.25,
-                "radius": 0.01,
-                "intensity": 2,
-                "fade": 0.05
-              },
-              "DepthOfFieldEffect": {
-                "isActive": false,
-                "blendFunction": 13,
-                "focusDistance": 0.02,
-                "focalLength": 0.5,
-                "bokehScale": 1
-              },
-              "BloomEffect": {
-                "isActive": true,
-                "blendFunction": 18,
-                "kernelSize": 2,
-                "luminanceThreshold": 0.68,
-                "luminanceSmoothing": 1,
-                "intensity": 0.84
-              },
-              "ToneMappingEffect": {
-                "isActive": false,
-                "blendFunction": 13,
-                "adaptive": true,
-                "resolution": 512,
-                "middleGrey": 0.6,
-                "maxLuminance": 32,
-                "averageLuminance": 1,
-                "adaptationRate": 2
-              },
-              "BrightnessContrastEffect": {
-                "isActive": false,
-                "brightness": 0.05,
-                "contrast": 0.1
-              },
-              "HueSaturationEffect": {
-                "isActive": false,
-                "hue": 0,
-                "saturation": -0.15
-              },
-              "ColorDepthEffect": {
-                "isActive": false,
-                "bits": 16
-              },
-              "LinearTosRGBEffect": {
-                "isActive": false
-              }
-            }
-          }
-        }
-      ],
-      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 3,
-      "name": "post processing"
     },
     "bd83d58b-80e4-40a2-9a1d-d45aaee0c76a": {
       "components": [

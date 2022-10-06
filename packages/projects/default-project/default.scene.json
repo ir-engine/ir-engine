@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 0,
   "metadata": {
     "postprocessing": {
       "enabled": true,
@@ -105,6 +105,15 @@
       "toneMapping": 1,
       "toneMappingExposure": 0.8,
       "shadowMapType": 2
+    },
+    "fog": {
+      "type": "linear",
+      "color": 16777215,
+      "near": 1,
+      "far": 200,
+      "density": 0.005,
+      "height": 0.05,
+      "timeScale": 1
     }
   },
   "entities": {

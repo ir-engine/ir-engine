@@ -1,61 +1,124 @@
 {
-  "version": 4,
+  "version": 0,
+  "metadata": {
+    "postprocessing": {
+      "enabled": true,
+      "effects": {
+        "SMAAEffect": {
+          "isActive": true,
+          "blendFunction": 13,
+          "preset": 1,
+          "edgeDetectionMode": 2,
+          "predicationMode": 0
+        },
+        "OutlineEffect": {
+          "isActive": true,
+          "blendFunction": 16,
+          "patternTexture": null,
+          "edgeStrength": 1,
+          "pulseSpeed": 0,
+          "visibleEdgeColor": 16777215,
+          "hiddenEdgeColor": 16777215,
+          "resolutionScale": 0.5,
+          "width": -1,
+          "height": -1,
+          "kernelSize": 0,
+          "blur": false,
+          "xRay": true
+        },
+        "SSAOEffect": {
+          "isActive": false,
+          "blendFunction": 10,
+          "distanceScaling": true,
+          "depthAwareUpsampling": true,
+          "samples": 16,
+          "rings": 7,
+          "distanceThreshold": 0.125,
+          "distanceFalloff": 0.02,
+          "minRadiusScale": 1,
+          "bias": 0.25,
+          "radius": 0.01,
+          "intensity": 2,
+          "fade": 0.05
+        },
+        "DepthOfFieldEffect": {
+          "isActive": false,
+          "blendFunction": 13,
+          "focusDistance": 0.02,
+          "focalLength": 0.5,
+          "bokehScale": 1
+        },
+        "BloomEffect": {
+          "isActive": true,
+          "blendFunction": 16,
+          "kernelSize": 2,
+          "luminanceThreshold": 1,
+          "luminanceSmoothing": 0.1,
+          "intensity": 0.2
+        },
+        "ToneMappingEffect": {
+          "isActive": false,
+          "blendFunction": 13,
+          "adaptive": true,
+          "resolution": 512,
+          "middleGrey": 0.6,
+          "maxLuminance": 32,
+          "averageLuminance": 1,
+          "adaptationRate": 2
+        },
+        "BrightnessContrastEffect": {
+          "isActive": false,
+          "brightness": 0.05,
+          "contrast": 0.1
+        },
+        "HueSaturationEffect": {
+          "isActive": false,
+          "hue": 0,
+          "saturation": -0.15
+        },
+        "ColorDepthEffect": {
+          "isActive": false,
+          "bits": 16
+        },
+        "LinearTosRGBEffect": {
+          "isActive": false
+        }
+      }
+    },
+    "mediaSettings": {
+      "immersiveMedia": false,
+      "refDistance": 20,
+      "rolloffFactor": 1,
+      "maxDistance": 10000,
+      "distanceModel": "linear",
+      "coneInnerAngle": 360,
+      "coneOuterAngle": 0,
+      "coneOuterGain": 0
+    },
+    "renderSettings": {
+      "LODs": {
+        "x": 5,
+        "y": 15,
+        "z": 30
+      },
+      "csm": true,
+      "toneMapping": 1,
+      "toneMappingExposure": 0.8,
+      "shadowMapType": 2
+    },
+    "fog": {
+      "type": "linear",
+      "color": 16777215,
+      "near": 1,
+      "far": 200,
+      "density": 0.005,
+      "height": 0.05,
+      "timeScale": 1
+    }
+  },
   "entities": {
     "60a390ad-4193-493d-84bf-cfb77b5095c2": {
-      "components": [
-        {
-          "name": "audio-settings",
-          "props": {
-            "refDistance": 20,
-            "rolloffFactor": 1,
-            "maxDistance": 10000,
-            "distanceModel": "linear",
-            "coneInnerAngle": 360,
-            "coneOuterAngle": 0,
-            "coneOuterGain": 0
-          }
-        },
-        {
-          "name": "renderer-settings",
-          "props": {
-            "LODs": {
-              "x": 5,
-              "y": 15,
-              "z": 30
-            },
-            "overrideRendererSettings": false,
-            "csm": true,
-            "toneMapping": 1,
-            "toneMappingExposure": 0.8,
-            "shadowMapType": 2
-          }
-        },
-        {
-          "name": "envmapbake",
-          "props": {
-            "bakeType": "Baked",
-            "resolution": 2048,
-            "refreshMode": "OnAwake",
-            "envMapOrigin": "__$project$__/default-project/apartment.envmap.png",
-            "boxProjection": true,
-            "bakePosition": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "bakePositionOffset": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "bakeScale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        }
-      ],
+      "components": [],
       "name": "apartment"
     },
     "a0a03866-c1d0-46d4-94ce-6f6bb0098c20": {
@@ -896,49 +959,6 @@
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
       "index": 17,
       "name": "Portal"
-    },
-    "30e639e7-61d3-4e98-84f1-5b6fb35427c2": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "fog",
-          "props": {
-            "type": "linear",
-            "color": 16777215,
-            "near": 1,
-            "far": 200,
-            "density": 0.005,
-            "height": 0.05,
-            "timeScale": 1
-          }
-        }
-      ],
-      "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 18,
-      "name": "Fog"
     },
     "9dcb0074-fda1-42a8-b65f-e7c603eaa920": {
       "components": [
