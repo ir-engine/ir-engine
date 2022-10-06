@@ -1,4 +1,12 @@
-import { Color, Mesh, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import {
+  Color,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  MeshPhongMaterial,
+  MeshStandardMaterial,
+  Vector3
+} from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
