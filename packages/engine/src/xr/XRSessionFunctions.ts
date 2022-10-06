@@ -92,6 +92,7 @@ export const requestXRSession = createHookableFunction(
         EngineRenderer.instance.xrSession = null!
         const world = Engine.instance.currentWorld
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+        EngineRenderer.instance.renderer.domElement.style.display = ''
 
         xrState.originReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)
@@ -149,6 +150,8 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {
 }
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
+  EngineRenderer.instance.renderer.domElement.style.display = 'none'
+
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
    * This gets piped into the input system as a TouchInput.Touch
