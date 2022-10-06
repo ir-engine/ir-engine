@@ -139,5 +139,9 @@ export default async function SceneObjectSystem(world: World) {
     removeQuery(world, updatableQuery)
   }
 
-  return { execute, cleanup }
+  return {
+    execute,
+    cleanup,
+    subsystems: [() => import('./FogSystem')]
+  }
 }

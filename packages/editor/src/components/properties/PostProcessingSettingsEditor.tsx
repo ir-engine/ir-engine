@@ -162,7 +162,7 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
-export const PostProcessingNodeEditor = () => {
+export const PostProcessingSettingsEditor = () => {
   const sceneMetadata = useState(Engine.instance.currentWorld.sceneMetadata).postprocessing
   const { t } = useTranslation()
 

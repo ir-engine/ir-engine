@@ -44,7 +44,6 @@ import {
   SCENE_COMPONENT_ENVMAP,
   SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
 } from '../components/EnvmapComponent'
-import { FogComponent, SCENE_COMPONENT_FOG, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from '../components/FogComponent'
 import {
   GroundPlaneComponent,
   SCENE_COMPONENT_GROUND_PLANE,
@@ -108,13 +107,6 @@ import { deserializeCloud, serializeCloud, updateCloud } from '../functions/load
 import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
 import {
-  createFogFromSceneNode,
-  deserializeFog,
-  serializeFog,
-  shouldDeserializeFog,
-  updateFog
-} from '../functions/loaders/FogFunctions'
-import {
   deserializeGround,
   serializeGroundPlane,
   shouldDeserializeGroundPlane,
@@ -169,7 +161,6 @@ export const ScenePrefabs = {
   spline: 'Spline' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
-  fog: 'Fog' as const,
   loadVolume: 'Load Volume' as const
 }
 
@@ -269,20 +260,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   /**
    * Environment
    */
-
-  world.scenePrefabRegistry.set(ScenePrefabs.fog, [
-    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_FOG, props: SCENE_COMPONENT_FOG_DEFAULT_VALUES }
-  ])
-
-  world.sceneComponentRegistry.set(FogComponent.name, SCENE_COMPONENT_FOG)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_FOG, {
-    defaultData: SCENE_COMPONENT_FOG_DEFAULT_VALUES,
-    deserialize: deserializeFog,
-    serialize: serializeFog,
-    shouldDeserialize: shouldDeserializeFog
-  })
 
   world.scenePrefabRegistry.set(ScenePrefabs.skybox, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
@@ -441,7 +418,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   const cameraQuery = defineQuery([CameraComponent])
   const obj3dQuery = defineQuery([GroupComponent])
-  const fogQuery = defineQuery([GroupComponent, FogComponent])
   const shadowQuery = defineQuery([GroupComponent, ShadowComponent])
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
@@ -467,7 +443,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ShadowComponent) && hasComponent(entity, GroupComponent)) updateShadow(entity)
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, GroupComponent)) updateEnvMap(entity)
-        if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
         if (hasComponent(entity, PortalComponent)) updatePortal(entity)
         if (hasComponent(entity, GroundPlaneComponent)) updateGroundPlane(entity)
@@ -476,20 +451,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
         if (hasComponent(entity, InteriorComponent)) updateInterior(entity)
         if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
-      }
-    }
-
-    for (const entity of fogQuery.enter()) {
-      if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) {
-        createFogFromSceneNode(entity)
-      } else {
-        updateFog(entity)
-      }
-    }
-
-    for (const entity of fogQuery.exit()) {
-      if (entity !== Engine.instance.currentWorld.entityTree.rootNode.entity) {
-        Engine.instance.currentWorld.scene.fog = null
       }
     }
 
@@ -565,11 +526,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
      * Environment
      */
 
-    world.scenePrefabRegistry.delete(ScenePrefabs.fog)
-
-    world.sceneComponentRegistry.delete(FogComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_FOG)
-
     world.scenePrefabRegistry.delete(ScenePrefabs.skybox)
 
     world.sceneComponentRegistry.delete(SkyboxComponent.name)
@@ -638,7 +594,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
     removeQuery(world, cameraQuery)
     removeQuery(world, obj3dQuery)
-    removeQuery(world, fogQuery)
     removeQuery(world, shadowQuery)
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)

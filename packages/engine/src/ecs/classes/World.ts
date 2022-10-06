@@ -3,11 +3,13 @@ import { subscribable } from '@hookstate/subscribable'
 import * as bitecs from 'bitecs'
 import {
   AxesHelper,
+  Color,
   LinearToneMapping,
   Object3D,
   PCFSoftShadowMap,
   Raycaster,
   Scene,
+  Shader,
   ShadowMapType,
   ToneMapping
 } from 'three'
@@ -35,6 +37,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { FogType } from '../../scene/constants/FogType'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../../scene/constants/PostProcessing'
 import {
@@ -170,6 +173,8 @@ export class World {
 
   sceneJson = null! as SceneJson
 
+  fogShaders = [] as Shader[]
+
   /** stores a hookstate copy of scene metadata */
   sceneMetadata = hookstate(
     {
@@ -193,6 +198,15 @@ export class World {
         toneMapping: LinearToneMapping as ToneMapping,
         toneMappingExposure: 0.8,
         shadowMapType: PCFSoftShadowMap as ShadowMapType
+      },
+      fog: {
+        type: FogType.Linear as FogType,
+        color: '#FFFFFF',
+        density: 0.005,
+        near: 1,
+        far: 1000,
+        timeScale: 1,
+        height: 0.05
       }
     },
     subscribable()
