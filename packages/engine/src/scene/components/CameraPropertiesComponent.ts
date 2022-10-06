@@ -26,6 +26,8 @@ export type CameraPropertiesComponentType = {
   raycastProps: RaycastPropsType
 }
 
+// /**@deprecated */
+/** @todo deprecate this and move to scene metadata */
 export const CameraPropertiesComponent =
   createMappedComponent<CameraPropertiesComponentType>('CameraPropertiesComponent')
 
