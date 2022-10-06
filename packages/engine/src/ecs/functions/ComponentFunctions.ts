@@ -75,7 +75,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
   name: string,
   schema?: Schema
 ) => {
-  const Component = defineComponent<ComponentType, Schema, ComponentType>({ name, schema })
+  const Component = defineComponent<ComponentType, Schema, ComponentType, unknown>({ name, schema })
   Component.onUpdate = (entity, component, json) => {
     Component.map[entity].set(json)
   }
