@@ -3,6 +3,7 @@ import { LocationSettings } from './LocationSettings'
 
 export interface Instance {
   id: string
+  roomCode: string
   currentUsers: number
   ipAddress: string
   locationId: string
@@ -17,6 +18,7 @@ export interface Instance {
 
 export const InstanceSeed: Instance = {
   id: '',
+  roomCode: '',
   ipAddress: '',
   currentUsers: 0,
   location: {

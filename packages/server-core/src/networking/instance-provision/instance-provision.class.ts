@@ -5,6 +5,7 @@ import _ from 'lodash'
 import fetch from 'node-fetch'
 import Sequelize, { Op } from 'sequelize'
 
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 
 import { Application } from '../../../declarations'
@@ -257,14 +258,6 @@ export async function checkForDuplicatedAssignments(
     return getFreeInstanceserver(app, iteration + 1, locationId, channelId, userId, roomCode)
   }
 
-  if (roomCode) {
-    await app.service('room-instance').create({
-      roomCode,
-      instanceId: assignResult.id,
-      userId
-    })
-  }
-
   const split = ipAddress.split(':')
   return {
     id: assignResult.id,
@@ -456,22 +449,36 @@ export class InstanceProvision implements ServiceMethods<any> {
         if (locationId == null) throw new BadRequest('Missing location ID')
         const location = await this.app.service('location').get(locationId)
         if (location == null) throw new BadRequest('Invalid location ID')
+
+        let instance: Instance | null = null
+
         if (instanceId != null) {
-          const instance: any = await this.app.service('instance').get(instanceId)
-          if (instance == null || instance.ended === true)
-            return getFreeInstanceserver(this.app, 0, locationId, null!, userId, roomCode)
-          let isCleanup
-          if (config.kubernetes.enabled) isCleanup = await this.isCleanup(instance)
-          if (
-            (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
-            instance.currentUsers < location.maxUsersPerInstance
-          ) {
-            const ipAddressSplit = instance.ipAddress.split(':')
-            return {
-              id: instance.id,
-              ipAddress: ipAddressSplit[0],
-              port: ipAddressSplit[1]
+          instance = await this.app.service('instance').get(instanceId)
+        } else if (roomCode != null) {
+          const instances = await this.app.service('instance').Model.findAll({
+            where: {
+              roomCode,
+              ended: false
             }
+          })
+          instance = instances.length > 0 ? instances[0] : null
+        }
+
+        if (instance == null || instance.ended === true)
+          return getFreeInstanceserver(this.app, 0, locationId, null!, userId, roomCode)
+
+        let isCleanup
+
+        if (config.kubernetes.enabled) isCleanup = await this.isCleanup(instance)
+        if (
+          (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
+          instance.currentUsers < location.maxUsersPerInstance
+        ) {
+          const ipAddressSplit = instance.ipAddress.split(':')
+          return {
+            id: instance.id,
+            ipAddress: ipAddressSplit[0],
+            port: ipAddressSplit[1]
           }
         }
         // const user = await this.app.service('user').get(userId)

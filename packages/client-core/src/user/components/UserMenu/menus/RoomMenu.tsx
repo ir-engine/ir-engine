@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import adminStyles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
-import { RoomService } from '@xrengine/client-core/src/common/services/RoomService'
+import { InstanceService } from '@xrengine/client-core/src/common/services/InstanceService'
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import menuStyles from '@xrengine/client-core/src/user/components/UserMenu/index.module.scss'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
@@ -20,7 +20,7 @@ import Typography from '@mui/material/Typography'
 import styles from './RoomMenu.scss'
 
 interface Props {
-  location: string
+  location?: string
 }
 
 const roomCodeCharacters = '123456789'
@@ -31,36 +31,19 @@ const numberize = (str: string) => {
   return validChars.join('')
 }
 
-const generateRoomCode = () => {
-  let code = ''
-  for (let i = 0; i < 6; i++) code += roomCodeCharacters.charAt(Math.floor(Math.random() * roomCodeCharacters.length))
-  return code
-}
-
 const RoomMenu = ({ location }: Props): JSX.Element => {
   const { t } = useTranslation()
   const route = useRouter()
-  const defaultCode = generateRoomCode()
-  const [roomCode, setRoomCode] = useState(defaultCode)
+  const [locationName, setLocationName] = useState('')
+  const [roomCode, setRoomCode] = useState('')
   const [source, setSource] = useState('create')
   const [error, setError] = useState('')
-
-  const validate = () => {
-    if (roomCode.length !== 6) {
-      setError(t('user:roomMenu.roomCodeLength'))
-      return false
-    }
-
-    setError('')
-    return true
-  }
 
   const handleSourceChange = (e) => {
     const { value } = e.target
 
-    const defaultCode = generateRoomCode()
     setError('')
-    setRoomCode(value === 'create' ? defaultCode : '')
+    setRoomCode('')
     setSource(value)
   }
 
@@ -69,32 +52,39 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
     setRoomCode(number)
   }
 
+  const handleLocationName = async (e) => {
+    setLocationName(e.target.value)
+    setError('')
+  }
+
   const handleJoin = async () => {
-    if (validate()) {
-      const rooms = await RoomService.fetchRoom(roomCode)
-
-      if (rooms.data.length === 0) {
-        setError(t('user:roomMenu.invalidRoomCode'))
-        return
-      }
-
-      route(`/location/${location}?roomCode=${rooms.data[0].roomCode}&instanceId=${rooms.data[0].instanceId}`)
-      dispatchAction(XRAction.requestSession({}))
+    if (!location && !locationName) {
+      setError(t('user:roomMenu.locationRequired'))
+      return false
     }
+
+    if (roomCode.length !== 6) {
+      setError(t('user:roomMenu.roomCodeLength'))
+      return false
+    }
+
+    const rooms = await InstanceService.checkRoom(roomCode)
+    if (rooms.data.length === 0) {
+      setError(t('user:roomMenu.invalidRoomCode'))
+      return
+    }
+    route(`/location/${location ? location : locationName}?roomCode=${rooms.data[0].roomCode}`)
+    dispatchAction(XRAction.requestSession({}))
   }
 
   const handleCreate = async () => {
-    if (validate()) {
-      const rooms = await RoomService.fetchRoom(roomCode)
-
-      if (rooms.data.length !== 0) {
-        setError(t('user:roomMenu.duplicateRoomCode'))
-        return
-      }
-
-      route(`/location/${location}?roomCode=${roomCode}`)
-      dispatchAction(XRAction.requestSession({}))
+    if (!location && !locationName) {
+      setError(t('user:roomMenu.locationRequired'))
+      return false
     }
+
+    route(`/location/${location ? location : locationName}`)
+    dispatchAction(XRAction.requestSession({}))
   }
 
   return (
@@ -103,6 +93,22 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
 
       <div className={`${menuStyles.menuPanel} roomMenu`}>
         <div className={menuStyles.settingPanel}>
+          {!location && (
+            <TextField
+              className={menuStyles.emailField}
+              size="small"
+              placeholder={t('user:roomMenu.locationName')}
+              variant="outlined"
+              onChange={handleLocationName}
+              value={locationName}
+              error={!location && !locationName && error ? true : false}
+              helperText={!location && !locationName && error ? error : null}
+              fullWidth
+            />
+          )}
+
+          <hr className="divider" />
+
           <FormControl className={adminStyles.radioField} fullWidth>
             <RadioGroup value={source} onChange={handleSourceChange}>
               <FormControlLabel
@@ -114,26 +120,6 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
                   </Typography>
                 }
               />
-
-              <section
-                className={`${menuStyles.emailPhoneSection} inputSection ${source === 'create' ? '' : 'disabled'}`}
-              >
-                <Typography variant="h1" className={menuStyles.panelHeader}>
-                  {t('user:roomMenu.createRoomCode')}
-                </Typography>
-                <TextField
-                  className={menuStyles.emailField}
-                  size="small"
-                  placeholder={t('user:roomMenu.roomCode')}
-                  variant="outlined"
-                  onChange={handleRoomCode}
-                  value={source === 'create' ? roomCode : ''}
-                  error={source === 'create' && error ? true : false}
-                  helperText={source === 'create' && error ? error : null}
-                  disabled={source !== 'create'}
-                  fullWidth
-                />
-              </section>
 
               <Button
                 className="button"
@@ -169,9 +155,9 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
                   placeholder={t('user:roomMenu.roomCode')}
                   variant="outlined"
                   onChange={handleRoomCode}
-                  value={source === 'join' ? roomCode : ''}
-                  error={source === 'join' && error ? true : false}
-                  helperText={source === 'join' && error ? error : null}
+                  value={roomCode}
+                  error={(location || locationName) && source === 'join' && error ? true : false}
+                  helperText={(location || locationName) && source === 'join' && error ? error : null}
                   disabled={source !== 'join'}
                   fullWidth
                 />
