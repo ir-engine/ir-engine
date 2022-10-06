@@ -22,7 +22,7 @@ import Tabs from '@mui/material/Tabs'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'
 import { useAuthState } from '../../../services/AuthService'
-import { UserService, useUserState } from '../../../services/UserService'
+import { NetworkUserService, useNetworkUserState } from '../../../services/NetworkUserService'
 import styles from '../index.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
@@ -36,14 +36,14 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
   const [selectedTab, setSelectedTab] = React.useState(defaultSelectedTab ? defaultSelectedTab : 'friends')
 
   const friendState = useFriendState()
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const selfUser = useAuthState().user
   const userId = selfUser.id.value
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   useEffect(() => {
     FriendService.getUserRelationship(userId)
-    UserService.getLayerUsers(true)
+    NetworkUserService.getLayerUsers(true)
   }, [])
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {

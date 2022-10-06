@@ -20,7 +20,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
-import { UserAction, UserService } from '../../user/services/UserService'
+import { NetworkUserAction, NetworkUserService } from '../../user/services/NetworkUserService'
 import { accessChatState, ChatAction, ChatService } from './ChatService'
 import { InviteService } from './InviteService'
 
@@ -250,7 +250,7 @@ export const PartyService = {
           dispatchAction(PartyActions.changedPartyAction({}))
         }
 
-        UserService.getLayerUsers(false)
+        NetworkUserService.getLayerUsers(false)
 
         // if (params.partyUser.userId === selfUser.id.value) {
         //   const party = await API.instance.client.service('party').get(params.partyUser.partyId)
@@ -276,15 +276,15 @@ export const PartyService = {
           updatedPartyUser.user.channelInstanceId != null &&
           updatedPartyUser.user.channelInstanceId === selfUser.channelInstanceId.value
         )
-          dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedPartyUser.user }))
+          dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: updatedPartyUser.user }))
         if (updatedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
           dispatchAction(
-            UserAction.removedChannelLayerUserAction({
+            NetworkUserAction.removedChannelLayerUserAction({
               user: updatedPartyUser.user
             })
           )
 
-        UserService.getLayerUsers(false)
+        NetworkUserService.getLayerUsers(false)
       }
 
       const partyUserRemovedListener = (params) => {
@@ -312,7 +312,7 @@ export const PartyService = {
           NotificationService.dispatchNotify(username + i18n.t('social:otherLeftParty'), { variant: 'warning' })
         }
 
-        UserService.getLayerUsers(false)
+        NetworkUserService.getLayerUsers(false)
       }
 
       const partyCreatedListener = (params) => {

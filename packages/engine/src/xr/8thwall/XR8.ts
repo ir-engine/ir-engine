@@ -237,6 +237,7 @@ export default async function XR8System(world: World) {
       EngineRenderer.instance.xrSession = new XRSessionProxy() as any as XRSession
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
+      xrState.is8thWallActive.set(true)
 
       prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
@@ -249,6 +250,7 @@ export default async function XR8System(world: World) {
       XR8.stop()
       xrState.sessionActive.set(false)
       xrState.sessionMode.set('none')
+      xrState.is8thWallActive.set(false)
       EngineRenderer.instance.xrSession = null!
 
       xrState.originReferenceSpace.set(null)

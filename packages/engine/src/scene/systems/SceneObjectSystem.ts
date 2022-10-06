@@ -1,4 +1,12 @@
-import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import {
+  Color,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  MeshPhongMaterial,
+  MeshStandardMaterial,
+  Vector3
+} from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -15,6 +23,7 @@ import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/
 import MeshMatcapMaterial from '../../renderer/materials/constants/material-prototypes/MeshMatcapMaterial.mat'
 import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
 import { CallbackComponent } from '../components/CallbackComponent'
@@ -99,6 +108,8 @@ export default async function SceneObjectSystem(world: World) {
   const sceneObjectQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
+  const xrState = getState(XRState)
+
   const execute = () => {
     for (const entity of sceneObjectQuery.exit()) {
       const group = getComponent(entity, GroupComponent, true)
@@ -110,18 +121,21 @@ export default async function SceneObjectSystem(world: World) {
       }
     }
 
-    /** ensure the mobile or hmd has no heavy materials */
-    if (isMobileOrHMD) {
+    /** ensure that hmd has no heavy materials */
+    if (isHMD || xrState.is8thWallActive.value) {
+      // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
       world.scene.traverse((obj: Mesh<any, any>) => {
         if (obj.material)
           if (ExpensiveMaterials.has(obj.material.constructor)) {
-            obj.material.dispose()
-            obj.material = new MeshLambertMaterial({
-              color: obj.material.color,
-              flatShading: obj.material.flatShading,
-              map: obj.material.map,
-              fog: obj.material.fog
-            })
+            const prevMaterial = obj.material
+            const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+            prevMaterial.dispose()
+            obj.material = new MeshBasicMaterial().copy(prevMaterial)
+            obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
+            obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
+
+            // todo: find out why leaving the envMap makes basic & lambert materials transparent here
+            obj.material.envMap = null
           }
       })
     }
