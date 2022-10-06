@@ -7,7 +7,6 @@ import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 

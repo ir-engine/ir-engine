@@ -1,10 +1,6 @@
 import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
-
-import { isClient } from '../../common/functions/isClient'
-import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EffectMap, EffectPropsSchema, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
 import { accessEngineRendererState } from '../EngineRendererState'
@@ -13,8 +9,6 @@ import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
   if (!EngineRenderer.instance) return
-  if (isHMD) return
-  if (!isClient) return
 
   if (!EngineRenderer.instance.renderPass) {
     // we always want to have at least the render pass enabled
@@ -32,7 +26,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
   }
 
   const postprocessing = Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true }).postprocessing
-  if (!postprocessing) return
+  if (!postprocessing.enabled) return
 
   const postProcessingEffects = postprocessing.effects as EffectPropsSchema
 
@@ -73,11 +67,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.OutlineEffect) {
-      let outlineEffect = effect as OutlineEffectProps
-      if (Engine.instance.isEditor) {
-        outlineEffect = { ...outlineEffect, hiddenEdgeColor: 0x22090a }
-      }
-      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, outlineEffect)
+      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, effect)
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else {

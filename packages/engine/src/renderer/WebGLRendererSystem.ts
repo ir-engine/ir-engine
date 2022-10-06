@@ -316,11 +316,15 @@ export default async function WebGLRendererSystem(world: World) {
     if (enabled) enableCSM()
     else disposeCSM()
   }
+  const updatePostprocessing = () => {
+    configureEffectComposer()
+  }
 
   world.sceneMetadata.renderSettings.toneMapping.subscribe(updateToneMapping)
   world.sceneMetadata.renderSettings.toneMappingExposure.subscribe(updateToneMappingExposure)
   world.sceneMetadata.renderSettings.shadowMapType.subscribe(updateShadowMapType)
   world.sceneMetadata.renderSettings.csm.subscribe(updateCSM)
+  world.sceneMetadata.postprocessing.subscribe(updatePostprocessing)
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)
