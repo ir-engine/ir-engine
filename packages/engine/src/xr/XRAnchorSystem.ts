@@ -165,7 +165,6 @@ export default async function XRAnchorSystem(world: World) {
   setComponent(scenePlacementEntity, NameComponent, { name: 'xr-scene-placement' })
   setLocalTransformComponent(scenePlacementEntity, world.originEntity)
   setComponent(scenePlacementEntity, VisibleComponent, true)
-  setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource: null })
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
   const changePlacementModeQueue = createActionQueue(XRAction.changePlacementMode.matches)
@@ -191,7 +190,6 @@ export default async function XRAnchorSystem(world: World) {
             if ('requestHitTestSource' in session) {
               session.requestHitTestSource!({ space: viewerReferenceSpace })!.then((source) => {
                 xrState.viewerHitTestSource.set(source)
-                getComponent(scenePlacementEntity, XRHitTestComponent).hitTestSource.set(source)
               })
             }
           })
@@ -212,6 +210,9 @@ export default async function XRAnchorSystem(world: World) {
     }
 
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
+      if (changePlacementModeActions.length && changePlacementModeActions[0].active) {
+        setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource: xrState.viewerHitTestSource.value })
+      }
       for (const entity of xrHitTestQuery()) {
         const hit = updateHitTest(entity)
         if (entity === scenePlacementEntity && hit && changePlacementModeActions.length) {
@@ -225,6 +226,7 @@ export default async function XRAnchorSystem(world: World) {
                 setComponent(entity, XRAnchorComponent, { anchor })
               })
             }
+            hasComponent(entity, XRHitTestComponent) && removeComponent(entity, XRHitTestComponent)
           }
         }
       }
@@ -247,6 +249,10 @@ export default async function XRAnchorSystem(world: World) {
       if (!hasHit && hasComponent(entity, GroupComponent)) {
         removeGroupComponent(entity)
       }
+    }
+
+    for (const entity of xrHitTestQuery.exit()) {
+      removeGroupComponent(entity)
     }
   }
 
