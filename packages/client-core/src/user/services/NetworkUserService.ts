@@ -9,8 +9,8 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 
 //State
-const UserState = defineState({
-  name: 'UserState',
+const NetworkUserState = defineState({
+  name: 'NetworkUserState',
   initial: () => ({
     users: [] as Array<UserInterface>,
     updateNeeded: true,
@@ -21,16 +21,16 @@ const UserState = defineState({
   })
 })
 
-export const UserServiceReceptor = (action) => {
-  const s = getState(UserState)
+export const NetworkUserServiceReceptor = (action) => {
+  const s = getState(NetworkUserState)
   matches(action)
-    .when(UserAction.clearLayerUsersAction.matches, () => {
+    .when(NetworkUserAction.clearLayerUsersAction.matches, () => {
       return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
     })
-    .when(UserAction.loadedLayerUsersAction.matches, (action) => {
+    .when(NetworkUserAction.loadedLayerUsersAction.matches, (action) => {
       return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
     })
-    .when(UserAction.addedLayerUserAction.matches, (action) => {
+    .when(NetworkUserAction.addedLayerUserAction.matches, (action) => {
       const index = s.layerUsers.findIndex((layerUser) => {
         return layerUser != null && layerUser.id.value === action.user.id
       })
@@ -40,26 +40,26 @@ export const UserServiceReceptor = (action) => {
         return s.layerUsers[index].set(action.user)
       }
     })
-    .when(UserAction.removedLayerUserAction.matches, (action) => {
+    .when(NetworkUserAction.removedLayerUserAction.matches, (action) => {
       const layerUsers = s.layerUsers
       const index = layerUsers.findIndex((layerUser) => {
         return layerUser != null && layerUser.value.id === action.user.id
       })
       return s.layerUsers[index].set(none)
     })
-    .when(UserAction.clearChannelLayerUsersAction.matches, () => {
+    .when(NetworkUserAction.clearChannelLayerUsersAction.matches, () => {
       return s.merge({
         channelLayerUsers: [],
         channelLayerUsersUpdateNeeded: true
       })
     })
-    .when(UserAction.loadedChannelLayerUsersAction.matches, (action) => {
+    .when(NetworkUserAction.loadedChannelLayerUsersAction.matches, (action) => {
       return s.merge({
         channelLayerUsers: action.users,
         channelLayerUsersUpdateNeeded: false
       })
     })
-    .when(UserAction.addedChannelLayerUserAction.matches, (action) => {
+    .when(NetworkUserAction.addedChannelLayerUserAction.matches, (action) => {
       const index = s.channelLayerUsers.findIndex((layerUser) => {
         return layerUser != null && layerUser.value.id === action.user.id
       })
@@ -69,7 +69,7 @@ export const UserServiceReceptor = (action) => {
         return s.channelLayerUsers[index].set(action.user)
       }
     })
-    .when(UserAction.removedChannelLayerUserAction.matches, (action) => {
+    .when(NetworkUserAction.removedChannelLayerUserAction.matches, (action) => {
       if (action.user) {
         const index = s.channelLayerUsers.findIndex((layerUser) => {
           return layerUser != null && layerUser.value.id === action.user.id
@@ -79,11 +79,11 @@ export const UserServiceReceptor = (action) => {
     })
 }
 
-export const accessUserState = () => getState(UserState)
-export const useUserState = () => useState(accessUserState())
+export const accessNetworkUserState = () => getState(NetworkUserState)
+export const useNetworkUserState = () => useState(accessNetworkUserState())
 
 //Service
-export const UserService = {
+export const NetworkUserService = {
   getLayerUsers: async (instance: boolean) => {
     let query = {
       $limit: 1000,
@@ -95,7 +95,7 @@ export const UserService = {
       query: query
     })) as Paginated<UserInterface>
 
-    const state = getState(UserState)
+    const state = getState(NetworkUserState)
 
     if (
       JSON.stringify(instance ? state.layerUsers.value : state.channelLayerUsers.value) !==
@@ -103,15 +103,15 @@ export const UserService = {
     ) {
       dispatchAction(
         instance
-          ? UserAction.loadedLayerUsersAction({ users: layerUsers.data })
-          : UserAction.loadedChannelLayerUsersAction({ users: layerUsers.data })
+          ? NetworkUserAction.loadedLayerUsersAction({ users: layerUsers.data })
+          : NetworkUserAction.loadedChannelLayerUsersAction({ users: layerUsers.data })
       )
     }
   }
 }
 
 //Action
-export class UserAction {
+export class NetworkUserAction {
   static loadedLayerUsersAction = defineAction({
     type: 'xre.client.User.LOADED_LAYER_USERS' as const,
     users: matches.array as Validator<unknown, UserInterface[]>
