@@ -4,7 +4,7 @@ import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { World } from '../../ecs/classes/World'
 import { FogType } from '../constants/FogType'
-import { initBrownianMotionFogShader, initHeightFogShader } from '../functions/FogShaders'
+import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../functions/FogShaders'
 
 const getFogPlugin = (world: World): PluginType => {
   return {
@@ -26,10 +26,12 @@ export default async function FogSystem(world: World) {
     switch (type) {
       case FogType.Linear:
         scene.fog = new Fog(fogData.color, fogData.near, fogData.far)
+        removeFogShader()
         break
 
       case FogType.Exponential:
         scene.fog = new FogExp2(fogData.color, fogData.density)
+        removeFogShader()
         break
 
       case FogType.Brownian:
@@ -44,6 +46,7 @@ export default async function FogSystem(world: World) {
 
       default:
         scene.fog = null
+        removeFogShader()
         break
     }
   }
@@ -120,6 +123,7 @@ export default async function FogSystem(world: World) {
         const key = Math.random()
         obj.material.customProgramCacheKey = () => key.toString()
       })
+      world.fogShaders = []
     }
   }
 
