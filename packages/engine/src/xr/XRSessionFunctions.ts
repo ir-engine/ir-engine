@@ -29,6 +29,8 @@ const skyboxQuery = defineQuery([SkyboxComponent])
 export const requestXRSession = createHookableFunction(
   async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
     const xrState = getState(XRState)
+    const xrManager = EngineRenderer.instance.xrManager
+
     if (xrState.requestingSession.value) return
     try {
       const sessionInit = {
@@ -57,17 +59,21 @@ export const requestXRSession = createHookableFunction(
           : 'inline')
 
       xrState.requestingSession.set(true)
-      const session = await navigator.xr!.requestSession(mode, sessionInit)
+      const xrSession = (EngineRenderer.instance.xrSession = await navigator.xr!.requestSession(mode, sessionInit))
 
-      await EngineRenderer.instance.xrManager.setSession(session)
+      // @ts-ignore
+      if (xrSession.interactionMode === 'screen-space') {
+        xrManager.setFramebufferScaleFactor(0.5)
+      }
 
-      EngineRenderer.instance.xrSession = session
+      await xrManager.setSession(xrSession)
+
       xrState.sessionActive.set(true)
 
-      const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
+      const referenceSpace = xrManager.getReferenceSpace()
       xrState.originReferenceSpace.set(referenceSpace)
 
-      EngineRenderer.instance.xrManager.setFoveation(1)
+      xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
 
       const world = Engine.instance.currentWorld
@@ -81,11 +87,12 @@ export const requestXRSession = createHookableFunction(
       const onSessionEnd = () => {
         xrState.sessionActive.set(false)
         xrState.sessionMode.set('none')
-        EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
+        xrManager.removeEventListener('sessionend', onSessionEnd)
+        xrManager.setSession(null!)
         EngineRenderer.instance.xrSession = null!
-        EngineRenderer.instance.xrManager.setSession(null!)
         const world = Engine.instance.currentWorld
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+        EngineRenderer.instance.renderer.domElement.style.display = ''
 
         xrState.originReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)
@@ -100,7 +107,7 @@ export const requestXRSession = createHookableFunction(
         if (skybox) updateSkybox(skybox)
         dispatchAction(XRAction.sessionChanged({ active: false }))
       }
-      EngineRenderer.instance.xrManager.addEventListener('sessionend', onSessionEnd)
+      xrManager.addEventListener('sessionend', onSessionEnd)
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
     } catch (e) {
@@ -143,6 +150,8 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {
 }
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
+  EngineRenderer.instance.renderer.domElement.style.display = 'none'
+
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
    * This gets piped into the input system as a TouchInput.Touch
