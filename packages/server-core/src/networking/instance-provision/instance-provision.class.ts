@@ -26,7 +26,6 @@ export async function getFreeInstanceserver(
   iteration: number,
   locationId: string,
   channelId: string,
-  userId: string,
   roomCode = undefined as undefined | string
 ): Promise<InstanceServerProvisionResult> {
   await app.service('instance').Model.destroy({
@@ -43,7 +42,7 @@ export async function getFreeInstanceserver(
     logger.info('Local server spinning up new instance')
     const localIp = await getLocalServerIp(channelId != null)
     const stringIp = `${localIp.ipAddress}:${localIp.port}`
-    return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId, userId, roomCode)
+    return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId, roomCode)
   }
   logger.info('Getting free instanceserver')
   const serverResult = await app.k8AgonesClient.listNamespacedCustomObject('agones.dev', 'v1', 'default', 'gameservers')
@@ -84,7 +83,6 @@ export async function getFreeInstanceserver(
     iteration,
     locationId,
     channelId,
-    userId,
     roomCode,
     pod.metadata.name
   )
@@ -96,7 +94,6 @@ export async function checkForDuplicatedAssignments(
   iteration: number,
   locationId: string,
   channelId: string,
-  userId: string,
   roomCode = undefined as undefined | string,
   podName = undefined as undefined | string
 ): Promise<InstanceServerProvisionResult> {
@@ -159,7 +156,7 @@ export async function checkForDuplicatedAssignments(
       //If this is the 10th or more attempt to get a free instanceserver, then there probably aren't any free ones,
       //
       if (iteration < 10) {
-        return getFreeInstanceserver(app, iteration + 1, locationId, channelId, userId, roomCode)
+        return getFreeInstanceserver(app, iteration + 1, locationId, channelId, roomCode)
       } else {
         logger.info('Made 10 attempts to get free instanceserver without success, returning null')
         return {
@@ -257,7 +254,7 @@ export async function checkForDuplicatedAssignments(
     await app.service('instance').remove(assignResult.id)
     if (config.kubernetes.enabled) app.k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
     else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
-    return getFreeInstanceserver(app, iteration + 1, locationId, channelId, userId, roomCode)
+    return getFreeInstanceserver(app, iteration + 1, locationId, channelId, roomCode)
   }
 
   const split = ipAddress.split(':')
@@ -296,7 +293,6 @@ export class InstanceProvision implements ServiceMethods<any> {
     availableLocationInstances,
     locationId: string,
     channelId: string,
-    userId: string,
     roomCode = undefined as undefined | string
   ): Promise<any> {
     await this.app.service('instance').Model.destroy({
@@ -325,8 +321,8 @@ export class InstanceProvision implements ServiceMethods<any> {
     if (isCleanup) {
       logger.info('IS did not exist and was cleaned up')
       if (availableLocationInstances.length > 1)
-        return this.getISInService(availableLocationInstances.slice(1), locationId, channelId, userId, roomCode)
-      else return getFreeInstanceserver(this.app, 0, locationId, channelId, userId, roomCode)
+        return this.getISInService(availableLocationInstances.slice(1), locationId, channelId, roomCode)
+      else return getFreeInstanceserver(this.app, 0, locationId, channelId, roomCode)
     }
     logger.info('IS existed, using it')
     const ipAddressSplit = instances[0].ipAddress.split(':')
@@ -435,11 +431,11 @@ export class InstanceProvision implements ServiceMethods<any> {
             ended: false
           }
         })
-        if (channelInstance == null) return getFreeInstanceserver(this.app, 0, null!, channelId, userId, roomCode)
+        if (channelInstance == null) return getFreeInstanceserver(this.app, 0, null!, channelId, roomCode)
         else {
           if (config.kubernetes.enabled) {
             const isCleanup = await this.isCleanup(channelInstance)
-            if (isCleanup) return getFreeInstanceserver(this.app, 0, null!, channelId, userId, roomCode)
+            if (isCleanup) return getFreeInstanceserver(this.app, 0, null!, channelId, roomCode)
           }
           const ipAddressSplit = channelInstance.ipAddress.split(':')
           return {
@@ -469,7 +465,7 @@ export class InstanceProvision implements ServiceMethods<any> {
         }
 
         if (instance == null || instance.ended === true)
-          return getFreeInstanceserver(this.app, 0, locationId, null!, userId, roomCode)
+          return getFreeInstanceserver(this.app, 0, locationId, null!, roomCode)
 
         let isCleanup
 
@@ -624,8 +620,8 @@ export class InstanceProvision implements ServiceMethods<any> {
             )
         )
         if (allowedLocationInstances.length === 0)
-          return getFreeInstanceserver(this.app, 0, locationId, null!, userId, roomCode)
-        else return this.getISInService(allowedLocationInstances, locationId, channelId, userId, roomCode)
+          return getFreeInstanceserver(this.app, 0, locationId, null!, roomCode)
+        else return this.getISInService(allowedLocationInstances, locationId, channelId, roomCode)
       }
     } catch (err) {
       logger.error(err)
