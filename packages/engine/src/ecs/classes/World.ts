@@ -1,14 +1,26 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import { State } from '@hookstate/core'
+import { subscribable } from '@hookstate/subscribable'
 import * as bitecs from 'bitecs'
-import { AxesHelper, Object3D, Raycaster, Scene } from 'three'
+import {
+  AxesHelper,
+  Color,
+  LinearToneMapping,
+  Object3D,
+  PCFSoftShadowMap,
+  Raycaster,
+  Scene,
+  Shader,
+  ShadowMapType,
+  ToneMapping
+} from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { getState } from '@xrengine/hyperflux'
-import { createState, none } from '@xrengine/hyperflux/functions/StateFunctions'
+import { defineState, getState } from '@xrengine/hyperflux'
+import { createState, hookstate, none } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -27,7 +39,9 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { FogType } from '../../scene/constants/FogType'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { defaultPostProcessingSchema } from '../../scene/constants/PostProcessing'
 import {
   setLocalTransformComponent,
   setTransformComponent,
@@ -162,24 +176,44 @@ export class World {
 
   sceneJson = null! as SceneJson
 
-  // sceneDynamicallyUnloadedEntities = new Map<
-  //   string,
-  //   {
-  //     json: EntityJson
-  //     position: Vector3
-  //     distance: number
-  //   }
-  // >()
+  fogShaders = [] as Shader[]
 
-  // sceneDynamicallyLoadedEntities = new Map<
-  //   Entity,
-  //   {
-  //     json: EntityJson
-  //     position: Vector3
-  //     distance: number
-  //     uuid: string
-  //   }
-  // >()
+  /** stores a hookstate copy of scene metadata */
+  sceneMetadata = hookstate(
+    {
+      postprocessing: {
+        enabled: false,
+        effects: defaultPostProcessingSchema
+      },
+      mediaSettings: {
+        immersiveMedia: false,
+        refDistance: 20,
+        rolloffFactor: 1,
+        maxDistance: 10000,
+        distanceModel: 'linear' as DistanceModelType,
+        coneInnerAngle: 360,
+        coneOuterAngle: 0,
+        coneOuterGain: 0
+      },
+      renderSettings: {
+        LODs: DEFAULT_LOD_DISTANCES,
+        csm: true,
+        toneMapping: LinearToneMapping as ToneMapping,
+        toneMappingExposure: 0.8,
+        shadowMapType: PCFSoftShadowMap as ShadowMapType
+      },
+      fog: {
+        type: FogType.Linear as FogType,
+        color: '#FFFFFF',
+        density: 0.005,
+        near: 1,
+        far: 1000,
+        timeScale: 1,
+        height: 0.05
+      }
+    },
+    subscribable()
+  )
 
   /**
    * The scene entity
@@ -323,8 +357,6 @@ export class World {
   createNetworkId(): NetworkId {
     return ++this.#availableNetworkId as NetworkId
   }
-
-  LOD_DISTANCES = DEFAULT_LOD_DISTANCES
 
   /**
    * Execute systems on this world

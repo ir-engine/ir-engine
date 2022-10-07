@@ -8,11 +8,11 @@ import { isHMD, isMobile, isMobileOrHMD } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
 import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { updateShadowMapOnSceneLoad } from '../scene/functions/loaders/RenderSettingsFunction'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRendererConstants'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
+import { updateShadowMapOnSceneLoad } from './functions/RenderSettingsFunction'
 import { EngineRenderer } from './WebGLRendererSystem'
 
 export const EngineRendererState = defineState({

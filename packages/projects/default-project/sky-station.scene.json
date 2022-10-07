@@ -1,33 +1,146 @@
 {
-  "version": 4,
+  "version": 0,
+  "metadata": {
+    "postprocessing": {
+      "enabled": true,
+      "effects": {
+        "SMAAEffect": {
+          "isActive": true,
+          "blendFunction": 13,
+          "preset": 2,
+          "edgeDetectionMode": 2,
+          "predicationMode": 0
+        },
+        "OutlineEffect": {
+          "isActive": true,
+          "blendFunction": 16,
+          "patternTexture": null,
+          "edgeStrength": 1,
+          "pulseSpeed": 0,
+          "visibleEdgeColor": 16777215,
+          "hiddenEdgeColor": 16777215,
+          "resolutionScale": 0.5,
+          "width": -1,
+          "height": -1,
+          "kernelSize": 0,
+          "blur": false,
+          "xRay": true
+        },
+        "SSAOEffect": {
+          "isActive": false,
+          "blendFunction": 10,
+          "distanceScaling": true,
+          "depthAwareUpsampling": true,
+          "samples": 16,
+          "rings": 7,
+          "distanceThreshold": 0.125,
+          "distanceFalloff": 0.02,
+          "minRadiusScale": 1,
+          "bias": 0.25,
+          "radius": 0.01,
+          "intensity": 2,
+          "fade": 0.05
+        },
+        "DepthOfFieldEffect": {
+          "isActive": false,
+          "blendFunction": 13,
+          "focusDistance": 0.02,
+          "focalLength": 0.5,
+          "bokehScale": 1
+        },
+        "BloomEffect": {
+          "isActive": true,
+          "blendFunction": 18,
+          "kernelSize": 2,
+          "luminanceThreshold": 0.68,
+          "luminanceSmoothing": 1,
+          "intensity": 0.84
+        },
+        "ToneMappingEffect": {
+          "isActive": false,
+          "blendFunction": 13,
+          "adaptive": true,
+          "resolution": 512,
+          "middleGrey": 0.6,
+          "maxLuminance": 32,
+          "averageLuminance": 1,
+          "adaptationRate": 2
+        },
+        "BrightnessContrastEffect": {
+          "isActive": false,
+          "brightness": 0.05,
+          "contrast": 0.1
+        },
+        "HueSaturationEffect": {
+          "isActive": false,
+          "hue": 0,
+          "saturation": -0.15
+        },
+        "ColorDepthEffect": {
+          "isActive": false,
+          "bits": 16
+        },
+        "LinearTosRGBEffect": {
+          "isActive": false
+        }
+      }
+    },
+    "mediaSettings": {
+      "immersiveMedia": false,
+      "refDistance": 20,
+      "rolloffFactor": 1,
+      "maxDistance": 10000,
+      "distanceModel": "linear",
+      "coneInnerAngle": 360,
+      "coneOuterAngle": 0,
+      "coneOuterGain": 0
+    },
+    "renderSettings": {
+      "LODs": {
+        "x": 5,
+        "y": 15,
+        "z": 30
+      },
+      "csm": false,
+      "toneMapping": 1,
+      "toneMappingExposure": 0.8,
+      "shadowMapType": 2
+    },
+    "fog": {
+      "type": "linear",
+      "color": 16777215,
+      "near": 1,
+      "far": 200,
+      "density": 0.005,
+      "height": 0.05,
+      "timeScale": 1
+    }
+  },
   "entities": {
     "1b731841-172a-4141-89cb-d1cceeec748f": {
       "components": [
         {
-          "name": "audio-settings",
-          "props": {
-            "refDistance": 20,
-            "rolloffFactor": 1,
-            "maxDistance": 10000,
-            "distanceModel": "linear",
-            "coneInnerAngle": 360,
-            "coneOuterAngle": 0,
-            "coneOuterGain": 0
-          }
+          "name": "visible",
+          "props": {}
         },
         {
-          "name": "renderer-settings",
+          "name": "transform",
           "props": {
-            "LODs": {
-              "x": 5,
-              "y": 15,
-              "z": 30
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
             },
-            "overrideRendererSettings": true,
-            "csm": false,
-            "toneMapping": 1,
-            "toneMappingExposure": 0.8,
-            "shadowMapType": 2
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
           }
         },
         {
@@ -83,10 +196,6 @@
         {
           "name": "visible",
           "props": {}
-        },
-        {
-          "name": "scene-preview-camera",
-          "props": {}
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
@@ -95,6 +204,26 @@
     },
     "35621369-7e83-4878-953c-f30bf81dc775": {
       "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
         {
           "name": "visible",
           "props": {}
@@ -155,103 +284,6 @@
       "index": 2,
       "name": "spawn point"
     },
-    "c0ac9351-7839-4d06-99bd-660f4575730a": {
-      "components": [
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "postprocessing",
-          "props": {
-            "options": {
-              "SMAAEffect": {
-                "isActive": true,
-                "blendFunction": 13,
-                "preset": 2,
-                "edgeDetectionMode": 2,
-                "predicationMode": 0
-              },
-              "OutlineEffect": {
-                "isActive": true,
-                "blendFunction": 16,
-                "patternTexture": null,
-                "edgeStrength": 1,
-                "pulseSpeed": 0,
-                "visibleEdgeColor": 16777215,
-                "hiddenEdgeColor": 16777215,
-                "resolutionScale": 0.5,
-                "width": -1,
-                "height": -1,
-                "kernelSize": 0,
-                "blur": false,
-                "xRay": true
-              },
-              "SSAOEffect": {
-                "isActive": false,
-                "blendFunction": 10,
-                "distanceScaling": true,
-                "depthAwareUpsampling": true,
-                "samples": 16,
-                "rings": 7,
-                "distanceThreshold": 0.125,
-                "distanceFalloff": 0.02,
-                "minRadiusScale": 1,
-                "bias": 0.25,
-                "radius": 0.01,
-                "intensity": 2,
-                "fade": 0.05
-              },
-              "DepthOfFieldEffect": {
-                "isActive": false,
-                "blendFunction": 13,
-                "focusDistance": 0.02,
-                "focalLength": 0.5,
-                "bokehScale": 1
-              },
-              "BloomEffect": {
-                "isActive": true,
-                "blendFunction": 18,
-                "kernelSize": 2,
-                "luminanceThreshold": 0.68,
-                "luminanceSmoothing": 1,
-                "intensity": 0.84
-              },
-              "ToneMappingEffect": {
-                "isActive": false,
-                "blendFunction": 13,
-                "adaptive": true,
-                "resolution": 512,
-                "middleGrey": 0.6,
-                "maxLuminance": 32,
-                "averageLuminance": 1,
-                "adaptationRate": 2
-              },
-              "BrightnessContrastEffect": {
-                "isActive": false,
-                "brightness": 0.05,
-                "contrast": 0.1
-              },
-              "HueSaturationEffect": {
-                "isActive": false,
-                "hue": 0,
-                "saturation": -0.15
-              },
-              "ColorDepthEffect": {
-                "isActive": false,
-                "bits": 16
-              },
-              "LinearTosRGBEffect": {
-                "isActive": false
-              }
-            }
-          }
-        }
-      ],
-      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 3,
-      "name": "post processing"
-    },
     "bd83d58b-80e4-40a2-9a1d-d45aaee0c76a": {
       "components": [
         {
@@ -291,8 +323,7 @@
             "src": "__$project$__/default-project/assets/Skybase.glb",
             "materialOverrides": [],
             "generateBVH": true,
-            "matrixAutoUpdate": true,
-            "isUsingGPUInstancing": false
+            "matrixAutoUpdate": true
           }
         },
         {
@@ -336,11 +367,31 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 4,
+      "index": 3,
       "name": "Model"
     },
     "e29dce88-8f22-4f8d-ae5d-e7dd0d55c41a": {
       "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
         {
           "name": "visible",
           "props": {}
@@ -354,7 +405,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 5,
+      "index": 4,
       "name": "Ambient Light"
     },
     "5867cc3f-4c7d-47e6-9a7b-db77cdcf4e7c": {
@@ -393,22 +444,19 @@
         {
           "name": "media",
           "props": {
+            "controls": true,
+            "autoplay": true,
             "paths": [
               "__$project$__/default-project/assets/SampleVideo.mp4"
             ],
-            "playMode": 3,
-            "controls": true,
-            "autoplay": true,
-            "autoStartTime": 0
+            "playMode": "loop",
+            "isMusic": false
           }
         },
         {
           "name": "audio",
           "props": {
-            "volume": 0.5,
-            "audioType": "Positional",
-            "isMusic": false,
-            "distanceModel": "linear",
+            "distanceModel": "inverse",
             "rolloffFactor": 1,
             "refDistance": 20,
             "maxDistance": 1000,
@@ -421,22 +469,15 @@
           "name": "image",
           "props": {
             "source": "",
-            "alphaCutoff": 0.5,
             "alphaMode": "Opaque",
+            "alphaCutoff": 0.5,
             "projection": "Flat",
             "side": 2
-          }
-        },
-        {
-          "name": "video",
-          "props": {
-            "elementId": "earth video",
-            "maintainAspectRatio": true
           }
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 6,
+      "index": 5,
       "name": "Video"
     },
     "03162202-1925-44e8-9d64-d8f5aba3a476": {
@@ -508,7 +549,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 7,
+      "index": 6,
       "name": "Particle Emitter"
     },
     "d7f168a2-450d-493f-bc6e-c1a1b015a06b": {
@@ -550,8 +591,7 @@
             "src": "__$project$__/default-project/assets/test-equippable.glb",
             "materialOverrides": [],
             "generateBVH": false,
-            "matrixAutoUpdate": true,
-            "isUsingGPUInstancing": false
+            "matrixAutoUpdate": true
           }
         },
         {
@@ -595,7 +635,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 8,
+      "index": 7,
       "name": "Equippable"
     },
     "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae": {
@@ -649,7 +689,7 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "w": 1
+              "order": "XYZ"
             }
           }
         },
@@ -668,7 +708,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 9,
+      "index": 8,
       "name": "Portal - to Apartment"
     },
     "87df7b80-3c4f-4272-8e44-bc28315a99ad": {
@@ -700,22 +740,19 @@
         {
           "name": "media",
           "props": {
+            "controls": true,
+            "autoplay": false,
             "paths": [
               "__$project$__/default-project/assets/SampleAudio.mp3"
             ],
-            "playMode": 3,
-            "controls": true,
-            "autoplay": false,
-            "autoStartTime": 0
+            "playMode": "loop",
+            "isMusic": true
           }
         },
         {
           "name": "audio",
           "props": {
-            "volume": 0.19,
-            "audioType": "Positional",
-            "isMusic": true,
-            "distanceModel": "linear",
+            "distanceModel": "inverse",
             "rolloffFactor": 1,
             "refDistance": 20,
             "maxDistance": 1000,
@@ -726,7 +763,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 10,
+      "index": 9,
       "name": "Audio"
     },
     "dd1eafe4-dc87-4353-b3ae-567d4f81c032": {
@@ -780,7 +817,7 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "w": 1
+              "order": "XYZ"
             }
           }
         },
@@ -799,7 +836,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 11,
+      "index": 10,
       "name": "Portal - Sky Station Interior"
     },
     "2d7f9f97-20a0-40e8-a504-682f650af501": {
@@ -853,7 +890,7 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "w": 1
+              "order": "XYZ"
             }
           }
         },
@@ -872,7 +909,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 12,
+      "index": 11,
       "name": "Portal - Sky Station Exterior"
     },
     "355eab21-0ac3-4c7e-841b-8eff4e02842c": {
@@ -904,21 +941,18 @@
         {
           "name": "media",
           "props": {
+            "controls": false,
+            "autoplay": true,
             "paths": [
               "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
             ],
-            "playMode": 3,
-            "controls": false,
-            "autoplay": true,
-            "autoStartTime": 0
+            "playMode": "loop",
+            "isMusic": false
           }
         },
         {
           "name": "audio",
           "props": {
-            "volume": 1,
-            "audioType": "Positional",
-            "isMusic": false,
             "distanceModel": "inverse",
             "rolloffFactor": 2,
             "refDistance": 20,
@@ -930,7 +964,7 @@
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 13,
+      "index": 12,
       "name": "Audio - Ambience"
     }
   },

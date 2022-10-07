@@ -1,14 +1,13 @@
+import { BlendFunction } from 'postprocessing'
 import React, { ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
+import { getState, useState } from '@xrengine/hyperflux'
 
-import LooksIcon from '@mui/icons-material/Looks'
 import Checkbox from '@mui/material/Checkbox'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -16,7 +15,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+import PropertyGroup from './PropertyGroup'
 
 enum PropertyTypes {
   BlendFunction,
@@ -114,27 +113,9 @@ const EffectsOptions: EffectOptionsType = {
   LinearTosRGBEffect: {}
 }
 
-const BlendFunctionSelect = [
-  { label: 'Skip', value: 0 },
-  { label: 'Add', value: 1 },
-  { label: 'ALPHA', value: 2 },
-  { label: 'AVERAGE', value: 3 },
-  { label: 'COLOR_BURN', value: 4 },
-  { label: 'COLOR_DODGE', value: 5 },
-  { label: 'DARKEN', value: 6 },
-  { label: 'DIFFERENCE', value: 7 },
-  { label: 'EXCLUSION', value: 8 },
-  { label: 'LIGHTEN', value: 9 },
-  { label: 'MULTIPLY', value: 10 },
-  { label: 'DIVIDE', value: 11 },
-  { label: 'NEGATION', value: 12 },
-  { label: 'NORMAL', value: 13 },
-  { label: 'OVERLAY', value: 14 },
-  { label: 'REFLECT', value: 15 },
-  { label: 'SCREEN', value: 16 },
-  { label: 'SOFT_LIGHT', value: 17 },
-  { label: 'SUBTRACT', value: 18 }
-]
+const BlendFunctionSelect = Object.entries(BlendFunction).map(([label, value]) => {
+  return { label, value }
+})
 
 const KernelSizeSelect = [
   { label: 'VERY_SMALL', value: 0 },
@@ -164,27 +145,16 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
-export const PostProcessingNodeEditor: EditorComponentType = (props) => {
+export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
-  const onChangeCheckBox = (e: ChangeEvent<HTMLInputElement>, effect: Effects) => {
-    setPropertyOnSelectionEntities({
-      component: PostprocessingComponent,
-      properties: [{ ['options.' + effect + '.isActive']: e.target.checked }]
-    })
-  }
-
-  const onChangeNodeSetting = (propertyPath: string, value: any) => {
-    setPropertyOnSelectionEntities({
-      component: PostprocessingComponent,
-      properties: [{ ['options.' + propertyPath]: value }]
-    })
-  }
+  const postprocessing = useState(Engine.instance.currentWorld.sceneMetadata).postprocessing
+  if (!postprocessing.value) return null
 
   const getPropertyValue = (keys: string[]): any => {
     if (keys.length < 1) return null
 
-    let value = postprocessingComponent.options
+    let value = postprocessing.effects
 
     keys.forEach((element) => {
       if (value[element] != null && value[element] !== '') {
@@ -205,8 +175,8 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
             min={propertyDetail.min}
             max={propertyDetail.max}
             step={propertyDetail.step}
-            value={getPropertyValue(propertyPath)}
-            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
+            value={getPropertyValue(propertyPath).value}
+            onChange={(value) => getPropertyValue(propertyPath).set(value)}
           />
         )
         break
@@ -214,8 +184,8 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.Boolean:
         renderVal = (
           <BooleanInput
-            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
-            value={getPropertyValue(propertyPath)}
+            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            value={getPropertyValue(propertyPath).value}
           />
         )
         break
@@ -223,10 +193,9 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.BlendFunction:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={BlendFunctionSelect}
-            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
-            value={getPropertyValue(propertyPath)}
+            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            value={getPropertyValue(propertyPath).value}
           />
         )
         break
@@ -234,8 +203,8 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.Color:
         renderVal = (
           <ColorInput
-            value={getPropertyValue(propertyPath)}
-            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
+            value={getPropertyValue(propertyPath).value}
+            onChange={(value) => getPropertyValue(propertyPath).set(value)}
             isValueAsInteger={true}
           />
         )
@@ -244,10 +213,9 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.KernelSize:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={KernelSizeSelect}
-            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
-            value={getPropertyValue(propertyPath)}
+            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            value={getPropertyValue(propertyPath).value}
           />
         )
         break
@@ -255,10 +223,9 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.SMAAPreset:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={SMAAPreset}
-            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
-            value={getPropertyValue(propertyPath)}
+            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            value={getPropertyValue(propertyPath).value}
           />
         )
         break
@@ -266,10 +233,9 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.EdgeDetectionMode:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={EdgeDetectionMode}
-            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
-            value={getPropertyValue(propertyPath)}
+            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            value={getPropertyValue(propertyPath).value}
           />
         )
         break
@@ -277,10 +243,9 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
       case PropertyTypes.PredicationMode:
         renderVal = (
           <SelectInput
-            key={props.node.entity}
             options={PredicationMode}
-            onChange={(value) => onChangeNodeSetting(propertyPath.join('.'), value)}
-            value={getPropertyValue(propertyPath)}
+            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            value={getPropertyValue(propertyPath).value}
           />
         )
         break
@@ -315,30 +280,23 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
         <div key={effect}>
           <Checkbox
             classes={{ checked: styles.checkbox }}
-            onChange={(e) => onChangeCheckBox(e, effect)}
-            checked={postprocessingComponent.options[effect]?.isActive}
+            onChange={(e) => postprocessing.effects[effect].isActive.set(e.target.checked)}
+            checked={postprocessing.effects[effect].isActive.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
-          {postprocessingComponent.options[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )
     })
     return <div>{items}</div>
   }
 
-  const postprocessingComponent = getComponent(props.node.entity, PostprocessingComponent)
-
   return (
-    <NodeEditor
-      {...props}
+    <PropertyGroup
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
     >
       {renderEffects()}
-    </NodeEditor>
+    </PropertyGroup>
   )
 }
-
-PostProcessingNodeEditor.iconComponent = LooksIcon
-
-export default PostProcessingNodeEditor

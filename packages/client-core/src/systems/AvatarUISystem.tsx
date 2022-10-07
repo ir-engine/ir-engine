@@ -147,7 +147,7 @@ export default async function AvatarUISystem(world: World) {
       const transition = AvatarUITransitions.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
-      const xrui = getComponent(ui.entity, XRUIComponent)
+      const xruiTransform = getComponent(ui.entity, TransformComponent)
 
       const videoPreviewMesh = ui.state.videoPreviewMesh.value
       _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
@@ -164,9 +164,9 @@ export default async function AvatarUISystem(world: World) {
         springAlpha = easeOutElastic(alpha)
       })
 
-      xrui.container.scale.setScalar(1.3 * Math.max(1, dist / 6) * Math.max(springAlpha, 0.001))
-      xrui.container.position.copy(_vector3)
-      xrui.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrixWorld)
+      xruiTransform.scale.setScalar(1.3 * Math.max(1, dist / 6) * Math.max(springAlpha, 0.001))
+      xruiTransform.position.copy(_vector3)
+      xruiTransform.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrixWorld)
 
       if (world.mediaNetwork)
         if (immersiveMedia && videoPreviewTimer === 0) {

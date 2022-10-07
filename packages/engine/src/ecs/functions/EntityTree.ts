@@ -4,6 +4,7 @@ import { getState } from '@xrengine/hyperflux'
 
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
+import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
@@ -16,8 +17,8 @@ import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { addComponent, getComponent, hasComponent, setComponent } from './ComponentFunctions'
-import { createEntity, entityExists, removeEntity } from './EntityFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../functions/ComponentFunctions'
+import { createEntity, entityExists, removeEntity } from '../functions/EntityFunctions'
 
 // Data structure to hold parent child relationship between entities
 export interface EntityTree {
@@ -65,8 +66,9 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   if (entityExists(world.sceneEntity)) removeEntity(world.sceneEntity, true)
 
   world.sceneEntity = createEntity()
-  addComponent(world.sceneEntity, NameComponent, { name: 'scene' })
-  addComponent(world.sceneEntity, VisibleComponent, true)
+  setComponent(world.sceneEntity, NameComponent, { name: 'scene' })
+  setComponent(world.sceneEntity, VisibleComponent, true)
+  setComponent(world.sceneEntity, SceneTagComponent, true)
   setTransformComponent(world.sceneEntity)
   // addObjectToGroup(world.sceneEntity, world.scene)
 

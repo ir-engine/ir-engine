@@ -1,6 +1,16 @@
 import { defineComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createState } from '@xrengine/hyperflux/functions/StateFunctions'
 
+export interface PositionalAudioInterface {
+  refDistance: number
+  rolloffFactor: number
+  maxDistance: number
+  distanceModel: DistanceModelType
+  coneInnerAngle: number
+  coneOuterAngle: number
+  coneOuterGain: number
+}
+
 export const PositionalAudioComponent = defineComponent({
   name: 'XRE_positionalAudio',
 

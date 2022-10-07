@@ -95,15 +95,18 @@ export const NetworkInstanceProvisioning = () => {
       if (!isUserBanned && !isProvisioned) {
         const search = window.location.search
         let instanceId
+        let roomCode
 
         if (search != null) {
           instanceId = new URL(window.location.href).searchParams.get('instanceId')
+          roomCode = new URL(window.location.href).searchParams.get('roomCode')
         }
 
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,
-          currentLocation.sceneId.value
+          currentLocation.sceneId.value,
+          roomCode || undefined
         )
       }
     }

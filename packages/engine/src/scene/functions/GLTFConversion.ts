@@ -5,6 +5,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getState } from '@xrengine/hyperflux'
 
 import { AssetComponentType } from '../components/AssetComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -31,7 +32,8 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
   const result: SceneJson = {
     entities: {},
     root: rootUuid,
-    version: 2.0
+    version: 2.0,
+    metadata: Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true })
   }
   result.entities[rootUuid] = nodeToEntityJson(rootGL)
   const lookupNode = (idx) => gltf.nodes[idx]
