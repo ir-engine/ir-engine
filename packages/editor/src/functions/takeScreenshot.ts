@@ -58,7 +58,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   // Rendering the scene to the new canvas with given size
-  if (accessEngineRendererState().usePostProcessing.value) {
+  if (Engine.instance.currentWorld.sceneMetadata.postprocessing.enabled.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.render()
     configureEffectComposer(false, Engine.instance.currentWorld.camera)
