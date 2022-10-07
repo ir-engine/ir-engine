@@ -21,7 +21,7 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -75,7 +75,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [harkListener, setHarkListener] = useState(null)
   const [soundIndicatorOn, setSoundIndicatorOn] = useState(false)
   const [videoDisplayReady, setVideoDisplayReady] = useState<boolean>(false)
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const videoRef = useRef<any>()
   const audioRef = useRef<any>()
   const audioStreamPausedRef = useRef(audioStreamPaused)
@@ -113,9 +113,10 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const currentChannelInstanceConnection = mediaHostID && channelConnectionState.instances[mediaHostID].ornull
 
   const mediaSettingState = useHookstate(getState(MediaSettingsState))
+  const sceneMetadata = Engine.instance.currentWorld.sceneMetadata.mediaSettings
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaSettingState.useImmersiveMedia.value)
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && !sceneMetadata.immersiveMedia.value)
 
   const setVideoStream = (value) => {
     if (value?.track) setVideoTrackId(value.track.id)

@@ -20,7 +20,6 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import MeshMatcapMaterial from '../../renderer/materials/constants/material-prototypes/MeshMatcapMaterial.mat'
 import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
@@ -28,7 +27,6 @@ import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
-import { SceneTagComponent } from '../components/SceneTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
@@ -154,5 +152,9 @@ export default async function SceneObjectSystem(world: World) {
     removeQuery(world, updatableQuery)
   }
 
-  return { execute, cleanup }
+  return {
+    execute,
+    cleanup,
+    subsystems: [() => import('./FogSystem')]
+  }
 }

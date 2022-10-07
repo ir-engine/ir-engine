@@ -1,24 +1,17 @@
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { Color } from 'three'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
-
-import { BlurOn } from '@mui/icons-material'
 
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import PropertyGroup from './PropertyGroup'
 
-/**
- * FogTypeOptions array containing fogType options.
- *
- * @type {Array}
- */
 const FogTypeOptions = [
   {
     label: 'Disabled',
@@ -42,34 +35,23 @@ const FogTypeOptions = [
   }
 ]
 
-/**
- *
- * FogNodeEditor component used to customize the ambient light element on the scene
- * ambient light is basically used to illuminates all the objects present inside the scene.
- *
- * @type {[component class]}
- */
-export const FogNodeEditor: EditorComponentType = (props) => {
+export const FogSettingsEditor = () => {
   const { t } = useTranslation()
 
-  const fogComponent = getComponent(props.node.entity, FogComponent)
+  const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.fog)
+  const settings = sceneMetadata.get({ noproxy: true })
 
   return (
-    <NodeEditor {...props} name={t('editor:properties.fog.name')} description={t('editor:properties.fog.description')}>
+    <PropertyGroup name={t('editor:properties.fog.name')} description={t('editor:properties.fog.description')}>
       <InputGroup name="Fog Type" label={t('editor:properties.fog.lbl-fogType')}>
-        <SelectInput
-          key={props.node.entity}
-          options={FogTypeOptions}
-          value={fogComponent.type}
-          onChange={updateProperty(FogComponent, 'type')}
-        />
+        <SelectInput options={FogTypeOptions} value={settings.type} onChange={(val) => sceneMetadata.type.set(val)} />
       </InputGroup>
-      {fogComponent.type !== FogType.Disabled && (
+      {settings.type !== FogType.Disabled && (
         <>
           <InputGroup name="Fog Color" label={t('editor:properties.fog.lbl-fogColor')}>
-            <ColorInput value={fogComponent.color} onChange={updateProperty(FogComponent, 'color')} />
+            <ColorInput value={new Color(settings.color)} onChange={(val) => sceneMetadata.color.set(val)} />
           </InputGroup>
-          {fogComponent.type === FogType.Linear ? (
+          {settings.type === FogType.Linear ? (
             <>
               <NumericInputGroup
                 name="Fog Near Distance"
@@ -78,8 +60,8 @@ export const FogNodeEditor: EditorComponentType = (props) => {
                 mediumStep={1}
                 largeStep={10}
                 min={0}
-                value={fogComponent.near}
-                onChange={updateProperty(FogComponent, 'near')}
+                value={settings.near}
+                onChange={(val) => sceneMetadata.near.set(val)}
               />
               <NumericInputGroup
                 name="Fog Far Distance"
@@ -88,8 +70,8 @@ export const FogNodeEditor: EditorComponentType = (props) => {
                 mediumStep={100}
                 largeStep={1000}
                 min={0}
-                value={fogComponent.far}
-                onChange={updateProperty(FogComponent, 'far')}
+                value={settings.far}
+                onChange={(val) => sceneMetadata.far.set(val)}
               />
             </>
           ) : (
@@ -101,10 +83,10 @@ export const FogNodeEditor: EditorComponentType = (props) => {
                 mediumStep={0.1}
                 largeStep={0.25}
                 min={0}
-                value={fogComponent.density}
-                onChange={updateProperty(FogComponent, 'density')}
+                value={settings.density}
+                onChange={(val) => sceneMetadata.density.set(val)}
               />
-              {fogComponent.type !== FogType.Exponential && (
+              {settings.type !== FogType.Exponential && (
                 <NumericInputGroup
                   name="Fog Height"
                   label={t('editor:properties.fog.lbl-fogHeight')}
@@ -112,11 +94,11 @@ export const FogNodeEditor: EditorComponentType = (props) => {
                   mediumStep={0.1}
                   largeStep={0.25}
                   min={0}
-                  value={fogComponent.height}
-                  onChange={updateProperty(FogComponent, 'height')}
+                  value={settings.height}
+                  onChange={(val) => sceneMetadata.height.set(val)}
                 />
               )}
-              {fogComponent.type === FogType.Brownian && (
+              {settings.type === FogType.Brownian && (
                 <NumericInputGroup
                   name="Fog Time Scale"
                   label={t('editor:properties.fog.lbl-fogTimeScale')}
@@ -124,18 +106,14 @@ export const FogNodeEditor: EditorComponentType = (props) => {
                   mediumStep={0.1}
                   largeStep={0.25}
                   min={0.001}
-                  value={fogComponent.timeScale}
-                  onChange={updateProperty(FogComponent, 'timeScale')}
+                  value={settings.timeScale}
+                  onChange={(val) => sceneMetadata.timeScale.set(val)}
                 />
               )}
             </>
           )}
         </>
       )}
-    </NodeEditor>
+    </PropertyGroup>
   )
 }
-
-FogNodeEditor.iconComponent = BlurOn
-
-export default FogNodeEditor

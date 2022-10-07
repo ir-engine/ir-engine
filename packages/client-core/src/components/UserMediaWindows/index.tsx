@@ -4,7 +4,7 @@ import React, { Fragment } from 'react'
 import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -15,7 +15,7 @@ export const UserMediaWindows = () => {
   const mediaState = useMediaStreamState()
   const nearbyLayerUsers = mediaState.nearbyLayerUsers
   const selfUserId = useState(accessAuthState().user.id)
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const channelConnectionState = useMediaInstanceConnectionState()
   const network = Engine.instance.currentWorld.mediaNetwork
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull

@@ -154,7 +154,7 @@ export class SocketWebRTCClientNetwork extends Network {
         this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {
           query
         })
-      } else if (process.env.APP_ENV === 'development') {
+      } else if (process.env.APP_ENV === 'development' && process.env.VITE_LOCAL_NGINX !== 'true') {
         this.socket = ioclient(`${ipAddress as string}:${port.toString()}`, {
           query
         })

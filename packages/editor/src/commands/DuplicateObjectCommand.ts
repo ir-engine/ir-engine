@@ -76,7 +76,8 @@ function execute(command: DuplicateObjectCommandParams) {
       ? {
           entities: {} as { [uuid: string]: EntityJson },
           root: '',
-          version: 0
+          version: 0,
+          metadata: {}
         }
       : serializeWorld(obj, true)
   )

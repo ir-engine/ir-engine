@@ -15,7 +15,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
@@ -45,7 +44,6 @@ import {
   SCENE_COMPONENT_ENVMAP,
   SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
 } from '../components/EnvmapComponent'
-import { FogComponent, SCENE_COMPONENT_FOG, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from '../components/FogComponent'
 import {
   GroundPlaneComponent,
   SCENE_COMPONENT_GROUND_PLANE,
@@ -70,17 +68,7 @@ import {
   SCENE_COMPONENT_PORTAL_COLLIDER_VALUES,
   SCENE_COMPONENT_PORTAL_DEFAULT_VALUES
 } from '../components/PortalComponent'
-import {
-  PostprocessingComponent,
-  SCENE_COMPONENT_POSTPROCESSING,
-  SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES
-} from '../components/PostprocessingComponent'
 import { PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE } from '../components/PreventBakeTagComponent'
-import {
-  RenderSettingComponent,
-  SCENE_COMPONENT_RENDERER_SETTINGS,
-  SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES
-} from '../components/RenderSettingComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
 import { SceneTagComponent } from '../components/SceneTagComponent'
@@ -119,13 +107,6 @@ import { deserializeCloud, serializeCloud, updateCloud } from '../functions/load
 import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
 import {
-  createFogFromSceneNode,
-  deserializeFog,
-  serializeFog,
-  shouldDeserializeFog,
-  updateFog
-} from '../functions/loaders/FogFunctions'
-import {
   deserializeGround,
   serializeGroundPlane,
   shouldDeserializeGroundPlane,
@@ -138,17 +119,6 @@ import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loader
 import { deserializeModel, serializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePortal, serializePortal, updatePortal } from '../functions/loaders/PortalFunctions'
-import {
-  deserializePostprocessing,
-  serializePostprocessing,
-  shouldDeserializePostprocessing
-} from '../functions/loaders/PostprocessingFunctions'
-import {
-  deserializeRenderSetting,
-  resetEngineRenderer,
-  serializeRenderSettings,
-  updateRenderSetting
-} from '../functions/loaders/RenderSettingsFunction'
 import {
   enterScenePreviewCamera,
   serializeScenePreviewCamera,
@@ -177,7 +147,6 @@ export const ScenePrefabs = {
   particleEmitter: 'Particle Emitter' as const,
   portal: 'Portal' as const,
   chair: 'Chair' as const,
-  postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
   skybox: 'Skybox' as const,
   spawnPoint: 'Spawn Point' as const,
@@ -192,7 +161,6 @@ export const ScenePrefabs = {
   spline: 'Spline' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
-  fog: 'Fog' as const,
   loadVolume: 'Load Volume' as const
 }
 
@@ -257,26 +225,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     defaultData: SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA
   })
 
-  world.sceneComponentRegistry.set(RenderSettingComponent.name, SCENE_COMPONENT_RENDERER_SETTINGS)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_RENDERER_SETTINGS, {
-    defaultData: SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES,
-    deserialize: deserializeRenderSetting,
-    serialize: serializeRenderSettings
-  })
-
-  world.scenePrefabRegistry.set(ScenePrefabs.postProcessing, [
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_POSTPROCESSING, props: SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES }
-  ])
-
-  world.sceneComponentRegistry.set(PostprocessingComponent.name, SCENE_COMPONENT_POSTPROCESSING)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSTPROCESSING, {
-    defaultData: SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES,
-    deserialize: deserializePostprocessing,
-    serialize: serializePostprocessing,
-    shouldDeserialize: shouldDeserializePostprocessing
-  })
-
   /**
    * Assets
    */
@@ -312,20 +260,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   /**
    * Environment
    */
-
-  world.scenePrefabRegistry.set(ScenePrefabs.fog, [
-    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_FOG, props: SCENE_COMPONENT_FOG_DEFAULT_VALUES }
-  ])
-
-  world.sceneComponentRegistry.set(FogComponent.name, SCENE_COMPONENT_FOG)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_FOG, {
-    defaultData: SCENE_COMPONENT_FOG_DEFAULT_VALUES,
-    deserialize: deserializeFog,
-    serialize: serializeFog,
-    shouldDeserialize: shouldDeserializeFog
-  })
 
   world.scenePrefabRegistry.set(ScenePrefabs.skybox, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
@@ -484,7 +418,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   const cameraQuery = defineQuery([CameraComponent])
   const obj3dQuery = defineQuery([GroupComponent])
-  const fogQuery = defineQuery([GroupComponent, FogComponent])
   const shadowQuery = defineQuery([GroupComponent, ShadowComponent])
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
@@ -497,8 +430,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const cloudQuery = defineQuery([CloudComponent])
   const oceanQuery = defineQuery([OceanComponent])
   const interiorQuery = defineQuery([InteriorComponent])
-  const renderSettingsQuery = defineQuery([RenderSettingComponent])
-  const postProcessingQuery = defineQuery([PostprocessingComponent])
   const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent, FollowCameraComponent, CameraComponent])
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
@@ -512,7 +443,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ShadowComponent) && hasComponent(entity, GroupComponent)) updateShadow(entity)
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, GroupComponent)) updateEnvMap(entity)
-        if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
         if (hasComponent(entity, PortalComponent)) updatePortal(entity)
         if (hasComponent(entity, GroundPlaneComponent)) updateGroundPlane(entity)
@@ -520,23 +450,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
         if (hasComponent(entity, InteriorComponent)) updateInterior(entity)
-        if (hasComponent(entity, RenderSettingComponent)) updateRenderSetting(entity)
-        if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
         if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
-      }
-    }
-
-    for (const entity of fogQuery.enter()) {
-      if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) {
-        createFogFromSceneNode(entity)
-      } else {
-        updateFog(entity)
-      }
-    }
-
-    for (const entity of fogQuery.exit()) {
-      if (entity !== Engine.instance.currentWorld.entityTree.rootNode.entity) {
-        Engine.instance.currentWorld.scene.fog = null
       }
     }
 
@@ -552,10 +466,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)
-    for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
-    for (const entity of renderSettingsQuery.exit()) if (!renderSettingsQuery().length) resetEngineRenderer(true)
-    for (const entity of postProcessingQuery.enter()) configureEffectComposer()
-    for (const entity of postProcessingQuery.exit()) configureEffectComposer()
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
     for (const entity of scenePreviewCameraQuery.enter()) enterScenePreviewCamera(entity)
   }
@@ -594,14 +504,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     world.sceneComponentRegistry.delete(SpawnPointComponent.name)
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPAWN_POINT)
 
-    world.sceneComponentRegistry.delete(RenderSettingComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_RENDERER_SETTINGS)
-
-    world.scenePrefabRegistry.delete(ScenePrefabs.postProcessing)
-
-    world.sceneComponentRegistry.delete(PostprocessingComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_POSTPROCESSING)
-
     /**
      * Assets
      */
@@ -623,11 +525,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     /**
      * Environment
      */
-
-    world.scenePrefabRegistry.delete(ScenePrefabs.fog)
-
-    world.sceneComponentRegistry.delete(FogComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_FOG)
 
     world.scenePrefabRegistry.delete(ScenePrefabs.skybox)
 
@@ -697,7 +594,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
     removeQuery(world, cameraQuery)
     removeQuery(world, obj3dQuery)
-    removeQuery(world, fogQuery)
     removeQuery(world, shadowQuery)
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)
@@ -710,8 +606,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     removeQuery(world, cloudQuery)
     removeQuery(world, oceanQuery)
     removeQuery(world, interiorQuery)
-    removeQuery(world, renderSettingsQuery)
-    removeQuery(world, postProcessingQuery)
     removeQuery(world, cameraPropertiesQuery)
     removeQuery(world, scenePreviewCameraQuery)
 

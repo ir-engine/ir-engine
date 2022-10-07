@@ -409,7 +409,7 @@ export class InstanceProvision implements ServiceMethods<any> {
       const channelId = params?.query?.channelId
       const roomCode = params?.query?.roomCode
       const token = params?.query?.token
-      logger.info('instance-provision find', locationId, instanceId, channelId, roomCode)
+      logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)
       if (!token) throw new NotAuthenticated('No token provided')
       // Check if JWT resolves to a user
       const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(

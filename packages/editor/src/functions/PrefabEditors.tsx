@@ -10,7 +10,6 @@ import { ColliderComponent } from '@xrengine/engine/src/scene/components/Collide
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapComponent'
-import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent'
 import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
@@ -24,7 +23,6 @@ import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanCompo
 import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
 import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
 import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
@@ -49,7 +47,6 @@ import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import EnvMapEditor from '../components/properties/EnvMapEditor'
-import FogNodeEditor from '../components/properties/FogNodeEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
@@ -64,7 +61,6 @@ import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterN
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
-import PostProcessingNodeEditor from '../components/properties/PostProcessingNodeEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
@@ -78,7 +74,7 @@ import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 
-export const EntityNodeEditor = new Map<Component<any, any, any>, EditorComponentType>()
+export const EntityNodeEditor = new Map<Component, EditorComponentType>()
 EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
 EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
 EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
@@ -94,7 +90,6 @@ EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
 EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
 EntityNodeEditor.set(GroupComponent, GroupNodeEditor)
 EntityNodeEditor.set(AssetComponent, AssetNodeEditor)
-EntityNodeEditor.set(PostprocessingComponent, PostProcessingNodeEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
 EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)
@@ -113,7 +108,6 @@ EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
-EntityNodeEditor.set(FogComponent, FogNodeEditor)
 
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
@@ -131,7 +125,6 @@ export const prefabIcons = {
   [ScenePrefabs.chair]: ChairIcon,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,
-  [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
@@ -145,7 +138,6 @@ export const prefabIcons = {
   [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
-  [ScenePrefabs.fog]: FogNodeEditor.iconComponent,
   [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
   [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
 }

@@ -14,7 +14,11 @@ import { ChatAction, ChatService, useChatState } from '@xrengine/client-core/src
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import {
+  NetworkUserService,
+  NetworkUserServiceReceptor,
+  useNetworkUserState
+} from '@xrengine/client-core/src/user/services/NetworkUserService'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -29,13 +33,12 @@ import {
 
 import { AppState } from '../../common/services/AppService'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
-import { UserServiceReceptor } from '../../user/services/UserService'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const chatState = useChatState()
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
@@ -65,10 +68,10 @@ export const NetworkInstanceProvisioning = () => {
         MediaStreamService.triggerUpdateConsumers
       )
     })
-    addActionReceptor(UserServiceReceptor)
+    addActionReceptor(NetworkUserServiceReceptor)
     return () => {
       removeActionReceptor(MediaServiceReceptor)
-      removeActionReceptor(UserServiceReceptor)
+      removeActionReceptor(NetworkUserServiceReceptor)
     }
   }, [])
 
@@ -139,12 +142,13 @@ export const NetworkInstanceProvisioning = () => {
   }, [chatState.instanceChannelFetched])
 
   useHookEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
+    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value)
+      NetworkUserService.getLayerUsers(true)
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
   useHookEffect(() => {
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value)
-      UserService.getLayerUsers(false)
+      NetworkUserService.getLayerUsers(false)
   }, [selfUser?.channelInstanceId, userState.channelLayerUsersUpdateNeeded])
 
   useHookEffect(() => {

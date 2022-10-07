@@ -9,7 +9,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
-import { UserAction } from '../../user/services/UserService'
+import { NetworkUserAction } from '../../user/services/NetworkUserService'
 import { ChatService } from './ChatService'
 
 //State
@@ -261,9 +261,9 @@ export const GroupService = {
           newGroupUser.user.channelInstanceId != null &&
           newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
         )
-          dispatchAction(UserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
+          dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
         if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-          dispatchAction(UserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
+          dispatchAction(NetworkUserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
       }
 
       const groupUserPatchedListener = (params) => {
@@ -274,10 +274,10 @@ export const GroupService = {
           updatedGroupUser.user.channelInstanceId != null &&
           updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
         )
-          dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
+          dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
         if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
           dispatchAction(
-            UserAction.removedChannelLayerUserAction({
+            NetworkUserAction.removedChannelLayerUserAction({
               user: updatedGroupUser.user
             })
           )
@@ -287,7 +287,7 @@ export const GroupService = {
         const deletedGroupUser = params.groupUser
         const selfUser = accessAuthState().user
         dispatchAction(GroupAction.removedGroupUser({ groupUser: deletedGroupUser, self: params.self }))
-        dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
+        dispatchAction(NetworkUserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
         if (deletedGroupUser.userId === selfUser.id.value)
           ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
       }

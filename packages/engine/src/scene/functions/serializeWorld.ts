@@ -1,6 +1,7 @@
 import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -43,7 +44,12 @@ export const serializeWorld = (
   world = Engine.instance.currentWorld
 ) => {
   const entityUuid = {}
-  const sceneJson = { version: 4, entities: {} } as SceneJson
+  const sceneJson = {
+    version: 0,
+    metadata: Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true }),
+    entities: {},
+    root: null! as string
+  }
 
   const traverseNode = entityTreeNode ?? world.entityTree.rootNode
   const loadedAssets = new Set<EntityTreeNode>()

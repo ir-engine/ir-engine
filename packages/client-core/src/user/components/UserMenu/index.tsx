@@ -1,17 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import GroupsIcon from '@mui/icons-material/Groups'
 import PersonIcon from '@mui/icons-material/Person'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
-import { useUserState } from '../../services/UserService'
 import styles from './index.module.scss'
 import AvatarContextMenu from './menus/AvatarContextMenu'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
