@@ -49,6 +49,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   setComponent(entity, Object3DComponent, { value: obj }) // backwards-compat
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
+  if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
   getComponent(entity, GroupComponent).push(obj)
 
