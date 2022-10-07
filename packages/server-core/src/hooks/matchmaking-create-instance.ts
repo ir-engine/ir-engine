@@ -34,7 +34,7 @@ export default (): Hook => {
       throw new Error(`Location for match type '${gameMode}'(${locationName}) is not found.`)
     }
 
-    const freeInstance = await getFreeInstanceserver(app, 0, location.data[0].id, null!)
+    const freeInstance = await getFreeInstanceserver(app, 0, location.data[0].id, null!, null!)
     try {
       const existingInstance = (await app.service('instance').find({
         query: {
