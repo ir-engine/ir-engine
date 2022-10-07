@@ -10,7 +10,7 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
-import { useUserState } from '../../../user/services/UserService'
+import { useNetworkUserState } from '../../../user/services/NetworkUserService'
 import styleString from './index.scss'
 
 export function createAvatarDetailView(id: string) {
@@ -33,7 +33,7 @@ interface AvatarDetailState {
 const AvatarDetailView = () => {
   const { t } = useTranslation()
   const detailState = useXRUIState<AvatarDetailState>()
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const engineState = useEngineState()
   const usersTyping = useState(engineState.usersTyping[detailState.id.value]).value

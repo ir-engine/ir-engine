@@ -16,7 +16,7 @@ import { PartyService, usePartyState } from '../../../social/services/PartyServi
 import { useActiveMenu } from '../../../user/components/UserMenu'
 import { getAvatarURLForUser, Views } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
-import { useUserState } from '../../../user/services/UserService'
+import { useNetworkUserState } from '../../../user/services/NetworkUserService'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
@@ -38,7 +38,7 @@ const AvatarContextMenu = () => {
   const [currentActiveMenu, setCurrentActiveMenu] = useActiveMenu()
 
   const engineState = useEngineState()
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const partyState = usePartyState()
   const friendState = useFriendState()
 
