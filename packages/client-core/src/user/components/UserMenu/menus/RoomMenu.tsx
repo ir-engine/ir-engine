@@ -69,11 +69,11 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
     }
 
     const rooms = await InstanceService.checkRoom(roomCode)
-    if (rooms.data.length === 0) {
+    if (!rooms) {
       setError(t('user:roomMenu.invalidRoomCode'))
       return
     }
-    route(`/location/${location ? location : locationName}?roomCode=${rooms.data[0].roomCode}`)
+    route(`/location/${location ? location : locationName}?roomCode=${rooms.roomCode}`)
     dispatchAction(XRAction.requestSession({}))
   }
 
