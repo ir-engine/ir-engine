@@ -44,7 +44,12 @@ export const serializeWorld = (
   world = Engine.instance.currentWorld
 ) => {
   const entityUuid = {}
-  const sceneJson = { version: 4, entities: {}, metadata: {} } as SceneJson
+  const sceneJson = {
+    version: 0,
+    metadata: Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true }),
+    entities: {},
+    root: null! as string
+  }
 
   const traverseNode = entityTreeNode ?? world.entityTree.rootNode
   const loadedAssets = new Set<EntityTreeNode>()
@@ -89,8 +94,6 @@ export const serializeWorld = (
     const entity = sceneJson.entities[key]
     if (entity.parent) entity.parent = entityUuid[entity.parent]
   })
-
-  sceneJson.metadata = Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true })
 
   return sceneJson
 }
