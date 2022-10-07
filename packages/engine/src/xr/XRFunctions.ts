@@ -63,26 +63,26 @@ export const setupLocalXRInputs = () => {
     // TODO: Handle disconnect event
   })
 
-  controllerGrips.forEach((grip) => {
-    grip.addEventListener('connected', function ({ data }) {
-      const entity = world.localClientEntity
-      const input = getComponent(entity, XRInputSourceComponent)
+  // controllerGrips.forEach((grip) => {
+  //   grip.addEventListener('connected', function ({ data }) {
+  //     const entity = world.localClientEntity
+  //     const input = getComponent(entity, XRInputSourceComponent)
 
-      if (data.handedness === 'left') {
-        grip.add(input.controllerGripLeft)
-        assignController(input, 'controllerGripLeftParent', grip)
-        proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, grip.position)
-        proxifyQuaternion(XRInputSourceComponent.controllerGripLeftParent.quaternion, entity, grip.quaternion)
-      } else if (data.handedness === 'right') {
-        grip.add(input.controllerGripRight)
-        assignController(input, 'controllerGripRightParent', grip)
-        proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, grip.position)
-        proxifyQuaternion(XRInputSourceComponent.controllerGripRightParent.quaternion, entity, grip.quaternion)
-      }
-    })
+  //     if (data.handedness === 'left') {
+  //       grip.add(input.controllerGripLeft)
+  //       assignController(input, 'controllerGripLeftParent', grip)
+  //       proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, grip.position)
+  //       proxifyQuaternion(XRInputSourceComponent.controllerGripLeftParent.quaternion, entity, grip.quaternion)
+  //     } else if (data.handedness === 'right') {
+  //       grip.add(input.controllerGripRight)
+  //       assignController(input, 'controllerGripRightParent', grip)
+  //       proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, grip.position)
+  //       proxifyQuaternion(XRInputSourceComponent.controllerGripRightParent.quaternion, entity, grip.quaternion)
+  //     }
+  //   })
 
-    // TODO: Handle disconnect event
-  })
+  //   // TODO: Handle disconnect event
+  // })
 
   let eventSent = false
 

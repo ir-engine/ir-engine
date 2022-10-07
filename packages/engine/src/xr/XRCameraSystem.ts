@@ -50,16 +50,6 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
     head.updateMatrix()
     head.updateMatrixWorld(true)
   }
-
-  // TODO: uncomment the following when three.js fixes WebXRManager
-  // const xrFrame = Engine.instance.xrFrame
-  // for (let i = 0; i < xrManager.controllers.length; i++) {
-  //   const inputSource = xrManager.controllerInputSources[i]
-  //   const controller = xrManager.controllers[i]
-  //   if (inputSource !== null && controller !== undefined) {
-  //     controller.update(inputSource, xrFrame, xrManager.getReferenceSpace())
-  //   }
-  // }
 }
 
 /**

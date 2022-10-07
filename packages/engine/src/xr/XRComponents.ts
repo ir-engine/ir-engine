@@ -125,6 +125,7 @@ const XRInputSourceSchema = {
   head: GroupSchema
 }
 
+/** @deprecated */
 export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType, typeof XRInputSourceSchema>(
   'XRInputSourceComponent',
   XRInputSourceSchema
@@ -173,4 +174,31 @@ export const XRAnchorComponent = defineComponent({
       anchor: XRAnchor
     }
   }
+})
+
+export const XRControllerComponent = defineComponent({
+  name: 'XRControllerComponent',
+  onAdd: (entity) => {
+    return {
+      handedness: 'none' as XRHandedness
+    }
+  },
+
+  onUpdate: (entity, component, json) => {
+    if (json.handedness) component.handedness = json.handedness
+  },
+
+  toJSON: () => {
+    return null! as {
+      handedness: XRHandedness
+    }
+  }
+})
+
+export const XRControllerGripComponent = defineComponent({
+  name: 'XRControllerGrip'
+})
+
+export const XRHandComponent = defineComponent({
+  name: 'XRHand'
 })
