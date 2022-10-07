@@ -11,6 +11,7 @@ export interface EntityJson {
 }
 
 export interface SceneJson {
+  metadata: { [uuid: string]: any }
   entities: { [uuid: string]: EntityJson }
   root: string
   version: number

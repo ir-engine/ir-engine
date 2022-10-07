@@ -3,7 +3,7 @@ import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import logger from '@xrengine/common/src/logger'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -206,6 +206,9 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   }
 
   world.sceneJson = sceneData.scene
+
+  /** @todo - check for removed metadata types */
+  world.sceneMetadata.merge((sceneData.scene.metadata as any) ?? {})
 
   /** 4. update scene entities with new data, and load new ones */
   updateRootNodeUuid(sceneData.scene.root, world.entityTree)

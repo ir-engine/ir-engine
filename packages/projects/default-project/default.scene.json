@@ -1,33 +1,146 @@
 {
-  "version": 4,
+  "version": 0,
+  "metadata": {
+    "postprocessing": {
+      "enabled": true,
+      "effects": {
+        "SMAAEffect": {
+          "isActive": true,
+          "blendFunction": 13,
+          "preset": 1,
+          "edgeDetectionMode": 2,
+          "predicationMode": 0
+        },
+        "OutlineEffect": {
+          "isActive": true,
+          "blendFunction": 16,
+          "patternTexture": null,
+          "edgeStrength": 1,
+          "pulseSpeed": 0,
+          "visibleEdgeColor": 16777215,
+          "hiddenEdgeColor": 16777215,
+          "resolutionScale": 0.5,
+          "width": -1,
+          "height": -1,
+          "kernelSize": 0,
+          "blur": false,
+          "xRay": true
+        },
+        "SSAOEffect": {
+          "isActive": false,
+          "blendFunction": 10,
+          "distanceScaling": true,
+          "depthAwareUpsampling": true,
+          "samples": 16,
+          "rings": 7,
+          "distanceThreshold": 0.125,
+          "distanceFalloff": 0.02,
+          "minRadiusScale": 1,
+          "bias": 0.25,
+          "radius": 0.01,
+          "intensity": 2,
+          "fade": 0.05
+        },
+        "DepthOfFieldEffect": {
+          "isActive": false,
+          "blendFunction": 13,
+          "focusDistance": 0.02,
+          "focalLength": 0.5,
+          "bokehScale": 1
+        },
+        "BloomEffect": {
+          "isActive": true,
+          "blendFunction": 16,
+          "kernelSize": 2,
+          "luminanceThreshold": 1,
+          "luminanceSmoothing": 0.1,
+          "intensity": 0.2
+        },
+        "ToneMappingEffect": {
+          "isActive": false,
+          "blendFunction": 13,
+          "adaptive": true,
+          "resolution": 512,
+          "middleGrey": 0.6,
+          "maxLuminance": 32,
+          "averageLuminance": 1,
+          "adaptationRate": 2
+        },
+        "BrightnessContrastEffect": {
+          "isActive": false,
+          "brightness": 0.05,
+          "contrast": 0.1
+        },
+        "HueSaturationEffect": {
+          "isActive": false,
+          "hue": 0,
+          "saturation": -0.15
+        },
+        "ColorDepthEffect": {
+          "isActive": false,
+          "bits": 16
+        },
+        "LinearTosRGBEffect": {
+          "isActive": false
+        }
+      }
+    },
+    "mediaSettings": {
+      "immersiveMedia": false,
+      "refDistance": 20,
+      "rolloffFactor": 1,
+      "maxDistance": 10000,
+      "distanceModel": "linear",
+      "coneInnerAngle": 360,
+      "coneOuterAngle": 0,
+      "coneOuterGain": 0
+    },
+    "renderSettings": {
+      "LODs": {
+        "x": 5,
+        "y": 15,
+        "z": 30
+      },
+      "csm": true,
+      "toneMapping": 1,
+      "toneMappingExposure": 0.8,
+      "shadowMapType": 2
+    },
+    "fog": {
+      "type": "linear",
+      "color": 16777215,
+      "near": 1,
+      "far": 200,
+      "density": 0.005,
+      "height": 0.05,
+      "timeScale": 1
+    }
+  },
   "entities": {
     "d32b1c4e-d08e-4fb0-9107-4c88a281ee71": {
       "components": [
         {
-          "name": "audio-settings",
-          "props": {
-            "refDistance": 20,
-            "rolloffFactor": 1,
-            "maxDistance": 10000,
-            "distanceModel": "linear",
-            "coneInnerAngle": 360,
-            "coneOuterAngle": 0,
-            "coneOuterGain": 0
-          }
+          "name": "visible",
+          "props": {}
         },
         {
-          "name": "renderer-settings",
+          "name": "transform",
           "props": {
-            "LODs": {
-              "x": 5,
-              "y": 15,
-              "z": 30
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
             },
-            "overrideRendererSettings": false,
-            "csm": true,
-            "toneMapping": 1,
-            "toneMappingExposure": 0.8,
-            "shadowMapType": 2
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
           }
         },
         {
@@ -83,10 +196,6 @@
         {
           "name": "visible",
           "props": {}
-        },
-        {
-          "name": "scene-preview-camera",
-          "props": {}
         }
       ],
       "parent": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71",
@@ -95,6 +204,26 @@
     },
     "e7d6bfb1-6390-4a8b-b744-da83b059c2d3": {
       "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
         {
           "name": "visible",
           "props": {}
@@ -204,105 +333,28 @@
       "index": 3,
       "name": "spawn point"
     },
-    "ccf77ec1-cbc2-4994-8083-344c7e0bc68e": {
-      "components": [
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "postprocessing",
-          "props": {
-            "options": {
-              "SMAAEffect": {
-                "isActive": true,
-                "blendFunction": 13,
-                "preset": 1,
-                "edgeDetectionMode": 2,
-                "predicationMode": 0
-              },
-              "OutlineEffect": {
-                "isActive": true,
-                "blendFunction": 16,
-                "patternTexture": null,
-                "edgeStrength": 1,
-                "pulseSpeed": 0,
-                "visibleEdgeColor": 16777215,
-                "hiddenEdgeColor": 16777215,
-                "resolutionScale": 0.5,
-                "width": -1,
-                "height": -1,
-                "kernelSize": 0,
-                "blur": false,
-                "xRay": true
-              },
-              "SSAOEffect": {
-                "isActive": false,
-                "blendFunction": 10,
-                "distanceScaling": true,
-                "depthAwareUpsampling": true,
-                "samples": 16,
-                "rings": 7,
-                "distanceThreshold": 0.125,
-                "distanceFalloff": 0.02,
-                "minRadiusScale": 1,
-                "bias": 0.25,
-                "radius": 0.01,
-                "intensity": 2,
-                "fade": 0.05
-              },
-              "DepthOfFieldEffect": {
-                "isActive": false,
-                "blendFunction": 13,
-                "focusDistance": 0.02,
-                "focalLength": 0.5,
-                "bokehScale": 1
-              },
-              "BloomEffect": {
-                "isActive": true,
-                "blendFunction": 16,
-                "kernelSize": 2,
-                "luminanceThreshold": 1,
-                "luminanceSmoothing": 0.1,
-                "intensity": 0.2
-              },
-              "ToneMappingEffect": {
-                "isActive": false,
-                "blendFunction": 13,
-                "adaptive": true,
-                "resolution": 512,
-                "middleGrey": 0.6,
-                "maxLuminance": 32,
-                "averageLuminance": 1,
-                "adaptationRate": 2
-              },
-              "BrightnessContrastEffect": {
-                "isActive": false,
-                "brightness": 0.05,
-                "contrast": 0.1
-              },
-              "HueSaturationEffect": {
-                "isActive": false,
-                "hue": 0,
-                "saturation": -0.15
-              },
-              "ColorDepthEffect": {
-                "isActive": false,
-                "bits": 16
-              },
-              "LinearTosRGBEffect": {
-                "isActive": false
-              }
-            }
-          }
-        }
-      ],
-      "parent": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71",
-      "index": 4,
-      "name": "post processing"
-    },
     "f77dc4c6-c9a6-433d-8102-4a9a8e1c0ce9": {
       "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
         {
           "name": "visible",
           "props": {}
@@ -317,7 +369,7 @@
         }
       ],
       "parent": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71",
-      "index": 5,
+      "index": 4,
       "name": "hemisphere light"
     },
     "cb045cfd-8daf-4a2b-b764-35625be54a11": {
@@ -360,7 +412,7 @@
         }
       ],
       "parent": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71",
-      "index": 6,
+      "index": 5,
       "name": "directional light"
     }
   },

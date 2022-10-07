@@ -3,6 +3,7 @@ import { defineAction, defineState, dispatchAction, getState } from '@xrengine/h
 
 import { AudioState } from '../audio/AudioState'
 import { ClientStorage } from '../common/classes/ClientStorage'
+import { Engine } from '../ecs/classes/Engine'
 import { XRState } from '../xr/XRState'
 
 const AudioSettingDBPrefix = 'media-settings-'
@@ -17,8 +18,7 @@ export const MediaSettingsState = defineState({
   name: 'MediaSettingsState',
   initial: () => ({
     /** @todo implement UI setting for changing immersiveMediaMode */
-    immersiveMediaMode: 'auto' as 'auto' | 'on' | 'off',
-    useImmersiveMedia: false
+    immersiveMediaMode: 'auto' as 'auto' | 'on' | 'off'
   })
 })
 
@@ -30,14 +30,10 @@ export function restoreMediaSettings() {
 
 export function MediaSettingReceptor(action) {
   const s = getState(MediaSettingsState)
-  matches(action)
-    .when(MediaSettingAction.setImmersiveMediaMode.matches, (action) => {
-      s.merge({ immersiveMediaMode: action.mode as 'auto' | 'on' | 'off' })
-      ClientStorage.set(MediaSettings.MODE, action.mode)
-    })
-    .when(MediaSettingAction.setUseImmersiveMedia.matches, (action) => {
-      s.merge({ useImmersiveMedia: action.use })
-    })
+  matches(action).when(MediaSettingAction.setImmersiveMediaMode.matches, (action) => {
+    s.merge({ immersiveMediaMode: action.mode as 'auto' | 'on' | 'off' })
+    ClientStorage.set(MediaSettings.MODE, action.mode)
+  })
 }
 
 export class MediaSettingAction {
@@ -45,18 +41,15 @@ export class MediaSettingAction {
     type: 'xre.media.MediaSetting.IMMERSIVE_MEDIA_MODE' as const,
     mode: matches.string
   })
-  static setUseImmersiveMedia = defineAction({
-    type: 'xre.media.MediaSetting.USE_IMMERSIVE_MEDIA' as const,
-    use: matches.boolean
-  })
 }
 
 export const shouldUseImmersiveMedia = () => {
   const xrSessionActive = getState(XRState).sessionActive.value
   const audioState = getState(AudioState)
+  const sceneMetadata = Engine.instance.currentWorld.sceneMetadata.mediaSettings
   const mediaSettingState = getState(MediaSettingsState)
   const immersiveMedia =
     mediaSettingState.immersiveMediaMode.value === 'on' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && mediaSettingState.useImmersiveMedia.value)
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && sceneMetadata.immersiveMedia.value)
   return immersiveMedia || audioState.usePositionalMedia.value || xrSessionActive
 }

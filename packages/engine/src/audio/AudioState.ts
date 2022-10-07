@@ -15,7 +15,7 @@ export const AudioState = defineState({
   initial: () => ({
     masterVolume: 0.5,
     microphoneGain: 0.5,
-    usePositionalMedia: false, // only for avatars
+    usePositionalMedia: false, // only for avatars - @todo make this `auto, on, off`
     mediaStreamVolume: 0.5,
     notificationVolume: 0.5,
     soundEffectsVolume: 0.2,

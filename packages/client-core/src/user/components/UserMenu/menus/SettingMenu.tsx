@@ -17,6 +17,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -599,6 +600,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               <div className={styles.row}>
                 <FormControlLabel
                   className={styles.checkboxBlock}
+                  disabled={!Engine.instance.currentWorld.sceneJson?.metadata?.postprocessing}
                   control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
                   label={t('user:usermenu.setting.lbl-pp') as string}
                   onChange={(_, value) => {

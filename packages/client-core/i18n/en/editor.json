@@ -446,10 +446,13 @@
         "placeholder-instancedMesh": "Select Mesh to Instance"
       }
     },
-    "scene": {
-      "name": "Scene",
-      "description": "The root object of the scene.",
-      "lbl-bgcolor": "Background Color",
+    "postprocessing": {
+      "name": "Post Processing",
+      "description": "For applying Post Processing effects to you scene."
+    },
+    "mediaSettings": {
+      "name": "Media Settings",
+      "description": "Customise the scene media settings",
       "lbl-audioSettings": "Use Positional Audio",
       "lbl-avatarDistanceModel": "Avatar Distance Model",
       "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
@@ -477,7 +480,12 @@
       "info-mediaMaxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
       "info-mediaConeInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
       "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
-      "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
+      "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
+    },
+    "renderSettings": {
+      "name": "Render Settings",
+      "description": "Customise the scene renderer settings",
+      "lbl-bgcolor": "Background Color",
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
       "lbl-rendererSettings": "Override Renderer Settings",
@@ -488,7 +496,11 @@
       "lbl-toneMappingExposure": "Tone Mapping Exposure",
       "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-shadowMapType": "Shadow Map Type",
-      "info-shadowMapType": "Type of shadow map",
+      "info-shadowMapType": "Type of shadow map"
+    },
+    "scene": {
+      "name": "Scene",
+      "description": "The root object of the scene.",
       "error-url": "Error Loading From URL"
     },
     "sceneCamera": {
@@ -585,10 +597,6 @@
       "lbl-triggerPosition": "Trigger Position",
       "lbl-triggerRotation": "Trigger Rotation",
       "lbl-triggerScale": "Trigger Scale"
-    },
-    "postprocessing": {
-      "name": "Post Processing",
-      "description": "For applying Post Processing effects to you scene."
     },
     "fog": {
       "name": "Fog",

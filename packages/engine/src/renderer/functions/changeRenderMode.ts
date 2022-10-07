@@ -3,10 +3,10 @@ import { Light, MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import { updateShadowMap } from '../../scene/functions/loaders/RenderSettingsFunction'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { accessEngineRendererState } from '../EngineRendererState'
 import { EngineRenderer } from '../WebGLRendererSystem'
+import { updateShadowMap } from './RenderSettingsFunction'
 
 /**
  * Change render mode of the renderer
