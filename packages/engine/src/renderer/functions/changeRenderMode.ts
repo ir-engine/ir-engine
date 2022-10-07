@@ -60,5 +60,5 @@ export function changeRenderMode(mode: RenderModesType): void {
       break
   }
 
-  updateShadowMap(mode === RenderModes.SHADOW)
+  updateShadowMap(mode !== RenderModes.SHADOW)
 }

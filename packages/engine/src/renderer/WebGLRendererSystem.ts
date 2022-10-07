@@ -13,6 +13,7 @@ import {
   ToneMappingEffect
 } from 'postprocessing'
 import {
+  Light,
   PerspectiveCamera,
   ShadowMapType,
   sRGBEncoding,
@@ -43,7 +44,7 @@ import {
   restoreEngineRendererData
 } from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
-import { disposeCSM, enableCSM, updateShadowMap } from './functions/RenderSettingsFunction'
+import { updateCSM, updateShadowMap } from './functions/RenderSettingsFunction'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -97,7 +98,6 @@ export class EngineRenderer {
   xrManager: WebXRManager = null!
   xrSession: XRSession = null!
   csm: CSM = null!
-  isCSMEnabled = false
   directionalLightEntities: Entity[] = []
   activeCSMLightEntity: Entity | null = null
   webGLLostContext: any = null
@@ -303,28 +303,31 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
   const restoreStorageDataActions = createActionQueue(EngineRendererAction.restoreStorageData.matches)
 
-  const updateToneMapping = (val: ToneMapping) => {
-    EngineRenderer.instance.renderer.toneMapping = val
+  const updateToneMapping = () => {
+    EngineRenderer.instance.renderer.toneMapping = world.sceneMetadata.renderSettings.toneMapping.value
   }
-  const updateToneMappingExposure = (val: number) => {
-    EngineRenderer.instance.renderer.toneMappingExposure = val
-  }
-  const updateShadowMapType = (type: ShadowMapType) => {
-    updateShadowMap(type > -1, type)
-  }
-  const updateCSM = (enabled: boolean) => {
-    if (enabled) enableCSM()
-    else disposeCSM()
+  const updateToneMappingExposure = () => {
+    EngineRenderer.instance.renderer.toneMappingExposure = world.sceneMetadata.renderSettings.toneMappingExposure.value
   }
   const updatePostprocessing = () => {
     configureEffectComposer()
   }
+  const _updateShadowMap = () => {
+    updateShadowMap()
+  }
 
   world.sceneMetadata.renderSettings.toneMapping.subscribe(updateToneMapping)
   world.sceneMetadata.renderSettings.toneMappingExposure.subscribe(updateToneMappingExposure)
-  world.sceneMetadata.renderSettings.shadowMapType.subscribe(updateShadowMapType)
+  world.sceneMetadata.renderSettings.shadowMapType.subscribe(_updateShadowMap)
   world.sceneMetadata.renderSettings.csm.subscribe(updateCSM)
   world.sceneMetadata.postprocessing.subscribe(updatePostprocessing)
+
+  // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
+  updateToneMapping()
+  updateToneMappingExposure()
+  _updateShadowMap()
+  updateCSM()
+  updatePostprocessing()
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)

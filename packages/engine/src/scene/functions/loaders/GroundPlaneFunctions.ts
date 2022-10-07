@@ -5,6 +5,7 @@ import {
   Group,
   Mesh,
   MeshBasicMaterial,
+  MeshLambertMaterial,
   MeshStandardMaterial,
   Object3D,
   PlaneGeometry,
@@ -63,7 +64,7 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
   if (!component.mesh) {
     const radius = 1000
 
-    const mesh = (component.mesh = new Mesh(new PlaneGeometry(radius, radius), new MeshBasicMaterial()))
+    const mesh = (component.mesh = new Mesh(new PlaneGeometry(radius, radius), new MeshLambertMaterial()))
     mesh.geometry.rotateX(-Math.PI / 2)
     mesh.name = 'GroundPlaneMesh'
     // mesh.position.y = -0.05
