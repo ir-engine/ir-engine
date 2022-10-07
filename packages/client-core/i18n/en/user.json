@@ -411,5 +411,17 @@
     "noUsers": "No users to display",
     "requestReceived": "has requested to be your friend",
     "requestAccepted": "has accepted your request to be friends"
+  },
+  "roomMenu": {
+    "createRoom": "Create a room",
+    "joinRoom": "Join a room",
+    "roomCode": "Room Code",
+    "locationName": "Location Name",
+    "joinRoomCode": "Provide the existing room code",
+    "create": "Create",
+    "join": "Join",
+    "locationRequired": "Please provide a location name.",
+    "roomCodeLength": "Room code must be of 6 digits. No zeros allowed",
+    "invalidRoomCode": "Unable to find a room with this code. Please enter a valid room code."
   }
 }

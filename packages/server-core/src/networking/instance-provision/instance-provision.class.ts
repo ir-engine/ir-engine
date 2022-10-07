@@ -5,6 +5,7 @@ import _ from 'lodash'
 import fetch from 'node-fetch'
 import Sequelize, { Op } from 'sequelize'
 
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 
 import { Application } from '../../../declarations'
@@ -24,7 +25,8 @@ export async function getFreeInstanceserver(
   app: Application,
   iteration: number,
   locationId: string,
-  channelId: string
+  channelId: string,
+  roomCode = undefined as undefined | string
 ): Promise<InstanceServerProvisionResult> {
   await app.service('instance').Model.destroy({
     where: {
@@ -40,7 +42,7 @@ export async function getFreeInstanceserver(
     logger.info('Local server spinning up new instance')
     const localIp = await getLocalServerIp(channelId != null)
     const stringIp = `${localIp.ipAddress}:${localIp.port}`
-    return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId)
+    return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId, roomCode)
   }
   logger.info('Getting free instanceserver')
   const serverResult = await app.k8AgonesClient.listNamespacedCustomObject('agones.dev', 'v1', 'default', 'gameservers')
@@ -66,7 +68,8 @@ export async function getFreeInstanceserver(
       id: null!,
       ipAddress: null!,
       port: null!,
-      podName: null!
+      podName: null!,
+      roomCode: null!
     }
   }
   const split = instanceIpAddress.split(':')
@@ -74,7 +77,15 @@ export async function getFreeInstanceserver(
     (server) => server.status.address === split[0] && server.status.ports[0].port == split[1]
   )
 
-  return checkForDuplicatedAssignments(app, instanceIpAddress, iteration, locationId, channelId, pod.metadata.name)
+  return checkForDuplicatedAssignments(
+    app,
+    instanceIpAddress,
+    iteration,
+    locationId,
+    channelId,
+    roomCode,
+    pod.metadata.name
+  )
 }
 
 export async function checkForDuplicatedAssignments(
@@ -83,6 +94,7 @@ export async function checkForDuplicatedAssignments(
   iteration: number,
   locationId: string,
   channelId: string,
+  roomCode = undefined as undefined | string,
   podName = undefined as undefined | string
 ): Promise<InstanceServerProvisionResult> {
   //Create an assigned instance at this IP
@@ -144,14 +156,15 @@ export async function checkForDuplicatedAssignments(
       //If this is the 10th or more attempt to get a free instanceserver, then there probably aren't any free ones,
       //
       if (iteration < 10) {
-        return getFreeInstanceserver(app, iteration + 1, locationId, channelId)
+        return getFreeInstanceserver(app, iteration + 1, locationId, channelId, roomCode)
       } else {
         logger.info('Made 10 attempts to get free instanceserver without success, returning null')
         return {
           id: null!,
           ipAddress: null!,
           port: null!,
-          podName: null!
+          podName: null!,
+          roomCode: null!
         }
       }
     }
@@ -241,7 +254,7 @@ export async function checkForDuplicatedAssignments(
     await app.service('instance').remove(assignResult.id)
     if (config.kubernetes.enabled) app.k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
     else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
-    return getFreeInstanceserver(app, iteration + 1, locationId, channelId)
+    return getFreeInstanceserver(app, iteration + 1, locationId, channelId, roomCode)
   }
 
   const split = ipAddress.split(':')
@@ -249,7 +262,8 @@ export async function checkForDuplicatedAssignments(
     id: assignResult.id,
     ipAddress: split[0],
     port: split[1],
-    podName: assignResult.podName
+    podName: assignResult.podName,
+    roomCode: assignResult.roomCode
   }
 }
 
@@ -275,7 +289,12 @@ export class InstanceProvision implements ServiceMethods<any> {
    * @returns id, ipAddress and port
    */
 
-  async getISInService(availableLocationInstances, locationId: string, channelId: string): Promise<any> {
+  async getISInService(
+    availableLocationInstances,
+    locationId: string,
+    channelId: string,
+    roomCode = undefined as undefined | string
+  ): Promise<any> {
     await this.app.service('instance').Model.destroy({
       where: {
         assigned: true,
@@ -302,8 +321,8 @@ export class InstanceProvision implements ServiceMethods<any> {
     if (isCleanup) {
       logger.info('IS did not exist and was cleaned up')
       if (availableLocationInstances.length > 1)
-        return this.getISInService(availableLocationInstances.slice(1), locationId, channelId)
-      else return getFreeInstanceserver(this.app, 0, locationId, channelId)
+        return this.getISInService(availableLocationInstances.slice(1), locationId, channelId, roomCode)
+      else return getFreeInstanceserver(this.app, 0, locationId, channelId, roomCode)
     }
     logger.info('IS existed, using it')
     const ipAddressSplit = instances[0].ipAddress.split(':')
@@ -387,8 +406,9 @@ export class InstanceProvision implements ServiceMethods<any> {
       const locationId = params?.query?.locationId
       const instanceId = params?.query?.instanceId
       const channelId = params?.query?.channelId
+      const roomCode = params?.query?.roomCode
       const token = params?.query?.token
-      logger.info('instance-provision find %s %s %s', locationId, instanceId, channelId)
+      logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)
       if (!token) throw new NotAuthenticated('No token provided')
       // Check if JWT resolves to a user
       const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
@@ -411,38 +431,55 @@ export class InstanceProvision implements ServiceMethods<any> {
             ended: false
           }
         })
-        if (channelInstance == null) return getFreeInstanceserver(this.app, 0, null!, channelId)
+        if (channelInstance == null) return getFreeInstanceserver(this.app, 0, null!, channelId, roomCode)
         else {
           if (config.kubernetes.enabled) {
             const isCleanup = await this.isCleanup(channelInstance)
-            if (isCleanup) return getFreeInstanceserver(this.app, 0, null!, channelId)
+            if (isCleanup) return getFreeInstanceserver(this.app, 0, null!, channelId, roomCode)
           }
           const ipAddressSplit = channelInstance.ipAddress.split(':')
           return {
             id: channelInstance.id,
             ipAddress: ipAddressSplit[0],
-            port: ipAddressSplit[1]
+            port: ipAddressSplit[1],
+            roomCode: channelInstance.roomCode
           }
         }
       } else {
         if (locationId == null) throw new BadRequest('Missing location ID')
         const location = await this.app.service('location').get(locationId)
         if (location == null) throw new BadRequest('Invalid location ID')
+
+        let instance: Instance | null = null
+
         if (instanceId != null) {
-          const instance: any = await this.app.service('instance').get(instanceId)
-          if (instance == null || instance.ended === true) return getFreeInstanceserver(this.app, 0, locationId, null!)
-          let isCleanup
-          if (config.kubernetes.enabled) isCleanup = await this.isCleanup(instance)
-          if (
-            (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
-            instance.currentUsers < location.maxUsersPerInstance
-          ) {
-            const ipAddressSplit = instance.ipAddress.split(':')
-            return {
-              id: instance.id,
-              ipAddress: ipAddressSplit[0],
-              port: ipAddressSplit[1]
+          instance = await this.app.service('instance').get(instanceId)
+        } else if (roomCode != null) {
+          const instances = await this.app.service('instance').Model.findAll({
+            where: {
+              roomCode,
+              ended: false
             }
+          })
+          instance = instances.length > 0 ? instances[0] : null
+        }
+
+        if (instance == null || instance.ended === true)
+          return getFreeInstanceserver(this.app, 0, locationId, null!, roomCode)
+
+        let isCleanup
+
+        if (config.kubernetes.enabled) isCleanup = await this.isCleanup(instance)
+        if (
+          (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
+          instance.currentUsers < location.maxUsersPerInstance
+        ) {
+          const ipAddressSplit = instance.ipAddress.split(':')
+          return {
+            id: instance.id,
+            ipAddress: ipAddressSplit[0],
+            port: ipAddressSplit[1],
+            roomCode: instance.roomCode
           }
         }
         // const user = await this.app.service('user').get(userId)
@@ -543,6 +580,7 @@ export class InstanceProvision implements ServiceMethods<any> {
             const localIp = await getLocalServerIp(false)
             return {
               id: maxInstanceId,
+              roomCode: instance.roomCode,
               ...localIp
             }
           }
@@ -550,7 +588,8 @@ export class InstanceProvision implements ServiceMethods<any> {
           return {
             id: maxInstance.id,
             ipAddress: ipAddressSplit[0],
-            port: ipAddressSplit[1]
+            port: ipAddressSplit[1],
+            roomCode: instance.roomCode
           }
         }
         const availableLocationInstances = await this.app.service('instance').Model.findAll({
@@ -580,8 +619,9 @@ export class InstanceProvision implements ServiceMethods<any> {
               (instanceAuthorizedUser) => instanceAuthorizedUser.userId === userId
             )
         )
-        if (allowedLocationInstances.length === 0) return getFreeInstanceserver(this.app, 0, locationId, null!)
-        else return this.getISInService(allowedLocationInstances, locationId, channelId)
+        if (allowedLocationInstances.length === 0)
+          return getFreeInstanceserver(this.app, 0, locationId, null!, roomCode)
+        else return this.getISInService(allowedLocationInstances, locationId, channelId, roomCode)
       }
     } catch (err) {
       logger.error(err)
