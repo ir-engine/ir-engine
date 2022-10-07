@@ -118,7 +118,57 @@
   },
   "entities": {
     "d32b1c4e-d08e-4fb0-9107-4c88a281ee71": {
-      "components": [],
+      "components": [
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "envmapbake",
+          "props": {
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/default.envmap.png",
+            "boxProjection": true,
+            "bakePosition": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakePositionOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakeScale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        }
+      ],
       "name": "empty_scene"
     },
     "bb362197-f14d-4da7-9c3c-1ed834386423": {
@@ -146,10 +196,6 @@
         {
           "name": "visible",
           "props": {}
-        },
-        {
-          "name": "scene-preview-camera",
-          "props": {}
         }
       ],
       "parent": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71",
@@ -158,6 +204,26 @@
     },
     "e7d6bfb1-6390-4a8b-b744-da83b059c2d3": {
       "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
         {
           "name": "visible",
           "props": {}
@@ -269,6 +335,26 @@
     },
     "f77dc4c6-c9a6-433d-8102-4a9a8e1c0ce9": {
       "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
         {
           "name": "visible",
           "props": {}
