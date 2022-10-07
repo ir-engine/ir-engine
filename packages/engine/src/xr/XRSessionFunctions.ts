@@ -181,6 +181,7 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
  */
 export const setupWebXRLightprobe = () => {
   const xrLight = new XREstimatedLight(EngineRenderer.instance.renderer)
+  xrLight.castShadow = true
 
   let previousEnvironment = Engine.instance.currentWorld.scene.environment
 
