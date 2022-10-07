@@ -90,24 +90,28 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 
   const hitLocalTransform = getComponent(viewerHitTestEntity, LocalTransformComponent)
   const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
-  const dist = cameraLocalTransform.position.distanceTo(hitLocalTransform.position)
 
   const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
-  const lifeSize = dist > 2 && upDir.angleTo(V_010) < Math.PI * 0.02
+  const dist = _plane
+    .setFromNormalAndCoplanarPoint(upDir, hitLocalTransform.position)
+    .distanceToPoint(cameraLocalTransform.position)
 
   /**
    * Lock lifesize to 1:1, whereas dollhouse mode uses
    * the distance from the camera to the hit test plane.
    */
+  const minDollhouseScale = 0.01
+  const maxDollhouseScale = 0.2
+  const minDollhouseDist = 0.01
+  const maxDollhouseDist = 0.6
+  const lifeSize = dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02
   const targetScale = lifeSize
     ? 1
     : 1 /
       MathUtils.clamp(
-        _plane
-          .setFromNormalAndCoplanarPoint(upDir, hitLocalTransform.position)
-          .distanceToPoint(cameraLocalTransform.position) * 0.1,
-        0.01,
-        1
+        Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2) * maxDollhouseScale,
+        minDollhouseScale,
+        maxDollhouseScale
       )
   const targetScaleVector = _vecScale.setScalar(targetScale)
   const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScaleVector.x)
