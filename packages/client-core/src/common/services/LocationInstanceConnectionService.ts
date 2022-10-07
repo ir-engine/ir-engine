@@ -21,6 +21,7 @@ type InstanceState = {
   port: string
   locationId: string | null
   sceneId: string | null
+  roomCode: string
   provisioned: boolean
   connected: boolean
   readyToConnect: boolean
@@ -50,6 +51,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
           port: action.port,
           locationId: action.locationId,
           sceneId: action.sceneId,
+          roomCode: action.roomCode,
           provisioned: true,
           readyToConnect: true,
           connected: false,
@@ -116,6 +118,7 @@ export const LocationInstanceConnectionService = {
           instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
           locationId: locationId,
           sceneId: sceneId
         })
@@ -143,6 +146,7 @@ export const LocationInstanceConnectionService = {
               instanceId: params.instanceId,
               ipAddress: params.ipAddress,
               port: params.port,
+              roomCode: params.roomCode,
               locationId: params.locationId,
               sceneId: params.sceneId
             })
@@ -166,6 +170,7 @@ export class LocationInstanceConnectionAction {
     instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
+    roomCode: matches.string,
     locationId: matches.any as Validator<unknown, string | null>,
     sceneId: matches.any as Validator<unknown, string | null>
   })

@@ -69,7 +69,8 @@ export async function getFreeInstanceserver(
       id: null!,
       ipAddress: null!,
       port: null!,
-      podName: null!
+      podName: null!,
+      roomCode: null!
     }
   }
   const split = instanceIpAddress.split(':')
@@ -165,7 +166,8 @@ export async function checkForDuplicatedAssignments(
           id: null!,
           ipAddress: null!,
           port: null!,
-          podName: null!
+          podName: null!,
+          roomCode: null!
         }
       }
     }
@@ -263,7 +265,8 @@ export async function checkForDuplicatedAssignments(
     id: assignResult.id,
     ipAddress: split[0],
     port: split[1],
-    podName: assignResult.podName
+    podName: assignResult.podName,
+    roomCode: assignResult.roomCode
   }
 }
 
@@ -442,7 +445,8 @@ export class InstanceProvision implements ServiceMethods<any> {
           return {
             id: channelInstance.id,
             ipAddress: ipAddressSplit[0],
-            port: ipAddressSplit[1]
+            port: ipAddressSplit[1],
+            roomCode: channelInstance.roomCode
           }
         }
       } else {
@@ -478,7 +482,8 @@ export class InstanceProvision implements ServiceMethods<any> {
           return {
             id: instance.id,
             ipAddress: ipAddressSplit[0],
-            port: ipAddressSplit[1]
+            port: ipAddressSplit[1],
+            roomCode: instance.roomCode
           }
         }
         // const user = await this.app.service('user').get(userId)
@@ -579,6 +584,7 @@ export class InstanceProvision implements ServiceMethods<any> {
             const localIp = await getLocalServerIp(false)
             return {
               id: maxInstanceId,
+              roomCode: instance.roomCode,
               ...localIp
             }
           }
@@ -586,7 +592,8 @@ export class InstanceProvision implements ServiceMethods<any> {
           return {
             id: maxInstance.id,
             ipAddress: ipAddressSplit[0],
-            port: ipAddressSplit[1]
+            port: ipAddressSplit[1],
+            roomCode: instance.roomCode
           }
         }
         const availableLocationInstances = await this.app.service('instance').Model.findAll({

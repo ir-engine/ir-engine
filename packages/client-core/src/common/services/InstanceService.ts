@@ -7,9 +7,9 @@ import { API } from '../../API'
 //Service
 export const InstanceService = {
   checkRoom: async (roomCode: string) => {
-    const projects = (await API.instance.client
+    const { data } = (await API.instance.client
       .service('instance')
       .find({ query: { roomCode, ended: false } })) as Paginated<Instance>
-    return projects
+    return data[0] as Instance
   }
 }
