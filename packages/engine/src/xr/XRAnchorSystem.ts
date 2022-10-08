@@ -53,13 +53,13 @@ export const updateHitTest = (entity: Entity) => {
   const hitTestComponent = getComponent(entity, XRHitTestComponent)
 
   if (hitTestComponent.hitTestSource.value) {
-    const transform = getComponent(entity, LocalTransformComponent)
+    const localTransform = getComponent(entity, LocalTransformComponent)
     const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource.value!)
     if (hitTestResults.length) {
       const hit = hitTestResults[0]
-      const hitData = hit.getPose(xrState.originReferenceSpace.value!)!
-      transform.matrix.fromArray(hitData.transform.matrix)
-      transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+      const hitPose = hit.getPose(xrState.originReferenceSpace.value!)!
+      localTransform.position.copy(hitPose.transform.position as any as Vector3)
+      localTransform.rotation.copy(hitPose.transform.orientation as any as Quaternion)
       hitTestComponent.hitTestResult.set(hit)
       return hit
     }
@@ -149,10 +149,9 @@ export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorl
   if (anchor) {
     const pose = xrFrame.getPose(anchor.anchorSpace, xrState.originReferenceSpace.value!)
     if (pose) {
-      const transform = getComponent(entity, TransformComponent)
-      transform.position.copy(pose.transform.position as any as Vector3)
-      transform.rotation.copy(pose.transform.orientation as any as Quaternion)
-      world.dirtyTransforms.add(entity)
+      const localTransform = getComponent(entity, LocalTransformComponent)
+      localTransform.position.copy(pose.transform.position as any as Vector3)
+      localTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
     }
   }
 }
