@@ -149,11 +149,6 @@ export default async function LightSystem(world: World) {
 
     for (const entity of ambientLightQuery.enter()) updateAmbientLight(entity)
     for (const entity of directionalLightQuery.enter()) updateDirectionalLight(entity)
-    for (const entity of directionalLightQuery.exit())
-      EngineRenderer.instance.directionalLightEntities.splice(
-        EngineRenderer.instance.directionalLightEntities.indexOf(entity),
-        1
-      )
     for (const entity of hemisphereLightQuery.enter()) updateHemisphereLight(entity)
     for (const entity of pointLightQuery.enter()) updatePointLight(entity)
     for (const entity of spotLightQuery.enter()) updateSpotLight(entity)

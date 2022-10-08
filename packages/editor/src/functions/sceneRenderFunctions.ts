@@ -234,9 +234,6 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 }*/
 
 export function disposeScene() {
-  EngineRenderer.instance.activeCSMLightEntity = null
-  EngineRenderer.instance.directionalLightEntities = []
-
   if (entityExists(SceneState.gizmoEntity)) removeEntity(SceneState.gizmoEntity, true)
   if (entityExists(SceneState.editorEntity)) removeEntity(SceneState.editorEntity, true)
 
