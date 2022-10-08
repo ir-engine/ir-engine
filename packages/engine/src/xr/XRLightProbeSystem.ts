@@ -1,8 +1,7 @@
-import { World } from '@dimforge/rapier3d-compat'
-
 import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
+import { World } from '../ecs/classes/World'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XREstimatedLight } from './XREstimatedLight'
 import { XRState } from './XRState'
@@ -13,7 +12,7 @@ import { XRState } from './XRState'
 export default async function XRLightProbeSystem(world: World) {
   const xrLight = new XREstimatedLight(EngineRenderer.instance.renderer)
   xrLight.castShadow = true
-  xrLight.directionalLight.shadow.bias = -0.00001
+  xrLight.directionalLight.shadow.bias = -0.000001
   xrLight.directionalLight.shadow.radius = 1
   xrLight.directionalLight.shadow.camera.far = 2000
   xrLight.directionalLight.castShadow = true
@@ -51,5 +50,5 @@ export default async function XRLightProbeSystem(world: World) {
 
   const cleanup = async () => {}
 
-  return { execute, cleanup }
+  return { execute, cleanup, subsystems: [] }
 }

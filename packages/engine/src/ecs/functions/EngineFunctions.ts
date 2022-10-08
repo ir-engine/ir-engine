@@ -110,6 +110,5 @@ export const unloadScene = (world: World) => {
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
   unloadSystems(world, true)
-  EngineRenderer.instance.resetScene()
   dispatchAction(EngineActions.sceneUnloaded({}))
 }

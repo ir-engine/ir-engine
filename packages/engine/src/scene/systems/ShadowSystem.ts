@@ -44,6 +44,15 @@ export default async function ShadowSystem(world: World) {
 
       EngineRenderer.instance.csm.changeLights(activeDirectionalLight)
       activeDirectionalLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
+
+      for (const light of EngineRenderer.instance.csm.lights) {
+        light.color = activeDirectionalLight.color
+        light.intensity = activeDirectionalLight.intensity
+        light.shadow.bias = activeDirectionalLight.shadow.bias
+        light.shadow.radius = activeDirectionalLight.shadow.radius
+        light.shadow.mapSize = activeDirectionalLight.shadow.mapSize
+        light.shadow.camera.far = activeDirectionalLight.shadow.camera.far
+      }
     } else if (EngineRenderer.instance.csm) {
       if (lastActiveDirectionLight) lastActiveDirectionLight.visible = true
       lastActiveDirectionLight = null
