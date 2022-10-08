@@ -70,6 +70,7 @@ export default async function XRSystem(world: World) {
       () => import('./8thwall/XR8'),
       () => import('./XRAnchorSystem'),
       () => import('./XRCameraSystem'),
+      () => import('./XRLightProbeSystem'),
       // () => import('./XRDepthOcclusion'),
       () => import('./XRScenePlacementShader')
     ]

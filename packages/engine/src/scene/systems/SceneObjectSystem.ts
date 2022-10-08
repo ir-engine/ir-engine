@@ -155,6 +155,6 @@ export default async function SceneObjectSystem(world: World) {
   return {
     execute,
     cleanup,
-    subsystems: [() => import('./FogSystem')]
+    subsystems: [() => import('./FogSystem'), () => import('./ShadowSystem')]
   }
 }

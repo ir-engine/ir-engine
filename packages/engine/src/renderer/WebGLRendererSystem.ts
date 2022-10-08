@@ -44,7 +44,7 @@ import {
   restoreEngineRendererData
 } from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
-import { updateCSM, updateShadowMap } from './functions/RenderSettingsFunction'
+import { updateShadowMap } from './functions/RenderSettingsFunction'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -98,8 +98,6 @@ export class EngineRenderer {
   xrManager: WebXRManager = null!
   xrSession: XRSession = null!
   csm: CSM = null!
-  directionalLightEntities: Entity[] = []
-  activeCSMLightEntity: Entity | null = null
   webGLLostContext: any = null
 
   initialize() {
@@ -198,11 +196,6 @@ export class EngineRenderer {
     this.canvas.removeEventListener('webglcontextrestored', this.handleWebGLConextRestore)
     this.initialize()
     this.needsResize = true
-  }
-
-  resetScene() {
-    this.directionalLightEntities = []
-    this.activeCSMLightEntity = null!
   }
 
   /** Called on resize, sets resize flag. */
@@ -319,14 +312,12 @@ export default async function WebGLRendererSystem(world: World) {
   world.sceneMetadata.renderSettings.toneMapping.subscribe(updateToneMapping)
   world.sceneMetadata.renderSettings.toneMappingExposure.subscribe(updateToneMappingExposure)
   world.sceneMetadata.renderSettings.shadowMapType.subscribe(_updateShadowMap)
-  world.sceneMetadata.renderSettings.csm.subscribe(updateCSM)
   world.sceneMetadata.postprocessing.subscribe(updatePostprocessing)
 
   // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
   updateToneMapping()
   updateToneMappingExposure()
   _updateShadowMap()
-  updateCSM()
   updatePostprocessing()
 
   const execute = () => {
