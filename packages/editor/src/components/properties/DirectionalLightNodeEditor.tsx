@@ -82,14 +82,12 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         onChange={updateProperty(DirectionalLightComponent, 'intensity')}
         unit="cd"
       />
-      {EngineRenderer.instance.csm && (
-        <InputGroup name="Use in CSM" label={t('editor:properties.directionalLight.lbl-useInCSM')}>
-          <BooleanInput
-            value={lightComponent.useInCSM}
-            onChange={updateProperty(DirectionalLightComponent, 'useInCSM')}
-          />
-        </InputGroup>
-      )}
+      <InputGroup name="Use in CSM" label={t('editor:properties.directionalLight.lbl-useInCSM')}>
+        <BooleanInput
+          value={lightComponent.useInCSM}
+          onChange={updateProperty(DirectionalLightComponent, 'useInCSM')}
+        />
+      </InputGroup>
       <LightShadowProperties node={props.node} comp={DirectionalLightComponent} />
       <NumericInputGroup
         name="CameraFar"
