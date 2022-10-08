@@ -13,6 +13,11 @@ import { XRState } from './XRState'
 export default async function XRLightProbeSystem(world: World) {
   const xrLight = new XREstimatedLight(EngineRenderer.instance.renderer)
   xrLight.castShadow = true
+  xrLight.directionalLight.shadow.bias = -0.00001
+  xrLight.directionalLight.shadow.radius = 1
+  xrLight.directionalLight.shadow.camera.far = 2000
+  xrLight.directionalLight.castShadow = true
+
   getState(XRState).lightEstimator.set(xrLight)
   const estimatingLight = getState(XRState).isEstimatingLight
 
