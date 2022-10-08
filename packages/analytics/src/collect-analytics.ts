@@ -14,10 +14,7 @@ export default (app): void => {
     const activeScenes: any[] = []
     const activeParties = await app.service('party').find({
       query: {
-        $limit: 0,
-        instanceId: {
-          $ne: null
-        }
+        $limit: 0
       },
       isInternal: true
     })
