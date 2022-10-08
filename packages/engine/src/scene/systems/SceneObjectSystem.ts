@@ -152,9 +152,12 @@ export default async function SceneObjectSystem(world: World) {
     removeQuery(world, updatableQuery)
   }
 
+  const subsystems = [() => import('./FogSystem')]
+  if (isClient) subsystems.push(() => import('./ShadowSystem'))
+
   return {
     execute,
     cleanup,
-    subsystems: [() => import('./FogSystem'), () => import('./ShadowSystem')]
+    subsystems
   }
 }
