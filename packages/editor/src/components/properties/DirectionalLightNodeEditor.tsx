@@ -29,8 +29,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const lightComponent = getComponent(props.node.entity, DirectionalLightComponent)
 
   useEffect(() => {
-    if (!EngineRenderer.instance.isCSMEnabled || props.node.entity !== EngineRenderer.instance.activeCSMLightEntity)
-      return
+    if (!EngineRenderer.instance.csm || props.node.entity !== EngineRenderer.instance.activeCSMLightEntity) return
 
     if (selectionState.propertyName.value === 'rotation' && EngineRenderer.instance.csm) {
       getComponent(props.node.entity, Object3DComponent)?.value.getWorldDirection(
@@ -83,7 +82,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         onChange={updateProperty(DirectionalLightComponent, 'intensity')}
         unit="cd"
       />
-      {EngineRenderer.instance.isCSMEnabled && (
+      {EngineRenderer.instance.csm && (
         <InputGroup name="Use in CSM" label={t('editor:properties.directionalLight.lbl-useInCSM')}>
           <BooleanInput
             value={lightComponent.useInCSM}

@@ -49,7 +49,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
   light.shadow.camera.far = component.cameraFar
   light.shadow.bias = component.shadowBias
   light.shadow.radius = component.shadowRadius
-  light.castShadow = !EngineRenderer.instance.isCSMEnabled && component.castShadow
+  light.castShadow = !EngineRenderer.instance.csm && component.castShadow
 
   if (!light.shadow.mapSize.equals(component.shadowMapResolution)) {
     light.shadow.mapSize.copy(component.shadowMapResolution)
@@ -69,7 +69,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
         DirectionalLightComponent
       )
 
-      activeCSMLight.castShadow = !EngineRenderer.instance.isCSMEnabled && activeCSMLightComponent.castShadow
+      activeCSMLight.castShadow = !EngineRenderer.instance.csm && activeCSMLightComponent.castShadow
       activeCSMLightComponent.useInCSM = false
 
       if (!hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)) {
@@ -86,7 +86,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
 
     if (hasComponent(entity, VisibleComponent)) removeComponent(entity, VisibleComponent)
   } else {
-    light.castShadow = !EngineRenderer.instance.isCSMEnabled && component.castShadow
+    light.castShadow = !EngineRenderer.instance.csm && component.castShadow
     component.useInCSM = false
 
     if (EngineRenderer.instance.activeCSMLightEntity === entity) EngineRenderer.instance.activeCSMLightEntity = null

@@ -20,10 +20,10 @@ const getFogPlugin = (world: World): PluginType => {
 }
 
 export default async function FogSystem(world: World) {
-  const updateFogType = (type) => {
+  const updateFogType = () => {
     const scene = world.scene
     const fogData = world.sceneMetadata.fog.get({ noproxy: true })
-    switch (type) {
+    switch (fogData.type) {
       case FogType.Linear:
         scene.fog = new Fog(fogData.color, fogData.near, fogData.far)
         removeFogShader()
@@ -98,6 +98,14 @@ export default async function FogSystem(world: World) {
   world.sceneMetadata.fog.far.subscribe(updateFogFar)
   world.sceneMetadata.fog.timeScale.subscribe(updateFogTimeScale)
   world.sceneMetadata.fog.height.subscribe(updateFogHeight)
+
+  updateFogType()
+  updateFogColor()
+  updateFogDensity()
+  updateFogNear()
+  updateFogFar()
+  updateFogTimeScale()
+  updateFogHeight()
 
   const type = world.sceneMetadata.fog.type
 

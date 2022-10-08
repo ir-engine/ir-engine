@@ -12,7 +12,7 @@ import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRendererConstants'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
-import { updateShadowMapOnSceneLoad } from './functions/RenderSettingsFunction'
+import { updateShadowMap } from './functions/RenderSettingsFunction'
 import { EngineRenderer } from './WebGLRendererSystem'
 
 export const EngineRendererState = defineState({
@@ -81,7 +81,7 @@ function updateState(): void {
   } else {
     setQualityLevel(state.qualityLevel.value)
     setUsePostProcessing(state.usePostProcessing.value)
-    setUseShadows(state.useShadows.value)
+    setUseShadows()
     Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.NodeHelper)
   }
 }
@@ -95,8 +95,8 @@ function setQualityLevel(qualityLevel) {
   EngineRenderer.instance.needsResize = true
 }
 
-function setUseShadows(useShadows) {
-  if (!Engine.instance.isEditor) updateShadowMapOnSceneLoad(useShadows)
+function setUseShadows() {
+  if (!Engine.instance.isEditor) updateShadowMap()
 }
 
 function setUsePostProcessing(usePostProcessing) {
@@ -130,9 +130,9 @@ export class EngineRendererReceptor {
 
   static setShadows(action: typeof EngineRendererAction.setShadows.matches._TYPE) {
     if (action.useShadows && isHMD) return
-    setUseShadows(action.useShadows)
     const s = getState(EngineRendererState)
     s.merge({ useShadows: action.useShadows })
+    setUseShadows()
     ClientStorage.set(RenderSettingKeys.USE_SHADOWS, action.useShadows)
   }
 
