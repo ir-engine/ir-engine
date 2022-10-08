@@ -137,11 +137,7 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   if (action.active) {
     if (getControlMode() === 'attached') {
       if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
-      if (!hasComponent(entity, XRInputSourceComponent)) setupXRInputSourceComponent(entity)
     }
-  } else if (hasComponent(entity, XRInputSourceComponent)) {
-    cleanXRInputs(entity)
-    removeComponent(entity, XRInputSourceComponent)
   }
 })
 

@@ -11,7 +11,6 @@ import { GamepadMapping } from './../input/functions/GamepadInput'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { XRInputSourceComponent } from './XRComponents'
 import { updateXRControllerAnimations } from './XRControllerFunctions'
-import { setupLocalXRInputs } from './XRFunctions'
 import { endXRSession, requestXRSession, xrSessionChanged } from './XRSessionFunctions'
 import { XRAction, XRState } from './XRState'
 
@@ -33,7 +32,6 @@ export default async function XRSystem(world: World) {
 
   navigator.xr?.addEventListener('devicechange', updateSessionSupport)
   updateSessionSupport()
-  setupLocalXRInputs()
 
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
@@ -70,6 +68,7 @@ export default async function XRSystem(world: World) {
       () => import('./8thwall/XR8'),
       () => import('./XRAnchorSystem'),
       () => import('./XRCameraSystem'),
+      () => import('./XRControllerSystem'),
       // () => import('./XRDepthOcclusion'),
       () => import('./XRScenePlacementShader')
     ]
