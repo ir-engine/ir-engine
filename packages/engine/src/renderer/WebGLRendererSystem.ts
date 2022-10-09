@@ -210,9 +210,6 @@ export class EngineRenderer {
   execute(delta: number): void {
     const activeSession = getState(XRState).sessionActive.value
 
-    /** Disable rendering on HMDs when not in a session to improve experience */
-    if (isHMD && !activeSession) return
-
     /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
     if ((isHMD && activeSession) || EngineRenderer.instance.xrSession) {
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
