@@ -296,6 +296,9 @@ export const PostProcessingSettingsEditor = () => {
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
     >
+      <InputGroup name="Use Immersive Media" label={t('editor:properties.postprocessing.enabled')}>
+        <BooleanInput value={postprocessing.enabled.value} onChange={(val) => postprocessing.enabled.set(val)} />
+      </InputGroup>
       {renderEffects()}
     </PropertyGroup>
   )

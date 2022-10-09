@@ -448,6 +448,7 @@
     },
     "postprocessing": {
       "name": "Post Processing",
+      "enabled": "Enabled",
       "description": "For applying Post Processing effects to you scene."
     },
     "mediaSettings": {
