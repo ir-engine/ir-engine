@@ -88,6 +88,8 @@ export const loadAvatarForUser = async (
   if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
     return
 
+  removeComponent(entity, AvatarPendingComponent)
+
   setupAvatarForUser(entity, parent)
 
   if (isClient && loadingEffect) {

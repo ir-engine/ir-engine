@@ -6,6 +6,7 @@ import { defineAction } from '@xrengine/hyperflux'
 import { Entity } from '../ecs/classes/Entity'
 import { NetworkTopics } from '../networking/classes/Network'
 import { DepthDataTexture } from './DepthDataTexture'
+import { XREstimatedLight } from './XREstimatedLight'
 
 export const XRState = defineState({
   name: 'XRState',
@@ -33,7 +34,9 @@ export const XRState = defineState({
     sceneRotationOffset: 0,
     /** Stores the depth map data - will exist if depth map is supported */
     depthDataTexture: null as DepthDataTexture | null,
-    is8thWallActive: false
+    is8thWallActive: false,
+    isEstimatingLight: false,
+    lightEstimator: null! as XREstimatedLight
   })
 })
 

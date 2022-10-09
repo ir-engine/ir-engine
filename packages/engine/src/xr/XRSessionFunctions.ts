@@ -16,7 +16,6 @@ import { InputType } from './../input/enums/InputType'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
 import { cleanXRInputs } from './XRControllerFunctions'
-import { XREstimatedLight } from './XREstimatedLight'
 import { setupXRInputSourceComponent } from './XRFunctions'
 import { getControlMode, XRAction, XRState } from './XRState'
 
@@ -167,33 +166,5 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
     })
   })
 
-  setupWebXRLightprobe()
-
   world.scene.background = null
-}
-
-/**
- * https://github.com/mrdoob/three.js/blob/master/examples/webxr_ar_lighting.html
- */
-export const setupWebXRLightprobe = () => {
-  const xrLight = new XREstimatedLight(EngineRenderer.instance.renderer)
-  xrLight.castShadow = true
-
-  let previousEnvironment = Engine.instance.currentWorld.scene.environment
-
-  xrLight.addEventListener('estimationstart', () => {
-    // Swap the default light out for the estimated one one we start getting some estimated values.
-    Engine.instance.currentWorld.scene.add(xrLight)
-
-    // The estimated lighting also provides an environment cubemap, which we can apply here.
-    if (xrLight.environment) {
-      previousEnvironment = Engine.instance.currentWorld.scene.environment
-      Engine.instance.currentWorld.scene.environment = xrLight.environment
-    }
-  })
-
-  xrLight.addEventListener('estimationend', () => {
-    Engine.instance.currentWorld.scene.remove(xrLight)
-    Engine.instance.currentWorld.scene.environment = previousEnvironment
-  })
 }

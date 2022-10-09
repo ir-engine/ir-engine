@@ -8,7 +8,6 @@ import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/Ent
 import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../../components/DirectionalLightComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializeDirectionalLight, updateDirectionalLight } from './DirectionalLightFunctions'
 
 describe('DirectionalLightFunctions', () => {
@@ -16,8 +15,6 @@ describe('DirectionalLightFunctions', () => {
     it('with CSM', () => {
       createEngine()
       EngineRenderer.instance.csm = null!
-      EngineRenderer.instance.directionalLightEntities = []
-
       const entity = createEntity()
       const node = createEntityNode(entity)
       const world = Engine.instance.currentWorld
@@ -38,8 +35,7 @@ describe('DirectionalLightFunctions', () => {
       deserializeDirectionalLight(entity, sceneComponentData)
       updateDirectionalLight(entity)
 
-      const activeCSMLightEntity = EngineRenderer.instance.directionalLightEntities[0]
-      const light = getComponent(activeCSMLightEntity, DirectionalLightComponent).light
+      const light = getComponent(entity, DirectionalLightComponent).light
 
       assert(light)
       assert(light.color instanceof Color)
