@@ -149,8 +149,7 @@ export default async function XRUISystem(world: World) {
                 : xrInputSourceComponent.controllerRight
             const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
             updateControllerRayInteraction(controller)
-            if (input?.data?.has(GrabInput))
-              updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(GrabInput)!)
+            if (input?.data?.has(GrabInput)) updateClickEventsForController(controller, input.data.get(GrabInput)!)
           }
 
           if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {

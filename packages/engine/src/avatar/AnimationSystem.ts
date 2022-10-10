@@ -158,5 +158,5 @@ export default async function AnimationSystem(world: World) {
     removeActionQueue(avatarAnimationQueue)
   }
 
-  return { execute, cleanup }
+  return { execute, cleanup, subsystems: [() => import('./AvatarIKTargetSystem')] }
 }

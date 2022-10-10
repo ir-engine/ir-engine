@@ -1,21 +1,27 @@
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { setupHandIK } from '../avatar/AvatarIKTargetSystem'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TouchInputs } from '../input/enums/InputEnums'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { BinaryValue } from './../common/enums/BinaryValue'
 import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
-import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  setComponent
+} from './../ecs/functions/ComponentFunctions'
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
-import { cleanXRInputs } from './XRControllerFunctions'
 import { getControlMode, XRAction, XRState } from './XRState'
 
 const skyboxQuery = defineQuery([SkyboxComponent])
@@ -95,12 +101,6 @@ export const requestXRSession = createHookableFunction(
         xrState.originReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)
 
-        if (hasComponent(world.localClientEntity, XRInputSourceComponent)) {
-          cleanXRInputs(world.localClientEntity)
-          removeComponent(world.localClientEntity, XRInputSourceComponent)
-        }
-        if (hasComponent(world.localClientEntity, XRHandsInputComponent))
-          removeComponent(world.localClientEntity, XRHandsInputComponent)
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)
         dispatchAction(XRAction.sessionChanged({ active: false }))
@@ -139,7 +139,9 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const setupVRSession = (world = Engine.instance.currentWorld) => {}
+export const setupVRSession = (world = Engine.instance.currentWorld) => {
+  dispatchAction(WorldNetworkAction.setXRMode({ enabled: true, avatarInputControllerType: '' }))
+}
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   EngineRenderer.instance.renderer.domElement.style.display = 'none'

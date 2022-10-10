@@ -24,7 +24,6 @@ import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -52,18 +51,7 @@ export default async function AvatarControllerSystem(world: World) {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
   const controllerQuery = defineQuery([AvatarControllerComponent])
 
-  // const localXRInputQuery = defineQuery([
-  //   LocalInputTagComponent,
-  //   XRInputSourceComponent,
-  //   AvatarControllerComponent,
-  //   TransformComponent
-  // ])
-
   addActionReceptor(AvatarInputSettingsReceptor)
-
-  // const lastCamPos = new Vector3(),
-  //   displacement = new Vector3()
-  // let isLocalXRCameraReady = false
 
   const execute = () => {
     for (const avatarEntity of localControllerQuery.enter()) {
@@ -118,14 +106,6 @@ export default async function AvatarControllerSystem(world: World) {
   }
 
   return { execute, cleanup }
-}
-
-const alignXRInputContainerYawWithAvatar = (entity: Entity) => {
-  const inputSource = getComponent(entity, XRInputSourceComponent)
-  const transform = getComponent(entity, TransformComponent)
-  const dir = new Vector3(0, 0, -1)
-  dir.applyQuaternion(transform.rotation).setY(0).normalize()
-  inputSource.container.quaternion.setFromUnitVectors(V_001, dir)
 }
 
 const _cameraDirection = new Vector3()
