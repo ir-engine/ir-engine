@@ -149,6 +149,7 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {
 }
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
+  setupXRInputSourceComponent(world.localClientEntity)
   EngineRenderer.instance.renderer.domElement.style.display = 'none'
 
   /**

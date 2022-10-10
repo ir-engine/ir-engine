@@ -4,6 +4,7 @@ import { BufferGeometry, Group, Mesh, MeshBasicMaterial } from 'three'
 
 import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
+import { Entity } from '../ecs/classes/Entity'
 import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
@@ -85,6 +86,10 @@ export type XRInputSourceComponentType = {
    */
   controllerLeft: ControllerGroup
   controllerRight: ControllerGroup
+
+  // TOOD: temp solution until clenaer handling of XR Input sources pending https://github.com/XRFoundation/XREngine/pull/7058
+  screenControllerEntity: Entity
+  screenController: ControllerGroup
 
   /**
    * @property {Group} controllerGripLeft

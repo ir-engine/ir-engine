@@ -1,4 +1,4 @@
-import { Group, Object3D, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Group, Object3D, Quaternion, Vector3 } from 'three'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -8,10 +8,13 @@ import { ParityValue } from '../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { createEntity } from '../ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../transform/components/TransformComponent'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { setLocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import {
   ControllerGroup,
   XRHandsInputComponent,
@@ -151,6 +154,8 @@ export const proxifyXRInputs = (entity: Entity) => {
 export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceComponentType => {
   const container = new Group(),
     head = new Group(),
+    screenControllerEntity = createEntity(),
+    screenController = new Group() as ControllerGroup,
     controllerLeft = new Group() as ControllerGroup,
     controllerRight = new Group() as ControllerGroup,
     controllerGripLeft = new Group(),
@@ -168,6 +173,8 @@ export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceCompon
   const inputData = {
     head,
     container,
+    screenControllerEntity,
+    screenController,
     controllerLeft,
     controllerRight,
     controllerGripLeft,
@@ -177,6 +184,11 @@ export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceCompon
     controllerRightParent,
     controllerGripRightParent
   }
+
+  inputData.screenController.add(new AxesHelper())
+  setLocalTransformComponent(inputData.screenControllerEntity, Engine.instance.currentWorld.originEntity)
+  addObjectToGroup(inputData.screenControllerEntity, inputData.screenController)
+  setComponent(inputData.screenControllerEntity, VisibleComponent, true)
 
   addComponent(entity, XRInputSourceComponent, inputData)
   proxifyXRInputs(entity)

@@ -202,6 +202,8 @@ export default async function XRAnchorSystem(world: World) {
         xrState.viewerReferenceSpace.set(null)
         xrState.scenePlacementMode.set(false)
         hasComponent(world.originEntity, XRAnchorComponent) && removeComponent(world.originEntity, XRAnchorComponent)
+        for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
+        for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
       }
     }
 

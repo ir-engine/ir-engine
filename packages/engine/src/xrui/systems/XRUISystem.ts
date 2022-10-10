@@ -1,5 +1,8 @@
 import { WebContainer3D } from '@etherealjs/web-layer/three'
-import { Color } from 'three'
+import { AxesHelper, Color, Vector3 } from 'three'
+import { Quaternion } from 'yuka'
+
+import { getState } from '@xrengine/hyperflux'
 
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -11,7 +14,10 @@ import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { ControllerGroup, XRInputSourceComponent } from '../../xr/XRComponents'
+import { XRState } from '../../xr/XRState'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
@@ -74,6 +80,8 @@ export default async function XRUISystem(world: World) {
       if (layerHit && (!hit || layerHit.intersection.distance < hit.intersection.distance)) hit = layerHit
     }
 
+    controller.lastHit = hit
+
     if (hit) {
       const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
 
@@ -88,8 +96,6 @@ export default async function XRUISystem(world: World) {
           cursor.material.color = normalColor
         }
       }
-
-      controller.lastHit = hit
     } else {
       if (cursor) {
         cursor.material.color = normalColor
@@ -100,12 +106,10 @@ export default async function XRUISystem(world: World) {
 
   const updateClickEventsForController = (controller: ControllerGroup, inputValue: InputValue) => {
     if (inputValue.lifecycleState !== LifecycleValue.Started) return
-    if (controller.cursor.visible) {
-      const hit = controller.lastHit
-      if (hit && hit.intersection.object.visible) {
-        hit.target.dispatchEvent(new PointerEvent('click', { bubbles: true }))
-        hit.target.focus()
-      }
+    const hit = controller.lastHit
+    if (hit && hit.intersection.object.visible) {
+      hit.target.dispatchEvent(new PointerEvent('click', { bubbles: true }))
+      hit.target.focus()
     }
   }
 
@@ -113,6 +117,10 @@ export default async function XRUISystem(world: World) {
   canvas.addEventListener('click', redirectDOMEvent)
   canvas.addEventListener('contextmenu', redirectDOMEvent)
   canvas.addEventListener('dblclick', redirectDOMEvent)
+
+  const hitHelper = new AxesHelper()
+  hitHelper.name = 'hit helper  '
+  Engine.instance.currentWorld.scene.add(hitHelper)
 
   const execute = () => {
     const input = getComponent(world.localClientEntity, InputComponent)
@@ -130,12 +138,23 @@ export default async function XRUISystem(world: World) {
 
     const xrFrame = Engine.instance.xrFrame
     const xrManager = EngineRenderer.instance.xrManager
+    const xrState = getState(XRState)
+
+    const vect = new Vector3()
+
+    // hitHelper.position.set(0,0,0)
+    // hitHelper.lookAt(world.pointerScreenRaycaster.ray.direction)
+    hitHelper.position.copy(world.pointerScreenRaycaster.ray.origin)
 
     if (xrFrame) {
       const localXRInput = localXRInputQuery().length
 
-      if (localXRInput && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
-        xrui.interactionRays = [...xrFrame.session.inputSources].map((source, idx) => xrManager.getController(idx))
+      if (localXRInput)
+        xrui.interactionRays = [
+          xrInputSourceComponent.controllerLeft,
+          xrInputSourceComponent.controllerRight,
+          xrInputSourceComponent.screenController
+        ]
 
       if (!localXRInput && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
         xrui.interactionRays = [world.pointerScreenRaycaster.ray]
@@ -155,8 +174,32 @@ export default async function XRUISystem(world: World) {
 
           if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
             const targetRayPose = xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
+            if (!targetRayPose) continue
+            const viewerTargetRayPose = xrFrame.getPose(source.targetRaySpace, xrState.viewerReferenceSpace.value!)
+            if (!viewerTargetRayPose) continue
+
+            // temporary solution until we have a cleaner XRController implementation pending https://github.com/XRFoundation/XREngine/pull/7058
+            const screenInputTransform = getComponent(
+              xrInputSourceComponent.screenControllerEntity,
+              LocalTransformComponent
+            )
+            screenInputTransform.position.copy(targetRayPose.transform.position as any)
+            screenInputTransform.rotation.copy(targetRayPose.transform.orientation as any)
+
+            // pull the target ray origin closer to the viewer reference space
+            // (on some devices, the screen input source is placed 1 cm away from the viewer, but we often bring screen-space UI much closer)
+            const nearOffset = vect
+              .set(0, 0, -viewerTargetRayPose.transform.position.z - Engine.instance.currentWorld.camera.near)
+              .applyQuaternion(screenInputTransform.rotation)
+            screenInputTransform.position.add(nearOffset)
+
+            updateEntityTransform(xrInputSourceComponent.screenControllerEntity)
+            updateControllerRayInteraction(xrInputSourceComponent.screenController)
             if (input?.data?.has(BaseInput.PRIMARY))
-              updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.PRIMARY)!)
+              updateClickEventsForController(
+                xrInputSourceComponent.screenController,
+                input.data.get(BaseInput.PRIMARY)!
+              )
           }
         }
       }
