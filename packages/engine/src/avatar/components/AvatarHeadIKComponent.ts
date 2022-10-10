@@ -1,6 +1,7 @@
 import { Camera, Object3D } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
 
 /**
  * Rotate the target bone with given camera
@@ -14,4 +15,16 @@ export type AvatarHeadIKComponentType = {
   rotationClamp: number
 }
 
-export const AvatarHeadIKComponent = createMappedComponent<AvatarHeadIKComponentType>('AvatarHeadIKComponent')
+const PoseSchema = {
+  position: Vector3Schema,
+  quaternion: QuaternionSchema
+}
+
+const XRHeadIKSchema = {
+  camera: PoseSchema
+}
+
+export const AvatarHeadIKComponent = createMappedComponent<AvatarHeadIKComponentType, typeof XRHeadIKSchema>(
+  'AvatarHeadIKComponent',
+  XRHeadIKSchema
+)

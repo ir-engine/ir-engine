@@ -61,8 +61,7 @@ export class XRAction {
   static sessionChanged = defineAction({
     type: 'xre.xr.sessionChanged' as const,
     active: matches.boolean,
-    $cache: { removePrevious: true },
-    $topic: NetworkTopics.world
+    $cache: { removePrevious: true }
   })
 
   static changePlacementMode = defineAction({

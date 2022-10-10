@@ -8,8 +8,8 @@ import { defineQuery, getComponent, removeQuery } from '../ecs/functions/Compone
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
+import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 
 export const updateXRControllerAnimations = (inputSource) => {
   const world = Engine.instance.currentWorld
@@ -64,8 +64,6 @@ export default async function AvatarHandAnimationSystem(world: World) {
   const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
   const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
 
-  const xrControllerQuery = defineQuery([AvatarHandsIKComponent])
-  const xrInputQuery = defineQuery([AvatarComponent, AvatarHandsIKComponent, AvatarAnimationComponent])
   //   const xrHandsInputQuery = defineQuery([AvatarComponent, , AvatarHandsIKComponent])
   //   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, AvatarHandsIKComponent])
   //   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, AvatarHandsIKComponent])
@@ -107,8 +105,6 @@ export default async function AvatarHandAnimationSystem(world: World) {
   const cleanup = async () => {
     removeActionQueue(xrHandsConnectedQueue)
     removeQuery(world, headDecapQuery)
-    removeQuery(world, xrControllerQuery)
-    removeQuery(world, xrInputQuery)
     // removeQuery(world, xrHandsInputQuery)
     // removeQuery(world, xrLGripQuery)
     // removeQuery(world, xrRGripQuery)

@@ -1,7 +1,6 @@
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { setupHandIK } from '../avatar/AvatarIKTargetSystem'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TouchInputs } from '../input/enums/InputEnums'
