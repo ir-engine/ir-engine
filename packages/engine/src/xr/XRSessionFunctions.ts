@@ -16,7 +16,6 @@ import { InputType } from './../input/enums/InputType'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
 import { cleanXRInputs } from './XRControllerFunctions'
-import { setupXRInputSourceComponent } from './XRFunctions'
 import { getControlMode, XRAction, XRState } from './XRState'
 
 const skyboxQuery = defineQuery([SkyboxComponent])
@@ -140,9 +139,7 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const setupVRSession = (world = Engine.instance.currentWorld) => {
-  setupXRInputSourceComponent(world.localClientEntity)
-}
+export const setupVRSession = (world = Engine.instance.currentWorld) => {}
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   EngineRenderer.instance.renderer.domElement.style.display = 'none'

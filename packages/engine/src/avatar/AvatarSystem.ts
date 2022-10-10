@@ -24,15 +24,16 @@ import {
   XRLGripButtonComponent,
   XRRGripButtonComponent
 } from '../xr/XRComponents'
-import { initializeHandModel, initializeXRInputs } from '../xr/XRControllerFunctions'
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/XRControllerFunctions'
-import { proxifyXRInputs } from '../xr/XRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
+import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
+
+const EPSILON = 1e-6
 
 export function avatarDetailsReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
@@ -54,86 +55,77 @@ export function xrHandsConnectedReceptor(
   const entity = world.getUserAvatarEntity(action.$from)
   if (!entity) return false
 
-  if (!hasComponent(entity, XRHandsInputComponent)) {
-    addComponent(entity, XRHandsInputComponent, {
-      hands: [new Group(), new Group()]
-    })
-  }
-
-  const xrInputSource = getComponent(entity, XRHandsInputComponent)
-
-  xrInputSource.hands.forEach((controller: any, i: number) => {
-    initializeHandModel(entity, controller, i === 0 ? 'left' : 'right')
-  })
-
   return true
 }
 
 export default async function AvatarSystem(world: World) {
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
   const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
+  const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
 
-  const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
-  const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
-  const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
-  const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
+  // const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
+  // const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
+  // const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
+  // const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
 
   const execute = () => {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
     for (const action of xrHandsConnectedQueue()) xrHandsConnectedReceptor(action)
 
-    for (const entity of xrInputQuery.enter(world)) {
-      xrInputQueryEnter(entity)
+    // for (const entity of xrHandsInputQuery.enter(world)) {
+    //   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+    //   const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
+    //   const container = xrInputSourceComponent.container
+    //   container.add(...xrHandsComponent.hands)
+    // }
+
+    // for (const entity of xrLGripQuery.enter()) {
+    //   const inputComponent = getComponent(entity, XRInputSourceComponent)
+    //   playTriggerPressAnimation(inputComponent.controllerGripLeft)
+    // }
+
+    // for (const entity of xrRGripQuery.enter()) {
+    //   const inputComponent = getComponent(entity, XRInputSourceComponent)
+    //   playTriggerPressAnimation(inputComponent.controllerGripRight)
+    // }
+
+    // for (const entity of xrLGripQuery.exit()) {
+    //   const inputComponent = getComponent(entity, XRInputSourceComponent, true)
+    //   if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
+    // }
+
+    // for (const entity of xrRGripQuery.exit()) {
+    //   const inputComponent = getComponent(entity, XRInputSourceComponent, true)
+    //   if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripRight)
+    // }
+
+    for (const entity of headDecapQuery(world)) {
+      if (!hasComponent(entity, AvatarAnimationComponent)) continue
+      const rig = getComponent(entity, AvatarAnimationComponent).rig
+      rig.Head?.scale.setScalar(EPSILON)
     }
 
-    for (const entity of xrInputQuery.exit(world)) {
-      xrInputQueryExit(entity)
-    }
-
-    for (const entity of xrHandsInputQuery.enter(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
-      const container = xrInputSourceComponent.container
-      container.add(...xrHandsComponent.hands)
-    }
-
-    for (const entity of xrLGripQuery.enter()) {
-      const inputComponent = getComponent(entity, XRInputSourceComponent)
-      playTriggerPressAnimation(inputComponent.controllerGripLeft)
-    }
-
-    for (const entity of xrRGripQuery.enter()) {
-      const inputComponent = getComponent(entity, XRInputSourceComponent)
-      playTriggerPressAnimation(inputComponent.controllerGripRight)
-    }
-
-    for (const entity of xrLGripQuery.exit()) {
-      const inputComponent = getComponent(entity, XRInputSourceComponent, true)
-      if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
-    }
-
-    for (const entity of xrRGripQuery.exit()) {
-      const inputComponent = getComponent(entity, XRInputSourceComponent, true)
-      if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripRight)
+    for (const entity of headDecapQuery.exit(world)) {
+      if (!hasComponent(entity, AvatarAnimationComponent)) continue
+      const rig = getComponent(entity, AvatarAnimationComponent).rig
+      rig.Head?.scale.setScalar(1)
     }
   }
 
   const cleanup = async () => {
     removeActionQueue(avatarDetailsQueue)
     removeActionQueue(xrHandsConnectedQueue)
-    removeQuery(world, xrInputQuery)
-    removeQuery(world, xrHandsInputQuery)
-    removeQuery(world, xrLGripQuery)
-    removeQuery(world, xrRGripQuery)
+    removeQuery(world, headDecapQuery)
+    // removeQuery(world, xrInputQuery)
+    // removeQuery(world, xrHandsInputQuery)
+    // removeQuery(world, xrLGripQuery)
+    // removeQuery(world, xrRGripQuery)
   }
 
-  return { execute, cleanup }
+  return { execute, cleanup, subsystems: [() => import('./AvatarIKTargetSystem')] }
 }
 
 export function xrInputQueryExit(entity: Entity) {
-  const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
-  xrInputComponent.container.removeFromParent()
-  xrInputComponent.head.removeFromParent()
   removeComponent(entity, AvatarHeadIKComponent)
   const { leftHint, rightHint } = getComponent(entity, AvatarHandsIKComponent)
   leftHint?.removeFromParent()
@@ -210,12 +202,12 @@ export function setupHandIK(entity: Entity) {
 }
 
 export function xrInputQueryEnter(entity: Entity) {
-  if (isClient) initializeXRInputs(entity)
+  // if (isClient) initializeXRInputs(entity)
 
   setupXRInputSourceContainer(entity)
 
   if (!hasComponent(entity, NetworkObjectOwnedTag)) {
-    proxifyXRInputs(entity)
+    // proxifyXRInputs(entity)
     setupHeadIK(entity)
   }
 

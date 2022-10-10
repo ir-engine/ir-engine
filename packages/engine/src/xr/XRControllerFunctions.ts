@@ -1,15 +1,4 @@
-import {
-  AdditiveBlending,
-  AnimationMixer,
-  BoxGeometry,
-  BufferAttribute,
-  Group,
-  LoopOnce,
-  Mesh,
-  MeshBasicMaterial,
-  RingGeometry,
-  SphereGeometry
-} from 'three'
+import { AnimationMixer, Group, LoopOnce } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -19,12 +8,9 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { AssetLoader } from './../assets/classes/AssetLoader'
 import { SkeletonUtils } from './../avatar/SkeletonUtils'
 import { Entity } from './../ecs/classes/Entity'
-import { getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
+import { getComponent } from './../ecs/functions/ComponentFunctions'
 import { AvatarControllerType } from './../input/enums/InputEnums'
-import { NetworkObjectOwnedTag } from './../networking/components/NetworkObjectOwnedTag'
-import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import {
-  ControllerGroup,
   XRControllerGripComponent,
   XRHandComponent,
   XRInputSourceComponent,

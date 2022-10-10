@@ -1,5 +1,6 @@
 import {
   AdditiveBlending,
+  AxesHelper,
   BoxGeometry,
   BufferAttribute,
   Group,
@@ -9,7 +10,7 @@ import {
   SphereGeometry
 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -21,7 +22,10 @@ import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import {
+  LocalTransformComponent,
   setLocalTransformComponent,
   setTransformComponent,
   TransformComponent
@@ -33,7 +37,7 @@ import {
   XRInputSourceComponent
 } from './XRComponents'
 import { initializeControllerModel, initializeHandModel } from './XRControllerFunctions'
-import { XRAction } from './XRState'
+import { XRAction, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createController = (inputSource: XRInputSource) => {
@@ -133,57 +137,71 @@ const updateInputSource = (entity: Entity, space: XRSpace, referenceSpace: XRRef
 export const xrInputSourcesMap = new Map<XRInputSource, Entity>()
 
 export default async function XRControllerSystem(world: World) {
+  const xrState = getState(XRState)
+
+  const addInputSourceEntity = (inputSource: XRInputSource) => {
+    let targetRaySpace = inputSource.targetRaySpace
+    let gripSpace = inputSource.gripSpace
+    let hand = inputSource.hand
+
+    // Some runtimes (namely Vive Cosmos with Vive OpenXR Runtime) have only grip space and ray space is equal to it
+    if (gripSpace && !targetRaySpace) {
+      targetRaySpace = gripSpace
+      gripSpace = null!
+    }
+
+    const entity = createEntity()
+    const handednessLabel =
+      inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
+    setComponent(entity, NameComponent, { name: `XR Controller${handednessLabel}` })
+    const pointer = createController(inputSource)
+    if (pointer) addObjectToGroup(entity, pointer)
+
+    // controller.targetRay = targetRay
+    setComponent(entity, XRControllerComponent, { targetRaySpace, handedness: inputSource.handedness })
+    setVelocityComponent(entity)
+    xrInputSourcesMap.set(inputSource, entity)!
+    const targetRayHelper = new AxesHelper(1)
+    setObjectLayers(targetRayHelper, ObjectLayers.PhysicsHelper)
+    addObjectToGroup(entity, targetRayHelper)
+
+    if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(entity)
+    if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(entity)
+
+    if (gripSpace) {
+      const gripEntity = createEntity()
+      setComponent(gripEntity, XRControllerGripComponent, { gripSpace, handedness: inputSource.handedness })
+      setVelocityComponent(gripEntity)
+      setComponent(gripEntity, NameComponent, { name: `XR Grip${handednessLabel}` })
+      // initializeControllerModel(gripEntity)
+      const gripAxisHelper = new AxesHelper(1)
+      setObjectLayers(gripAxisHelper, ObjectLayers.PhysicsHelper)
+      addObjectToGroup(gripEntity, gripAxisHelper)
+    }
+
+    if (hand) {
+      const handEntity = createEntity()
+      setComponent(handEntity, XRHandComponent, { hand, handedness: inputSource.handedness })
+      setVelocityComponent(handEntity)
+      setComponent(handEntity, NameComponent, { name: `XR Hand${handednessLabel}` })
+      // initializeHandModel(handEntity)
+      const handAxisHelper = new AxesHelper(1)
+      setObjectLayers(handAxisHelper, ObjectLayers.PhysicsHelper)
+      addObjectToGroup(handEntity, handAxisHelper)
+    }
+  }
+
+  const removeInputSourceEntity = (inputSource: XRInputSource) => {
+    if (!xrInputSourcesMap.has(inputSource)) return
+    if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(null)
+    if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(null)
+    removeEntity(xrInputSourcesMap.get(inputSource)!)
+    xrInputSourcesMap.delete(inputSource)
+  }
+
   const onInputSourcesChange = ({ removed, added }: XRInputSourceChangeEvent) => {
-    for (const inputSource of removed) {
-      removeEntity(xrInputSourcesMap.get(inputSource)!)
-      xrInputSourcesMap.delete(inputSource)
-    }
-
-    for (const inputSource of added) {
-      let targetRaySpace = inputSource.targetRaySpace
-      let gripSpace = inputSource.gripSpace
-      let hand = inputSource.hand
-
-      // Some runtimes (namely Vive Cosmos with Vive OpenXR Runtime) have only grip space and ray space is equal to it
-      if (gripSpace && !targetRaySpace) {
-        targetRaySpace = gripSpace
-        gripSpace = null!
-      }
-
-      const entity = createEntity()
-      const handednessLabel =
-        inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
-      setComponent(entity, NameComponent, { name: `XR Controller${handednessLabel}` })
-      setTransformComponent(entity)
-      setLocalTransformComponent(entity, world.localClientEntity)
-      const pointer = createController(inputSource)
-      if (pointer) addObjectToGroup(entity, pointer)
-
-      // controller.targetRay = targetRay
-      setComponent(entity, XRControllerComponent, { targetRaySpace, handedness: inputSource.handedness })
-      setVelocityComponent(entity)
-      xrInputSourcesMap.set(inputSource, entity)!
-
-      if (gripSpace) {
-        const gripEntity = createEntity()
-        setComponent(gripEntity, XRControllerGripComponent, { gripSpace, handedness: inputSource.handedness })
-        setTransformComponent(gripEntity)
-        setLocalTransformComponent(gripEntity, entity)
-        setVelocityComponent(gripEntity)
-        setComponent(gripEntity, NameComponent, { name: `XR Grip${handednessLabel}` })
-        initializeControllerModel(entity)
-      }
-
-      if (hand) {
-        const handEntity = createEntity()
-        setComponent(handEntity, XRHandComponent, { hand, handedness: inputSource.handedness })
-        setTransformComponent(handEntity)
-        setLocalTransformComponent(handEntity, entity)
-        setVelocityComponent(handEntity)
-        setComponent(handEntity, NameComponent, { name: `XR Hand${handednessLabel}` })
-        initializeHandModel(handEntity)
-      }
-    }
+    for (const inputSource of removed) removeInputSourceEntity(inputSource)
+    for (const inputSource of added) addInputSourceEntity(inputSource)
   }
 
   const controllerQuery = defineQuery([XRControllerComponent])
@@ -192,10 +210,22 @@ export default async function XRControllerSystem(world: World) {
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   const execute = () => {
-    for (const action of xrSessionChangedQueue())
-      if (action.active) EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', onInputSourcesChange)
+    const sessionStarted = xrSessionChangedQueue()
+    if (sessionStarted.length && sessionStarted[0].active)
+      EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', onInputSourcesChange)
 
     if (Engine.instance.xrFrame) {
+      /**
+       * @todo
+       * when the session starts, we cant easily add the inputsourceschange event when we need it, so we lazily check all input sources here
+       */
+      if (sessionStarted.length) {
+        const inputSources = Array.from(Engine.instance.xrFrame.session.inputSources)
+        for (const inputSource of inputSources) addInputSourceEntity(inputSource)
+        for (const [inputSource] of Array.from(xrInputSourcesMap))
+          if (!inputSources.includes(inputSource)) removeInputSourceEntity(inputSource)
+      }
+
       const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
       if (referenceSpace) {
         for (const entity of controllerQuery()) {

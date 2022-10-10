@@ -4,12 +4,15 @@ import { BufferGeometry, Group, Mesh, MeshBasicMaterial } from 'three'
 
 import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
+import { proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
 export type XRGripButtonComponentType = {}
 
+/** @deprecated */
 export const XRLGripButtonComponent = createMappedComponent<XRGripButtonComponentType>('XRLGripButtonComponent')
+/** @deprecated */
 export const XRRGripButtonComponent = createMappedComponent<XRGripButtonComponentType>('XRRGripButtonComponent')
 
 export type XRHandsInputComponentType = {

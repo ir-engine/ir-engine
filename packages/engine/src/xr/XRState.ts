@@ -36,7 +36,9 @@ export const XRState = defineState({
     depthDataTexture: null as DepthDataTexture | null,
     is8thWallActive: false,
     isEstimatingLight: false,
-    lightEstimator: null! as XREstimatedLight
+    lightEstimator: null! as XREstimatedLight,
+    leftControllerEntity: null as Entity | null,
+    rightControllerEntity: null as Entity | null
   })
 })
 
