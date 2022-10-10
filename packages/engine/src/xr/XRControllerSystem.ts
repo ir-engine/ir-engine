@@ -17,7 +17,7 @@ import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
@@ -29,26 +29,21 @@ import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
-} from '../transform/components/TransformComponent'
-import {
-  XRControllerComponent,
-  XRControllerGripComponent,
-  XRHandComponent,
-  XRInputSourceComponent
-} from './XRComponents'
-import { initializeControllerModel, initializeHandModel } from './XRControllerFunctions'
+import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRControllerComponent, XRControllerGripComponent, XRHandComponent, XRPointerComponent } from './XRComponents'
 import { XRAction, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
-const createController = (inputSource: XRInputSource) => {
+const createPointer = (inputSource: XRInputSource) => {
   let geometry, material
   switch (inputSource.targetRayMode) {
+    case 'gaze':
+      geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
+      material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
+      return new Mesh(geometry, material)
+
     case 'tracked-pointer':
+    default:
       geometry = new BoxGeometry(0.005, 0.005, 0.25)
       const positions = geometry.attributes.position
       const count = positions.count
@@ -64,11 +59,6 @@ const createController = (inputSource: XRInputSource) => {
       const mesh = new Mesh(geometry, material)
       mesh.position.z = -0.125
       return mesh
-
-    case 'gaze':
-      geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
-      material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
-      return new Mesh(geometry, material)
   }
 }
 
@@ -202,8 +192,13 @@ export default async function XRControllerSystem(world: World) {
     const handednessLabel =
       inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
     setComponent(entity, NameComponent, { name: `XR Controller${handednessLabel}` })
-    const pointer = createController(inputSource)
-    if (pointer) addObjectToGroup(entity, pointer)
+    const pointer = createPointer(inputSource) as Mesh & { cursor: Mesh }
+    addObjectToGroup(entity, pointer)
+    setComponent(entity, XRPointerComponent, { pointer })
+    const cursor = createUICursor()
+    pointer.cursor = cursor
+    pointer.add(cursor)
+    cursor.visible = false
 
     // controller.targetRay = targetRay
     setComponent(entity, XRControllerComponent, { targetRaySpace, handedness: inputSource.handedness })

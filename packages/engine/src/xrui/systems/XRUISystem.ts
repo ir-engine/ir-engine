@@ -140,23 +140,21 @@ export default async function XRUISystem(world: World) {
       if (!localXRInput && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
         xrui.interactionRays = [world.pointerScreenRaycaster.ray]
 
-      if (xrInputSourceComponent) {
-        for (const [idx, source] of xrFrame.session.inputSources.entries()) {
-          if (source.targetRayMode === 'tracked-pointer') {
-            const controller =
-              source.handedness === 'left'
-                ? xrInputSourceComponent.controllerLeft
-                : xrInputSourceComponent.controllerRight
-            const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
-            updateControllerRayInteraction(controller)
-            if (input?.data?.has(GrabInput)) updateClickEventsForController(controller, input.data.get(GrabInput)!)
-          }
+      for (const [idx, source] of xrFrame.session.inputSources.entries()) {
+        if (source.targetRayMode === 'tracked-pointer') {
+          const controller =
+            source.handedness === 'left'
+              ? xrInputSourceComponent.controllerLeft
+              : xrInputSourceComponent.controllerRight
+          const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
+          updateControllerRayInteraction(controller)
+          if (input?.data?.has(GrabInput)) updateClickEventsForController(controller, input.data.get(GrabInput)!)
+        }
 
-          if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-            const targetRayPose = xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
-            if (input?.data?.has(BaseInput.PRIMARY))
-              updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.PRIMARY)!)
-          }
+        if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
+          const targetRayPose = xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
+          if (input?.data?.has(BaseInput.PRIMARY))
+            updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.PRIMARY)!)
         }
       }
     }

@@ -1,6 +1,16 @@
 // TODO: this should not be here
 import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
-import { BufferGeometry, Group, Mesh, MeshBasicMaterial } from 'three'
+import {
+  AdditiveBlending,
+  BoxGeometry,
+  BufferAttribute,
+  BufferGeometry,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  RingGeometry
+} from 'three'
 
 import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
@@ -197,6 +207,26 @@ export const XRControllerComponent = defineComponent({
     return null! as {
       targetRaySpace: XRSpace
       handedness: XRHandedness
+    }
+  }
+})
+
+export const XRPointerComponent = defineComponent({
+  name: 'XRPointer',
+
+  onAdd: (entity) => {
+    return {
+      pointer: null! as Mesh
+    }
+  },
+
+  onUpdate: (entity, component, json) => {
+    if (json.pointer) component.pointer = json.pointer as Mesh
+  },
+
+  toJSON: () => {
+    return null! as {
+      pointer: Mesh
     }
   }
 })

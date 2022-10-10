@@ -10,12 +10,7 @@ import { SkeletonUtils } from './../avatar/SkeletonUtils'
 import { Entity } from './../ecs/classes/Entity'
 import { getComponent } from './../ecs/functions/ComponentFunctions'
 import { AvatarControllerType } from './../input/enums/InputEnums'
-import {
-  XRControllerGripComponent,
-  XRHandComponent,
-  XRInputSourceComponent,
-  XRInputSourceComponentType
-} from './XRComponents'
+import { XRControllerGripComponent, XRHandComponent } from './XRComponents'
 import { XRHandMeshModel } from './XRHandMeshModel'
 
 export const initializeControllerModel = async (entity: Entity) => {
@@ -86,17 +81,4 @@ export const initializeHandModel = async (entity: Entity) => {
   fistAction.clampWhenFinished = true
   controller.userData.mixer = mixer
   controller.userData.actions = [fistAction]
-}
-
-export const cleanXRInputs = (entity) => {
-  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-  const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
-
-  controllersGrip.forEach((controller) => {
-    if (controller.userData.mesh) {
-      controller.remove(controller.userData.mesh)
-      controller.userData.mesh = null
-      controller.userData.initialized = false
-    }
-  })
 }
