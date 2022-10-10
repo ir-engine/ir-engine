@@ -89,8 +89,8 @@ export function setupHandIK(entity: Entity) {
     hint: leftHint,
     targetOffset: leftOffset,
     targetPosWeight: 1,
-    targetRotWeight: 1,
-    hintWeight: -1
+    targetRotWeight: 0,
+    hintWeight: 1
   })
 
   const lefthand = getComponent(entity, AvatarLeftHandIKComponent)
@@ -102,8 +102,8 @@ export function setupHandIK(entity: Entity) {
     hint: rightHint,
     targetOffset: rightOffset,
     targetPosWeight: 1,
-    targetRotWeight: 1,
-    hintWeight: -1
+    targetRotWeight: 0,
+    hintWeight: 1
   })
 
   const rightHand = getComponent(entity, AvatarRightHandIKComponent)
