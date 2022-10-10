@@ -16,6 +16,13 @@
             "port": 3000
         },
         {
+            "command": "npm run dev-analytics",
+            "name": "npm run dev-analytics",
+            "request": "launch",
+            "type": "node-terminal",
+            "port": 3000
+        },
+        {
             "command": "npm run dev-reinit",
             "name": "npm run dev-reinit",
             "request": "launch",
