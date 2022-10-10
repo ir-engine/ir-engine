@@ -51,6 +51,7 @@ export default async function XRUISystem(world: World) {
   const redirectDOMEvent = (evt) => {
     for (const entity of visibleXruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
+      layer.updateWorldMatrix(true, true)
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
@@ -109,10 +110,10 @@ export default async function XRUISystem(world: World) {
     }
   }
 
-  const canvas = EngineRenderer.instance.renderer.getContext().canvas
-  canvas.addEventListener('click', redirectDOMEvent)
-  canvas.addEventListener('contextmenu', redirectDOMEvent)
-  canvas.addEventListener('dblclick', redirectDOMEvent)
+  // const canvas = EngineRenderer.instance.renderer.getContext().canvas
+  document.body.addEventListener('click', redirectDOMEvent)
+  document.body.addEventListener('contextmenu', redirectDOMEvent)
+  document.body.addEventListener('dblclick', redirectDOMEvent)
 
   const execute = () => {
     const input = getComponent(world.localClientEntity, InputComponent)
@@ -134,8 +135,10 @@ export default async function XRUISystem(world: World) {
     if (xrFrame) {
       const localXRInput = localXRInputQuery().length
 
-      if (localXRInput && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
+      if (localXRInput && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray) {
         xrui.interactionRays = [...xrFrame.session.inputSources].map((source, idx) => xrManager.getController(idx))
+        xrui.interactionRays.push(world.pointerScreenRaycaster.ray)
+      }
 
       if (!localXRInput && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
         xrui.interactionRays = [world.pointerScreenRaycaster.ray]
