@@ -144,7 +144,8 @@ export default async function XRUISystem(world: World) {
 
     /** do intersection tests */
     for (const source of world.inputSources) {
-      const controllerEntity = xrInputSourcesMap.get(source)!
+      const controllerEntity = xrInputSourcesMap.get(source)
+      if (!controllerEntity) continue
       const controller = getComponent(controllerEntity, XRPointerComponent).pointer
 
       if (source.targetRayMode === 'tracked-pointer') {
