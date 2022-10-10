@@ -2,11 +2,9 @@ import { Bone, Euler, MathUtils, Vector3 } from 'three'
 
 import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
-import { Axis } from '../common/constants/Axis3D'
-import { V_000 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
@@ -14,17 +12,10 @@ import { DesiredTransformComponent } from '../transform/components/DesiredTransf
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { updateAnimationGraph } from './animation/AnimationGraph'
-import { applyBoneTwist } from './animation/armsTwistCorrection'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
-import { getForwardVector, solveLookIK } from './animation/LookAtIKSolver'
-import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
-import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
-import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
@@ -158,5 +149,9 @@ export default async function AnimationSystem(world: World) {
     removeActionQueue(avatarAnimationQueue)
   }
 
-  return { execute, cleanup, subsystems: [() => import('./AvatarIKTargetSystem')] }
+  return {
+    execute,
+    cleanup,
+    subsystems: [() => import('./AvatarIKTargetSystem'), () => import('./AvatarHandAnimationSystem')]
+  }
 }
