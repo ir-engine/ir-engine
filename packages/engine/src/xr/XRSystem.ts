@@ -32,7 +32,6 @@ export default async function XRSystem(world: World) {
     const xrEndSessionAction = xrEndSessionQueue().pop()
     if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)
     if (xrEndSessionAction) endXRSession()
-
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
   }
 

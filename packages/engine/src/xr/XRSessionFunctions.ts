@@ -103,6 +103,7 @@ export const requestXRSession = createHookableFunction(
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)
         dispatchAction(XRAction.sessionChanged({ active: false }))
+        dispatchAction(WorldNetworkAction.setXRMode({ enabled: false, avatarInputControllerType: '' }))
       }
       xrManager.addEventListener('sessionend', onSessionEnd)
 

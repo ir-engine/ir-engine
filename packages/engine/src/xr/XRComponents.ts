@@ -90,8 +90,8 @@ export type XRInputSourceComponentType = {
    * @property {ControllerGroup} controllerRight
    * the controllers
    */
-  controllerLeft: ControllerGroup
-  controllerRight: ControllerGroup
+  controllerLeft: PointerObject
+  controllerRight: PointerObject
 
   /**
    * @property {Group} controllerGripLeft
@@ -183,12 +183,6 @@ export const XRAnchorComponent = defineComponent({
   }
 })
 
-export type ControllerGroup = Group & {
-  targetRay: Mesh<BufferGeometry, MeshBasicMaterial>
-  cursor: Mesh<BufferGeometry, MeshBasicMaterial>
-  lastHit: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
-}
-
 export const XRControllerComponent = defineComponent({
   name: 'XRControllerComponent',
   onAdd: (entity) => {
@@ -211,22 +205,28 @@ export const XRControllerComponent = defineComponent({
   }
 })
 
+export type PointerObject = Object3D & {
+  targetRay?: Mesh<BufferGeometry, MeshBasicMaterial>
+  cursor?: Mesh<BufferGeometry, MeshBasicMaterial>
+  lastHit?: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
+}
+
 export const XRPointerComponent = defineComponent({
   name: 'XRPointer',
 
   onAdd: (entity) => {
     return {
-      pointer: null! as Mesh
+      pointer: null! as PointerObject
     }
   },
 
   onUpdate: (entity, component, json) => {
-    if (json.pointer) component.pointer = json.pointer as Mesh
+    if (json.pointer) component.pointer = json.pointer as PointerObject
   },
 
   toJSON: () => {
     return null! as {
-      pointer: Mesh
+      pointer: PointerObject
     }
   }
 })

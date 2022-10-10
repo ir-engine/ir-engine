@@ -30,11 +30,17 @@ import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRControllerComponent, XRControllerGripComponent, XRHandComponent, XRPointerComponent } from './XRComponents'
+import {
+  PointerObject,
+  XRControllerComponent,
+  XRControllerGripComponent,
+  XRHandComponent,
+  XRPointerComponent
+} from './XRComponents'
 import { XRAction, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
-const createPointer = (inputSource: XRInputSource) => {
+const createPointer = (inputSource: XRInputSource): PointerObject => {
   let geometry, material
   switch (inputSource.targetRayMode) {
     case 'gaze':
@@ -192,7 +198,7 @@ export default async function XRControllerSystem(world: World) {
     const handednessLabel =
       inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
     setComponent(entity, NameComponent, { name: `XR Controller${handednessLabel}` })
-    const pointer = createPointer(inputSource) as Mesh & { cursor: Mesh }
+    const pointer = createPointer(inputSource)
     addObjectToGroup(entity, pointer)
     setComponent(entity, XRPointerComponent, { pointer })
     const cursor = createUICursor()
@@ -239,6 +245,7 @@ export default async function XRControllerSystem(world: World) {
     if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(null)
     if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(null)
     removeEntity(xrInputSourcesMap.get(inputSource)!)
+    // todo, remove grip and hand entities too
     xrInputSourcesMap.delete(inputSource)
   }
 
@@ -254,8 +261,13 @@ export default async function XRControllerSystem(world: World) {
 
   const execute = () => {
     const sessionStarted = xrSessionChangedQueue()
-    if (sessionStarted.length && sessionStarted[0].active)
-      EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', onInputSourcesChange)
+    if (sessionStarted.length) {
+      if (sessionStarted[0].active) {
+        EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', onInputSourcesChange)
+      } else {
+        for (const [inputSource] of Array.from(xrInputSourcesMap)) removeInputSourceEntity(inputSource)
+      }
+    }
 
     if (Engine.instance.xrFrame) {
       const session = Engine.instance.xrFrame.session
@@ -286,6 +298,10 @@ export default async function XRControllerSystem(world: World) {
 
         for (const entity of handQuery()) updateHand(entity, referenceSpace)
       }
+
+      world.inputSources = [...session.inputSources.values()]
+    } else {
+      world.inputSources = []
     }
   }
 
