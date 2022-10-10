@@ -1,5 +1,5 @@
 import { WebContainer3D } from '@etherealjs/web-layer/three'
-import { Color } from 'three'
+import { Color, Object3D, Ray } from 'three'
 
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -51,6 +51,7 @@ export default async function XRUISystem(world: World) {
   const redirectDOMEvent = (evt) => {
     for (const entity of visibleXruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
+      layer.updateWorldMatrix(true, true)
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
@@ -109,10 +110,10 @@ export default async function XRUISystem(world: World) {
     }
   }
 
-  const canvas = EngineRenderer.instance.renderer.getContext().canvas
-  canvas.addEventListener('click', redirectDOMEvent)
-  canvas.addEventListener('contextmenu', redirectDOMEvent)
-  canvas.addEventListener('dblclick', redirectDOMEvent)
+  // const canvas = EngineRenderer.instance.renderer.getContext().canvas
+  document.body.addEventListener('click', redirectDOMEvent)
+  document.body.addEventListener('contextmenu', redirectDOMEvent)
+  document.body.addEventListener('dblclick', redirectDOMEvent)
 
   const execute = () => {
     const input = getComponent(world.localClientEntity, InputComponent)
@@ -130,14 +131,18 @@ export default async function XRUISystem(world: World) {
     const xrFrame = Engine.instance.xrFrame
     const pointerEntities = pointerQuery()
 
+    /** Update the objects to use for intersection tests */
     if (xrFrame && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
-      xrui.interactionRays = pointerEntities
-        .filter((entity) => entity !== world.cameraEntity)
-        .map((entity) => getComponent(entity, XRPointerComponent).pointer)
+      xrui.interactionRays = (
+        pointerEntities
+          .filter((entity) => entity !== world.cameraEntity)
+          .map((entity) => getComponent(entity, XRPointerComponent).pointer) as (Object3D | Ray)[]
+      ).concat(world.pointerScreenRaycaster.ray)
 
     if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
 
+    /** do intersection tests */
     for (const source of world.inputSources) {
       const controllerEntity = xrInputSourcesMap.get(source)!
       const controller = getComponent(controllerEntity, XRPointerComponent).pointer
@@ -153,6 +158,8 @@ export default async function XRUISystem(world: World) {
           updateClickEventsForController(controller, input.data.get(BaseInput.PRIMARY)!)
     }
 
+    /** only update visible XRUI */
+
     for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
       xrui.container.update()
@@ -164,9 +171,9 @@ export default async function XRUISystem(world: World) {
   }
 
   const cleanup = async () => {
-    canvas.removeEventListener('click', redirectDOMEvent)
-    canvas.removeEventListener('contextmenu', redirectDOMEvent)
-    canvas.removeEventListener('dblclick', redirectDOMEvent)
+    document.body.removeEventListener('click', redirectDOMEvent)
+    document.body.removeEventListener('contextmenu', redirectDOMEvent)
+    document.body.removeEventListener('dblclick', redirectDOMEvent)
     removeQuery(world, xruiQuery)
     removeQuery(world, visibleXruiQuery)
     removeQuery(world, pointerQuery)

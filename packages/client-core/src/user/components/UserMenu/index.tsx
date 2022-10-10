@@ -94,29 +94,27 @@ export const UserMenu = (props: Props): any => {
               currentActiveMenu?.view ? styles.fadeOutBottom : ''
             }`}
           >
-            {!xrSessionActive.value && (
-              <div className={styles.iconContainer}>
-                {Array.from(HotbarMenu.keys()).map((id, index) => {
-                  const IconNode = HotbarMenu.get(id)
-                  return (
-                    <span
-                      key={index}
-                      id={id + '_' + index}
-                      onClick={() => setCurrentActiveMenu({ view: id })}
-                      className={`${styles.materialIconBlock} ${
-                        currentActiveMenu && currentActiveMenu.view === id ? styles.activeMenu : null
-                      }`}
-                    >
-                      <IconNode
-                        className={styles.icon}
-                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      />
-                    </span>
-                  )
-                })}
-              </div>
-            )}
+            <div className={styles.iconContainer}>
+              {Array.from(HotbarMenu.keys()).map((id, index) => {
+                const IconNode = HotbarMenu.get(id)
+                return (
+                  <span
+                    key={index}
+                    id={id + '_' + index}
+                    onClick={() => setCurrentActiveMenu({ view: id })}
+                    className={`${styles.materialIconBlock} ${
+                      currentActiveMenu && currentActiveMenu.view === id ? styles.activeMenu : null
+                    }`}
+                  >
+                    <IconNode
+                      className={styles.icon}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    />
+                  </span>
+                )
+              })}
+            </div>
           </section>
           {currentActiveMenu && currentActiveMenu.view && (
             <div style={{ pointerEvents: 'auto' }}>
