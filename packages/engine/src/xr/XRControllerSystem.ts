@@ -272,12 +272,10 @@ export default async function XRControllerSystem(world: World) {
         EngineRenderer.instance.xrSession.addEventListener('selectstart', (ev) => {
           const entity = addInputSourceEntity(ev.inputSource)
           xrState.viewerInputSourceEntity.set(entity)
-          console.log(ev)
         })
         EngineRenderer.instance.xrSession.addEventListener('selectend', (ev) => {
           removeInputSourceEntity(ev.inputSource)
           xrState.viewerInputSourceEntity.set(null)
-          console.log(ev)
         })
         EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', onInputSourcesChange)
       } else {
