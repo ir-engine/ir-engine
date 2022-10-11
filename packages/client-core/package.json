@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc4",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -46,9 +46,9 @@
     "@mui/styled-engine-sc": "5.10.0",
     "@mui/styles": "5.9.3",
     "@mui/x-date-pickers": "5.0.0-beta.4",
-    "@xrengine/common": "^1.0.0-rc3",
-    "@xrengine/engine": "^1.0.0-rc3",
-    "@xrengine/hyperflux": "^1.0.0-rc3",
+    "@xrengine/common": "^1.0.0-rc4",
+    "@xrengine/engine": "^1.0.0-rc4",
+    "@xrengine/hyperflux": "^1.0.0-rc4",
     "apexcharts": "^3.28.3",
     "axios": "0.26.1",
     "classnames": "2.3.1",
@@ -79,7 +79,6 @@
     "react-router-dom": "5.3.0",
     "semantic-ui-react": "2.1.2",
     "socket.io-client": "4.4.1",
-    "stats.js": "0.17.0",
     "styled-components": "5.3.3",
     "typescript": "4.8.3",
     "uuid": "8.3.2",
@@ -93,7 +92,7 @@
     "@types/three": "0.144.0",
     "css-modules-require-hook": "4.2.3",
     "esbuild": "0.14.36",
-    "mocha": "9.2.2",
+    "mocha": "10.0.0",
     "react-dom": "18.2.0",
     "rimraf": "3.0.2",
     "sass": "^1.52.3",

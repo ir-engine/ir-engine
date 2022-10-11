@@ -1,17 +1,28 @@
-import { Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import {
+  Color,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  MeshPhongMaterial,
+  MeshStandardMaterial,
+  Vector3
+} from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
+import { isHMD, isMobileOrHMD } from '../../common/functions/isMobile'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
 import { CallbackComponent } from '../components/CallbackComponent'
@@ -34,6 +45,8 @@ export class SceneOptions {
   boxProjection = false
 }
 
+export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
+
 const updateObject = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as (Object3DWithEntity & Mesh<any, MeshStandardMaterial>)[]
   const shadowComponent = getComponent(entity, ShadowComponent)
@@ -47,7 +60,7 @@ const updateObject = (entity: Entity) => {
       obj.castShadow = shadowComponent.cast
     }
   }
-  if (Engine.instance.isHMD) return
+  if (isHMD) return
 
   if (hasComponent(entity, XRUIComponent)) return
 
@@ -64,7 +77,7 @@ const updateObject = (entity: Entity) => {
 }
 
 const applyMaterial = (obj: Mesh<any, any>) => {
-  if (!obj.material) return
+  if (!obj.material?.userData) return
   const material = obj.material
 
   // BPCEM
@@ -93,6 +106,8 @@ export default async function SceneObjectSystem(world: World) {
   const sceneObjectQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
+  const xrState = getState(XRState)
+
   const execute = () => {
     for (const entity of sceneObjectQuery.exit()) {
       const group = getComponent(entity, GroupComponent, true)
@@ -104,17 +119,21 @@ export default async function SceneObjectSystem(world: World) {
       }
     }
 
-    /** ensure the HMD has no heavy materials */
-    if (Engine.instance.isHMD) {
+    /** ensure that hmd has no heavy materials */
+    if (isHMD || xrState.is8thWallActive.value) {
+      // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
       world.scene.traverse((obj: Mesh<any, any>) => {
         if (obj.material)
-          if (!(obj.material instanceof MeshBasicMaterial || obj.material instanceof MeshLambertMaterial)) {
-            obj.material = new MeshLambertMaterial({
-              color: obj.material.color,
-              flatShading: obj.material.flatShading,
-              map: obj.material.map,
-              fog: obj.material.fog
-            })
+          if (ExpensiveMaterials.has(obj.material.constructor)) {
+            const prevMaterial = obj.material
+            const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+            prevMaterial.dispose()
+            obj.material = new MeshBasicMaterial().copy(prevMaterial)
+            obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
+            obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
+
+            // todo: find out why leaving the envMap makes basic & lambert materials transparent here
+            obj.material.envMap = null
           }
       })
     }
@@ -133,5 +152,12 @@ export default async function SceneObjectSystem(world: World) {
     removeQuery(world, updatableQuery)
   }
 
-  return { execute, cleanup }
+  const subsystems = [() => import('./FogSystem')]
+  if (isClient) subsystems.push(() => import('./ShadowSystem'))
+
+  return {
+    execute,
+    cleanup,
+    subsystems
+  }
 }

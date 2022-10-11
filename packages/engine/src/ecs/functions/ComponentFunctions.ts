@@ -223,8 +223,7 @@ export const removeComponent = <T, S, J>(
     throw new Error('[removeComponent]: world is undefined')
   }
   bitECS.removeComponent(world, component, entity, false)
-  const c = component.map?.get(entity)!
-  component.onRemove(entity, c)
+  if (component.map?.has(entity)) component.onRemove(entity, component.map.get(entity)!)
 }
 
 export const getAllComponents = (entity: Entity, world = Engine.instance.currentWorld): Component[] => {
@@ -302,3 +301,6 @@ export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComp
 globalThis.XRE_getComponent = getComponent
 globalThis.XRE_getAllComponents = getAllComponents
 globalThis.XRE_getAllComponentData = getAllComponentData
+globalThis.XRE_addComponent = addComponent
+globalThis.XRE_setComponent = setComponent
+globalThis.XRE_removeComponent = removeComponent

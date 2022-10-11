@@ -2,7 +2,7 @@ import { Matrix4, Vector3 } from 'three'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 

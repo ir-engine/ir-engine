@@ -36,7 +36,7 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
    * A model is required for LoopAnimationComponent to work.
    * If we do not detect one, throw a warning.
    */
-  const scene = getComponent(entity, ModelComponent).scene
+  const scene = getComponent(entity, ModelComponent).scene.value!
   if (!scene) {
     console.warn('Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?')
     return

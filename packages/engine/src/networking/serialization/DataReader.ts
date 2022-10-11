@@ -4,6 +4,8 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../avatar/components/AvatarHandsIKComponent'
+import { AvatarHeadIKComponent } from '../../avatar/components/AvatarHeadIKComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -195,55 +197,37 @@ export const readVelocity = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
 }
 
-export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)
-export const readXRContainerRotation = readCompressedRotation(XRInputSourceComponent.container.quaternion)
+export const readXRHeadPosition = readVector3(AvatarHeadIKComponent.camera.position)
+export const readXRHeadRotation = readCompressedRotation(AvatarHeadIKComponent.camera.quaternion)
 
-export const readXRHeadPosition = readVector3(XRInputSourceComponent.head.position)
-export const readXRHeadRotation = readCompressedRotation(XRInputSourceComponent.head.quaternion)
+export const readXRControllerLeftPosition = readVector3(AvatarLeftHandIKComponent.target.position)
+export const readXRControllerLeftRotation = readCompressedRotation(AvatarLeftHandIKComponent.target.quaternion)
 
-export const readXRControllerLeftPosition = readVector3(XRInputSourceComponent.controllerLeftParent.position)
-export const readXRControllerLeftRotation = readCompressedRotation(
-  XRInputSourceComponent.controllerLeftParent.quaternion
-)
+export const readXRControllerRightPosition = readVector3(AvatarRightHandIKComponent.target.position)
+export const readXRControllerRightRotation = readCompressedRotation(AvatarRightHandIKComponent.target.quaternion)
 
-export const readXRControllerGripLeftPosition = readVector3(XRInputSourceComponent.controllerGripLeftParent.position)
-export const readXRControllerGripLeftRotation = readCompressedRotation(
-  XRInputSourceComponent.controllerGripLeftParent.quaternion
-)
-
-export const readXRControllerRightPosition = readVector3(XRInputSourceComponent.controllerRightParent.position)
-export const readXRControllerRightRotation = readCompressedRotation(
-  XRInputSourceComponent.controllerRightParent.quaternion
-)
-
-export const readXRControllerGripRightPosition = readVector3(XRInputSourceComponent.controllerGripRightParent.position)
-export const readXRControllerGripRightRotation = readCompressedRotation(
-  XRInputSourceComponent.controllerGripRightParent.quaternion
-)
-
-export const readXRInputs = (v: ViewCursor, entity: Entity) => {
+export const readXRHead = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   let b = 0
-
-  if (checkBitflag(changeMask, 1 << b++)) readXRContainerPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRContainerRotation(v, entity)
-
   if (checkBitflag(changeMask, 1 << b++)) readXRHeadPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRHeadRotation(v, entity)
-
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerLeftPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerLeftRotation(v, entity)
-
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripLeftPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripLeftRotation(v, entity)
-
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightRotation(v, entity)
-
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
+export const readXRLeftHand = (v: ViewCursor, entity: Entity) => {
+  const changeMask = readUint16(v)
+  let b = 0
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerLeftPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerLeftRotation(v, entity)
+}
+
+export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
+  const changeMask = readUint16(v)
+  let b = 0
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightRotation(v, entity)
+}
+
+/** @deprecated */
 export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness: string, bone: string[]) => {
   const changeMask = readUint16(v)
   let b = 0
@@ -257,6 +241,7 @@ export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness: 
     }
   })
 }
+/** @deprecated */
 export const readXRHandBones = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   const handednessBitValue = readUint8(v)
@@ -268,7 +253,7 @@ export const readXRHandBones = (v: ViewCursor, entity: Entity) => {
     if (checkBitflag(changeMask, 1 << b++)) readXRHandBoneJoints(v, entity, handedness, bone)
   })
 }
-
+/** @deprecated */
 export const readXRHands = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   let b = 0
@@ -288,8 +273,10 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, world.dirtyTransforms)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRHead(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRLeftHand(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRRightHand(v, entity)
+  // if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
 }
 
 export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserId: UserId) => {

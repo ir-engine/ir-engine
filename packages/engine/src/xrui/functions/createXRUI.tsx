@@ -46,8 +46,8 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
 
   const root = new Group()
   root.add(container)
-  addObjectToGroup(entity, root)
   setTransformComponent(entity)
+  addObjectToGroup(entity, root)
   setObjectLayers(container, ObjectLayers.UI)
   addComponent(entity, XRUIComponent, { container, state })
   addComponent(entity, VisibleComponent, true)

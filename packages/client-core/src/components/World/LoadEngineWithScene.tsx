@@ -1,13 +1,12 @@
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
 import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { AvatarService } from '@xrengine/client-core/src/user/services/AvatarService'
+import { AvatarService, AvatarState } from '@xrengine/client-core/src/user/services/AvatarService'
 import {
   SceneActions,
   SceneServiceReceptor,
@@ -25,12 +24,12 @@ import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunct
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   PortalEffects,
-  revertAvatarToMovingStateFromTeleport,
   setAvatarToLocationTeleportingState
 } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
+import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
@@ -39,11 +38,12 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 type LoadEngineProps = {
   setClientReady: (ready: boolean) => void
+  injectedSystems?: SystemModuleType<any>[]
 }
 
-export const useLoadEngine = ({ setClientReady }: LoadEngineProps) => {
+export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEngineProps) => {
   useHookEffect(() => {
-    initClient().then(() => {
+    initClient(injectedSystems).then(() => {
       setClientReady(true)
     })
 
@@ -60,6 +60,7 @@ export const useLoadEngine = ({ setClientReady }: LoadEngineProps) => {
 export const useLocationSpawnAvatar = () => {
   const engineState = useEngineState()
   const authState = useAuthState()
+  const avatarState = useHookstate(getState(AvatarState))
   const didSpawn = useHookstate(false)
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
@@ -74,7 +75,7 @@ export const useLocationSpawnAvatar = () => {
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
-      !authState.avatarList.value.length ||
+      !avatarState.avatarList.value.length ||
       spectateParam
     )
       return
@@ -82,7 +83,7 @@ export const useLocationSpawnAvatar = () => {
     // the avatar should only be spawned once, after user auth and scene load
 
     const user = authState.user.value
-    const avatarDetails = authState.avatarList.value.find((avatar) => avatar?.id === user.avatarId)!
+    const avatarDetails = avatarState.avatarList.value.find((avatar) => avatar?.id === user.avatarId)!
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
@@ -97,11 +98,11 @@ export const useLocationSpawnAvatar = () => {
       },
       name: user.name
     })
-  }, [engineState.sceneLoaded, authState.user, authState.avatarList, spectateParam])
+  }, [engineState.sceneLoaded, authState.user, avatarState.avatarList, spectateParam])
 }
 
 export const usePortalTeleport = () => {
-  const history = useHistory()
+  const route = useRouter()
   const engineState = useEngineState()
   const locationState = useLocationState()
   const authState = useAuthState()
@@ -131,7 +132,7 @@ export const usePortalTeleport = () => {
         return
       }
 
-      history.push('/location/' + world.activePortal!.location)
+      route('/location/' + world.activePortal!.location)
       LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
 
       // shut down connection with existing world instance server
@@ -158,25 +159,9 @@ export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
   const loadingState = useLoadingState()
   const [clientReady, setClientReady] = useState(false)
 
+  useLoadEngine({ setClientReady, injectedSystems })
   useLocationSpawnAvatar()
   usePortalTeleport()
-
-  /**
-   * initialise the client
-   */
-  useHookEffect(() => {
-    initClient(injectedSystems).then(() => {
-      setClientReady(true)
-    })
-
-    addActionReceptor(SceneServiceReceptor)
-    addActionReceptor(LocationInstanceConnectionServiceReceptor)
-
-    return () => {
-      removeActionReceptor(SceneServiceReceptor)
-      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
-    }
-  }, [])
 
   /**
    * load the scene whenever it changes

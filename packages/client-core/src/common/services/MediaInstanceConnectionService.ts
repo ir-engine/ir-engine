@@ -24,6 +24,7 @@ type InstanceState = {
   port: string
   channelType: ChannelType
   channelId: string
+  roomCode: string
   videoEnabled: boolean
   provisioned: boolean
   connected: boolean
@@ -54,6 +55,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
         port: action.port,
         channelType: action.channelType!,
         channelId: action.channelId!,
+        roomCode: action.roomCode,
         videoEnabled: false,
         provisioned: true,
         readyToConnect: true,
@@ -100,13 +102,14 @@ export const useMediaInstanceConnectionState = () => useState(accessMediaInstanc
 
 //Service
 export const MediaInstanceConnectionService = {
-  provisionServer: async (channelId?: string, isWorldConnection = false) => {
+  provisionServer: async (channelId?: string, createNewRoom = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const token = accessAuthState().authUser.accessToken.value
     const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
-        channelId: channelId,
-        token: token
+        channelId,
+        token,
+        createNewRoom
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
@@ -116,6 +119,7 @@ export const MediaInstanceConnectionService = {
           instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
           channelId: channelId ? channelId : '',
           channelType: accessChatState().channels.channels.value.find((channel) => channel.id === channelId)!
             .channelType
@@ -168,6 +172,7 @@ export const MediaInstanceConnectionService = {
               instanceId: params.instanceId,
               ipAddress: params.ipAddress,
               port: params.port,
+              roomCode: params.roomCode,
               channelId: params.channelId,
               channelType: params.channelType
             })
@@ -189,6 +194,7 @@ export class MediaInstanceConnectionAction {
     instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
+    roomCode: matches.string,
     channelType: matches.string as Validator<unknown, ChannelType>,
     channelId: matches.string
   })

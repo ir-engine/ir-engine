@@ -460,13 +460,13 @@ export const createAvatarInput = () => {
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)
 
   map.set(MouseInput.MousePosition, BaseInput.SCREENXY)
-  map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN)
+  map.set(MouseInput.MouseClickDownMovement, BaseInput.PRIMARY_MOVE)
   map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL)
 
-  // map.set(TouchInputs.Touch, BaseInput.INTERACT)
+  map.set(TouchInputs.Touch, BaseInput.PRIMARY)
   // map.set(TouchInputs.DoubleTouch, BaseInput.JUMP)
   map.set(TouchInputs.Touch1Position, BaseInput.SCREENXY)
-  map.set(TouchInputs.Touch1Movement, BaseInput.LOOKTURN)
+  map.set(TouchInputs.Touch1Movement, BaseInput.PRIMARY_MOVE)
   map.set(TouchInputs.Scale, BaseInput.CAMERA_SCROLL)
 
   map.set(GamepadButtons.A, BaseInput.INTERACT)
@@ -483,7 +483,7 @@ export const createAvatarInput = () => {
   map.set(GamepadButtons.DPad4, BaseInput.RIGHT)
 
   map.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
-  map.set(GamepadAxis.RThumbstick, BaseInput.LOOKTURN)
+  map.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE)
 
   // map.set(GamepadAxis.LTouchpad, BaseInput.MOVEMENT)
   // map.set(GamepadAxis.RTouchpad, BaseInput.LOOKTURN)
@@ -548,7 +548,7 @@ export const createBehaviorMap = () => {
   map.set(CameraInput.Sad, setAvatarExpression)
 
   map.set(BaseInput.MOVEMENT, moveByInputAxis)
-  map.set(BaseInput.LOOKTURN, lookByInputAxis)
+  map.set(BaseInput.PRIMARY_MOVE, lookByInputAxis)
 
   map.set(BaseInput.SWITCH_CAMERA, cycleCameraMode)
   map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindAvatar)

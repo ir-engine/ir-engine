@@ -1,6 +1,6 @@
 // Initializes the `invite` service on path `/invite`
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { InviteDataType } from './invite.class'
 import { Invite } from './invite.class'
 import inviteDocs from './invite.docs'

@@ -13,26 +13,28 @@ import {
   ToneMappingEffect
 } from 'postprocessing'
 import {
+  Light,
   PerspectiveCamera,
+  ShadowMapType,
   sRGBEncoding,
+  ToneMapping,
   WebGL1Renderer,
   WebGLRenderer,
   WebGLRendererParameters,
   WebXRManager
 } from 'three'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { isHMD } from '../common/functions/isMobile'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { matchActionOnce } from '../networking/functions/matchActionOnce'
 import { XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import {
@@ -42,6 +44,7 @@ import {
   restoreEngineRendererData
 } from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
+import { updateShadowMap } from './functions/RenderSettingsFunction'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -80,7 +83,6 @@ export class EngineRenderer {
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
 
   supportWebGL2: boolean
-  rendereringEnabled = true
   canvas: HTMLCanvasElement
 
   averageFrameTime = 1000 / 60
@@ -96,9 +98,6 @@ export class EngineRenderer {
   xrManager: WebXRManager = null!
   xrSession: XRSession = null!
   csm: CSM = null!
-  isCSMEnabled = false
-  directionalLightEntities: Entity[] = []
-  activeCSMLightEntity: Entity | null = null
   webGLLostContext: any = null
 
   initialize() {
@@ -130,10 +129,11 @@ export class EngineRenderer {
       powerPreference: 'high-performance',
       stencil: false,
       antialias: false,
-      depth: false,
+      depth: true,
+      logarithmicDepthBuffer: true,
       canvas,
       context,
-      preserveDrawingBuffer: !Engine.instance.isHMD
+      preserveDrawingBuffer: !isHMD
     }
 
     this.canvas = canvas
@@ -146,7 +146,7 @@ export class EngineRenderer {
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
     this.renderer = renderer
-    this.renderer.physicallyCorrectLights = true
+    this.renderer.physicallyCorrectLights = !isHMD
     this.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
@@ -198,11 +198,6 @@ export class EngineRenderer {
     this.needsResize = true
   }
 
-  resetScene() {
-    this.directionalLightEntities = []
-    this.activeCSMLightEntity = null!
-  }
-
   /** Called on resize, sets resize flag. */
   onResize(): void {
     this.needsResize = true
@@ -213,47 +208,47 @@ export class EngineRenderer {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if (this.xrManager.isPresenting) {
-      this.csm?.update()
+    const activeSession = getState(XRState).sessionActive.value
+
+    /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
+    if ((isHMD && activeSession) || EngineRenderer.instance.xrSession) {
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
       const state = accessEngineRendererState()
       const engineState = getEngineState()
       if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
-      if (this.rendereringEnabled) {
-        if (this.needsResize) {
-          const curPixelRatio = this.renderer.getPixelRatio()
-          const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
+      if (this.needsResize) {
+        const curPixelRatio = this.renderer.getPixelRatio()
+        const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
 
-          if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
+        if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
-          const width = window.innerWidth
-          const height = window.innerHeight
+        const width = window.innerWidth
+        const height = window.innerHeight
 
-          if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
-            const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
-            cam.aspect = width / height
-            cam.updateProjectionMatrix()
-          }
-
-          state.qualityLevel.value > 0 && this.csm?.updateFrustums()
-          // Effect composer calls renderer.setSize internally
-          this.effectComposer.setSize(width, height, true)
-          this.needsResize = false
+        if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
+          const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
+          cam.aspect = width / height
+          cam.updateProjectionMatrix()
         }
 
-        state.qualityLevel.value > 0 && this.csm?.update()
+        state.qualityLevel.value > 0 && this.csm?.updateFrustums()
+        // Effect composer calls renderer.setSize internally
+        this.effectComposer.setSize(width, height, true)
+        this.needsResize = false
+      }
 
-        /**
-         * Editor should always use post processing, even if no postprocessing schema is in the scene,
-         *   it still uses post processing for effects such as outline.
-         */
-        if (state.usePostProcessing.value || Engine.instance.isEditor) {
-          this.effectComposer.render(delta)
-        } else {
-          this.renderer.autoClear = true
-          this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
-        }
+      state.qualityLevel.value > 0 && this.csm?.update()
+
+      /**
+       * Editor should always use post processing, even if no postprocessing schema is in the scene,
+       *   it still uses post processing for effects such as outline.
+       */
+      if (state.usePostProcessing.value || Engine.instance.isEditor) {
+        this.effectComposer.render(delta)
+      } else {
+        this.renderer.autoClear = true
+        this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
       }
     }
   }
@@ -298,6 +293,30 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
   const restoreStorageDataActions = createActionQueue(EngineRendererAction.restoreStorageData.matches)
 
+  const updateToneMapping = () => {
+    EngineRenderer.instance.renderer.toneMapping = world.sceneMetadata.renderSettings.toneMapping.value
+  }
+  const updateToneMappingExposure = () => {
+    EngineRenderer.instance.renderer.toneMappingExposure = world.sceneMetadata.renderSettings.toneMappingExposure.value
+  }
+  const updatePostprocessing = () => {
+    configureEffectComposer()
+  }
+  const _updateShadowMap = () => {
+    updateShadowMap()
+  }
+
+  world.sceneMetadata.renderSettings.toneMapping.subscribe(updateToneMapping)
+  world.sceneMetadata.renderSettings.toneMappingExposure.subscribe(updateToneMappingExposure)
+  world.sceneMetadata.renderSettings.shadowMapType.subscribe(_updateShadowMap)
+  world.sceneMetadata.postprocessing.subscribe(updatePostprocessing)
+
+  // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
+  updateToneMapping()
+  updateToneMappingExposure()
+  _updateShadowMap()
+  updatePostprocessing()
+
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)
     for (const action of setAutomaticActions()) EngineRendererReceptor.setAutomatic(action)
@@ -310,8 +329,7 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
     for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
 
-    if (!Engine.instance.isHMD || getState(XRState).sessionActive.value)
-      EngineRenderer.instance.execute(world.deltaSeconds)
+    EngineRenderer.instance.execute(world.deltaSeconds)
   }
 
   const cleanup = async () => {

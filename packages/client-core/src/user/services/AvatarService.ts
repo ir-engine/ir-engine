@@ -4,13 +4,29 @@ import i18n from 'i18next'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
 import { accessAuthState, AuthAction } from './AuthService'
+
+// State
+export const AvatarState = defineState({
+  name: 'AvatarState',
+  initial: () => ({
+    avatarList: [] as Array<AvatarInterface>
+  })
+})
+
+export const AvatarServiceReceptor = (action) => {
+  const s = getState(AvatarState)
+  matches(action).when(AvatarActions.updateAvatarListAction.matches, (action) => {
+    return s.avatarList.set(action.avatarList)
+  })
+}
 
 export const AvatarService = {
   async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean) {
@@ -46,7 +62,7 @@ export const AvatarService = {
         $limit: 1000
       }
     })) as Paginated<AvatarInterface>
-    dispatchAction(AuthAction.updateAvatarListAction({ avatarList: result.data }))
+    dispatchAction(AvatarActions.updateAvatarListAction({ avatarList: result.data }))
   },
 
   async patchAvatar(avatarId: string, modelResourceId: string, thumbnailResourceId: string, avatarName: string) {
@@ -105,4 +121,11 @@ export const AvatarService = {
       }
     }).promise as Promise<StaticResourceInterface[]>
   }
+}
+
+export class AvatarActions {
+  static updateAvatarListAction = defineAction({
+    type: 'xre.client.avatar.AVATAR_FETCHED' as const,
+    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
+  })
 }

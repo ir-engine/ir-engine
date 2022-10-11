@@ -104,6 +104,10 @@
   }
 }
 
+.dockableTabButtons {
+  height: min-content;
+}
+
 .nodeDropTraget {
   height: 4px;
   box-sizing: content-box;

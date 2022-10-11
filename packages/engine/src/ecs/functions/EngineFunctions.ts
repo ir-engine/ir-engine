@@ -11,11 +11,10 @@ import { SceneObjectComponent } from '../../scene/components/SceneObjectComponen
 import { Engine } from '../classes/Engine'
 import { EngineActions } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { EntityTreeNode } from '../classes/EntityTree'
 import { World } from '../classes/World'
+import { EntityTreeNode, removeEntityNodeFromParent, traverseEntityNode } from '../functions/EntityTree'
 import { defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
-import { removeEntityNodeFromParent, traverseEntityNode } from './EntityTreeFunctions'
 import { unloadSystems } from './SystemFunctions'
 
 /** Reset the engine and remove everything from memory. */
@@ -111,6 +110,5 @@ export const unloadScene = (world: World) => {
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
   unloadSystems(world, true)
-  EngineRenderer.instance.resetScene()
   dispatchAction(EngineActions.sceneUnloaded({}))
 }

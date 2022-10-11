@@ -35,6 +35,10 @@ interface PatchParams {
   storageProviderName?: string
 }
 
+type FindResultType = {
+  type: 'DIRECTORY' | 'FILE' | 'UNDEFINED'
+}
+
 /**
  * A class for Managing files in FileBrowser
  */
@@ -47,7 +51,24 @@ export class FileBrowserService implements ServiceMethods<any> {
   }
 
   async setup(app: Application, path: string) {}
-  async find(_params?: Params) {}
+
+  /**
+   * Returns the metadata for a single file or directory
+   * @param params
+   */
+  async find(params?: Params): Promise<FindResultType> {
+    if (!params) params = {}
+    if (!params.query) params.query = {}
+    const { storageProviderName, key } = params.query
+    if (!key) return { type: 'UNDEFINED' }
+    const storageProvider = getStorageProvider(storageProviderName)
+    const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
+    const exists = await storageProvider.doesExist(file, directory)
+    const isDirectory = exists && (await storageProvider.isDirectory(file, directory))
+    return {
+      type: exists ? (isDirectory ? 'DIRECTORY' : 'FILE') : 'UNDEFINED'
+    }
+  }
 
   /**
    * Return the metadata for each file in a directory
@@ -70,7 +91,6 @@ export class FileBrowserService implements ServiceMethods<any> {
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
       throw new Forbidden('Not allowed to access that directory')
     let result = await storageProvider.listFolderContent(directory)
-
     const total = result.length
 
     result = result.slice(skip, skip + limit)

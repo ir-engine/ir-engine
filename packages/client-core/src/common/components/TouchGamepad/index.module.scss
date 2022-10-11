@@ -5,6 +5,7 @@ $MobileControllButtonsSize: 3em;
   bottom: 110px;
   width: 50%;
   left: 0;
+  pointer-events: auto;
 
   div {
     margin: auto;
@@ -22,6 +23,7 @@ $MobileControllButtonsSize: 3em;
   right: 150px;
   bottom: 10px;
   line-height: ($MobileControllButtonsSize + 1em);
+  pointer-events: auto;
 
   .controllButton {
     position: absolute;

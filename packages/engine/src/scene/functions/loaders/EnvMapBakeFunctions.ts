@@ -4,7 +4,7 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
+import { traverseEntityNode } from '../../../ecs/functions/EntityTree'
 import {
   EnvMapBakeComponent,
   EnvMapBakeComponentType,

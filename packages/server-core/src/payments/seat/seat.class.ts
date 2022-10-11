@@ -5,7 +5,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Seat as SeatInterface } from '@xrengine/common/src/interfaces/Seat'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 
 interface SeatParams extends Params {
   self: boolean

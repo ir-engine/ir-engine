@@ -6,7 +6,7 @@ import verifyScope from '../../hooks/verify-scope'
 export default {
   before: {
     all: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    find: [disallow('external')],
+    find: [],
     get: [],
     create: [],
     update: [],

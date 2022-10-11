@@ -15,16 +15,19 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
+  RepeatWrapping,
   ShaderMaterial,
   SkinnedMesh,
   Texture,
   TextureLoader
 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -156,6 +159,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
+  const LODState = Engine.instance.currentWorld.sceneMetadata.renderSettings.LODs.value
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {
@@ -179,7 +183,7 @@ const handleLODs = (asset: Object3D): Object3D => {
     value[0].object.parent?.add(lod)
 
     value.forEach(({ level, object }) => {
-      lod.addLevel(object, Engine.instance.currentWorld.LOD_DISTANCES[level])
+      lod.addLevel(object, LODState[level])
     })
   })
 
@@ -316,6 +320,11 @@ const assetLoadCallback =
       if (asset.userData) asset.userData.type = assetType
 
       AssetLoader.processModelAsset(asset.scene, args)
+    }
+    if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
+      const texture = asset as Texture
+      texture.wrapS = RepeatWrapping
+      texture.wrapT = RepeatWrapping
     }
 
     onLoad(asset)

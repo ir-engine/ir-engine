@@ -85,8 +85,6 @@ export const initializeBrowser = () => {
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   ;(window as any).safariWebBrowser = browser?.name === 'safari'
 
-  Engine.instance.isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
-
   setupInitialClickListener()
 
   // maybe needs to be awaited?
@@ -185,14 +183,14 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
         systemLoader: () => import('./xrui/systems/XRUISystem')
       },
       {
+        uuid: 'xre.engine.MaterialLibrarySystem',
+        type: SystemUpdateType.UPDATE_LATE,
+        systemLoader: () => import('./renderer/materials/systems/MaterialLibrarySystem')
+      },
+      {
         uuid: 'xre.engine.SceneObjectDynamicLoadSystem',
         type: SystemUpdateType.FIXED_LATE,
         systemLoader: () => import('./scene/systems/SceneObjectDynamicLoadSystem')
-      },
-      {
-        uuid: 'xre.engine.MaterialLibrarySystem',
-        type: SystemUpdateType.FIXED_LATE,
-        systemLoader: () => import('./renderer/materials/systems/MaterialLibrarySystem')
       },
       {
         uuid: 'xre.engine.MaterialOverrideSystem',

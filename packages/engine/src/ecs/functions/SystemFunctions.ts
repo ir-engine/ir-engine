@@ -31,6 +31,7 @@ export interface SystemInstance extends SystemInstanceData {
   type: SystemUpdateType
   sceneSystem: boolean
   enabled: boolean
+  subsystems: SystemInstance[]
 }
 
 export type SystemSyncFunctionType<A> = {
@@ -57,7 +58,7 @@ export type SystemFactoryType<A> = {
   args?: A
 }
 
-const createExecute = (system: SystemDefintion, subsystems: SystemInstanceData[], name: string) => {
+const createExecute = (system: SystemDefintion, subsystems: SystemInstanceData[], name: string, uuid: string) => {
   let lastWarningTime = 0
   const warningCooldownDuration = 1000 * 10 // 10 seconds
 
@@ -81,29 +82,43 @@ const createExecute = (system: SystemDefintion, subsystems: SystemInstanceData[]
   }
 }
 
-const loadSystemInjection = async (
-  world: World,
-  systemModule: SystemModule<any>,
-  type?: SystemUpdateType,
-  args?: any
-) => {
-  const name = systemModule.default.name
+const loadSystemInjection = async (world: World, s: SystemFactoryType<any>, type?: SystemUpdateType, args?: any) => {
+  const name = s.systemModule.default.name
   try {
     if (type) logger.info(`${name} initializing on ${type} pipeline`)
     else logger.info(`${name} initializing`)
-    const system = await systemModule.default(world, args)
-    logger.info(`${name} ready`)
+    const system = await s.systemModule.default(world, args)
+    logger.info(`${name} (${s.uuid}) ready`)
     const subsystems = system.subsystems
-      ? await Promise.all(system.subsystems.map(async (subsystem) => loadSystemInjection(world, await subsystem())))
+      ? await Promise.all(
+          system.subsystems.map(async (subsystemInit, i) => {
+            const subsystem = await subsystemInit()
+            const name = subsystem.default.name
+            const uuid = name
+            const type = 'SUB_SYSTEM' as any
+            return {
+              uuid,
+              name,
+              type,
+              sceneSystem: s.sceneSystem,
+              enabled: true,
+              ...(await loadSystemInjection(world, {
+                systemModule: subsystem,
+                uuid,
+                type
+              }))
+            }
+          })
+        )
       : []
     return {
-      execute: createExecute(system, subsystems, name),
+      execute: createExecute(system, subsystems, name, s.uuid),
       cleanup: system.cleanup,
       subsystems
     } as SystemInstanceData
   } catch (e) {
     console.error(e)
-    logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
+    logger.error(new Error(`System ${name} (${s.uuid}) failed to initialize!`, { cause: e.stack }))
     return null
   }
 }
@@ -128,7 +143,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         type: s.type,
         sceneSystem: s.sceneSystem,
         enabled: true,
-        ...(await loadSystemInjection(world, s.systemModule))
+        ...(await loadSystemInjection(world, s))
       }
     })
   )
@@ -157,14 +172,16 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
       try {
         system.execute()
       } catch (e) {
-        logger.error(`Failed to execute system ${name}`)
+        logger.error(`Failed to execute system ${name} (${systemArgs.uuid})`)
         logger.error(e)
       }
       const endTime = nowMilliseconds()
       const systemDuration = endTime - startTime
       if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
         lastWarningTime = endTime
-        logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
+        logger.warn(
+          `Long system execution detected. System: ${name} (${systemArgs.uuid}) \n Duration: ${systemDuration}`
+        )
       }
     },
     cleanup: system.cleanup,

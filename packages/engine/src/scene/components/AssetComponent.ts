@@ -1,5 +1,5 @@
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 
 export type AssetLoadedComponentType = {
   roots: EntityTreeNode[]

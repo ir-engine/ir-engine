@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { corsProxyPath } from '@xrengine/client-core/src/util/config'
+import { corsProxyPath } from '@xrengine/common/src/config'
 
 import DnsIcon from '@mui/icons-material/Dns'
 

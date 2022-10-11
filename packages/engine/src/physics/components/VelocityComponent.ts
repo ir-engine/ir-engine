@@ -1,8 +1,9 @@
 import { Types } from 'bitecs'
-import { create } from 'lodash'
 import { Vector3 } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { Entity } from '../../ecs/classes/Entity'
+import { createMappedComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type VelocityComponentType = {
   linear: Vector3
@@ -20,3 +21,10 @@ export const VelocityComponent = createMappedComponent<VelocityComponentType, ty
   'VelocityComponent',
   SCHEMA
 )
+
+export const setVelocityComponent = (entity: Entity, linear = new Vector3(), angular = new Vector3()) => {
+  setComponent(entity, VelocityComponent, {
+    linear: proxifyVector3(VelocityComponent.linear, entity, linear),
+    angular: proxifyVector3(VelocityComponent.angular, entity, angular)
+  })
+}

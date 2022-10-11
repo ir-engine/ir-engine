@@ -1,4 +1,4 @@
-import { Material, Texture } from 'three'
+import { CubeTexture, Material, Texture } from 'three'
 
 import { extractDefaults, materialToDefaultArgs } from '../../../../renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
@@ -29,7 +29,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       switch (v.type) {
         case 'texture':
           if (material[k]) {
-            if ((material[k] as Texture).isRenderTargetTexture) return //for skipping environment maps which cause errors
+            if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
             const mapDef = { index: this.writer.processTexture(material[k]) }
             this.writer.applyTextureTransform(mapDef, material[k])
             result[k] = mapDef
@@ -42,6 +42,8 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     })
     delete materialDef.pbrMetallicRoughness
     delete materialDef.normalTexture
+    delete materialDef.emissiveTexture
+    delete materialDef.emissiveFactor
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: material.uuid,

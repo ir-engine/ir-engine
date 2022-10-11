@@ -45,6 +45,7 @@ export class HubsLightMapExtension {
       if (transform !== undefined) {
         lightMap.wrapS = RepeatWrapping
         lightMap.wrapT = RepeatWrapping
+        lightMap.rotation = transform.rotation ?? 0
         lightMap.offset.x = transform.offset[0]
         lightMap.offset.y = transform.offset[1]
         lightMap.repeat.x = transform.scale[0]

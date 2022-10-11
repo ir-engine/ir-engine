@@ -5,6 +5,7 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isHMD } from '../../../common/functions/isMobile'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addObjectToGroup } from '../../components/GroupComponent'
@@ -21,6 +22,9 @@ export const deserializePointLight: ComponentDeserializeFunction = (entity: Enti
 }
 
 export const updatePointLight: ComponentUpdateFunction = (entity: Entity) => {
+  // Point lights enable the dynamic lighting engine, which destroys performance in HMDs
+  if (isHMD) return
+
   const component = getComponent(entity, PointLightComponent)
 
   if (!component.light) {

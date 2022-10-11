@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 
-import { AppLoadingAction, AppLoadingStates } from '@xrengine/client-core/src/common/services/AppLoadingService'
 import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
@@ -15,27 +14,41 @@ import { ChatAction, ChatService, useChatState } from '@xrengine/client-core/src
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import {
+  NetworkUserService,
+  NetworkUserServiceReceptor,
+  useNetworkUserState
+} from '@xrengine/client-core/src/user/services/NetworkUserService'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  dispatchAction,
+  getState,
+  removeActionReceptor,
+  useHookEffect,
+  useHookstate
+} from '@xrengine/hyperflux'
 
+import { AppState } from '../../common/services/AppService'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
-import { UserServiceReceptor } from '../../user/services/UserService'
-import { ConnectingToWorldServerModal } from './ConnectingToWorldServerModal'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const chatState = useChatState()
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
   const partyState = usePartyState()
+
+  const appState = useHookstate(getState(AppState))
+  const showTopShelf = appState.showTopShelf.value
+  const showBottomShelf = appState.showTopShelf.value
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
@@ -55,10 +68,10 @@ export const NetworkInstanceProvisioning = () => {
         MediaStreamService.triggerUpdateConsumers
       )
     })
-    addActionReceptor(UserServiceReceptor)
+    addActionReceptor(NetworkUserServiceReceptor)
     return () => {
       removeActionReceptor(MediaServiceReceptor)
-      removeActionReceptor(UserServiceReceptor)
+      removeActionReceptor(NetworkUserServiceReceptor)
     }
   }, [])
 
@@ -82,21 +95,24 @@ export const NetworkInstanceProvisioning = () => {
       if (!isUserBanned && !isProvisioned) {
         const search = window.location.search
         let instanceId
+        let roomCode
 
         if (search != null) {
           instanceId = new URL(window.location.href).searchParams.get('instanceId')
+          roomCode = new URL(window.location.href).searchParams.get('roomCode')
         }
 
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,
-          currentLocation.sceneId.value
+          currentLocation.sceneId.value,
+          roomCode || undefined
         )
       }
     }
   }, [locationState.currentLocation.location])
 
-  // 3. once engine is initialised and the server is provisioned, connect the the instance server
+  // 3. once engine is initialised and the server is provisioned, connect to the instance server
   useHookEffect(() => {
     if (
       engineState.sceneLoaded.value &&
@@ -126,12 +142,13 @@ export const NetworkInstanceProvisioning = () => {
   }, [chatState.instanceChannelFetched])
 
   useHookEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
+    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value)
+      NetworkUserService.getLayerUsers(true)
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
   useHookEffect(() => {
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value)
-      UserService.getLayerUsers(false)
+      NetworkUserService.getLayerUsers(false)
   }, [selfUser?.channelInstanceId, userState.channelLayerUsersUpdateNeeded])
 
   useHookEffect(() => {
@@ -194,12 +211,7 @@ export const NetworkInstanceProvisioning = () => {
     currentChannelInstanceConnection?.connecting
   ])
 
-  return (
-    <>
-      <InstanceServerWarnings />
-      <ConnectingToWorldServerModal />
-    </>
-  )
+  return <InstanceServerWarnings />
 }
 
 export default NetworkInstanceProvisioning

@@ -139,6 +139,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const root = document.getRoot()
 
   /* ID unnamed resources */
+  await document.transform(dedup())
 
   /* PROCESS MESHES */
   if (args.parms.useMeshopt) {
@@ -148,11 +149,17 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       .setEncoderOptions({ method: MeshoptCompression.EncoderMethod.QUANTIZE })
 
     await MeshoptEncoder.ready
-    await document.transform(dedup(), prune(), reorder({ encoder: MeshoptEncoder }))
+    await document.transform(prune(), reorder({ encoder: MeshoptEncoder }))
   }
   if (args.parms.useMeshQuantization) {
     document.createExtension(MeshQuantization).setRequired(true)
-    await document.transform(quantize())
+    await document.transform(
+      quantize({
+        quantizeColor: 8,
+        quantizeNormal: 8,
+        quantizePosition: 14
+      })
+    )
   }
   if (args.parms.useDraco) {
     await document.transform(
@@ -199,17 +206,20 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     const fileName = toPath(texture)
     const oldPath = toTmp(fileName)
     const resizeExtension = parms.textureFormat === 'ktx2' ? 'png' : parms.textureFormat
-    const resizedPath = oldPath.replace(`.${mimeToFileType(texture.getMimeType())}`, `-resized.${resizeExtension}`)
+    const resizedPath = oldPath.replace(
+      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
+      `-resized.${resizeExtension}`
+    )
     if (!fs.existsSync(tmpDir)) {
       fs.mkdirSync(tmpDir)
     }
     fs.writeFileSync(oldPath, oldImg!)
     const xResizedName = fileName.replace(
-      `.${mimeToFileType(texture.getMimeType())}`,
+      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
       `-resized.${parms.textureFormat}`
     )
     const nuFileName = fileName.replace(
-      `.${mimeToFileType(texture.getMimeType())}`,
+      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
       `-transformed.${parms.textureFormat}`
     )
     const nuPath = `${tmpDir}/${nuFileName}`

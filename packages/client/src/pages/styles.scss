@@ -275,9 +275,10 @@
 }
 
 body {
-  overflow: auto;
+  overflow: hidden;
   color: var(--textColor);
   overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
   background-color: var(--mainBackground);
 }
 
@@ -464,5 +465,9 @@ body {
 }
 
 vite-error-overlay {
+  pointer-events: auto;
+}
+
+.prompt-box-8w {
   pointer-events: auto;
 }

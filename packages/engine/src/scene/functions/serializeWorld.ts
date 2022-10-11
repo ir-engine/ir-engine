@@ -1,12 +1,13 @@
 import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { getAllComponents, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -43,7 +44,12 @@ export const serializeWorld = (
   world = Engine.instance.currentWorld
 ) => {
   const entityUuid = {}
-  const sceneJson = { version: 4, entities: {} } as SceneJson
+  const sceneJson = {
+    version: 0,
+    metadata: Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true }),
+    entities: {},
+    root: null! as string
+  }
 
   const traverseNode = entityTreeNode ?? world.entityTree.rootNode
   const loadedAssets = new Set<EntityTreeNode>()
@@ -75,7 +81,7 @@ export const serializeWorld = (
         const asset = getComponent(node.entity, AssetComponent)
         if (asset.loaded === LoadState.LOADED) {
           const loaded = getComponent(node.entity, AssetLoadedComponent)
-          loaded.roots?.forEach((root) => loadedAssets.add(root))
+          loaded?.roots?.forEach((root) => loadedAssets.add(root))
         }
       }
     },

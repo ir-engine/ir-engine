@@ -19,7 +19,9 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
+  DistanceFromCameraComponent,
   DistanceFromLocalClientComponent,
+  setDistanceFromCameraComponent,
   setDistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -101,7 +103,7 @@ export const addInteractableUI = (
 export default async function InteractiveSystem(world: World) {
   const allInteractablesQuery = defineQuery([InteractableComponent])
 
-  const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponent), DistanceFromLocalClientComponent])
+  const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponent), DistanceFromCameraComponent])
 
   let gatherAvailableInteractablesTimer = 0
 
@@ -112,7 +114,7 @@ export default async function InteractiveSystem(world: World) {
 
     // ensure distance component is set on all interactables
     for (const entity of allInteractablesQuery.enter()) {
-      setDistanceFromLocalClientComponent(entity)
+      setDistanceFromCameraComponent(entity)
     }
 
     // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric

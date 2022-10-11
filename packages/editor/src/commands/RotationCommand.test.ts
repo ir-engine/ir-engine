@@ -2,14 +2,10 @@ import assert from 'assert'
 import { Euler, Object3D, Quaternion } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  addEntityNodeChild,
-  createEntityNode,
-  emptyEntityTree
-} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -56,43 +52,6 @@ describe('RotationCommand', () => {
       affectedNodes: [nodes[1]],
       rotations: []
     }
-  })
-
-  describe('prepare function', async () => {
-    it('sets space to local space if it is not passed', () => {
-      RotationCommand.prepare(command)
-
-      assert.equal(command.space, TransformSpace.Local)
-    })
-
-    it('will not set space to local space if it is passed', () => {
-      command.space = TransformSpace.LocalSelection
-      RotationCommand.prepare(command)
-      assert.equal(command.space, TransformSpace.LocalSelection)
-    })
-
-    it('creates "undo" object if history is enabled', () => {
-      command.keepHistory = true
-      command.rotations = [getRandomEuler()]
-      RotationCommand.prepare(command)
-
-      assert(command.undo)
-      command.undo.rotations.forEach((roatiaon, i) => {
-        assert.equal(command.undo?.space, TransformSpace.Local)
-        assert(
-          roatiaon.equals(
-            getComponent((command.affectedNodes[i] as EntityTreeNode).entity, Object3DComponent).value.rotation
-          )
-        )
-      })
-    })
-
-    it('does not create "undo" object if history is disabled', () => {
-      command.keepHistory = false
-      RotationCommand.prepare(command)
-
-      assert.equal(command.undo, undefined)
-    })
   })
 
   describe('emitEventAfter function', async () => {

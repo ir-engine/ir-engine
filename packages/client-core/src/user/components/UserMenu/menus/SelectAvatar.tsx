@@ -6,13 +6,14 @@ import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSyste
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 
 import { useAuthState } from '../../../services/AuthService'
-import { AvatarService } from '../../../services/AvatarService'
+import { AvatarService, AvatarState } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 
@@ -28,7 +29,8 @@ const selectAvatarMenu = (props: Props) => {
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
-  const avatarList = authState.avatarList.value
+  const avatarState = useHookstate(getState(AvatarState))
+  const avatarList = avatarState.avatarList.value
 
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
@@ -39,11 +41,11 @@ const selectAvatarMenu = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (page * imgPerPage >= authState.avatarList.value.length) {
+    if (page * imgPerPage >= avatarState.avatarList.value.length) {
       if (page === 0) return
       setPage(page - 1)
     }
-  }, [authState.avatarList.value])
+  }, [avatarState.avatarList.value])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return

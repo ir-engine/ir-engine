@@ -6,15 +6,8 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
-import { VisibleComponent } from '../../../scene/components/VisibleComponent'
 import {
   DirectionalLightComponent,
   DirectionalLightComponentType,
@@ -39,7 +32,6 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
     light.target.name = 'light-target'
     light.add(light.target)
     addObjectToGroup(entity, light)
-    EngineRenderer.instance.directionalLightEntities.push(entity)
   }
 
   const light = component.light
@@ -49,7 +41,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
   light.shadow.camera.far = component.cameraFar
   light.shadow.bias = component.shadowBias
   light.shadow.radius = component.shadowRadius
-  light.castShadow = !EngineRenderer.instance.isCSMEnabled && component.castShadow
+  light.castShadow = !EngineRenderer.instance.csm && component.castShadow
 
   if (!light.shadow.mapSize.equals(component.shadowMapResolution)) {
     light.shadow.mapSize.copy(component.shadowMapResolution)
@@ -57,43 +49,6 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
     light.shadow.map = null as any
     light.shadow.camera.updateProjectionMatrix()
     light.shadow.needsUpdate = true
-  }
-
-  if (component.useInCSM) {
-    if (EngineRenderer.instance.activeCSMLightEntity) {
-      if (EngineRenderer.instance.activeCSMLightEntity === entity) return
-
-      const activeCSMLight = getComponent(EngineRenderer.instance.activeCSMLightEntity, DirectionalLightComponent).light
-      const activeCSMLightComponent = getComponent(
-        EngineRenderer.instance.activeCSMLightEntity,
-        DirectionalLightComponent
-      )
-
-      activeCSMLight.castShadow = !EngineRenderer.instance.isCSMEnabled && activeCSMLightComponent.castShadow
-      activeCSMLightComponent.useInCSM = false
-
-      if (!hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)) {
-        addComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent, true)
-      }
-    }
-
-    if (EngineRenderer.instance.csm) {
-      EngineRenderer.instance.csm.changeLights(light)
-      light.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
-    }
-
-    EngineRenderer.instance.activeCSMLightEntity = entity
-
-    if (hasComponent(entity, VisibleComponent)) removeComponent(entity, VisibleComponent)
-  } else {
-    light.castShadow = !EngineRenderer.instance.isCSMEnabled && component.castShadow
-    component.useInCSM = false
-
-    if (EngineRenderer.instance.activeCSMLightEntity === entity) EngineRenderer.instance.activeCSMLightEntity = null
-
-    if (!hasComponent(entity, VisibleComponent)) {
-      addComponent(entity, VisibleComponent, true)
-    }
   }
 }
 

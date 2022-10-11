@@ -5,7 +5,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { accessMediaInstanceConnectionState } from '../common/services/MediaInstanceConnectionService'
 import { accessMediaStreamState, MediaStreamService } from '../media/services/MediaStreamService'
-import { UserService } from '../user/services/UserService'
+import { NetworkUserService } from '../user/services/NetworkUserService'
 import { MediaStreams } from './MediaStreams'
 
 export const updateNearbyAvatars = () => {
@@ -15,7 +15,7 @@ export const updateNearbyAvatars = () => {
 
   const mediaState = accessMediaStreamState()
 
-  UserService.getLayerUsers(true)
+  NetworkUserService.getLayerUsers(true)
   const channelConnectionState = accessMediaInstanceConnectionState()
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId]?.ornull
   if (!currentChannelInstanceConnection?.value) return

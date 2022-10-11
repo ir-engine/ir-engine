@@ -1,16 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import GroupsIcon from '@mui/icons-material/Groups'
 import PersonIcon from '@mui/icons-material/Person'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { useUserState } from '../../services/UserService'
+import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
 import styles from './index.module.scss'
 import AvatarContextMenu from './menus/AvatarContextMenu'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
@@ -80,9 +78,10 @@ interface ActiveMenu {
   params?: any
 }
 
-const UserMenu = (props: Props): any => {
+export const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<ActiveMenu>({ view: Views.Closed })
 
+  const { bottomShelfStyle } = useShelfStyles()
   const Panel = UserMenuPanels.get(currentActiveMenu?.view)!
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
 
@@ -91,46 +90,44 @@ const UserMenu = (props: Props): any => {
       <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
         <div>
           <section
-            className={`${styles.settingContainer} ${props.animate} ${
-              currentActiveMenu?.view ? props.fadeOutBottom : ''
+            className={`${styles.settingContainer} ${bottomShelfStyle} ${
+              currentActiveMenu?.view ? styles.fadeOutBottom : ''
             }`}
           >
-            {!xrSessionActive.value && (
-              <div className={styles.iconContainer}>
-                {Array.from(HotbarMenu.keys()).map((id, index) => {
-                  const IconNode = HotbarMenu.get(id)
-                  return (
-                    <span
-                      key={index}
-                      id={id + '_' + index}
-                      onClick={() => setCurrentActiveMenu({ view: id })}
-                      className={`${styles.materialIconBlock} ${
-                        currentActiveMenu && currentActiveMenu.view === id ? styles.activeMenu : null
-                      }`}
-                    >
-                      <IconNode
-                        className={styles.icon}
-                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      />
-                    </span>
-                  )
-                })}
-              </div>
-            )}
+            <div className={styles.iconContainer}>
+              {Array.from(HotbarMenu.keys()).map((id, index) => {
+                const IconNode = HotbarMenu.get(id)
+                return (
+                  <span
+                    key={index}
+                    id={id + '_' + index}
+                    onClick={() => setCurrentActiveMenu({ view: id })}
+                    className={`${styles.materialIconBlock} ${
+                      currentActiveMenu && currentActiveMenu.view === id ? styles.activeMenu : null
+                    }`}
+                  >
+                    <IconNode
+                      className={styles.icon}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    />
+                  </span>
+                )
+              })}
+            </div>
           </section>
           {currentActiveMenu && currentActiveMenu.view && (
-            <Panel
-              {...currentActiveMenu.params}
-              changeActiveMenu={(view, params) => {
-                setCurrentActiveMenu({ view, params })
-              }}
-            />
+            <div style={{ pointerEvents: 'auto' }}>
+              <Panel
+                {...currentActiveMenu.params}
+                changeActiveMenu={(view, params) => {
+                  setCurrentActiveMenu({ view, params })
+                }}
+              />
+            </div>
           )}
         </div>
       </ClickAwayListener>
     </ActiveMenuContext.Provider>
   )
 }
-
-export default UserMenu

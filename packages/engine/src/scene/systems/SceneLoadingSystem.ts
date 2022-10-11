@@ -3,13 +3,12 @@ import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import logger from '@xrengine/common/src/logger'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
 import {
   ComponentMap,
@@ -22,15 +21,15 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import {
   addEntityNodeChild,
   createEntityNode,
   removeEntityNode,
   removeEntityNodeRecursively,
   updateRootNodeUuid
-} from '../../ecs/functions/EntityTreeFunctions'
+} from '../../ecs/functions/EntityTree'
 import { initSystems } from '../../ecs/functions/SystemFunctions'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -44,6 +43,7 @@ export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: stri
   const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
+  addEntityNodeChild(entityNode, Engine.instance.currentWorld.entityTree.rootNode)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, { name: prefabType, components: cloneDeep(components) })
 }
@@ -207,6 +207,9 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
 
   world.sceneJson = sceneData.scene
 
+  /** @todo - check for removed metadata types */
+  world.sceneMetadata.merge((sceneData.scene.metadata as any) ?? {})
+
   /** 4. update scene entities with new data, and load new ones */
   updateRootNodeUuid(sceneData.scene.root, world.entityTree)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
@@ -262,6 +265,7 @@ export const deserializeSceneEntity = (
       !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
   )
   for (const C of componentsToRemove) {
+    if (entityNode.entity === world.sceneEntity) if (C === VisibleComponent) continue
     if (C === GroupComponent || C === TransformComponent) continue
     console.log('removing component', C.name, C, entityNode.entity)
     removeComponent(entityNode.entity, C)
@@ -273,12 +277,6 @@ export const deserializeSceneEntity = (
       console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
       console.error(e)
     }
-  }
-
-  /** @todo do we need this still? */
-  if (!hasComponent(entityNode.entity, VisibleComponent)) {
-    const obj = getComponent(entityNode.entity, Object3DComponent)?.value
-    if (obj) obj.visible = false
   }
 
   return entityNode.entity

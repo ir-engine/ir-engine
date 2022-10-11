@@ -20,8 +20,8 @@ import { updateCollider, updateModelColliders } from '../../scene/functions/load
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
-import { LocalTransformComponent } from '../components/LocalTransformComponent'
 import {
+  LocalTransformComponent,
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent

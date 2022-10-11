@@ -1,14 +1,15 @@
 import { Object3D } from 'three'
 
 import { API } from '@xrengine/client-core/src/API'
+import { FileBrowserService } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
 } from '@xrengine/client-core/src/util/upload'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
+import { modelResourcesPath, pathResolver } from '@xrengine/engine/src/assets/functions/pathResolver'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   ComponentType,
@@ -16,6 +17,7 @@ import {
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
@@ -59,6 +61,12 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
     cancel: () => promises.forEach((promise) => promise.cancel()),
     promises: promises.map((promise) => promise.promise)
   } as CancelableUploadPromiseArrayReturnType<string>
+}
+
+export async function clearModelResources(projectName: string, modelName: string) {
+  const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
+  const { type: pathType } = await API.instance.client.service('file-browser').find({ query: { key: resourcePath } })
+  pathType !== 'UNDEFINED' && (await FileBrowserService.deleteContent(resourcePath, ''))
 }
 
 export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {

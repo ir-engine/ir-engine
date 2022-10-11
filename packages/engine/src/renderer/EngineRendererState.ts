@@ -4,25 +4,25 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
-import { isMobile } from '../common/functions/isMobile'
+import { isHMD, isMobile, isMobileOrHMD } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
 import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { updateShadowMapOnSceneLoad } from '../scene/functions/loaders/RenderSettingsFunction'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { RenderSettingKeys } from './EngineRendererConstants'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
+import { updateShadowMap } from './functions/RenderSettingsFunction'
 import { EngineRenderer } from './WebGLRendererSystem'
 
 export const EngineRendererState = defineState({
   name: 'EngineRendererState',
   initial: () => ({
     qualityLevel: isMobile ? 2 : 5, // range from 0 to 5
-    automatic: isMobile ? false : true,
+    automatic: isMobileOrHMD ? false : true,
     // usePBR: true,
-    usePostProcessing: isMobile ? false : true,
-    useShadows: isMobile ? false : true,
+    usePostProcessing: isMobileOrHMD ? false : true,
+    useShadows: isMobileOrHMD ? false : true,
     debugEnable: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
@@ -81,7 +81,7 @@ function updateState(): void {
   } else {
     setQualityLevel(state.qualityLevel.value)
     setUsePostProcessing(state.usePostProcessing.value)
-    setUseShadows(state.useShadows.value)
+    setUseShadows()
     Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.NodeHelper)
   }
 }
@@ -95,8 +95,8 @@ function setQualityLevel(qualityLevel) {
   EngineRenderer.instance.needsResize = true
 }
 
-function setUseShadows(useShadows) {
-  if (!Engine.instance.isEditor) updateShadowMapOnSceneLoad(useShadows)
+function setUseShadows() {
+  if (!Engine.instance.isEditor) updateShadowMap()
 }
 
 function setUsePostProcessing(usePostProcessing) {
@@ -121,6 +121,7 @@ export class EngineRendererReceptor {
   }
 
   static setPostProcessing(action: typeof EngineRendererAction.setPostProcessing.matches._TYPE) {
+    if (action.usePostProcessing && isHMD) return
     setUsePostProcessing(action.usePostProcessing)
     const s = getState(EngineRendererState)
     s.merge({ usePostProcessing: action.usePostProcessing })
@@ -128,9 +129,10 @@ export class EngineRendererReceptor {
   }
 
   static setShadows(action: typeof EngineRendererAction.setShadows.matches._TYPE) {
-    setUseShadows(action.useShadows)
+    if (action.useShadows && isHMD) return
     const s = getState(EngineRendererState)
     s.merge({ useShadows: action.useShadows })
+    setUseShadows()
     ClientStorage.set(RenderSettingKeys.USE_SHADOWS, action.useShadows)
   }
 

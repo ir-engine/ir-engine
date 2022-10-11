@@ -7,7 +7,7 @@ import path from 'path/posix'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
 import { copyRecursiveSync } from '../FileUtil'
 import {

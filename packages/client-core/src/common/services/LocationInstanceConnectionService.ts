@@ -21,6 +21,7 @@ type InstanceState = {
   port: string
   locationId: string | null
   sceneId: string | null
+  roomCode: string
   provisioned: boolean
   connected: boolean
   readyToConnect: boolean
@@ -50,6 +51,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
           port: action.port,
           locationId: action.locationId,
           sceneId: action.sceneId,
+          roomCode: action.roomCode,
           provisioned: true,
           readyToConnect: true,
           connected: false,
@@ -87,7 +89,13 @@ export const useLocationInstanceConnectionState = () => useState(accessLocationI
 
 //Service
 export const LocationInstanceConnectionService = {
-  provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
+  provisionServer: async (
+    locationId?: string,
+    instanceId?: string,
+    sceneId?: string,
+    roomCode?: string,
+    createNewRoom?: boolean
+  ) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
     const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
@@ -103,10 +111,12 @@ export const LocationInstanceConnectionService = {
     }
     const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
-        locationId: locationId,
-        instanceId: instanceId,
-        sceneId: sceneId,
-        token: token
+        locationId,
+        instanceId,
+        sceneId,
+        roomCode,
+        token,
+        createNewRoom
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
@@ -115,6 +125,7 @@ export const LocationInstanceConnectionService = {
           instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
           locationId: locationId,
           sceneId: sceneId
         })
@@ -142,6 +153,7 @@ export const LocationInstanceConnectionService = {
               instanceId: params.instanceId,
               ipAddress: params.ipAddress,
               port: params.port,
+              roomCode: params.roomCode,
               locationId: params.locationId,
               sceneId: params.sceneId
             })
@@ -165,6 +177,7 @@ export class LocationInstanceConnectionAction {
     instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
+    roomCode: matches.string,
     locationId: matches.any as Validator<unknown, string | null>,
     sceneId: matches.any as Validator<unknown, string | null>
   })

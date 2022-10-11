@@ -72,7 +72,10 @@ export interface GLTFReference {
 
 export class GLTFParser {
   json: any
-
+  options: {
+    path?: string
+    url?: string
+  }
   associations: Map<Object3D | Material | Texture, GLTFReference>
 
   getDependency: (type: string, index: number) => Promise<any>

@@ -5,7 +5,7 @@ import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 
 import {

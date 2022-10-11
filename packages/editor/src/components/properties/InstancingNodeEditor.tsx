@@ -9,7 +9,7 @@ import {
   getOrAddComponent,
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
   InstancingStagingComponent,
@@ -78,7 +78,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       (eNode) => {
         if (eNode === node) return false
         if (hasComponent(eNode.entity, ModelComponent)) {
-          const obj3d = getComponent(eNode.entity, ModelComponent).scene
+          const obj3d = getComponent(eNode.entity, ModelComponent).scene.value
           if (!obj3d) return false
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')
@@ -128,9 +128,10 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const onChangeMode = (mode) => {
     if (scatter.mode === mode) return
-    const obj3d = getComponent(entity, ModelComponent).scene
+    const scene = getComponent(entity, ModelComponent).scene
+    const obj3d = scene.value
     if (!obj3d) return
-    const uData = obj3d.userData
+    const uData = JSON.parse(JSON.stringify(obj3d.userData))
     uData[scatter.mode] = scatter.sourceProperties
     let srcProperties
     if (uData[mode] !== undefined) {
@@ -145,6 +146,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
           break
       }
     }
+    scene.merge({ userData: uData })
     updateProperty(InstancingComponent, 'sourceProperties')(srcProperties)
     updateProperty(InstancingComponent, 'mode')(mode)
   }

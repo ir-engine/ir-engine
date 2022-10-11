@@ -1,0 +1,35 @@
+.arPlacement {
+  display: flex;
+  position: fixed;
+  z-index: 5;
+  bottom: 160px;
+  width: 100%;
+  justify-content: center;
+
+  .iconContainer {
+    background: rgb(0 0 0 / 20%);
+    justify-content: flex-middle;
+    border-radius: 20px;
+    margin: 5px;
+    width: auto;
+    min-width: 60px;
+    height: 40px;
+    cursor: pointer;
+    position: relative;
+    border: none;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+
+    &.on {
+      background: var(--purpleButtonColor);
+    }
+
+    > svg {
+      height: 50%;
+      width: 20px;
+    }
+  }
+}

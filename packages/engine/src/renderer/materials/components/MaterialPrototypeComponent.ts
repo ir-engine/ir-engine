@@ -10,10 +10,12 @@ import {
   RawShaderMaterial,
   Shader,
   ShaderMaterial,
+  ShadowMaterial,
   WebGLRenderer
 } from 'three'
 
 import { createMappedComponent } from '../../../ecs/functions/ComponentFunctions'
+import { MaterialSource } from './MaterialSource'
 
 export type MaterialPrototypeComponentType = {
   prototypeId: string
@@ -27,6 +29,7 @@ export type MaterialPrototypeComponentType = {
     | typeof MeshToonMaterial
     | typeof ShaderMaterial
     | typeof RawShaderMaterial
+    | typeof ShadowMaterial
   arguments: {
     [_: string]: {
       type: string
@@ -36,6 +39,7 @@ export type MaterialPrototypeComponentType = {
       options?: any[]
     }
   }
+  src: MaterialSource
   onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
 

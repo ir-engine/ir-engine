@@ -1,8 +1,8 @@
 import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { cloneEntityNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { cloneEntityNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -76,7 +76,8 @@ function execute(command: DuplicateObjectCommandParams) {
       ? {
           entities: {} as { [uuid: string]: EntityJson },
           root: '',
-          version: 0
+          version: 0,
+          metadata: {}
         }
       : serializeWorld(obj, true)
   )

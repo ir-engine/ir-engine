@@ -72,6 +72,13 @@ else
   VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET
 fi
 
+if [ -z "VITE_8TH_WALL" ]
+then
+  VITE_8TH_WALL=null
+else
+  VITE_8TH_WALL=$VITE_8TH_WALL
+fi
+
 if [ -z "$NODE_ENV" ]
 then
   NODE_ENV=development
@@ -101,6 +108,7 @@ DOCKER_BUILDKIT=1 docker build -t xrengine \
   --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
   --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
   --build-arg VITE_DISABLE_LOG=$VITE_VITE_DISABLE_LOG \
+  --build-arg VITE_8TH_WALL=$VITE_VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
 #DOCKER_BUILDKIT=1 docker build -t xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .

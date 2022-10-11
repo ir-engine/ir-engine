@@ -4,10 +4,10 @@ import { createSandbox, SinonSandbox } from 'sinon'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { EntityTreeNode } from '../../../ecs/classes/EntityTree'
 import { World } from '../../../ecs/classes/World'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
+import { addEntityNodeChild, EntityTreeNode } from '../../../ecs/functions/EntityTree'
+import { createEntityNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '../../../initializeEngine'
@@ -27,6 +27,9 @@ describe('ParticleEmitterFunctions', async () => {
   beforeEach(async () => {
     sandbox = createSandbox()
     createEngine()
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
     setupEngineActionSystems()
     initEntity()
     Engine.instance.engineTimer.start()

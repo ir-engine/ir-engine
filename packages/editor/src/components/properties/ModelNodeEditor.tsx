@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -13,12 +12,11 @@ import {
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -46,9 +44,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
   const engineState = useEngineState()
   const entity = props.node.entity
-
-  const modelComponent = getComponent(entity, ModelComponent)
-  const obj3d = getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
+  const modelState = getComponent(entity, ModelComponent)
+  const modelComponent = modelState.value
+  const obj3d = modelComponent.scene ?? new Object3D() //getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
 
@@ -105,7 +103,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput value={modelComponent.generateBVH} onChange={updateProperty(ModelComponent, 'generateBVH')} />
       </InputGroup>
@@ -113,12 +110,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <BooleanInput
           value={modelComponent.matrixAutoUpdate}
           onChange={updateProperty(ModelComponent, 'matrixAutoUpdate')}
-        />
-      </InputGroup>
-      <InputGroup name="Is Using GPU Instancing" label={t('editor:properties.model.lbl-isGPUInstancing')}>
-        <BooleanInput
-          value={modelComponent.isUsingGPUInstancing}
-          onChange={updateProperty(ModelComponent, 'isUsingGPUInstancing')}
         />
       </InputGroup>
       <InputGroup name="Is Equippable" label={t('editor:properties.model.lbl-isEquippable')}>
@@ -144,10 +135,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <MaterialAssignment
         entity={entity}
         node={props.node}
-        modelComponent={modelComponent}
-        values={modelComponent.materialOverrides}
+        modelComponent={modelState}
+        values={JSON.parse(JSON.stringify(modelState.materialOverrides.value))}
         onChange={updateProperty(ModelComponent, 'materialOverrides')}
       />
+
       {!exporting && modelComponent.src && (
         <Well>
           <ModelInput value={exportPath} onChange={setExportPath} />

@@ -1,6 +1,8 @@
+const navigator = globalThis?.navigator
+
 let mobileOrTablet = false
-if (typeof navigator !== 'undefined' && typeof window !== 'undefined') {
-  const a = navigator?.userAgent || navigator?.vendor || (window as any)?.opera
+if (typeof navigator !== 'undefined' && typeof globalThis?.window !== 'undefined') {
+  const a = navigator?.userAgent || navigator?.vendor || (globalThis?.window as any)?.opera
   mobileOrTablet =
     /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(
       a
@@ -10,7 +12,16 @@ if (typeof navigator !== 'undefined' && typeof window !== 'undefined') {
     )
 }
 
+export const iOS =
+  typeof navigator !== 'undefined' &&
+  (['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) ||
+    (navigator.userAgent.includes('Mac') && 'ontouchend' in document))
+
 export const isMobile = mobileOrTablet
 
 export const isSafari =
   typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent.toLowerCase())
+
+export const isHMD = typeof navigator?.userAgent === 'string' && /Oculus/i.test(navigator.userAgent)
+
+export const isMobileOrHMD = isHMD || isMobile
