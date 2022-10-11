@@ -48,15 +48,14 @@ export default async function AvatarIKTargetSystem(world: World) {
      * Head
      */
     for (const entity of headIKQuery(world)) {
+      const ik = getComponent(entity, AvatarHeadIKComponent)
       if (inAttachedControlMode && entity === world.localClientEntity) {
-        const ik = getComponent(entity, AvatarHeadIKComponent)
         ik.camera.quaternion.copy(world.camera.quaternion)
         ik.camera.position.copy(world.camera.position)
-        ik.camera.updateMatrix()
-        ik.camera.updateMatrixWorld(true)
       }
+      ik.camera.updateMatrix()
+      ik.camera.updateMatrixWorld(true)
       const rig = getComponent(entity, AvatarAnimationComponent).rig
-      const ik = getComponent(entity, AvatarHeadIKComponent)
       ik.camera.getWorldDirection(_vec).multiplyScalar(-1)
       solveLookIK(rig.Head, _vec, ik.rotationClamp)
     }
