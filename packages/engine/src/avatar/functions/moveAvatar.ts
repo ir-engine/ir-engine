@@ -213,19 +213,17 @@ export const updateReferenceSpace = (entity: Entity) => {
     const avatarTransform = getComponent(entity, TransformComponent)
     const rig = getComponent(entity, AvatarAnimationComponent)
 
-    const headPosition =
-      rig?.rig.Head.getWorldPosition(_vec) ||
-      _vec.copy(avatarTransform.position).setComponent(1, avatarTransform.position.y + avatar.avatarHalfHeight)
+    rig.rig?.Head
+      ? rig.rig.Head.getWorldPosition(_vec)
+      : _vec.copy(avatarTransform.position).setComponent(1, avatarTransform.position.y + avatar.avatarHalfHeight)
 
-    headPosition.y -= viewerPose.transform.position.y - 0.14
-
+    _vec.y -= viewerPose.transform.position.y - 0.14
     const headOffset = _vec2.set(0, 0, 0.1).applyQuaternion(avatarTransform.rotation)
-
-    headPosition.add(headOffset)
+    _vec.add(headOffset)
 
     // rotate 180 degrees as physics looks down +z, and webxr looks down -z
     quat.copy(avatarTransform.rotation).multiply(quat180y)
-    const xrRigidTransform = new XRRigidTransform(headPosition, quat)
+    const xrRigidTransform = new XRRigidTransform(_vec, quat)
     const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
   }

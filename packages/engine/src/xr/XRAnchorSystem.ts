@@ -16,6 +16,8 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
+import { InputComponent } from '../input/components/InputComponent'
+import { BaseInput } from '../input/enums/BaseInput'
 import { TouchInputs } from '../input/enums/InputEnums'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup, GroupComponent, removeGroupComponent } from '../scene/components/GroupComponent'
@@ -28,7 +30,7 @@ import {
   TransformComponent
 } from '../transform/components/TransformComponent'
 import { updateEntityTransform } from '../transform/systems/TransformSystem'
-import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
+import { InputSourceComponent, XRAnchorComponent, XRHitTestComponent, XRPointerComponent } from './XRComponents'
 import { XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
@@ -69,6 +71,7 @@ export const updateHitTest = (entity: Entity) => {
 }
 
 const _plane = new Plane()
+let lastSwipeValue = null! as null | number
 
 /**
  * Updates the transform of the origin reference space to manipulate the
@@ -83,9 +86,19 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   updateEntityTransform(viewerHitTestEntity)
 
   /** Swipe to rotate */
-  const touchInput = world.inputState.get(TouchInputs.Touch1Movement)
-  if (touchInput && touchInput.lifecycleState === 'Changed') {
-    xrState.sceneRotationOffset.set((val) => (val += touchInput.value[0] / (world.deltaSeconds * 2)))
+  const viewerInputSourceEntity = xrState.viewerInputSourceEntity.value
+  if (viewerInputSourceEntity) {
+    const inputSource = getComponent(viewerInputSourceEntity, InputSourceComponent).inputSource
+    const swipe = inputSource.gamepad?.axes ?? []
+    if (swipe.length) {
+      const delta = swipe[0] - (lastSwipeValue ?? 0)
+      if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (world.deltaSeconds * 20)))
+      lastSwipeValue = swipe[0]
+    } else {
+      lastSwipeValue = null
+    }
+  } else {
+    lastSwipeValue = null
   }
 
   const hitLocalTransform = getComponent(viewerHitTestEntity, LocalTransformComponent)
@@ -202,6 +215,9 @@ export default async function XRAnchorSystem(world: World) {
         xrState.viewerReferenceSpace.set(null)
         xrState.scenePlacementMode.set(false)
         hasComponent(world.originEntity, XRAnchorComponent) && removeComponent(world.originEntity, XRAnchorComponent)
+
+        for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
+        for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
       }
     }
 
@@ -214,7 +230,9 @@ export default async function XRAnchorSystem(world: World) {
 
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
       if (changePlacementModeActions.length && changePlacementModeActions[0].active) {
-        setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource: xrState.viewerHitTestSource.value })
+        setComponent(scenePlacementEntity, XRHitTestComponent, {
+          hitTestSource: xrState.viewerHitTestSource.get({ noproxy: true })
+        })
       }
       for (const entity of xrHitTestQuery()) {
         const hit = updateHitTest(entity)

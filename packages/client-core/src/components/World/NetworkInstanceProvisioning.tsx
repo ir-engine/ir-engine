@@ -112,7 +112,7 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [locationState.currentLocation.location])
 
-  // 3. once engine is initialised and the server is provisioned, connect the the instance server
+  // 3. once engine is initialised and the server is provisioned, connect to the instance server
   useHookEffect(() => {
     if (
       engineState.sceneLoaded.value &&

@@ -24,7 +24,7 @@ export default async function XRLightProbeSystem(world: World) {
 
   xrLight.addEventListener('estimationstart', () => {
     // Swap the default light out for the estimated one one we start getting some estimated values.
-    Engine.instance.currentWorld.scene.add(xrLight)
+    Engine.instance.currentWorld.origin.add(xrLight)
 
     // The estimated lighting also provides an environment cubemap, which we can apply here.
     if (xrLight.environment) {
@@ -36,13 +36,13 @@ export default async function XRLightProbeSystem(world: World) {
   })
 
   xrLight.addEventListener('estimationend', () => {
-    Engine.instance.currentWorld.scene.remove(xrLight)
+    xrLight.removeFromParent()
     Engine.instance.currentWorld.scene.environment = previousEnvironment
     estimatingLight.set(true)
   })
 
   const execute = () => {
-    if (estimatingLight.value) {
+    if (EngineRenderer.instance.csm && estimatingLight.value) {
       // maybe use -1 * pos
       xrLight.directionalLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
     }

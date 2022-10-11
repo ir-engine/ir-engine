@@ -27,6 +27,7 @@ export const XRState = defineState({
      * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
     avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
+    /** origin is always 0,0,0 */
     originReferenceSpace: null as XRReferenceSpace | null,
     viewerReferenceSpace: null as XRReferenceSpace | null,
     viewerHitTestSource: null as XRHitTestSource | null,
@@ -36,7 +37,10 @@ export const XRState = defineState({
     depthDataTexture: null as DepthDataTexture | null,
     is8thWallActive: false,
     isEstimatingLight: false,
-    lightEstimator: null! as XREstimatedLight
+    lightEstimator: null! as XREstimatedLight,
+    viewerInputSourceEntity: null as Entity | null,
+    leftControllerEntity: null as Entity | null,
+    rightControllerEntity: null as Entity | null
   })
 })
 
@@ -59,8 +63,7 @@ export class XRAction {
   static sessionChanged = defineAction({
     type: 'xre.xr.sessionChanged' as const,
     active: matches.boolean,
-    $cache: { removePrevious: true },
-    $topic: NetworkTopics.world
+    $cache: { removePrevious: true }
   })
 
   static changePlacementMode = defineAction({
