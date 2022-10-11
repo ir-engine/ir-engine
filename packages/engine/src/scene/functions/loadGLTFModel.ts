@@ -44,7 +44,10 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
           _toLoad[parts[1]] = {}
         }
         if (parts.length > 2) {
-          _toLoad[parts[1]][parts[2]] = value
+          let val = value
+          if (value === 'true') val = true
+          if (value === 'false') val = false
+          _toLoad[parts[1]][parts[2]] = val
         }
         delete obj3d.userData[key]
       }
