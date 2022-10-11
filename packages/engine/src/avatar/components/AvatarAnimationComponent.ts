@@ -9,6 +9,7 @@ export type AvatarAnimationComponentType = {
   animationGraph: AnimationGraph
 
   /** Holds all the bones */
+  /** @todo, move this to a separate component */
   rig: BoneStructure
 
   /** Read-only bones in bind pose */

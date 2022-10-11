@@ -4,6 +4,7 @@ import * as bitecs from 'bitecs'
 import {
   AxesHelper,
   Color,
+  Group,
   LinearToneMapping,
   Object3D,
   PCFSoftShadowMap,
@@ -83,6 +84,7 @@ export class World {
     addComponent(this.originEntity, NameComponent, { name: 'origin' })
     setTransformComponent(this.originEntity)
     setComponent(this.originEntity, VisibleComponent, true)
+    addObjectToGroup(this.originEntity, this.origin)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
@@ -223,6 +225,11 @@ export class World {
   originEntity: Entity = NaN as Entity
 
   /**
+   * The xr origin group
+   */
+  origin = new Group()
+
+  /**
    * The camera entity
    */
   cameraEntity: Entity = NaN as Entity
@@ -245,6 +252,8 @@ export class World {
 
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()
+
+  inputSources: XRInputSource[] = []
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
