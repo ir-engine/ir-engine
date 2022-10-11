@@ -192,10 +192,35 @@ class XRFrameProxy {
     return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position, rotation))
   }
 
+  get session() {
+    return EngineRenderer.instance.xrSession
+  }
+
   /**
    * XRFrame.getPose is only currently used for anchors and controllers, which are not implemented in 8thwall
    */
   getPose = undefined
+
+  getViewerPose(space: XRReferenceSpace) {
+    return {
+      get transform() {
+        return {
+          get matrix() {
+            return Engine.instance.currentWorld.camera.matrix.toArray()
+          },
+          get inverse() {
+            throw new Error("'XRFrame.getViewerPose.transform.inverse' not implemented")
+          },
+          get position() {
+            return Engine.instance.currentWorld.camera.position
+          },
+          get orientation() {
+            return Engine.instance.currentWorld.camera.quaternion
+          }
+        }
+      }
+    }
+  }
 }
 
 const skyboxQuery = defineQuery([SkyboxComponent])
@@ -204,7 +229,7 @@ export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
   const xrState = getState(XRState)
 
-  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
+  const using8thWall = true //isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
 
   const vpsComponent = defineQuery([VPSComponent])
 
