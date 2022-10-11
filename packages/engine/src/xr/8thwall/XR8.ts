@@ -287,7 +287,11 @@ export default async function XR8System(world: World) {
       (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
       (ev.touches[0].screenY / window.innerHeight) * -2 + 1
     ]
-    EngineRenderer.instance.xrSession.dispatchEvent({ type: 'selectstart', inputSource: viewerInputSource } as any)
+    EngineRenderer.instance.xrSession.dispatchEvent({
+      type: 'inputsourceschange',
+      added: [viewerInputSource],
+      removed: []
+    } as any)
     inputSources.push(viewerInputSource)
   }
 
@@ -299,7 +303,11 @@ export default async function XR8System(world: World) {
   }
 
   const onTouchEnd = (ev) => {
-    EngineRenderer.instance.xrSession.dispatchEvent({ type: 'selectend', inputSource: viewerInputSource } as any)
+    EngineRenderer.instance.xrSession.dispatchEvent({
+      type: 'inputsourceschange',
+      removed: [viewerInputSource],
+      added: []
+    } as any)
     inputSources.splice(inputSources.indexOf(viewerInputSource), 1)
   }
 

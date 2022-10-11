@@ -207,6 +207,8 @@ export default async function XRControllerSystem(world: World) {
     pointer.add(cursor)
     cursor.visible = false
 
+    if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(entity)
+
     // controller.targetRay = targetRay
     setComponent(entity, XRControllerComponent, { targetRaySpace, handedness: inputSource.handedness })
     setComponent(entity, InputSourceComponent, { inputSource })
@@ -248,6 +250,7 @@ export default async function XRControllerSystem(world: World) {
 
   const removeInputSourceEntity = (inputSource: XRInputSource) => {
     if (!xrInputSourcesMap.has(inputSource)) return
+    if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(null)
     if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(null)
     if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(null)
     removeEntity(xrInputSourcesMap.get(inputSource)!)
@@ -269,14 +272,6 @@ export default async function XRControllerSystem(world: World) {
     const sessionStarted = xrSessionChangedQueue()
     if (sessionStarted.length) {
       if (sessionStarted[0].active) {
-        EngineRenderer.instance.xrSession.addEventListener('selectstart', (ev) => {
-          const entity = addInputSourceEntity(ev.inputSource)
-          xrState.viewerInputSourceEntity.set(entity)
-        })
-        EngineRenderer.instance.xrSession.addEventListener('selectend', (ev) => {
-          removeInputSourceEntity(ev.inputSource)
-          xrState.viewerInputSourceEntity.set(null)
-        })
         EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', onInputSourcesChange)
       } else {
         for (const [inputSource] of Array.from(xrInputSourcesMap)) removeInputSourceEntity(inputSource)
