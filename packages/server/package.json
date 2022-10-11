@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server",
   "description": "API Server for XREngine",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc4",
   "private": true,
   "homepage": "",
   "main": "dist/index.js",
@@ -51,7 +51,7 @@
     "@feathersjs/transport-commons": "5.0.0-pre.29",
     "@kubernetes/client-node": "0.16.3",
     "@swc/core": "^1.2.210",
-    "@xrengine/server-core": "^1.0.0-rc3",
+    "@xrengine/server-core": "^1.0.0-rc4",
     "aws-sdk": "2.1113.0",
     "cli": "1.0.1",
     "compression": "1.7.4",

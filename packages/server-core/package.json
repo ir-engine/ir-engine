@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc4",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -49,9 +49,9 @@
     "@feathersjs/feathers": "5.0.0-pre.29",
     "@feathersjs/transport-commons": "5.0.0-pre.29",
     "@kubernetes/client-node": "^0.16.2",
-    "@xrengine/common": "^1.0.0-rc3",
-    "@xrengine/engine": "^1.0.0-rc3",
-    "@xrengine/matchmaking": "^1.0.0-rc3",
+    "@xrengine/common": "^1.0.0-rc4",
+    "@xrengine/engine": "^1.0.0-rc4",
+    "@xrengine/matchmaking": "^1.0.0-rc4",
     "app-root-path": "3.0.0",
     "aws-sdk": "2.1113.0",
     "bent": "^7.3.0",

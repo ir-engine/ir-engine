@@ -28,7 +28,7 @@
     "generate-doc": "node_modules/.bin/typedoc",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc4",
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.9.0",
     "@etherealjs/web-layer": "^3.5.5",
@@ -38,8 +38,8 @@
     "@pixiv/three-vrm": "^1.0.0-beta.8",
     "@tweenjs/tween.js": "^18.6.4",
     "@vladmandic/face-api": "^1.6.1",
-    "@xrengine/common": "^1.0.0-rc3",
-    "@xrengine/hyperflux": "^1.0.0-rc3",
+    "@xrengine/common": "^1.0.0-rc4",
+    "@xrengine/hyperflux": "^1.0.0-rc4",
     "@xrfoundation/volumetric": "1.0.4",
     "bitecs": "git://github.com/NateTheGreatt/bitECS.git#056c637e05327aab8e355ebf25e9ff202b67e495",
     "browserfs": "^1.4.3",
