@@ -579,10 +579,13 @@ const EditorContainer = () => {
               tabs: [
                 {
                   id: 'hierarchyPanel',
-                  title: (
-                    <HierarchyPanelTitle setSearchElement={setSearchElement} setSearchHierarchy={setSearchHierarchy} />
-                  ),
-                  content: <HierarchyPanelContainer />
+                  title: <HierarchyPanelTitle />,
+                  content: (
+                    <HierarchyPanelContainer
+                      setSearchElement={setSearchElement}
+                      setSearchHierarchy={setSearchHierarchy}
+                    />
+                  )
                 },
                 {
                   id: 'materialLibraryPanel',

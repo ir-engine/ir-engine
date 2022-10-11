@@ -5,6 +5,7 @@ import { Engine } from '../../ecs/classes/Engine'
 export function pathResolver() {
   const hostPath = Engine.instance.publicPath.replace(/:\d{4}$/, '')
   const cacheRe = new RegExp(`(${hostPath}:\\d{4}\/projects)\/([^\/]+)\/(.*$)`)
+  //                          1: project path -- 2: project name -- 3: internal path
   return cacheRe
 }
 
