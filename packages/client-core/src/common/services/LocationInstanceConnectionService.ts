@@ -89,7 +89,13 @@ export const useLocationInstanceConnectionState = () => useState(accessLocationI
 
 //Service
 export const LocationInstanceConnectionService = {
-  provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string, roomCode?: string) => {
+  provisionServer: async (
+    locationId?: string,
+    instanceId?: string,
+    sceneId?: string,
+    roomCode?: string,
+    createNewRoom?: boolean
+  ) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
     const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
@@ -105,11 +111,12 @@ export const LocationInstanceConnectionService = {
     }
     const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
-        locationId: locationId,
-        instanceId: instanceId,
-        sceneId: sceneId,
-        roomCode: roomCode,
-        token: token
+        locationId,
+        instanceId,
+        sceneId,
+        roomCode,
+        token,
+        createNewRoom
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {

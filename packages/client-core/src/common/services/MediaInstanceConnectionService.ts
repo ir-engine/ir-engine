@@ -102,13 +102,14 @@ export const useMediaInstanceConnectionState = () => useState(accessMediaInstanc
 
 //Service
 export const MediaInstanceConnectionService = {
-  provisionServer: async (channelId?: string, isWorldConnection = false) => {
+  provisionServer: async (channelId?: string, createNewRoom = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const token = accessAuthState().authUser.accessToken.value
     const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
-        channelId: channelId,
-        token: token
+        channelId,
+        token,
+        createNewRoom
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
