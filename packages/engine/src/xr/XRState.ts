@@ -37,7 +37,9 @@ export const XRState = defineState({
     depthDataTexture: null as DepthDataTexture | null,
     is8thWallActive: false,
     isEstimatingLight: false,
-    lightEstimator: null! as XREstimatedLight
+    lightEstimator: null! as XREstimatedLight,
+    leftControllerEntity: null as Entity | null,
+    rightControllerEntity: null as Entity | null
   })
 })
 
@@ -60,8 +62,7 @@ export class XRAction {
   static sessionChanged = defineAction({
     type: 'xre.xr.sessionChanged' as const,
     active: matches.boolean,
-    $cache: { removePrevious: true },
-    $topic: NetworkTopics.world
+    $cache: { removePrevious: true }
   })
 
   static changePlacementMode = defineAction({

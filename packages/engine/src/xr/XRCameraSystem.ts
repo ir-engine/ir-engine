@@ -1,14 +1,10 @@
 import { Matrix4, PerspectiveCamera } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
-
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { XRInputSourceComponent } from './XRComponents'
-import { getControlMode, XRState } from './XRState'
 
 const updateXRCameraTransform = (camera: PerspectiveCamera, originMatrix: Matrix4) => {
   camera.matrixWorld.multiplyMatrices(originMatrix, camera.matrix)
@@ -40,26 +36,6 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
   const cameraXR = EngineRenderer.instance.xrManager.getCamera()
   updateXRCameraTransform(cameraXR, originTransform.matrix)
   for (const camera of cameraXR.cameras) updateXRCameraTransform(camera, originTransform.matrix)
-
-  if (getControlMode() === 'attached') {
-    const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
-    const head = xrInputSourceComponent.head
-    head.quaternion.copy(camera.quaternion)
-    head.position.copy(camera.position)
-
-    head.updateMatrix()
-    head.updateMatrixWorld(true)
-  }
-
-  // TODO: uncomment the following when three.js fixes WebXRManager
-  // const xrFrame = Engine.instance.xrFrame
-  // for (let i = 0; i < xrManager.controllers.length; i++) {
-  //   const inputSource = xrManager.controllerInputSources[i]
-  //   const controller = xrManager.controllers[i]
-  //   if (inputSource !== null && controller !== undefined) {
-  //     controller.update(inputSource, xrFrame, xrManager.getReferenceSpace())
-  //   }
-  // }
 }
 
 /**
