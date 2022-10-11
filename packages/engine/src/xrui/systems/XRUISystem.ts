@@ -133,9 +133,11 @@ export default async function XRUISystem(world: World) {
 
     /** Update the objects to use for intersection tests */
     if (xrFrame && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
-      xrui.interactionRays = pointerEntities
-        .filter((entity) => entity !== world.cameraEntity)
-        .map((entity) => getComponent(entity, XRPointerComponent).pointer)
+      xrui.interactionRays = (
+        pointerEntities
+          .filter((entity) => entity !== world.cameraEntity)
+          .map((entity) => getComponent(entity, XRPointerComponent).pointer) as (Object3D | Ray)[]
+      ).concat(world.pointerScreenRaycaster.ray) // todo, replace pointerScreenRaycaster with viewerInputSourceEntity
 
     if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
