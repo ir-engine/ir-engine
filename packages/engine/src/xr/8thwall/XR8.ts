@@ -246,7 +246,7 @@ export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
   const xrState = getState(XRState)
 
-  const using8thWall = true //isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
+  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
 
   const vpsComponent = defineQuery([VPSComponent])
 
