@@ -58,7 +58,6 @@ export const updateHitTest = (entity: Entity) => {
     if (hitTestResults.length) {
       const hit = hitTestResults[0]
       const hitPose = hit.getPose(xrState.originReferenceSpace.value!)!
-      console.log(hitPose.transform.position)
       localTransform.position.copy(hitPose.transform.position as any as Vector3)
       localTransform.rotation.copy(hitPose.transform.orientation as any as Quaternion)
       hitTestComponent.hitTestResult.set(hit)
