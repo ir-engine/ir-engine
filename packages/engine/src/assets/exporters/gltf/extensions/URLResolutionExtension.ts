@@ -27,7 +27,8 @@ export default class URLResolutionExtension extends ExporterExtension {
               break
             case 'string':
               if (cacheRe.test(v)) {
-                obj[k] = v.replace(cacheRe, '')
+                //obj[k] = v.replace(cacheRe, '')
+                obj[k] = cacheRe.exec(v)![1]
               }
           }
         })

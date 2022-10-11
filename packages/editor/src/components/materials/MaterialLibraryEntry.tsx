@@ -2,6 +2,7 @@ import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 import { Material } from 'three'
 
+import { pathResolver } from '@xrengine/engine/src/assets/functions/pathResolver'
 import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
 import {
   MaterialPrototypeComponent,
@@ -53,7 +54,7 @@ const nodeDisplayName = (node: MaterialLibraryEntryType) => {
       return materialEntry.material.name
     case LibraryEntryType.MATERIAL_SOURCE:
       const srcEntry = node.entry as MaterialSourceComponentType
-      return srcEntry.src.path
+      return pathResolver().exec(srcEntry.src.path)?.[3] ?? srcEntry.src.path
     case LibraryEntryType.MATERIAL_PROTOTYPE:
       const prototypeEntry = node.entry as MaterialPrototypeComponentType
       return prototypeEntry.prototypeId
@@ -111,9 +112,10 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
         (node.selected ? ' ' + styles.selected : '') +
         (node.active ? ` ${styles.selected}` : '')
       }
+      onClick={onClickNode}
     >
-      <div className={styles.nodeContent} onClick={onClickNode}>
-        <Grid container columns={16}>
+      <div className={styles.nodeContent}>
+        <Grid container columns={16} sx={{ flexWrap: 'unset' }}>
           <Grid item xs={1}>
             {node.type === LibraryEntryType.MATERIAL_SOURCE ? (
               node.isCollapsed ? (
@@ -125,18 +127,14 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
               <div className={styles.spacer} />
             )}
           </Grid>
+          <Grid item xs={1}>
+            <div className={styles.nodeIcon}>
+              {node.type === LibraryEntryType.MATERIAL && <MaterialComponentIcon className={styles.nodeIcon} />}
+              {node.type === LibraryEntryType.MATERIAL_SOURCE && <MaterialSourceIcon className={styles.nodeIcon} />}
+            </div>
+          </Grid>
           <Grid item xs>
-            <Grid container spacing={1} columns={15}>
-              <Grid item xs={1}>
-                <div className={styles.nodeIcon}>
-                  {node.type === LibraryEntryType.MATERIAL && <MaterialComponentIcon className={styles.nodeIcon} />}
-                  {node.type === LibraryEntryType.MATERIAL_SOURCE && <MaterialSourceIcon className={styles.nodeIcon} />}
-                </div>
-              </Grid>
-              <Grid item xs>
-                <div className={styles.nodeContent}>{nodeDisplayName(node)}</div>
-              </Grid>
-            </Grid>
+            <div className={styles.nodeContent}>{nodeDisplayName(node)}</div>
           </Grid>
         </Grid>
       </div>
