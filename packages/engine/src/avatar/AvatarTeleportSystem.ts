@@ -108,68 +108,58 @@ export default async function AvatarTeleportSystem(world: World) {
 
   const avatarTeleportQuery = defineQuery([AvatarTeleportTagComponent])
   const execute = () => {
-    for (const entity of avatarTeleportQuery.exit(world)) {
-      // Get cursor position and teleport avatar to it
-      if (canTeleport) teleportAvatar(entity, guideCursor.position)
-      guideCursor.visible = false
-      if (guideline.parent) guideline.removeFromParent()
-    }
-
-    for (const entity of avatarTeleportQuery.enter(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const guidingController = xrInputSourceComponent.controllerRight
-      guidingController.add(guideline)
-    }
-
-    for (const entity of avatarTeleportQuery(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const guidingController = xrInputSourceComponent.controllerRight
-
-      const { p, v, t } = getParabolaInputParams(guidingController, initialVelocity, gravity)
-
-      lineGeometryVertices.fill(0)
-      currentVertexLocal.set(0, 0, 0)
-      let lastValidationData
-      let guidelineBlocked = false
-      let i = 0
-      for (i = 1; i <= lineSegments && !guidelineBlocked; i++) {
-        // set vertex to current position of the virtual ball at time t
-        positionAtT(currentVertexWorld, (i * t) / lineSegments, p, v, gravity)
-        currentVertexLocal.copy(currentVertexWorld)
-        guidingController.worldToLocal(currentVertexLocal)
-        currentVertexLocal.toArray(lineGeometryVertices, i * 3)
-
-        positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
-        const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
-
-        const validationData = checkPositionIsValid(currentVertexWorld, false, currentVertexDirection)
-        if (validationData.raycastHit !== null) {
-          guidelineBlocked = true
-          currentVertexWorld.copy(validationData.raycastHit.position)
-        }
-
-        lastValidationData = validationData
-      }
-
-      lastValidationData.positionValid ? (canTeleport = true) : (canTeleport = false)
-
-      // Line should extend only up to last valid vertex
-      currentVertexLocal.copy(currentVertexWorld)
-      guidingController.worldToLocal(currentVertexLocal)
-      currentVertexLocal.toArray(lineGeometryVertices, i * 3)
-      stopGuidelineAtVertex(currentVertexLocal, lineGeometryVertices, i + 1, lineSegments)
-      guideline.geometry.attributes.position.needsUpdate = true
-
-      if (canTeleport) {
-        // Place the cursor near the end of the line
-        guideCursor.position.copy(currentVertexWorld)
-        guideCursor.visible = true
-        lineMaterial.color = white
-      } else {
-        guideCursor.visible = false
-        lineMaterial.color = red
-      }
-    }
+    // for (const entity of avatarTeleportQuery.exit(world)) {
+    //   // Get cursor position and teleport avatar to it
+    //   if (canTeleport) teleportAvatar(entity, guideCursor.position)
+    //   guideCursor.visible = false
+    //   if (guideline.parent) guideline.removeFromParent()
+    // }
+    // for (const entity of avatarTeleportQuery.enter(world)) {
+    //   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+    //   const guidingController = xrInputSourceComponent.controllerRight
+    //   guidingController.add(guideline)
+    // }
+    // for (const entity of avatarTeleportQuery(world)) {
+    //   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+    //   const guidingController = xrInputSourceComponent.controllerRight
+    //   const { p, v, t } = getParabolaInputParams(guidingController, initialVelocity, gravity)
+    //   lineGeometryVertices.fill(0)
+    //   currentVertexLocal.set(0, 0, 0)
+    //   let lastValidationData
+    //   let guidelineBlocked = false
+    //   let i = 0
+    //   for (i = 1; i <= lineSegments && !guidelineBlocked; i++) {
+    //     // set vertex to current position of the virtual ball at time t
+    //     positionAtT(currentVertexWorld, (i * t) / lineSegments, p, v, gravity)
+    //     currentVertexLocal.copy(currentVertexWorld)
+    //     guidingController.worldToLocal(currentVertexLocal)
+    //     currentVertexLocal.toArray(lineGeometryVertices, i * 3)
+    //     positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
+    //     const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
+    //     const validationData = checkPositionIsValid(currentVertexWorld, false, currentVertexDirection)
+    //     if (validationData.raycastHit !== null) {
+    //       guidelineBlocked = true
+    //       currentVertexWorld.copy(validationData.raycastHit.position)
+    //     }
+    //     lastValidationData = validationData
+    //   }
+    //   lastValidationData.positionValid ? (canTeleport = true) : (canTeleport = false)
+    //   // Line should extend only up to last valid vertex
+    //   currentVertexLocal.copy(currentVertexWorld)
+    //   guidingController.worldToLocal(currentVertexLocal)
+    //   currentVertexLocal.toArray(lineGeometryVertices, i * 3)
+    //   stopGuidelineAtVertex(currentVertexLocal, lineGeometryVertices, i + 1, lineSegments)
+    //   guideline.geometry.attributes.position.needsUpdate = true
+    //   if (canTeleport) {
+    //     // Place the cursor near the end of the line
+    //     guideCursor.position.copy(currentVertexWorld)
+    //     guideCursor.visible = true
+    //     lineMaterial.color = white
+    //   } else {
+    //     guideCursor.visible = false
+    //     lineMaterial.color = red
+    //   }
+    // }
   }
 
   const cleanup = async () => {

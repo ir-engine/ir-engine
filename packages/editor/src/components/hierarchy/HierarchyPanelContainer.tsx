@@ -14,8 +14,9 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
+import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
@@ -26,12 +27,13 @@ import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
-import { useEditorState } from '../../services/EditorServices'
+import { EditorAction, useEditorState } from '../../services/EditorServices'
 import { accessSelectionState, useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
 import { AppContext } from '../Search/context'
+import Search from '../Search/Search'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import {
   getNodeElId,
@@ -112,7 +114,13 @@ function getModelNodesFromTreeWalker(
  *
  * @constructor
  */
-export default function HierarchyPanel() {
+export default function HierarchyPanel({
+  setSearchElement,
+  setSearchHierarchy
+}: {
+  setSearchElement: (_: string) => void
+  setSearchHierarchy: (_: string) => void
+}) {
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -137,7 +145,11 @@ export default function HierarchyPanel() {
   if (searchHierarchy.length > 0) {
     const condition = new RegExp(searchHierarchy.toLowerCase())
     nodes.forEach((node) => {
-      if (node.entityNode && condition.test(getComponent(node.entityNode.entity, NameComponent).name.toLowerCase()))
+      if (
+        (node.entityNode &&
+          condition.test(getComponent(node.entityNode.entity, NameComponent)?.name?.toLowerCase() ?? '')) ||
+        (node.obj3d && condition.test(node.obj3d.name?.toLowerCase() ?? ''))
+      )
         nodeSearch.push(node)
     })
   }
@@ -469,36 +481,56 @@ export default function HierarchyPanel() {
     }
   })
 
+  const HierarchyList = //useCallback(
+    ({ height, width }) => (
+      <FixedSizeList
+        height={height}
+        width={width}
+        itemSize={32}
+        itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
+        itemData={{
+          renamingNode,
+          nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
+          onKeyDown,
+          onChangeName,
+          onRenameSubmit,
+          onMouseDown,
+          onClick,
+          onToggle,
+          onUpload
+        }}
+        itemKey={getNodeKey}
+        outerRef={treeContainerDropTarget}
+        innerElementType="ul"
+      >
+        {MemoTreeNode}
+      </FixedSizeList>
+    ) //,
+  //[editorState.advancedMode, editorState.projectLoaded, collapsedNodes, showObject3DInHierarchy, selectedNode, updateNodeHierarchy]
+  //)
+
   return (
     <>
       <div className={styles.panelContainer}>
+        <div className={styles.dockableTabButtons}>
+          <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
+          {editorState.advancedMode.value && (
+            <>
+              {t('editor:hierarchy.lbl-explode')}
+              <Checkbox
+                style={{ padding: '0px' }}
+                value={editorState.showObject3DInHierarchy.value}
+                onChange={(e, value) =>
+                  dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
+                }
+              />
+            </>
+          )}
+        </div>
         {Engine.instance.currentWorld.scene && (
-          <AutoSizer>
-            {({ height, width }) => (
-              <FixedSizeList
-                height={height}
-                width={width}
-                itemSize={32}
-                itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
-                itemData={{
-                  renamingNode,
-                  nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
-                  onKeyDown,
-                  onChangeName,
-                  onRenameSubmit,
-                  onMouseDown,
-                  onClick,
-                  onToggle,
-                  onUpload
-                }}
-                itemKey={getNodeKey}
-                outerRef={treeContainerDropTarget}
-                innerElementType="ul"
-              >
-                {MemoTreeNode}
-              </FixedSizeList>
-            )}
-          </AutoSizer>
+          <div style={{ height: '100%' }}>
+            <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
+          </div>
         )}
       </div>
       <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>

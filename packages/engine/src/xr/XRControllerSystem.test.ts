@@ -6,9 +6,9 @@ import { Engine } from '../ecs/classes/Engine'
 import { createEngine } from '../initializeEngine'
 import { GamepadAxis, GamepadButtons } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
-import { updateGamepadInput } from './XRSystem'
+import { updateGamepadInput } from './XRControllerSystem'
 
-describe('XRSystem', () => {
+describe('XRControllerSystem', () => {
   beforeEach(() => {
     createEngine()
   })

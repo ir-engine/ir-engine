@@ -121,12 +121,6 @@ const LoadingDetailView = (props: {
     }
   }, [loadingState.state])
 
-  useEffect(() => {
-    /** renderering is disabled on an HMD when a session is not active ,
-     *   render it here whenever the loading screen changes */
-    if (isHMD && !getState(XRState).sessionActive.value) EngineRenderer.instance.execute(Engine.instance.tickRate)
-  }, [engineState.loadingProgress, loadingSystemState.loadingScreenOpacity])
-
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value
   const loadingDetails = !sceneLoaded

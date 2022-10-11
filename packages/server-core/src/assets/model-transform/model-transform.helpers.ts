@@ -139,6 +139,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const root = document.getRoot()
 
   /* ID unnamed resources */
+  await document.transform(dedup())
 
   /* PROCESS MESHES */
   if (args.parms.useMeshopt) {
@@ -148,7 +149,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       .setEncoderOptions({ method: MeshoptCompression.EncoderMethod.QUANTIZE })
 
     await MeshoptEncoder.ready
-    await document.transform(dedup(), prune(), reorder({ encoder: MeshoptEncoder }))
+    await document.transform(prune(), reorder({ encoder: MeshoptEncoder }))
   }
   if (args.parms.useMeshQuantization) {
     document.createExtension(MeshQuantization).setRequired(true)

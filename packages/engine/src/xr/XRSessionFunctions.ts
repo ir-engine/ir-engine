@@ -4,20 +4,23 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TouchInputs } from '../input/enums/InputEnums'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { BinaryValue } from './../common/enums/BinaryValue'
 import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
-import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  setComponent
+} from './../ecs/functions/ComponentFunctions'
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
-import { cleanXRInputs } from './XRControllerFunctions'
-import { XREstimatedLight } from './XREstimatedLight'
-import { setupXRInputSourceComponent } from './XRFunctions'
 import { getControlMode, XRAction, XRState } from './XRState'
 
 const skyboxQuery = defineQuery([SkyboxComponent])
@@ -97,15 +100,10 @@ export const requestXRSession = createHookableFunction(
         xrState.originReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)
 
-        if (hasComponent(world.localClientEntity, XRInputSourceComponent)) {
-          cleanXRInputs(world.localClientEntity)
-          removeComponent(world.localClientEntity, XRInputSourceComponent)
-        }
-        if (hasComponent(world.localClientEntity, XRHandsInputComponent))
-          removeComponent(world.localClientEntity, XRHandsInputComponent)
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)
         dispatchAction(XRAction.sessionChanged({ active: false }))
+        dispatchAction(WorldNetworkAction.setXRMode({ enabled: false, avatarInputControllerType: '' }))
       }
       xrManager.addEventListener('sessionend', onSessionEnd)
 
@@ -137,16 +135,12 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   if (action.active) {
     if (getControlMode() === 'attached') {
       if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
-      if (!hasComponent(entity, XRInputSourceComponent)) setupXRInputSourceComponent(entity)
     }
-  } else if (hasComponent(entity, XRInputSourceComponent)) {
-    cleanXRInputs(entity)
-    removeComponent(entity, XRInputSourceComponent)
   }
 })
 
 export const setupVRSession = (world = Engine.instance.currentWorld) => {
-  setupXRInputSourceComponent(world.localClientEntity)
+  dispatchAction(WorldNetworkAction.setXRMode({ enabled: true, avatarInputControllerType: '' }))
 }
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
@@ -171,32 +165,5 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
     })
   })
 
-  setupWebXRLightprobe()
-
   world.scene.background = null
-}
-
-/**
- * https://github.com/mrdoob/three.js/blob/master/examples/webxr_ar_lighting.html
- */
-export const setupWebXRLightprobe = () => {
-  const xrLight = new XREstimatedLight(EngineRenderer.instance.renderer)
-
-  let previousEnvironment = Engine.instance.currentWorld.scene.environment
-
-  xrLight.addEventListener('estimationstart', () => {
-    // Swap the default light out for the estimated one one we start getting some estimated values.
-    Engine.instance.currentWorld.scene.add(xrLight)
-
-    // The estimated lighting also provides an environment cubemap, which we can apply here.
-    if (xrLight.environment) {
-      previousEnvironment = Engine.instance.currentWorld.scene.environment
-      Engine.instance.currentWorld.scene.environment = xrLight.environment
-    }
-  })
-
-  xrLight.addEventListener('estimationend', () => {
-    Engine.instance.currentWorld.scene.remove(xrLight)
-    Engine.instance.currentWorld.scene.environment = previousEnvironment
-  })
 }

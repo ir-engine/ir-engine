@@ -18,10 +18,10 @@ process.on('unhandledRejection', (error, promise) => {
   logger.error(error, 'UNHANDLED REJECTION - Promise: %o', promise)
 })
 
-const analyticsServerPipe = pipe(configureSocketIO())
+const analyticsServerPipe = pipe(configureSocketIO(), configureRedis())
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersExpressApp(ServerMode.Instance, analyticsServerPipe)
+  const app = createFeathersExpressApp(ServerMode.Analytics, analyticsServerPipe)
 
   app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
   app.set('port', config.server.port)

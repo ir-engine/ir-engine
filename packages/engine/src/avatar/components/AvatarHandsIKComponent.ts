@@ -1,24 +1,34 @@
-import { Bone, Object3D } from 'three'
+import { Object3D } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
 
 /**
  * Avatar Hands IK Solver Component.
  */
 export type AvatarHandsIKComponentType = {
-  leftTarget: Object3D
-  leftHint: Object3D | null
-  leftTargetOffset: Object3D
-  leftTargetPosWeight: number
-  leftTargetRotWeight: number
-  leftHintWeight: number
-
-  rightTarget: Object3D
-  rightHint: Object3D | null
-  rightTargetOffset: Object3D
-  rightTargetPosWeight: number
-  rightTargetRotWeight: number
-  rightHintWeight: number
+  target: Object3D
+  hint: Object3D | null
+  targetOffset: Object3D
+  targetPosWeight: number
+  targetRotWeight: number
+  hintWeight: number
 }
 
-export const AvatarHandsIKComponent = createMappedComponent<AvatarHandsIKComponentType>('AvatarHandsIKComponent')
+const PoseSchema = {
+  position: Vector3Schema,
+  quaternion: QuaternionSchema
+}
+
+const HandIKSchema = {
+  target: PoseSchema
+}
+
+export const AvatarLeftHandIKComponent = createMappedComponent<AvatarHandsIKComponentType, typeof HandIKSchema>(
+  'AvatarLeftHandIKComponent',
+  HandIKSchema
+)
+export const AvatarRightHandIKComponent = createMappedComponent<AvatarHandsIKComponentType, typeof HandIKSchema>(
+  'AvatarRightHandIKComponent',
+  HandIKSchema
+)

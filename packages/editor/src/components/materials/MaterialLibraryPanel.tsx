@@ -34,9 +34,12 @@ export default function MaterialLibraryPanel() {
   const selectionState = useSelectionState()
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useHookstate(0)
-  const collapsedNodes = useHookstate(new Set<string>())
+  const srcs = [...MaterialLibrary.sources.values()]
+  const collapsedNodes = useHookstate(
+    new Set<string>(srcs.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE)))
+  )
   const createNodes = useCallback((): MaterialLibraryEntryType[] => {
-    const result = [...MaterialLibrary.sources.values()].flatMap((srcComp) => {
+    const result = srcs.flatMap((srcComp) => {
       const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
       const isCollapsed = collapsedNodes.value.has(uuid)
       return [
