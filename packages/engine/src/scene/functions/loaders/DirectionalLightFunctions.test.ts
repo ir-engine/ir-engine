@@ -45,7 +45,7 @@ describe('DirectionalLightFunctions', () => {
       assert.deepEqual(light.shadow.bias, 0.1)
       assert.deepEqual(light.shadow.radius, 10)
       assert.deepEqual(light.shadow.camera.far, 123)
-      assert.deepEqual(light.castShadow, false)
+      assert.deepEqual(light.castShadow, true)
     })
 
     it('without CSM', () => {

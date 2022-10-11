@@ -24,12 +24,11 @@ describe('EngineFunctions', () => {
 
       const groupEntities = groupQuery(world)
 
-      // camera entity will have Object3DComponent, so 3
-      assert.equal(groupEntities.length, 3)
+      assert.equal(groupEntities.length, 4)
 
       unloadScene(world)
       // camera entity and non scene entity shoulder persist
-      assert.equal(groupQuery(world).length, 2)
+      assert.equal(groupQuery(world).length, 3)
 
       // should clean up world entity too
       assert.equal(hasComponent(world.sceneEntity, SceneObjectComponent), false)
