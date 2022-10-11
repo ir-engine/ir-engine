@@ -146,8 +146,9 @@ export default function HierarchyPanel({
     const condition = new RegExp(searchHierarchy.toLowerCase())
     nodes.forEach((node) => {
       if (
-        node.entityNode &&
-        condition.test(getComponent(node.entityNode.entity, NameComponent)?.name?.toLowerCase() ?? '')
+        (node.entityNode &&
+          condition.test(getComponent(node.entityNode.entity, NameComponent)?.name?.toLowerCase() ?? '')) ||
+        (node.obj3d && condition.test(node.obj3d.name?.toLowerCase() ?? ''))
       )
         nodeSearch.push(node)
     })
@@ -480,7 +481,7 @@ export default function HierarchyPanel({
     }
   })
 
-  const HierarchyList = useCallback(
+  const HierarchyList = //useCallback(
     ({ height, width }) => (
       <FixedSizeList
         height={height}
@@ -504,9 +505,9 @@ export default function HierarchyPanel({
       >
         {MemoTreeNode}
       </FixedSizeList>
-    ),
-    [editorState.advancedMode, editorState.projectLoaded]
-  )
+    ) //,
+  //[editorState.advancedMode, editorState.projectLoaded, collapsedNodes, showObject3DInHierarchy, selectedNode, updateNodeHierarchy]
+  //)
 
   return (
     <>
