@@ -28,9 +28,14 @@ import Well from '../layout/Well'
 
 export default function MaterialEditor({ material }: { ['material']: Material }) {
   if (material === undefined) return <></>
-  const matId = useHookstate(material.uuid)
-  const matName = useHookstate(material.name)
-  const matPrototype = useHookstate(materialFromId(material.uuid).prototype)
+  const matData = useHookstate({
+    uuid: material.uuid,
+    name: material.name,
+    prototype: materialFromId(material.uuid).prototype,
+    src: materialFromId(material.uuid).src,
+    defaults: new Object()
+  })
+  const loadingData = useHookstate(false)
 
   const createThumbnails = async () => {
     const result = new Map<string, string>()
@@ -77,33 +82,38 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     }))
   )
   const thumbnails = useHookstate(new Map<string, string>())
-  const defaults = useHookstate(new Object())
-  const matSrc = useHookstate(materialFromId(matId.value).src)
 
   const clearThumbs = async () => {
     thumbnails.promised && (await thumbnails.promise)
-    defaults.promised && (await defaults.promise)
+    matData.defaults.promised && (await matData.defaults.promise)
     ;[...thumbnails.value.values()].map(URL.revokeObjectURL)
     thumbnails.value.clear()
   }
 
   useHookEffect(() => {
-    clearThumbs().then(() => {
-      matName.set(material.name)
-      const matEntry = materialFromId(material.uuid)
-      matPrototype.set(matEntry.prototype)
-      matSrc.set(matEntry.src)
-      thumbnails.set(createThumbnails())
-      defaults.set(createDefaults())
-    })
+    loadingData.set(true)
+    clearThumbs()
+      .then(() => {
+        const matEntry = materialFromId(material.uuid)
+        matData.src.set(matEntry.src)
+        return createDefaults()
+      })
+      .then((nuDefaults) => {
+        matData.defaults.set(nuDefaults)
+        return createThumbnails()
+      })
+      .then((nuThumbs) => {
+        thumbnails.set(nuThumbs)
+        loadingData.set(false)
+      })
     return () => {
       clearThumbs()
     }
-  }, [matId, matPrototype])
+  }, [matData.uuid, matData.prototype])
 
   useEffect(() => {
-    if (matId.value !== material.uuid) {
-      matId.set(material.uuid)
+    if (matData.uuid.value !== material.uuid) {
+      matData.uuid.set(material.uuid)
     }
   })
 
@@ -111,25 +121,13 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     <Fragment>
       <InputGroup name="Name" label="Name">
         <StringInput
-          value={matName.value}
+          value={matData.name.value}
           onChange={(nuName) => {
-            matName.set(nuName)
+            matData.name.set(nuName)
             material.name = nuName
           }}
         />
       </InputGroup>
-      {!(thumbnails.promised || defaults.promised) && (
-        <InputGroup name="Prototype" label="Prototype">
-          <SelectInput
-            value={matPrototype.value}
-            options={prototypes.value}
-            onChange={(protoId) => {
-              changeMaterialPrototype(material, protoId)
-              matPrototype.set(protoId)
-            }}
-          />
-        </InputGroup>
-      )}
       <InputGroup name="Source" label="Source">
         <div className={styles.contentContainer}>
           <Box className="Box" sx={{ padding: '8px', overflow: 'scroll' }}>
@@ -138,43 +136,54 @@ export default function MaterialEditor({ material }: { ['material']: Material })
                 <div>
                   <label>Type:</label>
                 </div>
-                <div>{matSrc.value.type}</div>
+                <div>{matData.src.value.type}</div>
               </Stack>
               <Stack className="Stack" spacing={2} direction="row">
                 <div>
                   <label>Path:</label>
                 </div>
-                <div>{matSrc.value.path}</div>
+                <div>{matData.src.value.path}</div>
               </Stack>
             </Stack>
           </Box>
         </div>
       </InputGroup>
       <br />
+      {!loadingData.get() && (
+        <InputGroup name="Prototype" label="Prototype">
+          <SelectInput
+            value={matData.prototype.value}
+            options={prototypes.value}
+            onChange={(protoId) => {
+              changeMaterialPrototype(material, protoId)
+              matData.prototype.set(protoId)
+            }}
+          />
+        </InputGroup>
+      )}
       <Divider className={styles.divider} />
       <br />
       <ParameterInput
         entity={material.uuid}
-        values={thumbnails.promised ? {} : material}
+        values={loadingData.get() ? {} : material}
         onChange={(k) => async (val) => {
-          defaults.merge((_defaults) => {
+          matData.defaults.merge((_defaults) => {
             delete _defaults[k].preview
             return _defaults
           })
           let prop
-          if (defaults.value[k].type === 'texture' && typeof val === 'string') {
+          if (matData.defaults.value[k].type === 'texture' && typeof val === 'string') {
             if (val) {
               prop = await AssetLoader.loadAsync(val)
               const preview = (await createReadableTexture(prop, { url: true })) as string
-              defaults.merge((_defaults) => {
+              matData.defaults.merge((_defaults) => {
                 _defaults[k].preview = preview
                 return _defaults
               })
             } else {
               prop = undefined
             }
-
-            URL.revokeObjectURL(defaults.value[k].preview)
+            URL.revokeObjectURL(matData.defaults.value[k].preview)
           } else {
             prop = val
           }
@@ -186,7 +195,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
             properties
           })
         }}
-        defaults={thumbnails.promised || defaults.promised ? {} : defaults.value}
+        defaults={loadingData.get() ? {} : matData.defaults.value}
       />
       {
         <Button

@@ -10,6 +10,7 @@ import {
   RawShaderMaterial,
   Shader,
   ShaderMaterial,
+  ShadowMaterial,
   WebGLRenderer
 } from 'three'
 
@@ -28,6 +29,7 @@ export type MaterialPrototypeComponentType = {
     | typeof MeshToonMaterial
     | typeof ShaderMaterial
     | typeof RawShaderMaterial
+    | typeof ShadowMaterial
   arguments: {
     [_: string]: {
       type: string
