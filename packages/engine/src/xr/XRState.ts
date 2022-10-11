@@ -27,6 +27,7 @@ export const XRState = defineState({
      * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
     avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
+    /** origin is always 0,0,0 */
     originReferenceSpace: null as XRReferenceSpace | null,
     viewerReferenceSpace: null as XRReferenceSpace | null,
     viewerHitTestSource: null as XRHitTestSource | null,

@@ -217,7 +217,9 @@ export default async function XRAnchorSystem(world: World) {
 
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
       if (changePlacementModeActions.length && changePlacementModeActions[0].active) {
-        setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource: xrState.viewerHitTestSource.value })
+        setComponent(scenePlacementEntity, XRHitTestComponent, {
+          hitTestSource: xrState.viewerHitTestSource.get({ noproxy: true })
+        })
       }
       for (const entity of xrHitTestQuery()) {
         const hit = updateHitTest(entity)

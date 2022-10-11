@@ -161,6 +161,19 @@ class XRHitTestResultProxy {
         return {
           get matrix() {
             return scope.#mat4.toArray()
+          },
+          get inverse() {
+            throw new Error("[XR8]: 'XRHitTestResult.getViewerPose.transform.inverse' not implemented")
+          },
+          get position() {
+            const _vec = new Vector3()
+            scope.#mat4.decompose(_vec, new Quaternion(), new Vector3())
+            return _vec
+          },
+          get orientation() {
+            const _quat = new Quaternion()
+            scope.#mat4.decompose(new Vector3(), _quat, new Vector3())
+            return _quat
           }
         }
       }
@@ -181,6 +194,10 @@ class XRSessionProxy extends EventDispatcher {
     const source = {}
     return source as XRHitTestSource
   }
+
+  get inputSources() {
+    return []
+  }
 }
 
 /**
@@ -192,10 +209,35 @@ class XRFrameProxy {
     return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position, rotation))
   }
 
+  get session() {
+    return EngineRenderer.instance.xrSession
+  }
+
   /**
    * XRFrame.getPose is only currently used for anchors and controllers, which are not implemented in 8thwall
    */
   getPose = undefined
+
+  getViewerPose(space: XRReferenceSpace) {
+    return {
+      get transform() {
+        return {
+          get matrix() {
+            return Engine.instance.currentWorld.camera.matrix.toArray()
+          },
+          get inverse() {
+            throw new Error("[XR8]: 'XRFrame.getViewerPose.transform.inverse' not implemented")
+          },
+          get position() {
+            return Engine.instance.currentWorld.camera.position
+          },
+          get orientation() {
+            return Engine.instance.currentWorld.camera.quaternion
+          }
+        }
+      }
+    }
+  }
 }
 
 const skyboxQuery = defineQuery([SkyboxComponent])
@@ -204,7 +246,7 @@ export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
   const xrState = getState(XRState)
 
-  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
+  const using8thWall = true //isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
 
   const vpsComponent = defineQuery([VPSComponent])
 
