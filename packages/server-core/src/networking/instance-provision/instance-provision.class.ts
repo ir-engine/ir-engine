@@ -286,6 +286,7 @@ export class InstanceProvision implements ServiceMethods<any> {
    * @param availableLocationInstances for Instanceserver
    * @param locationId
    * @param channelId
+   * @param roomCode
    * @returns id, ipAddress and port
    */
 
@@ -309,27 +310,30 @@ export class InstanceProvision implements ServiceMethods<any> {
       return instance.currentUsers < pressureThresholdPercent * instance.location.maxUsersPerInstance
     })
     const instances = nonPressuredInstances.length > 0 ? nonPressuredInstances : instanceUserSort
+    const instance = instances[0]
     if (!config.kubernetes.enabled) {
-      logger.info('Resetting local instance to ' + instances[0].id)
+      logger.info('Resetting local instance to ' + instance.id)
       const localIp = await getLocalServerIp(channelId != null)
       return {
-        id: instances[0].id,
+        id: instance.id,
         ...localIp
       }
     }
-    const isCleanup = await this.isCleanup(instances[0])
+    const isCleanup = await this.isCleanup(instance)
     if (isCleanup) {
       logger.info('IS did not exist and was cleaned up')
       if (availableLocationInstances.length > 1)
         return this.getISInService(availableLocationInstances.slice(1), locationId, channelId, roomCode)
       else return getFreeInstanceserver(this.app, 0, locationId, channelId, roomCode)
     }
-    logger.info('IS existed, using it')
-    const ipAddressSplit = instances[0].ipAddress.split(':')
+    logger.info('IS existed, using it %o', instance)
+    const ipAddressSplit = instance.ipAddress.split(':')
     return {
-      id: instances[0].id,
+      id: instance.id,
       ipAddress: ipAddressSplit[0],
-      port: ipAddressSplit[1]
+      port: ipAddressSplit[1],
+      roomCode: instance.roomCode,
+      podName: instance.podName
     }
   }
 
@@ -407,6 +411,7 @@ export class InstanceProvision implements ServiceMethods<any> {
       const instanceId = params?.query?.instanceId
       const channelId = params?.query?.channelId
       const roomCode = params?.query?.roomCode
+      const createNewRoom = params?.query?.createNewRoom
       const token = params?.query?.token
       logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)
       if (!token) throw new NotAuthenticated('No token provided')
@@ -464,22 +469,24 @@ export class InstanceProvision implements ServiceMethods<any> {
           instance = instances.length > 0 ? instances[0] : null
         }
 
-        if (instance == null || instance.ended === true)
+        if ((roomCode && (instance == null || instance.ended === true)) || createNewRoom)
           return getFreeInstanceserver(this.app, 0, locationId, null!, roomCode)
 
         let isCleanup
 
-        if (config.kubernetes.enabled) isCleanup = await this.isCleanup(instance)
-        if (
-          (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
-          instance.currentUsers < location.maxUsersPerInstance
-        ) {
-          const ipAddressSplit = instance.ipAddress.split(':')
-          return {
-            id: instance.id,
-            ipAddress: ipAddressSplit[0],
-            port: ipAddressSplit[1],
-            roomCode: instance.roomCode
+        if (instance) {
+          if (config.kubernetes.enabled) isCleanup = await this.isCleanup(instance)
+          if (
+            (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
+            instance.currentUsers < location.maxUsersPerInstance
+          ) {
+            const ipAddressSplit = instance.ipAddress.split(':')
+            return {
+              id: instance.id,
+              ipAddress: ipAddressSplit[0],
+              port: ipAddressSplit[1],
+              roomCode: instance.roomCode
+            }
           }
         }
         // const user = await this.app.service('user').get(userId)
@@ -553,45 +560,45 @@ export class InstanceProvision implements ServiceMethods<any> {
             }
           ]
         })
-        if (friendsAtLocationResult.count > 0) {
-          const instances = {}
-          friendsAtLocationResult.rows.forEach((friend) => {
-            if (instances[friend.instanceId] == null) {
-              instances[friend.instanceId] = 1
-            } else {
-              instances[friend.instanceId]++
-            }
-          })
-          let maxFriends, maxInstanceId
-          Object.keys(instances).forEach((key) => {
-            if (maxFriends == null) {
-              maxFriends = instances[key]
-              maxInstanceId = key
-            } else {
-              if (instances[key] > maxFriends) {
-                maxFriends = instances[key]
-                maxInstanceId = key
-              }
-            }
-          })
-          const maxInstance = await this.app.service('instance').get(maxInstanceId)
-          if (!config.kubernetes.enabled) {
-            logger.info('Resetting local instance to ' + maxInstanceId)
-            const localIp = await getLocalServerIp(false)
-            return {
-              id: maxInstanceId,
-              roomCode: instance.roomCode,
-              ...localIp
-            }
-          }
-          const ipAddressSplit = maxInstance.ipAddress.split(':')
-          return {
-            id: maxInstance.id,
-            ipAddress: ipAddressSplit[0],
-            port: ipAddressSplit[1],
-            roomCode: instance.roomCode
-          }
-        }
+        // if (friendsAtLocationResult.count > 0) {
+        //   const instances = {}
+        //   friendsAtLocationResult.rows.forEach((friend) => {
+        //     if (instances[friend.instanceId] == null) {
+        //       instances[friend.instanceId] = 1
+        //     } else {
+        //       instances[friend.instanceId]++
+        //     }
+        //   })
+        //   let maxFriends, maxInstanceId
+        //   Object.keys(instances).forEach((key) => {
+        //     if (maxFriends == null) {
+        //       maxFriends = instances[key]
+        //       maxInstanceId = key
+        //     } else {
+        //       if (instances[key] > maxFriends) {
+        //         maxFriends = instances[key]
+        //         maxInstanceId = key
+        //       }
+        //     }
+        //   })
+        //   const maxInstance = await this.app.service('instance').get(maxInstanceId)
+        //   if (!config.kubernetes.enabled) {
+        //     logger.info('Resetting local instance to ' + maxInstanceId)
+        //     const localIp = await getLocalServerIp(false)
+        //     return {
+        //       id: maxInstanceId,
+        //       roomCode: instance.roomCode,
+        //       ...localIp
+        //     }
+        //   }
+        //   const ipAddressSplit = maxInstance.ipAddress.split(':')
+        //   return {
+        //     id: maxInstance.id,
+        //     ipAddress: ipAddressSplit[0],
+        //     port: ipAddressSplit[1],
+        //     roomCode: instance.roomCode
+        //   }
+        // }
         const availableLocationInstances = await this.app.service('instance').Model.findAll({
           where: {
             locationId: location.id,
