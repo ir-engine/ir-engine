@@ -185,6 +185,12 @@ class XRHitTestResultProxy {
 }
 
 class XRSessionProxy extends EventDispatcher {
+  readonly inputSources: XRInputSource[]
+
+  constructor(inputSources: XRInputSource[]) {
+    super()
+    this.inputSources = inputSources
+  }
   async requestReferenceSpace(type: 'local' | 'viewer') {
     const space = {}
     return space as XRReferenceSpace
@@ -193,10 +199,6 @@ class XRSessionProxy extends EventDispatcher {
   async requestHitTestSource(args: { space: XRReferenceSpace }) {
     const source = {}
     return source as XRHitTestSource
-  }
-
-  get inputSources() {
-    return []
   }
 }
 
@@ -256,6 +258,58 @@ export default async function XR8System(world: World) {
   let originalEndXRSessionImplementation = endXRSession.implementation
 
   let prevFollowCamera
+  const inputSources = [] as XRInputSource[]
+  const viewerInputSource = {
+    handedness: 'none',
+    targetRayMode: 'screen',
+    get targetRaySpace() {
+      return new Error("[XR8]: 'viewerInputSource.targetRaySpace' not currently implemented ") as any
+    },
+    gamepad: {
+      axes: [0, 0],
+      buttons: {} as any,
+      connected: false,
+      hapticActuators: [],
+      id: '',
+      index: 0,
+      mapping: '',
+      timestamp: Date.now() - performance.timeOrigin
+    },
+    profiles: [] as string[]
+  } as XRInputSource
+
+  /**
+   * touch events used to mimic viewer input source
+   * - for some reason, pointer events are intermittent
+   * */
+  const onTouchStart = (ev) => {
+    ;(viewerInputSource.gamepad!.axes as number[]) = [
+      (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
+      (ev.touches[0].screenY / window.innerHeight) * -2 + 1
+    ]
+    EngineRenderer.instance.xrSession.dispatchEvent({
+      type: 'inputsourceschange',
+      added: [viewerInputSource],
+      removed: []
+    } as any)
+    inputSources.push(viewerInputSource)
+  }
+
+  const onTouchMove = (ev: TouchEvent) => {
+    ;(viewerInputSource.gamepad!.axes as number[]) = [
+      (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
+      (ev.touches[0].screenY / window.innerHeight) * -2 + 1
+    ]
+  }
+
+  const onTouchEnd = (ev) => {
+    EngineRenderer.instance.xrSession.dispatchEvent({
+      type: 'inputsourceschange',
+      removed: [viewerInputSource],
+      added: []
+    } as any)
+    inputSources.splice(inputSources.indexOf(viewerInputSource), 1)
+  }
 
   const overrideXRSessionFunctions = () => {
     if (requestXRSession.implementation !== originalRequestXRSessionImplementation) return
@@ -276,10 +330,14 @@ export default async function XR8System(world: World) {
         return
       }
 
-      EngineRenderer.instance.xrSession = new XRSessionProxy() as any as XRSession
+      EngineRenderer.instance.xrSession = new XRSessionProxy(inputSources) as any as XRSession
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
       xrState.is8thWallActive.set(true)
+
+      document.body.addEventListener('touchstart', onTouchStart)
+      document.body.addEventListener('touchmove', onTouchMove)
+      document.body.addEventListener('touchend', onTouchEnd)
 
       prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
@@ -300,6 +358,10 @@ export default async function XR8System(world: World) {
 
       const engineContainer = document.getElementById('engine-container')!
       engineContainer.removeChild(cameraCanvas!)
+
+      document.body.removeEventListener('touchstart', onTouchStart)
+      document.body.removeEventListener('touchmove', onTouchMove)
+      document.body.removeEventListener('touchend', onTouchEnd)
 
       addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
       const skybox = skyboxQuery()[0]

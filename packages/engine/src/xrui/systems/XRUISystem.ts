@@ -137,7 +137,7 @@ export default async function XRUISystem(world: World) {
         pointerEntities
           .filter((entity) => entity !== world.cameraEntity)
           .map((entity) => getComponent(entity, XRPointerComponent).pointer) as (Object3D | Ray)[]
-      ).concat(world.pointerScreenRaycaster.ray)
+      ).concat(world.pointerScreenRaycaster.ray) // todo, replace pointerScreenRaycaster with viewerInputSourceEntity
 
     if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
