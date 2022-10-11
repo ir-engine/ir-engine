@@ -174,7 +174,7 @@ export async function checkForDuplicatedAssignments(
   //and remove the others, lest two different instanceservers be handling the same 'instance' of a location
   //or the same 'channel'.
   if (duplicateLocationAssignment.total > 1) {
-    let earlierInstance
+    let earlierInstance: InstanceServerProvisionResult
     let isFirstAssignment = true
     //Iterate through all of the assignments for this location/channel. If this one is later than any other one,
     //then this one needs to find a different IS
@@ -186,7 +186,8 @@ export async function checkForDuplicatedAssignments(
           id: instance.id,
           ipAddress: ipSplit[0],
           port: ipSplit[1],
-          podName: instance.podName
+          podName: instance.podName,
+          roomCode: instance.roomCode
         }
         break
       }
@@ -204,7 +205,8 @@ export async function checkForDuplicatedAssignments(
             id: instance.id,
             ipAddress: ipSplit[0],
             port: ipSplit[1],
-            podName: instance.podName
+            podName: instance.podName,
+            roomCode: instance.roomCode
           }
           break
         }
@@ -213,7 +215,7 @@ export async function checkForDuplicatedAssignments(
     if (!isFirstAssignment) {
       //If this is not the first assignment to this IP, remove the assigned instance row
       await app.service('instance').remove(assignResult.id)
-      return earlierInstance
+      return earlierInstance!
     }
   }
 
@@ -295,7 +297,7 @@ export class InstanceProvision implements ServiceMethods<any> {
     locationId: string,
     channelId: string,
     roomCode = undefined as undefined | string
-  ): Promise<any> {
+  ): Promise<InstanceServerProvisionResult> {
     await this.app.service('instance').Model.destroy({
       where: {
         assigned: true,
@@ -316,6 +318,7 @@ export class InstanceProvision implements ServiceMethods<any> {
       const localIp = await getLocalServerIp(channelId != null)
       return {
         id: instance.id,
+        roomCode: instance.roomCode,
         ...localIp
       }
     }
