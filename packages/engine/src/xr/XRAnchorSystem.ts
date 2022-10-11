@@ -58,6 +58,7 @@ export const updateHitTest = (entity: Entity) => {
     if (hitTestResults.length) {
       const hit = hitTestResults[0]
       const hitPose = hit.getPose(xrState.originReferenceSpace.value!)!
+      console.log(hitPose.transform.position)
       localTransform.position.copy(hitPose.transform.position as any as Vector3)
       localTransform.rotation.copy(hitPose.transform.orientation as any as Quaternion)
       hitTestComponent.hitTestResult.set(hit)
@@ -217,7 +218,9 @@ export default async function XRAnchorSystem(world: World) {
 
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
       if (changePlacementModeActions.length && changePlacementModeActions[0].active) {
-        setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource: xrState.viewerHitTestSource.value })
+        setComponent(scenePlacementEntity, XRHitTestComponent, {
+          hitTestSource: xrState.viewerHitTestSource.get({ noproxy: true })
+        })
       }
       for (const entity of xrHitTestQuery()) {
         const hit = updateHitTest(entity)

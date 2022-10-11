@@ -161,6 +161,19 @@ class XRHitTestResultProxy {
         return {
           get matrix() {
             return scope.#mat4.toArray()
+          },
+          get inverse() {
+            throw new Error("[XR8]: 'XRHitTestResult.getViewerPose.transform.inverse' not implemented")
+          },
+          get position() {
+            const _vec = new Vector3()
+            scope.#mat4.decompose(_vec, new Quaternion(), new Vector3())
+            return _vec
+          },
+          get orientation() {
+            const _quat = new Quaternion()
+            scope.#mat4.decompose(new Vector3(), _quat, new Vector3())
+            return _quat
           }
         }
       }
@@ -180,6 +193,10 @@ class XRSessionProxy extends EventDispatcher {
   async requestHitTestSource(args: { space: XRReferenceSpace }) {
     const source = {}
     return source as XRHitTestSource
+  }
+
+  get inputSources() {
+    return []
   }
 }
 
@@ -209,7 +226,7 @@ class XRFrameProxy {
             return Engine.instance.currentWorld.camera.matrix.toArray()
           },
           get inverse() {
-            throw new Error("'XRFrame.getViewerPose.transform.inverse' not implemented")
+            throw new Error("[XR8]: 'XRFrame.getViewerPose.transform.inverse' not implemented")
           },
           get position() {
             return Engine.instance.currentWorld.camera.position
