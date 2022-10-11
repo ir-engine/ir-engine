@@ -31,6 +31,7 @@ import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import {
+  InputSourceComponent,
   PointerObject,
   XRControllerComponent,
   XRControllerGripComponent,
@@ -208,6 +209,7 @@ export default async function XRControllerSystem(world: World) {
 
     // controller.targetRay = targetRay
     setComponent(entity, XRControllerComponent, { targetRaySpace, handedness: inputSource.handedness })
+    setComponent(entity, InputSourceComponent, { inputSource })
     setVelocityComponent(entity)
     xrInputSourcesMap.set(inputSource, entity)!
     const targetRayHelper = new AxesHelper(1)
@@ -220,6 +222,7 @@ export default async function XRControllerSystem(world: World) {
     if (gripSpace) {
       const gripEntity = createEntity()
       setComponent(gripEntity, XRControllerGripComponent, { gripSpace, handedness: inputSource.handedness })
+      setComponent(gripEntity, InputSourceComponent, { inputSource })
       setVelocityComponent(gripEntity)
       setComponent(gripEntity, NameComponent, { name: `XR Grip${handednessLabel}` })
       // initializeControllerModel(gripEntity)
@@ -231,6 +234,7 @@ export default async function XRControllerSystem(world: World) {
     if (hand) {
       const handEntity = createEntity()
       setComponent(handEntity, XRHandComponent, { hand, handedness: inputSource.handedness })
+      setComponent(handEntity, InputSourceComponent, { inputSource })
       setVelocityComponent(handEntity)
       setComponent(handEntity, NameComponent, { name: `XR Hand${handednessLabel}` })
       // initializeHandModel(handEntity)
@@ -238,6 +242,8 @@ export default async function XRControllerSystem(world: World) {
       setObjectLayers(handAxisHelper, ObjectLayers.PhysicsHelper)
       addObjectToGroup(handEntity, handAxisHelper)
     }
+
+    return entity
   }
 
   const removeInputSourceEntity = (inputSource: XRInputSource) => {
@@ -263,6 +269,16 @@ export default async function XRControllerSystem(world: World) {
     const sessionStarted = xrSessionChangedQueue()
     if (sessionStarted.length) {
       if (sessionStarted[0].active) {
+        EngineRenderer.instance.xrSession.addEventListener('selectstart', (ev) => {
+          const entity = addInputSourceEntity(ev.inputSource)
+          xrState.viewerInputSourceEntity.set(entity)
+          console.log(ev)
+        })
+        EngineRenderer.instance.xrSession.addEventListener('selectend', (ev) => {
+          removeInputSourceEntity(ev.inputSource)
+          xrState.viewerInputSourceEntity.set(null)
+          console.log(ev)
+        })
         EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', onInputSourcesChange)
       } else {
         for (const [inputSource] of Array.from(xrInputSourcesMap)) removeInputSourceEntity(inputSource)

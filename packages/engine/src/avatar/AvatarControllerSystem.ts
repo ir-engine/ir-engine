@@ -17,6 +17,7 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
+import { InputComponent } from '../input/components/InputComponent'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { GamepadAxis } from '../input/enums/InputEnums'
@@ -163,10 +164,10 @@ export const updateMap = () => {
   const avatarInputState = getState(AvatarInputSettingsState)
   const inputMap = AvatarInputSchema.inputMap
   if (avatarInputState.invertRotationAndMoveSticks.value) {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.LOOKTURN)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE)
     inputMap.set(GamepadAxis.RThumbstick, BaseInput.MOVEMENT)
   } else {
     inputMap.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.LOOKTURN)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE)
   }
 }

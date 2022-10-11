@@ -17,7 +17,7 @@ export enum BaseInput {
   RUN = 'BaseInput_RUN',
   SCREENXY = 'BaseInput_SCREENXY',
   MOVEMENT = 'BaseInput_MOVEMENT',
-  LOOKTURN = 'BaseInput_LOOKTURN',
+  PRIMARY_MOVE = 'BaseInput_PRIMARY_MOVE',
   POINTER_LOCK = 'BaseInput_POINTER_LOCK',
   CAMERA_SCROLL = 'BaseInput_CAMERA_SCROLL',
   CAMERA_ROTATE_RIGHT = 'BaseInput_CAMERA_ROTATE_RIGHT',

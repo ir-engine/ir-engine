@@ -183,6 +183,25 @@ export const XRAnchorComponent = defineComponent({
   }
 })
 
+export const InputSourceComponent = defineComponent({
+  name: 'XRControllerComponent',
+  onAdd: (entity) => {
+    return {
+      inputSource: null! as XRInputSource
+    }
+  },
+
+  onUpdate: (entity, component, json) => {
+    if (json.inputSource) component.inputSource = json.inputSource as XRInputSource
+  },
+
+  toJSON: () => {
+    return null! as {
+      inputSource: XRInputSource
+    }
+  }
+})
+
 export const XRControllerComponent = defineComponent({
   name: 'XRControllerComponent',
   onAdd: (entity) => {

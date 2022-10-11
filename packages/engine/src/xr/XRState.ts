@@ -38,6 +38,7 @@ export const XRState = defineState({
     is8thWallActive: false,
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
+    viewerInputSourceEntity: null as Entity | null,
     leftControllerEntity: null as Entity | null,
     rightControllerEntity: null as Entity | null
   })

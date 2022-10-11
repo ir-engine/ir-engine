@@ -42,7 +42,7 @@ export default async function XRLightProbeSystem(world: World) {
   })
 
   const execute = () => {
-    if (estimatingLight.value) {
+    if (EngineRenderer.instance.csm && estimatingLight.value) {
       // maybe use -1 * pos
       xrLight.directionalLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
     }
