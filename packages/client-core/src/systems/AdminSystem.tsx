@@ -17,6 +17,7 @@ import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
+import { AdminServerInfoActions, AdminServerInfoReceptors } from '../admin/services/ServerInfoService'
 import { AdminRedisSettingActions, RedisSettingReceptors } from '../admin/services/Setting/AdminRedisSettingService'
 import {
   AdminAnalyticsSettingActions,
@@ -42,6 +43,8 @@ import { AdminUserActions, AdminUserReceptors } from '../admin/services/UserServ
 
 export default async function AdminSystem(world: World) {
   const fetchedAnalyticsQueue = createActionQueue(AdminAnalyticsSettingActions.fetchedAnalytics.matches)
+  const fetchServerInfoRequestedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
+  const fetchServerInfoRetrievedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRetrieved.matches)
   const redisSettingRetrievedQueue = createActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
   const awsSettingRetrievedQueue = createActionQueue(AdminAwsSettingActions.awsSettingRetrieved.matches)
   const awsSettingPatchedQueue = createActionQueue(AdminAwsSettingActions.awsSettingPatched.matches)
@@ -125,6 +128,10 @@ export default async function AdminSystem(world: World) {
 
   const execute = () => {
     for (const action of fetchedAnalyticsQueue()) AnalyticsSettingReceptors.fetchedAnalyticsReceptor(action)
+    for (const action of fetchServerInfoRequestedQueue())
+      AdminServerInfoReceptors.fetchServerInfoRequestedReceptor(action)
+    for (const action of fetchServerInfoRetrievedQueue())
+      AdminServerInfoReceptors.fetchServerInfoRetrievedReceptor(action)
     for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
     for (const action of awsSettingRetrievedQueue()) AwsSettingReceptors.awsSettingRetrievedReceptor(action)
     for (const action of awsSettingPatchedQueue()) AwsSettingReceptors.awsSettingPatchedReceptor(action)
@@ -211,6 +218,8 @@ export default async function AdminSystem(world: World) {
 
   const cleanup = async () => {
     removeActionQueue(fetchedAnalyticsQueue)
+    removeActionQueue(fetchServerInfoRequestedQueue)
+    removeActionQueue(fetchServerInfoRetrievedQueue)
     removeActionQueue(redisSettingRetrievedQueue)
     removeActionQueue(awsSettingRetrievedQueue)
     removeActionQueue(awsSettingPatchedQueue)
