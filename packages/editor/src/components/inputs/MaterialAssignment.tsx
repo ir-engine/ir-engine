@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Color, MathUtils, Texture } from 'three'
@@ -48,42 +48,18 @@ export default function MaterialAssignment({
   entity: Entity
   node: EntityTreeNode
   modelComponent: State<ModelComponentType>
-  values: MaterialOverrideComponentType[]
+  values: State<MaterialOverrideComponentType[]>
   onChange: (value) => void
 }) {
   let [count, setCount] = useState(values.length)
-
-  function texKey(index, k) {
-    if (!values[index].uuid) {
-      values[index].uuid = MathUtils.generateUUID()
-    }
-    return `${values[index].uuid}-${k}`
-  }
-
-  const initialPaths: Map<string, string> = new Map(
-    values.flatMap((entry, index) => {
-      return entry.args
-        ? Object.entries(entry.args)
-            .filter(([k, v]) => (v as Texture)?.isTexture && (v as Texture).source.data)
-            .map(([k, v]) => [texKey(index, k), (v as Texture).source.data.src])
-        : []
-    })
-  )
-  let [texturePaths, setTexturePaths] = useState<Map<string, string>>(initialPaths)
-
-  const [expanded, setExpanded] = useState<Map<string, boolean>>(
-    new Map(values.map((_, index) => [texKey(index, 'expanded'), false]))
-  )
 
   const { t } = useTranslation()
 
   function onChangeSize(text) {
     const count = parseInt(text)
-    let preCount = 0
-    if (!values) values = []
-    else preCount = values.length
+    let preCount = values.length
     if (count == undefined || preCount == count) return
-    if (preCount > count) values = values.slice(0, count - 1)
+    if (preCount > count) values.set(values.value.slice(0, count - 1))
     else {
       const nuMats = new Array()
       for (let i = 0; i < count - preCount; i++) {
@@ -97,33 +73,20 @@ export default function MaterialAssignment({
           uuid: MathUtils.generateUUID()
         })
       }
-      values.push(...nuMats)
+      values.set([...values.value, ...nuMats])
     }
     preCount = count
-    onChange(values)
+    onChange(values.value)
   }
 
   function onRemoveEntry(idx) {
     return () => {
-      const removing = values[idx]
-      clearTexturePaths(removing, idx)
-      values.splice(idx, 1)
-      if (removing.entity !== undefined && removing.entity > -1)
-        removeComponent(removing.entity, MaterialOverrideComponent)
+      const removing = values.at(idx)!.value
+      values.set(values.filter((_, i) => i !== idx).map((x) => x.value))
+      if (removing.entity ?? 0 > -1) removeComponent(removing.entity!, MaterialOverrideComponent)
       setCount(values.length)
       onChangeSize(values.length)
     }
-  }
-
-  function clearTexturePaths(args, index) {
-    if (!args) return
-    const removingPaths = new Map(
-      Object.entries(args)
-        .filter(([k, v]) => (v as Texture).isTexture)
-        .map(([k, v]) => [texKey(index, k), v])
-    )
-    const nuPaths = new Map([...texturePaths.entries()].filter(([k, v]) => !removingPaths.has(k)))
-    setTexturePaths(nuPaths)
   }
 
   function onAddEntry() {
@@ -131,32 +94,14 @@ export default function MaterialAssignment({
     onChangeSize(`${values.length + 1}`)
   }
 
-  function onChangeAssignment(assignment, index) {
-    values[index] = assignment
-    onChange(values)
-  }
-
   async function onRefresh() {
     const nuVals = await refreshMaterials(node.entity)
-    values.forEach((_, idx) => (values[idx] = nuVals[idx]))
+    values.forEach((_, idx) => values[idx].set(nuVals[idx]))
     onChange(values)
   }
 
   function MaterialAssignmentEntry(index) {
     const assignment = values[index]
-    function setAssignmentProperty(prop) {
-      return (value) => {
-        assignment[prop] = value
-        onChangeAssignment(assignment, index)
-      }
-    }
-
-    function onChangeMaterialID(value) {
-      clearTexturePaths(assignment.args, index)
-      delete assignment.args
-      assignment.materialID = value
-      onChangeAssignment(assignment, index)
-    }
 
     return (
       <div key={`${entity}-${index}-entry`}>
@@ -169,8 +114,8 @@ export default function MaterialAssignment({
             <MaterialInput
               error={t('editor:properties.materialAssignment.error-materialID')}
               placeholder={t('editor:properties.materialAssignment.placeholder-materialID')}
-              value={assignment.materialID}
-              onChange={onChangeMaterialID}
+              value={assignment.materialID.value}
+              onChange={assignment.materialID.set}
             />
           </InputGroup>
           <InputGroup
@@ -179,8 +124,8 @@ export default function MaterialAssignment({
             label={t('editor:properties.materialAssignment.lbl-patternTarget')}
           >
             <SelectInput
-              value={assignment.patternTarget}
-              onChange={setAssignmentProperty('patternTarget')}
+              value={assignment.patternTarget.value}
+              onChange={assignment.patternTarget.set}
               options={[
                 { label: 'Object3D Name', value: PatternTarget.OBJ3D },
                 { label: 'Mesh Name', value: PatternTarget.MESH },
@@ -193,7 +138,7 @@ export default function MaterialAssignment({
             name="Pattern"
             label={t('editor:properties.materialAssignment.lbl-pattern')}
           >
-            <StringInput value={assignment.pattern as string} onChange={setAssignmentProperty('pattern')} />
+            <StringInput value={assignment.pattern.value as string} onChange={assignment.pattern.set} />
           </InputGroup>
         </span>
         <div>

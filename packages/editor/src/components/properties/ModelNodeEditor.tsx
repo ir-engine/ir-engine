@@ -136,7 +136,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         entity={entity}
         node={props.node}
         modelComponent={modelState}
-        values={JSON.parse(JSON.stringify(modelState.materialOverrides.value))}
+        values={modelState.materialOverrides}
         onChange={updateProperty(ModelComponent, 'materialOverrides')}
       />
 
