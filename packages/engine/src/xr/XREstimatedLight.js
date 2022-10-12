@@ -178,7 +178,9 @@ export class XREstimatedLight extends Group {
 
 					});
 
-				});
+				}).catch((err) => {
+          console.warn('Tried to initialize light probe but failed with error', err)
+        })
 
 			}
 

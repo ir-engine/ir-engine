@@ -15,6 +15,7 @@ import {
 import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { proxifyVector3 } from '../common/proxies/createThreejsProxy'
+import { Entity } from '../ecs/classes/Entity'
 import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
@@ -207,7 +208,9 @@ export const XRControllerComponent = defineComponent({
   onAdd: (entity) => {
     return {
       targetRaySpace: null! as XRSpace,
-      handedness: null! as XRHandedness
+      handedness: null! as XRHandedness,
+      grip: null as Entity | null,
+      hand: null as Entity | null
     }
   },
 
@@ -220,6 +223,8 @@ export const XRControllerComponent = defineComponent({
     return null! as {
       targetRaySpace: XRSpace
       handedness: XRHandedness
+      grip: Entity | null
+      hand: Entity | null
     }
   }
 })
