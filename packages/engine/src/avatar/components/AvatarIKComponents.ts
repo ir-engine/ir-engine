@@ -1,7 +1,10 @@
-import { Camera, Object3D } from 'three'
+import { Object3D } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { ParityValue } from '../../common/enums/ParityValue'
+import { Entity } from '../../ecs/classes/Entity'
+import { createMappedComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 export const AvatarHeadDecapComponent = createMappedComponent<true>('AvatarHeadDecapComponent')
 
@@ -60,3 +63,28 @@ export type AvatarIKTargetsType = {
 }
 
 export const AvatarIKTargetsComponent = createMappedComponent<AvatarIKTargetsType>('AvatarIKTargetsComponent')
+
+/**
+ * Gets the hand position in world space
+ * @param entity the player entity
+ * @param hand which hand to get
+ * @returns {Vector3}
+ */
+export const getHandTarget = (entity: Entity, hand: ParityValue = ParityValue.NONE): Object3D | null => {
+  switch (hand) {
+    case ParityValue.LEFT:
+      if (hasComponent(entity, AvatarLeftHandIKComponent)) return getComponent(entity, AvatarLeftHandIKComponent).target
+      if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.LeftHand
+      break
+    case ParityValue.RIGHT:
+      if (hasComponent(entity, AvatarRightHandIKComponent))
+        return getComponent(entity, AvatarRightHandIKComponent).target
+      if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.RightHand
+      break
+    case ParityValue.NONE:
+      if (hasComponent(entity, AvatarHeadIKComponent)) return getComponent(entity, AvatarHeadIKComponent).target
+      if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.Head
+      break
+  }
+  return null
+}

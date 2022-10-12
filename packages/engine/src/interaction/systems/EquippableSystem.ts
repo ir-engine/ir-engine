@@ -1,8 +1,9 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
 
+import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -24,7 +25,6 @@ import {
 } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getHandTransform } from '../../xr/XRFunctions'
 import { EquippableComponent, SCENE_COMPONENT_EQUIPPABLE } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -92,11 +92,12 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
 
   const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
-  const { position, rotation } = getHandTransform(equipperEntity, getParity(attachmentPoint))
 
+  const target = getHandTarget(equipperEntity, getParity(attachmentPoint))!
   const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
-  equippableTransform.position.copy(position)
-  equippableTransform.rotation.copy(rotation)
+
+  target.getWorldPosition(equippableTransform.position)
+  target.getWorldQuaternion(equippableTransform.rotation)
 }
 
 export function equipperQueryExit(entity: Entity, world = Engine.instance.currentWorld) {
