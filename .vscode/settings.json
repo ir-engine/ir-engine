@@ -1,5 +1,10 @@
 {
   "typescript.tsdk": "./node_modules/typescript/lib",
   "git.autoRepositoryDetection": "subFolders",
-  "git.repositoryScanMaxDepth": -1
+  "git.repositoryScanMaxDepth": -1,
+  "search.useIgnoreFiles": false,
+  "search.useParentIgnoreFiles": true,
+  "search.exclude": {
+    "/packages/server/upload": true
+  }
 }
