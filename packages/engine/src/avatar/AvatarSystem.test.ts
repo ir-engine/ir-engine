@@ -1,17 +1,12 @@
 import assert from 'assert'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
-import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { XRHandsInputComponent } from '../xr/XRComponents'
-import { avatarDetailsReceptor, setupHandIK, setupHeadIK } from './AvatarSystem'
-import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
+import { avatarDetailsReceptor } from './AvatarSystem'
 
 describe('AvatarSystem', async () => {
   beforeEach(async () => {

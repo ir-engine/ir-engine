@@ -7,7 +7,8 @@ import {
   Mesh,
   MeshBasicMaterial,
   RingGeometry,
-  SphereGeometry
+  SphereGeometry,
+  XRGripSpace
 } from 'three'
 
 import { dispatchAction, getState } from '@xrengine/hyperflux'

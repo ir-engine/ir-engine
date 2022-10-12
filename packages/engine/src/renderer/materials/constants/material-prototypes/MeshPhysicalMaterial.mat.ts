@@ -1,8 +1,6 @@
-import { MeshPhysicalMaterialParameters, MeshPhysicalMaterial as Physical, Texture } from 'three'
+import { MeshPhysicalMaterial as Physical } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { extractDefaults as format } from '../../functions/Utilities'
-import { MaterialParms } from '../../MaterialParms'
 import { FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 import { DefaultArgs as StandardDefaults } from './MeshStandardMaterial.mat'
 

@@ -32,9 +32,9 @@ export const OceanComponent = createMappedComponent<OceanComponentType>('OceanCo
 
 export const SCENE_COMPONENT_OCEAN = 'ocean'
 export const SCENE_COMPONENT_OCEAN_DEFAULT_VALUES = {
-  normalMap: '/ocean/water_normal.tga',
-  distortionMap: '/ocean/water_distortion.tga',
-  envMap: '/hdr/equirectangular/texture222.jpg',
+  normalMap: '',
+  distortionMap: '',
+  envMap: '',
   color: 0x2876dd,
   opacityRange: { x: 0.6, y: 0.9 },
   opacityFadeDistance: 0.12,
