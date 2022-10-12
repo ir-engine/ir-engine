@@ -212,10 +212,8 @@ export const updateReferenceSpace = (entity: Entity) => {
     const avatar = getComponent(entity, AvatarComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
     const rig = getComponent(entity, AvatarRigComponent)
-    if (rig)
-      rig.rig.Head.getWorldPosition(_vec)
-    else
-      _vec.copy(avatarTransform.position).setComponent(1, avatarTransform.position.y + avatar.avatarHalfHeight)
+    if (rig) rig.rig.Head.getWorldPosition(_vec)
+    else _vec.copy(avatarTransform.position).setComponent(1, avatarTransform.position.y + avatar.avatarHalfHeight)
 
     _vec.y -= viewerPose.transform.position.y - 0.14
     const headOffset = _vec2.set(0, 0, 0.1).applyQuaternion(avatarTransform.rotation)

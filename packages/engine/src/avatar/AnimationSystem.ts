@@ -42,7 +42,12 @@ export default async function AnimationSystem(world: World) {
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
   const animationQuery = defineQuery([AnimationComponent])
-  const movingAvatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent, VelocityComponent])
+  const movingAvatarAnimationQuery = defineQuery([
+    AnimationComponent,
+    AvatarAnimationComponent,
+    AvatarRigComponent,
+    VelocityComponent
+  ])
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 

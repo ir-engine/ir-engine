@@ -5,10 +5,7 @@ import { getState } from '@xrengine/hyperflux'
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { World } from '../ecs/classes/World'
-import {
-  defineQuery,
-  getComponent,
-  removeQuery} from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { getControlMode, XRState } from '../xr/XRState'
 import { applyBoneTwist } from './animation/armsTwistCorrection'

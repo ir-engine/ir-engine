@@ -52,7 +52,7 @@ export const getHandTransform = (
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
   const rig = getComponent(entity, AvatarRigComponent)
   if (rig) {
-    rig.rig[bone].matrixWorld.decompose(vec3, quat, v3) 
+    rig.rig[bone].matrixWorld.decompose(vec3, quat, v3)
   } else {
     vec3.set(0, 0, 0)
     quat.identity()

@@ -18,7 +18,11 @@ import {
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
 import { AvatarRigComponent } from './components/AvatarAnimationComponent'
-import { AvatarIKTargetsComponent, AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './components/AvatarIKComponents'
+import {
+  AvatarIKTargetsComponent,
+  AvatarLeftHandIKComponent,
+  AvatarRightHandIKComponent
+} from './components/AvatarIKComponents'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { loadAvatarForUser } from './functions/avatarFunctions'
@@ -82,7 +86,6 @@ export function setupLeftHandIK(entity: Entity) {
   const lefthand = getComponent(entity, AvatarLeftHandIKComponent)
   proxifyVector3(AvatarLeftHandIKComponent.target.position, entity, lefthand.target.position)
   proxifyQuaternion(AvatarLeftHandIKComponent.target.quaternion, entity, lefthand.target.quaternion)
-
 }
 // setComponent(entity, AvatarArmsTwistCorrectionComponent, {
 //   LeftHandBindRotationInv: new Quaternion(),

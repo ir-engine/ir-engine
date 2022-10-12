@@ -31,7 +31,7 @@ export const AvatarHeadIKComponent = createMappedComponent<AvatarHeadIKComponent
 /**
  * Avatar Hands IK Solver Component.
  */
- export type AvatarHandsIKComponentType = {
+export type AvatarHandsIKComponentType = {
   target: Object3D
   hint: Object3D | null
   targetOffset: Object3D
