@@ -54,24 +54,24 @@ const getParityFromInputValue = (key: InputAlias): ParityValue => {
 }
 
 const grip = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  switch (inputValue.lifecycleState) {
-    case LifecycleValue.Started: {
-      if (inputKey == BaseInput.GRIP_LEFT) {
-        addComponent(entity, XRLGripButtonComponent, {})
-      } else {
-        addComponent(entity, XRRGripButtonComponent, {})
-      }
-      break
-    }
-    case LifecycleValue.Ended: {
-      if (inputKey == BaseInput.GRIP_LEFT) {
-        removeComponent(entity, XRLGripButtonComponent)
-      } else {
-        removeComponent(entity, XRRGripButtonComponent)
-      }
-      break
-    }
-  }
+  // switch (inputValue.lifecycleState) {
+  //   case LifecycleValue.Started: {
+  //     if (inputKey == BaseInput.GRIP_LEFT) {
+  //       addComponent(entity, XRLGripButtonComponent, {})
+  //     } else {
+  //       addComponent(entity, XRRGripButtonComponent, {})
+  //     }
+  //     break
+  //   }
+  //   case LifecycleValue.Ended: {
+  //     if (inputKey == BaseInput.GRIP_LEFT) {
+  //       removeComponent(entity, XRLGripButtonComponent)
+  //     } else {
+  //       removeComponent(entity, XRRGripButtonComponent)
+  //     }
+  //     break
+  //   }
+  // }
 }
 
 /**
