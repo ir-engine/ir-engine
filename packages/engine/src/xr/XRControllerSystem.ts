@@ -17,11 +17,12 @@ import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { GamepadMapping } from '../input/functions/GamepadInput'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { setVelocityComponent, VelocityComponent } from '../physics/components/VelocityComponent'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -39,7 +40,6 @@ import {
   XRPointerComponent
 } from './XRComponents'
 import { getControlMode, XRState } from './XRState'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -180,9 +180,6 @@ export function updateGamepadInput(source: XRInputSource) {
   }
 }
 
-<<<<<<< Updated upstream
-export const xrInputSourcesMap = new Map<XRInputSource, Entity>()
-=======
 const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpace) => {
   const xrState = getState(XRState)
 
@@ -244,21 +241,33 @@ const addHandInputSource = (inputSource: XRInputSource, hand: XRHand) => {
   addObjectToGroup(handEntity, handAxisHelper)
   return handEntity
 }
->>>>>>> Stashed changes
 
-export default async function XRControllerSystem(world: World) {
+const removeInputSourceEntity = (inputSource: XRInputSource) => {
   const xrState = getState(XRState)
+  if (!xrInputSourcesMap.has(inputSource)) return
+  if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(null)
+  if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(null)
+  if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(null)
+  const controllerEntity = xrInputSourcesMap.get(inputSource)!
+  const controller = getComponent(controllerEntity, XRControllerComponent)
+  if (controller.grip) {
+    xrGripInputSourcesMap.delete(getComponent(controller.grip, XRControllerGripComponent).gripSpace)
+    removeEntity(controller.grip)
+  }
+  if (controller.hand) {
+    xrHandInputSourcesMap.delete(getComponent(controller.hand, XRHandComponent).hand)
+    removeEntity(controller.hand)
+  }
+  removeEntity(controllerEntity)
+  // todo, remove grip and hand entities too
+  xrInputSourcesMap.delete(inputSource)
+}
 
-<<<<<<< Updated upstream
-  const addInputSourceEntity = (inputSource: XRInputSource) => {
-=======
 const updateInputSourceEntities = () => {
-  const inputSources = Engine.instance.xrFrame?.session ? Array.from(Engine.instance.xrFrame.session.inputSources): []
+  const inputSources = Engine.instance.xrFrame?.session ? Array.from(Engine.instance.xrFrame.session.inputSources) : []
   const existingInputSources = Array.from(xrInputSourcesMap).map(([is]) => is)
   let changed = false
-
   for (const inputSource of inputSources) {
->>>>>>> Stashed changes
     let targetRaySpace = inputSource.targetRaySpace
     let gripSpace = inputSource.gripSpace
     let hand = inputSource.hand
@@ -269,69 +278,6 @@ const updateInputSourceEntities = () => {
       gripSpace = null!
     }
 
-<<<<<<< Updated upstream
-    const entity = createEntity()
-    const handednessLabel =
-      inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
-    setComponent(entity, NameComponent, { name: `XR Controller${handednessLabel}` })
-    const pointer = createPointer(inputSource)
-    addObjectToGroup(entity, pointer)
-    setComponent(entity, XRPointerComponent, { pointer })
-    const cursor = createUICursor()
-    pointer.cursor = cursor
-    pointer.add(cursor)
-    cursor.visible = false
-
-    if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(entity)
-
-    // controller.targetRay = targetRay
-    setComponent(entity, XRControllerComponent, { targetRaySpace, handedness: inputSource.handedness })
-    setComponent(entity, InputSourceComponent, { inputSource })
-    setVelocityComponent(entity)
-    xrInputSourcesMap.set(inputSource, entity)!
-    const targetRayHelper = new AxesHelper(1)
-    setObjectLayers(targetRayHelper, ObjectLayers.PhysicsHelper)
-    addObjectToGroup(entity, targetRayHelper)
-
-    if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(entity)
-    if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(entity)
-
-    if (gripSpace) {
-      const gripEntity = createEntity()
-      setComponent(gripEntity, XRControllerGripComponent, { gripSpace, handedness: inputSource.handedness })
-      setComponent(gripEntity, InputSourceComponent, { inputSource })
-      setVelocityComponent(gripEntity)
-      setComponent(gripEntity, NameComponent, { name: `XR Grip${handednessLabel}` })
-      // initializeControllerModel(gripEntity)
-      const gripAxisHelper = new AxesHelper(1)
-      setObjectLayers(gripAxisHelper, ObjectLayers.PhysicsHelper)
-      addObjectToGroup(gripEntity, gripAxisHelper)
-    }
-
-    if (hand) {
-      const handEntity = createEntity()
-      setComponent(handEntity, XRHandComponent, { hand, handedness: inputSource.handedness })
-      setComponent(handEntity, InputSourceComponent, { inputSource })
-      setVelocityComponent(handEntity)
-      setComponent(handEntity, NameComponent, { name: `XR Hand${handednessLabel}` })
-      // initializeHandModel(handEntity)
-      const handAxisHelper = new AxesHelper(1)
-      setObjectLayers(handAxisHelper, ObjectLayers.PhysicsHelper)
-      addObjectToGroup(handEntity, handAxisHelper)
-    }
-
-    return entity
-  }
-
-  const removeInputSourceEntity = (inputSource: XRInputSource) => {
-    if (!xrInputSourcesMap.has(inputSource)) return
-    if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(null)
-    if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(null)
-    if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(null)
-    removeEntity(xrInputSourcesMap.get(inputSource)!)
-    // todo, remove grip and hand entities too
-    xrInputSourcesMap.delete(inputSource)
-=======
     if (targetRaySpace && !existingInputSources.includes(inputSource)) {
       addInputSourceEntity(inputSource, targetRaySpace)
       changed = true
@@ -376,48 +322,31 @@ const updateInputSourceEntities = () => {
 
   if (changed) {
     const xrState = getState(XRState)
-    dispatchAction(WorldNetworkAction.avatarIKTargets({
-      head: !!(getControlMode() === 'attached' ? true : xrState.viewerInputSourceEntity.value),
-      leftHand: !!xrState.leftControllerEntity.value,
-      rightHand: !!xrState.rightControllerEntity.value,
-    }))
->>>>>>> Stashed changes
+    dispatchAction(
+      WorldNetworkAction.avatarIKTargets({
+        head: !!(getControlMode() === 'attached' ? true : xrState.viewerInputSourceEntity.value),
+        leftHand: !!xrState.leftControllerEntity.value,
+        rightHand: !!xrState.rightControllerEntity.value
+      })
+    )
   }
+}
 
-  const onInputSourcesChange = ({ removed, added }: XRInputSourceChangeEvent) => {
-    for (const inputSource of removed) removeInputSourceEntity(inputSource)
-    for (const inputSource of added) addInputSourceEntity(inputSource)
-  }
+export const xrInputSourcesMap = new Map<XRInputSource, Entity>()
+export const xrGripInputSourcesMap = new Map<XRSpace, Entity>()
+export const xrHandInputSourcesMap = new Map<XRHand, Entity>()
 
+export default async function XRControllerSystem(world: World) {
   const controllerQuery = defineQuery([XRControllerComponent])
   const gripQuery = defineQuery([XRControllerGripComponent])
   const handQuery = defineQuery([XRHandComponent])
-  const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   const execute = () => {
-    const sessionStarted = xrSessionChangedQueue()
-    if (sessionStarted.length) {
-      if (sessionStarted[0].active) {
-        EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', onInputSourcesChange)
-      } else {
-        for (const [inputSource] of Array.from(xrInputSourcesMap)) removeInputSourceEntity(inputSource)
-      }
-    }
+    updateInputSourceEntities()
 
     if (Engine.instance.xrFrame) {
       const session = Engine.instance.xrFrame.session
       for (const source of session.inputSources) updateGamepadInput(source)
-
-      /**
-       * @todo
-       * when the session starts, we cant easily add the inputsourceschange event when we need it, so we lazily check all input sources here
-       */
-      if (sessionStarted.length) {
-        const inputSources = Array.from(Engine.instance.xrFrame.session.inputSources)
-        for (const inputSource of inputSources) addInputSourceEntity(inputSource)
-        for (const [inputSource] of Array.from(xrInputSourcesMap))
-          if (!inputSources.includes(inputSource)) removeInputSourceEntity(inputSource)
-      }
 
       const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
       if (referenceSpace) {
@@ -440,7 +369,11 @@ const updateInputSourceEntities = () => {
     }
   }
 
-  const cleanup = async () => {}
+  const cleanup = async () => {
+    removeQuery(world, controllerQuery)
+    removeQuery(world, gripQuery)
+    removeQuery(world, handQuery)
+  }
 
   return { execute, cleanup }
 }
