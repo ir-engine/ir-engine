@@ -28,7 +28,7 @@ import { setTransformComponent, TransformComponent } from '../transform/componen
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
+import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { moveLocalAvatar } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'

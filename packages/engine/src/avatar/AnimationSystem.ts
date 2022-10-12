@@ -15,7 +15,7 @@ import { updateAnimationGraph } from './animation/AnimationGraph'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
-import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
@@ -42,8 +42,8 @@ export default async function AnimationSystem(world: World) {
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
   const animationQuery = defineQuery([AnimationComponent])
-  const movingAvatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, VelocityComponent])
-  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
+  const movingAvatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent, VelocityComponent])
+  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
@@ -115,7 +115,8 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const rootBone = animationComponent.mixer.getRoot() as Bone
-      const rig = avatarAnimationComponent.rig
+      const avatarRigComponent = getComponent(entity, AvatarRigComponent)
+      const rig = avatarRigComponent.rig
 
       rootBone.traverse((bone: Bone) => {
         if (!bone.isBone) return
@@ -136,7 +137,7 @@ export default async function AnimationSystem(world: World) {
 
       // TODO: Find a more elegant way to handle root motion
       const rootPos = AnimationManager.instance._defaultRootBone.position
-      if (avatarAnimationComponent.rig.Hips) avatarAnimationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+      rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
     }
   }
 

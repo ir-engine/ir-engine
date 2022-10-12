@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { BoneNames } from '../avatar/AvatarBoneMatching'
-import { AvatarAnimationComponent } from '../avatar/components/AvatarAnimationComponent'
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { ParityValue } from '../common/enums/ParityValue'
 import { Entity } from '../ecs/classes/Entity'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
@@ -19,8 +19,8 @@ const quat = new Quaternion()
 
 export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 => {
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
-  const { rig } = getComponent(entity, AvatarAnimationComponent)
-  rig[bone].getWorldPosition(vec3)
+  const rig = getComponent(entity, AvatarRigComponent)
+  rig ? rig.rig[bone].getWorldPosition(vec3) : vec3.set(0, 0, 0)
   return vec3
 }
 
@@ -33,8 +33,8 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
 
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
-  const { rig } = getComponent(entity, AvatarAnimationComponent)
-  rig[bone].getWorldQuaternion(quat)
+  const rig = getComponent(entity, AvatarRigComponent)
+  rig ? rig.rig[bone].getWorldQuaternion(quat) : quat.identity()
   return quat
 }
 
@@ -50,8 +50,13 @@ export const getHandTransform = (
   hand: ParityValue = ParityValue.NONE
 ): { position: Vector3; rotation: Quaternion } => {
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
-  const { rig } = getComponent(entity, AvatarAnimationComponent)
-  rig[bone].matrixWorld.decompose(vec3, quat, v3)
+  const rig = getComponent(entity, AvatarRigComponent)
+  if (rig) {
+    rig.rig[bone].matrixWorld.decompose(vec3, quat, v3) 
+  } else {
+    vec3.set(0, 0, 0)
+    quat.identity()
+  }
   return {
     position: vec3,
     rotation: quat

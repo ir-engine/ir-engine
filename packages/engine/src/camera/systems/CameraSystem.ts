@@ -5,7 +5,7 @@ import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParam
 import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
-import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
@@ -77,12 +77,6 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   }
 
   return viewVector
-}
-
-export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
-  const animationComponent = getComponent(entity, AvatarAnimationComponent)
-  const el = animationComponent.rig[name].matrixWorld.elements
-  position.set(el[12], el[13], el[14])
 }
 
 export const updateCameraTargetRotation = (cameraEntity: Entity) => {

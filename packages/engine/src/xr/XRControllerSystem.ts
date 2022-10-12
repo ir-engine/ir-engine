@@ -10,7 +10,7 @@ import {
   SphereGeometry
 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { BinaryValue } from '../common/enums/BinaryValue'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
@@ -38,7 +38,8 @@ import {
   XRHandComponent,
   XRPointerComponent
 } from './XRComponents'
-import { XRAction, XRState } from './XRState'
+import { getControlMode, XRState } from './XRState'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -179,12 +180,85 @@ export function updateGamepadInput(source: XRInputSource) {
   }
 }
 
+<<<<<<< Updated upstream
 export const xrInputSourcesMap = new Map<XRInputSource, Entity>()
+=======
+const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpace) => {
+  const xrState = getState(XRState)
+
+  const entity = createEntity()
+  const handednessLabel =
+    inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
+  setComponent(entity, NameComponent, { name: `XR Controller${handednessLabel}` })
+  const pointer = createPointer(inputSource)
+  addObjectToGroup(entity, pointer)
+  setComponent(entity, XRPointerComponent, { pointer })
+  const cursor = createUICursor()
+  pointer.cursor = cursor
+  pointer.add(cursor)
+  cursor.visible = false
+
+  // controller.targetRay = targetRay
+  setComponent(entity, XRControllerComponent, {
+    targetRaySpace,
+    handedness: inputSource.handedness,
+    grip: null,
+    hand: null
+  })
+  setComponent(entity, InputSourceComponent, { inputSource })
+  setVelocityComponent(entity)
+  xrInputSourcesMap.set(inputSource, entity)!
+  const targetRayHelper = new AxesHelper(1)
+  setObjectLayers(targetRayHelper, ObjectLayers.PhysicsHelper)
+  addObjectToGroup(entity, targetRayHelper)
+
+  if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(entity)
+  if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(entity)
+  if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(entity)
+
+  return entity
+}
+
+const addGripInputSource = (inputSource: XRInputSource, gripSpace: XRSpace) => {
+  const gripEntity = createEntity()
+  setComponent(gripEntity, XRControllerGripComponent, { gripSpace, handedness: inputSource.handedness })
+  setComponent(gripEntity, InputSourceComponent, { inputSource })
+  setVelocityComponent(gripEntity)
+  setComponent(gripEntity, NameComponent, { name: `XR Grip${inputSource.handedness}` })
+  // initializeControllerModel(gripEntity)
+  const gripAxisHelper = new AxesHelper(1)
+  setObjectLayers(gripAxisHelper, ObjectLayers.PhysicsHelper)
+  addObjectToGroup(gripEntity, gripAxisHelper)
+  return gripEntity
+}
+
+const addHandInputSource = (inputSource: XRInputSource, hand: XRHand) => {
+  const handEntity = createEntity()
+  setComponent(handEntity, XRHandComponent, { hand, handedness: inputSource.handedness })
+  setComponent(handEntity, InputSourceComponent, { inputSource })
+  setVelocityComponent(handEntity)
+  setComponent(handEntity, NameComponent, { name: `XR Hand ${inputSource.handedness}` })
+  // initializeHandModel(handEntity)
+  const handAxisHelper = new AxesHelper(1)
+  setObjectLayers(handAxisHelper, ObjectLayers.PhysicsHelper)
+  addObjectToGroup(handEntity, handAxisHelper)
+  return handEntity
+}
+>>>>>>> Stashed changes
 
 export default async function XRControllerSystem(world: World) {
   const xrState = getState(XRState)
 
+<<<<<<< Updated upstream
   const addInputSourceEntity = (inputSource: XRInputSource) => {
+=======
+const updateInputSourceEntities = () => {
+  const inputSources = Engine.instance.xrFrame?.session ? Array.from(Engine.instance.xrFrame.session.inputSources): []
+  const existingInputSources = Array.from(xrInputSourcesMap).map(([is]) => is)
+  let changed = false
+
+  for (const inputSource of inputSources) {
+>>>>>>> Stashed changes
     let targetRaySpace = inputSource.targetRaySpace
     let gripSpace = inputSource.gripSpace
     let hand = inputSource.hand
@@ -195,6 +269,7 @@ export default async function XRControllerSystem(world: World) {
       gripSpace = null!
     }
 
+<<<<<<< Updated upstream
     const entity = createEntity()
     const handednessLabel =
       inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
@@ -256,6 +331,57 @@ export default async function XRControllerSystem(world: World) {
     removeEntity(xrInputSourcesMap.get(inputSource)!)
     // todo, remove grip and hand entities too
     xrInputSourcesMap.delete(inputSource)
+=======
+    if (targetRaySpace && !existingInputSources.includes(inputSource)) {
+      addInputSourceEntity(inputSource, targetRaySpace)
+      changed = true
+    }
+
+    const controllerEntity = xrInputSourcesMap.get(inputSource)!
+    const controller = getComponent(controllerEntity, XRControllerComponent)
+
+    if (gripSpace && !controller.grip) {
+      const gripEntity = addGripInputSource(inputSource, gripSpace)
+      controller.grip = gripEntity
+      changed = true
+    }
+
+    if (hand && !controller.hand) {
+      const gripEntity = addHandInputSource(inputSource, hand)
+      controller.hand = gripEntity
+      changed = true
+    }
+
+    if (!gripSpace && controller.grip) {
+      xrGripInputSourcesMap.delete(getComponent(controller.grip, XRControllerGripComponent).gripSpace)
+      removeEntity(controller.grip)
+      controller.grip = null
+      changed = true
+    }
+
+    if (!hand && controller.hand) {
+      xrHandInputSourcesMap.delete(getComponent(controller.hand, XRHandComponent).hand)
+      removeEntity(controller.hand)
+      controller.hand = null
+      changed = true
+    }
+  }
+
+  for (const inputSource of existingInputSources) {
+    if (!inputSources.includes(inputSource)) {
+      removeInputSourceEntity(inputSource)
+      changed = true
+    }
+  }
+
+  if (changed) {
+    const xrState = getState(XRState)
+    dispatchAction(WorldNetworkAction.avatarIKTargets({
+      head: !!(getControlMode() === 'attached' ? true : xrState.viewerInputSourceEntity.value),
+      leftHand: !!xrState.leftControllerEntity.value,
+      rightHand: !!xrState.rightControllerEntity.value,
+    }))
+>>>>>>> Stashed changes
   }
 
   const onInputSourcesChange = ({ removed, added }: XRInputSourceChangeEvent) => {

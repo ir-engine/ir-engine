@@ -11,7 +11,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationManager } from '../AnimationManager'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { animateAvatarModel, boneMatchAvatarModel, makeDefaultSkinnedMesh, rigAvatarModel } from './avatarFunctions'
 
@@ -38,9 +38,10 @@ describe('avatarFunctions Unit', async () => {
   describe('boneMatchAvatarModel', () => {
     it('should set up bone matching', async () => {
       const entity = createEntity()
-      const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any)
+      addComponent(entity, AvatarAnimationComponent, {} as any)
       boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
-      const boneStructure = animationComponent.rig
+      const avatarRigComponent = getComponent(entity, AvatarRigComponent)
+      const boneStructure = avatarRigComponent.rig
 
       assert(boneStructure.Hips)
       assert(boneStructure.Head)
@@ -86,8 +87,6 @@ describe('avatarFunctions Unit', async () => {
           currentState: null!,
           stateChanged: null!
         },
-        rig: {} as BoneStructure,
-        bindRig: {} as BoneStructure,
         rootYRatio: 1,
         locomotion: new Vector3()
       })

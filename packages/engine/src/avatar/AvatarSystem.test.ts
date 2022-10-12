@@ -11,7 +11,7 @@ import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
 import { XRHandsInputComponent } from '../xr/XRComponents'
 import { avatarDetailsReceptor, setupHandIK, setupHeadIK } from './AvatarSystem'
-import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
+import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
 describe('AvatarSystem', async () => {
   beforeEach(async () => {

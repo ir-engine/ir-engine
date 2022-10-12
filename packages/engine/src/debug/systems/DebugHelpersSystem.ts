@@ -29,7 +29,7 @@ import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperf
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
-import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -107,7 +107,7 @@ export default async function DebugHelpersSystem(world: World) {
   ])
 
   const boundingBoxQuery = defineQuery([TransformComponent, BoundingBoxComponent])
-  const avatarAnimationQuery = defineQuery([AvatarAnimationComponent])
+  const avatarAnimationQuery = defineQuery([AvatarRigComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
@@ -412,7 +412,7 @@ export default async function DebugHelpersSystem(world: World) {
      * AVATAR HELPERS
      */
     for (const entity of avatarAnimationQuery()) {
-      const anim = getComponent(entity, AvatarAnimationComponent)
+      const anim = getComponent(entity, AvatarRigComponent)
       if (
         !helpersByEntity.skeletonHelpers.has(entity) &&
         debugEnabled &&

@@ -1,7 +1,7 @@
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
+import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TouchInputs } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
@@ -103,7 +103,6 @@ export const requestXRSession = createHookableFunction(
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)
         dispatchAction(XRAction.sessionChanged({ active: false }))
-        dispatchAction(WorldNetworkAction.setXRMode({ enabled: false, avatarInputControllerType: '' }))
       }
       xrManager.addEventListener('sessionend', onSessionEnd)
 
@@ -140,7 +139,7 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
 })
 
 export const setupVRSession = (world = Engine.instance.currentWorld) => {
-  dispatchAction(WorldNetworkAction.setXRMode({ enabled: true, avatarInputControllerType: '' }))
+
 }
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
