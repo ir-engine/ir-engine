@@ -1,43 +1,32 @@
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
-import { isClient } from '../common/functions/isClient'
-import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  removeQuery,
-  setComponent
-} from '../ecs/functions/ComponentFunctions'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { getControlMode, XRState } from '../xr/XRState'
 import { applyBoneTwist } from './animation/armsTwistCorrection'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
-import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { AvatarRigComponent } from './components/AvatarAnimationComponent'
 import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './components/AvatarHandsIKComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
+import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './components/AvatarIKComponents'
+import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
+import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
 const _vec = new Vector3()
 
 export default async function AvatarIKTargetSystem(world: World) {
-  const leftHandQuery = defineQuery([AvatarLeftHandIKComponent, AvatarAnimationComponent])
-  const rightHandQuery = defineQuery([AvatarLeftHandIKComponent, AvatarAnimationComponent])
-  const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarAnimationComponent])
+  const leftHandQuery = defineQuery([AvatarLeftHandIKComponent, AvatarRigComponent])
+  const rightHandQuery = defineQuery([AvatarRightHandIKComponent, AvatarRigComponent])
+  const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarRigComponent])
   const localHeadIKQuery = defineQuery([AvatarHeadIKComponent, AvatarControllerComponent])
   const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
-  const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarAnimationComponent])
+  const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarRigComponent])
 
   const xrState = getState(XRState)
 
@@ -50,13 +39,13 @@ export default async function AvatarIKTargetSystem(world: World) {
     for (const entity of headIKQuery(world)) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
       if (inAttachedControlMode && entity === world.localClientEntity) {
-        ik.camera.quaternion.copy(world.camera.quaternion)
-        ik.camera.position.copy(world.camera.position)
+        ik.target.quaternion.copy(world.camera.quaternion)
+        ik.target.position.copy(world.camera.position)
       }
-      ik.camera.updateMatrix()
-      ik.camera.updateMatrixWorld(true)
-      const rig = getComponent(entity, AvatarAnimationComponent).rig
-      ik.camera.getWorldDirection(_vec).multiplyScalar(-1)
+      ik.target.updateMatrix()
+      ik.target.updateMatrixWorld(true)
+      const rig = getComponent(entity, AvatarRigComponent).rig
+      ik.target.getWorldDirection(_vec).multiplyScalar(-1)
       solveLookIK(rig.Head, _vec, ik.rotationClamp)
     }
 
@@ -64,11 +53,11 @@ export default async function AvatarIKTargetSystem(world: World) {
      * Hands
      */
     for (const entity of leftHandQuery()) {
-      const { rig } = getComponent(entity, AvatarAnimationComponent)
+      const { rig } = getComponent(entity, AvatarRigComponent)
       if (!rig) continue
 
       const ik = getComponent(entity, AvatarLeftHandIKComponent)
-      if (inAttachedControlMode && entity === world.localClientEntity) {
+      if (entity === world.localClientEntity) {
         const leftControllerEntity = xrState.leftControllerEntity.value
         if (leftControllerEntity) {
           const { position, rotation } = getComponent(leftControllerEntity, TransformComponent)
@@ -106,12 +95,12 @@ export default async function AvatarIKTargetSystem(world: World) {
     }
 
     for (const entity of rightHandQuery()) {
-      const { rig } = getComponent(entity, AvatarAnimationComponent)
+      const { rig } = getComponent(entity, AvatarRigComponent)
       if (!rig) continue
 
       const ik = getComponent(entity, AvatarRightHandIKComponent)
 
-      if (inAttachedControlMode && entity === world.localClientEntity) {
+      if (entity === world.localClientEntity) {
         const rightControllerEntity = xrState.rightControllerEntity.value
         if (rightControllerEntity) {
           const { position, rotation } = getComponent(rightControllerEntity, TransformComponent)
@@ -140,14 +129,14 @@ export default async function AvatarIKTargetSystem(world: World) {
     }
 
     for (const entity of armsTwistCorrectionQuery.enter()) {
-      const { bindRig } = getComponent(entity, AvatarAnimationComponent)
+      const { bindRig } = getComponent(entity, AvatarRigComponent)
       const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
       twistCorrection.LeftHandBindRotationInv.copy(bindRig.LeftHand.quaternion).invert()
       twistCorrection.RightHandBindRotationInv.copy(bindRig.RightHand.quaternion).invert()
     }
 
     for (const entity of armsTwistCorrectionQuery()) {
-      const { rig, bindRig } = getComponent(entity, AvatarAnimationComponent)
+      const { rig, bindRig } = getComponent(entity, AvatarRigComponent)
       const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
 
       if (rig.LeftForeArmTwist) {

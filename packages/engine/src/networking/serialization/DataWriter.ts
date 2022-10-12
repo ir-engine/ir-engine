@@ -4,8 +4,8 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../avatar/components/AvatarHandsIKComponent'
-import { AvatarHeadIKComponent } from '../../avatar/components/AvatarHeadIKComponent'
+import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../avatar/components/AvatarIKComponents'
+import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -253,8 +253,8 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writeXRHeadPosition = writeVector3(AvatarHeadIKComponent.camera.position)
-export const writeXRHeadRotation = writeCompressedRotation(AvatarHeadIKComponent.camera.quaternion)
+export const writeXRHeadPosition = writeVector3(AvatarHeadIKComponent.target.position)
+export const writeXRHeadRotation = writeCompressedRotation(AvatarHeadIKComponent.target.quaternion)
 
 export const writeXRControllerLeftPosition = writeVector3(AvatarLeftHandIKComponent.target.position)
 export const writeXRControllerLeftRotation = writeCompressedRotation(AvatarLeftHandIKComponent.target.quaternion)

@@ -29,7 +29,7 @@ import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/av
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
@@ -130,8 +130,6 @@ export const setupAvatarModel = (entity: Entity) =>
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
 
-  const animationComponent = getComponent(entity, AvatarAnimationComponent)
-  animationComponent.rig = avatarBoneMatching(model)
   const groupComponent = getComponent(entity, GroupComponent)
 
   if (assetType == AssetType.FBX) {
@@ -151,9 +149,9 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
-  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const { rig } = avatarAnimationComponent
+  removeComponent(entity, AvatarRigComponent)
+  const rig = avatarBoneMatching(model)
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
 
@@ -167,14 +165,14 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
+  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
-  avatarAnimationComponent.bindRig = avatarBoneMatching(SkeletonUtils.clone(rootBone))
+  setComponent(entity, AvatarRigComponent, { rig, bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)) })
 
-  const targetHips = avatarAnimationComponent.rig.Hips
   const sourceHips = sourceSkeleton.bones[0]
-  avatarAnimationComponent.rootYRatio = targetHips.position.y / sourceHips.position.y
+  avatarAnimationComponent.rootYRatio = rig.Hips.position.y / sourceHips.position.y
 
   return model
 }
@@ -279,9 +277,9 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
-  const animationComponent = getComponent(entity, AvatarAnimationComponent)
-  if (!animationComponent) return false
-  const bone = animationComponent.rig[boneName]
+  const avatarRigComponent = getComponent(entity, AvatarRigComponent)
+  if (!avatarRigComponent) return false
+  const bone = avatarRigComponent.rig[boneName]
   if (!bone) return false
   const el = bone.matrixWorld.elements
   position.set(el[12], el[13], el[14])

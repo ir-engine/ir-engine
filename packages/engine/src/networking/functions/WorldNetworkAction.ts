@@ -16,10 +16,11 @@ import { NetworkTopics } from '../classes/Network'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
-  static setXRMode = defineAction({
+  static avatarIKTargets = defineAction({
     type: 'xre.world.SET_XR_MODE',
-    enabled: matches.boolean,
-    avatarInputControllerType: matches.string,
+    head: matches.boolean,
+    leftHand: matches.boolean,
+    rightHand: matches.boolean,
     $cache: { removePrevious: true },
     $topic: NetworkTopics.world
   })

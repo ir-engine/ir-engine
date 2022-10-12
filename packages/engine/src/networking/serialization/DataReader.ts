@@ -4,8 +4,8 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../avatar/components/AvatarHandsIKComponent'
-import { AvatarHeadIKComponent } from '../../avatar/components/AvatarHeadIKComponent'
+import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../avatar/components/AvatarIKComponents'
+import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -197,8 +197,8 @@ export const readVelocity = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
 }
 
-export const readXRHeadPosition = readVector3(AvatarHeadIKComponent.camera.position)
-export const readXRHeadRotation = readCompressedRotation(AvatarHeadIKComponent.camera.quaternion)
+export const readXRHeadPosition = readVector3(AvatarHeadIKComponent.target.position)
+export const readXRHeadRotation = readCompressedRotation(AvatarHeadIKComponent.target.quaternion)
 
 export const readXRControllerLeftPosition = readVector3(AvatarLeftHandIKComponent.target.position)
 export const readXRControllerLeftRotation = readCompressedRotation(AvatarLeftHandIKComponent.target.quaternion)

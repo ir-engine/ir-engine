@@ -11,7 +11,7 @@ import {
   XRGripSpace
 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { BinaryValue } from '../common/enums/BinaryValue'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
@@ -23,6 +23,7 @@ import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { GamepadMapping } from '../input/functions/GamepadInput'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { setVelocityComponent, VelocityComponent } from '../physics/components/VelocityComponent'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -39,7 +40,7 @@ import {
   XRHandComponent,
   XRPointerComponent
 } from './XRComponents'
-import { XRAction, XRState } from './XRState'
+import { getControlMode, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -195,8 +196,6 @@ const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpac
   pointer.add(cursor)
   cursor.visible = false
 
-  if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(entity)
-
   // controller.targetRay = targetRay
   setComponent(entity, XRControllerComponent, {
     targetRaySpace,
@@ -211,6 +210,7 @@ const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpac
   setObjectLayers(targetRayHelper, ObjectLayers.PhysicsHelper)
   addObjectToGroup(entity, targetRayHelper)
 
+  if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(entity)
   if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(entity)
   if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(entity)
 
@@ -265,9 +265,9 @@ const removeInputSourceEntity = (inputSource: XRInputSource) => {
 }
 
 const updateInputSourceEntities = () => {
-  if (!Engine.instance.xrFrame?.session) return
-  const inputSources = Array.from(Engine.instance.xrFrame.session.inputSources)
+  const inputSources = Engine.instance.xrFrame?.session ? Array.from(Engine.instance.xrFrame.session.inputSources) : []
   const existingInputSources = Array.from(xrInputSourcesMap).map(([is]) => is)
+  let changed = false
   for (const inputSource of inputSources) {
     let targetRaySpace = inputSource.targetRaySpace
     let gripSpace = inputSource.gripSpace
@@ -281,35 +281,55 @@ const updateInputSourceEntities = () => {
 
     if (targetRaySpace && !existingInputSources.includes(inputSource)) {
       addInputSourceEntity(inputSource, targetRaySpace)
+      changed = true
     }
+
     const controllerEntity = xrInputSourcesMap.get(inputSource)!
     const controller = getComponent(controllerEntity, XRControllerComponent)
 
     if (gripSpace && !controller.grip) {
       const gripEntity = addGripInputSource(inputSource, gripSpace)
       controller.grip = gripEntity
+      changed = true
     }
 
     if (hand && !controller.hand) {
       const gripEntity = addHandInputSource(inputSource, hand)
       controller.hand = gripEntity
+      changed = true
     }
 
     if (!gripSpace && controller.grip) {
       xrGripInputSourcesMap.delete(getComponent(controller.grip, XRControllerGripComponent).gripSpace)
       removeEntity(controller.grip)
       controller.grip = null
+      changed = true
     }
 
     if (!hand && controller.hand) {
       xrHandInputSourcesMap.delete(getComponent(controller.hand, XRHandComponent).hand)
       removeEntity(controller.hand)
       controller.hand = null
+      changed = true
     }
   }
 
   for (const inputSource of existingInputSources) {
-    if (!inputSources.includes(inputSource)) removeInputSourceEntity(inputSource)
+    if (!inputSources.includes(inputSource)) {
+      removeInputSourceEntity(inputSource)
+      changed = true
+    }
+  }
+
+  if (changed) {
+    const xrState = getState(XRState)
+    dispatchAction(
+      WorldNetworkAction.avatarIKTargets({
+        head: !!(getControlMode() === 'attached' ? true : xrState.viewerInputSourceEntity.value),
+        leftHand: !!xrState.leftControllerEntity.value,
+        rightHand: !!xrState.rightControllerEntity.value
+      })
+    )
   }
 }
 

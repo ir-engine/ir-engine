@@ -4,7 +4,7 @@ import { DEG2RAD } from 'three/src/math/MathUtils'
 
 import { getState } from '@xrengine/hyperflux'
 
-import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Component, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -84,7 +84,7 @@ export const ObjectFitFunctions = {
 
   attachObjectToHand: (container: WebContainer3D, scale: number) => {
     const { localClientEntity } = Engine.instance.currentWorld
-    const avatarAnimationComponent = getComponent(localClientEntity, AvatarAnimationComponent)
+    const avatarAnimationComponent = getComponent(localClientEntity, AvatarRigComponent)
     if (avatarAnimationComponent && avatarAnimationComponent.rig.LeftHand) {
       // todo: figure out how to scale this properly
       // container.scale.x = container.scale.y = 0.5 * scale

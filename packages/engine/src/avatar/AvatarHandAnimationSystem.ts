@@ -8,8 +8,8 @@ import { defineQuery, getComponent, removeQuery } from '../ecs/functions/Compone
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
+import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
+import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
 export const updateXRControllerAnimations = (inputSource) => {
   const world = Engine.instance.currentWorld
