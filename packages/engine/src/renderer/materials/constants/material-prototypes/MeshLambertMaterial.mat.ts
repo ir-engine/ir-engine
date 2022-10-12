@@ -1,8 +1,6 @@
-import { Color, MeshLambertMaterial as Lambert, MeshLambertMaterialParameters, Texture } from 'three'
+import { MeshLambertMaterial as Lambert } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { extractDefaults as format } from '../../functions/Utilities'
-import { MaterialParms } from '../../MaterialParms'
 import { BasicArgs } from '../BasicArgs'
 import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 

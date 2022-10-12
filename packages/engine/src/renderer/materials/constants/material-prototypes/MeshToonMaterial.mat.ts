@@ -1,8 +1,6 @@
-import { Color, MeshToonMaterialParameters, Texture, MeshToonMaterial as Toon } from 'three'
+import { MeshToonMaterial as Toon } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { extractDefaults as format } from '../../functions/Utilities'
-import { MaterialParms } from '../../MaterialParms'
 import { BasicArgs } from '../BasicArgs'
 import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 

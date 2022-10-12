@@ -1,8 +1,6 @@
-import { Color, MeshStandardMaterialParameters, MeshStandardMaterial as Standard, Texture } from 'three'
+import { MeshStandardMaterial as Standard } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { extractDefaults as format } from '../../functions/Utilities'
-import { DudTexture, MaterialParms } from '../../MaterialParms'
 import { BasicArgs } from '../BasicArgs'
 import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 

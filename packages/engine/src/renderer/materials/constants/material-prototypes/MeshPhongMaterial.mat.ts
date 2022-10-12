@@ -1,8 +1,6 @@
-import { Color, MeshPhongMaterialParameters, MeshPhongMaterial as Phong, Texture } from 'three'
+import { MeshPhongMaterial as Phong } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { extractDefaults as format } from '../../functions/Utilities'
-import { MaterialParms } from '../../MaterialParms'
 import { BasicArgs } from '../BasicArgs'
 import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 

@@ -1,12 +1,11 @@
 import { subscribable } from '@hookstate/subscribable'
-import { Object3D, Scene, Texture } from 'three'
+import { Object3D, Scene } from 'three'
 
 import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../assets/classes/DependencyTree'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
@@ -14,7 +13,6 @@ import { removeMaterialSource } from '../../renderer/materials/functions/Utiliti
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { initializeOverride } from '../functions/loaders/MaterialOverrideFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
