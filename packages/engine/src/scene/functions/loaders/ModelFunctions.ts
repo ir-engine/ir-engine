@@ -21,7 +21,6 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
