@@ -149,7 +149,6 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
-  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
   const rig = avatarBoneMatching(model)
@@ -166,6 +165,7 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
+  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
