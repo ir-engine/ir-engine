@@ -119,7 +119,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   return url
 }
 
-const resolution = 2048
+const resolution = 1024
 
 /**
  * Generates and uploads a cubemap at a specific position in the world.

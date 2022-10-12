@@ -193,11 +193,6 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
         systemLoader: () => import('./scene/systems/SceneObjectDynamicLoadSystem')
       },
       {
-        uuid: 'xre.engine.MaterialOverrideSystem',
-        type: SystemUpdateType.FIXED_LATE,
-        systemLoader: () => import('./scene/systems/MaterialOverrideSystem')
-      },
-      {
         uuid: 'xre.engine.InstancingSystem',
         type: SystemUpdateType.FIXED_LATE,
         systemLoader: () => import('./scene/systems/InstancingSystem')

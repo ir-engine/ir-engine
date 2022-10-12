@@ -23,7 +23,7 @@ export const SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES = {
   bakePositionOffset: { x: 0, y: 0, z: 0 },
   bakeScale: { x: 1, y: 1, z: 1 },
   bakeType: EnvMapBakeTypes.Baked,
-  resolution: 2048,
+  resolution: 1024,
   refreshMode: EnvMapBakeRefreshTypes.OnAwake,
   envMapOrigin: '',
   boxProjection: true

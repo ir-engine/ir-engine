@@ -1,8 +1,8 @@
-import { MeshBasicMaterial as Basic, Color } from 'three'
+import { MeshBasicMaterial as Basic } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { BasicArgs } from '../BasicArgs'
-import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
+import { TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   ...BasicArgs,
