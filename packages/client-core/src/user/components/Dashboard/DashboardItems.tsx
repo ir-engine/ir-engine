@@ -12,6 +12,7 @@ import {
   PersonAdd,
   Settings,
   Shuffle,
+  Storage,
   SupervisorAccount,
   Timeline,
   Toys
@@ -22,6 +23,11 @@ export const SidebarItems = (allowedRoutes) => [
     name: 'user:dashboard.dashboard',
     path: '/admin',
     icon: <DashboardIcon style={{ color: 'white' }} />
+  },
+  allowedRoutes.admin && {
+    name: 'user:dashboard.server',
+    path: '/admin/server',
+    icon: <Storage style={{ color: 'white' }} />
   },
   allowedRoutes.projects && {
     name: 'user:dashboard.projects',

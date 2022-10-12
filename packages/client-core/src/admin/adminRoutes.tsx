@@ -23,6 +23,7 @@ import party from './components/Party'
 import projects from './components/Project'
 import resources from './components/Resources'
 import routes from './components/Routes'
+import server from './components/Server'
 import setting from './components/Setting'
 import users from './components/Users'
 
@@ -50,7 +51,8 @@ const ProtectedRoutes = () => {
     benchmarking: false,
     routes: false,
     projects: false,
-    settings: false
+    settings: false,
+    server: false,
   }
   const scopes = admin?.scopes?.value || []
 
@@ -62,7 +64,7 @@ const ProtectedRoutes = () => {
 
   scopes.forEach((scope) => {
     if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
-      if (scope.type.split(':')[1] === 'read') {
+      if (scope.type.split(':')[1] === 'read' || scope.type.split(':')[1] === 'admin') {
         allowedRoutes = {
           ...allowedRoutes,
           [scope.type.split(':')[0]]: true
@@ -105,6 +107,7 @@ const ProtectedRoutes = () => {
             {allowedRoutes.party && <PrivateRoute exact path="/admin/parties" component={party} />}
             {allowedRoutes.bot && <PrivateRoute exact path="/admin/bots" component={botSetting} />}
             {allowedRoutes.projects && <PrivateRoute exact path="/admin/projects" component={projects} />}
+            {allowedRoutes.server && <PrivateRoute exact path="/admin/server" component={server} />}
             {allowedRoutes.settings && <PrivateRoute exact path="/admin/settings" component={setting} />}
             {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
             {allowedRoutes.user && <PrivateRoute exact path="/admin/users" component={users} />}

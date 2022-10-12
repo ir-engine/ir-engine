@@ -296,7 +296,8 @@
       "scenes": "Scenes",
       "avatars": "Avatars",
       "benchmarking": "Benchmarking",
-      "bots": "Bots"
+      "bots": "Bots",
+      "server": "Server"
     }
   },
   "oauth": {

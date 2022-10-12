@@ -58,7 +58,7 @@
 
   &.forceVaporwave {
     background: linear-gradient(90deg, #5236ff, #c20560);
-    color: #FFF !important;
+    color: #fff !important;
   }
 
   &:hover {
@@ -467,6 +467,10 @@
 .rootCardNumber {
   min-width: 100%;
   background-color: var(--panelBackground);
+}
+
+.selectedCard {
+  background-color: var(--panelCards);
 }
 
 .label {

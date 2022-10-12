@@ -351,6 +351,9 @@
       "isGuest": "Is guest",
       "selectAllScopes": "Select All Scopes",
       "clearAllScopes": "Clear All Scopes"
+    },
+    "server": {
+      "loading": "Loading Server Info"
     }
   }
 }
