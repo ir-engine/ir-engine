@@ -434,8 +434,8 @@ export class Project extends Service {
       let allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repos = await getGitHubAppRepos()
       const repoPaths = repos.map((repo) => repo.repositoryPath.replace(/.git/, ''))
-      allowedProjects = allowedProjects.filter(
-        (project) => repoPaths.indexOf(project.repositoryPath.replace(/.git/, '')) > -1
+      allowedProjects = allowedProjects.filter((project) =>
+        project.repositoryPath ? repoPaths.indexOf(project.repositoryPath.replace(/.git/, '')) > -1 : false
       )
       projectPushIds = projectPushIds.concat(allowedProjects.map((project) => project.id))
 

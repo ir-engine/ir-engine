@@ -22,6 +22,7 @@ import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGro
 import { getInteractionGroups } from '@xrengine/engine/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -79,7 +80,10 @@ export default async function AvatarUISystem(world: World) {
     if (AvatarContextMenuUI.state.id.value !== '' && !action.clicked && action.button === BaseInput.PRIMARY) {
       const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent).container
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
-      if (!hit) AvatarContextMenuUI.state.id.set('')
+      if (!hit) {
+        AvatarContextMenuUI.state.id.set('')
+        setVisibleComponent(AvatarContextMenuUI.entity, false)
+      }
     }
 
     /** only handle avatar click if right clicking and when lifting button */
@@ -112,6 +116,7 @@ export default async function AvatarUISystem(world: World) {
       if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
         AvatarContextMenuUI.state.id.set(userId)
+        setVisibleComponent(AvatarContextMenuUI.entity, true)
         return
       }
     }

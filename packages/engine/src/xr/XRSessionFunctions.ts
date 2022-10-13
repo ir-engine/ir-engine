@@ -65,8 +65,10 @@ export const requestXRSession = createHookableFunction(
       const xrSession = (EngineRenderer.instance.xrSession = await navigator.xr!.requestSession(mode, sessionInit))
 
       // @ts-ignore
-      if (xrSession.interactionMode === 'screen-space') {
+      if (xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen') {
         xrManager.setFramebufferScaleFactor(0.5)
+      } else {
+        xrManager.setFramebufferScaleFactor(1.2)
       }
 
       await xrManager.setSession(xrSession)

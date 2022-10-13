@@ -19,7 +19,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { getControlMode, XRState } from '../../xr/XRState'
+import { getAvatarHeadLock, getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -212,12 +212,18 @@ export const updateReferenceSpace = (entity: Entity) => {
     const avatar = getComponent(entity, AvatarComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
     const rig = getComponent(entity, AvatarRigComponent)
-    if (rig) rig.rig.Head.getWorldPosition(_vec)
-    else _vec.copy(avatarTransform.position).setComponent(1, avatarTransform.position.y + avatar.avatarHalfHeight)
 
-    _vec.y -= viewerPose.transform.position.y - 0.14
-    const headOffset = _vec2.set(0, 0, 0.1).applyQuaternion(avatarTransform.rotation)
-    _vec.add(headOffset)
+    const avatarHeadLock = getAvatarHeadLock()
+
+    if (avatarHeadLock && rig) {
+      rig.rig.Head.getWorldPosition(_vec)
+      _vec.y += 0.14
+      _vec.y -= viewerPose.transform.position.y
+      const headOffset = _vec2.set(0, 0, 0.1).applyQuaternion(avatarTransform.rotation)
+      _vec.add(headOffset)
+    } else {
+      _vec.copy(avatarTransform.position)
+    }
 
     // rotate 180 degrees as physics looks down +z, and webxr looks down -z
     quat.copy(avatarTransform.rotation).multiply(quat180y)

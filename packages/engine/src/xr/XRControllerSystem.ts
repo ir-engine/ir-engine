@@ -128,8 +128,10 @@ const updateInputSource = (entity: Entity, space: XRSpace, referenceSpace: XRRef
 
   const transform = getComponent(entity, TransformComponent)
   const velocity = getComponent(entity, VelocityComponent)
-  transform.matrix.fromArray(pose.transform.matrix)
-  transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+  transform.position.copy(pose.transform.position as any)
+  transform.rotation.copy(pose.transform.orientation as any)
+  // transform.matrix.fromArray(pose.transform.matrix)
+  // transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
 
   // @ts-ignore
   if (pose.linearVelocity) velocity.linear.copy(pose.linearVelocity)
