@@ -353,7 +353,17 @@
       "clearAllScopes": "Clear All Scopes"
     },
     "server": {
-      "loading": "Loading Server Info"
+      "loading": "Loading Server Info",
+      "name": "Name",
+      "status": "Status",
+      "restarts": "Restarts",
+      "containers": "Containers",
+      "age": "Age",
+      "logs": "Logs",
+      "autoRefresh": "Auto Refresh",
+      "none": "None",
+      "seconds": "seconds",
+      "minutes": "minutes"
     }
   }
 }

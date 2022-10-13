@@ -7,7 +7,7 @@ export interface ServerInfoInterface {
 export interface ServerPodInfo {
   name: string
   status: string
-  age: Date
+  age: string | Date
   containers: ServerContainerInfo[]
 }
 

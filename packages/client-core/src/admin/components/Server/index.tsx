@@ -9,6 +9,7 @@ import Grid from '@mui/material/Grid'
 import LoadingView from '../../common/LoadingView'
 import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
 import styles from '../../styles/admin.module.scss'
+import ServerTable from './ServerTable'
 
 const Server = () => {
   const { t } = useTranslation()
@@ -26,13 +27,22 @@ const Server = () => {
   }
 
   return (
-    <Grid container spacing={1} className={styles.mb10px}>
-      {serverInfo.value.servers.map((item, index) => (
-        <Grid item xs={12} sm={6} md={2}>
-          <ServerItemCard key={index} data={item} isSelected={selectedCard === item.id} onCardClick={setSelectedCard} />
-        </Grid>
-      ))}
-    </Grid>
+    <React.Fragment>
+      <Grid container spacing={1} className={styles.mb10px}>
+        {serverInfo.value.servers.map((item, index) => (
+          <Grid item key={item.id} xs={12} sm={6} md={2}>
+            <ServerItemCard
+              key={index}
+              data={item}
+              isSelected={selectedCard === item.id}
+              onCardClick={setSelectedCard}
+            />
+          </Grid>
+        ))}
+      </Grid>
+
+      <ServerTable selectedCard={selectedCard} />
+    </React.Fragment>
   )
 }
 

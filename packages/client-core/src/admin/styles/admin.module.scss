@@ -691,3 +691,20 @@
   display: flex;
   flex-direction: row;
 }
+
+.containerCircle {
+  height: 15px;
+  width: 15px;
+  margin-right: 5px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.containerGreen {
+  background-color: limegreen;
+}
+
+.containerRed {
+  background-color: red;
+}
