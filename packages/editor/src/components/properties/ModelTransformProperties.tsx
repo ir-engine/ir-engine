@@ -9,6 +9,7 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
 import { AssetClass } from '@xrengine/engine/src/assets/enum/AssetClass'
 import { MaterialSource } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
+import MeshBasicMaterial from '@xrengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
 import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
 import { batchSetMaterialProperty } from '@xrengine/engine/src/renderer/materials/functions/batchEditMaterials'
 import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
@@ -113,13 +114,14 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
         bakeToVertices<MeshStandardMaterial>(
           matComponent.material as MeshStandardMaterial,
           attribs,
-          modelComponent.scene
+          modelComponent.scene,
+          MeshBasicMaterial.prototypeId
         )
       ) ?? []
-    )
+    ) /*
     if ([AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(vertexBakeOptions.matcapPath.value))) {
       batchSetMaterialProperty(src, 'matcap', await AssetLoader.loadAsync(vertexBakeOptions.matcapPath.value))
-    }
+    }*/
   }, [])
 
   const attribToDelete = useHookstate('')
