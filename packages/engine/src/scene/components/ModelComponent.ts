@@ -59,6 +59,7 @@ export const ModelComponent = defineComponent({
               scene = gltf.scene as Scene
               break
             case '.fbx':
+            case '.usdz':
               scene = (await AssetLoader.loadAsync(model.src, { ignoreDisposeGeometry: model.generateBVH, uuid })).scene
               break
             default:

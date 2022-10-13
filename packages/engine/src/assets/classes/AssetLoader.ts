@@ -40,6 +40,7 @@ import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { TGALoader } from '../loaders/tga/TGALoader'
+import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { DependencyTreeActions } from './DependencyTree'
 import { XRELoader } from './XRELoader'
 
@@ -201,6 +202,7 @@ const getAssetType = (assetFileName: string): AssetType => {
   if (/\.xre\.gltf$/.test(assetFileName)) return AssetType.XRE
   else if (/\.(?:gltf)$/.test(assetFileName)) return AssetType.glTF
   else if (/\.(?:glb)$/.test(assetFileName)) return AssetType.glB
+  else if (/\.(?:usdz)$/.test(assetFileName)) return AssetType.USDZ
   else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
   else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
   else if (/\.(?:tga)$/.test(assetFileName)) return AssetType.TGA
@@ -226,7 +228,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
 
   if (/\.xre\.gltf$/.test(assetFileName)) {
     return AssetClass.Asset
-  } else if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
+  } else if (/\.(?:gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     return AssetClass.Model
   } else if (/\.png|jpg|jpeg|tga|ktx2$/.test(assetFileName)) {
     return AssetClass.Image
@@ -275,6 +277,8 @@ const ktx2Loader = () => ({
     )
   }
 })
+const usdzLoader = () => new USDZLoader()
+
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
     case AssetType.XRE:
@@ -285,6 +289,8 @@ export const getLoader = (assetType: AssetType) => {
     case AssetType.glB:
     case AssetType.VRM:
       return gltfLoader
+    case AssetType.USDZ:
+      return usdzLoader()
     case AssetType.FBX:
       return fbxLoader()
     case AssetType.TGA:
@@ -309,7 +315,7 @@ const assetLoadCallback =
   (url: string, args: LoadingArgs, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
     const assetClass = AssetLoader.getAssetClass(url)
     if (assetClass === AssetClass.Model) {
-      if (assetType === AssetType.FBX) {
+      if ([AssetType.FBX, AssetType.USDZ].includes(assetType)) {
         asset = { scene: asset }
       } else if (assetType === AssetType.VRM) {
         asset = asset.userData.vrm

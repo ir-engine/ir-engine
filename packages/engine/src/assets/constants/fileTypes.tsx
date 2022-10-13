@@ -15,7 +15,7 @@ export const ImageFileTypes = [
   'image/ktx2'
 ]
 //array containing model file type.
-export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf-embedded', '.fbx']
+export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf-embedded', '.fbx', '.usdz']
 //array containing volumetric file type.
 export const VolumetricFileTypes = ['.drcs', '.uvol', '.manifest', '.mp4']
 //array containing custom script type.
