@@ -429,11 +429,6 @@ const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, hand
   const rigidBody2 = collider2.parent()
   const entity1 = (rigidBody1?.userData as any)['entity']
   const entity2 = (rigidBody2?.userData as any)['entity']
-  console.log(
-    { entity1, entity2 },
-    getComponent(entity1, NameComponent)?.name,
-    getComponent(entity2, NameComponent)?.name
-  )
 
   const collisionComponent1 = getComponent(entity1, CollisionComponent)
   const collisionComponent2 = getComponent(entity2, CollisionComponent)
