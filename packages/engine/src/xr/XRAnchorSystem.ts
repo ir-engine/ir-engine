@@ -204,9 +204,13 @@ export default async function XRAnchorSystem(world: World) {
             const xrState = getState(XRState)
             xrState.viewerReferenceSpace.set(viewerReferenceSpace)
             if ('requestHitTestSource' in session) {
-              session.requestHitTestSource!({ space: viewerReferenceSpace })!.then((source) => {
-                xrState.viewerHitTestSource.set(source)
-              })
+              session.requestHitTestSource!({ space: viewerReferenceSpace })!
+                .then((source) => {
+                  xrState.viewerHitTestSource.set(source)
+                })
+                .catch((err) => {
+                  console.warn('Failed to requestHitTestSource', err)
+                })
             }
           })
         }
