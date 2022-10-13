@@ -80,7 +80,7 @@ export function setupLeftHandIK(entity: Entity) {
     targetOffset: leftOffset,
     targetPosWeight: 1,
     targetRotWeight: 1,
-    hintWeight: 1
+    hintWeight: -1
   })
 
   const lefthand = getComponent(entity, AvatarLeftHandIKComponent)
@@ -116,7 +116,7 @@ export function setupRightHandIK(entity: Entity) {
     targetOffset: rightOffset,
     targetPosWeight: 1,
     targetRotWeight: 1,
-    hintWeight: 1
+    hintWeight: -1
   })
 
   const rightHand = getComponent(entity, AvatarRightHandIKComponent)

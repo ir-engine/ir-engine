@@ -18,7 +18,14 @@ import { addComponent, getComponent, removeComponent } from '../ecs/functions/Co
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { PhysicsDebugInput } from '../input/enums/DebugEnum'
-import { CameraInput, GamepadAxis, GamepadButtons, MouseInput, TouchInputs } from '../input/enums/InputEnums'
+import {
+  AvatarMovementScheme,
+  CameraInput,
+  GamepadAxis,
+  GamepadButtons,
+  MouseInput,
+  TouchInputs
+} from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
 import { InputValue } from '../input/interfaces/InputValue'
@@ -41,6 +48,7 @@ import { getControlMode } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { rotateAvatar } from './functions/moveAvatar'
 import { switchCameraMode } from './functions/switchCameraMode'
+import { AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -384,7 +392,12 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias
 
   // if vr, rotate the avatar
   if (getControlMode() === 'attached' && inputValue.value[0] !== 0) {
-    rotateAvatar(entity, -inputValue.value[0] * vrAxisLookSensitivity)
+    if (getState(AvatarInputSettingsState).controlScheme.value === 'AvatarMovementScheme_Teleport') {
+      if (inputValue.lifecycleState === LifecycleValue.Started)
+        rotateAvatar(entity, (Math.PI / 6) * (inputValue.value[0] > 0 ? -1 : 1)) // 30 degrees
+    } else {
+      rotateAvatar(entity, -inputValue.value[0] * vrAxisLookSensitivity)
+    }
   }
 }
 
@@ -482,11 +495,11 @@ export const createAvatarInput = () => {
   map.set(GamepadButtons.DPad3, BaseInput.LEFT)
   map.set(GamepadButtons.DPad4, BaseInput.RIGHT)
 
-  map.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
+  map.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_LOOK)
   map.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE)
 
-  // map.set(GamepadAxis.LTouchpad, BaseInput.MOVEMENT)
-  // map.set(GamepadAxis.RTouchpad, BaseInput.LOOKTURN)
+  // map.set(GamepadAxis.LTouchpad, BaseInput.PRIMARY_LOOK)
+  // map.set(GamepadAxis.RTouchpad, BaseInput.PRIMARY_MOVE)
 
   map.set('KeyW', BaseInput.FORWARD)
   map.set('ArrowUp', BaseInput.FORWARD)
@@ -547,8 +560,8 @@ export const createBehaviorMap = () => {
   map.set(CameraInput.Happy, setAvatarExpression)
   map.set(CameraInput.Sad, setAvatarExpression)
 
-  map.set(BaseInput.MOVEMENT, moveByInputAxis)
-  map.set(BaseInput.PRIMARY_MOVE, lookByInputAxis)
+  map.set(BaseInput.PRIMARY_MOVE, moveByInputAxis)
+  map.set(BaseInput.PRIMARY_LOOK, lookByInputAxis)
 
   map.set(BaseInput.SWITCH_CAMERA, cycleCameraMode)
   map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindAvatar)

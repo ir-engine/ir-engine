@@ -5,6 +5,7 @@
   "search.useIgnoreFiles": false,
   "search.useParentIgnoreFiles": true,
   "search.exclude": {
-    "/packages/server/upload": true
+    "/packages/server/upload": true,
+    "/packages/client/dist": true
   }
 }

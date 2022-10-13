@@ -77,68 +77,6 @@ export const XRHandsInputComponent = createMappedComponent<XRHandsInputComponent
   XRHandsInputSchema
 )
 
-export type XRInputSourceComponentType = {
-  // Flatten the controller hirearchy
-  // to be able to send the data over network
-  // (do not use directly)
-  controllerLeftParent: Group
-  controllerRightParent: Group
-  controllerGripLeftParent: Group
-  controllerGripRightParent: Group
-
-  /**
-   * @property {ControllerGroup} controllerLeft
-   * @property {ControllerGroup} controllerRight
-   * the controllers
-   */
-  controllerLeft: PointerObject
-  controllerRight: PointerObject
-
-  /**
-   * @property {Group} controllerGripLeft
-   * @property {Group} controllerGripRight
-   * controller grips hold the information for grips, which are where the user grabs things from
-   */
-  controllerGripLeft: Group
-  controllerGripRight: Group
-
-  /**
-   * @property {Group} controllerGroup is the group that holds all the controller groups,
-   * so they can be transformed together
-   */
-  container: Group
-
-  /**
-   * @property {Group} head
-   */
-  head: Group
-}
-
-const GroupSchema = {
-  position: Vector3Schema,
-  quaternion: QuaternionSchema
-}
-
-const XRInputSourceSchema = {
-  controllerLeftParent: GroupSchema,
-  controllerRightParent: GroupSchema,
-  controllerGripLeftParent: GroupSchema,
-  controllerGripRightParent: GroupSchema,
-
-  controllerLeft: GroupSchema,
-  controllerRight: GroupSchema,
-  controllerGripLeft: GroupSchema,
-  controllerGripRight: GroupSchema,
-  container: GroupSchema,
-  head: GroupSchema
-}
-
-/** @deprecated */
-export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType, typeof XRInputSourceSchema>(
-  'XRInputSourceComponent',
-  XRInputSourceSchema
-)
-
 export const XRHitTestComponent = defineComponent({
   name: 'XRHitTest',
 
