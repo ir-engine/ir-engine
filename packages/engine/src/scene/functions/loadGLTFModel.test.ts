@@ -28,10 +28,10 @@ describe('loadGLTFModel', () => {
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
 
     const entity = createEntity()
+    addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
     const modelComponent = addComponent(entity, ModelComponent, {
       ...mockComponentData
     })
-    addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
     const entityName = 'entity name'
     const number = Math.random()
     const mesh = new Scene()
