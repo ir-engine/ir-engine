@@ -619,19 +619,21 @@ class USDZLoader extends Loader {
                 const registryPath = `${path}/${material.name}`
                 registry[registryPath] = material
             }
-			if ( name.startsWith( 'def Xform' ) && Object.keys(context[name]).some(x => x !== undefined && /def Mesh/.test(x))) {
-				const mesh = buildMesh( context[ name ] );
-				if ( /def Xform "(\w+)"/.test( name ) ) {
+            if ( name.startsWith( 'def Xform' ) ) {
+                if (Object.keys(context[name]).some(x => x?.startsWith('def Mesh')))
+                {
+                    const mesh = buildMesh( context[ name ] );
+                    if ( /def Xform "(\w+)"/.test( name ) ) {
+                        mesh.name = /def Xform "(\w+)"/.exec( name )[ 1 ];
+                    }
+                    const registryPath = `${path}/${mesh.name}`
+                    registry[registryPath] = mesh
+                    group.add( mesh );
+                }
+                if (Object.keys(context[name]).some(x => x?.startsWith('def Light'))) {
 
-					mesh.name = /def Xform "(\w+)"/.exec( name )[ 1 ];
-
-				}
-                const registryPath = `${path}/${mesh.name}`
-                registry[registryPath] = mesh
-				group.add( mesh );
-
+                }
 			}
-
 		}
 
 		// console.log( group );
