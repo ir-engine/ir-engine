@@ -127,7 +127,7 @@ function RouterComp() {
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoutes')} />}>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
         <Switch>
           {customRoutes.map((route, i) => (
             <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />

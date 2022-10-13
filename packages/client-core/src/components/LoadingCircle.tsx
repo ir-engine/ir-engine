@@ -20,7 +20,17 @@ export function LoadingCircle(props: Props) {
       }}
     >
       <CircularProgress />
-      {props.message}
+      <div
+        style={{
+          // default values will be overridden by theme
+          fontFamily: 'Lato',
+          fontSize: '12px',
+          color: '#585858',
+          padding: '16px'
+        }}
+      >
+        {props.message}
+      </div>
     </div>
   )
 }
