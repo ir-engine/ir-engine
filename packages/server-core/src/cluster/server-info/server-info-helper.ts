@@ -9,14 +9,6 @@ import logger from '../../ServerLogger'
 export const getServerInfo = async (app: Application): Promise<ServerInfoInterface[]> => {
   let serverInfo: ServerInfoInterface[] = []
 
-  //TODO: Remove this section
-  const kc = new k8s.KubeConfig()
-  kc.loadFromDefault()
-  app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
-  app.k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
-  config.server.releaseName = 'dev'
-  //TODO: End of remove this section
-
   try {
     logger.info('Attempting to check k8s server info')
 
