@@ -7,7 +7,12 @@
     "left": "left"
   },
   "loader": {
-    "connecting": "Connecting to world...",
+    "connecting": "Connecting...",
+    "loadingEngine": "Loading engine...",
+    "loadingRoutes": "Loading routes...",
+    "loadingRoute": "Loading route...",
+    "loadingXRSystems": "Loading immersive session...",
+    "connectingToWorld": "Connecting to world...",
     "entering": "Entering world...",
     "loading": "Loading...",
     "objectRemaining": "{{count}} object remaining",
