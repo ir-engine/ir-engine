@@ -9,6 +9,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/Utilities'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
@@ -44,7 +45,7 @@ export const ModelComponent = defineComponent({
       if (sourceChanged) {
         try {
           if (model.scene && model.scene.userData.src !== model.src) {
-            removeMaterialSource({ type: 'Model', path: model.scene.userData.src })
+            removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
           }
           const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
           DependencyTree.add(uuid)
@@ -114,7 +115,7 @@ export const ModelComponent = defineComponent({
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(undefined)
     }
-    removeMaterialSource({ type: 'Model', path: component.src.value })
+    removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   }
 })
 
