@@ -1,15 +1,18 @@
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
+import multiLogger from '@xrengine/common/src/logger'
 
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
-import { useServerInfoState } from '../../services/ServerInfoService'
+import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
 import styles from '../../styles/admin.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:ServerTable' })
 
 TimeAgo.addDefaultLocale(en)
 
@@ -22,7 +25,24 @@ interface Props {
 const ServerTable = ({ selectedCard }: Props) => {
   const { t } = useTranslation()
   const [autoRefresh, setAutoRefresh] = useState('0')
+  const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
   const serverInfo = useServerInfoState()
+
+  useEffect(() => {
+    if (autoRefresh !== '0') {
+      const interval = setInterval(() => {
+        logger.info('Refreshing server info.')
+        ServerInfoService.fetchServerInfo()
+      }, parseInt(autoRefresh) * 1000)
+      setIntervalTimer(interval)
+      return () => {
+        if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+      }
+    } else if (intervalTimer) {
+      clearInterval(intervalTimer)
+      setIntervalTimer(undefined)
+    }
+  }, [autoRefresh])
 
   const createData = (el: ServerPodInfo): ServerPodData => {
     return {
