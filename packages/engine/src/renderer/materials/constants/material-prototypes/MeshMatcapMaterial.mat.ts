@@ -1,6 +1,7 @@
 import { Color, MeshMatcapMaterial as Matcap } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
+import { SourceType } from '../../components/MaterialSource'
 import { BoolArg, ColorArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
@@ -26,7 +27,7 @@ export const MeshMatcapMaterial: MaterialPrototypeComponentType = {
       (arg) => (shader.uniforms[arg] = { value: null })
     )
   },
-  src: { type: 'Built In', path: '' }
+  src: { type: SourceType.BUILT_IN, path: '' }
 }
 
 export default MeshMatcapMaterial

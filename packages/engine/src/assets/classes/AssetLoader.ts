@@ -29,6 +29,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
@@ -37,6 +38,7 @@ import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
+import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { TGALoader } from '../loaders/tga/TGALoader'
@@ -315,7 +317,8 @@ const assetLoadCallback =
   (url: string, args: LoadingArgs, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
     const assetClass = AssetLoader.getAssetClass(url)
     if (assetClass === AssetClass.Model) {
-      if ([AssetType.FBX, AssetType.USDZ].includes(assetType)) {
+      const notGLTF = [AssetType.FBX, AssetType.USDZ].includes(assetType)
+      if (notGLTF) {
         asset = { scene: asset }
       } else if (assetType === AssetType.VRM) {
         asset = asset.userData.vrm
@@ -326,6 +329,9 @@ const assetLoadCallback =
       if (asset.userData) asset.userData.type = assetType
 
       AssetLoader.processModelAsset(asset.scene, args)
+      if (notGLTF) {
+        registerMaterials(asset.scene, SourceType.MODEL, url)
+      }
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture
