@@ -473,13 +473,13 @@ export const createAvatarInput = () => {
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)
 
   map.set(MouseInput.MousePosition, BaseInput.SCREENXY)
-  map.set(MouseInput.MouseClickDownMovement, BaseInput.PRIMARY_MOVE)
+  map.set(MouseInput.MouseClickDownMovement, BaseInput.PRIMARY_LOOK)
   map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL)
 
   map.set(TouchInputs.Touch, BaseInput.PRIMARY)
   // map.set(TouchInputs.DoubleTouch, BaseInput.JUMP)
   map.set(TouchInputs.Touch1Position, BaseInput.SCREENXY)
-  map.set(TouchInputs.Touch1Movement, BaseInput.PRIMARY_MOVE)
+  map.set(TouchInputs.Touch1Movement, BaseInput.PRIMARY_LOOK)
   map.set(TouchInputs.Scale, BaseInput.CAMERA_SCROLL)
 
   map.set(GamepadButtons.A, BaseInput.INTERACT)
