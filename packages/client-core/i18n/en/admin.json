@@ -65,6 +65,7 @@
       "view": "View",
       "yes": "Yes",
       "no": "No",
+      "refresh": "Refresh",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors"
     },

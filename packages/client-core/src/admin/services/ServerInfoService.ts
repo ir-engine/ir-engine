@@ -33,7 +33,7 @@ const fetchServerInfoRetrievedReceptor = (
     const state = getState(AdminServerInfoState)
     return state.merge({
       servers: action.data,
-      retrieving: true,
+      retrieving: false,
       fetched: true
     })
   } catch (err) {

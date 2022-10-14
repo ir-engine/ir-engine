@@ -6,6 +6,11 @@ import { useTranslation } from 'react-i18next'
 import { ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
 import multiLogger from '@xrengine/common/src/logger'
 
+import SyncIcon from '@mui/icons-material/Sync'
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
+import IconButton from '@mui/material/IconButton'
+
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
@@ -31,8 +36,7 @@ const ServerTable = ({ selectedCard }: Props) => {
   useEffect(() => {
     if (autoRefresh !== '0') {
       const interval = setInterval(() => {
-        logger.info('Refreshing server info.')
-        ServerInfoService.fetchServerInfo()
+        handleRefreshServerInfo()
       }, parseInt(autoRefresh) * 1000)
       setIntervalTimer(interval)
       return () => {
@@ -78,7 +82,12 @@ const ServerTable = ({ selectedCard }: Props) => {
     }
   }
 
-  const handleAutoRefreshChange = (e) => {
+  const handleRefreshServerInfo = () => {
+    logger.info('Refreshing server info.')
+    ServerInfoService.fetchServerInfo()
+  }
+
+  const handleAutoRefreshServerInfoChange = (e) => {
     const { value } = e.target
 
     setAutoRefresh(value)
@@ -120,14 +129,27 @@ const ServerTable = ({ selectedCard }: Props) => {
     {
       id: 'action',
       label: (
-        <InputSelect
-          name="autoRefresh"
-          label={t('admin:components.server.autoRefresh')}
-          value={autoRefresh}
-          menu={autoRefreshMenu}
-          sx={{ marginBottom: 0 }}
-          onChange={handleAutoRefreshChange}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {serverInfo.value.retrieving === false && (
+            <IconButton
+              title={t('admin:components.common.refresh')}
+              className={styles.iconButton}
+              sx={{ marginRight: 1.5 }}
+              onClick={handleRefreshServerInfo}
+            >
+              <SyncIcon />
+            </IconButton>
+          )}
+          {serverInfo.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
+          <InputSelect
+            name="autoRefresh"
+            label={t('admin:components.server.autoRefresh')}
+            value={autoRefresh}
+            menu={autoRefreshMenu}
+            sx={{ marginBottom: 0, flex: 1 }}
+            onChange={handleAutoRefreshServerInfoChange}
+          />
+        </Box>
       ),
       minWidth: 65
     }
