@@ -56,7 +56,11 @@ class USDAParser {
 				} else {
 
 					target[ lhs ] = rhs;
-
+                    if ( line.endsWith( '(' )) {
+                        const meta = {}
+                        stack.push (meta)
+                        target=meta
+                    }
 				}
 
 			} else if ( line.endsWith( '{' ) ) {
@@ -174,6 +178,10 @@ class USDZLoader extends Loader {
 			loader.setResponseType( 'arraybuffer' );
 
 			for ( const filename in zip ) {
+                if ( filename.endsWith( 'jpg' ) ) {
+                    const blob = new Blob( [zip[ filename ]], { type: { type: 'image/jpg' }})
+                    data[ filename ] = URL.createObjectURL( blob )
+                }
 
 				if ( filename.endsWith( 'png' ) ) {
 
@@ -234,7 +242,7 @@ class USDZLoader extends Loader {
 		const root = parser.parse( text );
 
 		// Build scene
-
+        const registryRegex = /def (?:Scope )?"([^"]*)"/
 		function findMeshGeometry( data ) {
 
 			if ( 'prepend references' in data ) {
@@ -330,6 +338,7 @@ class USDZLoader extends Loader {
                 const positionArr = new Float32Array( positions )
 				const attribute = new BufferAttribute(positionArr , 3 );
 				geometry.setAttribute( 'position', attribute );
+                geometry = geometry.toNonIndexed()
 
 			}
 
@@ -344,12 +353,17 @@ class USDZLoader extends Loader {
 				geometry.computeVertexNormals();
 
 			}
+            for (const acceptedUvTerm of [
+                'float2[] primvars:st',
+                'texCoord2f[] primvars:UVMap',
+                'float2[] primvars:UVMap'
+            ]) {
+                if ( acceptedUvTerm in data ) {
 
-			if ( 'float2[] primvars:st' in data ) {
-
-				data[ 'texCoord2f[] primvars:st' ] = data[ 'float2[] primvars:st' ];
-
-			}
+                    data[ 'texCoord2f[] primvars:st' ] = data[ acceptedUvTerm ];
+    
+                }
+            }
 
 			if ( 'texCoord2f[] primvars:st' in data ) {
 
@@ -414,7 +428,7 @@ class USDZLoader extends Loader {
 				const id = reference.replace( /^<\//, '' ).replace( />$/, '' );
 				const parts = id.split( '/' );
 
-				return findMaterial( root, ` "${ parts[ 1 ] }"` );
+				return findMaterial( root, ` "${ parts.at(-1) }"` );
 
 			}
 
@@ -447,29 +461,33 @@ class USDZLoader extends Loader {
 		}
 
 		function buildMaterial( data ) {
-
+            const scopes = Object.keys(data).filter(key => registryRegex.test(key))
+            if (scopes.length > 0) return buildMaterial(data[scopes[0]])
 			const material = new MeshStandardMaterial();
 
 			if ( data !== undefined ) {
+                const surfaceRegexp = /def Shader "(PreviewSurface|surfaceShader|Principled_BSDF)"/
+				if ( Object.keys(data).some(key => surfaceRegexp.test(key)) ) {
+                    const key = Object.keys(data).find(key => surfaceRegexp.test(key))
+					const surface = data[key];
+                    const acceptedColorTypes = ['color3f', 'float3']
+                    for (const colorType of acceptedColorTypes) {
+                        if ( `${colorType} inputs:diffuseColor.connect` in surface ) {
 
-				if ( 'def Shader "PreviewSurface"' in data ) {
-
-					const surface = data[ 'def Shader "PreviewSurface"' ];
-
-					if ( 'color3f inputs:diffuseColor.connect' in surface ) {
-
-						const path = surface[ 'color3f inputs:diffuseColor.connect' ];
-						const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
-
-						material.map = buildTexture( sampler );
-						material.map.encoding = sRGBEncoding;
-
-					} else if ( 'color3f inputs:diffuseColor' in surface ) {
-
-						const color = surface[ 'color3f inputs:diffuseColor' ].replace( /[()]*/g, '' );
-						material.color.fromArray( JSON.parse( '[' + color + ']' ) );
-
-					}
+                            const path = surface[ `${colorType} inputs:diffuseColor.connect` ];
+                            const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
+    
+                            material.map = buildTexture( sampler );
+                            material.map.encoding = sRGBEncoding;
+    
+                        } else if ( `${colorType} inputs:diffuseColor` in surface ) {
+    
+                            const color = surface[ `${colorType} inputs:diffuseColor` ].replace( /[()]*/g, '' );
+                            material.color.fromArray( JSON.parse( '[' + color + ']' ) );
+    
+                        }
+                    }
+					
 
 					if ( 'normal3f inputs:normal.connect' in surface ) {
 
@@ -545,7 +563,9 @@ class USDZLoader extends Loader {
 
 			if ( 'asset inputs:file' in data ) {
 
-				const path = data[ 'asset inputs:file' ].replace( /@*/g, '' );
+				const path = data[ 'asset inputs:file' ].replace( /@*/g, '' )
+                    .replace(/(\.)?[\\\/]+/g, '/')
+                    .replace(/^\//, '')
 
 				const loader = new TextureLoader();
 
@@ -579,7 +599,7 @@ class USDZLoader extends Loader {
 
 		function buildMesh( data ) {
 
-			const geometry = buildGeometry( findMeshGeometry( data ) );
+			const geometry = buildGeometry( 'point3f[] points' in data ? data : findMeshGeometry( data ) );
 			const material = buildMaterial( findMeshMaterial( data ) );
 
 			const mesh = new Mesh( geometry, material );
@@ -596,43 +616,61 @@ class USDZLoader extends Loader {
 			return mesh;
 
 		}
+        
 
 		// console.log( data );
-
+        
+        const fieldRegex = /def (?:(?:Scope|Mesh|Material|Xform) )?"([^"]*)"/
 		const group = new Group();
-        const registry = {}
+        const registry = {"": group}
         const frontier = Object.keys(root).map(field => ["", root, field])
 		while (frontier.length > 0) {
             const [path, context, name] = frontier.pop()
-            const registryRegex = /def "([^"]*)"/
-
+            const nameContext = context[name]
             if ( registryRegex.test( name ) ) {
                 const domain = registryRegex.exec( name )[1]
                 const registryPath = `${path}/${domain}`
-                frontier.push(...Object.keys(context[name]).map(field => [registryPath, context[name], field]))
+                frontier.push(...Object.keys(nameContext).map(field => [registryPath, nameContext, field]))
+                registry[registryPath] = registry[path]
             }
             if ( name.startsWith( 'def Material' ) ) {
-                const material = buildMaterial( context[ name ])
+                const material = buildMaterial( nameContext)
                 if ( /def Material "(\w+)"/.test( name ) ) {
 					material.name = /def Material "(\w+)"/.exec( name )[ 1 ];
 				}
                 const registryPath = `${path}/${material.name}`
                 registry[registryPath] = material
             }
+            if (name.startsWith( 'def Mesh' ) ) {
+                const mesh = buildMesh( nameContext);
+                if ( /def Mesh "([^"]+)"/.test( name ) ) {
+                    mesh.name = /def Mesh "([^"]+)"/.exec( name )[ 1 ]
+                }
+                const registryPath = `${path}/${mesh.name}`
+                registry[registryPath] = mesh
+                registry[path]?.add( mesh )
+            }
             if ( name.startsWith( 'def Xform' ) ) {
-                if (Object.keys(context[name]).some(x => x?.startsWith('def Mesh')))
-                {
-                    const mesh = buildMesh( context[ name ] );
-                    if ( /def Xform "(\w+)"/.test( name ) ) {
-                        mesh.name = /def Xform "(\w+)"/.exec( name )[ 1 ];
+                const xform = new Group()
+                if ( /def Xform "([^"]+)"/.test( name ) ) {
+                    xform.name = /def Xform "([^"]+)"/.exec( name )[ 1 ]
+                }
+                const registryPath = `${path}/${xform.name}`
+                registry[registryPath] = xform
+                registry[path]?.add( xform )
+                const keys = Object.keys(nameContext)
+                keys.map(key => {
+                    if (fieldRegex.test(key)) {
+                        const keyPath = `${registryPath}/${fieldRegex.exec(key)[1]}`
+                        registry[keyPath] = xform
+                        if (registryRegex.test(key)) {
+                            const keyContext = nameContext[key]
+                            frontier.push(...Object.keys(keyContext).map(field => [keyPath, keyContext, field]))
+                        } else {
+                            frontier.push([keyPath, nameContext, key])
+                        }
                     }
-                    const registryPath = `${path}/${mesh.name}`
-                    registry[registryPath] = mesh
-                    group.add( mesh );
-                }
-                if (Object.keys(context[name]).some(x => x?.startsWith('def Light'))) {
-
-                }
+                })
 			}
 		}
 
