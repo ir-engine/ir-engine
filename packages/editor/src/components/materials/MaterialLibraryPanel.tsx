@@ -6,6 +6,7 @@ import { MeshBasicMaterial } from 'three'
 
 import exportMaterialsGLTF from '@xrengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
 import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
   entryId,
@@ -133,7 +134,7 @@ export default function MaterialLibraryPanel() {
           <Stack direction={'column'} spacing={2}>
             <Button
               onClick={() => {
-                registerMaterial(new MeshBasicMaterial(), { path: '', type: 'Editor Session' })
+                registerMaterial(new MeshBasicMaterial(), { path: '', type: SourceType.EDITOR_SESSION })
                 nodeChanges.set(nodeChanges.get() + 1)
               }}
             >

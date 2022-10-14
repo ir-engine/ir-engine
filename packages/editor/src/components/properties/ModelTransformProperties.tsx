@@ -8,7 +8,7 @@ import { FileBrowserService } from '@xrengine/client-core/src/common/services/Fi
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
 import { AssetClass } from '@xrengine/engine/src/assets/enum/AssetClass'
-import { MaterialSource } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
+import { MaterialSource, SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
 import MeshBasicMaterial from '@xrengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
 import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
 import { batchSetMaterialProperty } from '@xrengine/engine/src/renderer/materials/functions/batchEditMaterials'
@@ -108,7 +108,7 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
       ...(vertexBakeOptions.map.value ? [{ field: 'map', attribName: 'uv' }] : []),
       ...(vertexBakeOptions.lightMap.value ? [{ field: 'lightMap', attribName: 'uv2' }] : [])
     ] as { field: keyof MeshStandardMaterial; attribName: string }[]
-    const src: MaterialSource = { type: 'Model', path: modelComponent.src }
+    const src: MaterialSource = { type: SourceType.MODEL, path: modelComponent.src }
     await Promise.all(
       materialsFromSource(src)?.map((matComponent) =>
         bakeToVertices<MeshStandardMaterial>(
