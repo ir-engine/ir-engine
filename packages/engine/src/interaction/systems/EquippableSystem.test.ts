@@ -3,6 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
+import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { createAvatar } from '../../avatar/functions/createAvatar'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -12,7 +13,6 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { getHandTransform } from '../../xr/XRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
@@ -57,8 +57,9 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     const equippableTransform = setTransformComponent(item)
     const attachmentPoint = equippedComponent.attachmentPoint
-    const handTransform = getHandTransform(item, getParity(attachmentPoint))
-    const { position, rotation } = handTransform
+    const target = getHandTarget(item, getParity(attachmentPoint))!
+    const position = target.getWorldPosition(new Vector3())
+    const rotation = target.getWorldQuaternion(new Quaternion())
 
     equippableSystem()
 

@@ -97,8 +97,7 @@ const parsePortalProperties = (props): PortalComponentType => {
 }
 
 export const setAvatarToLocationTeleportingState = (world: World) => {
-  if (getControlMode() === 'attached')
-    switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
+  switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
   getComponent(world.localClientEntity, AvatarControllerComponent).movementEnabled = false
   dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
 }

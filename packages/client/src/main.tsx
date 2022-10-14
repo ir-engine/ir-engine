@@ -9,7 +9,7 @@ const Engine = React.lazy(() => import('./engine'))
 
 const App = () => {
   return (
-    <Suspense fallback={<LoadingCircle />}>
+    <Suspense fallback={<LoadingCircle message={'Starting up...'} />}>
       <Engine />
     </Suspense>
   )

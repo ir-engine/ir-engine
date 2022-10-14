@@ -1,8 +1,6 @@
-import { Color, MeshMatcapMaterial as Matcap, MeshMatcapMaterialParameters, Texture } from 'three'
+import { Color, MeshMatcapMaterial as Matcap } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { extractDefaults as format } from '../../functions/Utilities'
-import { MaterialParms } from '../../MaterialParms'
 import { BoolArg, ColorArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {

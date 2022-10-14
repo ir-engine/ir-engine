@@ -8,13 +8,6 @@ export type AvatarAnimationComponentType = {
   /** Animaiton graph of this entity */
   animationGraph: AnimationGraph
 
-  /** Holds all the bones */
-  /** @todo, move this to a separate component */
-  rig: BoneStructure
-
-  /** Read-only bones in bind pose */
-  bindRig: BoneStructure
-
   /** ratio between original and target skeleton's root.position.y */
   rootYRatio: number
 
@@ -23,3 +16,14 @@ export type AvatarAnimationComponentType = {
 }
 
 export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')
+
+export type AvatarRigComponentType = {
+  /** Holds all the bones */
+  /** @todo, move this to a separate component */
+  rig: BoneStructure
+
+  /** Read-only bones in bind pose */
+  bindRig: BoneStructure
+}
+
+export const AvatarRigComponent = createMappedComponent<AvatarRigComponentType>('AvatarRigComponent')

@@ -16,7 +16,7 @@ export enum BaseInput {
   JUMP = 'BaseInput_JUMP',
   RUN = 'BaseInput_RUN',
   SCREENXY = 'BaseInput_SCREENXY',
-  MOVEMENT = 'BaseInput_MOVEMENT',
+  PRIMARY_LOOK = 'BaseInput_PRIMARY_LOOK',
   PRIMARY_MOVE = 'BaseInput_PRIMARY_MOVE',
   POINTER_LOCK = 'BaseInput_POINTER_LOCK',
   CAMERA_SCROLL = 'BaseInput_CAMERA_SCROLL',

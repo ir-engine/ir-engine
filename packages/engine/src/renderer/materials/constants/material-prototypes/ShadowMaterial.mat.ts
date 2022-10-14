@@ -1,7 +1,7 @@
 import { Color, ShadowMaterial as Shadow } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { BoolArg, ColorArg, ObjectArg } from '../DefaultArgs'
+import { BoolArg, ColorArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   color: { ...ColorArg, default: new Color('#000') },

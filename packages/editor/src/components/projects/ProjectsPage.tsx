@@ -75,7 +75,7 @@ const OfficialProjectData = [
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',
     name: 'Test Bot',
-    repositoryPath: 'https://github.com/XRFoundation/XREngine-bot',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-Bot',
     thumbnail: '/static/etherealengine.png',
     description: 'A test bot using puppeteer',
     needsRebuild: true

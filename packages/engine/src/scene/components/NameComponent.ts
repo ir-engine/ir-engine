@@ -1,9 +1,9 @@
 import { createState } from '@xrengine/hyperflux/functions/StateFunctions'
+
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const NameComponent = defineComponent({
-
   name: 'NameComponent',
 
   onAdd: () => '',
@@ -16,5 +16,8 @@ export const NameComponent = defineComponent({
   },
 
   entitiesByName: createState({} as Record<string, Entity>)
-  
 })
+
+export const setNameComponent = (entity: Entity, name: string) => {
+  setComponent(entity, NameComponent, name)
+}

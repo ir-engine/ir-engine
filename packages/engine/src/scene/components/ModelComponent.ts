@@ -1,12 +1,11 @@
 import { subscribable } from '@hookstate/subscribable'
-import { Object3D, Scene, Texture } from 'three'
+import { Object3D, Scene } from 'three'
 
 import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../assets/classes/DependencyTree'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
@@ -14,16 +13,13 @@ import { removeMaterialSource } from '../../renderer/materials/functions/Utiliti
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { initializeOverride } from '../functions/loaders/MaterialOverrideFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { MaterialOverrideComponentType } from './MaterialOverrideComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
 export type ModelComponentType = {
   src: string
-  materialOverrides: MaterialOverrideComponentType[]
   generateBVH: boolean
   matrixAutoUpdate: boolean
   curScr?: string
@@ -36,7 +32,6 @@ export const ModelComponent = defineComponent({
     const state = hookstate(
       {
         src: '',
-        materialOverrides: [] as MaterialOverrideComponentType[],
         generateBVH: false,
         matrixAutoUpdate: true
       } as ModelComponentType,
@@ -88,14 +83,7 @@ export const ModelComponent = defineComponent({
       }
       const scene = model.scene!
       enableObjectLayer(scene, ObjectLayers.Camera, model.generateBVH)
-      if (isClient && model.materialOverrides.length > 0) {
-        const overrides = await Promise.all(
-          model.materialOverrides.map((override, i) => initializeOverride(entity, override)?.())
-        ).then(
-          (results) => results.filter((result) => typeof result !== 'undefined') as MaterialOverrideComponentType[]
-        )
-        state.materialOverrides.set(overrides)
-      }
+
       hasComponent(entity, SceneAssetPendingTagComponent) && removeComponent(entity, SceneAssetPendingTagComponent)
     }
 
@@ -105,23 +93,8 @@ export const ModelComponent = defineComponent({
 
   toJSON: (entity, component) => {
     const model = component.value
-    const overrides = model.materialOverrides.map((_override) => {
-      const override = { ..._override }
-      if (override.args) {
-        Object.entries(override.args)
-          .filter(([k, v]) => (v as Texture)?.isTexture)
-          .forEach(([k, v]) => {
-            override.args[k] = (v as Texture).source.data?.src ?? ''
-          })
-      }
-      delete override.entity
-      delete override.targetEntity
-      delete override.uuid
-      return override
-    })
     return {
       src: model.src,
-      materialOverrides: overrides,
       generateBVH: model.generateBVH,
       matrixAutoUpdate: model.matrixAutoUpdate
     }
@@ -131,8 +104,6 @@ export const ModelComponent = defineComponent({
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
-    if (Array.isArray(json.materialOverrides) && json.materialOverrides !== component.materialOverrides.value)
-      component.materialOverrides.set(json.materialOverrides)
     if (typeof json.matrixAutoUpdate === 'boolean' && json.matrixAutoUpdate !== component.matrixAutoUpdate.value)
       component.matrixAutoUpdate.set(json.matrixAutoUpdate)
   },

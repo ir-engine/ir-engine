@@ -468,7 +468,8 @@ const EXTENSIONS = {
 	KHR_MESH_QUANTIZATION: 'KHR_mesh_quantization',
 	KHR_MATERIALS_EMISSIVE_STRENGTH: 'KHR_materials_emissive_strength',
 	EXT_TEXTURE_WEBP: 'EXT_texture_webp',
-	EXT_MESHOPT_COMPRESSION: 'EXT_meshopt_compression'
+	EXT_MESHOPT_COMPRESSION: 'EXT_meshopt_compression',
+	EE_MATERIAL: 'EE_material',
 };
 
 /**
@@ -3300,8 +3301,19 @@ class GLTFParser {
 		const materialExtensions = materialDef.extensions || {};
 
 		const pending = [];
+		if ( materialExtensions[ EXTENSIONS.EE_MATERIAL ] ) {
+			materialType = this._invokeOne( function ( ext ) {
 
-		if ( materialExtensions[ EXTENSIONS.KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS ] ) {
+				return ext.getMaterialType && ext.getMaterialType( materialIndex );
+
+			} );
+
+			pending.push( Promise.all( this._invokeAll( function ( ext ) {
+
+				return ext.extendMaterialParams && ext.extendMaterialParams( materialIndex, materialParams );
+
+			} ) ) );
+		} else if ( materialExtensions[ EXTENSIONS.KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS ] ) {
 
 			const sgExtension = extensions[ EXTENSIONS.KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS ];
 			materialType = sgExtension.getMaterialType();

@@ -40,7 +40,11 @@ export const userPatched = (params) => {
       let query = parsed.searchParams
       query.set('instanceId', patchedUser.instanceId || '')
       parsed.search = query.toString()
-      if (patchedUser.instanceId && Engine.instance.currentWorld._worldHostId !== patchedUser.instanceId) {
+      if (
+        Engine.instance.currentWorld._worldHostId &&
+        patchedUser.instanceId &&
+        Engine.instance.currentWorld._worldHostId !== patchedUser.instanceId
+      ) {
         dispatchAction(
           LocationInstanceConnectionAction.changeActiveConnectionHostId({
             currentInstanceId: Engine.instance.currentWorld._worldHostId,

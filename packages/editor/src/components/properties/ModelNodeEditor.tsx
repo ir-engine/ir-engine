@@ -24,7 +24,6 @@ import exportGLTF from '../../functions/exportGLTF'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
-import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import Well from '../layout/Well'
@@ -132,14 +131,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
       <ShadowProperties node={props.node} />
       <ModelTransformProperties modelComponent={modelComponent} onChangeModel={updateProperty(ModelComponent, 'src')} />
-      <MaterialAssignment
-        entity={entity}
-        node={props.node}
-        modelComponent={modelState}
-        values={JSON.parse(JSON.stringify(modelState.materialOverrides.value))}
-        onChange={updateProperty(ModelComponent, 'materialOverrides')}
-      />
-
       {!exporting && modelComponent.src && (
         <Well>
           <ModelInput value={exportPath} onChange={setExportPath} />

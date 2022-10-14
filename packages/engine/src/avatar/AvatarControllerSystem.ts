@@ -28,7 +28,7 @@ import { setTransformComponent, TransformComponent } from '../transform/componen
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
+import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { moveLocalAvatar } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
@@ -165,9 +165,9 @@ export const updateMap = () => {
   const inputMap = AvatarInputSchema.inputMap
   if (avatarInputState.invertRotationAndMoveSticks.value) {
     inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.MOVEMENT)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_LOOK)
   } else {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_LOOK)
     inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE)
   }
 }

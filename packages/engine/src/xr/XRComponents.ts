@@ -15,6 +15,7 @@ import {
 import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { proxifyVector3 } from '../common/proxies/createThreejsProxy'
+import { Entity } from '../ecs/classes/Entity'
 import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
@@ -74,68 +75,6 @@ const XRHandsInputSchema = {
 export const XRHandsInputComponent = createMappedComponent<XRHandsInputComponentType, typeof XRHandsInputSchema>(
   'XRHandsInputComponent',
   XRHandsInputSchema
-)
-
-export type XRInputSourceComponentType = {
-  // Flatten the controller hirearchy
-  // to be able to send the data over network
-  // (do not use directly)
-  controllerLeftParent: Group
-  controllerRightParent: Group
-  controllerGripLeftParent: Group
-  controllerGripRightParent: Group
-
-  /**
-   * @property {ControllerGroup} controllerLeft
-   * @property {ControllerGroup} controllerRight
-   * the controllers
-   */
-  controllerLeft: PointerObject
-  controllerRight: PointerObject
-
-  /**
-   * @property {Group} controllerGripLeft
-   * @property {Group} controllerGripRight
-   * controller grips hold the information for grips, which are where the user grabs things from
-   */
-  controllerGripLeft: Group
-  controllerGripRight: Group
-
-  /**
-   * @property {Group} controllerGroup is the group that holds all the controller groups,
-   * so they can be transformed together
-   */
-  container: Group
-
-  /**
-   * @property {Group} head
-   */
-  head: Group
-}
-
-const GroupSchema = {
-  position: Vector3Schema,
-  quaternion: QuaternionSchema
-}
-
-const XRInputSourceSchema = {
-  controllerLeftParent: GroupSchema,
-  controllerRightParent: GroupSchema,
-  controllerGripLeftParent: GroupSchema,
-  controllerGripRightParent: GroupSchema,
-
-  controllerLeft: GroupSchema,
-  controllerRight: GroupSchema,
-  controllerGripLeft: GroupSchema,
-  controllerGripRight: GroupSchema,
-  container: GroupSchema,
-  head: GroupSchema
-}
-
-/** @deprecated */
-export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType, typeof XRInputSourceSchema>(
-  'XRInputSourceComponent',
-  XRInputSourceSchema
 )
 
 export const XRHitTestComponent = defineComponent({
@@ -207,7 +146,9 @@ export const XRControllerComponent = defineComponent({
   onAdd: (entity) => {
     return {
       targetRaySpace: null! as XRSpace,
-      handedness: null! as XRHandedness
+      handedness: null! as XRHandedness,
+      grip: null as Entity | null,
+      hand: null as Entity | null
     }
   },
 
@@ -220,6 +161,8 @@ export const XRControllerComponent = defineComponent({
     return null! as {
       targetRaySpace: XRSpace
       handedness: XRHandedness
+      grip: Entity | null
+      hand: Entity | null
     }
   }
 })
