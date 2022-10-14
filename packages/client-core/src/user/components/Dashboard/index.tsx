@@ -145,7 +145,7 @@ const Dashboard = ({ children }: Props) => {
           [styles.contentWidthDrawerClosed]: !open
         })}
       >
-        <div>{children}</div>
+        {children}
       </main>
     </div>
   )

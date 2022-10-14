@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { ServerInfoInterface, ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
 
-import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
+import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
 
 import LoadingView from '../../common/LoadingView'
@@ -27,7 +27,7 @@ const Server = () => {
   }
 
   return (
-    <React.Fragment>
+    <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Grid container spacing={1} className={styles.mb10px}>
         {serverInfo.value.servers.map((item, index) => (
           <Grid item key={item.id} xs={12} sm={6} md={2}>
@@ -42,7 +42,7 @@ const Server = () => {
       </Grid>
 
       <ServerTable selectedCard={selectedCard} />
-    </React.Fragment>
+    </Box>
   )
 }
 
