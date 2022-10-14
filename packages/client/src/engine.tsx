@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { API } from '@xrengine/client-core/src/API'
 import { FullscreenContainer } from '@xrengine/client-core/src/components/FullscreenContainer'
@@ -17,9 +18,10 @@ const AppPage = React.lazy(() => import('./pages/_app'))
 
 export default function () {
   const ref = React.createRef()
+  const { t } = useTranslation()
   return (
     <FullscreenContainer ref={ref}>
-      <Suspense fallback={<LoadingCircle />}>
+      <Suspense fallback={<LoadingCircle message={t('common:loader:connecting')} />}>
         <AppPage />
       </Suspense>
     </FullscreenContainer>

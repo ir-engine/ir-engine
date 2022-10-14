@@ -19,7 +19,8 @@ import { changeMaterialPrototype } from './Utilities'
 export default async function bakeToVertices<T extends Material>(
   material: T,
   maps: { field: keyof T; attribName: string }[],
-  root: Object3D = Engine.instance.currentWorld.scene
+  root: Object3D = Engine.instance.currentWorld.scene,
+  nuPrototype: string = 'MeshMatcapMaterial'
 ) {
   const pending = new Array<Promise<void>>()
   root.traverse((mesh: Mesh) => {
@@ -72,9 +73,10 @@ export default async function bakeToVertices<T extends Material>(
   /*material.vertexColors = true
   material.defines!['USE_COLOR'] = ''
   material.needsUpdate = true*/
-  const nuMat = changeMaterialPrototype(material, 'MeshMatcapMaterial')
+  const nuMat = changeMaterialPrototype(material, nuPrototype)
   if (nuMat) {
     nuMat.vertexColors = true
+    nuMat.defines = nuMat.defines ?? {}
     nuMat.defines!['USE_COLOR'] = ''
     nuMat.needsUpdate = true
   }

@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import {
@@ -48,6 +49,7 @@ function RouterComp() {
   const [routesReady, setRoutesReady] = useState(false)
   const routerState = useHookstate(getState(RouterState))
   const route = useRouter()
+  const { t } = useTranslation()
 
   InviteService.useAPIListeners()
 
@@ -120,12 +122,12 @@ function RouterComp() {
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
-    return <LoadingCircle />
+    return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle />}>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
         <Switch>
           {customRoutes.map((route, i) => (
             <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   LocationInstanceConnectionAction,
@@ -26,6 +27,7 @@ import {
 import { useEditorNetworkInstanceProvisioning } from './useEditorNetworkInstanceProvisioning'
 
 export const WorldInstanceConnection = () => {
+  const { t } = useTranslation()
   const activeInstanceState = useEditorActiveInstanceState()
   const activeInstances = [
     {
@@ -78,7 +80,8 @@ export const WorldInstanceConnection = () => {
   const getIcon = () => {
     if (currentLocationInstanceConnection?.value) {
       if (currentLocationInstanceConnection.connected) return <DoneIcon fontSize="small" />
-      if (currentLocationInstanceConnection.connecting) return <LoadingCircle />
+      if (currentLocationInstanceConnection.connecting)
+        return <LoadingCircle message={t('common:loader.connectingToWorld')} />
     }
     return <DirectionsRun fontSize="small" />
   }

@@ -3,9 +3,10 @@ import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'th
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
@@ -77,6 +78,7 @@ export default async function LoadingUISystem(world: World) {
         mat.visible = opacity > 0
         layer.visible = opacity > 0
       })
+      if (opacity < 0.001) setVisibleComponent(ui.entity, false)
     })
   }
 

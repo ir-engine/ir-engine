@@ -62,8 +62,8 @@ export const MediaIconsBox = () => {
 
   const engineState = useEngineState()
   const xrState = useHookstate(getState(XRState))
-  const supportsXR =
-    xrState.supportedSessionModes['immersive-ar'].value || xrState.supportedSessionModes['immersive-vr'].value
+  const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
+  const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
   useEffect(() => {
     navigator.mediaDevices
@@ -131,14 +131,7 @@ export const MediaIconsBox = () => {
     else await stopScreenshare(mediaNetwork)
   }
 
-  const xrMode = xrState.supportedSessionModes['immersive-ar'].value
-    ? 'immersive-ar'
-    : xrState.supportedSessionModes['immersive-vr'].value
-    ? 'immersive-vr'
-    : null
   const xrSessionActive = xrState.sessionActive.value
-  const handleXRClick = () =>
-    dispatchAction(xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: xrMode }))
   const handleExitSpectatorClick = () => dispatchAction(EngineActions.spectateUser({}))
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
@@ -198,16 +191,36 @@ export const MediaIconsBox = () => {
           </button>
         </>
       ) : null}
-      {supportsXR && (
+      {supportsVR && (
         <button
           type="button"
-          id="UserXR"
+          id="UserVR"
           className={styles.iconContainer + ' ' + (xrSessionActive ? styles.on : '')}
-          onClick={handleXRClick}
+          onClick={() =>
+            dispatchAction(
+              xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: 'immersive-vr' })
+            )
+          }
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          {xrState.supportedSessionModes['immersive-ar'].value ? <ViewInArIcon /> : <VrIcon />}
+          {<VrIcon />}
+        </button>
+      )}
+      {supportsAR && (
+        <button
+          type="button"
+          id="UserAR"
+          className={styles.iconContainer + ' ' + (xrSessionActive ? styles.on : '')}
+          onClick={() =>
+            dispatchAction(
+              xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: 'immersive-ar' })
+            )
+          }
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        >
+          {<ViewInArIcon />}
         </button>
       )}
       {engineState.spectating.value && (

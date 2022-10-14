@@ -96,16 +96,21 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   const bodyPosition = rigidBody.body.translation() as Vector3
   const bodyRotation = rigidBody.body.rotation() as Quaternion
 
-  transform.position.copy(rigidBody.previousPosition).lerp(scratchVector3.copy(bodyPosition), alpha)
-  transform.rotation.copy(rigidBody.previousRotation).slerp(scratchQuaternion.copy(bodyRotation), alpha)
-  transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+  if (rigidBody.body.isSleeping()) {
+    transform.position.copy(bodyPosition)
+    transform.rotation.copy(bodyRotation)
+  } else {
+    transform.position.copy(rigidBody.previousPosition).lerp(scratchVector3.copy(bodyPosition), alpha)
+    transform.rotation.copy(rigidBody.previousRotation).slerp(scratchQuaternion.copy(bodyRotation), alpha)
+    velocity.linear
+      .copy(rigidBody.previousLinearVelocity)
+      .lerp(scratchVector3.copy(rigidBody.body.linvel() as Vector3), alpha)
+    velocity.angular
+      .copy(rigidBody.previousAngularVelocity)
+      .lerp(scratchVector3.copy(rigidBody.body.angvel() as Vector3), alpha)
+  }
 
-  velocity.linear
-    .copy(rigidBody.previousLinearVelocity)
-    .lerp(scratchVector3.copy(rigidBody.body.linvel() as Vector3), alpha)
-  velocity.angular
-    .copy(rigidBody.previousAngularVelocity)
-    .lerp(scratchVector3.copy(rigidBody.body.angvel() as Vector3), alpha)
+  transform.matrix.compose(transform.position, transform.rotation, transform.scale)
 
   if (localTransform) {
     const parentTransform = getComponent(localTransform.parentEntity, TransformComponent) || transform
@@ -131,9 +136,9 @@ export const updateEntityTransform = (entity: Entity, world = Engine.instance.cu
 
   if (world.dirtyTransforms.has(entity)) {
     // avoid scale 0 to prevent NaN errors
-    transform.scale.x = Math.max(1e-10, transform.scale.x)
-    transform.scale.y = Math.max(1e-10, transform.scale.y)
-    transform.scale.z = Math.max(1e-10, transform.scale.z)
+    // transform.scale.x = Math.max(1e-10, transform.scale.x)
+    // transform.scale.y = Math.max(1e-10, transform.scale.y)
+    // transform.scale.z = Math.max(1e-10, transform.scale.z)
     transform.matrix.compose(transform.position, transform.rotation, transform.scale)
     transform.matrixInverse.copy(transform.matrix).invert()
   }

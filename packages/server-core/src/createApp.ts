@@ -14,6 +14,7 @@ import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { pipe } from '@xrengine/common/src/utils/pipe'
+import { createEngine, initializeNode, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import { Application, ServerTypeMode } from '../declarations'
 import config from './appconfig'
@@ -126,6 +127,12 @@ export const createFeathersExpressApp = (
 
   if (config.ipfs.enabled) {
     createIPFSStorageProvider()
+  }
+
+  if (!config.db.forceRefresh) {
+    createEngine()
+    setupEngineActionSystems()
+    initializeNode()
   }
 
   const app = express(feathers()) as Application

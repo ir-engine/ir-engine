@@ -48,7 +48,7 @@ const LocationPage = () => {
 
   return (
     <>
-      {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
+      {engineState.isEngineInitialized.value ? <></> : <LoadingCircle message={t('common:loader.loadingEngine')} />}
       <LoadEngineWithScene injectedSystems={DefaultLocationSystems} />
       {offline ? <OfflineLocation /> : <NetworkInstanceProvisioning />}
       <LoadLocationScene />

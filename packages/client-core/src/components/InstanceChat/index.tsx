@@ -457,7 +457,7 @@ export const InstanceChatWrapper = () => {
       ) : (
         <div className={styles.modalConnecting}>
           <div className={styles.modalConnectingTitle}>
-            <p>{t('common:loader.connecting')}</p>
+            <p>{t('common:loader.connectingToWorld')}</p>
           </div>
         </div>
       )}
