@@ -12,13 +12,10 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
-  createEngine,
   initializeCoreSystems,
   initializeMediaServerSystems,
-  initializeNode,
   initializeRealtimeSystems,
-  initializeSceneSystems,
-  setupEngineActionSystems
+  initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
@@ -615,10 +612,6 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
-
-  createEngine()
-  setupEngineActionSystems()
-  initializeNode()
 
   app.service('instanceserver-load').on('patched', async (params) => {
     const { id, ipAddress, podName, locationId, sceneId } = params

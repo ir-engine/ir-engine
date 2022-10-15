@@ -1,6 +1,7 @@
 import { MeshToonMaterial as Toon } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
+import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs } from '../BasicArgs'
 import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
@@ -23,7 +24,7 @@ export const MeshToonMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshToonMaterial',
   baseMaterial: Toon,
   arguments: DefaultArgs,
-  src: { type: 'Built In', path: '' }
+  src: { type: SourceType.BUILT_IN, path: '' }
 }
 
 export default MeshToonMaterial

@@ -95,7 +95,6 @@ const ProtectedRoutes = () => {
         {!isEngineInitialized && <LoadingView sx={{ height: '100vh' }} />}
         {isEngineInitialized && (
           <Switch>
-            <PrivateRoute exact path="/admin" component={analytic} />
             {allowedRoutes.globalAvatars && <PrivateRoute exact path="/admin/avatars" component={avatars} />}
             {allowedRoutes.benchmarking && <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />}
             {allowedRoutes.groups && <PrivateRoute exact path="/admin/groups" component={groups} />}
@@ -108,7 +107,9 @@ const ProtectedRoutes = () => {
             {allowedRoutes.projects && <PrivateRoute exact path="/admin/projects" component={projects} />}
             {allowedRoutes.settings && <PrivateRoute exact path="/admin/settings" component={setting} />}
             {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
-            {allowedRoutes.user && <PrivateRoute exact Path="/admin/users" component={users} />}
+            {allowedRoutes.user && <PrivateRoute exact path="/admin/users" component={users} />}
+            <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />
+            <PrivateRoute path="/admin" component={analytic} />
           </Switch>
         )}
       </Suspense>
