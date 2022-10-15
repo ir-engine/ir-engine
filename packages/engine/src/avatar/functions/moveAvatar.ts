@@ -90,7 +90,8 @@ export const moveLocalAvatar = (entity: Entity) => {
   controller.isInAir = !onGround
 
   const avatarInputState = getState(AvatarInputSettingsState)
-  if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) moveAvatarWithTeleport(entity)
+  if (getControlMode() === 'attached' && avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport)
+    moveAvatarWithTeleport(entity)
   else moveAvatarWithVelocity(entity)
 }
 
