@@ -178,7 +178,7 @@ export default async function XRAnchorSystem(world: World) {
   const xrState = getState(XRState)
 
   const scenePlacementEntity = createEntity()
-  setComponent(scenePlacementEntity, NameComponent, { name: 'xr-scene-placement' })
+  setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
   setLocalTransformComponent(scenePlacementEntity, world.originEntity)
   setComponent(scenePlacementEntity, VisibleComponent, true)
 

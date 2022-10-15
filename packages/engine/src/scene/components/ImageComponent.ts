@@ -1,4 +1,4 @@
-import { subscribable } from '@hookstate/subscribable'
+import { useEffect } from 'react'
 import {
   BufferGeometry,
   CompressedTexture,
@@ -13,12 +13,13 @@ import {
   Vector2
 } from 'three'
 
-import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
+import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
+import { hookstate, useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { entityExists } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntityReactor, EntityReactorParams } from '../../ecs/functions/EntityFunctions'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
@@ -31,87 +32,19 @@ export const ImageComponent = defineComponent({
   name: 'XRE_image',
 
   onAdd: (entity) => {
-    const state = hookstate(
-      {
-        source: '',
-        alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
-        alphaCutoff: 0.5,
-        projection: ImageProjection.Flat as ImageProjectionType,
-        side: DoubleSide,
-        // runtime props
-        mesh: new Mesh(PLANE_GEO as PlaneGeometry | SphereGeometry, new MeshBasicMaterial())
-      },
-      subscribable()
-    )
+    const state = hookstate({
+      source: '',
+      alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
+      alphaCutoff: 0.5,
+      projection: ImageProjection.Flat as ImageProjectionType,
+      side: DoubleSide,
+      // runtime props
+      mesh: new Mesh(PLANE_GEO as PlaneGeometry | SphereGeometry, new MeshBasicMaterial())
+    })
 
-    state.mesh.value.visible = false
+    createEntityReactor(entity, ImageReactor)
 
-    const updateTexture = async () => {
-      try {
-        const source = state.source.value
-        if (!source) {
-          addError(entity, 'imageError', `Image source is missing`)
-          return
-        }
-
-        const assetType = AssetLoader.getAssetClass(source)
-        if (assetType !== AssetClass.Image) {
-          addError(entity, 'imageError', `Image format ${source.split('.').pop()} not supported`)
-          return
-        }
-        const texture = (await AssetLoader.loadAsync(source)) as Texture
-        if (entityExists(entity) && source === state.source.value) {
-          texture.encoding = sRGBEncoding
-          texture.minFilter = LinearMipmapLinearFilter
-          state.mesh.material.map.ornull?.value.dispose()
-          state.mesh.material.map.set(texture)
-          state.mesh.visible.set(true)
-          state.mesh.material.value.needsUpdate = true
-          removeError(entity, 'imageError')
-        }
-      } catch (error) {
-        addError(entity, 'imageError', 'Error Loading image')
-        return
-      }
-    }
-
-    const updateGeometry = () => {
-      if (state.mesh.material.map.value) {
-        const flippedTexture = state.mesh.material.map.value.flipY
-        switch (state.projection.value) {
-          case ImageProjection.Equirectangular360:
-            state.mesh.geometry.set(flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED)
-            state.mesh.scale.value.set(-1, 1, 1)
-            break
-          case ImageProjection.Flat:
-          default:
-            state.mesh.geometry.set(flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED)
-            resizeImageMesh(state.mesh.value)
-        }
-      }
-    }
-
-    const updateMaterial = () => {
-      state.mesh.material.transparent.set(state.alphaMode.value === ImageAlphaMode.Blend)
-      state.mesh.material.alphaTest.set(state.alphaMode.value === 'Mask' ? state.alphaCutoff.value : 0)
-      state.mesh.material.side.set(state.side.value)
-      state.mesh.material.value.needsUpdate = true
-    }
-
-    // bind state data to mesh
-    state.source.subscribe(updateTexture)
-    state.mesh.material.map.subscribe(updateGeometry)
-    state.projection.subscribe(updateGeometry)
-    state.alphaMode.subscribe(updateMaterial)
-    state.alphaMode.subscribe(updateMaterial)
-    state.side.subscribe(updateMaterial)
-
-    // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
-    updateTexture()
-    updateMaterial()
-    updateGeometry()
-
-    return state as typeof state & StateMethodsDestroy // TODO: StateMethodsDestroy temporary until hookstate fixes typings
+    return state
   },
 
   toJSON: (entity, component) => {
@@ -138,12 +71,11 @@ export const ImageComponent = defineComponent({
   onRemove: (entity, component) => {
     component.mesh.material.map.value?.dispose()
     component.mesh.value.removeFromParent()
-    component.destroy()
   }
 })
 
-const _size = new Vector2
-export function getTextureSize(texture:Texture | CompressedTexture | null, size:Vector2 = _size) {
+const _size = new Vector2()
+export function getTextureSize(texture: Texture | CompressedTexture | null, size: Vector2 = _size) {
   const image = texture?.image as (HTMLImageElement & HTMLCanvasElement & HTMLVideoElement) | undefined
   const width = image?.videoWidth || image?.naturalWidth || image?.width || 0
   const height = image?.videoHeight || image?.naturalHeight || image?.height || 0
@@ -153,7 +85,7 @@ export function getTextureSize(texture:Texture | CompressedTexture | null, size:
 export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
   if (!mesh.material.map) return
 
-  const {width, height} = getTextureSize(mesh.material.map)
+  const { width, height } = getTextureSize(mesh.material.map)
 
   if (!width || !height) return
 
@@ -173,3 +105,90 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 }
 
 export const SCENE_COMPONENT_IMAGE = 'image'
+
+export const ImageReactor = createHookableFunction(function ImageReactor({
+  entity,
+  destroyReactor
+}: EntityReactorParams) {
+  const image = useComponent(entity, ImageComponent)
+  const texture = useHookstate(null as Texture | null)
+
+  useEffect(() => {
+    if (!image) destroyReactor()
+  }, [image])
+
+  useEffect(
+    function updateTextureSource() {
+      if (!image) return
+
+      const source = image.source.value
+
+      if (!source) {
+        return addError(entity, ImageComponent.name, `Image source is missing`)
+      }
+
+      const assetType = AssetLoader.getAssetClass(source)
+      if (assetType !== AssetClass.Image) {
+        return addError(entity, ImageComponent.name, `Image source '${source}' is not a supported image type`)
+      }
+
+      texture.set(AssetLoader.loadAsync(source))
+
+      return () => {
+        // TODO: abort load request, pending https://github.com/mrdoob/three.js/pull/23070
+      }
+    },
+    [image?.source]
+  )
+
+  useEffect(
+    function updateTexture() {
+      if (!image || !texture.value) return
+
+      if (texture.error) {
+        return addError(entity, ImageComponent.name, texture.error)
+      }
+
+      texture.value.encoding = sRGBEncoding
+      texture.value.minFilter = LinearMipmapLinearFilter
+
+      image.mesh.material.map.ornull?.value.dispose()
+      image.mesh.material.map.set(texture.value)
+      image.mesh.visible.set(true)
+      image.mesh.material.value.needsUpdate = true
+
+      removeError(entity, ImageComponent.name)
+    },
+    [texture]
+  )
+
+  useEffect(
+    function updateGeometry() {
+      if (!image?.mesh.material.map.value) return
+
+      const flippedTexture = image.mesh.material.map.value.flipY
+      switch (image.projection.value) {
+        case ImageProjection.Equirectangular360:
+          image.mesh.geometry.set(flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED)
+          image.mesh.scale.value.set(-1, 1, 1)
+          break
+        case ImageProjection.Flat:
+        default:
+          image.mesh.geometry.set(flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED)
+          resizeImageMesh(image.mesh.value)
+      }
+    },
+    [image?.mesh.material.map, image?.projection]
+  )
+
+  useEffect(
+    function updateMaterial() {
+      if (!image) return
+      image.mesh.material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
+      image.mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
+      image.mesh.material.side.set(image.side.value)
+      image.mesh.material.value.needsUpdate = true
+    },
+    [image?.alphaMode, image?.alphaCutoff, image?.side]
+  )
+})

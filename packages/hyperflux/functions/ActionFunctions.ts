@@ -461,7 +461,7 @@ const removeActionQueue = (queueFunction, store = HyperFlux.store) => {
   if (!shapeQueues.length) store.actions.queues.delete(shape)
 }
 
-export default {
+export {
   defineAction,
   dispatchAction,
   addActionReceptor,

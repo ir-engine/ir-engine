@@ -31,7 +31,7 @@ export default async function LoadingUISystem(world: World) {
     new Promise<Texture | null>((resolve) => textureLoader.load(thumbnailUrl, resolve, null!, () => resolve(null)))
   ])
 
-  addComponent(ui.entity, NameComponent, { name: 'Loading XRUI' })
+  addComponent(ui.entity, NameComponent, 'Loading XRUI')
 
   const mesh = new Mesh(
     new SphereGeometry(10),

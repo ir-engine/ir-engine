@@ -60,13 +60,13 @@ import {
   Query,
   setComponent
 } from '../functions/ComponentFunctions'
-import { createEntity } from '../functions/EntityFunctions'
+import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTree, initializeEntityTree } from '../functions/EntityTree'
 import { SystemInstance } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
-import { Entity } from './Entity'
+import { Entity, UndefinedEntity } from './Entity'
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -84,13 +84,13 @@ export class World {
     initializeEntityTree(this)
 
     this.originEntity = createEntity()
-    addComponent(this.originEntity, NameComponent, { name: 'origin' })
+    addComponent(this.originEntity, NameComponent, 'origin')
     setTransformComponent(this.originEntity)
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
 
     this.cameraEntity = createEntity()
-    addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
+    addComponent(this.cameraEntity, NameComponent, 'camera')
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
     setLocalTransformComponent(this.cameraEntity, this.originEntity)
@@ -220,12 +220,12 @@ export class World {
   /**
    * The scene entity
    */
-  sceneEntity: Entity = NaN as Entity
+  sceneEntity: Entity = UndefinedEntity
 
   /**
    * The xr origin reference space entity
    */
-  originEntity: Entity = NaN as Entity
+  originEntity: Entity = UndefinedEntity
 
   /**
    * The xr origin group
@@ -235,7 +235,7 @@ export class World {
   /**
    * The camera entity
    */
-  cameraEntity: Entity = NaN as Entity
+  cameraEntity: Entity = UndefinedEntity
 
   /**
    * Reference to the three.js camera object.
@@ -248,7 +248,7 @@ export class World {
    * The local client entity
    */
   get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
   }
 
   dirtyTransforms = new Set<Entity>()
@@ -332,7 +332,7 @@ export class World {
       this.networkObjectQuery(this).find((eid) => {
         const networkObject = getComponent(eid, NetworkObjectComponent)
         return networkObject.networkId === networkId && networkObject.ownerId === ownerId
-      }) || (NaN as Entity)
+      }) || UndefinedEntity
     )
   }
 
@@ -355,7 +355,7 @@ export class World {
     return (
       this.getOwnedNetworkObjects(userId).find((eid) => {
         return hasComponent(eid, component, this)
-      }) || (NaN as Entity)
+      }) || UndefinedEntity
     )
   }
 
@@ -390,7 +390,7 @@ export class World {
     for (const system of this.pipelines[SystemUpdateType.RENDER]) system.enabled && system.execute()
     for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
 
-    for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
+    for (const entity of this.#entityRemovedQuery(this)) removeEntity(entity as Entity, true, this)
 
     for (const { query, state } of this.reactiveQueryStates) {
       const entitiesAdded = query.enter()

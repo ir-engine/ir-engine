@@ -255,7 +255,7 @@ export const deserializeSceneEntity = (
   sceneEntity: EntityJson,
   world = Engine.instance.currentWorld
 ): Entity => {
-  setComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
+  setComponent(entityNode.entity, NameComponent, sceneEntity.name)
 
   /** remove ECS components that are in the scene register but not in the json */
   /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */

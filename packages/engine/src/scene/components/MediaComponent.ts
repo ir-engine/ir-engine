@@ -1,7 +1,7 @@
-import { subscribable } from '@hookstate/subscribable'
 import Hls from 'hls.js'
+import { startTransition, useEffect } from 'react'
 
-import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
+import { hookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
@@ -16,8 +16,10 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { createEntityReactor, EntityReactorParams } from '../../ecs/functions/EntityFunctions'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
@@ -80,44 +82,175 @@ export const MediaElementComponent = defineComponent({
   }
 })
 
-// temporary media elements for collecting metadata
-const metadataElements = new Set<HTMLMediaElement>()
-
 export const MediaComponent = defineComponent({
   name: 'XRE_media',
 
   onAdd: (entity) => {
-    const state = hookstate(
-      {
-        controls: false,
-        synchronize: true,
-        autoplay: true,
-        /**
-         * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
-         * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
-         * If this value is negative, media playback must be explicitly started.
-         * If this value is non-negative and in the past, playback as soon as possible.
-         * If this value is in the future, begin playback at the appointed time.
-         */
-        // autoStartTime: -1,
-        paths: [] as string[],
-        playMode: PlayMode.loop as PlayMode,
-        isMusic: false,
-        volume: 1,
-        // runtime props
-        paused: true,
-        playing: false,
-        track: 0,
-        trackDurations: [] as number[]
-      },
-      subscribable()
-    )
+    const state = hookstate({
+      controls: false,
+      synchronize: true,
+      autoplay: true,
+      /**
+       * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
+       * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
+       * If this value is negative, media playback must be explicitly started.
+       * If this value is non-negative and in the past, playback as soon as possible.
+       * If this value is in the future, begin playback at the appointed time.
+       */
+      // autoStartTime: -1,
+      paths: [] as string[],
+      playMode: PlayMode.loop as PlayMode,
+      isMusic: false,
+      volume: 1,
+      // runtime props
+      paused: true,
+      playing: false,
+      track: 0,
+      trackDurations: [] as number[]
+    })
 
-    const updateMediaElement = () => {
+    // reactively bind media component and media element
+    createEntityReactor(entity, MediaReactor)
+
+    return state
+  },
+
+  onRemove: (entity, component) => {
+    removeComponent(entity, MediaElementComponent)
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      controls: component.controls.value,
+      autoplay: component.autoplay.value,
+      paths: component.paths.value,
+      playMode: component.playMode.value,
+      isMusic: component.isMusic.value
+    }
+  },
+
+  onUpdate: (entity, component, json) => {
+    startTransition(() => {
+      if (typeof json.paths === 'object') {
+        // backwards-compat: update uvol paths to point to the video files
+        const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
+        if (!deepEqual(component.paths.value, json.paths)) component.paths.set(paths)
+      }
+
+      if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
+        component.controls.set(json.controls)
+
+      if (typeof json.autoplay === 'boolean' && json.autoplay !== component.autoplay.value)
+        component.autoplay.set(json.autoplay)
+
+      // backwars-compat: convert from number enums to strings
+      if (
+        (typeof json.playMode === 'number' || typeof json.playMode === 'string') &&
+        json.playMode !== component.playMode.value
+      ) {
+        if (typeof json.playMode === 'number') {
+          switch (json.playMode) {
+            case 1:
+              component.playMode.set(PlayMode.single)
+              break
+            case 2:
+              component.playMode.set(PlayMode.random)
+              break
+            case 3:
+              component.playMode.set(PlayMode.loop)
+              break
+            case 4:
+              component.playMode.set(PlayMode.singleloop)
+              break
+          }
+        } else {
+          component.playMode.set(json.playMode)
+        }
+      }
+
+      if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
+        component.isMusic.set(json.isMusic)
+    })
+
+    return component
+  }
+})
+
+const MediaReactor = ({ entity, destroyReactor: destroy }: EntityReactorParams) => {
+  const media = useComponent(entity, MediaComponent)
+  const mediaElement = useComponent(entity, MediaElementComponent)
+
+  useEffect(() => {
+    if (!media) destroy()
+  }, [media])
+
+  useEffect(
+    function updatePlay() {
+      if (!media || !mediaElement) return
+      if (media.paused.value) {
+        mediaElement.element.pause()
+      } else {
+        mediaElement.element.play()
+      }
+    },
+    [media?.paused, mediaElement]
+  )
+
+  useEffect(
+    function updateTrackMetadata() {
+      if (!media) return
+
+      const paths = media.paths.value
+
+      for (const path of paths) {
+        const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+        if (assetClass !== 'audio' && assetClass !== 'video') {
+          addError(
+            entity,
+            'mediaError',
+            `invalid assetClass "${assetClass}" for path "${path}"; expected "audio" or "video"`
+          )
+          return
+        }
+      }
+
+      removeError(entity, 'mediaError')
+
+      const metadataListeners = [] as Array<{ tempElement: HTMLMediaElement; listener: () => void }>
+
+      for (const [i, path] of paths.entries()) {
+        const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+        const tempElement = document.createElement(assetClass) as HTMLMediaElement
+        const listener = () => media.trackDurations[i].set(tempElement.duration)
+        metadataListeners.push({ tempElement, listener })
+        tempElement.addEventListener('loadedmetadata', listener)
+        tempElement.crossOrigin = 'anonymous'
+        tempElement.preload = 'metadata'
+        tempElement.src = path
+        tempElement.load()
+      }
+
+      // handle autoplay
+      if (media.autoplay.value && getEngineState().userHasInteracted.value) media.paused.set(false)
+
+      return () => {
+        for (const { tempElement, listener } of metadataListeners) {
+          tempElement.removeEventListener('loadedmetadata', listener)
+          tempElement.src = ''
+          tempElement.load()
+        }
+      }
+    },
+    [media?.paths]
+  )
+
+  useEffect(
+    function updateMediaElement() {
       if (!isClient) return
+      if (!media) return
 
-      const track = state.track.value
-      const path = state.paths[track].value
+      const track = media.track.value
+      const path = media.paths[track].value
       if (!path) {
         if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
         return
@@ -147,16 +280,16 @@ export const MediaComponent = defineComponent({
         mediaElement.element.addEventListener(
           'playing',
           () => {
-            state.playing.set(true), removeError(entity, `mediaError`)
+            media.playing.set(true), removeError(entity, `mediaError`)
           },
           { signal }
         )
-        mediaElement.element.addEventListener('waiting', () => state.playing.set(false), { signal })
+        mediaElement.element.addEventListener('waiting', () => media.playing.set(false), { signal })
         mediaElement.element.addEventListener(
           'error',
           (err) => {
             addError(entity, `mediaError`, err.message)
-            if (state.playing.value) state.track.set(getNextTrack(state))
+            if (media.playing.value) media.track.set(getNextTrack(media))
           },
           { signal }
         )
@@ -164,8 +297,8 @@ export const MediaComponent = defineComponent({
         mediaElement.element.addEventListener(
           'ended',
           () => {
-            if (state.playMode.value === PlayMode.single) return
-            state.track.set(getNextTrack(state))
+            if (media.playMode.value === PlayMode.single) return
+            media.track.set(getNextTrack(media))
           },
           { signal }
         )
@@ -173,10 +306,10 @@ export const MediaComponent = defineComponent({
         const audioNodes = createAudioNodeGroup(
           mediaElement.element,
           Engine.instance.audioContext.createMediaElementSource(mediaElement.element),
-          state.isMusic.value ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
+          media.isMusic.value ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
         )
 
-        audioNodes.gain.gain.setTargetAtTime(state.volume.value, Engine.instance.audioContext.currentTime, 0.1)
+        audioNodes.gain.gain.setTargetAtTime(media.volume.value, Engine.instance.audioContext.currentTime, 0.1)
       }
 
       mediaElement.hls?.destroy()
@@ -188,160 +321,39 @@ export const MediaComponent = defineComponent({
       } else {
         mediaElement.element.src = path
       }
+    },
+    [media?.paths, media?.track]
+  )
 
-      updatePlay()
-    }
-
-    let metadataVersion = 0
-    const updateTrackMetadata = () => {
-      const paths = state.paths.value
-      metadataVersion++
-
-      // udpate track durations from metadata
-      state.trackDurations.set([])
-      for (const [i, path] of paths.entries()) {
-        const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
-        if (assetClass !== 'audio' && assetClass !== 'video') {
-          addError(
-            entity,
-            'mediaError',
-            `invalid assetClass "${assetClass}" for path "${path}"; expected "audio" or "video"`
-          )
-          return
-        }
-        const tempElement = document.createElement(assetClass) as HTMLMediaElement
-        const prevVersion = metadataVersion
-        tempElement.addEventListener('loadedmetadata', () => {
-          metadataElements.delete(tempElement)
-          if (prevVersion === metadataVersion && hasComponent(entity, MediaComponent))
-            state.trackDurations[i].set(tempElement.duration)
-        })
-        tempElement.crossOrigin = 'anonymous'
-        tempElement.preload = 'metadata'
-        tempElement.src = path
-        tempElement.load()
-        metadataElements.add(tempElement)
-      }
-
-      removeError(entity, 'mediaError')
-    }
-
-    const updateVolume = () => {
-      const volume = state.volume.value
+  useEffect(
+    function updateVolume() {
+      if (!media) return
+      const volume = media.volume.value
       const element = getComponent(entity, MediaElementComponent)?.element
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.gain.setTargetAtTime(volume, Engine.instance.audioContext.currentTime, 0.1)
       }
-    }
+    },
+    [media?.volume]
+  )
 
-    const updateMixbus = () => {
-      const element = getComponent(entity, MediaElementComponent)?.element
+  useEffect(
+    function updateMixbus() {
+      if (!media || !mediaElement) return
+      const element = mediaElement.element
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.disconnect(audioNodes.mixbus)
-        audioNodes.mixbus = state.isMusic.value
+        audioNodes.mixbus = media.isMusic.value
           ? Engine.instance.gainNodeMixBuses.music
           : Engine.instance.gainNodeMixBuses.soundEffects
         audioNodes.gain.connect(audioNodes.mixbus)
       }
-    }
-
-    const updatePlay = () => {
-      const element = getComponent(entity, MediaElementComponent)?.element
-      if (element) {
-        if (state.paused.value) {
-          element.pause()
-        } else {
-          element.play()
-        }
-      }
-    }
-
-    // bind paths to track metadata and media element
-    state.paths.subscribe(updateTrackMetadata)
-    state.paths.subscribe(updateMediaElement)
-    // bind track to media element
-    state.track.subscribe(updateMediaElement)
-    // bind volume
-    state.volume.subscribe(updateVolume)
-    // bind mixbus
-    state.isMusic.subscribe(updateMixbus)
-    // bind play
-    state.paused.subscribe(updatePlay)
-
-    // handle autoplay
-    if (state.autoplay.value && getEngineState().userHasInteracted.value) state.paused.set(false)
-
-    // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
-    updateTrackMetadata()
-    updateMediaElement()
-    updateVolume()
-    updateMixbus()
-
-    return state
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      controls: component.controls.value,
-      autoplay: component.autoplay.value,
-      paths: component.paths.value,
-      playMode: component.playMode.value,
-      isMusic: component.isMusic.value
-    }
-  },
-
-  onUpdate: (entity, component, json) => {
-    if (typeof json.paths === 'object') {
-      // backwars-compat: update uvol paths to point to the video files
-      const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
-      if (!deepEqual(component.paths.value, json.paths)) component.paths.set(paths)
-    }
-
-    if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
-      component.controls.set(json.controls)
-
-    if (typeof json.autoplay === 'boolean' && json.autoplay !== component.autoplay.value)
-      component.autoplay.set(json.autoplay)
-
-    // backwars-compat: convert from number enums to strings
-    if (
-      (typeof json.playMode === 'number' || typeof json.playMode === 'string') &&
-      json.playMode !== component.playMode.value
-    ) {
-      if (typeof json.playMode === 'number') {
-        switch (json.playMode) {
-          case 1:
-            component.playMode.set(PlayMode.single)
-            break
-          case 2:
-            component.playMode.set(PlayMode.random)
-            break
-          case 3:
-            component.playMode.set(PlayMode.loop)
-            break
-          case 4:
-            component.playMode.set(PlayMode.singleloop)
-            break
-        }
-      } else {
-        component.playMode.set(json.playMode)
-      }
-    }
-
-    if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
-      component.isMusic.set(json.isMusic)
-
-    return component
-  },
-
-  onRemove: (entity, component) => {
-    removeComponent(entity, MediaElementComponent)
-    component.paths.set([])
-    ;(component as typeof component & StateMethodsDestroy).destroy()
-  }
-})
+    },
+    [mediaElement, media?.isMusic]
+  )
+}
 
 export const SCENE_COMPONENT_MEDIA = 'media'
 

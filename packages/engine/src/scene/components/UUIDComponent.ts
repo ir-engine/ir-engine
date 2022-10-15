@@ -1,20 +1,25 @@
-import { createState } from '@xrengine/hyperflux/functions/StateFunctions'
-import { Entity } from '../../ecs/classes/Entity'
+import { autoUse, createState } from '@xrengine/hyperflux'
+
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const UUIDComponent = defineComponent({
-    name: 'UUIDComponent',
+  name: 'UUIDComponent',
 
-    onAdd: () => '',
+  onAdd: () => '',
 
-    toJSON: (entity, uuid:string) => {
-        return uuid
-    },
+  toJSON: (entity, uuid: string) => {
+    return uuid
+  },
 
-    onUpdate: (entity, _, uuid:string) => {
-        UUIDComponent.map[entity].set(uuid)
-        UUIDComponent.entitiesByUUID[uuid].set(entity)
-    },
+  onUpdate: (entity, _, uuid: string) => {
+    UUIDComponent.map[entity].set(uuid)
+    UUIDComponent.entitiesByUUID[uuid].set(entity)
+  },
 
-    entitiesByUUID: createState({} as Record<string, Entity>)
+  entitiesByUUID: createState({} as Record<string, Entity>)
 })
+
+export function useEntityWithUUID(uuid: string = '', fallbackEntity = UndefinedEntity): Entity {
+  return autoUse(UUIDComponent.entitiesByUUID[uuid]).value ?? fallbackEntity
+}

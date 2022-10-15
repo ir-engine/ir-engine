@@ -1,14 +1,11 @@
-
-import React, {ReactNode} from 'react'
+import React, { ReactNode } from 'react'
 import Reconciler from 'react-reconciler'
 import {
-  DiscreteEventPriority,
+  ConcurrentRoot,
   ContinuousEventPriority,
   DefaultEventPriority,
-  ConcurrentRoot
-} from 'react-reconciler/constants';
-import { } from 'scheduler'
-import { HyperFlux } from './StoreFunctions'
+  DiscreteEventPriority
+} from 'react-reconciler/constants'
 
 const ReactorReconciler = Reconciler({
   getPublicInstance: (instance) => instance,
@@ -17,7 +14,7 @@ const ReactorReconciler = Reconciler({
   prepareForCommit: () => null,
   resetAfterCommit: () => {},
   createInstance: () => {
-    throw new Error('Only functional components are supported in ReactorReconciler')
+    throw new Error('Only functional components are supported in a HyperFlux Reactor')
   },
   appendInitialChild: () => {},
   finalizeInitialChildren: () => {
@@ -26,7 +23,7 @@ const ReactorReconciler = Reconciler({
   prepareUpdate: () => null,
   shouldSetTextContent: () => false,
   createTextInstance: () => {
-    throw new Error('Only functional components are supported in ReactorReconciler')
+    throw new Error('Only functional components are supported in a HyperFlux Reactor')
   },
   scheduleTimeout: setTimeout,
   cancelTimeout: clearTimeout,
@@ -36,41 +33,42 @@ const ReactorReconciler = Reconciler({
   supportsPersistence: false,
   supportsHydration: false,
   preparePortalMount: () => {},
+  // @ts-ignore
   getCurrentEventPriority: () => DefaultEventPriority,
   beforeActiveInstanceBlur: () => {},
   afterActiveInstanceBlur: () => {},
   detachDeletedInstance: () => {},
   getInstanceFromNode: () => null,
   getInstanceFromScope: () => null,
-  prepareScopeUpdate: () => {},
+  prepareScopeUpdate: () => {}
 })
-  
-function createReactor(reactor: () => void, store = HyperFlux.store) {
+
+export type ReactorDestroyFunction = () => void
+
+export function createReactor(Reactor: () => void): ReactorDestroyFunction {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
   const onRecoverableError = (err) => console.error(err)
-  const root = ReactorReconciler.createContainer(reactor, ConcurrentRoot, null, isStrictMode, concurrentUpdatesByDefaultOverride, identifierPrefix, onRecoverableError, null)
-    ReactorReconciler.updateContainer(
-      () => {
-        reactor()
-        return <></>
-      } as ReactNode,
-      root,
-      null
-    )
-    store.reactors.set(reactor, root)
-  }
-}
 
-function destroyReactor(reactorComponent: () => void, store = HyperFlux.store) {
-  const root = store.reactors.get(reactorComponent)
-  if (root) {
+  const root = ReactorReconciler.createContainer(
+    null,
+    ConcurrentRoot,
+    null,
+    isStrictMode,
+    concurrentUpdatesByDefaultOverride,
+    identifierPrefix,
+    onRecoverableError,
+    null
+  )
+
+  const ReactorFunc = Reactor as () => null
+
+  ReactorReconciler.updateContainer(<ReactorFunc />, root, null, null)
+
+  function destroyFunction() {
     ReactorReconciler.updateContainer(null, root, null)
   }
-}
 
-export {
-  createReactor,
-  destroyReactor
+  return destroyFunction
 }

@@ -68,6 +68,12 @@ export const defineComponent = <ComponentType, Schema extends bitECS.ISchema, JS
   return Component
 }
 
+export const defineTagComponent = (name: string) => {
+  const Component = defineComponent({ name }) as Component<true, void, true>
+  Component.onAdd = () => true
+  return Component
+}
+
 /**
  * @deprecated use `defineComponent`
  */
@@ -88,10 +94,10 @@ export const getComponent = <ComponentType>(
   getRemoved = false,
   world = Engine.instance.currentWorld
 ): ComponentType => {
-  if (typeof entity === 'undefined' || entity === null) {
+  if (!entity) {
     throw new Error('[getComponent]: entity is undefined')
   }
-  if (typeof world === 'undefined' || world === null) {
+  if (!world) {
     throw new Error('[getComponent]: world is undefined')
   }
   if (!component.map) {
@@ -119,10 +125,10 @@ export const setComponent = <C extends Component>(
   args: SerializedComponentType<C>,
   world = Engine.instance.currentWorld
 ) => {
-  if (typeof entity === 'undefined' || entity === null) {
+  if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
-  if (typeof world === 'undefined' || world === null) {
+  if (!world) {
     throw new Error('[setComponent]: world is undefined')
   }
   if (!hasComponent(entity, component)) {
@@ -193,7 +199,7 @@ export const hasComponent = <T, S, J>(
   component: Component<T, S, J>,
   world = Engine.instance.currentWorld
 ) => {
-  if (typeof entity === 'undefined' || entity === null) {
+  if (!entity) {
     throw new Error('[hasComponent]: entity is undefined')
   }
   return bitECS.hasComponent(world, component, entity)
@@ -216,10 +222,10 @@ export const removeComponent = <T, S, J>(
   component: Component<T, S, J>,
   world = Engine.instance.currentWorld
 ) => {
-  if (typeof entity === 'undefined' || entity === null) {
+  if (!entity) {
     throw new Error('[removeComponent]: entity is undefined')
   }
-  if (typeof world === 'undefined' || world === null) {
+  if (!world) {
     throw new Error('[removeComponent]: world is undefined')
   }
   if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.map[entity].value)
@@ -270,9 +276,9 @@ export const removeAllComponents = (entity: Entity, world = Engine.instance.curr
   }
 }
 
-export const serializeComponent = <J>(entity: Entity, Component: Component<unknown, unknown, J>) => {
+export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {
   const component = getComponent(entity, Component)
-  return Component.toJSON(entity, component)
+  return Component.toJSON(entity, component) as ReturnType<C['toJSON']>
 }
 
 export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
@@ -314,13 +320,20 @@ export function useQuery(query: Query, world = Engine.instance.currentWorld) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<C extends Component<any>>(entity: Entity, Component: C) {
-  return useState(Component.map[entity]).value
+export function useComponent<C extends Component<any>>(
+  entity: Entity,
+  Component: C,
+  allowRemoved = false,
+  world = Engine.instance.currentWorld
+) {
+  const component = useState(Component.map[entity]).value as ComponentType<C>
+  const hasOrAllowRemoved = allowRemoved || hasComponent(entity, Component, world)
+  return hasOrAllowRemoved ? component : undefined
 }
 
 export type Query = ReturnType<typeof defineQuery>
 
-export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComponent' })
+export const EntityRemovedComponent = defineTagComponent('EntityRemovedComponent')
 
 globalThis.XRE_getComponent = getComponent
 globalThis.XRE_getAllComponents = getAllComponents

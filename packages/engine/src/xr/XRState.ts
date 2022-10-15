@@ -4,7 +4,6 @@ import { defineState, getState } from '@xrengine/hyperflux'
 import { defineAction } from '@xrengine/hyperflux'
 
 import { Entity } from '../ecs/classes/Entity'
-import { NetworkTopics } from '../networking/classes/Network'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XREstimatedLight } from './XREstimatedLight'
 
@@ -32,16 +31,16 @@ export const XRState = defineState({
     originReferenceSpace: null as XRReferenceSpace | null,
     viewerReferenceSpace: null as XRReferenceSpace | null,
     viewerHitTestSource: null as XRHitTestSource | null,
-    viewerHitTestEntity: NaN as Entity,
+    viewerHitTestEntity: 0 as Entity,
     sceneRotationOffset: 0,
     /** Stores the depth map data - will exist if depth map is supported */
     depthDataTexture: null as DepthDataTexture | null,
     is8thWallActive: false,
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
-    viewerInputSourceEntity: null as Entity | null,
-    leftControllerEntity: null as Entity | null,
-    rightControllerEntity: null as Entity | null
+    viewerInputSourceEntity: 0 as Entity,
+    leftControllerEntity: 0 as Entity,
+    rightControllerEntity: 0 as Entity
   })
 })
 

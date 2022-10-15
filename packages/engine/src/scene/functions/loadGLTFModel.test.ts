@@ -63,7 +63,7 @@ describe('loadGLTFModel', () => {
 
     // assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
     assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).value, number)
-    assert.equal(getComponent(mockSpawnPointEntity, NameComponent).name, entityName)
+    assert.equal(getComponent(mockSpawnPointEntity, NameComponent), entityName)
     assert(getComponent(mockSpawnPointEntity, GroupComponent)[0].layers.test(expectedLayer))
   })
 

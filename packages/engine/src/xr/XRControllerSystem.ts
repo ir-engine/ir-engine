@@ -189,7 +189,7 @@ const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpac
   const entity = createEntity()
   const handednessLabel =
     inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
-  setComponent(entity, NameComponent, { name: `XR Controller${handednessLabel}` })
+  setComponent(entity, NameComponent, `XR Controller${handednessLabel}`)
   const pointer = createPointer(inputSource)
   addObjectToGroup(entity, pointer)
   setComponent(entity, XRPointerComponent, { pointer })
@@ -224,7 +224,7 @@ const addGripInputSource = (inputSource: XRInputSource, gripSpace: XRSpace) => {
   setComponent(gripEntity, XRControllerGripComponent, { gripSpace, handedness: inputSource.handedness })
   setComponent(gripEntity, InputSourceComponent, { inputSource })
   setVelocityComponent(gripEntity)
-  setComponent(gripEntity, NameComponent, { name: `XR Grip${inputSource.handedness}` })
+  setComponent(gripEntity, NameComponent, `XR Grip${inputSource.handedness}`)
   // initializeControllerModel(gripEntity)
   const gripAxisHelper = new AxesHelper(1)
   setObjectLayers(gripAxisHelper, ObjectLayers.PhysicsHelper)
@@ -237,7 +237,7 @@ const addHandInputSource = (inputSource: XRInputSource, hand: XRHand) => {
   setComponent(handEntity, XRHandComponent, { hand, handedness: inputSource.handedness })
   setComponent(handEntity, InputSourceComponent, { inputSource })
   setVelocityComponent(handEntity)
-  setComponent(handEntity, NameComponent, { name: `XR Hand ${inputSource.handedness}` })
+  setComponent(handEntity, NameComponent, `XR Hand ${inputSource.handedness}`)
   // initializeHandModel(handEntity)
   const handAxisHelper = new AxesHelper(1)
   setObjectLayers(handAxisHelper, ObjectLayers.PhysicsHelper)

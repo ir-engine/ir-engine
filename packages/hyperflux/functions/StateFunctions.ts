@@ -1,10 +1,24 @@
-import { createState, SetInitialStateAction, State } from '@hookstate/core'
+import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import React from 'react'
 
 import multiLogger from '@xrengine/common/src/logger'
 
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
+
+const isReactRendering = () =>
+  !!(React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher.current
+
+/**
+ * Automatically wraps the given hookstate in a useHookstate hook, if react is rendering.
+ * @param state
+ * @returns
+ */
+export const autoUse = <S, E = {}>(state: State<S, E>): State<S, E> => {
+  if (isReactRendering()) return useHookstate(state)
+  return state
+}
 
 const logger = multiLogger.child({ component: 'hyperflux:State' })
 
@@ -14,11 +28,11 @@ type StateDefinition<S> = {
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
-function defineState<S>(definition: StateDefinition<S>) {
+export function defineState<S>(definition: StateDefinition<S>) {
   return definition
 }
 
-function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
+export function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
   logger.info(`registerState ${StateDefinition.name}`)
   if (StateDefinition.name in store.state) {
     const err = new Error(`State ${StateDefinition.name} has already been registered in Store`)
@@ -33,7 +47,7 @@ function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux
   if (StateDefinition.onCreate) StateDefinition.onCreate(store, getState(StateDefinition, store))
 }
 
-function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
+export function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
   if (!store.state[StateDefinition.name]) registerState(StateDefinition, store)
   return store.state[StateDefinition.name] as State<S>
 }

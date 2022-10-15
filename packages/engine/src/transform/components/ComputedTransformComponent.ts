@@ -1,11 +1,11 @@
 import { getState } from '@xrengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { createMappedComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 class ComputedTransform {
-  _referenceEntity = NaN as Entity
+  _referenceEntity = UndefinedEntity
 
   // Our ECS debugger/inspector crashes when it encounters enumerable functions,
   // so we have to make sure this function is not an instance property

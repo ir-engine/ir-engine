@@ -58,15 +58,13 @@ export interface HyperStore {
   }
   /** functions that receive actions */
   receptors: ReadonlyArray<ActionReceptor>
-  /** functions that re-run on state changes, compatible w/ React hooks */
-  reactors: WeakMap<() => void, any>
 }
 
 export class HyperFlux {
   static store: HyperStore
 }
 
-function createHyperStore(options: {
+export function createHyperStore(options: {
   forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
   getDispatchTime: () => number
@@ -102,14 +100,4 @@ function createHyperStore(options: {
   HyperFlux.store = store
   ActionFunctions.addOutgoingTopicIfNecessary(store.defaultTopic)
   return store
-}
-
-// function destroyStore(store = getStore()) {
-//   for (const reactor of [...store.reactors]) {
-//     StateFunctions.removeStateReactor(reactor)
-//   }
-// }
-
-export default {
-  createHyperStore
 }
