@@ -17,6 +17,7 @@ import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 import { proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Entity } from '../ecs/classes/Entity'
 import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
 export type XRGripButtonComponentType = {}
@@ -218,9 +219,11 @@ export const XRControllerGripComponent = defineComponent({
 export const XRHandComponent = defineComponent({
   name: 'XRHand',
   onAdd: (entity) => {
+    const group = new Group()
+    addObjectToGroup(entity, group)
     return {
       hand: null! as XRHand,
-      group: new Group(),
+      group,
       handedness: null! as XRHandedness,
       joints: {} as { [name: string]: Group & { jointRadius: number | undefined } },
       pinching: false
