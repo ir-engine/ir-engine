@@ -108,7 +108,7 @@ const ProtectedRoutes = () => {
             {allowedRoutes.settings && <PrivateRoute exact path="/admin/settings" component={setting} />}
             {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
             {allowedRoutes.user && <PrivateRoute exact path="/admin/users" component={users} />}
-            {allowedRoutes.user && <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />}
+            <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />
             <PrivateRoute path="/admin" component={analytic} />
           </Switch>
         )}
