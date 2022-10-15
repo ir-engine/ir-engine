@@ -1,6 +1,7 @@
 import { MeshPhongMaterial as Phong } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
+import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs } from '../BasicArgs'
 import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
@@ -28,7 +29,7 @@ export const MeshPhongMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshPhongMaterial',
   baseMaterial: Phong,
   arguments: DefaultArgs,
-  src: { type: 'Built In', path: '' }
+  src: { type: SourceType.BUILT_IN, path: '' }
 }
 
 export default MeshPhongMaterial

@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { onWindowResize } from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
 import { useHookstate } from '@xrengine/hyperflux'
 
@@ -65,9 +66,11 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'model/gltf':
       case 'model/gltf-binary':
       case 'model/glb':
-      case 'glb':
-      case 'gltf':
+      case AssetType.glB:
+      case AssetType.glTF:
       case 'gltf-binary':
+      case AssetType.USDZ:
+      case AssetType.FBX:
         const modelPreviewPanel = {
           PreviewSource: ModelPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
