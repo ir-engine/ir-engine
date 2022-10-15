@@ -62,16 +62,16 @@ export function setupLeftHandIK(entity: Entity) {
   const leftHint = new Object3D()
   const leftOffset = new Object3D()
 
-  const animation = getComponent(entity, AvatarRigComponent)
+  const rig = getComponent(entity, AvatarRigComponent)
 
   leftOffset.rotation.set(-Math.PI * 0.5, Math.PI, 0)
 
   if (isClient) {
-    animation.rig.LeftShoulder.getWorldPosition(leftHint.position)
-    animation.rig.LeftArm.getWorldPosition(_vec)
+    rig.rig.LeftShoulder.getWorldPosition(leftHint.position)
+    rig.rig.LeftArm.getWorldPosition(_vec)
     _vec.subVectors(_vec, leftHint.position).normalize()
     leftHint.position.add(_vec)
-    animation.rig.LeftShoulder.attach(leftHint)
+    rig.rig.LeftShoulder.attach(leftHint)
   }
 
   setComponent(entity, AvatarLeftHandIKComponent, {
@@ -80,7 +80,7 @@ export function setupLeftHandIK(entity: Entity) {
     targetOffset: leftOffset,
     targetPosWeight: 1,
     targetRotWeight: 1,
-    hintWeight: -1
+    hintWeight: 1
   })
 
   const lefthand = getComponent(entity, AvatarLeftHandIKComponent)
@@ -98,16 +98,16 @@ export function setupRightHandIK(entity: Entity) {
   const rightHint = new Object3D()
   const rightOffset = new Object3D()
 
-  const animation = getComponent(entity, AvatarRigComponent)
+  const rig = getComponent(entity, AvatarRigComponent)
 
   rightOffset.rotation.set(-Math.PI * 0.5, 0, 0)
 
   if (isClient) {
-    animation.rig.RightShoulder.getWorldPosition(rightHint.position)
-    animation.rig.RightArm.getWorldPosition(_vec)
+    rig.rig.RightShoulder.getWorldPosition(rightHint.position)
+    rig.rig.RightArm.getWorldPosition(_vec)
     _vec.subVectors(_vec, rightHint.position).normalize()
     rightHint.position.add(_vec)
-    animation.rig.RightShoulder.attach(rightHint)
+    rig.rig.RightShoulder.attach(rightHint)
   }
 
   setComponent(entity, AvatarRightHandIKComponent, {
@@ -116,7 +116,7 @@ export function setupRightHandIK(entity: Entity) {
     targetOffset: rightOffset,
     targetPosWeight: 1,
     targetRotWeight: 1,
-    hintWeight: -1
+    hintWeight: 1
   })
 
   const rightHand = getComponent(entity, AvatarRightHandIKComponent)
