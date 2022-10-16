@@ -96,7 +96,7 @@
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "3.4.2",
     "@types/mocha": "9.1.0",
-    "@types/pino": "^7.0.5",
+    "@types/pino": "7.0.5",
     "concurrently": "7.2.1",
     "depcheck": "1.4.3",
     "kill-port": "1.6.1",
@@ -107,9 +107,9 @@
     "prettier": "2.6.0",
     "react-dnd": "16.0.0",
     "react-router-dom": "5.3.3",
-    "stylelint": "^14.6.1",
+    "stylelint": "14.14.0",
     "stylelint-config-standard-scss": "4.0.0",
-    "stylelint-scss": "^4.2.0",
+    "stylelint-scss": "4.3.0",
     "supertest": "6.2.2",
     "trace-unhandled": "2.0.1",
     "ts-node-dev": "1.1.8"
@@ -121,10 +121,10 @@
     "cli": "1.0.1",
     "dotenv": "14.3.2",
     "lerna": "4.0.0",
-    "pino": "^7.10.0",
-    "pino-pretty": "^7.6.1",
-    "react-json-view": "^1.21.3",
-    "rimraf": "^3.0.2",
+    "pino": "7.11.0",
+    "pino-pretty": "7.6.1",
+    "react-json-view": "1.21.3",
+    "rimraf": "3.0.2",
     "ts-node": "10.8.0",
     "typescript": "4.6.2"
   }
