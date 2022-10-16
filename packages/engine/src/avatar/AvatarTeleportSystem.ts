@@ -25,7 +25,7 @@ import { setNameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from '../xr/XRState'
-import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
+import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
 
 // Guideline parabola function
@@ -90,8 +90,7 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
 }
 
 export default async function AvatarTeleportSystem(world: World) {
-  // The guideline
-  const lineSegments = 10
+  const lineSegments = 32 // segments to make a whole circle, uses far less
   const lineGeometry = new BufferGeometry()
   const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
   lineGeometryVertices.fill(0)
@@ -124,7 +123,7 @@ export default async function AvatarTeleportSystem(world: World) {
   let canTeleport = false
 
   const xrState = getState(XRState)
-  const avatarTeleportQuery = defineQuery([AvatarTeleportTagComponent])
+  const avatarTeleportQuery = defineQuery([AvatarTeleportComponent])
 
   const execute = () => {
     for (const entity of avatarTeleportQuery.exit(world)) {
@@ -138,10 +137,9 @@ export default async function AvatarTeleportSystem(world: World) {
     }
     for (const entity of avatarTeleportQuery(world)) {
       const sourceEntity =
-        xrState.rightControllerEntity.value ??
-        xrState.leftControllerEntity.value ??
-        xrState.viewerInputSourceEntity.value ??
-        entity
+        getComponent(entity, AvatarTeleportComponent).side === 'left'
+          ? xrState.leftControllerEntity.value!
+          : xrState.rightControllerEntity.value!
       const sourceTransform = getComponent(sourceEntity, TransformComponent)
       guidelineTransform.position.copy(sourceTransform.position)
       guidelineTransform.rotation.copy(sourceTransform.rotation)
