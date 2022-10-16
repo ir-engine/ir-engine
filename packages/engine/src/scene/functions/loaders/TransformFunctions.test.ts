@@ -28,7 +28,7 @@ describe('TransformFunctions', () => {
 
   const sceneComponentData = {
     position: new Vector3(Math.random(), Math.random(), Math.random()),
-    rotation: new Euler(Math.random(), Math.random(), Math.random()),
+    rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
     scale: new Vector3(Math.random(), Math.random(), Math.random())
   }
 
@@ -42,7 +42,7 @@ describe('TransformFunctions', () => {
       assert(Math.abs(transformComponent.position.y - sceneComponentData.position.y) < EPSILON)
       assert(Math.abs(transformComponent.position.z - sceneComponentData.position.z) < EPSILON)
 
-      const rot = new Quaternion().setFromEuler(sceneComponentData.rotation)
+      const rot = sceneComponentData.rotation
       assert(Math.abs(transformComponent.rotation.x - rot.x) < EPSILON)
       assert(Math.abs(transformComponent.rotation.y - rot.y) < EPSILON)
       assert(Math.abs(transformComponent.rotation.z - rot.z) < EPSILON)
@@ -81,14 +81,8 @@ describe('TransformFunctions', () => {
         SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.position
       )
       assert.deepEqual(
-        componentData.rotation,
-        new Quaternion().setFromEuler(
-          new Euler(
-            SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation.x,
-            SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation.y,
-            SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation.z
-          )
-        )
+        JSON.parse(JSON.stringify(componentData.rotation)),
+        SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation
       )
       assert.deepEqual(JSON.parse(JSON.stringify(componentData.scale)), SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.scale)
     })
@@ -96,12 +90,7 @@ describe('TransformFunctions', () => {
     it('should use passed values', () => {
       const componentData = parseTransformProperties({ ...sceneComponentData })
       assert.deepEqual(componentData.position, sceneComponentData.position)
-      assert.deepEqual(
-        componentData.rotation,
-        new Quaternion().setFromEuler(
-          new Euler(sceneComponentData.rotation.x, sceneComponentData.rotation.y, sceneComponentData.rotation.z)
-        )
-      )
+      assert.deepEqual(componentData.rotation, sceneComponentData.rotation)
       assert.deepEqual(componentData.scale, sceneComponentData.scale)
     })
   })

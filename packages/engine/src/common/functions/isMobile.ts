@@ -17,11 +17,11 @@ export const iOS =
   (['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) ||
     (navigator.userAgent.includes('Mac') && 'ontouchend' in document))
 
-export const isMobile = mobileOrTablet
-
 export const isSafari =
   typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent.toLowerCase())
 
 export const isHMD = typeof navigator?.userAgent === 'string' && /Oculus/i.test(navigator.userAgent)
+
+export const isMobile = mobileOrTablet && !isHMD
 
 export const isMobileOrHMD = isHMD || isMobile

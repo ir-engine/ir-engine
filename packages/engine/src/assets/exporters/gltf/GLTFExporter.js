@@ -439,7 +439,6 @@ class GLTFWriter {
 			binary: false,
 			trs: false,
 			onlyVisible: true,
-			truncateDrawRange: true,
 			maxTextureSize: Infinity,
 			animations: [],
 			includeCustomExtensions: false
@@ -456,7 +455,7 @@ class GLTFWriter {
 		let pendingCount
 		do {
 			pendingCount = this.pending.length
-			await Promise.all( this.pending );
+		await Promise.all( this.pending );
 		} while (pendingCount !== this.pending.length)
 		
 
@@ -466,63 +465,65 @@ class GLTFWriter {
 		options = writer.options;
 		const extensionsUsed = writer.extensionsUsed;
 
-		
+		// Merge buffers.
+		const blob = new Blob( buffers, { type: 'application/octet-stream' } );
 
 		// Declare extensions.
 		const extensionsUsedList = Object.keys( extensionsUsed );
 
 		if ( extensionsUsedList.length > 0 ) json.extensionsUsed = extensionsUsedList;
 
+		// Update bytelength of the single buffer.
+		if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
+
 		if ( options.binary === true ) {
-			// Merge buffers.
-			const blob = new Blob( buffers, { type: 'application/octet-stream' } );
-			// Update bytelength of the single buffer.
-			if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
-				// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#glb-file-format-specification
 
-				const reader = new FileReader();
-				reader.readAsArrayBuffer( blob );
-				reader.onloadend = function () {
+			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#glb-file-format-specification
 
-					// Binary chunk.
-					const binaryChunk = getPaddedArrayBuffer( reader.result );
-					const binaryChunkPrefix = new DataView( new ArrayBuffer( GLB_CHUNK_PREFIX_BYTES ) );
-					binaryChunkPrefix.setUint32( 0, binaryChunk.byteLength, true );
-					binaryChunkPrefix.setUint32( 4, GLB_CHUNK_TYPE_BIN, true );
+			const reader = new FileReader();
+			reader.readAsArrayBuffer( blob );
+			reader.onloadend = function () {
 
-					// JSON chunk.
-					const jsonChunk = getPaddedArrayBuffer( stringToArrayBuffer( JSON.stringify( json ) ), 0x20 );
-					const jsonChunkPrefix = new DataView( new ArrayBuffer( GLB_CHUNK_PREFIX_BYTES ) );
-					jsonChunkPrefix.setUint32( 0, jsonChunk.byteLength, true );
-					jsonChunkPrefix.setUint32( 4, GLB_CHUNK_TYPE_JSON, true );
+				// Binary chunk.
+				const binaryChunk = getPaddedArrayBuffer( reader.result );
+				const binaryChunkPrefix = new DataView( new ArrayBuffer( GLB_CHUNK_PREFIX_BYTES ) );
+				binaryChunkPrefix.setUint32( 0, binaryChunk.byteLength, true );
+				binaryChunkPrefix.setUint32( 4, GLB_CHUNK_TYPE_BIN, true );
 
-					// GLB header.
-					const header = new ArrayBuffer( GLB_HEADER_BYTES );
-					const headerView = new DataView( header );
-					headerView.setUint32( 0, GLB_HEADER_MAGIC, true );
-					headerView.setUint32( 4, GLB_VERSION, true );
-					const totalByteLength = GLB_HEADER_BYTES
-						+ jsonChunkPrefix.byteLength + jsonChunk.byteLength
-						+ binaryChunkPrefix.byteLength + binaryChunk.byteLength;
-					headerView.setUint32( 8, totalByteLength, true );
+				// JSON chunk.
+				const jsonChunk = getPaddedArrayBuffer( stringToArrayBuffer( JSON.stringify( json ) ), 0x20 );
+				const jsonChunkPrefix = new DataView( new ArrayBuffer( GLB_CHUNK_PREFIX_BYTES ) );
+				jsonChunkPrefix.setUint32( 0, jsonChunk.byteLength, true );
+				jsonChunkPrefix.setUint32( 4, GLB_CHUNK_TYPE_JSON, true );
 
-					const glbBlob = new Blob( [
-						header,
-						jsonChunkPrefix,
-						jsonChunk,
-						binaryChunkPrefix,
-						binaryChunk
-					], { type: 'application/octet-stream' } );
+				// GLB header.
+				const header = new ArrayBuffer( GLB_HEADER_BYTES );
+				const headerView = new DataView( header );
+				headerView.setUint32( 0, GLB_HEADER_MAGIC, true );
+				headerView.setUint32( 4, GLB_VERSION, true );
+				const totalByteLength = GLB_HEADER_BYTES
+					+ jsonChunkPrefix.byteLength + jsonChunk.byteLength
+					+ binaryChunkPrefix.byteLength + binaryChunk.byteLength;
+				headerView.setUint32( 8, totalByteLength, true );
 
-					const glbReader = new FileReader();
-					glbReader.readAsArrayBuffer( glbBlob );
-					glbReader.onloadend = function () {
+				const glbBlob = new Blob( [
+					header,
+					jsonChunkPrefix,
+					jsonChunk,
+					binaryChunkPrefix,
+					binaryChunk
+				], { type: 'application/octet-stream' } );
 
-						onDone( glbReader.result );
+				const glbReader = new FileReader();
+				glbReader.readAsArrayBuffer( glbBlob );
+				glbReader.onloadend = function () {
 
-					};
+					onDone( glbReader.result );
 
 				};
+
+			};
+
 		} else {
 
 			/*if ( json.buffers && json.buffers.length > 0 ) {
@@ -540,7 +541,7 @@ class GLTFWriter {
 			} else {*/
 				onDone( json );
 			//}
-		}
+			}
 	}
 
 	/**
@@ -1032,21 +1033,6 @@ class GLTFWriter {
 		if ( start === undefined ) start = 0;
 		if ( count === undefined ) count = attribute.count;
 
-		// @TODO Indexed buffer geometry with drawRange not supported yet
-		if ( options.truncateDrawRange && geometry !== undefined && geometry.index === null ) {
-
-			const end = start + count;
-			const end2 = geometry.drawRange.count === Infinity
-				? attribute.count
-				: geometry.drawRange.start + geometry.drawRange.count;
-
-			start = Math.max( start, geometry.drawRange.start );
-			count = Math.min( end, end2 ) - start;
-
-			if ( count < 0 ) count = 0;
-
-		}
-
 		// Skip creating an accessor if the attribute doesn't have data to export
 		if ( count === 0 ) return null;
 
@@ -1126,92 +1112,89 @@ class GLTFWriter {
 					resolve({})
 				}))
 			} else {
-				const canvas = getCanvas();
+		const canvas = getCanvas();
 
-				canvas.width = Math.min( image.width, options.maxTextureSize );
-				canvas.height = Math.min( image.height, options.maxTextureSize );
-		
-				const ctx = canvas.getContext( '2d' );
-		
-				if ( flipY === true ) {
-		
-					ctx.translate( 0, canvas.height );
-					ctx.scale( 1, - 1 );
-		
-				}
-		
-				if ( image.data !== undefined ) { // THREE.DataTexture
+		canvas.width = Math.min( image.width, options.maxTextureSize );
+		canvas.height = Math.min( image.height, options.maxTextureSize );
+
+		const ctx = canvas.getContext( '2d' );
+
+		if ( flipY === true ) {
+
+			ctx.translate( 0, canvas.height );
+			ctx.scale( 1, - 1 );
+
+		}
+
+		if ( image.data !== undefined ) { // THREE.DataTexture
 					let data
-					if ( format !== RGBAFormat ) {
-		
-		
-					}
+			if ( format !== RGBAFormat ) {
+
+
+			}
 					else
 					{
-						if ( image.width > options.maxTextureSize || image.height > options.maxTextureSize ) {
-		
-							console.warn( 'GLTFExporter: Image size is bigger than maxTextureSize', image );
-			
-						}
-			
+			if ( image.width > options.maxTextureSize || image.height > options.maxTextureSize ) {
+
+				console.warn( 'GLTFExporter: Image size is bigger than maxTextureSize', image );
+
+			}
+
 						data = new Uint8ClampedArray( image.height * image.width * 4 );
-			
-						for ( let i = 0; i < data.length; i += 4 ) {
-			
-							data[ i + 0 ] = image.data[ i + 0 ];
-							data[ i + 1 ] = image.data[ i + 1 ];
-							data[ i + 2 ] = image.data[ i + 2 ];
-							data[ i + 3 ] = image.data[ i + 3 ];
-			
-						}
-						ctx.putImageData( new ImageData( data, image.width, image.height ), 0, 0 );
+
+			for ( let i = 0; i < data.length; i += 4 ) {
+
+				data[ i + 0 ] = image.data[ i + 0 ];
+				data[ i + 1 ] = image.data[ i + 1 ];
+				data[ i + 2 ] = image.data[ i + 2 ];
+				data[ i + 3 ] = image.data[ i + 3 ];
+
+			}
+			ctx.putImageData( new ImageData( data, image.width, image.height ), 0, 0 );
 					}
-				} else {
-		
-					ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
-		
-				}
-		
-				
-				
-		
-				if ( options.binary === true ) {
-		
-					pending.push(
-		
-						getToBlobPromise( canvas, mimeType )
-							.then( blob => writer.processBufferViewImage( blob ) )
-							.then( bufferViewIndex => {
-		
-								imageDef.bufferView = bufferViewIndex;
-		
-							} )
-		
-					);
-		
-				} else {
-		
-					if ( canvas.toDataURL !== undefined ) {
-		
-						imageDef.uri = canvas.toDataURL( mimeType );
-		
-					} else {
-		
-						pending.push(
-		
-							getToBlobPromise( canvas, mimeType )
-								.then( blob => new FileReader().readAsDataURL( blob ) )
-								.then( dataURL => {
-		
-									imageDef.uri = dataURL;
-		
-								} )
-		
-						);
-		
-					}
-		
-				}
+		} else {
+
+			ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
+
+		}
+
+		if ( options.binary === true ) {
+
+			pending.push(
+
+				getToBlobPromise( canvas, mimeType )
+					.then( blob => writer.processBufferViewImage( blob ) )
+					.then( bufferViewIndex => {
+
+						imageDef.bufferView = bufferViewIndex;
+
+					} )
+
+			);
+
+		} else {
+
+			if ( canvas.toDataURL !== undefined ) {
+
+				imageDef.uri = canvas.toDataURL( mimeType );
+
+			} else {
+
+				pending.push(
+
+					getToBlobPromise( canvas, mimeType )
+						.then( blob => new FileReader().readAsDataURL( blob ) )
+						.then( dataURL => {
+
+							imageDef.uri = dataURL;
+
+						} )
+
+				);
+
+			}
+
+		}
 			}
 		} else {
 			//only save urls without serializing any images into bufferviews
@@ -1220,7 +1203,7 @@ class GLTFWriter {
 			imageDef.mimeType = `image/${extension}`
 			if (imageDef.mimeType === 'image/jpg') 
 				imageDef.mimeType = 'image/jpeg'
-			
+
 		}
 		const index = json.images.push( imageDef ) - 1;
 		cachedImages[ key ] = index;
@@ -1594,7 +1577,7 @@ class GLTFWriter {
 			}
 
 		}
-		
+
 		if ( originalNormal !== undefined ) geometry.setAttribute( 'normal', originalNormal );
 		const isMultiMaterial = Array.isArray( mesh.material );
 		// Skip if no exportable attributes found

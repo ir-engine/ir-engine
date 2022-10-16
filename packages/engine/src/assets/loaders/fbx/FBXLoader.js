@@ -89,10 +89,6 @@ class FBXLoader extends Loader {
 			try {
 
 				onLoad( scope.parse( buffer, path ) );
-				// cleanup memory
-				fbxTree = undefined
-				connections = undefined
-				sceneGraph = undefined
 
 			} catch ( e ) {
 
@@ -1487,6 +1483,12 @@ class FBXTreeParser {
 // parse Geometry data from FBXTree and return map of BufferGeometries
 class GeometryParser {
 
+	constructor() {
+
+		this.negativeMaterialIndices = false;
+
+	}
+
 	// Parse nodes in FBXTree.Objects.Geometry
 	parse( deformers ) {
 
@@ -1504,6 +1506,14 @@ class GeometryParser {
 				geometryMap.set( parseInt( nodeID ), geo );
 
 			}
+
+		}
+
+		// report warnings
+
+		if ( this.negativeMaterialIndices === true ) {
+
+			console.warn( 'THREE.FBXLoader: The FBX file contains invalid (negative) material indices. The asset might not render as expected.' );
 
 		}
 
@@ -1900,6 +1910,13 @@ class GeometryParser {
 			if ( geoInfo.material && geoInfo.material.mappingType !== 'AllSame' ) {
 
 				materialIndex = getData( polygonVertexIndex, polygonIndex, vertexIndex, geoInfo.material )[ 0 ];
+
+				if ( materialIndex < 0 ) {
+
+					scope.negativeMaterialIndices = true;
+					materialIndex = 0; // fallback
+
+				}
 
 			}
 
@@ -3962,7 +3979,7 @@ function generateTransform( transformData ) {
 	if ( transformData.preRotation ) {
 
 		const array = transformData.preRotation.map( MathUtils.degToRad );
-		array.push( transformData.eulerOrder );
+		array.push( transformData.eulerOrder || Euler.DefaultOrder );
 		lPreRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
 	}
@@ -3970,7 +3987,7 @@ function generateTransform( transformData ) {
 	if ( transformData.rotation ) {
 
 		const array = transformData.rotation.map( MathUtils.degToRad );
-		array.push( transformData.eulerOrder );
+		array.push( transformData.eulerOrder || Euler.DefaultOrder );
 		lRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
 	}
@@ -3978,7 +3995,7 @@ function generateTransform( transformData ) {
 	if ( transformData.postRotation ) {
 
 		const array = transformData.postRotation.map( MathUtils.degToRad );
-		array.push( transformData.eulerOrder );
+		array.push( transformData.eulerOrder || Euler.DefaultOrder );
 		lPostRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 		lPostRotationM.invert();
 

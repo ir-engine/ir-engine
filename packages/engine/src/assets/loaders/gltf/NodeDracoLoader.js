@@ -193,49 +193,49 @@ export class NodeDRACOLoader {
     var TypedBufferAttribute
 
     switch (attributeType) {
-      case Float32Array:
+      case Float32Array.name:
         attributeData = new dracoDecoder.DracoFloat32Array()
         decoder.GetAttributeFloatForAllPoints(dracoGeometry, attribute, attributeData)
         geometryBuffer[attributeName] = new Float32Array(numValues)
         TypedBufferAttribute = Float32BufferAttribute
         break
 
-      case Int8Array:
+      case Int8Array.name:
         attributeData = new dracoDecoder.DracoInt8Array()
         decoder.GetAttributeInt8ForAllPoints(dracoGeometry, attribute, attributeData)
         geometryBuffer[attributeName] = new Int8Array(numValues)
         TypedBufferAttribute = Int8BufferAttribute
         break
 
-      case Int16Array:
+      case Int16Array.name:
         attributeData = new dracoDecoder.DracoInt16Array()
         decoder.GetAttributeInt16ForAllPoints(dracoGeometry, attribute, attributeData)
         geometryBuffer[attributeName] = new Int16Array(numValues)
         TypedBufferAttribute = Int16BufferAttribute
         break
 
-      case Int32Array:
+      case Int32Array.name:
         attributeData = new dracoDecoder.DracoInt32Array()
         decoder.GetAttributeInt32ForAllPoints(dracoGeometry, attribute, attributeData)
         geometryBuffer[attributeName] = new Int32Array(numValues)
         TypedBufferAttribute = Int32BufferAttribute
         break
 
-      case Uint8Array:
+      case Uint8Array.name:
         attributeData = new dracoDecoder.DracoUInt8Array()
         decoder.GetAttributeUInt8ForAllPoints(dracoGeometry, attribute, attributeData)
         geometryBuffer[attributeName] = new Uint8Array(numValues)
         TypedBufferAttribute = Uint8BufferAttribute
         break
 
-      case Uint16Array:
+      case Uint16Array.name:
         attributeData = new dracoDecoder.DracoUInt16Array()
         decoder.GetAttributeUInt16ForAllPoints(dracoGeometry, attribute, attributeData)
         geometryBuffer[attributeName] = new Uint16Array(numValues)
         TypedBufferAttribute = Uint16BufferAttribute
         break
 
-      case Uint32Array:
+      case Uint32Array.name:
         attributeData = new dracoDecoder.DracoUInt32Array()
         decoder.GetAttributeUInt32ForAllPoints(dracoGeometry, attribute, attributeData)
         geometryBuffer[attributeName] = new Uint32Array(numValues)
@@ -243,7 +243,7 @@ export class NodeDRACOLoader {
         break
 
       default:
-        var errorMsg = 'NodeDRACOLoader: Unexpected attribute type.'
+        var errorMsg = 'NodeDRACOLoader: Unexpected attribute type: ' + attributeType
         console.error(errorMsg)
         throw new Error(errorMsg)
     }
