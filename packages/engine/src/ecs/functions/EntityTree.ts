@@ -25,7 +25,7 @@ export interface EntityTree {
   rootNode: EntityTreeNode
   entityNodeMap: Map<Entity, EntityTreeNode>
   /**
-   * @deprecated use world.entitiesByUUID
+   * @deprecated use UUIDComponent.entitiesByUUID
    */
   uuidNodeMap: Map<string, EntityTreeNode>
 }
@@ -66,7 +66,7 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   if (entityExists(world.sceneEntity)) removeEntity(world.sceneEntity, true)
 
   world.sceneEntity = createEntity()
-  setComponent(world.sceneEntity, NameComponent, { name: 'scene' })
+  setComponent(world.sceneEntity, NameComponent, 'scene')
   setComponent(world.sceneEntity, VisibleComponent, true)
   setComponent(world.sceneEntity, SceneTagComponent, true)
   setTransformComponent(world.sceneEntity)

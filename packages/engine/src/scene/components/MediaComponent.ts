@@ -109,7 +109,6 @@ export const MediaComponent = defineComponent({
       trackDurations: [] as number[]
     })
 
-    // reactively bind media component and media element
     createEntityReactor(entity, MediaReactor)
 
     return state
@@ -176,12 +175,12 @@ export const MediaComponent = defineComponent({
   }
 })
 
-const MediaReactor = ({ entity, destroyReactor: destroy }: EntityReactorParams) => {
+const MediaReactor = ({ entity, destroyReactor }: EntityReactorParams) => {
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useComponent(entity, MediaElementComponent)
 
   useEffect(() => {
-    if (!media) destroy()
+    if (!media) destroyReactor()
   }, [media])
 
   useEffect(
@@ -246,8 +245,7 @@ const MediaReactor = ({ entity, destroyReactor: destroy }: EntityReactorParams) 
 
   useEffect(
     function updateMediaElement() {
-      if (!isClient) return
-      if (!media) return
+      if (!isClient || !media) return
 
       const track = media.track.value
       const path = media.paths[track].value

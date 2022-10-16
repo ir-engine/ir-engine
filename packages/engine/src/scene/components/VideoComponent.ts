@@ -27,25 +27,33 @@ export const VideoComponent = defineComponent({
       videoMesh
     })
 
-    const updateSide = () => void (videoMesh.material.side = state.side.value)
-
-    const updateMesh = () => {
-      resizeImageMesh(videoMesh)
-      const scale = ObjectFitFunctions.computeContentFitScale(
-        videoMesh.scale.x,
-        videoMesh.scale.y,
-        state.size.width.value,
-        state.size.height.value,
-        state.fit.value
-      )
-      videoMesh.scale.multiplyScalar(scale)
-      videoMesh.updateMatrix()
-    }
-
     createEntityReactor(entity, () => {
       const s = useState(state)
-      useEffect(updateSide, [s.side])
-      useEffect(updateMesh, [s.size, s.fit, s.videoMesh.material.map])
+
+      // update side
+      useEffect(
+        function updateSide() {
+          videoMesh.material.side = s.side.value
+        },
+        [s.side]
+      )
+
+      // update mesh
+      useEffect(
+        function updateMesh() {
+          resizeImageMesh(videoMesh)
+          const scale = ObjectFitFunctions.computeContentFitScale(
+            videoMesh.scale.x,
+            videoMesh.scale.y,
+            s.size.width.value,
+            s.size.height.value,
+            s.fit.value
+          )
+          videoMesh.scale.multiplyScalar(scale)
+          videoMesh.updateMatrix()
+        },
+        [s.size, s.fit, s.videoMesh.material.map]
+      )
     })
 
     return state

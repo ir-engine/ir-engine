@@ -1,4 +1,4 @@
-import { autoUse, createState } from '@xrengine/hyperflux'
+import { autoUse, createState, none } from '@xrengine/hyperflux'
 
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
@@ -15,6 +15,12 @@ export const UUIDComponent = defineComponent({
   onUpdate: (entity, _, uuid: string) => {
     UUIDComponent.map[entity].set(uuid)
     UUIDComponent.entitiesByUUID[uuid].set(entity)
+  },
+
+  onRemove: (entity, name) => {
+    if (UUIDComponent.entitiesByUUID[name].value === entity) {
+      UUIDComponent.entitiesByUUID[name].set(none)
+    }
   },
 
   entitiesByUUID: createState({} as Record<string, Entity>)

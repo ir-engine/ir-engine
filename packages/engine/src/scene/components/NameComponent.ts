@@ -1,4 +1,4 @@
-import { autoUse, createState, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
+import { autoUse, createState, none } from '@xrengine/hyperflux'
 
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -13,6 +13,12 @@ export const NameComponent = defineComponent({
   onUpdate: (entity, _, name) => {
     NameComponent.map[entity].set(name)
     NameComponent.entitiesByName[name].set(entity)
+  },
+
+  onRemove: (entity, name) => {
+    if (NameComponent.entitiesByName[name].value === entity) {
+      NameComponent.entitiesByName[name].set(none)
+    }
   },
 
   entitiesByName: createState({} as Record<string, Entity>)
