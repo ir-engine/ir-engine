@@ -1,8 +1,8 @@
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
@@ -15,12 +15,20 @@ const v3 = new Vector3()
 
 export const deserializeTransform: ComponentDeserializeFunction = (entity: Entity, data: TransformComponentType) => {
   const props = parseTransformProperties(data)
-  const component = getComponent(entity, TransformComponent)
+  const component = hasComponent(entity, TransformComponent)
+    ? getComponent(entity, TransformComponent)
+    : addComponent(entity, TransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3(),
+        matrix: new Matrix4(),
+        matrixInverse: new Matrix4()
+      })
 
   /** all scene entities are assumpted to have transform components already */
-  component.position.copy(props.position)
-  component.rotation.copy(props.rotation)
-  component.scale.copy(props.scale)
+  component.position.copy(props?.position ?? new Vector3())
+  component.rotation.copy(props?.rotation ?? new Quaternion())
+  component.scale.copy(props?.scale ?? new Vector3(1, 1, 1))
 
   const localTransform = getComponent(entity, LocalTransformComponent)
   if (localTransform) {
