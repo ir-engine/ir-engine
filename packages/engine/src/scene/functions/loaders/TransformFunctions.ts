@@ -36,7 +36,7 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
     : getComponent(entity, TransformComponent)
   return {
     position: new Vector3().copy(component.position),
-    rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
+    rotation: new Quaternion().copy(component.rotation),
     scale: new Vector3().copy(component.scale)
   }
 }
@@ -51,8 +51,13 @@ export const parseTransformProperties = (props: any): TransformComponentType => 
   result.scale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
 
   tempV3 = props.rotation ?? SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation
-  result.rotation = new Quaternion().setFromEuler(euler.setFromVector3(v3.set(tempV3.x, tempV3.y, tempV3.z), 'XYZ'))
-
+  const tempQuat = tempV3
+  if (tempQuat.w !== undefined) {
+    result.rotation = new Quaternion(tempQuat.x, tempQuat.y, tempQuat.z, tempQuat.w)
+  } else {
+    //backwards compatible with rotations saved as eulers
+    result.rotation = new Quaternion().setFromEuler(euler.setFromVector3(v3.set(tempV3.x, tempV3.y, tempV3.z), 'XYZ'))
+  }
   return result
 }
 
