@@ -5,8 +5,6 @@ import {
   BufferGeometry,
   FileLoader,
   Group,
-  Loader,
-  LoaderUtils,
   LOD,
   Material,
   Mesh,
@@ -17,12 +15,9 @@ import {
   Object3D,
   RepeatWrapping,
   ShaderMaterial,
-  SkinnedMesh,
   Texture,
   TextureLoader
 } from 'three'
-
-import { getState } from '@xrengine/hyperflux'
 
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
@@ -31,7 +26,6 @@ import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
@@ -40,7 +34,6 @@ import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
-import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { DependencyTreeActions } from './DependencyTree'
