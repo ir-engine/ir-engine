@@ -97,7 +97,7 @@ export const moveLocalAvatar = (entity: Entity) => {
 
   const avatarInputState = getState(AvatarInputSettingsState)
   /** teleport controls handled in AvatarInputSchema */
-  if (getControlMode() === 'attached' || avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) return
+  if (getControlMode() === 'attached' && avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) return
 
   moveAvatarWithVelocity(entity)
 }
