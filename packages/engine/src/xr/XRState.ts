@@ -71,6 +71,14 @@ export class XRAction {
     type: 'xre.xr.changePlacementMode',
     active: matches.boolean
   })
+
+  // todo, support more haptic formats other than just vibrating controllers
+  static vibrateController = defineAction({
+    type: 'xre.xr.vibrateController',
+    handedness: matches.literals('left', 'right'),
+    value: matches.number,
+    duration: matches.number
+  })
 }
 
 export const getControlMode = () => {

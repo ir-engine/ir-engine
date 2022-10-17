@@ -50,6 +50,7 @@ export default async function XRSystem(world: World) {
       () => import('./XRAnchorSystem'),
       () => import('./XRCameraSystem'),
       () => import('./XRControllerSystem'),
+      () => import('./XRHapticsSystem'),
       () => import('./XRLightProbeSystem'),
       // () => import('./XRDepthOcclusion'),
       () => import('./XRScenePlacementShader')
