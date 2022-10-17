@@ -34,7 +34,7 @@ import { ControlText } from './controlText/ControlText'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
-import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
+import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
@@ -278,7 +278,7 @@ const EditorContainer = () => {
         const blob = await takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
-            <SaveNewProjectDialog
+            <SaveNewSceneDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
               initialName={Engine.instance.currentWorld.scene.name}
               onConfirm={resolve}

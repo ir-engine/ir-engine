@@ -6,7 +6,7 @@ import StringInput from '../inputs/StringInput'
 import PreviewDialog from './PreviewDialog'
 
 /**
- * SaveNewProjectDialog used to show dialog when to save new project.
+ * SaveNewSceneDialog used to show dialog when to save new scene.
  *
  * @param       {string} thumbnailUrl
  * @param       {string} initialName
@@ -14,7 +14,7 @@ import PreviewDialog from './PreviewDialog'
  * @param       {function} onCancel
  * @constructor
  */
-export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onCancel }) {
+export function SaveNewSceneDialog({ thumbnailUrl, initialName, onConfirm, onCancel }) {
   const [name, setName] = useState(initialName)
   const { t } = useTranslation()
 
@@ -55,18 +55,18 @@ export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onC
   return (
     <PreviewDialog
       imageSrc={thumbnailUrl}
-      title={t('editor:dialog.saveNewProject.title')}
+      title={t('editor:dialog.saveNewScene.title')}
       onConfirm={onConfirmCallback}
       onCancel={onCancelCallback}
-      confirmLabel={t('editor:dialog.saveNewProject.lbl-confirm')}
+      confirmLabel={t('editor:dialog.saveNewScene.lbl-confirm')}
     >
       <FormField>
-        <label htmlFor="name">{t('editor:dialog.saveNewProject.lbl-name')}</label>
+        <label htmlFor="name">{t('editor:dialog.saveNewScene.lbl-name')}</label>
         <StringInput
           id="name"
           required
           pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}
-          title={t('editor:dialog.saveNewProject.info-name')}
+          title={t('editor:dialog.saveNewScene.info-name')}
           value={name}
           onChange={onChangeName}
         />
@@ -75,4 +75,4 @@ export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onC
   )
 }
 
-export default SaveNewProjectDialog
+export default SaveNewSceneDialog

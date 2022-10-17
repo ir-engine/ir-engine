@@ -720,11 +720,11 @@
       "header": "Your scene has been published.",
       "lbl-view": "View Your Scene"
     },
-    "saveNewProject": {
+    "saveNewScene": {
       "title": "Support",
-      "lbl-name": "Project Name",
+      "lbl-name": "Scene Name",
       "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
-      "lbl-confirm": "Save Project"
+      "lbl-confirm": "Save Scene"
     },
     "support": {
       "title": "Support",
