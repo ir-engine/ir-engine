@@ -38,7 +38,7 @@ const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity:
 
 // Utility Vectors
 // Unit: m/s
-const initialVelocity = 6
+const initialVelocity = 4
 const dynamicVelocity = 10
 const gravity = new Vector3(0, -9.8, 0)
 const currentVertexLocal = new Vector3()
