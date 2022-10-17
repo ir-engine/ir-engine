@@ -6,6 +6,7 @@ import { addComponent, getComponent, hasComponent } from '../../../ecs/functions
 import {
   LocalTransformComponent,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  setTransformComponent,
   TransformComponent,
   TransformComponentType
 } from '../../../transform/components/TransformComponent'
@@ -17,13 +18,7 @@ export const deserializeTransform: ComponentDeserializeFunction = (entity: Entit
   const props = parseTransformProperties(data)
   const component = hasComponent(entity, TransformComponent)
     ? getComponent(entity, TransformComponent)
-    : addComponent(entity, TransformComponent, {
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        scale: new Vector3(),
-        matrix: new Matrix4(),
-        matrixInverse: new Matrix4()
-      })
+    : setTransformComponent(entity)
 
   /** all scene entities are assumpted to have transform components already */
   component.position.copy(props?.position ?? new Vector3())

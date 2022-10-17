@@ -19,7 +19,6 @@ export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationCom
 
 export type AvatarRigComponentType = {
   /** Holds all the bones */
-  /** @todo, move this to a separate component */
   rig: BoneStructure
 
   /** Read-only bones in bind pose */
