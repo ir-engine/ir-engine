@@ -147,11 +147,15 @@ export function updateGamepadInput(source: XRInputSource) {
     source.gamepad.buttons.forEach((button, index) => {
       // TODO : support button.touched and button.value
       const prev = Engine.instance.currentWorld.prevInputState.has(mapping[index])
-      if (!prev && !button.pressed) return
       Engine.instance.currentWorld.inputState.set(mapping[index], {
         type: InputType.BUTTON,
         value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-        lifecycleState: button.pressed ? LifecycleValue.Started : LifecycleValue.Ended
+        lifecycleState:
+          prev && prev === button.pressed
+            ? LifecycleValue.Unchanged
+            : button.pressed
+            ? LifecycleValue.Started
+            : LifecycleValue.Ended
       })
     })
 
