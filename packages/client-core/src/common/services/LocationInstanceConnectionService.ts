@@ -136,13 +136,14 @@ export const LocationInstanceConnectionService = {
   },
   connectToServer: async (instanceId: string) => {
     dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
-    const transport = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
-    logger.info({ socket: !!transport.socket, transport }, 'Connect To World Server')
-    if (transport.socket) {
-      leaveNetwork(transport, false)
+    const network = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
+    logger.info({ socket: !!network.socket, transport: network }, 'Connect To World Server')
+    if (network.socket) {
+      leaveNetwork(network, false)
     }
-    const { ipAddress, port, locationId } = accessLocationInstanceConnectionState().instances.value[instanceId]
-    await transport.initialize({ port, ipAddress, locationId })
+    const { ipAddress, port, locationId, roomCode } =
+      accessLocationInstanceConnectionState().instances.value[instanceId]
+    await network.initialize({ port, ipAddress, locationId, roomCode })
   },
   useAPIListeners: () => {
     useEffect(() => {
