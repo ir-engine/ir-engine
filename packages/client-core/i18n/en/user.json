@@ -328,7 +328,8 @@
     "resources": "Resources",
     "benchmarking": "Benchmarking",
     "bots": "Bots",
-    "setting": "Settings"
+    "setting": "Settings",
+    "server": "Server"
   },
   "resource": {
     "createResource": "Create Resource"

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
-import { ServerInfoInterface, ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
+import { ServerInfoInterface } from '@xrengine/common/src/interfaces/ServerInfo'
 
 import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
@@ -11,10 +12,18 @@ import { ServerInfoService, useServerInfoState } from '../../services/ServerInfo
 import styles from '../../styles/admin.module.scss'
 import ServerTable from './ServerTable'
 
+import 'react-reflex/styles.css'
+
+import { useServerLogsState } from '../../services/ServerLogsService'
+import ServerLogs from './ServerLogs'
+
 const Server = () => {
   const { t } = useTranslation()
   const [selectedCard, setSelectedCard] = useState('all')
   const serverInfo = useServerInfoState()
+  const serverLogs = useServerLogsState()
+
+  let displayLogs = serverLogs.podName.value ? true : false
 
   useEffect(() => {
     ServerInfoService.fetchServerInfo()
@@ -27,7 +36,7 @@ const Server = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <Box sx={{ height: 'calc(100% - 106px)' }}>
       <Grid container spacing={1} className={styles.mb10px}>
         {serverInfo.value.servers.map((item, index) => (
           <Grid item key={item.id} xs={12} sm={6} md={2}>
@@ -40,8 +49,22 @@ const Server = () => {
           </Grid>
         ))}
       </Grid>
+      {displayLogs === false && <ServerTable selectedCard={selectedCard} />}
+      {displayLogs && (
+        <ReflexContainer orientation="horizontal">
+          <ReflexElement flex={0.45} style={{ display: 'flex', flexDirection: 'column' }}>
+            <ServerTable selectedCard={selectedCard} />
+          </ReflexElement>
 
-      <ServerTable selectedCard={selectedCard} />
+          <>
+            <ReflexSplitter />
+
+            <ReflexElement flex={0.55} style={{ overflow: 'hidden' }}>
+              <ServerLogs />
+            </ReflexElement>
+          </>
+        </ReflexContainer>
+      )}
     </Box>
   )
 }

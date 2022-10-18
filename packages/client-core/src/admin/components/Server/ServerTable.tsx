@@ -15,6 +15,7 @@ import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
 import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
+import { ServerLogsService } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:ServerTable' })
@@ -76,7 +77,12 @@ const ServerTable = ({ selectedCard }: Props) => {
       ),
       action: (
         <a href="#" className={styles.actionStyle} style={{ float: 'right' }} onClick={() => {}}>
-          <span className={styles.spanDange}>{t('admin:components.server.logs')}</span>
+          <span
+            className={styles.spanDange}
+            onClick={() => ServerLogsService.fetchServerLogs(el.name, el.containers[el.containers.length - 1].name)}
+          >
+            {t('admin:components.server.logs')}
+          </span>
         </a>
       )
     }
@@ -140,7 +146,9 @@ const ServerTable = ({ selectedCard }: Props) => {
               <SyncIcon />
             </IconButton>
           )}
+
           {serverInfo.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
+
           <InputSelect
             name="autoRefresh"
             label={t('admin:components.server.autoRefresh')}

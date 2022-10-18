@@ -51,6 +51,7 @@
     },
     "common": {
       "cancel": "Cancel",
+      "close": "Close",
       "edit": "Edit",
       "submit": "Submit",
       "save": "Save",
@@ -354,17 +355,20 @@
       "clearAllScopes": "Clear All Scopes"
     },
     "server": {
-      "loading": "Loading Server Info",
+      "loading": "Fetching Server Info",
+      "loadingLogs": "Fetching Server Logs",
       "name": "Name",
       "status": "Status",
       "restarts": "Restarts",
       "containers": "Containers",
+      "container": "Container",
       "age": "Age",
       "logs": "Logs",
       "autoRefresh": "Auto Refresh",
       "none": "None",
       "seconds": "seconds",
-      "minutes": "minutes"
+      "minutes": "minutes",
+      "download": "Download"
     }
   }
 }
