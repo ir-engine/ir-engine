@@ -284,6 +284,10 @@ export function easeOutElastic(x: number): number {
   return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1
 }
 
+export function easeOutCubic(x: number): number {
+  return 1 - Math.pow(1 - x, 3)
+}
+
 export function PRNG(seed, modulo) {
   //@ts-ignore
   const str = `${((2 ** 31 - 1) & Math.imul(48271, seed)) / 2 ** 31}`.split('').slice(-10).join('') % modulo

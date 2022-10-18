@@ -90,14 +90,18 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNo
   const root = assetRoot ?? Engine.instance.currentWorld.entityTree.rootNode
   const rootId = sceneData.root
 
-  entities.forEach(([_uuid]) => {
+  entities.forEach(([_uuid, eJson]) => {
     //check if uuid already exists in scene
     let uuid = _uuid
     if (loadedEntities.has(uuid)) {
       uuid = MathUtils.generateUUID()
       idMap.set(_uuid, uuid)
     }
-    entityMap[uuid] = createEntityNode(createEntity(), uuid)
+    const eNode = createEntityNode(createEntity(), uuid)
+    if (eJson.parent && loadedEntities.has(eJson.parent)) {
+      addEntityNodeChild(eNode, loadedEntities.get(eJson.parent)!)
+    }
+    entityMap[uuid] = eNode
   })
   entities.forEach(([_uuid, _data]) => {
     let uuid = _uuid

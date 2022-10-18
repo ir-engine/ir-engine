@@ -3,6 +3,7 @@ import { Color, Object3D, Ray } from 'three'
 
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -61,11 +62,11 @@ export default async function XRUISystem(world: World) {
     }
   }
 
-  const updateControllerRayInteraction = (controller: PointerObject) => {
+  const updateControllerRayInteraction = (controller: PointerObject, xruiEntities: Entity[]) => {
     const cursor = controller.cursor
     let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
-    for (const entity of visibleXruiQuery()) {
+    for (const entity of xruiEntities) {
       const layer = getComponent(entity, XRUIComponent).container
 
       /**
@@ -129,18 +130,19 @@ export default async function XRUISystem(world: World) {
     }
 
     const xrFrame = Engine.instance.xrFrame
-    const pointerEntities = pointerQuery()
 
     /** Update the objects to use for intersection tests */
     if (xrFrame && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
       xrui.interactionRays = (
-        pointerEntities
+        pointerQuery()
           .filter((entity) => entity !== world.cameraEntity)
           .map((entity) => getComponent(entity, XRPointerComponent).pointer) as (Object3D | Ray)[]
       ).concat(world.pointerScreenRaycaster.ray) // todo, replace pointerScreenRaycaster with viewerInputSourceEntity
 
     if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
+
+    const xruiEntities = visibleXruiQuery()
 
     /** do intersection tests */
     for (const source of world.inputSources) {
@@ -150,7 +152,7 @@ export default async function XRUISystem(world: World) {
 
       if (source.targetRayMode === 'tracked-pointer') {
         const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
-        updateControllerRayInteraction(controller)
+        updateControllerRayInteraction(controller, xruiEntities)
         if (input?.data?.has(GrabInput)) updateClickEventsForController(controller, input.data.get(GrabInput)!)
       }
 

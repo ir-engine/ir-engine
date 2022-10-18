@@ -3,7 +3,11 @@ import {
   AxesHelper,
   BoxGeometry,
   BufferAttribute,
+  BufferGeometry,
+  Float32BufferAttribute,
   Group,
+  Line,
+  LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   RingGeometry,
@@ -44,30 +48,20 @@ import { getControlMode, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
-  let geometry, material
   switch (inputSource.targetRayMode) {
-    case 'gaze':
-      geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
-      material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
+    case 'gaze': {
+      const geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
+      const material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
       return new Mesh(geometry, material)
-
-    case 'tracked-pointer':
+    }
     default:
-      geometry = new BoxGeometry(0.005, 0.005, 0.25)
-      const positions = geometry.attributes.position
-      const count = positions.count
-      geometry.setAttribute('color', new BufferAttribute(new Float32Array(count * 3), 3))
-      const colors = geometry.attributes.color
-
-      for (let i = 0; i < count; i++) {
-        if (positions.getZ(i) < 0) colors.setXYZ(i, 0, 0, 0)
-        else colors.setXYZ(i, 0.5, 0.5, 0.5)
-      }
-
-      material = new MeshBasicMaterial({ color: 0xffffff, vertexColors: true, blending: AdditiveBlending })
-      const mesh = new Mesh(geometry, material)
-      mesh.position.z = -0.125
-      return mesh
+    case 'tracked-pointer': {
+      const geometry = new BufferGeometry()
+      geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, -1], 3))
+      geometry.setAttribute('color', new Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3))
+      const material = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
+      return new Line(geometry, material)
+    }
   }
 }
 
@@ -106,6 +100,12 @@ const updateHand = (entity: Entity, referenceSpace: XRReferenceSpace) => {
 
     joint.visible = jointPose !== null
   }
+
+  /** The IK system uses the wrist joint as the hand target, so set the world transform to be where the wrist is */
+  const wrist = joints['wrist']
+  const transform = getComponent(entity, TransformComponent)
+  transform.position.copy(wrist.position)
+  transform.rotation.copy(wrist.quaternion)
 
   const indexTip = joints['index-finger-tip']
   const thumbTip = joints['thumb-tip']
@@ -147,11 +147,15 @@ export function updateGamepadInput(source: XRInputSource) {
     source.gamepad.buttons.forEach((button, index) => {
       // TODO : support button.touched and button.value
       const prev = Engine.instance.currentWorld.prevInputState.has(mapping[index])
-      if (!prev && !button.pressed) return
       Engine.instance.currentWorld.inputState.set(mapping[index], {
         type: InputType.BUTTON,
         value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-        lifecycleState: button.pressed ? LifecycleValue.Started : LifecycleValue.Ended
+        lifecycleState:
+          prev && prev === button.pressed
+            ? LifecycleValue.Unchanged
+            : button.pressed
+            ? LifecycleValue.Started
+            : LifecycleValue.Ended
       })
     })
 
@@ -296,8 +300,8 @@ const updateInputSourceEntities = () => {
     }
 
     if (hand && !controller.hand) {
-      const gripEntity = addHandInputSource(inputSource, hand)
-      controller.hand = gripEntity
+      const handEntity = addHandInputSource(inputSource, hand)
+      controller.hand = handEntity
       changed = true
     }
 
@@ -363,7 +367,9 @@ export default async function XRControllerSystem(world: World) {
           updateInputSource(entity, gripSpace, referenceSpace)
         }
 
-        for (const entity of handQuery()) updateHand(entity, referenceSpace)
+        for (const entity of handQuery()) {
+          updateHand(entity, referenceSpace)
+        }
       }
 
       world.inputSources = [...session.inputSources.values()]

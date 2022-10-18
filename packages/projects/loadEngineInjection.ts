@@ -3,6 +3,9 @@ import type { World } from '@xrengine/engine/src/ecs/classes/World'
 import type { ProjectConfigInterface } from './ProjectConfigInterface'
 
 export const loadEngineInjection = async (world: World, projects: string[]) => {
+  for (const project of projects) {
+    if (!globalThis[project]) globalThis[project] = {}
+  }
   return Promise.all(
     projects
       .map(async (project) => {

@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -7,6 +7,7 @@ import { V_000 } from '../common/constants/MathConstants'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRControllerComponent } from '../xr/XRComponents'
 import { getControlMode, XRState } from '../xr/XRState'
 import { applyBoneTwist } from './animation/armsTwistCorrection'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -19,6 +20,9 @@ import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
 const _vec = new Vector3()
+const _rotXneg60 = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 3)
+const _rotY90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2)
+const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
 
 export default async function AvatarIKTargetSystem(world: World) {
   const leftHandQuery = defineQuery([AvatarLeftHandIKComponent, AvatarRigComponent])
@@ -60,9 +64,25 @@ export default async function AvatarIKTargetSystem(world: World) {
       if (entity === world.localClientEntity) {
         const leftControllerEntity = xrState.leftControllerEntity.value
         if (leftControllerEntity) {
-          const { position, rotation } = getComponent(leftControllerEntity, TransformComponent)
-          ik.target.position.copy(position)
-          ik.target.quaternion.copy(rotation)
+          const controller = getComponent(leftControllerEntity, XRControllerComponent)
+          if (controller.hand) {
+            const { position, rotation } = getComponent(controller.hand, TransformComponent)
+            ik.target.position.copy(position)
+            ik.target.quaternion.copy(rotation).multiply(_rotYneg90)
+          } else if (controller.grip) {
+            const { position, rotation } = getComponent(controller.grip, TransformComponent)
+            ik.target.position.copy(position)
+            /**
+             * Since the hand has Z- forward in the grip space,
+             *    which is roughly 60 degrees rotated from the arm's forward,
+             *    apply a rotation to get the correct hand orientation
+             */
+            ik.target.quaternion.copy(rotation).multiply(_rotXneg60)
+          } else {
+            const { position, rotation } = getComponent(leftControllerEntity, TransformComponent)
+            ik.target.position.copy(position)
+            ik.target.quaternion.copy(rotation)
+          }
         }
       }
       ik.target.updateMatrix()
@@ -103,9 +123,25 @@ export default async function AvatarIKTargetSystem(world: World) {
       if (entity === world.localClientEntity) {
         const rightControllerEntity = xrState.rightControllerEntity.value
         if (rightControllerEntity) {
-          const { position, rotation } = getComponent(rightControllerEntity, TransformComponent)
-          ik.target.position.copy(position)
-          ik.target.quaternion.copy(rotation)
+          const controller = getComponent(rightControllerEntity, XRControllerComponent)
+          if (controller.hand) {
+            const { position, rotation } = getComponent(controller.hand, TransformComponent)
+            ik.target.position.copy(position)
+            ik.target.quaternion.copy(rotation).multiply(_rotY90)
+          } else if (controller.grip) {
+            const { position, rotation } = getComponent(controller.grip, TransformComponent)
+            ik.target.position.copy(position)
+            /**
+             * Since the hand has Z- forward in the grip space,
+             *    which is roughly 60 degrees rotated from the arm's forward,
+             *    apply a rotation to get the correct hand orientation
+             */
+            ik.target.quaternion.copy(rotation).multiply(_rotXneg60)
+          } else {
+            const { position, rotation } = getComponent(rightControllerEntity, TransformComponent)
+            ik.target.position.copy(position)
+            ik.target.quaternion.copy(rotation)
+          }
         }
       }
       ik.target.updateMatrix()

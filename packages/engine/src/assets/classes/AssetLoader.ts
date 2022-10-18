@@ -5,8 +5,6 @@ import {
   BufferGeometry,
   FileLoader,
   Group,
-  Loader,
-  LoaderUtils,
   LOD,
   Material,
   Mesh,
@@ -17,29 +15,27 @@ import {
   Object3D,
   RepeatWrapping,
   ShaderMaterial,
-  SkinnedMesh,
   Texture,
   TextureLoader
 } from 'three'
-
-import { getState } from '@xrengine/hyperflux'
 
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
+import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
-import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { TGALoader } from '../loaders/tga/TGALoader'
+import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { DependencyTreeActions } from './DependencyTree'
 import { XRELoader } from './XRELoader'
 
@@ -201,6 +197,7 @@ const getAssetType = (assetFileName: string): AssetType => {
   if (/\.xre\.gltf$/.test(assetFileName)) return AssetType.XRE
   else if (/\.(?:gltf)$/.test(assetFileName)) return AssetType.glTF
   else if (/\.(?:glb)$/.test(assetFileName)) return AssetType.glB
+  else if (/\.(?:usdz)$/.test(assetFileName)) return AssetType.USDZ
   else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
   else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
   else if (/\.(?:tga)$/.test(assetFileName)) return AssetType.TGA
@@ -226,7 +223,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
 
   if (/\.xre\.gltf$/.test(assetFileName)) {
     return AssetClass.Asset
-  } else if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
+  } else if (/\.(?:gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     return AssetClass.Model
   } else if (/\.png|jpg|jpeg|tga|ktx2$/.test(assetFileName)) {
     return AssetClass.Image
@@ -275,6 +272,8 @@ const ktx2Loader = () => ({
     )
   }
 })
+const usdzLoader = () => new USDZLoader()
+
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
     case AssetType.XRE:
@@ -285,6 +284,8 @@ export const getLoader = (assetType: AssetType) => {
     case AssetType.glB:
     case AssetType.VRM:
       return gltfLoader
+    case AssetType.USDZ:
+      return usdzLoader()
     case AssetType.FBX:
       return fbxLoader()
     case AssetType.TGA:
@@ -309,7 +310,8 @@ const assetLoadCallback =
   (url: string, args: LoadingArgs, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
     const assetClass = AssetLoader.getAssetClass(url)
     if (assetClass === AssetClass.Model) {
-      if (assetType === AssetType.FBX) {
+      const notGLTF = [AssetType.FBX, AssetType.USDZ].includes(assetType)
+      if (notGLTF) {
         asset = { scene: asset }
       } else if (assetType === AssetType.VRM) {
         asset = asset.userData.vrm
@@ -320,6 +322,9 @@ const assetLoadCallback =
       if (asset.userData) asset.userData.type = assetType
 
       AssetLoader.processModelAsset(asset.scene, args)
+      if (notGLTF) {
+        registerMaterials(asset.scene, SourceType.MODEL, url)
+      }
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture

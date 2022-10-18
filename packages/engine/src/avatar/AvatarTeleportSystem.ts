@@ -16,7 +16,7 @@ import {
 import { getState } from '@xrengine/hyperflux'
 
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
-import { normalizeRange } from '../common/functions/MathFunctions'
+import { easeOutCubic, normalizeRange } from '../common/functions/MathFunctions'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
@@ -25,7 +25,8 @@ import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from '../xr/XRState'
-import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
+import { createTransitionState } from '../xrui/functions/createTransitionState'
+import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
 
 // Guideline parabola function
@@ -38,7 +39,7 @@ const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity:
 
 // Utility Vectors
 // Unit: m/s
-const initialVelocity = 6
+const initialVelocity = 4
 const dynamicVelocity = 10
 const gravity = new Vector3(0, -9.8, 0)
 const currentVertexLocal = new Vector3()
@@ -90,8 +91,7 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
 }
 
 export default async function AvatarTeleportSystem(world: World) {
-  // The guideline
-  const lineSegments = 10
+  const lineSegments = 32 // segments to make a whole circle, uses far less
   const lineGeometry = new BufferGeometry()
   const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
   lineGeometryVertices.fill(0)
@@ -112,7 +112,7 @@ export default async function AvatarTeleportSystem(world: World) {
   const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
   guideCursorGeometry.rotateX(-Math.PI / 2)
   guideCursorGeometry.translate(0, 0.01, 0)
-  const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide })
+  const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide, transparent: true })
   const guideCursor = new Mesh(guideCursorGeometry, guideCursorMaterial)
   guideCursor.frustumCulled = false
 
@@ -121,27 +121,28 @@ export default async function AvatarTeleportSystem(world: World) {
   addObjectToGroup(guideCursorEntity, guideCursor)
   setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
 
+  const transition = createTransitionState(0.5)
+
   let canTeleport = false
 
   const xrState = getState(XRState)
-  const avatarTeleportQuery = defineQuery([AvatarTeleportTagComponent])
+  const avatarTeleportQuery = defineQuery([AvatarTeleportComponent])
 
   const execute = () => {
     for (const entity of avatarTeleportQuery.exit(world)) {
       // Get cursor position and teleport avatar to it
       if (canTeleport) teleportAvatar(entity, guideCursor.position)
-      setVisibleComponent(guidelineEntity, false)
-      setVisibleComponent(guideCursorEntity, false)
+      transition.setState('OUT')
     }
     for (const entity of avatarTeleportQuery.enter(world)) {
       setVisibleComponent(guidelineEntity, true)
+      transition.setState('IN')
     }
     for (const entity of avatarTeleportQuery(world)) {
       const sourceEntity =
-        xrState.rightControllerEntity.value ??
-        xrState.leftControllerEntity.value ??
-        xrState.viewerInputSourceEntity.value ??
-        entity
+        getComponent(entity, AvatarTeleportComponent).side === 'left'
+          ? xrState.leftControllerEntity.value!
+          : xrState.rightControllerEntity.value!
       const sourceTransform = getComponent(sourceEntity, TransformComponent)
       guidelineTransform.position.copy(sourceTransform.position)
       guidelineTransform.rotation.copy(sourceTransform.rotation)
@@ -189,6 +190,15 @@ export default async function AvatarTeleportSystem(world: World) {
       }
       setVisibleComponent(guideCursorEntity, canTeleport)
     }
+    transition.update(world.deltaSeconds, (alpha) => {
+      if (alpha === 0 && transition.state === 'OUT') {
+        setVisibleComponent(guidelineEntity, false)
+        setVisibleComponent(guideCursorEntity, false)
+      }
+      const smoothedAlpha = easeOutCubic(alpha)
+      guideCursorMaterial.opacity = smoothedAlpha
+      guideCursor.scale.setScalar(smoothedAlpha * 0.2 + 0.8)
+    })
   }
 
   const cleanup = async () => {

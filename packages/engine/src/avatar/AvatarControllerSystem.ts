@@ -3,7 +3,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
-import { V_000, V_001, V_010 } from '../common/constants/MathConstants'
+import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
@@ -17,7 +17,6 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { InputComponent } from '../input/components/InputComponent'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { GamepadAxis } from '../input/enums/InputEnums'
@@ -164,10 +163,10 @@ export const updateMap = () => {
   const avatarInputState = getState(AvatarInputSettingsState)
   const inputMap = AvatarInputSchema.inputMap
   if (avatarInputState.invertRotationAndMoveSticks.value) {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_LOOK)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE_RIGHT)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE_LEFT)
   } else {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_LOOK)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE_LEFT)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE_RIGHT)
   }
 }

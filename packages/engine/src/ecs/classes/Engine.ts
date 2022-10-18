@@ -1,5 +1,6 @@
 import type { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createHyperStore, getState } from '@xrengine/hyperflux'
+import * as Hyperflux from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
 import { NetworkTopics } from '../../networking/classes/Network'
@@ -69,3 +70,4 @@ export class Engine {
 }
 
 globalThis.Engine = Engine
+globalThis.Hyperflux = Hyperflux

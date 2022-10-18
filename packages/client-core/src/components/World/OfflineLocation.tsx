@@ -38,5 +38,3 @@ export const OfflineLocation = () => {
 
   return <InstanceServerWarnings />
 }
-
-export default OfflineLocation

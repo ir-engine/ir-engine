@@ -9,7 +9,13 @@ import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -25,7 +31,7 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '../components/Avat
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import { AvatarTeleportTagComponent } from '../components/AvatarTeleportTagComponent'
+import { AvatarTeleportComponent } from '../components/AvatarTeleportComponent'
 import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './createAvatar'
 
@@ -90,8 +96,10 @@ export const moveLocalAvatar = (entity: Entity) => {
   controller.isInAir = !onGround
 
   const avatarInputState = getState(AvatarInputSettingsState)
-  if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) moveAvatarWithTeleport(entity)
-  else moveAvatarWithVelocity(entity)
+  /** teleport controls handled in AvatarInputSchema */
+  if (getControlMode() === 'attached' && avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) return
+
+  moveAvatarWithVelocity(entity)
 }
 
 /**
@@ -184,16 +192,16 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
     }
   }
 }
+
 /**
  * Moves the avatar with teleport controls
  * @param entity
  */
-export const moveAvatarWithTeleport = (entity: Entity) => {
-  const controller = getComponent(entity, AvatarControllerComponent)
-  if (controller.localMovementDirection.z < -0.75 && !hasComponent(entity, AvatarTeleportTagComponent)) {
-    addComponent(entity, AvatarTeleportTagComponent, true)
-  } else if (controller.localMovementDirection.z === 0.0) {
-    removeComponent(entity, AvatarTeleportTagComponent)
+export const moveAvatarWithTeleport = (entity: Entity, magnitude: number, side: 'left' | 'right') => {
+  if (magnitude < -0.75 && !hasComponent(entity, AvatarTeleportComponent)) {
+    setComponent(entity, AvatarTeleportComponent, { side })
+  } else if (magnitude === 0.0) {
+    removeComponent(entity, AvatarTeleportComponent)
   }
 }
 

@@ -1045,7 +1045,7 @@ class GLTFMaterialsVolumeExtension {
 
 		}
 
-		materialParams.attenuationDistance = extension.attenuationDistance || 0;
+		materialParams.attenuationDistance = extension.attenuationDistance || Infinity;
 
 		const colorArray = extension.attenuationColor || [ 1, 1, 1 ];
 		materialParams.attenuationColor = new Color( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ] );
@@ -1350,13 +1350,13 @@ class GLTFMeshoptCompression {
 				const count = extensionDef.count;
 				const stride = extensionDef.byteStride;
 
-				const result = new ArrayBuffer( count * stride );
+						const result = new ArrayBuffer( count * stride );
 				const source = new Uint8Array( res[ 0 ], byteOffset, byteLength );
 
-				decoder.decodeGltfBuffer( new Uint8Array( result ), count, stride, source, extensionDef.mode, extensionDef.filter );
-				return result;
+						decoder.decodeGltfBuffer( new Uint8Array( result ), count, stride, source, extensionDef.mode, extensionDef.filter );
+						return result;
 
-			} );
+					} );
 
 		} else {
 
@@ -1488,7 +1488,7 @@ class GLTFDracoMeshCompressionExtension {
 				const accessorDef = json.accessors[ primitive.attributes[ attributeName ] ];
 				const componentType = WEBGL_COMPONENT_TYPES[ accessorDef.componentType ];
 
-				attributeTypeMap[ threeAttributeName ] = componentType;
+				attributeTypeMap[ threeAttributeName ] = componentType.name;
 				attributeNormalizedMap[ threeAttributeName ] = accessorDef.normalized === true;
 
 			}
@@ -2408,8 +2408,8 @@ class GLTFParser {
 		// Use an ImageBitmapLoader if imageBitmaps are supported. Moves much of the
 		// expensive work of uploading a texture to the GPU off the main thread.
 
-		const isSafari = 'navigator' in self ? /^((?!chrome|android).)*safari/i.test( navigator.userAgent ) === true : false;
-		const isFirefox =  'navigator' in self ? navigator.userAgent.indexOf( 'Firefox' ) > - 1 : false;
+		const isSafari = 'navigator' in self ? /^((?!chrome|android).)*safari/i.test( navigator.userAgent ) : false;
+		const isFirefox = 'navigator' in self ? navigator.userAgent.indexOf( 'Firefox' ) > - 1 : false;
 		const firefoxVersion = isFirefox ? navigator.userAgent.match( /Firefox\/([0-9]+)\./ )[ 1 ] : - 1;
 
 		if ( typeof createImageBitmap === 'undefined' || isSafari || ( isFirefox && firefoxVersion < 98 ) ) {
@@ -3788,7 +3788,7 @@ class GLTFParser {
 			const channel = animationDef.channels[ i ];
 			const sampler = animationDef.samplers[ channel.sampler ];
 			const target = channel.target;
-			const name = target.node !== undefined ? target.node : target.id; // NOTE: target.id is deprecated.
+			const name = target.node;
 			const input = animationDef.parameters !== undefined ? animationDef.parameters[ sampler.input ] : sampler.input;
 			const output = animationDef.parameters !== undefined ? animationDef.parameters[ sampler.output ] : sampler.output;
 

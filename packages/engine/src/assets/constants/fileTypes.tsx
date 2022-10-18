@@ -1,5 +1,5 @@
 // array containing audio file type
-export const AudioFileTypes = ['.mp3', '.mpeg', 'audio/mpeg']
+export const AudioFileTypes = ['.mp3', '.mpeg', 'audio/mpeg', '.ogg']
 //array containing video file type
 export const VideoFileTypes = ['.mp4', 'video/mp4']
 //array containing image files types
@@ -15,7 +15,7 @@ export const ImageFileTypes = [
   'image/ktx2'
 ]
 //array containing model file type.
-export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf-embedded', '.fbx']
+export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf-embedded', '.fbx', '.usdz']
 //array containing volumetric file type.
 export const VolumetricFileTypes = ['.drcs', '.uvol', '.manifest', '.mp4']
 //array containing custom script type.
