@@ -6,6 +6,7 @@ import { hookstate, useState } from '@xrengine/hyperflux/functions/StateFunction
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntityReactor } from '../../ecs/functions/EntityFunctions'
 import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
+import { addObjectToGroup } from './GroupComponent'
 import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
 
 export const VideoComponent = defineComponent({
@@ -17,6 +18,8 @@ export const VideoComponent = defineComponent({
     const videoMesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
     videoGroup.add(videoMesh)
     videoMesh.matrixAutoUpdate = false
+
+    addObjectToGroup(entity, videoGroup)
 
     const state = hookstate({
       side: DoubleSide as Side,

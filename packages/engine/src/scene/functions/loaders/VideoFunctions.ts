@@ -7,7 +7,7 @@ import { addComponent, getComponent, serializeComponent, useComponent } from '..
 import { createEntityReactor, EntityReactorParams } from '../../../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../../components/GroupComponent'
 import { MediaElementComponent } from '../../components/MediaComponent'
-import { useEntityWithUUID } from '../../components/UUIDComponent'
+import { UUIDComponent } from '../../components/UUIDComponent'
 import { VideoComponent } from '../../components/VideoComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
@@ -30,7 +30,8 @@ export const enterVideo = (entity: Entity) => {
 
 export const VideoReactor = ({ entity, destroyReactor }: EntityReactorParams) => {
   const video = useComponent(entity, VideoComponent)
-  const mediaEntity = useEntityWithUUID(video?.mediaUUID.value, entity)
+  const mediaUUID = video?.mediaUUID.value ?? ''
+  const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID].value ?? entity
   const mediaElement = useComponent(mediaEntity, MediaElementComponent)
 
   useEffect(() => {

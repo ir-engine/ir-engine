@@ -10,6 +10,7 @@ import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/Comp
 import { MediaSettingReceptor, restoreMediaSettings } from '../../networking/MediaSettingsState'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SCENE_COMPONENT_VIDEO, VideoComponent } from '../../scene/components/VideoComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { SCENE_COMPONENT_VOLUMETRIC, VolumetricComponent } from '../../scene/components/VolumetricComponent'
@@ -178,28 +179,8 @@ export default async function MediaSystem(world: World) {
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
   const mediaQuery = defineQuery([MediaComponent])
-  const mediaElementQuery = defineQuery([MediaElementComponent])
-
   const videoQuery = defineQuery([VideoComponent])
-
-  const videoWithMediaQuery = defineReactiveQuery([VideoComponent], () => {
-    const videos = useQuery(videoQuery)
-    for (const entity of videos) {
-
-    }
-    const mediaEntityUUID = getComponent(entity, VideoComponent).mediaEntity.value
-    return mediaEntityUUID ? world.entityTree.uuidNodeMap.get(mediaEntityUUID)?.entity : entity
-  }) 
-  
-  const videoQuery
-  const videoWithMediaQuery2 = defineComplexQuery((entity) => {
-
-    const mediaEntityUUID = getComponent(entity, VideoComponent).mediaEntity.value
-    const mediaEntity = mediaEntityUUID ? world.entityTree.uuidNodeMap.get(mediaEntityUUID)?.entity : entity
-    return entity
-  })
-
-  const volumetricQuery = defineQuery([MediaElementComponent, VolumetricComponent])
+  const volumetricQuery = defineQuery([VolumetricComponent])
 
   await Promise.all(
     Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
@@ -221,16 +202,7 @@ export default async function MediaSystem(world: World) {
       setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }
 
-    const mediaElements = mediaElementQuery()
-
-    for (const entity of videoQuery()) {
-      const mediaEntityUUID = getComponent(entity, VideoComponent).mediaEntity.value
-      const mediaEntity = mediaEntityUUID ? world.entityTree.uuidNodeMap.get(mediaEntityUUID)?.entity : entity
-      const media = getComponent(mediaEntity, MediaElementComponent)
-
-      enterVideo(entity, )
-    }
-
+    for (const entity of videoQuery.enter()) enterVideo(entity)
     for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
   }

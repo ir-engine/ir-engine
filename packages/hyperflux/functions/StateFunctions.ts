@@ -1,24 +1,10 @@
-import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
-import React from 'react'
+import { createState, SetInitialStateAction, State } from '@hookstate/core'
 
 import multiLogger from '@xrengine/common/src/logger'
 
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
-
-const isReactRendering = () =>
-  !!(React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher.current
-
-/**
- * Automatically wraps the given hookstate in a useHookstate hook, if react is rendering.
- * @param state
- * @returns
- */
-export const autoUse = <S, E = {}>(state: State<S, E>): State<S, E> => {
-  if (isReactRendering()) return useHookstate(state)
-  return state
-}
 
 const logger = multiLogger.child({ component: 'hyperflux:State' })
 

@@ -1,7 +1,7 @@
-import { autoUse, createState, none } from '@xrengine/hyperflux'
+import { createState, none } from '@xrengine/hyperflux'
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const NameComponent = defineComponent({
   name: 'NameComponent',
@@ -23,11 +23,3 @@ export const NameComponent = defineComponent({
 
   entitiesByName: createState({} as Record<string, Entity>)
 })
-
-export const setNameComponent = (entity: Entity, name: string) => {
-  setComponent(entity, NameComponent, name)
-}
-
-export function useEntityWithName(name = '', fallbackEntity = UndefinedEntity): Entity {
-  return autoUse(NameComponent.entitiesByName[name]).value ?? fallbackEntity
-}

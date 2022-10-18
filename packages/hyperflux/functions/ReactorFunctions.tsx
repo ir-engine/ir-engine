@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { Component } from 'react'
 import Reconciler from 'react-reconciler'
 import {
   ConcurrentRoot,
@@ -14,7 +14,7 @@ const ReactorReconciler = Reconciler({
   prepareForCommit: () => null,
   resetAfterCommit: () => {},
   createInstance: () => {
-    throw new Error('Only functional components are supported in a HyperFlux Reactor')
+    throw new Error('Only logical components are supported in a HyperFlux Reactor')
   },
   appendInitialChild: () => {},
   finalizeInitialChildren: () => {
@@ -23,7 +23,7 @@ const ReactorReconciler = Reconciler({
   prepareUpdate: () => null,
   shouldSetTextContent: () => false,
   createTextInstance: () => {
-    throw new Error('Only functional components are supported in a HyperFlux Reactor')
+    throw new Error('Only logical components are supported in a HyperFlux Reactor')
   },
   scheduleTimeout: setTimeout,
   cancelTimeout: clearTimeout,
@@ -45,7 +45,7 @@ const ReactorReconciler = Reconciler({
 
 export type ReactorDestroyFunction = () => void
 
-export function createReactor(Reactor: () => void): ReactorDestroyFunction {
+export function createReactor(Reactor: React.FC<{ destroyReactor: () => void }>) {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -62,13 +62,9 @@ export function createReactor(Reactor: () => void): ReactorDestroyFunction {
     null
   )
 
-  const ReactorFunc = Reactor as () => null
-
-  ReactorReconciler.updateContainer(<ReactorFunc />, root, null, null)
-
-  function destroyFunction() {
+  function destroyReactor() {
     ReactorReconciler.updateContainer(null, root, null)
   }
 
-  return destroyFunction
+  ReactorReconciler.updateContainer(<Reactor destroyReactor={destroyReactor} />, root, null, null)
 }

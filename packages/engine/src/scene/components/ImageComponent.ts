@@ -18,8 +18,10 @@ import { hookstate, useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
+import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntityReactor, EntityReactorParams } from '../../ecs/functions/EntityFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
@@ -156,6 +158,9 @@ export const ImageReactor = createHookableFunction(function ImageReactor({
       image.mesh.material.map.set(texture.value)
       image.mesh.visible.set(true)
       image.mesh.material.value.needsUpdate = true
+
+      // upload to GPU immediately
+      EngineRenderer.instance.renderer.initTexture(texture.value)
 
       removeError(entity, ImageComponent.name)
     },

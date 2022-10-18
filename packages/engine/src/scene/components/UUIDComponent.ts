@@ -1,6 +1,6 @@
-import { autoUse, createState, none } from '@xrengine/hyperflux'
+import { createState, none } from '@xrengine/hyperflux'
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const UUIDComponent = defineComponent({
@@ -25,7 +25,3 @@ export const UUIDComponent = defineComponent({
 
   entitiesByUUID: createState({} as Record<string, Entity>)
 })
-
-export function useEntityWithUUID(uuid: string = '', fallbackEntity = UndefinedEntity): Entity {
-  return autoUse(UUIDComponent.entitiesByUUID[uuid]).value ?? fallbackEntity
-}
