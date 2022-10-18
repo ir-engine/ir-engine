@@ -129,13 +129,14 @@ export class SocketWebRTCClientNetwork extends Network {
     port: string
     locationId?: string | null
     channelId?: string | null
+    roomCode?: string | null
   }): Promise<void> {
     this.reconnecting = false
     if (this.socket) {
       return logger.error(new Error('Network already initialized'))
     }
     logger.info('Initialising transport with args %o', args)
-    const { ipAddress, port, locationId, channelId } = args
+    const { ipAddress, port, locationId, channelId, roomCode } = args
 
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value
@@ -143,11 +144,13 @@ export class SocketWebRTCClientNetwork extends Network {
     const query = {
       locationId,
       channelId,
+      roomCode,
       token
     }
 
     if (locationId) delete query.channelId
     if (channelId) delete query.locationId
+    if (!roomCode) delete query.roomCode
 
     try {
       if (globalThis.process.env['VITE_LOCAL_BUILD'] === 'true') {
