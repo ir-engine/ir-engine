@@ -1,15 +1,9 @@
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
 
 import { AudioState } from '../audio/AudioState'
-import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
 import { XRState } from '../xr/XRState'
-
-const AudioSettingDBPrefix = 'media-settings-'
-const MediaSettings = {
-  MODE: AudioSettingDBPrefix + 'MODE'
-}
 
 /**
  * All values ranged from 0 to 1
@@ -19,20 +13,16 @@ export const MediaSettingsState = defineState({
   initial: () => ({
     /** @todo implement UI setting for changing immersiveMediaMode */
     immersiveMediaMode: 'auto' as 'auto' | 'on' | 'off'
-  })
+  }),
+  onCreate: () => {
+    syncStateWithLocalStorage(MediaSettingsState, ['immersiveMediaMode'])
+  }
 })
-
-export function restoreMediaSettings() {
-  ClientStorage.get(MediaSettings.MODE).then((v: string) => {
-    if (typeof v !== 'undefined') dispatchAction(MediaSettingAction.setImmersiveMediaMode({ mode: v }))
-  })
-}
 
 export function MediaSettingReceptor(action) {
   const s = getState(MediaSettingsState)
   matches(action).when(MediaSettingAction.setImmersiveMediaMode.matches, (action) => {
     s.merge({ immersiveMediaMode: action.mode as 'auto' | 'on' | 'off' })
-    ClientStorage.set(MediaSettings.MODE, action.mode)
   })
 }
 

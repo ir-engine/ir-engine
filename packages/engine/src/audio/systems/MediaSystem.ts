@@ -7,7 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { MediaSettingReceptor, restoreMediaSettings } from '../../networking/MediaSettingsState'
+import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
 import { SCENE_COMPONENT_VIDEO, VideoComponent } from '../../scene/components/VideoComponent'
@@ -30,7 +30,7 @@ import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '../../transform/components/TransformComponent'
-import { accessAudioState, AudioSettingReceptor, AudioState, restoreAudioSettings } from '../AudioState'
+import { accessAudioState, AudioSettingReceptor, AudioState } from '../AudioState'
 import {
   PositionalAudioComponent,
   SCENE_COMPONENT_AUDIO as SCENE_COMPONENT_POSITIONAL_AUDIO
@@ -168,9 +168,6 @@ export default async function MediaSystem(world: World) {
   Engine.instance.gainNodeMixBuses.music.connect(Engine.instance.cameraGainNode)
   Engine.instance.gainNodeMixBuses.soundEffects = Engine.instance.audioContext.createGain()
   Engine.instance.gainNodeMixBuses.soundEffects.connect(Engine.instance.cameraGainNode)
-
-  restoreAudioSettings()
-  restoreMediaSettings()
 
   addActionReceptor(AudioSettingReceptor)
   addActionReceptor(MediaSettingReceptor)
