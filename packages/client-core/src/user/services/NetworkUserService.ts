@@ -9,7 +9,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 
 //State
-const NetworkUserState = defineState({
+export const NetworkUserState = defineState({
   name: 'NetworkUserState',
   initial: () => ({
     users: [] as Array<UserInterface>,

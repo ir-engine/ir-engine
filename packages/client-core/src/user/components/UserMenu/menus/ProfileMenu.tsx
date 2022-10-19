@@ -346,12 +346,6 @@ const ProfileMenu = ({
     }
   }
 
-  const goToEthNFT = () => {
-    let token = JSON.stringify(localStorage.getItem('TheOverlay-Auth-Store'))
-    if (userId && token)
-      window.open(`${globalThis.process.env['VITE_ETH_MARKETPLACE']}?data=${userId}&token=${token}`, '_blank')
-  }
-
   const enableWalletLogin = authState?.didWallet
 
   const enableSocial =

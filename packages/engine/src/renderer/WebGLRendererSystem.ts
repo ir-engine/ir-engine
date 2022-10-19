@@ -37,12 +37,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import {
-  accessEngineRendererState,
-  EngineRendererAction,
-  EngineRendererReceptor,
-  restoreEngineRendererData
-} from './EngineRendererState'
+import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
 import WebGL from './THREE.WebGL'
@@ -282,8 +277,6 @@ export class EngineRenderer {
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  restoreEngineRendererData()
-
   const setQualityLevelActions = createActionQueue(EngineRendererAction.setQualityLevel.matches)
   const setAutomaticActions = createActionQueue(EngineRendererAction.setAutomatic.matches)
   const setPostProcessingActions = createActionQueue(EngineRendererAction.setPostProcessing.matches)
@@ -293,7 +286,6 @@ export default async function WebGLRendererSystem(world: World) {
   const changeNodeHelperVisibilityActions = createActionQueue(EngineRendererAction.changeNodeHelperVisibility.matches)
   const changeGridToolHeightActions = createActionQueue(EngineRendererAction.changeGridToolHeight.matches)
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
-  const restoreStorageDataActions = createActionQueue(EngineRendererAction.restoreStorageData.matches)
 
   const updateToneMapping = () => {
     EngineRenderer.instance.renderer.toneMapping = world.sceneMetadata.renderSettings.toneMapping.value
@@ -329,7 +321,6 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeNodeHelperVisibilityActions()) EngineRendererReceptor.changeNodeHelperVisibility(action)
     for (const action of changeGridToolHeightActions()) EngineRendererReceptor.changeGridToolHeight(action)
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
-    for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
 
     EngineRenderer.instance.execute(world.deltaSeconds)
   }
@@ -344,7 +335,6 @@ export default async function WebGLRendererSystem(world: World) {
     removeActionQueue(changeNodeHelperVisibilityActions)
     removeActionQueue(changeGridToolHeightActions)
     removeActionQueue(changeGridToolVisibilityActions)
-    removeActionQueue(restoreStorageDataActions)
   }
 
   return { execute, cleanup }

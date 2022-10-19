@@ -30,5 +30,6 @@ export const defineState = dynamicFunctionReference(StateFunctions, 'defineState
 export const getState = dynamicFunctionReference(StateFunctions, 'getState')
 export const addStateReactor = dynamicFunctionReference(StateFunctions, 'addStateReactor')
 export const removeStateReactor = dynamicFunctionReference(StateFunctions, 'removeStateReactor')
+export const syncStateWithLocalStorage = dynamicFunctionReference(StateFunctions, 'syncStateWithLocalStorage')
 
 export type { HyperStore }

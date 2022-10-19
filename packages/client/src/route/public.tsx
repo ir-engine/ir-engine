@@ -25,12 +25,7 @@ import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
-import {
-  LocalStateServiceReceptor,
-  StoredLocalAction,
-  StoredLocalStoreService
-} from '@xrengine/client-core/src/util/StoredLocalState'
-import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
@@ -55,7 +50,6 @@ function RouterComp() {
 
   useEffect(() => {
     addActionReceptor(RouterServiceReceptor)
-    addActionReceptor(LocalStateServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
@@ -68,9 +62,6 @@ function RouterComp() {
     addActionReceptor(ProjectServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
-
-    dispatchAction(StoredLocalAction.restoreLocalData({}))
-    StoredLocalStoreService.fetchLocalStoredState()
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
@@ -86,7 +77,6 @@ function RouterComp() {
 
     return () => {
       removeActionReceptor(RouterServiceReceptor)
-      removeActionReceptor(LocalStateServiceReceptor)
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)

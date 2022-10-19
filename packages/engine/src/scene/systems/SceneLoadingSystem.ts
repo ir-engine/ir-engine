@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash'
+import { cloneDeep, merge } from 'lodash'
 import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -212,7 +212,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   world.sceneJson = sceneData.scene
 
   /** @todo - check for removed metadata types */
-  world.sceneMetadata.merge((sceneData.scene.metadata as any) ?? {})
+  world.sceneMetadata.set({ ...world.sceneMetadata.get({ noproxy: true }), ...sceneData.scene.metadata })
 
   /** 4. update scene entities with new data, and load new ones */
   updateRootNodeUuid(sceneData.scene.root, world.entityTree)
