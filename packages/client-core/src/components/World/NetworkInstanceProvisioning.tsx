@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import { useHistory } from 'react-router'
 
 import {
   LocationInstanceConnectionService,
@@ -22,17 +21,10 @@ import {
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import {
-  addActionReceptor,
-  dispatchAction,
-  getState,
-  removeActionReceptor,
-  useHookEffect,
-  useHookstate
-} from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
-import { AppState } from '../../common/services/AppService'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
+import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const NetworkInstanceProvisioning = () => {
@@ -43,12 +35,7 @@ export const NetworkInstanceProvisioning = () => {
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
-  const history = useHistory()
   const partyState = usePartyState()
-
-  const appState = useHookstate(getState(AppState))
-  const showTopShelf = appState.showTopShelf.value
-  const showBottomShelf = appState.showTopShelf.value
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
@@ -75,19 +62,10 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [])
 
-  /** if the instance that got provisioned is not the one that was entered into the URL, update the URL */
-  useHookEffect(() => {
-    if (worldNetworkHostId) {
-      const url = new URL(window.location.href)
-      const searchParams = url.searchParams
-      const instanceId = searchParams.get('instanceId')
-      if (instanceId !== worldNetworkHostId) searchParams.set('instanceId', worldNetworkHostId)
-      history.push(url.pathname + url.search)
-    }
-  }, [currentLocationInstanceConnection])
+  useRoomCodeURLParam()
 
   // 2. once we have the location, provision the instance server
-  useHookEffect(() => {
+  useEffect(() => {
     const currentLocation = locationState.currentLocation.location
     const isProvisioned = worldNetworkHostId && currentLocationInstanceConnection?.provisioned.value
 
@@ -113,7 +91,7 @@ export const NetworkInstanceProvisioning = () => {
   }, [locationState.currentLocation.location])
 
   // 3. once engine is initialised and the server is provisioned, connect to the instance server
-  useHookEffect(() => {
+  useEffect(() => {
     if (
       engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
@@ -132,7 +110,7 @@ export const NetworkInstanceProvisioning = () => {
   ])
 
   // media server provisioning
-  useHookEffect(() => {
+  useEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
@@ -141,17 +119,17 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [chatState.instanceChannelFetched])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value)
       NetworkUserService.getLayerUsers(true)
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value)
       NetworkUserService.getLayerUsers(false)
   }, [selfUser?.channelInstanceId, userState.channelLayerUsersUpdateNeeded])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
       const partyChannel = Object.values(chatState.channels.channels.value).find(
         (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
@@ -177,16 +155,16 @@ export const NetworkInstanceProvisioning = () => {
     chatState.partyChannelFetched?.value
   ])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (selfUser.partyId.value) dispatchAction(ChatAction.refetchPartyChannelAction({}))
   }, [selfUser.partyId.value])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (partyState.updateNeeded.value) PartyService.getParty()
   }, [partyState.updateNeeded.value])
 
   // if a media connection has been provisioned and is ready, connect to it
-  useHookEffect(() => {
+  useEffect(() => {
     if (
       mediaNetworkHostId &&
       currentChannelInstanceConnection?.value &&
