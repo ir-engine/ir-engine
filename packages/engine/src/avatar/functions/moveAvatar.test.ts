@@ -14,7 +14,7 @@ import { Physics } from '../../physics/classes/Physics'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { createAvatar } from './createAvatar'
-import { moveLocalAvatar } from './moveAvatar'
+import { moveAvatarWithVelocity } from './moveAvatar'
 
 // @todo this test is exhibiting odd behaviour
 describe('moveAvatar function tests', () => {
@@ -51,7 +51,7 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.linear.z, 0)
 
     /* run */
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
 
     /* assert */
   })
@@ -80,7 +80,7 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.linear.z, 0)
 
     /* run */
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
 
     /* assert */
   })
@@ -114,7 +114,7 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.linear.z, 0)
 
     /* run */
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
 
     /* assert */
   })
@@ -145,17 +145,17 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.linear.z, 0)
 
     /* run */
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveLocalAvatar(entity)
+    moveAvatarWithVelocity(entity)
 
     /* assert */
   })
