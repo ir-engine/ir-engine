@@ -2,6 +2,7 @@ import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@xrengine/client-core/src/components/useFullscreen'
+import { iOS } from '@xrengine/engine/src/common/functions/isMobile'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 
@@ -30,7 +31,9 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
     else handle.exit()
   }, [fullScreenActive])
 
-  return (
+  return iOS ? (
+    <></>
+  ) : (
     <FullscreenContext.Provider value={[fullScreenActive, setFullScreenActive]}>
       <FullScreen handle={handle} onChange={reportChange}>
         <div id={'engine-container'} ref={ref}>
