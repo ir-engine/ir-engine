@@ -2,6 +2,7 @@ import React from 'react'
 
 import { TouchGamepad } from '@xrengine/client-core/src/common/components/TouchGamepad'
 import { UserMenu } from '@xrengine/client-core/src/user/components/UserMenu'
+import { iOS } from '@xrengine/engine/src/common/functions/isMobile'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
@@ -30,7 +31,7 @@ export const LocationIcons = () => {
         <XRLoading />
         <MediaIconsBox />
         <TouchGamepad />
-        <Fullscreen />
+        {iOS && <Fullscreen />}
       </div>
     </>
   )
