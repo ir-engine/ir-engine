@@ -383,9 +383,12 @@ const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAl
     if (getState(AvatarInputSettingsState).controlScheme.value === 'AvatarMovementScheme_Teleport') {
       moveAvatarWithTeleport(entity, inputValue.value[1], inputKey === BaseInput.PRIMARY_MOVE_LEFT ? 'left' : 'right')
 
-      if (inputValue.lifecycleState === LifecycleValue.Started) {
+      if (
+        inputValue.lifecycleState === LifecycleValue.Started &&
+        Math.abs(inputValue.value[0]) > 0.01 &&
+        Math.abs(inputValue.value[1]) < 0.1
+      )
         rotateAvatar(entity, (Math.PI / 6) * (inputValue.value[0] > 0 ? -1 : 1)) // 30 degrees
-      }
     } else if (inputValue.value[0] !== 0) {
       rotateAvatar(entity, -inputValue.value[0] * vrAxisLookSensitivity)
     }
@@ -408,9 +411,12 @@ const moveRightController: InputBehaviorType = (entity: Entity, inputKey: InputA
     if (getState(AvatarInputSettingsState).controlScheme.value === 'AvatarMovementScheme_Teleport') {
       moveAvatarWithTeleport(entity, inputValue.value[1], inputKey === BaseInput.PRIMARY_MOVE_LEFT ? 'left' : 'right')
 
-      if (inputValue.lifecycleState === LifecycleValue.Started && Math.abs(inputValue.value[0]) > 0.1) {
+      if (
+        inputValue.lifecycleState === LifecycleValue.Started &&
+        Math.abs(inputValue.value[0]) > 0.01 &&
+        Math.abs(inputValue.value[1]) < 0.1
+      )
         rotateAvatar(entity, (Math.PI / 6) * (inputValue.value[0] > 0 ? -1 : 1)) // 30 degrees
-      }
     }
   }
 }
