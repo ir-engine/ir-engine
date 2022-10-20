@@ -56,7 +56,6 @@ export default async function XRSystem(world: World) {
     subsystems: [
       () => Promise.resolve({ default: XR8 }),
       () => Promise.resolve({ default: XRAnchorSystem }),
-      () => Promise.resolve({ default: XRCameraSystem }),
       () => Promise.resolve({ default: XRControllerSystem }),
       () => Promise.resolve({ default: XRHapticsSystem }),
       () => Promise.resolve({ default: XRLightProbeSystem }),

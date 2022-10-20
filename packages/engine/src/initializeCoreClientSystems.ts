@@ -5,6 +5,7 @@ import MaterialLibrarySystem from './renderer/materials/systems/MaterialLibraryS
 import WebGLRendererSystem from './renderer/WebGLRendererSystem'
 import InstancingSystem from './scene/systems/InstancingSystem'
 import SceneObjectDynamicLoadSystem from './scene/systems/SceneObjectDynamicLoadSystem'
+import XRCameraSystem from './xr/XRCameraSystem'
 import XRSystem from './xr/XRSystem'
 import XRUISystem from './xrui/systems/XRUISystem'
 
@@ -44,6 +45,11 @@ export default function () {
       uuid: 'xre.engine.InstancingSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => Promise.resolve({ default: InstancingSystem })
+    },
+    {
+      uuid: 'xre.engine.WebGLRendererSystem',
+      type: SystemUpdateType.RENDER,
+      systemLoader: () => Promise.resolve({ default: XRCameraSystem })
     },
     {
       uuid: 'xre.engine.WebGLRendererSystem',
