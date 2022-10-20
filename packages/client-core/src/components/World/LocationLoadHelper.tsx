@@ -6,11 +6,9 @@ import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  initializeCoreSystems,
-  initializeRealtimeSystems,
-  initializeSceneSystems
-} from '@xrengine/engine/src/initializeEngine'
+import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+import { initializeRealtimeSystems } from '@xrengine/engine/src/initializeRealtimeSystems'
+import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
 import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import { getState } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'

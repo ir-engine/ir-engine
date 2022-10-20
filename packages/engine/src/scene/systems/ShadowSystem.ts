@@ -11,9 +11,9 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 
-const directionalLightQuery = defineQuery([DirectionalLightComponent])
-
 export default async function ShadowSystem(world: World) {
+  const directionalLightQuery = defineQuery([DirectionalLightComponent])
+
   let lastActiveDirectionLight = null as DirectionalLight | null
 
   const execute = () => {
