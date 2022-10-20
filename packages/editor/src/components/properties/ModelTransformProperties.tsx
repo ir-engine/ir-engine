@@ -13,7 +13,9 @@ import MeshBasicMaterial from '@xrengine/engine/src/renderer/materials/constants
 import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
 import { batchSetMaterialProperty } from '@xrengine/engine/src/renderer/materials/functions/batchEditMaterials'
 import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { ModelComponentType } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { useHookstate } from '@xrengine/hyperflux'
+import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { ToggleButton } from '@mui/material'
 
@@ -25,6 +27,7 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
+import LightmapBakerProperties from './LightmapBakerProperties'
 
 const TransformContainer = (styled as any).div`
   color: var(--textColor);
@@ -83,9 +86,14 @@ const OptimizeButton = styled(Button)`
   }
 `
 
-export default function ModelTransformProperties({ modelComponent, onChangeModel }) {
+export default function ModelTransformProperties({
+  modelState,
+  onChangeModel
+}: {
+  modelState: State<ModelComponentType>
+  onChangeModel: any
+}) {
   const { t } = useTranslation()
-
   const [transforming, setTransforming] = useState<boolean>(false)
   const [transformHistory, setTransformHistory] = useState<string[]>(() => [])
   const [transformParms, setTransformParms] = useState<ModelTransformParameters>({
@@ -108,13 +116,13 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
       ...(vertexBakeOptions.map.value ? [{ field: 'map', attribName: 'uv' }] : []),
       ...(vertexBakeOptions.lightMap.value ? [{ field: 'lightMap', attribName: 'uv2' }] : [])
     ] as { field: keyof MeshStandardMaterial; attribName: string }[]
-    const src: MaterialSource = { type: SourceType.MODEL, path: modelComponent.src }
+    const src: MaterialSource = { type: SourceType.MODEL, path: modelState.src.value }
     await Promise.all(
       materialsFromSource(src)?.map((matComponent) =>
         bakeToVertices<MeshStandardMaterial>(
           matComponent.material as MeshStandardMaterial,
           attribs,
-          modelComponent.scene,
+          modelState.scene.value,
           MeshBasicMaterial.prototypeId
         )
       ) ?? []
@@ -122,13 +130,13 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     if ([AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(vertexBakeOptions.matcapPath.value))) {
       batchSetMaterialProperty(src, 'matcap', await AssetLoader.loadAsync(vertexBakeOptions.matcapPath.value))
     }*/
-  }, [])
+  }, [modelState.src, modelState.scene])
 
   const attribToDelete = useHookstate('')
 
   const deleteAttribute = useCallback(() => {
     const toDelete = attribToDelete.value
-    modelComponent.scene?.traverse((mesh: Mesh) => {
+    modelState.scene.value?.traverse((mesh: Mesh) => {
       if (!mesh?.isMesh) return
       const geometry = mesh.geometry
       if (!geometry?.isBufferGeometry) return
@@ -148,11 +156,12 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
 
   async function onTransformModel() {
     setTransforming(true)
+    const modelSrc = modelState.src.value
     const nuPath = await API.instance.client.service('model-transform').create({
-      path: modelComponent.src,
+      path: modelSrc,
       transformParameters: { ...transformParms }
     })
-    setTransformHistory([modelComponent.src, ...transformHistory])
+    setTransformHistory([modelSrc, ...transformHistory])
     const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_\.]*)$/.exec(nuPath)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
     onChangeModel(nuPath)
@@ -168,6 +177,7 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
   return (
     <CollapsibleBlock label="Model Transform Properties">
       <TransformContainer>
+        <LightmapBakerProperties modelState={modelState} />
         <CollapsibleBlock label="glTF-Transform">
           <ElementsContainer>
             <InputGroup name="Model Format" label={t('editor:properties.model.transform.modelFormat')}>

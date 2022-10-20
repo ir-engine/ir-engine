@@ -17,8 +17,8 @@ export default function ParameterInput({ entity, values, defaults, onChange }) {
   function setArgsArrayProp(k, idx) {
     const thisOnChange = onChange(k)
     return (value) => {
-      values[k][idx] = value
-      thisOnChange(values[k])
+      const nuVals = values[k].map((oldVal, oldIdx) => (idx === oldIdx ? value : oldVal))
+      thisOnChange(nuVals)
     }
   }
   return (
