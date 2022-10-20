@@ -159,15 +159,39 @@ export default async function MediaSystem(world: World) {
     serialize: serializeVolumetric
   })
 
+  const audioState = getState(AudioState)
+  const currentTime = Engine.instance.audioContext.currentTime
+
+  Engine.instance.cameraGainNode.gain.setTargetAtTime(audioState.masterVolume.value, currentTime, 0.01)
+
   /** create gain nodes for mix buses */
   Engine.instance.gainNodeMixBuses.mediaStreams = Engine.instance.audioContext.createGain()
   Engine.instance.gainNodeMixBuses.mediaStreams.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.mediaStreams.gain.setTargetAtTime(
+    audioState.mediaStreamVolume.value,
+    currentTime,
+    0.01
+  )
+
   Engine.instance.gainNodeMixBuses.notifications = Engine.instance.audioContext.createGain()
   Engine.instance.gainNodeMixBuses.notifications.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.notifications.gain.setTargetAtTime(
+    audioState.notificationVolume.value,
+    currentTime,
+    0.01
+  )
+
   Engine.instance.gainNodeMixBuses.music = Engine.instance.audioContext.createGain()
   Engine.instance.gainNodeMixBuses.music.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.music.gain.setTargetAtTime(audioState.backgroundMusicVolume.value, currentTime, 0.01)
+
   Engine.instance.gainNodeMixBuses.soundEffects = Engine.instance.audioContext.createGain()
   Engine.instance.gainNodeMixBuses.soundEffects.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.soundEffects.gain.setTargetAtTime(
+    audioState.soundEffectsVolume.value,
+    currentTime,
+    0.01
+  )
 
   addActionReceptor(AudioSettingReceptor)
   addActionReceptor(MediaSettingReceptor)
