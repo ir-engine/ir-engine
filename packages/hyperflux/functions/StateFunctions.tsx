@@ -111,7 +111,6 @@ const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineStat
   for (const key of keys) {
     const storedValue = localStorage.getItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)
     if (storedValue !== null) state[key].set(JSON.parse(storedValue))
-    console.log('get syncStateWithLocalStorage', stateDefinition.name, storedValue, key)
   }
 
   state.attach(() => ({
@@ -120,13 +119,6 @@ const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineStat
       onSet(arg) {
         for (const key of keys) {
           if (arg.merged?.[key]) {
-            console.log(
-              'set syncStateWithLocalStorage',
-              stateDefinition.name,
-              arg,
-              key,
-              JSON.stringify(state[key].get({ noproxy: true }))
-            )
             localStorage.setItem(
               `${stateNamespaceKey}.${stateDefinition.name}.${key}`,
               JSON.stringify(state[key].get({ noproxy: true }))
