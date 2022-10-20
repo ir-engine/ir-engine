@@ -9,11 +9,9 @@ import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import {
-  initializeCoreSystems,
-  initializeRealtimeSystems,
-  initializeSceneSystems
-} from '@xrengine/engine/src/initializeEngine'
+import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+import { initializeRealtimeSystems } from '@xrengine/engine/src/initializeRealtimeSystems'
+import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import { EditorPage } from './EditorPage'
