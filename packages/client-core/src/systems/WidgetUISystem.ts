@@ -29,6 +29,7 @@ import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFi
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { addActionReceptor, createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { createAnchorWidget } from './createAnchorWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'
 // import { createEmoteWidget } from './createEmoteWidget'
@@ -64,6 +65,7 @@ export default async function WidgetSystem(world: World) {
     // temporarily only allow widgets on non hmd for local dev
     if (!createdWidgets && (isHMD || isDev)) {
       createdWidgets = true
+      // createAnchorWidget(world)
       // createProfileWidget(world)
       // createSettingsWidget(world)
       // createSocialsMenuWidget(world)
