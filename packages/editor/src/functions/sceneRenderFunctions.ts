@@ -8,11 +8,7 @@ import { addComponent, getComponent, removeComponent } from '@xrengine/engine/sr
 import { entityExists, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import {
-  accessEngineRendererState,
-  EngineRendererAction,
-  restoreEngineRendererData
-} from '@xrengine/engine/src/renderer/EngineRendererState'
+import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -25,7 +21,6 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
-import { restoreEditorHelperData } from '../services/EditorHelperState'
 import { EditorAction } from '../services/EditorServices'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
@@ -120,8 +115,6 @@ export async function initializeRenderer(): Promise<void> {
     dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
 
     accessEngineRendererState().automatic.set(false)
-    await restoreEditorHelperData()
-    await restoreEngineRendererData()
     dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: EngineRenderer.instance.maxQualityLevel }))
   } catch (error) {
     console.error(error)

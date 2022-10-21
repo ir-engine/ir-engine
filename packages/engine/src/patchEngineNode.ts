@@ -14,6 +14,16 @@ import 'url-polyfill'
 ;(globalThis as any).self.URL = URL
 ;(globalThis as any).Blob = Blob
 
+const _localStorage = {} as any
+;(globalThis as any).localStorage = {
+  setItem: (key, val) => {
+    _localStorage[key] = val
+  },
+  getItem: (key) => {
+    return _localStorage[key] ?? null
+  }
+}
+
 // patches for headless-gl - currently unused
 
 /*

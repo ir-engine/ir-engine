@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash'
+import { cloneDeep, merge } from 'lodash'
 import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -33,11 +33,27 @@ import { initSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
+import { ModelComponent, ModelComponentType, SCENE_COMPONENT_MODEL } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+
+export const prefetchModelAssets = (sceneJson: SceneJson, world: World) => {
+  for (const [uuid, entityJson] of Object.entries(sceneJson.entities)) {
+    const entityModelComponent = entityJson.components.find(
+      (comp) => comp.name === SCENE_COMPONENT_MODEL
+    ) as ComponentJson<ModelComponentType>
+    if (entityModelComponent) {
+      const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
+      const sameSource =
+        existingEntity &&
+        getComponent(existingEntity.entity, ModelComponent)?.src.value === entityModelComponent.props.src
+      if (!sameSource && entityModelComponent.props.src !== '') fetch(entityModelComponent.props.src, { mode: 'cors' })
+    }
+  }
+}
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
   const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
@@ -171,6 +187,8 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
 
+  prefetchModelAssets(sceneData.scene, world)
+
   /** get systems that have changed */
   const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
   const systemsToLoad = sceneSystems.filter(
@@ -212,7 +230,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   world.sceneJson = sceneData.scene
 
   /** @todo - check for removed metadata types */
-  world.sceneMetadata.merge((sceneData.scene.metadata as any) ?? {})
+  world.sceneMetadata.set({ ...world.sceneMetadata.get({ noproxy: true }), ...sceneData.scene.metadata })
 
   /** 4. update scene entities with new data, and load new ones */
   updateRootNodeUuid(sceneData.scene.root, world.entityTree)

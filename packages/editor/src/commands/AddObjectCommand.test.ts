@@ -23,6 +23,8 @@ import { deregisterEditorReceptors, registerEditorReceptors } from '../services/
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import { AddObjectCommand, AddObjectCommandParams } from './AddObjectCommand'
 
+import '@xrengine/engine/src/patchEngineNode'
+
 describe('AddObjectCommand', () => {
   let command = {} as AddObjectCommandParams
   let rootNode: EntityTreeNode

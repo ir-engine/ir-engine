@@ -14,6 +14,8 @@ import { TweenComponent } from '../transform/components/TweenComponent'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { AnimationManager } from './AnimationManager'
+import AvatarHandAnimationSystem from './AvatarHandAnimationSystem'
+import AvatarIKTargetSystem from './AvatarIKTargetSystem'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 
@@ -158,6 +160,9 @@ export default async function AnimationSystem(world: World) {
   return {
     execute,
     cleanup,
-    subsystems: [() => import('./AvatarIKTargetSystem'), () => import('./AvatarHandAnimationSystem')]
+    subsystems: [
+      () => Promise.resolve({ default: AvatarIKTargetSystem }),
+      () => Promise.resolve({ default: AvatarHandAnimationSystem })
+    ]
   }
 }

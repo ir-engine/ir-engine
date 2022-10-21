@@ -11,12 +11,9 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import {
-  initializeCoreSystems,
-  initializeMediaServerSystems,
-  initializeRealtimeSystems,
-  initializeSceneSystems
-} from '@xrengine/engine/src/initializeEngine'
+import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+import { initializeRealtimeSystems } from '@xrengine/engine/src/initializeRealtimeSystems'
+import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -197,15 +194,13 @@ const initializeInstance = async (
   } else {
     const instance = existingInstanceResult.data[0]
     if (locationId) {
-      const user = await app.service('user').get(userId)
-      const existingChannel = (await app.service('channel').find({
-        query: {
+      const existingChannel = await app.service('channel').Model.findOne({
+        where: {
           channelType: 'instance',
           instanceId: instance.id
-        },
-        'identity-provider': user['identity_providers']![0]
-      } as any)) as Channel[]
-      if (existingChannel.length === 0) {
+        }
+      })
+      if (!existingChannel) {
         await app.service('channel').create({
           channelType: 'instance',
           instanceId: instance.id
@@ -239,8 +234,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   if (app.isChannelInstance) {
     world._mediaHostId = hostId as UserId
-    await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
+    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {

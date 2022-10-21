@@ -6,6 +6,7 @@ import * as k8s from '@kubernetes/client-node'
 import type SocketIO from 'socket.io'
 
 import { ServiceTypes } from '@xrengine/common/declarations'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerNetwork'
 
@@ -31,7 +32,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   serverMode: ServerTypeMode
 
   // Instanceserver
-  instance: any
+  instance: any // todo: make type 'Instance'
   isSubdomainNumber: string
   isChannelInstance: boolean
   instanceServer: any

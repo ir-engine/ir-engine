@@ -26,10 +26,7 @@ export default async function LoadingUISystem(world: World) {
   const sceneState = accessSceneState()
   const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'envmap.png')!
 
-  const [ui, texture] = await Promise.all([
-    createLoaderDetailView(transition),
-    new Promise<Texture | null>((resolve) => textureLoader.load(thumbnailUrl, resolve, null!, () => resolve(null)))
-  ])
+  const ui = createLoaderDetailView(transition)
 
   addComponent(ui.entity, NameComponent, 'Loading XRUI')
 
@@ -37,7 +34,12 @@ export default async function LoadingUISystem(world: World) {
     new SphereGeometry(10),
     new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
   )
-  if (texture) mesh.material.map = texture!
+  mesh.visible = false
+  textureLoader.load(thumbnailUrl, (texture) => {
+    if (texture) mesh.material.map = texture!
+    mesh.visible = true
+  })
+
   // flip inside out
   mesh.scale.set(-1, 1, 1)
   mesh.renderOrder = 1
