@@ -113,6 +113,11 @@ export class GithubStrategy extends CustomOAuthStrategy {
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: CustomOAuthParams) {
+    if (authentication.error) {
+      if (authentication.error.message === 'Bad credentials')
+        throw new Error('You canceled the GitHub OAuth login flow')
+      else throw new Error('There was a problem with the GitHub OAuth login flow: ' + authentication.error.message)
+    }
     originalParams.access_token = authentication.access_token
     return super.authenticate(authentication, originalParams)
   }

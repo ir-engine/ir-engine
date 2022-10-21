@@ -110,7 +110,14 @@ export class DiscordStrategy extends CustomOAuthStrategy {
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
-    if (authentication.error && authentication.error === 'access_denied') throw new Error(authentication.error)
+    if (authentication.error) {
+      if (authentication.error === 'access_denied') throw new Error('You canceled the Discord OAuth login flow')
+      else
+        throw new Error(
+          'There was a problem with the Discord OAuth login flow: ' + authentication.error_description ||
+            authentication.error
+        )
+    }
     return super.authenticate(authentication, originalParams)
   }
 }

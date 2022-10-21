@@ -1,3 +1,4 @@
+import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
@@ -106,6 +107,20 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
       return returned
     }
+  }
+
+  async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
+    console.log('authentication', authentication)
+    if (authentication.error) {
+      if (authentication.error === 'user_cancelled_authorize')
+        throw new Error('You canceled the LinkedIn OAuth login flow')
+      else
+        throw new Error(
+          'There was a problem with the LinkedIn OAuth login flow: ' + authentication.error_description ||
+            authentication.error
+        )
+    }
+    return super.authenticate(authentication, originalParams)
   }
 }
 export default LinkedInStrategy
