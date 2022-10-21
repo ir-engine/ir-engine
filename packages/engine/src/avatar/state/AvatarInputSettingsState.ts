@@ -9,6 +9,7 @@ export const AvatarInputSettingsState = defineState({
   initial: () => ({
     controlType: AvatarControllerType.None as typeof AvatarControllerType[keyof typeof AvatarControllerType],
     controlScheme: AvatarMovementScheme.Linear as typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme],
+    preferredHand: 'right' as 'left' | 'right',
     invertRotationAndMoveSticks: true,
     // TODO: implement the following
     moving: XR_FOLLOW_MODE.CONTROLLER as XR_FOLLOW_MODE,
@@ -32,6 +33,9 @@ export function AvatarInputSettingsReceptor(action) {
     .when(AvatarInputSettingsAction.setControlScheme.matches, (action) => {
       return s.merge({ controlScheme: action.scheme })
     })
+    .when(AvatarInputSettingsAction.setPreferredHand.matches, (action) => {
+      return s.merge({ preferredHand: action.handdedness })
+    })
     .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
       return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
     })
@@ -49,6 +53,11 @@ export class AvatarInputSettingsAction {
   static setControlScheme = defineAction({
     type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_CONTROL_SCHEME' as const,
     scheme: matches.string as Validator<unknown, typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme]>
+  })
+
+  static setPreferredHand = defineAction({
+    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_PREFERRED_HAND' as const,
+    handdedness: matches.string as Validator<unknown, 'left' | 'right'>
   })
 
   static setInvertRotationAndMoveSticks = defineAction({

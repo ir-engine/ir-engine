@@ -11,7 +11,7 @@ type WidgetState = {
   }
 }
 
-const WidgetAppState = defineState({
+export const WidgetAppState = defineState({
   name: 'WidgetAppState',
   initial: () => ({
     widgetsMenuOpen: false,
@@ -53,12 +53,9 @@ export const WidgetAppServiceReceptor = (action) => {
     })
 }
 
-export const accessWidgetAppState = () => getState(WidgetAppState)
-export const useWidgetAppState = () => useState(accessWidgetAppState())
-
 export const WidgetAppService = {
   setWidgetVisibility: (widgetName: string, visibility: boolean) => {
-    const widgetState = accessWidgetAppState()
+    const widgetState = getState(WidgetAppState)
     const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
       id,
       ...widgetState,
