@@ -193,6 +193,10 @@ export class S3Provider implements StorageProviderInterface {
           Key: key
         }
 
+    if (data.ContentEncoding) (args as StorageObjectInterface).ContentEncoding = data.ContentEncoding
+
+    if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
+
     const result = await this.provider.putObject(args).promise()
 
     return result
