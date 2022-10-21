@@ -1,7 +1,7 @@
 import * as bitECS from 'bitecs'
-import { startTransition, useEffect } from 'react'
+import { startTransition } from 'react'
 
-import { createReactor, createState, State } from '@xrengine/hyperflux'
+import { createReactor, ReactorRoot } from '@xrengine/hyperflux'
 
 import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
@@ -20,8 +20,8 @@ export const removeEntity = (entity: Entity, immediately = false, world = Engine
 
   startTransition(() => {
     setComponent(entity, EntityRemovedComponent, true)
-    if (reactorEntityStates.has(entity)) {
-      for (const state of reactorEntityStates.get(entity)!) {
+    if (entityReactorRoots.has(entity)) {
+      for (const state of entityReactorRoots.get(entity)!) {
         state.set(UndefinedEntity)
       }
     }
@@ -36,27 +36,23 @@ export const entityExists = (entity: Entity, world = Engine.instance.currentWorl
   return bitECS.entityExists(world, entity)
 }
 
-const reactorEntityStates = new Map<Entity, State<Entity>[]>()
-
-export interface EntityReactorParams {
+interface EntityReactorRoot extends ReactorRoot {
   entity: Entity
-  destroyReactor: () => void
 }
 
-export const createEntityReactor = (
-  entity: Entity,
-  entityReactor: (entityReactorParams: EntityReactorParams) => void
-) => {
-  const entityState = createState(entity)
-  if (!reactorEntityStates.has(entity)) reactorEntityStates.set(entity, [])
-  reactorEntityStates.get(entity)!.push(entityState)
-  const destroy = createReactor(() => {
-    entityReactor({ entity: entityState.value, destroyReactor: destroy })
-    useEffect(() => {
-      if (!entityState.value) {
-        destroy()
-      }
-    }, [entityState])
-  })
-  return destroy
+/**
+ * This state allows entity reactors to be destroyed when their associated entity is destroyed
+ */
+const entityReactorRoots = new Array<EntityReactorRoot>()
+
+export interface EntityReactorProps {
+  root: EntityReactorRoot
+}
+
+export const createEntityReactor = (entity: Entity, EntityReactor: React.FC<EntityReactorProps>) => {
+  const root = createReactor(() => {
+    return <EntityReactor root={root} />
+  }) as EntityReactorRoot
+  root.entity = entity
+  entityReactorRoots.push(root)
 }

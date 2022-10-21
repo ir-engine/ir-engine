@@ -1,4 +1,4 @@
-import { createState, none } from '@xrengine/hyperflux'
+import { hookstate, none } from '@xrengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
@@ -21,5 +21,5 @@ export const NameComponent = defineComponent({
     }
   },
 
-  entitiesByName: createState({} as Record<string, Entity>)
+  entitiesByName: hookstate({} as Record<string, Entity>)
 })

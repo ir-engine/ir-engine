@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import {
   BufferGeometry,
   CompressedTexture,
@@ -18,9 +18,8 @@ import { hookstate, useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntityReactor, EntityReactorParams } from '../../ecs/functions/EntityFunctions'
+import { createEntityReactor, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, removeError } from '../functions/ErrorFunctions'
@@ -108,10 +107,10 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 
 export const SCENE_COMPONENT_IMAGE = 'image'
 
-export const ImageReactor = createHookableFunction(function ImageReactor({
+export const ImageReactor: React.FC<EntityReactorProps> = createHookableFunction(function ImageReactor({
   entity,
   destroyReactor
-}: EntityReactorParams) {
+}) {
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
 
@@ -196,4 +195,6 @@ export const ImageReactor = createHookableFunction(function ImageReactor({
     },
     [image?.alphaMode, image?.alphaCutoff, image?.side]
   )
+
+  return null
 })

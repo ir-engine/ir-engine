@@ -1,11 +1,13 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { VideoTexture } from 'three'
 
 import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, serializeComponent, useComponent } from '../../../ecs/functions/ComponentFunctions'
-import { createEntityReactor, EntityReactorParams } from '../../../ecs/functions/EntityFunctions'
-import { addObjectToGroup } from '../../components/GroupComponent'
+import { addComponent, serializeComponent, useComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EntityReactorProps } from '../../../ecs/functions/EntityFunctions'
+import { ObjectFitFunctions } from '../../../xrui/functions/ObjectFitFunctions'
+import { addObjectToGroup, removeObjectFromGroup } from '../../components/GroupComponent'
+import { resizeImageMesh } from '../../components/ImageComponent'
 import { MediaElementComponent } from '../../components/MediaComponent'
 import { UUIDComponent } from '../../components/UUIDComponent'
 import { VideoComponent } from '../../components/VideoComponent'
@@ -22,40 +24,46 @@ export const serializeVideo = (entity: Entity) => {
   return serializeComponent(entity, VideoComponent)
 }
 
-export const enterVideo = (entity: Entity) => {
-  const video = getComponent(entity, VideoComponent)
-  addObjectToGroup(entity, video.videoGroup.value)
-  createEntityReactor(entity, VideoReactor)
-}
-
-export const VideoReactor = ({ entity, destroyReactor }: EntityReactorParams) => {
+export const VideoReactor: React.FC<EntityReactorProps> = ({ entity, destroyReactor }) => {
   const video = useComponent(entity, VideoComponent)
-  const mediaUUID = video?.mediaUUID.value ?? ''
+  if (!video) throw destroyReactor()
+
+  const mediaUUID = video.mediaUUID.value ?? ''
   const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID].value ?? entity
   const mediaElement = useComponent(mediaEntity, MediaElementComponent)
 
+  // update side
   useEffect(() => {
-    if (!video) destroyReactor()
-  }, [video])
+    video.videoMesh.material.side.set(video.side.value)
+  }, [video.side])
 
+  // update mesh
   useEffect(() => {
-    if (!video) {
-      addError(entity, VideoComponent.name, 'video component is missing')
-      return
-    }
+    const videoMesh = video.videoMesh.value
+    resizeImageMesh(videoMesh)
+    const scale = ObjectFitFunctions.computeContentFitScale(
+      videoMesh.scale.x,
+      videoMesh.scale.y,
+      video.size.width.value,
+      video.size.height.value,
+      video.fit.value
+    )
+    videoMesh.scale.multiplyScalar(scale)
+    videoMesh.updateMatrix()
 
-    if (!mediaEntity) {
-      addError(entity, VideoComponent.name, 'mediaEntity is invalid')
-      return
-    }
+    const videoGroup = video.videoGroup.value
+    addObjectToGroup(entity, videoGroup)
+    return () => removeObjectFromGroup(entity, videoGroup)
+  }, [video.size, video.fit, video.videoMesh.material.map])
 
-    if (!mediaElement) {
-      addError(entity, VideoComponent.name, 'mediaEntity is missing a media element')
-      return
-    }
-
+  // update video texture
+  useEffect(() => {
+    if (!mediaEntity) return addError(entity, VideoComponent.name, 'mediaEntity is invalid')
+    if (!mediaElement) return addError(entity, VideoComponent.name, 'mediaEntity is missing a media element')
     video.videoMesh.material.map.set(new VideoTexture(mediaElement.element as HTMLVideoElement))
     video.videoMesh.material.value.needsUpdate = true
     removeError(entity, VideoComponent.name)
   }, [video, mediaEntity, mediaElement])
+
+  return null
 }

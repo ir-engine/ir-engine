@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
-import { createState, State, StateMethods, useState } from '@xrengine/hyperflux/functions/StateFunctions'
+import { createState, State, StateMethods, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
@@ -21,20 +21,22 @@ bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 export const ComponentMap = new Map<string, Component<any, any, any>>()
 globalThis.ComponentMap = ComponentMap
 
-export interface ComponentPartial<ComponentType = unknown, Schema = unknown, JSON = unknown> {
+type IsNotState<T> = T extends State<any, any> ? never : T
+
+export interface ComponentPartial<ComponentType = any, Schema = unknown, JSON = unknown> {
   name: string
   schema?: Schema
-  onAdd?: (entity: Entity, world: World) => ComponentType
-  toJSON?: (entity: Entity, component: ComponentType) => JSON
-  onUpdate?: (entity: Entity, component: ComponentType, json: DeepReadonly<Partial<JSON>>) => void
-  onRemove?: (entity: Entity, component: ComponentType) => void
+  onAdd?: (entity: Entity, world: World) => ComponentType & IsNotState<ComponentType>
+  toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
+  onUpdate?: (entity: Entity, component: State<ComponentType>, json: DeepReadonly<Partial<JSON>>) => void
+  onRemove?: (entity: Entity, component: State<ComponentType>) => void
 }
 export interface Component<ComponentType = any, Schema = unknown, JSON = unknown>
   extends ComponentPartial<ComponentType, Schema, JSON> {
-  onAdd: (entity: Entity, world: World) => ComponentType
-  toJSON: (entity: Entity, component: ComponentType) => JSON
-  onUpdate: (entity: Entity, component: ComponentType, json: DeepReadonly<Partial<JSON>>) => void
-  onRemove: (entity: Entity, component: ComponentType) => void
+  onAdd: (entity: Entity, world: World) => ComponentType & IsNotState<ComponentType>
+  toJSON: (entity: Entity, component: State<ComponentType>) => JSON
+  onUpdate: (entity: Entity, component: State<ComponentType>, json: DeepReadonly<Partial<JSON>>) => void
+  onRemove: (entity: Entity, component: State<ComponentType>) => void
   /**
    * @deprecated use `name`
    */
@@ -136,9 +138,7 @@ export const setComponent = <C extends Component>(
     component.map[entity].set(c)
     bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   }
-  const c = component.map[entity].value as ComponentType<C>
-  component.onUpdate(entity, c, args as Readonly<SerializedComponentType<C>>)
-  component.map[entity].set(c)
+  component.onUpdate(entity, component.map[entity], args as Readonly<SerializedComponentType<C>>)
   return component.map[entity].value as ComponentType<C>
 }
 
@@ -304,7 +304,7 @@ export function removeQuery(world: World, query: ReturnType<typeof defineQuery>)
  * Use a query in a reactive context (a React component)
  */
 export function useQuery(query: Query, world = Engine.instance.currentWorld) {
-  const state = useState([] as Entity[])
+  const state = useHookstate([] as Entity[])
   useEffect(() => {
     state.set(query(world))
     const queryState = { query, state }
@@ -326,7 +326,7 @@ export function useComponent<C extends Component<any>>(
   allowRemoved = false,
   world = Engine.instance.currentWorld
 ) {
-  const component = useState(Component.map[entity]).value as ComponentType<C>
+  const component = useHookstate(Component.map[entity]).value as ComponentType<C>
   const hasOrAllowRemoved = allowRemoved || hasComponent(entity, Component, world)
   return hasOrAllowRemoved ? component : undefined
 }

@@ -21,7 +21,7 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "sourceMap": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,

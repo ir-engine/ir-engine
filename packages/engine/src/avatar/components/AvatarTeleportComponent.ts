@@ -10,7 +10,7 @@ export const AvatarTeleportComponent = defineComponent({
   },
 
   onUpdate: (entity, component, json) => {
-    if (json.side) component.side = json.side as 'left' | 'right'
+    if (json.side) component.side.set(json.side as 'left' | 'right')
   },
 
   toJSON: () => {

@@ -2,8 +2,7 @@ import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
-import ActionFunctions from './ActionFunctions'
-import { ActionReceptor, ResolvedActionType, Topic } from './ActionFunctions'
+import { ActionReceptor, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -98,6 +97,6 @@ export function createHyperStore(options: {
     }
   } as HyperStore
   HyperFlux.store = store
-  ActionFunctions.addOutgoingTopicIfNecessary(store.defaultTopic)
+  addOutgoingTopicIfNecessary(store.defaultTopic)
   return store
 }

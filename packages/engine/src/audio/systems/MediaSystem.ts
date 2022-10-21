@@ -7,6 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { createEntityReactor } from '../../ecs/functions/EntityFunctions'
 import { MediaSettingReceptor, restoreMediaSettings } from '../../networking/MediaSettingsState'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
@@ -19,7 +20,7 @@ import {
   deserializePositionalAudio,
   serializePositionalAudio
 } from '../../scene/functions/loaders/PositionalAudioFunctions'
-import { deserializeVideo, enterVideo, serializeVideo } from '../../scene/functions/loaders/VideoFunctions'
+import { deserializeVideo, serializeVideo, VideoReactor } from '../../scene/functions/loaders/VideoFunctions'
 import {
   deserializeVolumetric,
   enterVolumetric,
@@ -202,7 +203,7 @@ export default async function MediaSystem(world: World) {
       setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }
 
-    for (const entity of videoQuery.enter()) enterVideo(entity)
+    for (const entity of videoQuery.enter()) createEntityReactor(entity, VideoReactor)
     for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
   }

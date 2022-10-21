@@ -1,13 +1,10 @@
-import { useEffect } from 'react'
 import { DoubleSide, Group, Mesh, MeshBasicMaterial, Side, Vector2 } from 'three'
 
-import { hookstate, useState } from '@xrengine/hyperflux/functions/StateFunctions'
+import { hookstate } from '@xrengine/hyperflux'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntityReactor } from '../../ecs/functions/EntityFunctions'
-import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
-import { addObjectToGroup } from './GroupComponent'
-import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
+import { ContentFitType } from '../../xrui/functions/ObjectFitFunctions'
+import { PLANE_GEO } from './ImageComponent'
 
 export const VideoComponent = defineComponent({
   name: 'EE_video',
@@ -19,8 +16,6 @@ export const VideoComponent = defineComponent({
     videoGroup.add(videoMesh)
     videoMesh.matrixAutoUpdate = false
 
-    addObjectToGroup(entity, videoGroup)
-
     const state = hookstate({
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
@@ -28,35 +23,6 @@ export const VideoComponent = defineComponent({
       mediaUUID: '',
       videoGroup,
       videoMesh
-    })
-
-    createEntityReactor(entity, () => {
-      const s = useState(state)
-
-      // update side
-      useEffect(
-        function updateSide() {
-          videoMesh.material.side = s.side.value
-        },
-        [s.side]
-      )
-
-      // update mesh
-      useEffect(
-        function updateMesh() {
-          resizeImageMesh(videoMesh)
-          const scale = ObjectFitFunctions.computeContentFitScale(
-            videoMesh.scale.x,
-            videoMesh.scale.y,
-            s.size.width.value,
-            s.size.height.value,
-            s.fit.value
-          )
-          videoMesh.scale.multiplyScalar(scale)
-          videoMesh.updateMatrix()
-        },
-        [s.size, s.fit, s.videoMesh.material.map]
-      )
     })
 
     return state

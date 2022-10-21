@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import Reconciler from 'react-reconciler'
 import {
   ConcurrentRoot,
@@ -43,9 +43,17 @@ const ReactorReconciler = Reconciler({
   prepareScopeUpdate: () => {}
 })
 
-export type ReactorDestroyFunction = () => void
+export interface ReactorRoot {
+  isRunning: boolean
+  run: () => Promise<void>
+  stop: () => Promise<void>
+}
 
-export function createReactor(Reactor: React.FC<{ destroyReactor: () => void }>) {
+export interface ReactorProps {
+  root: ReactorRoot
+}
+
+export function createReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -62,9 +70,22 @@ export function createReactor(Reactor: React.FC<{ destroyReactor: () => void }>)
     null
   )
 
-  function destroyReactor() {
-    ReactorReconciler.updateContainer(null, root, null)
+  const reactorRoot = {
+    isRunning: false,
+    run() {
+      reactorRoot.isRunning = true
+      return new Promise<void>((resolve) => {
+        ReactorReconciler.updateContainer(<Reactor root={root} />, root, null, () => resolve())
+      })
+    },
+    stop() {
+      return new Promise<void>((resolve) => {
+        ReactorReconciler.updateContainer(null, root, null, () => resolve())
+      }).then(() => {
+        reactorRoot.isRunning = false
+      })
+    }
   }
 
-  ReactorReconciler.updateContainer(<Reactor destroyReactor={destroyReactor} />, root, null, null)
+  return reactorRoot
 }
