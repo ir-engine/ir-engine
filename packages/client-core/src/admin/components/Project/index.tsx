@@ -1,48 +1,56 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { initializeCoreSystems } from '@xrengine/engine/src/initializeEngine'
+
 import { Box, CircularProgress } from '@mui/material'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmDialog from '../../common/ConfirmDialog'
-import { GithubAppService, useAdminGithubAppState } from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
 import ProjectDrawer from './ProjectDrawer'
 import ProjectTable from './ProjectTable'
+import UpdateDrawer from './UpdateDrawer'
 
 const Projects = () => {
   const authState = useAuthState()
   const user = authState.user
   const adminProjectState = useProjectState()
-  const githubAppState = useAdminGithubAppState()
-  const githubAppRepos = githubAppState.repos.value
+  const builderTags = adminProjectState.builderTags.value
   const { t } = useTranslation()
-  const [openProjectDrawer, setOpenPartyDrawer] = useState(false)
-  const [rebuildModalOpen, setRebuildModalOpen] = useState(false)
+  const [projectDrawerOpen, setProjectDrawerOpen] = useState(false)
+  const [updateDrawerOpen, setUpdateDrawerOpen] = useState(false)
   const [isFirstRun, setIsFirstRun] = useState(true)
+  const [engineVersion, setEngineVersion] = useState('')
 
   const handleOpenProjectDrawer = () => {
-    GithubAppService.fetchGithubAppRepos()
-    setOpenPartyDrawer(true)
+    setProjectDrawerOpen(true)
   }
 
-  const handleSubmitRebuild = async () => {
-    setRebuildModalOpen(false)
-
-    await ProjectService.triggerReload()
-
-    // This sleep is to ensure previous pod is terminated and new one is started.
-    await sleep(60000)
-
-    await ProjectService.checkReloadStatus()
+  const handleOpenUpdateDrawer = () => {
+    setUpdateDrawerOpen(true)
   }
+
+  const ProjectUpdateSystemInjection = {
+    uuid: 'core.admin.ProjectUpdateSystem',
+    type: 'PRE_RENDER',
+    systemLoader: () => import('../../../systems/ProjectUpdateSystem')
+  } as const
 
   useEffect(() => {
+    initializeCoreSystems([ProjectUpdateSystemInjection])
     ProjectService.checkReloadStatus()
   }, [])
+
+  useEffect(() => {
+    if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
+      ProjectService.fetchBuilderTags()
+      ProjectService.getEngineVersion().then((version) => setEngineVersion(version || '{Not Found}'))
+    }
+  }, [user])
 
   useEffect(() => {
     let interval
@@ -85,7 +93,7 @@ const Projects = () => {
             type="button"
             variant="contained"
             color="primary"
-            onClick={() => setRebuildModalOpen(true)}
+            onClick={() => handleOpenUpdateDrawer()}
           >
             {adminProjectState.rebuilding.value ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -93,22 +101,19 @@ const Projects = () => {
                 {isFirstRun ? t('admin:components.project.checking') : t('admin:components.project.rebuilding')}
               </Box>
             ) : (
-              t('admin:components.project.rebuild')
+              t('admin:components.project.updateAndRebuild')
             )}
           </Button>
         </Grid>
       </Grid>
 
+      <Chip className={styles.engineVersion} label={`Current Engine Version: ${engineVersion}`} />
+
       <ProjectTable className={styles.rootTableWithSearch} />
 
-      <ConfirmDialog
-        open={rebuildModalOpen}
-        description={t('admin:components.project.confirmProjectsRebuild')}
-        onClose={() => setRebuildModalOpen(false)}
-        onSubmit={handleSubmitRebuild}
-      />
+      <UpdateDrawer open={updateDrawerOpen} builderTags={builderTags} onClose={() => setUpdateDrawerOpen(false)} />
 
-      <ProjectDrawer open={openProjectDrawer} repos={githubAppRepos} onClose={() => setOpenPartyDrawer(false)} />
+      <ProjectDrawer open={projectDrawerOpen} onClose={() => setProjectDrawerOpen(false)} />
     </div>
   )
 }

@@ -3,7 +3,7 @@ import multiLogger from '@xrengine/common/src/logger'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
-import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 

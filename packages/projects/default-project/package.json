@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "",
   "main": "",
+  "etherealEngine": {
+    "version": "1.0.0-rc1"
+  },
   "scripts": {},
   "dependencies": {},
   "peerDependencies": {},
