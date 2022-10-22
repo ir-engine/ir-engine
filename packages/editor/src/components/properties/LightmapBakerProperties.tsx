@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { LinearFilter, TextureFilter, WebGLRenderer } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { BoolArg, FloatArg } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
+import { BoolArg, FloatArg, ObjectArg } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
 import { ModelComponentType } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { useHookstate } from '@xrengine/hyperflux'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
@@ -25,7 +25,13 @@ export default function LightmapBakerProperties({ modelState }: { modelState: St
     bounceMultiplier: 1,
     emissiveMultiplier: 1,
     lightMapSize: 1024,
-    texelsPerUnit: 16
+    texelsPerUnit: 16,
+    samplerSettings: {
+      targetSize: 64,
+      offset: 0,
+      near: 0.05,
+      far: 50
+    }
   }))
 
   const baking = useHookstate(false)
@@ -62,7 +68,16 @@ export default function LightmapBakerProperties({ modelState }: { modelState: St
               bounceMultiplier: { ...FloatArg, default: 1 },
               emissiveMultiplier: { ...FloatArg, default: 1 },
               lightMapSize: { ...FloatArg, default: 1024 },
-              texelsPerUnit: { ...FloatArg, default: 16 }
+              texelsPerUnit: { ...FloatArg, default: 16 },
+              samplerSettings: {
+                ...ObjectArg,
+                default: {
+                  targetSize: { ...FloatArg, default: 64 },
+                  offset: FloatArg,
+                  near: { ...FloatArg, default: 0.05 },
+                  far: { ...FloatArg, default: 50 }
+                }
+              }
             }}
             onChange={(k: keyof WorkbenchSettings) => {
               return (val) => {

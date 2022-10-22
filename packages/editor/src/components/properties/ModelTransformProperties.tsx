@@ -107,6 +107,7 @@ export default function ModelTransformProperties({
 
   const vertexBakeOptions = useHookstate({
     map: true,
+    emissive: true,
     lightMap: true,
     matcapPath: ''
   })
@@ -114,6 +115,7 @@ export default function ModelTransformProperties({
   const doVertexBake = useCallback(async () => {
     const attribs = [
       ...(vertexBakeOptions.map.value ? [{ field: 'map', attribName: 'uv' }] : []),
+      ...(vertexBakeOptions.emissive.value ? [{ field: 'emissiveMap', attribName: 'uv' }] : []),
       ...(vertexBakeOptions.lightMap.value ? [{ field: 'lightMap', attribName: 'uv2' }] : [])
     ] as { field: keyof MeshStandardMaterial; attribName: string }[]
     const src: MaterialSource = { type: SourceType.MODEL, path: modelState.src.value }
