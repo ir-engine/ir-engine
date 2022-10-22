@@ -192,7 +192,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       quantize({
         quantizeColor: 8,
         quantizeNormal: 8,
-        quantizePosition: 14
+        quantizePosition: 16
       })
     )
   }

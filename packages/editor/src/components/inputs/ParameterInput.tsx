@@ -1,12 +1,24 @@
 import React, { Fragment } from 'react'
 
+import { generateDefaults } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
+
 import ColorInput from './ColorInput'
 import InputGroup from './InputGroup'
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
 import TexturePreviewInput from './TexturePreviewInput'
 
-export default function ParameterInput({ entity, values, defaults, onChange }) {
+export default function ParameterInput({
+  entity,
+  values,
+  defaults,
+  onChange
+}: {
+  entity: string
+  values: Object
+  defaults?: Object
+  onChange: (k: string) => (v) => void
+}) {
   function setArgsProp(k) {
     const thisOnChange = onChange(k)
     return (value) => {
@@ -14,16 +26,34 @@ export default function ParameterInput({ entity, values, defaults, onChange }) {
       thisOnChange(value)
     }
   }
+
   function setArgsArrayProp(k, idx) {
     const thisOnChange = onChange(k)
     return (value) => {
-      values[k][idx] = value
-      thisOnChange(values[k])
+      const nuVals = values[k].map((oldVal, oldIdx) => (idx === oldIdx ? value : oldVal))
+      thisOnChange(nuVals)
     }
   }
+
+  function setArgsObjectProp(k) {
+    const thisOnChange = onChange(k)
+    const oldVal = values[k]
+    return (field) => {
+      return (value) => {
+        const nuVal = Object.fromEntries([
+          ...Object.entries(oldVal).filter(([_field, _value]) => _field !== field),
+          [field, value]
+        ])
+        thisOnChange(nuVal)
+      }
+    }
+  }
+
+  const _defaults = defaults ?? generateDefaults(values)
+
   return (
     <Fragment>
-      {Object.entries(defaults).map(([k, parms]: [string, any]) => {
+      {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
         const compKey = `${entity}-${k}`
         return (
           <InputGroup key={compKey} name={k} label={k}>
@@ -54,6 +84,15 @@ export default function ParameterInput({ entity, values, defaults, onChange }) {
                   )
                 case 'select':
                   return <SelectInput value={values[k]} options={parms.options} onChange={setArgsProp(k)} />
+                case 'object':
+                  return (
+                    <ParameterInput
+                      entity={compKey}
+                      values={values[k]}
+                      onChange={setArgsObjectProp(k)}
+                      defaults={parms.default}
+                    />
+                  )
                 default:
                   return <></>
               }
