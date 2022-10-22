@@ -20,7 +20,6 @@ else
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region us-east-1 --public
 fi
 
-docker tag $LABEL-$PACKAGE $ECR_URL/$REPO_NAME-$PACKAGE:$TAG
-docker tag $LABEL-$PACKAGE $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE
+docker tag $LABEL-$PACKAGE $ECR_URL/$REPO_NAME-$PACKAGE:$TAG & docker tag $LABEL-$PACKAGE $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE
 docker push $ECR_URL/$REPO_NAME-$PACKAGE:$TAG
 docker push $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE

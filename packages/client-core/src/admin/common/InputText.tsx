@@ -25,7 +25,6 @@ interface Props {
   sx?: SxProps<Theme>
   onChange?: (e: any) => void
   onKeyDown?: (e: any) => void
-  onBlur?: (e: any) => void
 }
 
 const InputText = ({
@@ -41,8 +40,7 @@ const InputText = ({
   endAdornment,
   sx,
   onChange,
-  onKeyDown,
-  onBlur
+  onKeyDown
 }: Props) => {
   const { t } = useTranslation()
 
@@ -54,9 +52,8 @@ const InputText = ({
       <FormControl
         variant="outlined"
         className={className ?? styles.inputField}
-        error={!!error}
+        error={error ? true : false}
         disabled={disabled}
-        focused={true}
         size="small"
       >
         <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
@@ -67,7 +64,7 @@ const InputText = ({
           placeholder={placeholder}
           label={capitalizeFirstLetter(label)}
           value={value}
-          error={!!error}
+          error={error ? true : false}
           disabled={disabled}
           size={'small'}
           startAdornment={startAdornment}
@@ -75,7 +72,6 @@ const InputText = ({
           sx={{ opacity: disabled ? 0.38 : 1 }}
           onChange={onChange}
           onKeyDown={onKeyDown}
-          onBlur={onBlur}
           fullWidth
         />
       </FormControl>
