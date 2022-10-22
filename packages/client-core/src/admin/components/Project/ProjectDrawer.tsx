@@ -1,61 +1,46 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
+import InputRadio from '../../common/InputRadio'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputText from '../../common/InputText'
 import LoadingView from '../../common/LoadingView'
-import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
-import ProjectFields from './ProjectFields'
 
 interface Props {
   open: boolean
-  inputProject?: ProjectInterface | null
-  existingProject?: boolean
+  repos: GithubAppInterface[]
   onClose: () => void
-  changeDestination?: boolean
 }
 
-const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, changeDestination = false }: Props) => {
+const ProjectDrawer = ({ open, repos, onClose }: Props) => {
   const { t } = useTranslation()
+  const [projectURL, setProjectURL] = useState('')
   const [processing, setProcessing] = useState(false)
-
-  const project =
-    existingProject && inputProject
-      ? inputProject
-      : {
-          id: '',
-          name: 'tempProject',
-          thumbnail: '',
-          repositoryPath: '',
-          needsRebuild: false
-        }
-
-  const projectUpdateStatus = useProjectUpdateState()[project.name].value
+  const [source, setSource] = useState('url')
+  const [error, setError] = useState('')
 
   const handleSubmit = async () => {
     try {
-      if (existingProject && changeDestination) {
-        if (inputProject) await ProjectService.setRepositoryPath(inputProject.id, projectUpdateStatus.destinationURL)
-        handleClose()
-      } else if (projectUpdateStatus.sourceURL) {
+      if (projectURL) {
         setProcessing(true)
-        await ProjectService.uploadProject(
-          projectUpdateStatus.sourceURL,
-          projectUpdateStatus.destinationURL,
-          projectUpdateStatus.projectName,
-          true,
-          projectUpdateStatus.selectedSHA
-        )
+        const urlParts = projectURL.split('/')
+        let projectName = urlParts.pop()
+        await ProjectService.uploadProject(projectURL, projectName, false)
         setProcessing(false)
         handleClose()
+      } else {
+        setError(t('admin:components.project.urlCantEmpty'))
       }
     } catch (err) {
       setProcessing(false)
@@ -63,46 +48,80 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
     }
   }
 
+  const handleChangeSource = (e) => {
+    const { value } = e.target
+    setSource(value)
+  }
+
+  const handleChange = (e) => {
+    const { value } = e.target
+    setError(value ? '' : t('admin:components.project.urlRequired'))
+    setProjectURL(value)
+  }
+
   const handleClose = () => {
-    ProjectUpdateService.clearProjectUpdate(project)
+    setProjectURL('')
+    setError('')
     onClose()
   }
 
-  useEffect(() => {
-    if (open && inputProject) {
-      ProjectUpdateService.setTriggerSetDestination(project, inputProject.repositoryPath)
+  const projectMenu: InputMenuItem[] = repos.map((el) => {
+    return {
+      value: el.repositoryPath,
+      label: `${el.name} (${el.user})`
     }
-  }, [open])
+  })
 
   return (
-    <DrawerView open={open} onClose={handleClose}>
-      <ProjectFields
-        inputProject={inputProject}
-        existingProject={existingProject}
-        changeDestination={changeDestination}
-        processing={processing}
-      />
-
+    <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.project.addProject')}</DialogTitle>
+
+        {!processing && repos && repos.length > 0 && (
+          <InputRadio
+            name="source"
+            label={t('admin:components.project.source')}
+            value={source}
+            options={[
+              { value: 'url', label: t('admin:components.project.publicUrl') },
+              { value: 'list', label: t('admin:components.project.selectFromList') }
+            ]}
+            onChange={handleChangeSource}
+          />
+        )}
+
+        {!processing && source === 'list' && repos && repos.length != 0 ? (
+          <InputSelect
+            name="projectURL"
+            label={t('admin:components.project.project')}
+            value={projectURL}
+            menu={projectMenu}
+            error={error}
+            onChange={handleChange}
+          />
+        ) : (
+          <InputText
+            name="urlSelect"
+            label={t('admin:components.project.githubPublicUrl')}
+            value={projectURL}
+            error={error}
+            onChange={handleChange}
+          />
+        )}
+
+        {processing && <LoadingView title={t('admin:components.project.processing')} variant="body1" />}
+
         <DialogActions>
-          <>
-            <Button className={styles.outlinedButton} onClick={handleClose}>
-              {t('admin:components.common.cancel')}
-            </Button>
-            {!processing && (
-              <Button
-                className={styles.gradientButton}
-                disabled={projectUpdateStatus ? projectUpdateStatus.submitDisabled : true}
-                onClick={handleSubmit}
-              >
+          {!processing && (
+            <>
+              <Button className={styles.outlinedButton} onClick={onClose}>
+                {t('admin:components.common.cancel')}
+              </Button>
+              <Button className={styles.gradientButton} onClick={handleSubmit}>
                 {t('admin:components.common.submit')}
               </Button>
-            )}
-
-            {processing && (
-              <LoadingView title={t('admin:components.project.processing')} variant="body1" fullHeight={false} />
-            )}
-          </>
+            </>
+          )}
         </DialogActions>
       </Container>
     </DrawerView>

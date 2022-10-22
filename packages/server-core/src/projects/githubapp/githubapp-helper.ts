@@ -1,12 +1,16 @@
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { BadRequest } from '@feathersjs/errors'
+import { App } from '@octokit/app'
+import { createAppAuth } from '@octokit/auth-app'
 import { Octokit } from '@octokit/rest'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
+import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import {
   AudioFileTypes,
   ImageFileTypes,
@@ -19,27 +23,81 @@ import config from '../../appconfig'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import { refreshAppConfig } from '../../updateAppConfig'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
-import { ProjectParams } from './project.class'
 
-let app
+let app, appOctokit
 
-export const getAuthenticatedRepo = async (token: string, repositoryPath: string) => {
+export const createGitHubApp = async () => {
+  try {
+    if (!config.server.gitPem || config.server.gitPem == '') await refreshAppConfig()
+    let privateKey = config.server.gitPem
+    privateKey = privateKey.replace('-----BEGIN RSA PRIVATE KEY-----', '')
+    privateKey = privateKey.replace('-----END RSA PRIVATE KEY-----', '')
+    privateKey = privateKey.replace(' ', '\n')
+    privateKey = `-----BEGIN RSA PRIVATE KEY-----${privateKey}\n-----END RSA PRIVATE KEY-----`
+
+    //@octokit/app
+    app = new App({
+      appId: config.authentication.oauth.github.appid,
+      privateKey,
+      oauth: {
+        clientId: config.authentication.oauth.github.key,
+        clientSecret: config.authentication.oauth.github.secret
+      }
+    })
+
+    //@octokit/rest
+    appOctokit = new Octokit({
+      authStrategy: createAppAuth,
+      auth: {
+        appId: config.authentication.oauth.github.appid,
+        privateKey
+      }
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+}
+
+export const getGitHubAppRepos = async () => {
+  try {
+    if (!config.server.gitPem || config.server.gitPem == '') await refreshAppConfig()
+    if (!config.server.gitPem || config.server.gitPem == '') return []
+    //TODO: want to call this function after env is loaded from DB. this is not the best solution.
+    if (!app) await createGitHubApp()
+    const repos = [] as Array<GithubAppInterface>
+    for await (const { repository } of app.eachRepository.iterator()) {
+      repos.push({
+        id: repository.id,
+        user: repository.owner.login,
+        name: repository.name,
+        repositoryPath: repository.clone_url
+      })
+    }
+    return repos
+  } catch (error) {
+    logger.error(error)
+    return []
+  }
+}
+
+export const getAuthenticatedRepo = async (repositoryPath: string) => {
   try {
     if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
-    repositoryPath = repositoryPath.toLowerCase()
-    const user = await getUser(token)
-    return repositoryPath.replace('https://', `https://${user.data.login}:${token}@`)
+    const repos = await getGitHubAppRepos()
+    const filtered = repos.filter((repo) => repo.repositoryPath == repositoryPath)
+    if (filtered && filtered[0]) {
+      const token = await getAccessTokenByUser(filtered[0].user)
+      if (token === '') return null
+      return filtered[0].repositoryPath.replace('https://', `https://${filtered[0].user}:${token}@`)
+    }
+    return null
   } catch (error) {
     logger.error(error)
     return null
   }
-}
-
-export const getUser = async (token: string) => {
-  const octoKit = new Octokit({ auth: token })
-  return octoKit.rest.users.getAuthenticated()
 }
 
 export const getInstallationOctokit = async (repo) => {
@@ -56,6 +114,26 @@ export const getInstallationOctokit = async (repo) => {
   return new Octokit({
     auth: installationAuth.token // directly pass the token
   })
+}
+
+export const getAccessTokenByUser = async (user) => {
+  let installationId = -1
+  await app.eachInstallation(({ installation }) => {
+    if (user == installation.account?.login) installationId = installation.id
+  })
+  if (installationId == -1) return ''
+  const res = await appOctokit.auth({
+    type: 'installation',
+    installationId
+  })
+  return (res as any).token
+}
+
+export const getGitRepoById = async (id: number) => {
+  const repos = await getGitHubAppRepos()
+  const filtered = repos.filter((repo) => repo.id == id)
+  if (filtered && filtered[0]) return filtered[0]
+  return null
 }
 
 export const checkUserRepoWriteStatus = async (owner, repo, token): Promise<number> => {
@@ -88,15 +166,7 @@ export const checkUserOrgWriteStatus = async (org, token) => {
   }
 }
 
-export const checkAppOrgStatus = async (organization, token) => {
-  const octo = new Octokit({ auth: token })
-  const authUser = await octo.rest.users.getAuthenticated()
-  if (organization === authUser.data.login) return 200
-  const orgs = await getUserOrgs(token)
-  return orgs.find((org) => org.login.toLowerCase() === organization.toLowerCase())
-}
-
-export const getUserRepos = async (token: string): Promise<any[]> => {
+export const getUserRepos = async (app, token): Promise<string[]> => {
   let page = 1
   let end = false
   let repos = []
@@ -106,34 +176,11 @@ export const getUserRepos = async (token: string): Promise<any[]> => {
       per_page: GITHUB_PER_PAGE,
       page
     })) as any
-    repos = repos.concat(repoResponse.data)
+    repos = repos.concat(repoResponse.data.map((item) => item.clone_url))
     page++
     if (repoResponse.data.length < GITHUB_PER_PAGE) end = true
   }
   return repos
-}
-
-export const getUserOrgs = async (token: string): Promise<any[]> => {
-  let page = 1
-  let end = false
-  let orgs = []
-  const octoKit = new Octokit({ auth: token })
-  while (!end) {
-    const repoResponse = (await octoKit.rest.orgs.listForAuthenticatedUser({
-      per_page: GITHUB_PER_PAGE,
-      page
-    })) as any
-    orgs = orgs.concat(repoResponse.data)
-    page++
-    if (repoResponse.data.length < GITHUB_PER_PAGE) end = true
-  }
-  return orgs
-}
-
-export const getRepo = async (owner: string, repo: string, token: string): Promise<any> => {
-  const octoKit = new Octokit({ auth: token })
-  const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-  return repoResponse.data.svn_url
 }
 
 export const pushProjectToGithub = async (
@@ -141,7 +188,6 @@ export const pushProjectToGithub = async (
   project: ProjectInterface,
   user: UserInterface,
   reset = false,
-  commitSHA?: string,
   storageProviderName?: string
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
@@ -167,7 +213,7 @@ export const pushProjectToGithub = async (
         }
       })
     )
-    const repoPath = project.repositoryPath.toLowerCase()
+    const repoPath = project.repositoryPath
     const githubIdentityProvider = await app.service('identity-provider').Model.findOne({
       where: {
         userId: user.id,
@@ -179,21 +225,19 @@ export const pushProjectToGithub = async (
     const split = githubPathRegexExec[1].split('/')
     const owner = split[0]
     const repo = split[1].replace('.git', '')
-    const repos = await getUserRepos(githubIdentityProvider.oauthToken)
+    const repos = await getGitHubAppRepos()
 
     const octoKit = githubIdentityProvider
       ? new Octokit({ auth: githubIdentityProvider.oauthToken })
       : await (async () => {
+          await createGitHubApp()
           return getInstallationOctokit(
-            repos.find((repo) => {
-              repo.repositoryPath = repo.repositoryPath.toLowerCase()
-              return repo.repositoryPath === repoPath || repo.repositoryPath === repoPath + '.git'
-            })
+            repos.find((repo) => repo.repositoryPath === repoPath || repo.repositoryPath === repoPath + '.git')
           )
         })()
     if (!octoKit) return
     try {
-      await octoKit.rest.repos.get({
+      const result = await octoKit.rest.repos.get({
         owner,
         repo
       })
@@ -208,14 +252,26 @@ export const pushProjectToGithub = async (
         else await octoKit.repos.createInOrg({ org: owner, name: repo, auto_init: true })
       } else throw err
     }
-    const deploymentBranch = `${config.server.releaseName}-deployment`
+    const defaultBranch = `${config.server.releaseName}-deployment`
     if (reset) {
       const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
+
+      // if project exists already, remove it and re-clone it
+      if (fs.existsSync(projectDirectory)) {
+        // if (isDev) throw new Error('Cannot create project - already exists')
+        deleteFolderRecursive(projectDirectory)
+      }
+
+      let repoPath = await getAuthenticatedRepo(project.repositoryPath)
+      if (!repoPath) repoPath = project.repositoryPath
+
+      const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/`)
+      const gitCloner = useGit(projectLocalDirectory)
+      await gitCloner.clone(repoPath)
       const git = useGit(projectDirectory)
-      if (commitSHA) git.checkout(commitSHA)
-      await git.checkoutLocalBranch(deploymentBranch)
-      await git.push('origin', deploymentBranch, ['-f'])
-    } else await uploadToRepo(octoKit, files, owner, repo, deploymentBranch, project.name)
+      const branches = await git.branchLocal()
+      await git.push('origin', `${branches.current}:${defaultBranch}`, ['-f'])
+    } else await uploadToRepo(octoKit, files, owner, repo, defaultBranch, project.name, githubIdentityProvider != null)
   } catch (err) {
     logger.error(err)
     throw err
@@ -230,7 +286,8 @@ const uploadToRepo = async (
   org: string,
   repo: string,
   branch: string = `master`,
-  projectName: string
+  projectName: string,
+  isUser: boolean
 ) => {
   let currentCommit
   try {
@@ -243,7 +300,7 @@ const uploadToRepo = async (
     } else throw err
   }
   //Get the GH user for use in commit message
-  const user = (await octo.users.getAuthenticated()).data
+  const user = isUser ? (await octo.users.getAuthenticated()).data : { login: 'GitHub-installation' }
   //Create blobs from all the files
   const fileBlobs = await Promise.all(filePaths.map(createBlobForFile(octo, org, repo)))
   // Create a new tree from all of the files, so that a new commit can be made from it
@@ -313,47 +370,6 @@ export const getCurrentCommit = async (octo: Octokit, org: string, repo: string,
   return {
     commitSha,
     treeSha: commitData.tree.sha
-  }
-}
-
-export const getGithubOwnerRepo = (url: string) => {
-  url = url.toLowerCase()
-
-  const githubPathRegexExec = GITHUB_URL_REGEX.exec(url)
-  if (!githubPathRegexExec)
-    return {
-      error: 'invalidUrl',
-      text: 'Project URL is not a valid GitHub URL, or the GitHub repo is private'
-    }
-  const split = githubPathRegexExec[1].split('/')
-  if (!split[0] || !split[1])
-    return {
-      error: 'invalidUrl',
-      text: 'Project URL is not a valid GitHub URL, or the GitHub repo is private'
-    }
-  const owner = split[0]
-  const repo = split[1].replace('.git', '')
-  return {
-    owner,
-    repo
-  }
-}
-
-export const getOctokitForChecking = async (app: Application, url: string, params: ProjectParams) => {
-  url = url.toLowerCase()
-  const githubIdentityProvider = await app.service('identity-provider').Model.findOne({
-    where: {
-      userId: params!.user.id,
-      type: 'github'
-    }
-  })
-  if (!githubIdentityProvider) throw new Forbidden('You must have a connected GitHub account to access public repos')
-  const { owner, repo } = getGithubOwnerRepo(url)
-  const octoKit = new Octokit({ auth: githubIdentityProvider.oauthToken })
-  return {
-    owner,
-    repo,
-    octoKit
   }
 }
 

@@ -1,4 +1,4 @@
-import { Id, Params } from '@feathersjs/feathers'
+import { Id } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
 import fs from 'fs'
@@ -14,18 +14,9 @@ import projectPermissionAuthenticate from '../../hooks/project-permission-authen
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UserParams } from '../../user/user/user.class'
-import { pushProjectToGithub } from './github-helper'
-import {
-  checkBuilderService,
-  checkDestination,
-  checkProjectDestinationMatch,
-  findBuilderTags,
-  getBranches,
-  getEnginePackageJson,
-  getTags,
-  updateBuilder
-} from './project-helper'
-import { Project, ProjectParams, ProjectParamsClient } from './project.class'
+import { pushProjectToGithub } from '../githubapp/githubapp-helper'
+import { checkBuilderService, retriggerBuilderService } from './project-helper'
+import { Project } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
 import createModel from './project.model'
@@ -37,34 +28,9 @@ declare module '@xrengine/common/declarations' {
       find: () => ReturnType<typeof getProjectsList>
     }
     project: Project
-    'project-build': {
-      find: ReturnType<typeof projectBuildFind>
-      patch: ReturnType<typeof projectBuildPatch>
-    }
-    'project-invalidate': {
-      patch: ReturnType<typeof projectInvalidatePatch>
-    }
-    'project-check-source-destination-match': {
-      find: ReturnType<typeof projectCheckSourceDestinationMatchFind>
-    }
-    'project-github-push': {
-      patch: ReturnType<typeof projectGithubPushPatch>
-    }
-    'project-destination-check': {
-      get: ReturnType<typeof projectDestinationCheckGet>
-    }
-    'project-branches': {
-      get: ReturnType<typeof projectBranchesGet>
-    }
-    'project-tags': {
-      get: ReturnType<typeof projectTagsGet>
-    }
-    'project-builder-tags': {
-      find: ReturnType<typeof projectBuilderTagsGet>
-    }
-    'builder-version': {
-      get: ReturnType<typeof builderVersionGet>
-    }
+    'project-build': any
+    'project-invalidate': any
+    'project-github-push': any
   }
   interface Models {
     project: ReturnType<typeof createModel>
@@ -78,60 +44,6 @@ export const getProjectsList = async () => {
   return fs
     .readdirSync(projectsRootFolder)
     .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
-}
-
-export const projectBuildFind = (app: Application) => async () => {
-  return await checkBuilderService(app)
-}
-
-export const projectBuildPatch = (app: Application) => async (tag: string, data: any, params?: ProjectParamsClient) => {
-  return await updateBuilder(app, tag, data, params as ProjectParams)
-}
-
-type InvalidateProps = {
-  projectName?: string
-  storageProviderName?: string
-}
-
-export const projectInvalidatePatch =
-  (app: Application) =>
-  async ({ projectName, storageProviderName }: InvalidateProps) => {
-    if (projectName) {
-      return await getStorageProvider(storageProviderName).createInvalidation([`projects/${projectName}*`])
-    }
-  }
-
-export const projectCheckSourceDestinationMatchFind = (app: Application) => (params?: ProjectParamsClient) => {
-  return checkProjectDestinationMatch(app, params as ProjectParams)
-}
-
-export const projectGithubPushPatch = (app: Application) => async (id: Id, data: any, params?: UserParams) => {
-  const project = await app.service('project').Model.findOne({
-    where: {
-      id
-    }
-  })
-  return pushProjectToGithub(app, project, params!.user!)
-}
-
-export const projectDestinationCheckGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
-  return checkDestination(app, url, params as ProjectParams)
-}
-
-export const projectBranchesGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
-  return getBranches(app, url, params as ProjectParams)
-}
-
-export const projectTagsGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
-  return getTags(app, url, params as ProjectParams)
-}
-
-export const projectBuilderTagsGet = () => async () => {
-  return findBuilderTags()
-}
-
-export const builderVersionGet = () => async () => {
-  return getEnginePackageJson().version
 }
 
 export default (app: Application): void => {
@@ -159,8 +71,22 @@ export default (app: Application): void => {
   })
 
   app.use('project-build', {
-    find: projectBuildFind(app),
-    patch: projectBuildPatch(app)
+    find: async (data, params) => {
+      return await checkBuilderService(app)
+    },
+    patch: async ({ rebuild }, params) => {
+      if (rebuild) {
+        return await retriggerBuilderService(app)
+      }
+    }
+  })
+
+  app.use('project-invalidate', {
+    patch: async ({ projectName, storageProviderName }, params) => {
+      if (projectName) {
+        return await getStorageProvider(storageProviderName).createInvalidation([`projects/${projectName}*`])
+      }
+    }
   })
 
   app.service('project-build').hooks({
@@ -170,28 +96,21 @@ export default (app: Application): void => {
     }
   })
 
-  app.use('project-invalidate', {
-    patch: projectInvalidatePatch(app)
-  })
-
   app.service('project-invalidate').hooks({
     before: {
       patch: [authenticate(), verifyScope('admin', 'admin')]
     }
   })
 
-  app.use('project-check-source-destination-match', {
-    find: projectCheckSourceDestinationMatchFind(app)
-  })
-
-  app.service('project-check-source-destination-match').hooks({
-    before: {
-      find: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
-
   app.use('project-github-push', {
-    patch: projectGithubPushPatch(app)
+    patch: async (id: Id, data: any, params?: UserParams): Promise<any> => {
+      const project = await app.service('project').Model.findOne({
+        where: {
+          id
+        }
+      })
+      return pushProjectToGithub(app, project, params!.user!)
+    }
   })
 
   app.service('project-github-push').hooks({
@@ -199,58 +118,8 @@ export default (app: Application): void => {
       patch: [
         authenticate(),
         iff(isProvider('external'), verifyScope('editor', 'write') as any),
-        projectPermissionAuthenticate('write') as any
+        projectPermissionAuthenticate('write')
       ]
-    }
-  })
-
-  app.use('project-destination-check', {
-    get: projectDestinationCheckGet(app)
-  })
-
-  app.service('project-destination-check').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
-
-  app.use('project-branches', {
-    get: projectBranchesGet(app)
-  })
-
-  app.service('project-branches').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
-
-  app.use('project-tags', {
-    get: projectTagsGet(app)
-  })
-
-  app.service('project-tags').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
-
-  app.use('project-builder-tags', {
-    find: projectBuilderTagsGet()
-  })
-
-  app.service('project-builder-tags').hooks({
-    before: {
-      find: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
-
-  app.use('builder-version', {
-    get: builderVersionGet()
-  })
-
-  app.service('builder-version').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
     }
   })
 
@@ -258,7 +127,7 @@ export default (app: Application): void => {
 
   service.hooks(hooks)
 
-  service.publish('patched', async (data: UserInterface): Promise<any> => {
+  service.publish('patched', async (data: UserInterface, params): Promise<any> => {
     try {
       let targetIds = []
       const projectOwners = await app.service('project-permission').Model.findAll({

@@ -4,7 +4,7 @@ import { HookContext } from '@feathersjs/feathers'
 import { GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
-import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
+import { checkUserRepoWriteStatus } from '../projects/githubapp/githubapp-helper'
 
 export default (writeAccess) => {
   return async (context: HookContext): Promise<HookContext> => {
