@@ -52,10 +52,10 @@ export const WidgetInput = {
   TOGGLE_MENU_BUTTONS: 'WidgetInput_TOGGLE_MENU_BUTTONS' as const
 }
 export default async function WidgetSystem(world: World) {
-  const ui = createWidgetButtonsView()
-  removeComponent(ui.entity, VisibleComponent)
+  const widgetMenuUI = createWidgetButtonsView()
+  removeComponent(widgetMenuUI.entity, VisibleComponent)
 
-  addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
+  addComponent(widgetMenuUI.entity, NameComponent, { name: 'widget_menu' })
 
   const widgetState = getState(WidgetAppState)
 
@@ -65,7 +65,7 @@ export default async function WidgetSystem(world: World) {
     // temporarily only allow widgets on non hmd for local dev
     if (!createdWidgets && (isHMD || isDev)) {
       createdWidgets = true
-      // createAnchorWidget(world)
+      createAnchorWidget(world)
       // createProfileWidget(world)
       // createSettingsWidget(world)
       // createSocialsMenuWidget(world)
@@ -109,41 +109,55 @@ export default async function WidgetSystem(world: World) {
   addActionReceptor(WidgetAppServiceReceptor)
 
   const showWidgetQueue = createActionQueue(WidgetAppActions.showWidget.matches)
+  const registerWidgetQueue = createActionQueue(WidgetAppActions.registerWidget.matches)
+  const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
 
   const execute = () => {
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       setVisibleComponent(widget.ui.entity, action.shown)
     }
+    for (const action of registerWidgetQueue()) {
+      const widget = Engine.instance.currentWorld.widgets.get(action.id)!
+      setLocalTransformComponent(widget.ui.entity, widgetMenuUI.entity)
+    }
+    for (const action of unregisterWidgetQueue()) {
+      const widget = Engine.instance.currentWorld.widgets.get(action.id)!
+      removeComponent(widget.ui.entity, LocalTransformComponent)
+      if (typeof widget.cleanup === 'function') widget.cleanup()
+    }
 
     const controllerEntity = getPreferredControllerEntity(true)
 
-    if (hasComponent(ui.entity, LocalTransformComponent) && !controllerEntity)
-      removeComponent(ui.entity, LocalTransformComponent)
+    if (hasComponent(widgetMenuUI.entity, LocalTransformComponent) && !controllerEntity)
+      removeComponent(widgetMenuUI.entity, LocalTransformComponent)
 
-    if (!hasComponent(ui.entity, LocalTransformComponent) && controllerEntity) {
+    if (!hasComponent(widgetMenuUI.entity, LocalTransformComponent) && controllerEntity) {
       const controllerGripEntity = getComponent(controllerEntity, XRControllerComponent)?.grip
       if (controllerGripEntity)
-        setLocalTransformComponent(ui.entity, controllerGripEntity, new Vector3(0.05, 0, -0.02), widgetRotation.clone())
+        setLocalTransformComponent(
+          widgetMenuUI.entity,
+          controllerGripEntity,
+          new Vector3(0.05, 0, -0.02),
+          widgetRotation.clone()
+        )
     }
 
     const widgetMenuShown = !!controllerEntity && widgetState.widgetsMenuOpen.value
-    // showWidgetMenu(widgetMenuOpen)
-    setVisibleComponent(ui.entity, widgetMenuShown)
+    showWidgetMenu(widgetMenuShown)
+    setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
-    // for (const [id, widget] of world.widgets) {
-    //   const widgetVisible = widgetState.widgets[id].ornull?.visible.value
-    //   if (widgetVisible) {
-    //     const widgetUI = getComponent(widget.ui.entity, XRUIComponent)
-    //     ObjectFitFunctions.attachObjectToPreferredTransform(widgetUI.container)
-    //     widget.system()
-    //   }
-    // }
+    for (const [id, widget] of world.widgets) {
+      const widgetEnabled = widgetState.widgets[id].ornull?.enabled.value
+      if (widgetEnabled && typeof widget.system === 'function') {
+        widget.system()
+      }
+    }
   }
 
   const cleanup = async () => {
     removeActionQueue(showWidgetQueue)
-    removeEntity(ui.entity)
+    removeEntity(widgetMenuUI.entity)
     if (AvatarInputSchema.inputMap.get(GamepadButtons.X) === WidgetInput.TOGGLE_MENU_BUTTONS)
       AvatarInputSchema.inputMap.delete(GamepadButtons.X)
     if (AvatarInputSchema.inputMap.get('Escape') === WidgetInput.TOGGLE_MENU_BUTTONS)
