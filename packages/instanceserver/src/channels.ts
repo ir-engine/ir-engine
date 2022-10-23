@@ -194,15 +194,13 @@ const initializeInstance = async (
   } else {
     const instance = existingInstanceResult.data[0]
     if (locationId) {
-      const user = await app.service('user').get(userId)
-      const existingChannel = (await app.service('channel').find({
-        query: {
+      const existingChannel = await app.service('channel').Model.findOne({
+        where: {
           channelType: 'instance',
           instanceId: instance.id
-        },
-        'identity-provider': user['identity_providers']![0]
-      } as any)) as Channel[]
-      if (existingChannel.length === 0) {
+        }
+      })
+      if (!existingChannel) {
         await app.service('channel').create({
           channelType: 'instance',
           instanceId: instance.id

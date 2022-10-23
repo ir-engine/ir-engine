@@ -1,3 +1,4 @@
+import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
@@ -106,6 +107,15 @@ export class Googlestrategy extends CustomOAuthStrategy {
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
       return returned
     }
+  }
+
+  async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
+    if (authentication.error)
+      throw new Error(
+        'There was a problem with the Google OAuth login flow: ' + authentication.error_description ||
+          authentication.error
+      )
+    return super.authenticate(authentication, originalParams)
   }
 }
 export default Googlestrategy

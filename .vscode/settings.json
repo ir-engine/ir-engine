@@ -7,5 +7,6 @@
   "search.exclude": {
     "/packages/server/upload": true,
     "/packages/client/dist": true
-  }
+  },
+  "editor.tabSize": 2
 }
