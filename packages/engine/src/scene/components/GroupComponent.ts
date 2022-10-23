@@ -29,17 +29,13 @@ export const GroupComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    for (const obj of component) {
+    for (const obj of component.value) {
       obj.removeFromParent()
       obj.traverse((mesh: Mesh<BufferGeometry, Material>) => {
         mesh.material?.dispose()
         mesh.geometry?.dispose()
       })
     }
-  },
-
-  toJSON: (entity, component) => {
-    return component
   }
 })
 

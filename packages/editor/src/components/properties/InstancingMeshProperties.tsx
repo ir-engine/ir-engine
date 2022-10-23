@@ -32,7 +32,7 @@ export default function InstancingMeshProperties({ value, onChange, ...rest }) {
   )
     .filter((x) => x !== null)
     .map((node) => {
-      return { label: getComponent(node!.entity, NameComponent)?.name, value: node!.uuid }
+      return { label: getComponent(node!.entity, NameComponent), value: node!.uuid }
     })
 
   function updateProp(prop: keyof MeshProperties) {

@@ -8,14 +8,26 @@ export const NameComponent = defineComponent({
 
   onAdd: () => '',
 
-  toJSON: (entity, component) => component,
-
-  onUpdate: (entity, _, name) => {
-    NameComponent.map[entity].set(name)
-    NameComponent.entitiesByName[name].set(entity)
+  onSet: (
+    entity,
+    component,
+    name?:
+      | string
+      | {
+          /**
+           * @deprecated
+           */
+          name: string
+        }
+  ) => {
+    const _name = typeof name === 'string' ? name : name?.name // TODO: remove support for {name:string} parameter
+    if (!_name) throw new Error('NameComponent expects a non-empty string')
+    component.set(_name)
+    NameComponent.entitiesByName[_name].set(entity)
   },
 
-  onRemove: (entity, name) => {
+  onRemove: (entity, component) => {
+    const name = component.value
     if (NameComponent.entitiesByName[name].value === entity) {
       NameComponent.entitiesByName[name].set(none)
     }

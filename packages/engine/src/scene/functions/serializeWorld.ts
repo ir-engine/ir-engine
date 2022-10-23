@@ -73,7 +73,7 @@ export const serializeWorld = (
       }
 
       entityUuid[node.entity] = node.uuid
-      entityJson.name = getComponent(node.entity, NameComponent)?.name
+      entityJson.name = getComponent(node.entity, NameComponent)
 
       entityJson.components = serializeEntity(node.entity, world)
 

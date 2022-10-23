@@ -71,7 +71,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
     const surfaces: any[] = traverseScene(
       (eNode) => {
         return {
-          label: getComponent(eNode.entity, NameComponent)?.name ?? '',
+          label: getComponent(eNode.entity, NameComponent) ?? '',
           value: eNode.uuid
         }
       },
@@ -94,7 +94,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
   const obj3ds = traverseScene(
     (node) => {
       return {
-        label: getComponent(node.entity, NameComponent)?.name,
+        label: getComponent(node.entity, NameComponent),
         value: node.uuid
       }
     },

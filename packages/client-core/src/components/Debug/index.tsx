@@ -63,8 +63,9 @@ export const Debug = ({ showingStateRef }) => {
         ...node.children.reduce(
           (r, child, i) =>
             Object.assign(r, {
-              [`${i} - ${getComponent(child, NameComponent)?.name ?? tree.entityNodeMap.get(child)?.uuid}`]:
-                renderEntityTree(tree.entityNodeMap.get(child)!)
+              [`${i} - ${getComponent(child, NameComponent) ?? tree.entityNodeMap.get(child)?.uuid}`]: renderEntityTree(
+                tree.entityNodeMap.get(child)!
+              )
             }),
           {}
         )
@@ -79,7 +80,7 @@ export const Debug = ({ showingStateRef }) => {
             (components, C: Component<any, any>) => {
               if (C !== NameComponent) {
                 const component = getComponent(entity, C)
-                components.push([C._name, { ...component }])
+                components.push([C.name, { ...component }])
               }
               return components
             },
@@ -94,7 +95,7 @@ export const Debug = ({ showingStateRef }) => {
       ...Object.fromEntries(
         [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
-            const name = getComponent(eid, NameComponent)?.name
+            const name = getComponent(eid, NameComponent)
             try {
               return [
                 '(eid:' + eid + ') ' + (name ?? tree.entityNodeMap.get(eid)?.uuid ?? ''),

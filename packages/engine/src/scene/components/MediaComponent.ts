@@ -1,7 +1,7 @@
 import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 
-import { hookstate } from '@xrengine/hyperflux'
+import { hookstate, none } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
@@ -19,7 +19,7 @@ import {
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntityReactor, EntityReactorParams } from '../../ecs/functions/EntityFunctions'
+import { defineEntityReactor, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
@@ -62,31 +62,33 @@ export const MediaElementComponent = defineComponent({
     return undefined as any as { element: HTMLMediaElement }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (typeof json.element === 'object' && json.element !== component.element)
-      component.element = json.element as HTMLMediaElement
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (typeof json.element === 'object' && json.element !== component.element.get({ noproxy: true }))
+      component.element.set(json.element as HTMLMediaElement)
   },
 
   onRemove: (entity, component) => {
-    component.hls?.destroy()
-    component.hls = undefined
-    const audioNodeGroup = AudioNodeGroups.get(component.element)
+    const element = component.element.get({ noproxy: true })
+    component.hls.value?.destroy()
+    component.hls.set(none)
+    const audioNodeGroup = AudioNodeGroups.get(element)
     if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
-    AudioNodeGroups.delete(component.element)
-    component.element.pause()
-    component.element.removeAttribute('src')
-    component.element.load()
-    component.element.remove()
-    component.element = undefined!
-    component.abortController.abort()
+    AudioNodeGroups.delete(element)
+    element.pause()
+    element.removeAttribute('src')
+    element.load()
+    element.remove()
+    component.element.set(none)
+    component.abortController.value.abort()
   }
 })
 
 export const MediaComponent = defineComponent({
   name: 'XRE_media',
 
-  onAdd: (entity) => {
-    const state = hookstate({
+  onInit: (entity) => {
+    return {
       controls: false,
       synchronize: true,
       autoplay: true,
@@ -107,11 +109,7 @@ export const MediaComponent = defineComponent({
       playing: false,
       track: 0,
       trackDurations: [] as number[]
-    })
-
-    createEntityReactor(entity, MediaReactor)
-
-    return state
+    }
   },
 
   onRemove: (entity, component) => {
@@ -128,7 +126,8 @@ export const MediaComponent = defineComponent({
     }
   },
 
-  onUpdate: (entity, component, json) => {
+  onSet: (entity, component, json) => {
+    if (!json) return
     startTransition(() => {
       if (typeof json.paths === 'object') {
         // backwards-compat: update uvol paths to point to the video files
@@ -172,24 +171,25 @@ export const MediaComponent = defineComponent({
     })
 
     return component
-  }
+  },
+
+  reactor: MediaReactor
 })
 
-const MediaReactor = ({ entity, destroyReactor }: EntityReactorParams) => {
+export function MediaReactor({ root }: EntityReactorProps) {
+  const entity = root.entity
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useComponent(entity, MediaElementComponent)
 
-  useEffect(() => {
-    if (!media) destroyReactor()
-  }, [media])
+  if (!media) throw root.stop()
 
   useEffect(
     function updatePlay() {
       if (!media || !mediaElement) return
       if (media.paused.value) {
-        mediaElement.element.pause()
+        mediaElement.element.value.pause()
       } else {
-        mediaElement.element.play()
+        mediaElement.element.value.play()
       }
     },
     [media?.paused, mediaElement]
@@ -287,7 +287,7 @@ const MediaReactor = ({ entity, destroyReactor }: EntityReactorParams) => {
           'error',
           (err) => {
             addError(entity, `mediaError`, err.message)
-            if (media.playing.value) media.track.set(getNextTrack(media))
+            if (media.playing.value) media.track.set(getNextTrack(media.value))
           },
           { signal }
         )
@@ -296,7 +296,7 @@ const MediaReactor = ({ entity, destroyReactor }: EntityReactorParams) => {
           'ended',
           () => {
             if (media.playMode.value === PlayMode.single) return
-            media.track.set(getNextTrack(media))
+            media.track.set(getNextTrack(media.value))
           },
           { signal }
         )
@@ -339,7 +339,7 @@ const MediaReactor = ({ entity, destroyReactor }: EntityReactorParams) => {
   useEffect(
     function updateMixbus() {
       if (!media || !mediaElement) return
-      const element = mediaElement.element
+      const element = mediaElement.element.get({ noproxy: true })
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.disconnect(audioNodes.mixbus)
@@ -351,6 +351,8 @@ const MediaReactor = ({ entity, destroyReactor }: EntityReactorParams) => {
     },
     [mediaElement, media?.isMusic]
   )
+
+  return null
 }
 
 export const SCENE_COMPONENT_MEDIA = 'media'
@@ -392,16 +394,16 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
 }
 
 export function getNextTrack(media: ComponentType<typeof MediaComponent>) {
-  const currentTrack = media.track.value
-  const numTracks = media.paths.value.length
+  const currentTrack = media.track
+  const numTracks = media.paths.length
   let nextTrack = 0
 
-  if (media.playMode.value == PlayMode.random) {
+  if (media.playMode == PlayMode.random) {
     // todo: smart random, i.e., lower probability of recently played tracks
     nextTrack = Math.floor(Math.random() * numTracks)
-  } else if (media.playMode.value == PlayMode.single) {
+  } else if (media.playMode == PlayMode.single) {
     nextTrack = (currentTrack + 1) % numTracks
-  } else if (media.playMode.value == PlayMode.singleloop) {
+  } else if (media.playMode == PlayMode.singleloop) {
     nextTrack = currentTrack
   } else {
     //PlayMode.Loop

@@ -8,18 +8,15 @@ export const UUIDComponent = defineComponent({
 
   onAdd: () => '',
 
-  toJSON: (entity, uuid: string) => {
-    return uuid
-  },
-
-  onUpdate: (entity, _, uuid: string) => {
-    UUIDComponent.map[entity].set(uuid)
+  onUpdate: (entity, component, uuid: string) => {
+    component.set(uuid)
     UUIDComponent.entitiesByUUID[uuid].set(entity)
   },
 
-  onRemove: (entity, name) => {
-    if (UUIDComponent.entitiesByUUID[name].value === entity) {
-      UUIDComponent.entitiesByUUID[name].set(none)
+  onRemove: (entity, component) => {
+    const uuid = component.value
+    if (UUIDComponent.entitiesByUUID[uuid].value === entity) {
+      UUIDComponent.entitiesByUUID[uuid].set(none)
     }
   },
 

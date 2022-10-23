@@ -1,5 +1,5 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineTagComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const SCENE_COMPONENT_SCENE_TAG = 'scene-tag'
 
-export const SceneTagComponent = createMappedComponent<true>('SceneTagComponent')
+export const SceneTagComponent = defineTagComponent('SceneTagComponent')

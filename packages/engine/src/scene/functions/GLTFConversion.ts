@@ -185,17 +185,15 @@ const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) =
 }
 
 export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = Engine.instance.currentWorld) => {
-  const nameCmp = getComponent(obj3d.entity, NameComponent)
-  if (nameCmp?.name) {
-    obj3d.name = nameCmp.name
-  }
+  const name = getComponent(obj3d.entity, NameComponent)
+  if (name) obj3d.name = name
 
   const { entity } = obj3d
 
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
+    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
     if (sceneComponentID) {
       const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister) {

@@ -17,10 +17,10 @@ describe('EngineFunctions', () => {
       const sceneObjectQuery = defineQuery([SceneObjectComponent])
 
       // create a bunch of entities
-      addComponent(createEntity(), GroupComponent, [])
+      addComponent(createEntity(), GroupComponent)
       const sceneEntity = createEntity()
-      addComponent(sceneEntity, GroupComponent, [])
-      addComponent(sceneEntity, SceneObjectComponent, true)
+      addComponent(sceneEntity, GroupComponent)
+      addComponent(sceneEntity, SceneObjectComponent)
 
       const groupEntities = groupQuery(world)
 

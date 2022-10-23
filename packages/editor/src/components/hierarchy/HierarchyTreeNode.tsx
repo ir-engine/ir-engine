@@ -71,7 +71,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const nodeName = node.obj3d
     ? node.obj3d.name ?? node.obj3d.uuid
     : hasComponent(node.entityNode.entity, NameComponent)
-    ? getComponent(node.entityNode.entity, NameComponent).name
+    ? getComponent(node.entityNode.entity, NameComponent)
     : ''
   const errorComponent: ErrorComponentType = node.entityNode && getComponent(node.entityNode.entity, ErrorComponent)
 

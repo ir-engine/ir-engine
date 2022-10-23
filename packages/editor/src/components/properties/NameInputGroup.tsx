@@ -31,7 +31,7 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
  */
 export const NameInputGroup: EditorComponentType = (props) => {
   const selectionState = useSelectionState()
-  const nodeName = getComponent(props.node.entity, NameComponent)?.name
+  const nodeName = getComponent(props.node.entity, NameComponent)
 
   const [name, setName] = useState(nodeName)
   const [focusedNode, setFocusedNode] = useState<EntityTreeNode>()
@@ -42,7 +42,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
   }, [selectionState.objectChangeCounter])
 
   const onObjectChange = (_: any, propertyName: string) => {
-    if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent).name)
+    if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent))
   }
 
   //function to handle change in name property

@@ -1,7 +1,5 @@
 import { DoubleSide, Group, Mesh, MeshBasicMaterial, Side, Vector2 } from 'three'
 
-import { hookstate } from '@xrengine/hyperflux'
-
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { ContentFitType } from '../../xrui/functions/ObjectFitFunctions'
 import { PLANE_GEO } from './ImageComponent'
@@ -9,23 +7,21 @@ import { PLANE_GEO } from './ImageComponent'
 export const VideoComponent = defineComponent({
   name: 'EE_video',
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     const videoGroup = new Group()
     videoGroup.name = 'video-group'
     const videoMesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
     videoGroup.add(videoMesh)
     videoMesh.matrixAutoUpdate = false
 
-    const state = hookstate({
+    return {
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
       fit: 'contain' as ContentFitType,
       mediaUUID: '',
       videoGroup,
       videoMesh
-    })
-
-    return state
+    }
   },
 
   toJSON: (entity, component) => {
@@ -40,7 +36,8 @@ export const VideoComponent = defineComponent({
     }
   },
 
-  onUpdate: (entity, component, json) => {
+  onSet: (entity, component, json) => {
+    if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)
     if (json.size) component.size.set(new Vector2(json.size.x, json.size.y))

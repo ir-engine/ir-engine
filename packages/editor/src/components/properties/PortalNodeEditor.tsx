@@ -45,7 +45,7 @@ const rotation = new Quaternion()
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const { t } = useTranslation()
-  const portalName = getComponent(props.node.entity, NameComponent).name
+  const portalName = getComponent(props.node.entity, NameComponent)
   const transformComponent = getComponent(props.node.entity, TransformComponent)
 
   useEffect(() => {

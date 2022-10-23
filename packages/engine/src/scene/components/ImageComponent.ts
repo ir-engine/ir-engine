@@ -1,28 +1,17 @@
-import React, { useEffect } from 'react'
 import {
   BufferGeometry,
   CompressedTexture,
   DoubleSide,
-  LinearMipmapLinearFilter,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
   SphereGeometry,
-  sRGBEncoding,
   Texture,
   Vector2
 } from 'three'
 
-import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
-import { hookstate, useHookstate } from '@xrengine/hyperflux'
-
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntityReactor, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
-import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
 export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
@@ -33,7 +22,7 @@ export const ImageComponent = defineComponent({
   name: 'XRE_image',
 
   onAdd: (entity) => {
-    const state = hookstate({
+    return {
       source: '',
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
@@ -41,11 +30,7 @@ export const ImageComponent = defineComponent({
       side: DoubleSide,
       // runtime props
       mesh: new Mesh(PLANE_GEO as PlaneGeometry | SphereGeometry, new MeshBasicMaterial())
-    })
-
-    createEntityReactor(entity, ImageReactor)
-
-    return state
+    }
   },
 
   toJSON: (entity, component) => {
@@ -59,6 +44,7 @@ export const ImageComponent = defineComponent({
   },
 
   onUpdate: (entity, component, json) => {
+    if (!json) return
     if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
     if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)
       component.alphaMode.set(json.alphaMode)
@@ -106,95 +92,3 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 }
 
 export const SCENE_COMPONENT_IMAGE = 'image'
-
-export const ImageReactor: React.FC<EntityReactorProps> = createHookableFunction(function ImageReactor({
-  entity,
-  destroyReactor
-}) {
-  const image = useComponent(entity, ImageComponent)
-  const texture = useHookstate(null as Texture | null)
-
-  useEffect(() => {
-    if (!image) destroyReactor()
-  }, [image])
-
-  useEffect(
-    function updateTextureSource() {
-      if (!image) return
-
-      const source = image.source.value
-
-      if (!source) {
-        return addError(entity, ImageComponent.name, `Image source is missing`)
-      }
-
-      const assetType = AssetLoader.getAssetClass(source)
-      if (assetType !== AssetClass.Image) {
-        return addError(entity, ImageComponent.name, `Image source '${source}' is not a supported image type`)
-      }
-
-      texture.set(AssetLoader.loadAsync(source))
-
-      return () => {
-        // TODO: abort load request, pending https://github.com/mrdoob/three.js/pull/23070
-      }
-    },
-    [image?.source]
-  )
-
-  useEffect(
-    function updateTexture() {
-      if (!image || !texture.value) return
-
-      if (texture.error) {
-        return addError(entity, ImageComponent.name, texture.error)
-      }
-
-      texture.value.encoding = sRGBEncoding
-      texture.value.minFilter = LinearMipmapLinearFilter
-
-      image.mesh.material.map.ornull?.value.dispose()
-      image.mesh.material.map.set(texture.value)
-      image.mesh.visible.set(true)
-      image.mesh.material.value.needsUpdate = true
-
-      // upload to GPU immediately
-      EngineRenderer.instance.renderer.initTexture(texture.value)
-
-      removeError(entity, ImageComponent.name)
-    },
-    [texture]
-  )
-
-  useEffect(
-    function updateGeometry() {
-      if (!image?.mesh.material.map.value) return
-
-      const flippedTexture = image.mesh.material.map.value.flipY
-      switch (image.projection.value) {
-        case ImageProjection.Equirectangular360:
-          image.mesh.geometry.set(flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED)
-          image.mesh.scale.value.set(-1, 1, 1)
-          break
-        case ImageProjection.Flat:
-        default:
-          image.mesh.geometry.set(flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED)
-          resizeImageMesh(image.mesh.value)
-      }
-    },
-    [image?.mesh.material.map, image?.projection]
-  )
-
-  useEffect(
-    function updateMaterial() {
-      if (!image) return
-      image.mesh.material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
-      image.mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
-      image.mesh.material.side.set(image.side.value)
-      image.mesh.material.value.needsUpdate = true
-    },
-    [image?.alphaMode, image?.alphaCutoff, image?.side]
-  )
-
-  return null
-})

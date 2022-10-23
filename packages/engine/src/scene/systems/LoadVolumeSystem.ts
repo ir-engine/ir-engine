@@ -16,7 +16,7 @@ import {
 import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export default async function LoadVolumeSystem(world: World) {
-  world.sceneComponentRegistry.set(LoadVolumeComponent._name, SCENE_COMPONENT_LOAD_VOLUME)
+  world.sceneComponentRegistry.set(LoadVolumeComponent.name, SCENE_COMPONENT_LOAD_VOLUME)
   world.scenePrefabRegistry.set(ScenePrefabs.loadVolume, [
     { name: SCENE_COMPONENT_LOAD_VOLUME, props: SCENE_COMPONENT_LOAD_VOLUME_DEFAULT_VALUES }
   ])

@@ -1,14 +1,16 @@
 import * as bitECS from 'bitecs'
-import { useEffect } from 'react'
+import { startTransition, useEffect } from 'react'
 
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
+import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 import { createState, State, StateMethods, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
+import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -21,58 +23,91 @@ bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 export const ComponentMap = new Map<string, Component<any, any, any>>()
 globalThis.ComponentMap = ComponentMap
 
-type IsNotState<T> = T extends State<any, any> ? never : T
+type PartialIfObject<T> = T extends object ? Partial<T> : T
 
-export interface ComponentPartial<ComponentType = any, Schema = unknown, JSON = unknown> {
+type OnInitValidateNotState<T> = T extends StateMethods<any, {}> ? 'onAdd must not return a State object' : T
+export interface ComponentPartial<
+  ComponentType = any,
+  Schema = unknown,
+  JSON = ComponentType,
+  SetJSON = PartialIfObject<DeepReadonly<JSON>>
+> {
   name: string
   schema?: Schema
-  onAdd?: (entity: Entity, world: World) => ComponentType & IsNotState<ComponentType>
-  toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
-  onUpdate?: (entity: Entity, component: State<ComponentType>, json: DeepReadonly<Partial<JSON>>) => void
-  onRemove?: (entity: Entity, component: State<ComponentType>) => void
-}
-export interface Component<ComponentType = any, Schema = unknown, JSON = unknown>
-  extends ComponentPartial<ComponentType, Schema, JSON> {
-  onAdd: (entity: Entity, world: World) => ComponentType & IsNotState<ComponentType>
-  toJSON: (entity: Entity, component: State<ComponentType>) => JSON
-  onUpdate: (entity: Entity, component: State<ComponentType>, json: DeepReadonly<Partial<JSON>>) => void
-  onRemove: (entity: Entity, component: State<ComponentType>) => void
   /**
-   * @deprecated use `name`
+   * @deprecated use onInit
    */
-  _name: string // backwards-compat; to be removed
+  onAdd?: (entity: Entity, world: World) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (entity: Entity, world: World) => ComponentType & OnInitValidateNotState<ComponentType>
+
+  toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
+
+  /**
+   * @deprecated use onSet
+   */
+  onUpdate?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
+  onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
+  onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
+
+  reactor?: React.FC<EntityReactorProps>
+}
+export interface Component<
+  ComponentType = any,
+  Schema = unknown,
+  JSON = ComponentType,
+  SetJSON = PartialIfObject<DeepReadonly<JSON>>
+> {
+  name: string
+  schema?: Schema
+
+  /**
+   * @deprecated use onInit
+   */
+  onAdd: (entity: Entity, world: World) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit: (entity: Entity, world: World) => ComponentType & OnInitValidateNotState<ComponentType>
+
+  toJSON: (entity: Entity, component: State<ComponentType>) => JSON
+
+  /**
+   * @deprecated use onSet
+   */
+  onUpdate: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
+  onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
+
+  onRemove: (entity: Entity, component: State<ComponentType>) => void
+
+  reactor?: HookableFunction<React.FC<EntityReactorProps>>
+  reactorRoots: Map<Entity, EntityReactorRoot>
+
   map: StateMethods<Record<Entity, ComponentType>>
 }
 
 export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
 export type ComponentType<C extends Component> = NonNullable<C['map']['value'][keyof C['map']['value']]>
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
+export type SetComponentType<C extends Component> = Parameters<C['onSet']>[2]
 
-export const defineComponent = <ComponentType, Schema extends bitECS.ISchema, JSON, ComponentExtras>(
+export const defineComponent = <
+  ComponentType = true,
+  Schema extends bitECS.ISchema = any,
+  JSON = ComponentType,
+  ComponentExtras = unknown
+>(
   def: ComponentPartial<ComponentType, Schema, JSON> & ComponentExtras
 ) => {
   const Component = bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) as ComponentExtras &
     SoAComponentType<Schema> &
     Component<ComponentType, Schema, JSON>
-  Component.onAdd = (entity) => {
-    return {} as any
-  }
+  Component.onAdd = (entity) => true as any
   Component.onUpdate = (entity, component, json) => {}
   Component.onRemove = () => {}
-  Component.toJSON = (entity) => {
-    return undefined as any
-  }
+  Component.toJSON = (entity, component) => component.value as any
   Object.assign(Component, def)
+  Component.onInit = Component.onInit ?? Component.onAdd
+  Component.onSet = Component.onSet ?? Component.onUpdate
 
-  Component._name = Component.name // backwards-compat; to be removed
   Component.map = createState({} as Record<Entity, ComponentType>)
   ComponentMap.set(Component.name, Component)
-  return Component
-}
-
-export const defineTagComponent = (name: string) => {
-  const Component = defineComponent({ name }) as Component<true, void, true>
-  Component.onAdd = () => true
   return Component
 }
 
@@ -124,7 +159,7 @@ export const getComponent = <ComponentType>(
 export const setComponent = <C extends Component>(
   entity: Entity,
   component: C,
-  args: SerializedComponentType<C>,
+  args: SetComponentType<C> | undefined = undefined,
   world = Engine.instance.currentWorld
 ) => {
   if (!entity) {
@@ -138,7 +173,9 @@ export const setComponent = <C extends Component>(
     component.map[entity].set(c)
     bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   }
-  component.onUpdate(entity, component.map[entity], args as Readonly<SerializedComponentType<C>>)
+  startTransition(() => {
+    component.onSet(entity, component.map[entity], args as Readonly<SerializedComponentType<C>>)
+  })
   return component.map[entity].value as ComponentType<C>
 }
 
@@ -157,23 +194,25 @@ export const updateComponent = <C extends Component>(
     throw new Error('[updateComponent]: component does not exist')
   }
 
-  for (const propertyName of Object.keys(props as any)) {
-    const value = props[propertyName]
-    const { result, finalProp } = getNestedObject(comp, propertyName)
+  startTransition(() => {
+    for (const propertyName of Object.keys(props as any)) {
+      const value = props[propertyName]
+      const { result, finalProp } = getNestedObject(comp, propertyName)
 
-    if (value && value.copy) {
-      if (!result[finalProp]) result[finalProp] = new value.constructor()
-      result[finalProp].copy(value)
-    } else if (
-      typeof value !== 'undefined' &&
-      typeof result[finalProp] === 'object' &&
-      typeof result[finalProp].set === 'function'
-    ) {
-      result[finalProp].set(value)
-    } else {
-      result[finalProp] = value
+      if (value && value.copy) {
+        if (!result[finalProp]) result[finalProp] = new value.constructor()
+        result[finalProp].copy(value)
+      } else if (
+        typeof value !== 'undefined' &&
+        typeof result[finalProp] === 'object' &&
+        typeof result[finalProp].set === 'function'
+      ) {
+        result[finalProp].set(value)
+      } else {
+        result[finalProp] = value
+      }
     }
-  }
+  })
 }
 
 /**
@@ -187,7 +226,7 @@ export const updateComponent = <C extends Component>(
 export const addComponent = <C extends Component>(
   entity: Entity,
   component: C,
-  args: SerializedComponentType<C>,
+  args: SetComponentType<C> | undefined = undefined,
   world = Engine.instance.currentWorld
 ) => {
   if (hasComponent(entity, component, world)) throw new Error(`${component.name} already exists on entity ${entity}`)
@@ -205,10 +244,10 @@ export const hasComponent = <T, S, J>(
   return bitECS.hasComponent(world, component, entity)
 }
 
-export const getOrAddComponent = <T, S, J>(
+export const getOrAddComponent = <C extends Component>(
   entity: Entity,
-  component: Component<T, S, J>,
-  args: J,
+  component: C,
+  args: SetComponentType<C>,
   getRemoved = false,
   world = Engine.instance.currentWorld
 ) => {
@@ -326,14 +365,14 @@ export function useComponent<C extends Component<any>>(
   allowRemoved = false,
   world = Engine.instance.currentWorld
 ) {
-  const component = useHookstate(Component.map[entity]).value as ComponentType<C>
+  const component = useHookstate(Component.map[entity]) as State<ComponentType<C>>
   const hasOrAllowRemoved = allowRemoved || hasComponent(entity, Component, world)
   return hasOrAllowRemoved ? component : undefined
 }
 
 export type Query = ReturnType<typeof defineQuery>
 
-export const EntityRemovedComponent = defineTagComponent('EntityRemovedComponent')
+export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComponent' })
 
 globalThis.XRE_getComponent = getComponent
 globalThis.XRE_getAllComponents = getAllComponents

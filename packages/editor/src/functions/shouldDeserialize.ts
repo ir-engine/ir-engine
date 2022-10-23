@@ -6,7 +6,7 @@ export const shouldNodeDeserialize = (node: EntityTreeNode, world = Engine.insta
   const components = getAllComponents(node.entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
+    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
     if (sceneComponentID) {
       const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister && loadingRegister.shouldDeserialize && !loadingRegister.shouldDeserialize()) return false
