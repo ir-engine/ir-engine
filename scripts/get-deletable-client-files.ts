@@ -13,7 +13,12 @@ cli.main(async () => {
         const storageProvider = getStorageProvider()
         let files = await storageProvider.listFolderContent('client', true)
         files = files.filter(file => UNIQUIFIED_FILE_NAME_REGEX.test(file.name))
-        await fs.writeFileSync('S3FilesToRemove.json', JSON.stringify(files.map(file => file.key)))
+        const putData = {
+            Body: Buffer.from(JSON.stringify(files.map(file => file.key))),
+            ContentType: 'application/json',
+            Key: 'client/S3FilesToRemove.json'
+        }
+        await storageProvider.putObject(putData, { isDirectory: false })
         console.log('Created list of S3 files to delete after deployment')
         process.exit(0)
     } catch(err) {
