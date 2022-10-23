@@ -16,6 +16,12 @@ const SMS_PROPERTIES = {
   SECRET_ACCESS_KEY: 'secretAccessKey'
 }
 
+const CLOUDFRONT_PROPERTIES = {
+  DOMAIN: 'domain',
+  DISTRIBUTION_ID: 'distributionId',
+  REGION: 'region'
+}
+
 const Aws = () => {
   const { t } = useTranslation()
   const awsSettingState = useAdminAwsSettingState()
@@ -25,28 +31,40 @@ const Aws = () => {
   const user = authState.user
 
   const [sms, setSms] = useState(awsSetting?.sms)
+  const [cloudfront, setCloudfront] = useState(awsSetting?.cloudfront)
 
   useEffect(() => {
     if (awsSetting) {
       let tempSms = JSON.parse(JSON.stringify(awsSetting?.sms))
+      let tempCloudfront = JSON.parse(JSON.stringify(awsSetting?.cloudfront))
       setSms(tempSms)
+      setCloudfront(tempCloudfront)
     }
   }, [awsSettingState?.updateNeeded?.value])
 
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    AwsSettingService.patchAwsSetting({ sms: JSON.stringify(sms) }, id)
+    AwsSettingService.patchAwsSetting({ sms: JSON.stringify(sms), cloudfront: JSON.stringify(cloudfront) }, id)
   }
 
   const handleCancel = () => {
     let tempSms = JSON.parse(JSON.stringify(awsSetting?.sms))
+    let tempCloudfront = JSON.parse(JSON.stringify(awsSetting?.cloudfront))
     setSms(tempSms)
+    setCloudfront(tempCloudfront)
   }
 
   const handleUpdateSms = (event, type) => {
     setSms({
       ...sms!,
+      [type]: event.target.value
+    })
+  }
+
+  const handleUpdateCloudfront = (event, type) => {
+    setCloudfront({
+      ...cloudfront!,
       [type]: event.target.value
     })
   }
@@ -146,15 +164,22 @@ const Aws = () => {
           <InputText
             name="domain"
             label={t('admin:components.setting.domain')}
-            value={awsSetting?.cloudfront?.domain || ''}
-            disabled
+            value={cloudfront?.domain || ''}
+            onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.DOMAIN)}
           />
 
           <InputText
             name="distributionId"
             label={t('admin:components.setting.distributionId')}
-            value={awsSetting?.cloudfront?.distributionId || ''}
-            disabled
+            value={cloudfront?.distributionId || ''}
+            onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.DISTRIBUTION_ID)}
+          />
+
+          <InputText
+            name="region"
+            label={t('admin:components.setting.region')}
+            value={cloudfront?.region || ''}
+            onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.REGION)}
           />
 
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.sms')}</Typography>

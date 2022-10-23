@@ -49,7 +49,6 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
     if (fs.existsSync(staticPath)) {
       const { default: viteConfigExtension } = require(staticPath)
       if (typeof viteConfigExtension === 'function') {
-        console.log(viteConfigExtension)
         const configExtension = await viteConfigExtension()
         config.plugins = [...config.plugins!, ...configExtension.default.plugins]
         delete configExtension.default.plugins
@@ -97,6 +96,7 @@ export default defineConfig(async () => {
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,
+        algorithm: 'brotliCompress',
         deleteOriginFile: true
       })
     ],
@@ -138,5 +138,11 @@ export default defineConfig(async () => {
       cert: fs.readFileSync('../../certs/cert.pem')
     }
   }
+  if (
+    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER &&
+    process.env.STORAGE_PROVIDER === 'aws' &&
+    process.env.STORAGE_CLOUDFRONT_DOMAIN
+  )
+    returned.base = `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
   return await getProjectConfigExtensions(returned)
 })
