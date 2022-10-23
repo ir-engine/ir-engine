@@ -6,6 +6,7 @@ import XRAnchorSystem from './XRAnchorSystem'
 import XRCameraSystem from './XRCameraSystem'
 import XRControllerSystem from './XRControllerSystem'
 import XRDepthOcclusion from './XRDepthOcclusion'
+import XRDetectedPlanesSystem from './XRDetectedPlanesSystem'
 import XRHapticsSystem from './XRHapticsSystem'
 import XRLightProbeSystem from './XRLightProbeSystem'
 import XRScenePlacementShader from './XRScenePlacementShader'
@@ -60,6 +61,7 @@ export default async function XRSystem(world: World) {
       () => Promise.resolve({ default: XRControllerSystem }),
       () => Promise.resolve({ default: XRHapticsSystem }),
       () => Promise.resolve({ default: XRLightProbeSystem }),
+      () => Promise.resolve({ default: XRDetectedPlanesSystem }),
       // () => Promise.resolve({ default: XRDepthOcclusion }),
       () => Promise.resolve({ default: XRScenePlacementShader })
     ]
