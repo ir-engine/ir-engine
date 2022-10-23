@@ -12,9 +12,10 @@ cli.main(async () => {
     try {
         await createDefaultStorageProvider()
         const storageProvider = getStorageProvider()
-        const files = JSON.parse(fs.readFileSync('S3FilesToRemove.json', { encoding: 'utf-8' }))
-        while (files.length > 0) {
-            const toDelete = files.splice(0, 1000)
+        let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemove.json')
+        let filesToPrune = JSON.parse(filesToPruneResponse.Body.toString('utf-8'))
+        while (filesToPrune.length > 0) {
+            const toDelete = filesToPrune.splice(0, 1000)
             await storageProvider.deleteResources(toDelete)
         }
         console.log('Deleted old S3 files')
