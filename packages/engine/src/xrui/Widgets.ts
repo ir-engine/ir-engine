@@ -33,7 +33,8 @@ export type Widget = {
   ui: ReturnType<typeof createXRUI>
   label: string
   icon?: any
-  system: () => void
+  system?: () => void
+  cleanup?: () => Promise<void>
 }
 
 export const registerWidget = (world: World, xruiEntity: Entity, widget: Widget) => {
