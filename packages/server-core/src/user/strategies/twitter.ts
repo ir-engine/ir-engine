@@ -1,3 +1,4 @@
+import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
@@ -34,6 +35,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
   }
 
   async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
+    console.log('updateEntity', entity, profile, params)
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
@@ -106,6 +108,19 @@ export class TwitterStrategy extends CustomOAuthStrategy {
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
       return returned
     }
+  }
+
+  async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
+    if (authentication.raw.denied) {
+      const error = authentication.profile.error
+      if (error?.errors && error?.errors.find((err) => err.code === 89))
+        throw new Error('You canceled the Twitter OAuth login flow')
+      else
+        throw new Error(
+          'There was a problem with the Twitter OAuth login flow: ' + error?.errors[0].message || error?.errors[0]
+        )
+    }
+    return super.authenticate(authentication, originalParams)
   }
 }
 export default TwitterStrategy

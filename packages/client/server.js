@@ -11,7 +11,9 @@ const app = express();
 const PORT = process.env.HOST_PORT || 3000;
 const HTTPS = process.env.VITE_LOCAL_BUILD ?? false
 
-app.use(expressStaticGzip(path.join(packageRoot, 'packages', 'client', 'dist')));
+app.use(expressStaticGzip(path.join(packageRoot, 'packages', 'client', 'dist'), {
+  enableBrotli: true
+}));
 app.use('*', (req, res) => res.sendFile(path.join(packageRoot, 'packages', 'client', 'dist', 'index.html')));
 
 app.listen = function () {
