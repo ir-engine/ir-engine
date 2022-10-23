@@ -55,6 +55,7 @@ const SettingDetailView = () => {
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
 
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
+  const handOptions = ['left', 'right']
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
 
   useEffect(() => {
@@ -103,6 +104,10 @@ const SettingDetailView = () => {
 
   const handleChangeControlScheme = (value: typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme]) => {
     dispatchAction(AvatarInputSettingsAction.setControlScheme({ scheme: value }))
+  }
+
+  const handleChangePreferredHand = (value: 'left' | 'right') => {
+    dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: value }))
   }
 
   const toggleShowDetails = () => {
@@ -343,6 +348,14 @@ const SettingDetailView = () => {
                     value={avatarInputState.controlType.value}
                     onChange={handleChangeControlType}
                     options={controllerTypes}
+                  />
+                </div>
+                <div className="selectSize">
+                  <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-preferred-hand')}</span>
+                  <XRSelectDropdown
+                    value={avatarInputState.preferredHand.value}
+                    onChange={handleChangePreferredHand}
+                    options={handOptions}
                   />
                 </div>
               </div>
