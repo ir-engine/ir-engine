@@ -37,12 +37,12 @@ const DashboardMenuItem = ({ location }: Props) => {
     routes: false,
     projects: false,
     settings: false,
-    admin: false
+    server: false
   }
 
   scopes.forEach((scope) => {
     if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
-      if (scope.type.split(':')[1] === 'read' || scope.type.split(':')[1] === 'admin') {
+      if (scope.type.split(':')[1] === 'read') {
         allowedRoutes = {
           ...allowedRoutes,
           [scope.type.split(':')[0]]: true

@@ -52,7 +52,7 @@ const ProtectedRoutes = () => {
     routes: false,
     projects: false,
     settings: false,
-    server: false,
+    server: false
   }
   const scopes = admin?.scopes?.value || []
 
@@ -64,7 +64,7 @@ const ProtectedRoutes = () => {
 
   scopes.forEach((scope) => {
     if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
-      if (scope.type.split(':')[1] === 'read' || scope.type.split(':')[1] === 'admin') {
+      if (scope.type.split(':')[1] === 'read') {
         allowedRoutes = {
           ...allowedRoutes,
           [scope.type.split(':')[0]]: true

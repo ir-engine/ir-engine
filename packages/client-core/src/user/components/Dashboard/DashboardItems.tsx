@@ -24,7 +24,7 @@ export const SidebarItems = (allowedRoutes) => [
     path: '/admin',
     icon: <DashboardIcon style={{ color: 'white' }} />
   },
-  allowedRoutes.admin && {
+  allowedRoutes.server && {
     name: 'user:dashboard.server',
     path: '/admin/server',
     icon: <Storage style={{ color: 'white' }} />
