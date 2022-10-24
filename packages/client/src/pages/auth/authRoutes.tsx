@@ -1,15 +1,15 @@
 import React from 'react'
 import { Route, Switch } from 'react-router-dom'
 
-const $discord = React.lazy(() => import('./oauth/discord'))
-const $facebook = React.lazy(() => import('./oauth/facebook'))
-const $github = React.lazy(() => import('./oauth/github'))
-const $google = React.lazy(() => import('./oauth/google'))
-const $linkedin = React.lazy(() => import('./oauth/linkedin'))
-const $twitter = React.lazy(() => import('./oauth/twitter'))
-const $confirm = React.lazy(() => import('./confirm'))
-const $forgotpassword = React.lazy(() => import('./forgotpassword'))
-const $magiclink = React.lazy(() => import('./magiclink'))
+import $confirm from './confirm'
+import $forgotpassword from './forgotpassword'
+import $magiclink from './magiclink'
+import $discord from './oauth/discord'
+import $facebook from './oauth/facebook'
+import $github from './oauth/github'
+import $google from './oauth/google'
+import $linkedin from './oauth/linkedin'
+import $twitter from './oauth/twitter'
 
 const AuthRoutes = () => {
   return (
