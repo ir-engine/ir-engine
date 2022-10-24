@@ -6,7 +6,7 @@ import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleC
 import { getControlMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import AnchorIcon from '@mui/icons-material/Anchor'
 
@@ -22,6 +22,13 @@ export function createAnchorWidget(world: World) {
     ui,
     label: 'World Anchor',
     icon: AnchorIcon,
+    onOpen: () => {
+      dispatchAction(
+        XRAction.changePlacementMode({
+          active: true
+        })
+      )
+    },
     system: () => {
       const isImmersive = getControlMode() === 'attached'
       if (!isImmersive) return

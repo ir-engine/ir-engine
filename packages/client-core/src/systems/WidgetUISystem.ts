@@ -116,6 +116,9 @@ export default async function WidgetSystem(world: World) {
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       setVisibleComponent(widget.ui.entity, action.shown)
+      if (action.shown) {
+        if (typeof widget.onOpen === 'function') widget.onOpen()
+      } else if (typeof widget.onClose === 'function') widget.onClose()
     }
     for (const action of registerWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!

@@ -33,6 +33,8 @@ export type Widget = {
   ui: ReturnType<typeof createXRUI>
   label: string
   icon?: any
+  onOpen?: () => void
+  onClose?: () => void
   system?: () => void
   cleanup?: () => Promise<void>
 }

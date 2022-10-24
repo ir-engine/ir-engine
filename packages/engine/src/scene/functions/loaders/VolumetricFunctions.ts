@@ -1,6 +1,7 @@
 import type VolumetricPlayer from '@xrfoundation/volumetric/player'
 import { Box3, Group, Material, Mesh, MeshStandardMaterial, Object3D } from 'three'
 
+import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
@@ -66,11 +67,14 @@ export const enterVolumetric = async (entity: Entity) => {
     throw new Error('expected video media')
   }
 
+  const workerBlobUrl = await createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
+
   const player = new VolumetricPlayer({
     renderer: EngineRenderer.instance.renderer,
     video: mediaElement.element as HTMLVideoElement,
     paths: [],
-    playMode: PlayMode.single
+    playMode: PlayMode.single,
+    worker: new Worker(workerBlobUrl)
     // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
 
