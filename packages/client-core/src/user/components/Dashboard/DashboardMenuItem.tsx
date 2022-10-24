@@ -36,7 +36,8 @@ const DashboardMenuItem = ({ location }: Props) => {
     benchmarking: false,
     routes: false,
     projects: false,
-    settings: false
+    settings: false,
+    server: false
   }
 
   scopes.forEach((scope) => {
