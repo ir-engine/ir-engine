@@ -1,7 +1,7 @@
 import { SkinnedMesh, Vector2, Vector3 } from 'three'
 
+import config from '@xrengine/common/src/config'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
@@ -534,7 +534,7 @@ export const createAvatarInput = () => {
   map.set('KeyC', BaseInput.SWITCH_SHOULDER_SIDE)
   map.set('KeyF', BaseInput.LOCKING_CAMERA)
 
-  if (isDev) {
+  if (config.common.isDev) {
     map.set('KeyQ', PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE)
     map.set('KeyP', PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG)
   }

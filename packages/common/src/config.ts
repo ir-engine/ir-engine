@@ -32,3 +32,27 @@ export function validateEmail(email: string): boolean {
 export function validatePhoneNumber(phone: string): boolean {
   return /^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(phone)
 }
+
+/**
+ * Common
+ */
+const common = {
+  isDev: process.env.APP_ENV === 'development'
+}
+
+/**
+ * Client / frontend
+ */
+const client = {
+  key8thWall: process.env.VITE_8TH_WALL!
+}
+
+/**
+ * Full config
+ */
+const config = {
+  client,
+  common
+}
+
+export default config

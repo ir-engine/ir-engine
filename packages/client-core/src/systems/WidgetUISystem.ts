@@ -1,4 +1,4 @@
-import { isDev } from '@xrengine/common/src/utils/isDev'
+import config from '@xrengine/common/src/config'
 import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
@@ -52,7 +52,7 @@ export default async function WidgetSystem(world: World) {
   let createdWidgets = false
   const showWidgetMenu = (show: boolean) => {
     // temporarily only allow widgets on non hmd for local dev
-    if (!createdWidgets && (isHMD || isDev)) {
+    if (!createdWidgets && (isHMD || config.common.isDev)) {
       createdWidgets = true
       createProfileWidget(world)
       createSettingsWidget(world)
@@ -88,7 +88,7 @@ export default async function WidgetSystem(world: World) {
 
   AvatarInputSchema.inputMap.set(GamepadButtons.X, WidgetInput.TOGGLE_MENU_BUTTONS)
   // add escape key for local testing until we migrate fully with new interface story #6425
-  if (isDev && !isHMD) AvatarInputSchema.inputMap.set('Escape', WidgetInput.TOGGLE_MENU_BUTTONS)
+  if (config.common.isDev && !isHMD) AvatarInputSchema.inputMap.set('Escape', WidgetInput.TOGGLE_MENU_BUTTONS)
 
   AvatarInputSchema.behaviorMap.set(WidgetInput.TOGGLE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
     if (inputValue.lifecycleState !== LifecycleValue.Started) return
