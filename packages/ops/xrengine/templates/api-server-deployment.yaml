@@ -101,6 +101,8 @@ spec:
                   key: redis-password
             - name: RELEASE_NAME
               value: {{ $releaseName }}
+            - name: BUILDER_REPOSITORY
+              value: {{ .Values.builder.image.repository }}
           ports:
             - name: http
               containerPort: 3030
