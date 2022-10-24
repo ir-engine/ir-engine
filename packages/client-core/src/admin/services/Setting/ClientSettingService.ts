@@ -1,5 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
 
+import config from '@xrengine/common/src/config'
 import { ClientSetting, PatchClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -23,6 +24,11 @@ export const ClientSettingsServiceReceptor = (action) => {
   const s = getState(AdminClientSettingsState)
   matches(action)
     .when(ClientSettingActions.fetchedClient.matches, (action) => {
+      const [clientSetting] = action.clientSettings.data
+      if (clientSetting.key8thWall) {
+        config.client.key8thWall = clientSetting.key8thWall
+      }
+
       return s.merge({ client: action.clientSettings.data, updateNeeded: false })
     })
     .when(ClientSettingActions.clientSettingPatched.matches, (action) => {
