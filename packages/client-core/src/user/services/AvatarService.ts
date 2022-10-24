@@ -2,6 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 import axios from 'axios'
 import i18n from 'i18next'
 
+import config from '@xrengine/common/src/config'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -97,7 +98,7 @@ export const AvatarService = {
   async uploadAvatar(data: any) {
     const token = accessAuthState().authUser.accessToken.value
     const selfUser = accessAuthState().user
-    const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/upload`, data, {
+    const res = await axios.post(`https://${config.client.serverHost}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token

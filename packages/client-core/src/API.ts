@@ -22,14 +22,14 @@ export class API {
   static createAPI = () => {
     const feathersClient = feathers()
 
-    const socket = io(config.client.serverHost, {
+    const socket = io(config.client.serverUrl, {
       withCredentials: true
     })
     feathersClient.configure(socketio(socket, { timeout: 10000 }))
 
     feathersClient.configure(
       authentication({
-        storageKey: globalThis.process.env['VITE_FEATHERS_STORE_KEY']
+        storageKey: config.client.featherStoreKey
       })
     )
 

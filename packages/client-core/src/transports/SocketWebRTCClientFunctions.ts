@@ -8,6 +8,7 @@ import {
 } from 'mediasoup-client/lib/types'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
+import config from '@xrengine/common/src/config'
 import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
@@ -379,7 +380,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
     channelId: channelId
   })
 
-  if (process.env.NODE_ENV === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS
+  if (config.client.nodeEnv === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS
   if (direction === 'recv') transport = await network.mediasoupDevice.createRecvTransport(transportOptions)
   else if (direction === 'send') transport = await network.mediasoupDevice.createSendTransport(transportOptions)
   else throw new Error(`bad transport 'direction': ${direction}`)

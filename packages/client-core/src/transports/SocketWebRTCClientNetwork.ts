@@ -153,16 +153,16 @@ export class SocketWebRTCClientNetwork extends Network {
     if (!roomCode) delete query.roomCode
 
     try {
-      if (globalThis.process.env['VITE_LOCAL_BUILD'] === 'true') {
+      if (config.client.localBuild === 'true') {
         this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {
           query
         })
-      } else if (process.env.APP_ENV === 'development' && process.env.VITE_LOCAL_NGINX !== 'true') {
+      } else if (config.client.appEnv === 'development' && config.client.localNginx !== 'true') {
         this.socket = ioclient(`${ipAddress as string}:${port.toString()}`, {
           query
         })
       } else {
-        this.socket = ioclient(config.client.instanceserverHost, {
+        this.socket = ioclient(config.client.instanceserverUrl, {
           path: `/socket.io/${ipAddress as string}/${port.toString()}`,
           query
         })

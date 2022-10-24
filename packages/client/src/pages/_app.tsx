@@ -152,8 +152,8 @@ const App = (): any => {
   const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
   const location = useLocation()
-  const oembedLink = `${config.client.serverHost}/oembed?url=${encodeURIComponent(
-    `${config.client.clientHost}${location.pathname}`
+  const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
+    `${config.client.clientUrl}${location.pathname}`
   )}&format=json`
 
   const updateTheme = () => {

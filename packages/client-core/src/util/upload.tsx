@@ -76,7 +76,7 @@ export const uploadToFeathersService = (
         formData.set('media', files)
       }
 
-      request.open('post', `${config.client.serverHost}/${service}`, true)
+      request.open('post', `${config.client.serverUrl}/${service}`, true)
       request.setRequestHeader('Authorization', `Bearer ${token}`)
       request.send(formData)
     })

@@ -30,10 +30,10 @@ export const AddCorsProxyButton = (props: Props) => {
   const { t } = useTranslation()
 
   const onClick = () => {
-    props.onAddCorsProxy(`${config.client.corsProxyPath}/${props.value}`)
+    props.onAddCorsProxy(`${config.client.cors.proxyUrl}/${props.value}`)
   }
 
-  return props.value?.includes(config.client.corsProxyPath) ? null : (
+  return props.value?.includes(config.client.cors.proxyUrl) ? null : (
     <InfoTooltip title={t('editor:corsProxyButton:tooltip')!}>
       <DnsInfoIcon onClick={onClick} />
     </InfoTooltip>

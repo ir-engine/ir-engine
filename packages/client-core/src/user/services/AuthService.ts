@@ -457,7 +457,7 @@ export const AuthService = {
     } as any
     if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
     window.location.href = `${
-      config.client.serverHost
+      config.client.serverUrl
     }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
   },
 
@@ -761,7 +761,7 @@ export const AuthService = {
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: string
   ) {
-    window.open(`https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
+    window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
 
   async removeConnection(identityProviderId: number, userId: string) {

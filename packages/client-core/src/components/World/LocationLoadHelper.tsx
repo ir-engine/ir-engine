@@ -1,6 +1,7 @@
 import { useHistory } from 'react-router-dom'
 
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
+import config from '@xrengine/common/src/config'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -18,7 +19,7 @@ import { API } from '../../API'
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const retrieveLocationByName = (locationName: string, userId: string) => {
-  if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
+  if (locationName === config.client.lobbyLocationName) {
     const history = useHistory()
     LocationService.getLobby()
       .then((lobby) => {
