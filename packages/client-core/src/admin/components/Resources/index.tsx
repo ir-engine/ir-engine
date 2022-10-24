@@ -44,7 +44,7 @@ const Resources = () => {
   }, [])
 
   return (
-    <React.Fragment>
+    <div>
       <Grid container spacing={1} className={styles.mb10px}>
         <Grid item sm={8} xs={12}>
           <Search sx={{ flexGrow: 1 }} text={t('admin:components.resources.resources')} handleChange={handleChange} />
@@ -107,7 +107,7 @@ const Resources = () => {
           {t('admin:components.common.reset')}
         </Button>
       </Popover>
-    </React.Fragment>
+    </div>
   )
 }
 

@@ -1,5 +1,6 @@
 import * as Comlink from 'comlink'
 
+import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -34,7 +35,8 @@ export const stopLipsyncTracking = () => {
 export const startFaceTracking = async () => {
   if (!faceWorker) {
     //@ts-ignore
-    const worker = new Worker(new URL('./WebcamInputWorker.js', import.meta.url), { type: 'module' })
+    const workerBlobUrl = await createWorkerFromCrossOriginURL(new URL('./WebcamInputWorker.js', import.meta.url))
+    const worker = new Worker(workerBlobUrl, { type: 'module' })
     faceWorker = Comlink.wrap(worker)
     await faceWorker.initialise()
   }

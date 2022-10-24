@@ -76,6 +76,7 @@
   },
   "ar": {
     "placeScene": "Place Scene",
+    "doneTrigger": "Hold Trigger To Confirm",
     "done": "Done"
   },
   "error": {

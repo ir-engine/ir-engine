@@ -35,7 +35,11 @@ import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
-import { TransformComponent } from '../transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  setLocalTransformComponent,
+  TransformComponent
+} from '../transform/components/TransformComponent'
 import {
   InputSourceComponent,
   PointerObject,
@@ -103,7 +107,7 @@ const updateHand = (entity: Entity, referenceSpace: XRReferenceSpace) => {
 
   /** The IK system uses the wrist joint as the hand target, so set the world transform to be where the wrist is */
   const wrist = joints['wrist']
-  const transform = getComponent(entity, TransformComponent)
+  const transform = getComponent(entity, LocalTransformComponent)
   transform.position.copy(wrist.position)
   transform.rotation.copy(wrist.quaternion)
 
@@ -126,7 +130,7 @@ const updateInputSource = (entity: Entity, space: XRSpace, referenceSpace: XRRef
   setVisibleComponent(entity, !!pose)
   if (!pose) return
 
-  const transform = getComponent(entity, TransformComponent)
+  const transform = getComponent(entity, LocalTransformComponent)
   const velocity = getComponent(entity, VelocityComponent)
   transform.position.copy(pose.transform.position as any)
   transform.rotation.copy(pose.transform.orientation as any)
@@ -201,6 +205,8 @@ const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpac
   pointer.cursor = cursor
   pointer.add(cursor)
   cursor.visible = false
+  const world = Engine.instance.currentWorld
+  setLocalTransformComponent(entity, world.originEntity)
 
   // controller.targetRay = targetRay
   setComponent(entity, XRControllerComponent, {
@@ -228,6 +234,8 @@ const addGripInputSource = (inputSource: XRInputSource, gripSpace: XRSpace) => {
   setComponent(gripEntity, XRControllerGripComponent, { gripSpace, handedness: inputSource.handedness })
   setComponent(gripEntity, InputSourceComponent, { inputSource })
   setVelocityComponent(gripEntity)
+  const world = Engine.instance.currentWorld
+  setLocalTransformComponent(gripEntity, world.originEntity)
   setComponent(gripEntity, NameComponent, { name: `XR Grip${inputSource.handedness}` })
   // initializeControllerModel(gripEntity)
   const gripAxisHelper = new AxesHelper(1)
@@ -243,6 +251,8 @@ const addHandInputSource = (inputSource: XRInputSource, hand: XRHand) => {
   setVelocityComponent(handEntity)
   setComponent(handEntity, NameComponent, { name: `XR Hand ${inputSource.handedness}` })
   // initializeHandModel(handEntity)
+  const world = Engine.instance.currentWorld
+  setLocalTransformComponent(handEntity, world.originEntity)
   const handAxisHelper = new AxesHelper(1)
   setObjectLayers(handAxisHelper, ObjectLayers.PhysicsHelper)
   addObjectToGroup(handEntity, handAxisHelper)

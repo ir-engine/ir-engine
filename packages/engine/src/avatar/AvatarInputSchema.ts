@@ -4,6 +4,7 @@ import config from '@xrengine/common/src/config'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { CameraSettings } from '../camera/CameraState'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -358,7 +359,6 @@ const setLocalMovementDirection: InputBehaviorType = (
   controller.localMovementDirection.normalize()
 }
 
-const axisLookSensitivity = 200
 const vrAxisLookSensitivity = 0.025
 
 const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
@@ -366,13 +366,15 @@ const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAl
   const cameraEntity = avatarController.cameraEntity
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
 
+  const cameraSettings = getState(CameraSettings)
+
   if (followCamera) {
     const target = getComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
     if (target)
       setTargetCameraRotation(
         cameraEntity,
-        target.phi - inputValue.value[1] * axisLookSensitivity,
-        target.theta - inputValue.value[0] * axisLookSensitivity,
+        target.phi - inputValue.value[1] * cameraSettings.cameraRotationSpeed.value,
+        target.theta - inputValue.value[0] * cameraSettings.cameraRotationSpeed.value,
         0.1
       )
     return

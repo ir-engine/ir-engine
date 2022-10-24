@@ -940,6 +940,15 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       world.networks.delete(network.hostId)
       world._mediaHostId = null!
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
+
+      const parsed = new URL(window.location.href)
+      const query = parsed.searchParams
+      query.delete('roomCode')
+      query.delete('instanceId')
+      parsed.search = query.toString()
+      if (typeof history.pushState !== 'undefined') {
+        window.history.replaceState({}, '', parsed.toString())
+      }
     } else {
       NetworkPeerFunctions.destroyAllPeers(network, world)
       world.networks.delete(network.hostId)

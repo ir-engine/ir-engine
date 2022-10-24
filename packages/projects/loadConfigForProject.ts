@@ -1,5 +1,3 @@
-import { lazy } from 'react'
-
 import type { ProjectConfigInterface } from './ProjectConfigInterface'
 
 export const loadConfigForProject = async (project: string): Promise<ProjectConfigInterface | null> => {
