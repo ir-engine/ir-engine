@@ -118,8 +118,8 @@ export const defineComponent = <
   Component.toJSON = (entity, component) => component.value as any
   Component.errors = []
   Object.assign(Component, def)
-  Component.onInit = Component.onInit ?? Component.onAdd
-  Component.onSet = Component.onSet ?? Component.onUpdate
+  Component.onInit = Component.onAdd = Component.onInit ?? Component.onAdd
+  Component.onSet = Component.onUpdate = Component.onSet ?? Component.onUpdate
   Component.reactorRoots = new Map()
 
   Component.map = createState({} as Record<Entity, ComponentType>)
@@ -134,10 +134,13 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
   name: string,
   schema?: Schema
 ) => {
-  const Component = defineComponent<ComponentType, Schema, ComponentType, unknown>({ name, schema })
-  Component.onUpdate = (entity, component, json) => {
-    Component.map[entity].set(json)
-  }
+  const Component = defineComponent<ComponentType, Schema, ComponentType, unknown>({
+    name,
+    schema,
+    onSet: (entity, component, json) => {
+      Component.map[entity].set(json)
+    }
+  })
   return Component
 }
 
@@ -218,7 +221,7 @@ export const setComponent = <C extends Component>(
     throw new Error('[setComponent]: entity does not exist')
   }
   if (!hasComponent(entity, component)) {
-    const c = component.onAdd(entity, world)
+    const c = component.onInit(entity, world)
     component.map[entity].set(c)
     bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   }

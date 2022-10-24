@@ -15,7 +15,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { createEntityReactor } from '../../ecs/functions/EntityFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
@@ -114,7 +113,7 @@ import {
   updateGroundPlane
 } from '../functions/loaders/GroundPlaneFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
-import { deserializeImage, ImageReactor, serializeImage } from '../functions/loaders/ImageFunctions'
+import { deserializeImage, serializeImage } from '../functions/loaders/ImageFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel, serializeModel } from '../functions/loaders/ModelFunctions'
@@ -456,7 +455,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     }
 
     for (const entity of cameraQuery.enter()) addObjectToGroup(entity, getComponent(entity, CameraComponent).camera)
-    for (const entity of imageQuery.enter()) createEntityReactor(entity, ImageReactor)
     for (const entity of shadowQuery.enter()) updateShadow(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)

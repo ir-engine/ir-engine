@@ -58,7 +58,7 @@ export const VideoComponent = defineComponent({
     component.videoMesh.value.material.map?.dispose()
   },
 
-  errors: ['INVALID_MEDIA_UUID', 'MISSING_MEDIA_ELEMENT'] as const,
+  errors: ['INVALID_MEDIA_UUID', 'MISSING_MEDIA_ELEMENT'],
 
   reactor: VideoReactor
 })

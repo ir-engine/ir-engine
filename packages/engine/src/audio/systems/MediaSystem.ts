@@ -6,8 +6,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { createEntityReactor } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
@@ -20,7 +19,7 @@ import {
   deserializePositionalAudio,
   serializePositionalAudio
 } from '../../scene/functions/loaders/PositionalAudioFunctions'
-import { deserializeVideo, serializeVideo, VideoReactor } from '../../scene/functions/loaders/VideoFunctions'
+import { deserializeVideo, serializeVideo } from '../../scene/functions/loaders/VideoFunctions'
 import {
   deserializeVolumetric,
   enterVolumetric,
@@ -100,7 +99,7 @@ export default async function MediaSystem(world: World) {
     const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
     function handleAutoplay() {
       for (const entity of mediaQuery()) {
-        const media = getComponent(entity, MediaComponent)
+        const media = getComponentState(entity, MediaComponent)
         if (media.playing.value) return
         if (media.paused.value && media.autoplay.value) media.paused.set(false)
         // safari requires play() to be called in the DOM handle function
@@ -219,12 +218,11 @@ export default async function MediaSystem(world: World) {
     }
 
     for (const entity of mediaQuery.enter()) {
-      const media = getComponent(entity, MediaComponent)
+      const media = getComponentState(entity, MediaComponent)
       setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
       setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }
 
-    for (const entity of videoQuery.enter()) createEntityReactor(entity, VideoReactor)
     for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
   }

@@ -46,7 +46,7 @@ const stateNamespaceKey = 'ee.hyperflux'
  * @param {StateDefinition} stateDefinition
  * @param {string[]} keys the root paths to synchronise
  */
-const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
+export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
   const state = getState(stateDefinition)
 
   for (const key of keys) {
@@ -67,11 +67,4 @@ const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineStat
       }
     })
   }))
-}
-
-export default {
-  defineState,
-  registerState,
-  getState,
-  syncStateWithLocalStorage
 }
