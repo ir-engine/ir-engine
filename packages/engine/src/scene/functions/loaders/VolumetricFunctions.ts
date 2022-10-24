@@ -77,7 +77,6 @@ export const enterVolumetric = async (entity: Entity) => {
     worker: new Worker(workerBlobUrl)
     // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
-  console.log(player, workerBlobUrl)
 
   const volumetric = {
     entity,
