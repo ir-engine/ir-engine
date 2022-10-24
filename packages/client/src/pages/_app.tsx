@@ -33,7 +33,7 @@ import { API } from '@xrengine/client-core/src/API'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
 import Debug from '@xrengine/client-core/src/components/Debug'
-import { clientHost, serverHost } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
@@ -152,7 +152,9 @@ const App = (): any => {
   const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
   const location = useLocation()
-  const oembedLink = `${serverHost}/oembed?url=${encodeURIComponent(`${clientHost}${location.pathname}`)}&format=json`
+  const oembedLink = `${config.client.serverHost}/oembed?url=${encodeURIComponent(
+    `${config.client.clientHost}${location.pathname}`
+  )}&format=json`
 
   const updateTheme = () => {
     if (clientThemeSettings) {

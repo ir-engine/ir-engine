@@ -12,7 +12,7 @@
 import { LruCache } from '@digitalcredentials/lru-memoize'
 import fetch from 'cross-fetch'
 
-import { hostDefined, localBuildOrDev, serverHost } from './config'
+import config from './config'
 
 const logRequestCache = new LruCache({
   maxAge: 1000 * 5 // 5 seconds cache expiry
@@ -57,7 +57,7 @@ const multiLogger = {
    * @param opts.component {string}
    */
   child: (opts: any) => {
-    if (!hostDefined || (localBuildOrDev && !process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE)) {
+    if (!config.client.hostDefined || (config.client.localBuildOrDev && !process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE)) {
       // Locally, this will provide correct file & line numbers in browser console
       return {
         debug: console.debug.bind(console, `[${opts.component}]`),
@@ -69,7 +69,7 @@ const multiLogger = {
     } else {
       // For non-local builds, this send() is used
       const send = (level) => {
-        const url = new URL('/api/log', serverHost)
+        const url = new URL('/api/log', config.client.serverHost)
 
         return async (...args) => {
           const consoleMethods = {
@@ -88,7 +88,7 @@ const multiLogger = {
 
           // Send an async rate-limited request to backend /api/log endpoint for aggregation
           // Also suppress logger.info() levels (the equivalent to console.log())
-          if (hostDefined && level !== 'info') {
+          if (config.client.hostDefined && level !== 'info') {
             logRequestCache.memoize({
               key: logParams.msg,
               fn: () =>

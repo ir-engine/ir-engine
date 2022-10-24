@@ -1,6 +1,6 @@
 import i18n from 'i18next'
 
-import { serverHost } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 
 import { accessAuthState } from '../user/services/AuthService'
 import { RethrownError } from './errors'
@@ -76,7 +76,7 @@ export const uploadToFeathersService = (
         formData.set('media', files)
       }
 
-      request.open('post', `${serverHost}/${service}`, true)
+      request.open('post', `${config.client.serverHost}/${service}`, true)
       request.setRequestHeader('Authorization', `Bearer ${token}`)
       request.send(formData)
     })

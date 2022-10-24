@@ -2,7 +2,7 @@ import * as mediasoupClient from 'mediasoup-client'
 import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
-import { instanceserverHost } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -162,7 +162,7 @@ export class SocketWebRTCClientNetwork extends Network {
           query
         })
       } else {
-        this.socket = ioclient(instanceserverHost, {
+        this.socket = ioclient(config.client.instanceserverHost, {
           path: `/socket.io/${ipAddress as string}/${port.toString()}`,
           query
         })

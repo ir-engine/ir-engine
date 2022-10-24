@@ -7,7 +7,7 @@ import type SocketIO from 'socket.io'
 import io from 'socket.io-client'
 
 import type { ServiceTypes } from '@xrengine/common/declarations'
-import { serverHost } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 
 type FeathersClient = FeathersApplication<ServiceTypes> &
   AuthenticationClient & {
@@ -22,7 +22,7 @@ export class API {
   static createAPI = () => {
     const feathersClient = feathers()
 
-    const socket = io(serverHost, {
+    const socket = io(config.client.serverHost, {
       withCredentials: true
     })
     feathersClient.configure(socketio(socket, { timeout: 10000 }))
