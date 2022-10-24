@@ -27,13 +27,13 @@ import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user
 import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
 import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
+import $404 from '../pages/404'
+import $503 from '../pages/503'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
 const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))
-const $503 = React.lazy(() => import('../pages/503'))
-const $404 = React.lazy(() => import('../pages/404'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
