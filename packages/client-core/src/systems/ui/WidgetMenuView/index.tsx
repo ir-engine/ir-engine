@@ -1,4 +1,4 @@
-import { createState } from '@hookstate/core'
+import { createState, useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 
 // import { VrIcon } from '../../../common/components/Icons/VRIcon'
@@ -6,8 +6,8 @@ import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { accessWidgetAppState, useWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Refresh as RefreshIcon } from '@mui/icons-material'
 
@@ -63,7 +63,7 @@ const WidgetButton = ({ Icon, toggle, label, disabled }: WidgetButtonProps) => {
 const WidgetButtons = () => {
   let activeChannel: Channel | null = null
   const chatState = useChatState()
-  const widgetState = useWidgetAppState()
+  const widgetState = useHookstate(getState(WidgetAppState))
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
@@ -90,7 +90,7 @@ const WidgetButtons = () => {
   //     setUnreadMessages(true)
   // }, [activeChannel?.messages])
 
-  // const toogleVRSession = () => {
+  // const toggleVRSession = () => {
   //   if (engineState.xrSessionStarted.value) {
   //     dispatchAction(XRAction.endSession({}))
   //   } else {
@@ -109,7 +109,7 @@ const WidgetButtons = () => {
   }))
 
   const toggleWidget = (toggledWidget) => () => {
-    const state = accessWidgetAppState().widgets.value
+    const state = widgetState.widgets.value
     const visible = state[toggledWidget.id].visible
     // close currently open widgets until we support multiple widgets being open at once
     if (!visible) {
@@ -149,13 +149,14 @@ const WidgetButtons = () => {
       >
         <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
         <WidgetButton
+          disabled={!mediaInstanceConnection}
           Icon={MicIcon}
           toggle={handleMicClick}
           label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
         />
         {/* <WidgetButton
           Icon={VrIcon}
-          toggle={toogleVRSession}
+          toggle={toggleVRSession}
           label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
         /> */}
         {widgets.map(
@@ -165,13 +166,6 @@ const WidgetButtons = () => {
               <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
             )
         )}
-        <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
-        <WidgetButton
-          disabled={!mediaInstanceConnection}
-          Icon={MicIcon}
-          toggle={handleMicClick}
-          label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
-        />
       </div>
     </>
   )

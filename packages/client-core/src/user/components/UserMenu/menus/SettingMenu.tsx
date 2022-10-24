@@ -62,6 +62,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
   const selfUser = useAuthState().user
   const controlScheme = avatarInputState.controlScheme.value
+  const preferredHand = avatarInputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const firstRender = useRef(true)
@@ -70,6 +71,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
+  const handOptions = ['left', 'right']
   // const [open, setOpen] = useState(false)
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
@@ -154,6 +156,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
     dispatchAction(AvatarInputSettingsAction.setControlScheme({ scheme: event.target.value as any }))
+  }
+
+  const handleChangePreferredHand = (event: SelectChangeEvent) => {
+    dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: event.target.value as any }))
   }
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -265,6 +271,26 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                           MenuProps={{ classes: { paper: styles.paper } }}
                         >
                           {controlSchemes.map((el) => (
+                            <MenuItem value={el} key={el} classes={{ root: styles.menuItem }}>
+                              {el}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </div>
+                    <div className={styles.selectSize}>
+                      <FormControl fullWidth>
+                        <InputLabel>{t('user:usermenu.setting.lbl-preferred-hand')}</InputLabel>
+                        <Select
+                          value={preferredHand}
+                          onChange={handleChangePreferredHand}
+                          size="small"
+                          classes={{
+                            select: styles.select
+                          }}
+                          MenuProps={{ classes: { paper: styles.paper } }}
+                        >
+                          {handOptions.map((el) => (
                             <MenuItem value={el} key={el} classes={{ root: styles.menuItem }}>
                               {el}
                             </MenuItem>
