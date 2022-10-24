@@ -8,28 +8,28 @@ import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSyst
 import CircularProgress from '@mui/material/CircularProgress'
 
 import PrivateRoute from '../Private'
+import AdminSystem from '../systems/AdminSystem'
 import { useAuthState } from '../user/services/AuthService'
 import LoadingView from './common/LoadingView'
-
-const analytic = React.lazy(() => import('./components/Analytics'))
-const avatars = React.lazy(() => import('./components/Avatars'))
-const benchmarking = React.lazy(() => import('./components/Benchmarking'))
-const groups = React.lazy(() => import('./components/Group'))
-const instance = React.lazy(() => import('./components/Instance'))
-const invites = React.lazy(() => import('./components/Invite'))
-const locations = React.lazy(() => import('./components/Location'))
-const routes = React.lazy(() => import('./components/Routes'))
-const users = React.lazy(() => import('./components/Users'))
-const party = React.lazy(() => import('./components/Party'))
-const botSetting = React.lazy(() => import('./components/Bots'))
-const projects = React.lazy(() => import('./components/Project'))
-const setting = React.lazy(() => import('./components/Setting'))
-const resources = React.lazy(() => import('./components/Resources'))
+import analytic from './components/Analytics'
+import avatars from './components/Avatars'
+import benchmarking from './components/Benchmarking'
+import botSetting from './components/Bots'
+import groups from './components/Group'
+import instance from './components/Instance'
+import invites from './components/Invite'
+import locations from './components/Location'
+import party from './components/Party'
+import projects from './components/Project'
+import resources from './components/Resources'
+import routes from './components/Routes'
+import setting from './components/Setting'
+import users from './components/Users'
 
 const AdminSystemInjection = {
   uuid: 'core.admin.AdminSystem',
   type: 'PRE_RENDER',
-  systemLoader: () => import('../systems/AdminSystem')
+  systemLoader: () => Promise.resolve({ default: AdminSystem })
 } as const
 
 const ProtectedRoutes = () => {
