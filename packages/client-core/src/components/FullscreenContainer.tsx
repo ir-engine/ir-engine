@@ -32,7 +32,9 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
   }, [fullScreenActive])
 
   return iOS ? (
-    <></>
+    <div id={'engine-container'} ref={ref}>
+      {props.children}
+    </div>
   ) : (
     <FullscreenContext.Provider value={[fullScreenActive, setFullScreenActive]}>
       <FullScreen handle={handle} onChange={reportChange}>
