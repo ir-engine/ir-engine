@@ -11,7 +11,6 @@ import {
 } from 'three'
 import { LinearMipmapLinearFilter, sRGBEncoding, Texture } from 'three'
 
-import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -21,7 +20,7 @@ import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
-import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
+import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
 export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
