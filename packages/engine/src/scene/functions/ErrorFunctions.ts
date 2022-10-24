@@ -1,30 +1,41 @@
 import { isEmpty } from 'lodash'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { none } from '@xrengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  Component,
+  getComponentState,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '../components/ErrorComponent'
 
-export const addError = (entity: Entity, key: string, error: any) => {
-  console.error('[addError]:', entity, key, error)
-  const errorComponent = getComponent(entity, ErrorComponent) ?? addComponent(entity, ErrorComponent, {})
-  errorComponent[key] = error
-  dispatchAction(EngineActions.updateEntityError({ entity }))
+export const addError = <C extends Component>(
+  entity: Entity,
+  Component: C,
+  error: C['errors'][number],
+  message?: string
+) => {
+  console.error('[addError]:', entity, Component.name, error)
+  if (!hasComponent(entity, ErrorComponent)) addComponent(entity, ErrorComponent)
+  const errors = getComponentState(entity, ErrorComponent)
+  if (!errors[Component.name].value) errors[Component.name].set({})
+  errors[Component.name][error].set(message ?? '')
 }
 
-export const removeError = (entity: Entity, key: string) => {
-  const errorComponent = getComponent(entity, ErrorComponent)
+export const removeError = <C extends Component>(entity: Entity, Component: C, error: C['errors'][number]) => {
+  if (!hasComponent(entity, ErrorComponent)) return
+  const errors = getComponentState(entity, ErrorComponent)
+  const componentErrors = errors[Component.name]
+  if (componentErrors.value) componentErrors[error].set(none)
+  if (isEmpty(componentErrors.value)) errors[Component.name].set(none)
+  if (isEmpty(errors.value)) removeComponent(entity, ErrorComponent)
+}
 
-  if (!errorComponent) return
-  delete errorComponent[key]
-
-  if (isEmpty(errorComponent)) {
-    removeComponent(entity, ErrorComponent)
-    dispatchAction(EngineActions.updateEntityError({ entity, isResolved: true }))
-  } else {
-    dispatchAction(EngineActions.updateEntityError({ entity }))
-  }
+export const clearErrors = (entity: Entity, Component: Component) => {
+  if (!hasComponent(entity, ErrorComponent)) return
+  const errors = getComponentState(entity, ErrorComponent)
+  errors[Component.name].set(none)
 }

@@ -91,10 +91,10 @@ export class World {
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')
+    addComponent(this.cameraEntity, CameraComponent)
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
     setLocalTransformComponent(this.cameraEntity, this.originEntity)
-    addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
 
     /** @todo */
     // this.scene.matrixAutoUpdate = false

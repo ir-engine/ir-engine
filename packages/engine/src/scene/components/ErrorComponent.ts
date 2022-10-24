@@ -1,7 +1,12 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type ErrorComponentType = {
-  [key: string]: any
+  [componentName: string]: {
+    [errorKey: string]: string
+  }
 }
 
-export const ErrorComponent = createMappedComponent<ErrorComponentType>('ErrorComponent')
+export const ErrorComponent = defineComponent<ErrorComponentType>({
+  name: 'ErrorComponent',
+  onInit: () => ({} as ErrorComponentType)
+})

@@ -1,7 +1,5 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanComponent'
@@ -23,11 +21,11 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const OceanNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const engineState = useEngineState()
+
   const entity = props.node.entity
   const oceanComponent = getComponent(entity, OceanComponent)
-  const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
+  const oceanErrors = errorComponent[OceanComponent.name]
 
   return (
     <NodeEditor
@@ -37,21 +35,21 @@ export const OceanNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Normal Map" label={t('editor:properties.ocean.lbl-normalMap')}>
         <ImageInput value={oceanComponent.normalMap} onChange={updateProperty(OceanComponent, 'normalMap')} />
-        {hasError && errorComponent.normalMapError && (
+        {oceanErrors.normalMapError && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.ocean.error-url')}</div>
         )}
       </InputGroup>
 
       <InputGroup name="Distortion Map" label={t('editor:properties.ocean.lbl-distortionMap')}>
         <ImageInput value={oceanComponent.distortionMap} onChange={updateProperty(OceanComponent, 'distortionMap')} />
-        {hasError && errorComponent.distortionMapError && (
+        {oceanErrors.distortionMapError && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.ocean.error-url')}</div>
         )}
       </InputGroup>
 
       <InputGroup name="Environment Map" label={t('editor:properties.ocean.lbl-envMap')}>
         <ImageInput value={oceanComponent.envMap} onChange={updateProperty(OceanComponent, 'envMap')} />
-        {hasError && errorComponent.envMapError && (
+        {oceanErrors.envMapError && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.ocean.error-url')}</div>
         )}
       </InputGroup>

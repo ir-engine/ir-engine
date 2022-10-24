@@ -1,12 +1,12 @@
 import { hookstate, none } from '@xrengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, SetComponentType } from '../../ecs/functions/ComponentFunctions'
 
 export const NameComponent = defineComponent({
   name: 'NameComponent',
 
-  onAdd: () => '',
+  onInit: () => '',
 
   onSet: (
     entity,

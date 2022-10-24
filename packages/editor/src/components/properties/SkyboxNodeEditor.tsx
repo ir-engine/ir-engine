@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
@@ -62,7 +61,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const engineState = useEngineState()
   const entity = props.node.entity
-  const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
+  const hasError = hasComponent(entity, ErrorComponent)
 
   const onChangeEquirectangularPathOption = (equirectangularPath) => {
     if (equirectangularPath !== skyComponent.equirectangularPath) {

@@ -89,7 +89,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
 }
 
 export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
-  const scene = object3d ?? getComponent(entity, ModelComponent).scene.value
+  const scene = object3d ?? getComponent(entity, ModelComponent).scene
   const meshesToProcess: Mesh[] = []
 
   if (!scene) return
@@ -128,7 +128,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 }
 
 export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
-  const scene = object3d ?? getComponent(entity, ModelComponent).scene.value
+  const scene = object3d ?? getComponent(entity, ModelComponent).scene
   let polygons = [] as Polygon[]
 
   if (!scene) return
@@ -163,11 +163,11 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
 
 export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
-  if (!model.scene.value) return
-  const scene = model.scene.value
+  if (!model.scene) return
+  const scene = model.scene
   scene.updateMatrixWorld(true)
   scene.traverse((child) => {
-    child.matrixAutoUpdate = model.matrixAutoUpdate.value
+    child.matrixAutoUpdate = model.matrixAutoUpdate
   })
 
   // always parse components first
@@ -176,7 +176,7 @@ export const parseGLTFModel = (entity: Entity) => {
   setObjectLayers(scene, ObjectLayers.Scene)
 
   // DIRTY HACK TO LOAD NAVMESH
-  if (model.src.value.match(/navmesh/)) {
+  if (model.src.match(/navmesh/)) {
     loadNavmesh(entity, scene)
   }
 

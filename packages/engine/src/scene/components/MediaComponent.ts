@@ -1,7 +1,7 @@
 import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 
-import { hookstate, none } from '@xrengine/hyperflux'
+import { none } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
@@ -21,7 +21,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineEntityReactor, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { PlayMode } from '../constants/PlayMode'
-import { addError, removeError } from '../functions/ErrorFunctions'
+import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
 
 export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
@@ -81,7 +81,9 @@ export const MediaElementComponent = defineComponent({
     element.remove()
     component.element.set(none)
     component.abortController.value.abort()
-  }
+  },
+
+  errors: ['MEDIA_ERROR', 'HLS_ERROR']
 })
 
 export const MediaComponent = defineComponent({
@@ -173,7 +175,9 @@ export const MediaComponent = defineComponent({
     return component
   },
 
-  reactor: MediaReactor
+  reactor: MediaReactor,
+
+  errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS']
 })
 
 export function MediaReactor({ root }: EntityReactorProps) {
@@ -199,21 +203,16 @@ export function MediaReactor({ root }: EntityReactorProps) {
     function updateTrackMetadata() {
       if (!media) return
 
+      clearErrors(entity, MediaComponent)
+
       const paths = media.paths.value
 
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         if (assetClass !== 'audio' && assetClass !== 'video') {
-          addError(
-            entity,
-            'mediaError',
-            `invalid assetClass "${assetClass}" for path "${path}"; expected "audio" or "video"`
-          )
-          return
+          return addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
         }
       }
-
-      removeError(entity, 'mediaError')
 
       const metadataListeners = [] as Array<{ tempElement: HTMLMediaElement; listener: () => void }>
 
@@ -259,7 +258,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
       const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
 
       if (assetClass !== 'audio' && assetClass !== 'video') {
-        addError(entity, 'mediaError', `invalid asset class ${assetClass}; only audio and video are supported`)
+        addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
         return
       }
 
@@ -278,7 +277,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         mediaElement.element.addEventListener(
           'playing',
           () => {
-            media.playing.set(true), removeError(entity, `mediaError`)
+            media.playing.set(true), clearErrors(entity, MediaElementComponent)
           },
           { signal }
         )
@@ -286,7 +285,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         mediaElement.element.addEventListener(
           'error',
           (err) => {
-            addError(entity, `mediaError`, err.message)
+            addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
             if (media.playing.value) media.track.set(getNextTrack(media.value))
           },
           { signal }
@@ -377,8 +376,7 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
           hls.destroy()
           break
       }
-
-      addError(entity, 'error', 'Error Loading video')
+      addError(entity, MediaElementComponent, 'HLS_ERROR')
     }
   })
 
@@ -386,7 +384,7 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
   hls.on(Hls.Events.MEDIA_ATTACHED, () => {
     hls.loadSource(url)
     hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
-      removeError(entity, 'error')
+      removeError(entity, MediaElementComponent, 'HLS_ERROR')
     })
   })
 

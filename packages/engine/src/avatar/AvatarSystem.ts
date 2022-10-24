@@ -152,14 +152,14 @@ export default async function AvatarSystem(world: World) {
 
       if (targets.leftHand && !hasComponent(entity, AvatarLeftHandIKComponent)) setupLeftHandIK(entity)
       if (!targets.leftHand && hasComponent(entity, AvatarLeftHandIKComponent)) {
-        const leftHand = getComponent(entity, AvatarLeftHandIKComponent, true)
+        const leftHand = getComponent(entity, AvatarLeftHandIKComponent)
         leftHand?.hint?.removeFromParent()
         removeComponent(entity, AvatarLeftHandIKComponent)
       }
 
       if (targets.rightHand && !hasComponent(entity, AvatarRightHandIKComponent)) setupRightHandIK(entity)
       if (!targets.rightHand && hasComponent(entity, AvatarRightHandIKComponent)) {
-        const rightHand = getComponent(entity, AvatarRightHandIKComponent, true)
+        const rightHand = getComponent(entity, AvatarRightHandIKComponent)
         rightHand?.hint?.removeFromParent()
         removeComponent(entity, AvatarRightHandIKComponent)
       }

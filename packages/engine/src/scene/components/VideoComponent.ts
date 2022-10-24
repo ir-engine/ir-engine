@@ -1,7 +1,16 @@
+import { useEffect } from 'react'
 import { DoubleSide, Group, Mesh, MeshBasicMaterial, Side, Vector2 } from 'three'
+import { VideoTexture } from 'three'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { ContentFitType } from '../../xrui/functions/ObjectFitFunctions'
+import { addError, clearErrors } from '../functions/ErrorFunctions'
+import { ObjectFitFunctions } from './../../xrui/functions/ObjectFitFunctions'
+import { addObjectToGroup, removeObjectFromGroup } from './../components/GroupComponent'
+import { resizeImageMesh } from './../components/ImageComponent'
+import { MediaElementComponent } from './../components/MediaComponent'
+import { UUIDComponent } from './../components/UUIDComponent'
 import { PLANE_GEO } from './ImageComponent'
 
 export const VideoComponent = defineComponent({
@@ -47,7 +56,56 @@ export const VideoComponent = defineComponent({
   onRemove: (entity, component) => {
     component.videoGroup.value.removeFromParent()
     component.videoMesh.value.material.map?.dispose()
-  }
+  },
+
+  errors: ['INVALID_MEDIA_UUID', 'MISSING_MEDIA_ELEMENT'] as const,
+
+  reactor: VideoReactor
 })
 
 export const SCENE_COMPONENT_VIDEO = 'video'
+
+function VideoReactor({ root }: EntityReactorProps) {
+  const entity = root.entity
+  const video = useComponent(entity, VideoComponent)
+  if (!video) throw root.stop()
+
+  const mediaUUID = video.mediaUUID.value ?? ''
+  const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID].value ?? entity
+  const mediaElement = useComponent(mediaEntity, MediaElementComponent)
+
+  // update side
+  useEffect(() => {
+    video.videoMesh.material.side.set(video.side.value)
+  }, [video.side])
+
+  // update mesh
+  useEffect(() => {
+    const videoMesh = video.videoMesh.value
+    resizeImageMesh(videoMesh)
+    const scale = ObjectFitFunctions.computeContentFitScale(
+      videoMesh.scale.x,
+      videoMesh.scale.y,
+      video.size.width.value,
+      video.size.height.value,
+      video.fit.value
+    )
+    videoMesh.scale.multiplyScalar(scale)
+    videoMesh.updateMatrix()
+
+    const videoGroup = video.videoGroup.value
+    addObjectToGroup(entity, videoGroup)
+    return () => removeObjectFromGroup(entity, videoGroup)
+  }, [video.size, video.fit, video.videoMesh.material.map])
+
+  // update video texture
+  useEffect(() => {
+    if (!mediaEntity) return addError(entity, VideoComponent, 'INVALID_MEDIA_UUID')
+    if (!mediaElement) return addError(entity, VideoComponent, 'MISSING_MEDIA_ELEMENT')
+    video.videoMesh.material.map.set(new VideoTexture(mediaElement.element.value as HTMLVideoElement))
+    video.videoMesh.material.value.needsUpdate = true
+    clearErrors(entity, VideoComponent)
+  }, [video, mediaEntity, mediaElement])
+
+  return null
+}

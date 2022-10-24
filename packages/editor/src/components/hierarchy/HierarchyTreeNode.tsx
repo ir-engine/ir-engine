@@ -6,7 +6,12 @@ import { Object3D } from 'three'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getAllComponents, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getAllComponents,
+  getComponent,
+  hasComponent,
+  useComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { ErrorComponent, ErrorComponentType } from '@xrengine/engine/src/scene/components/ErrorComponent'
@@ -73,7 +78,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     : hasComponent(node.entityNode.entity, NameComponent)
     ? getComponent(node.entityNode.entity, NameComponent)
     : ''
-  const errorComponent: ErrorComponentType = node.entityNode && getComponent(node.entityNode.entity, ErrorComponent)
+
+  const errors = useComponent(node.entityNode.entity, ErrorComponent)
+  const firstError = errors?.keys[0]
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -337,9 +344,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 </div>
               )}
             </div>
-            {node.entityNode && engineState.errorEntities[node.entityNode.entity].get() && (
-              <NodeIssuesIcon node={[{ severity: 'error', message: errorComponent?.error }]} />
-            )}
+            {firstError && <NodeIssuesIcon node={[{ severity: 'error', message: firstError }]} />}
           </div>
         </div>
 
