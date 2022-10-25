@@ -379,7 +379,7 @@ export class Project extends Service {
       await git.push('destination', branchName, ['-f', '--tags'])
     }
     // run project install script
-    if (projectConfig.onEvent) {
+    if (projectConfig.onEvent && !existingProjectResult) {
       await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
 
