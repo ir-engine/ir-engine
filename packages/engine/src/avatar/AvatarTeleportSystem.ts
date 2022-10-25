@@ -135,7 +135,6 @@ export default async function AvatarTeleportSystem(world: World) {
 
   const execute = () => {
     if (fadeBackInAccumulator >= 0) {
-      console.log(fadeBackInAccumulator)
       fadeBackInAccumulator += fixedDeltaSeconds.value
       if (fadeBackInAccumulator > 0.25) {
         fadeBackInAccumulator = -1
