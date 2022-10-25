@@ -1,5 +1,3 @@
-import { AvatarInterface } from '@xrengine/common/src/dbmodels/AvatarResource'
-
 import { Application } from '../../../declarations'
 import { Avatar } from './avatar.class'
 import avatarDocs from './avatar.docs'

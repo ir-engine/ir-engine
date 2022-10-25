@@ -1,10 +1,10 @@
 import { Paginated } from '@feathersjs/feathers'
 
 import { Invite as InviteInterface } from '@xrengine/common/src/interfaces/Invite'
+import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
-import { InviteDataType } from '@xrengine/server-core/src/hooks/send-invite'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -87,7 +87,7 @@ export const AdminInviteService = {
   createInvite: async (invite: any) => {
     try {
       const result = await API.instance.client.service('invite').create(invite)
-      dispatchAction(AdminInviteActions.inviteCreated({ invite: result as InviteDataType }))
+      dispatchAction(AdminInviteActions.inviteCreated({ invite: result as InviteType }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
