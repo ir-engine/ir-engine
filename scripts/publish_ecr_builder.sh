@@ -22,5 +22,5 @@ fi
 
 docker tag $LABEL $ECR_URL/$REPO_NAME-builder:"${EEVERSION}_${TAG}"
 docker tag $LABEL $ECR_URL/$REPO_NAME-builder:latest_$STAGE
-docker push $ECR_URL/$REPO_NAME-builder:$EEVERSION_$TAG
+docker push $ECR_URL/$REPO_NAME-builder:"${EEVERSION}_${TAG}"
 docker push $ECR_URL/$REPO_NAME-builder:latest_$STAGE
