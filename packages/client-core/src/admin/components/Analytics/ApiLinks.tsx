@@ -33,19 +33,19 @@ function createData(id: number, description: string, links: string, action: any)
 }
 
 const rows = [
-  createData(1, 'Cupcake', 'https://api-dev.theoverlay.io/openapi/', 'send'),
-  createData(2, 'Donut', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(3, 'Eclair', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(4, 'Frozen yoghurt', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(5, 'Gingerbread', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(6, 'Honeycomb', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(7, 'Ice cream sandwich', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(8, 'Jelly Bean', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(9, 'KitKat', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(10, 'Lollipop', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(11, 'Marshmallow', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(12, 'Nougat', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
-  createData(13, 'Oreo', 'https://api-dev.theoverlay.io/openapi/', 'Send')
+  createData(1, 'Cupcake', 'https://api-dev.etherealengine.com/openapi/', 'send'),
+  createData(2, 'Donut', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(3, 'Eclair', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(4, 'Frozen yoghurt', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(5, 'Gingerbread', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(6, 'Honeycomb', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(7, 'Ice cream sandwich', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(8, 'Jelly Bean', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(9, 'KitKat', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(10, 'Lollipop', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(11, 'Marshmallow', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(12, 'Nougat', 'https://api-dev.etherealengine.com/openapi/', 'Send'),
+  createData(13, 'Oreo', 'https://api-dev.etherealengine.com/openapi/', 'Send')
 ]
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
