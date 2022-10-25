@@ -69,7 +69,7 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
 
   const handleSubmit = () => {
     let locationError = ''
-    if (!state.location) {
+    if (!state.location.value) {
       locationError = "Location can't be empty"
       state.locationError.set(locationError)
     } else {
