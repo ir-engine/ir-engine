@@ -8,6 +8,7 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { NotificationService } from './NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:projects' })
 
@@ -55,6 +56,9 @@ export const ProjectService = {
   fetchProjects: async () => {
     const projects = await API.instance.client.service('project').find({ paginate: false, query: { allowed: true } })
     dispatchAction(ProjectAction.projectsFetched({ projectResult: projects.data }))
+    for (let error of projects.errors) {
+      NotificationService.dispatchNotify(error.message || JSON.stringify(error), { variant: 'error' })
+    }
   },
 
   // restricted to admin scope

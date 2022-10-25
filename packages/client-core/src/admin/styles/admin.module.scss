@@ -774,3 +774,19 @@
     margin-top: 0 !important;
   }
 }
+
+.sourceContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  & > div {
+    margin: 0;
+    flex-grow: 1;
+  }
+
+  & > button {
+    flex-shrink: 1;
+    margin-left: 5px;
+  }
+}
