@@ -23,6 +23,8 @@ export function createAnchorWidget(world: World) {
     label: 'World Anchor',
     icon: AnchorIcon,
     onOpen: () => {
+      /** todo, actually disable the widget instead of just not dispatching the action */
+      if (xrState.sessionMode.value !== 'immersive-ar') return
       dispatchAction(
         XRAction.changePlacementMode({
           active: true

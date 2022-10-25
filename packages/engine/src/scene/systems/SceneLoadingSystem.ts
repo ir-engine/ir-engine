@@ -7,7 +7,7 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -186,6 +186,7 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
  */
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
+  getState(EngineState).sceneLoading.set(true)
 
   prefetchModelAssets(sceneData.scene, world)
 
@@ -238,7 +239,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   updateSceneEntitiesFromJSON(sceneData.scene.root, world)
 
   if (!sceneAssetPendingTagQuery().length) {
-    dispatchAction(EngineActions.sceneLoaded({}))
+    if (getState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
   }
 }
 
@@ -359,7 +360,7 @@ export default async function SceneLoadingSystem(world: World) {
       onComplete(pendingAssets)
       if (pendingAssets === 0) {
         totalPendingAssets = 0
-        dispatchAction(EngineActions.sceneLoaded({}))
+        if (getState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
       }
     }
   }

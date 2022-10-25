@@ -40,7 +40,7 @@ const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity:
 // Utility Vectors
 // Unit: m/s
 const initialVelocity = 4
-const dynamicVelocity = 10
+const dynamicVelocity = 6
 const gravity = new Vector3(0, -9.8, 0)
 const currentVertexLocal = new Vector3()
 const currentVertexWorld = new Vector3()
@@ -91,7 +91,7 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
 }
 
 export default async function AvatarTeleportSystem(world: World) {
-  const lineSegments = 32 // segments to make a whole circle, uses far less
+  const lineSegments = 64 // segments to make a whole circle, uses far less
   const lineGeometry = new BufferGeometry()
   const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
   lineGeometryVertices.fill(0)
