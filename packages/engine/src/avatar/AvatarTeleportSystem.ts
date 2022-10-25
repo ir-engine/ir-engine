@@ -13,10 +13,12 @@ import {
   Vector3
 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { CameraActions } from '../camera/CameraState'
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
 import { easeOutCubic, normalizeRange } from '../common/functions/MathFunctions'
+import { EngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
@@ -127,12 +129,26 @@ export default async function AvatarTeleportSystem(world: World) {
 
   const xrState = getState(XRState)
   const avatarTeleportQuery = defineQuery([AvatarTeleportComponent])
+  let fadeBackInAccumulator = -1
+
+  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds
 
   const execute = () => {
+    if (fadeBackInAccumulator >= 0) {
+      console.log(fadeBackInAccumulator)
+      fadeBackInAccumulator += fixedDeltaSeconds.value
+      if (fadeBackInAccumulator > 0.25) {
+        fadeBackInAccumulator = -1
+        teleportAvatar(world.localClientEntity, guideCursor.position)
+        dispatchAction(CameraActions.fadeToBlack({ in: false }))
+      }
+    }
     for (const entity of avatarTeleportQuery.exit(world)) {
-      // Get cursor position and teleport avatar to it
-      if (canTeleport) teleportAvatar(entity, guideCursor.position)
       transition.setState('OUT')
+      if (canTeleport) {
+        fadeBackInAccumulator = 0
+        dispatchAction(CameraActions.fadeToBlack({ in: true }))
+      }
     }
     for (const entity of avatarTeleportQuery.enter(world)) {
       setVisibleComponent(guidelineEntity, true)
@@ -140,7 +156,7 @@ export default async function AvatarTeleportSystem(world: World) {
     }
     for (const entity of avatarTeleportQuery(world)) {
       const sourceEntity =
-        getComponent(entity, AvatarTeleportComponent).side === 'left'
+        getComponent(world.localClientEntity, AvatarTeleportComponent).side === 'left'
           ? xrState.leftControllerEntity.value!
           : xrState.rightControllerEntity.value!
       const sourceTransform = getComponent(sourceEntity, TransformComponent)
