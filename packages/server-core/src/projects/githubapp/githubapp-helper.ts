@@ -6,11 +6,11 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import config from '@xrengine/common/src/config'
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import {
   AudioFileTypes,
   ImageFileTypes,
@@ -19,7 +19,7 @@ import {
 } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 import { Application } from '../../../declarations'
-import appConfig from '../../appconfig'
+import config from '../../appconfig'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
@@ -31,8 +31,8 @@ let app, appOctokit
 
 export const createGitHubApp = async () => {
   try {
-    if (!appConfig.server.gitPem || appConfig.server.gitPem == '') await refreshAppConfig()
-    let privateKey = appConfig.server.gitPem
+    if (!config.server.gitPem || config.server.gitPem == '') await refreshAppConfig()
+    let privateKey = config.server.gitPem
     privateKey = privateKey.replace('-----BEGIN RSA PRIVATE KEY-----', '')
     privateKey = privateKey.replace('-----END RSA PRIVATE KEY-----', '')
     privateKey = privateKey.replace(' ', '\n')
@@ -40,11 +40,11 @@ export const createGitHubApp = async () => {
 
     //@octokit/app
     app = new App({
-      appId: appConfig.authentication.oauth.github.appid,
+      appId: config.authentication.oauth.github.appid,
       privateKey,
       oauth: {
-        clientId: appConfig.authentication.oauth.github.key,
-        clientSecret: appConfig.authentication.oauth.github.secret
+        clientId: config.authentication.oauth.github.key,
+        clientSecret: config.authentication.oauth.github.secret
       }
     })
 
@@ -52,7 +52,7 @@ export const createGitHubApp = async () => {
     appOctokit = new Octokit({
       authStrategy: createAppAuth,
       auth: {
-        appId: appConfig.authentication.oauth.github.appid,
+        appId: config.authentication.oauth.github.appid,
         privateKey
       }
     })
@@ -63,8 +63,8 @@ export const createGitHubApp = async () => {
 
 export const getGitHubAppRepos = async () => {
   try {
-    if (!appConfig.server.gitPem || appConfig.server.gitPem == '') await refreshAppConfig()
-    if (!appConfig.server.gitPem || appConfig.server.gitPem == '') return []
+    if (!config.server.gitPem || config.server.gitPem == '') await refreshAppConfig()
+    if (!config.server.gitPem || config.server.gitPem == '') return []
     //TODO: want to call this function after env is loaded from DB. this is not the best solution.
     if (!app) await createGitHubApp()
     const repos = [] as Array<GithubAppInterface>
@@ -252,13 +252,13 @@ export const pushProjectToGithub = async (
         else await octoKit.repos.createInOrg({ org: owner, name: repo, auto_init: true })
       } else throw err
     }
-    const defaultBranch = `${appConfig.server.releaseName}-deployment`
+    const defaultBranch = `${config.server.releaseName}-deployment`
     if (reset) {
       const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
 
       // if project exists already, remove it and re-clone it
       if (fs.existsSync(projectDirectory)) {
-        // if (config.common.isDev) throw new Error('Cannot create project - already exists')
+        // if (isDev) throw new Error('Cannot create project - already exists')
         deleteFolderRecursive(projectDirectory)
       }
 
