@@ -183,7 +183,8 @@
       "destinationURLValid": "Destination URL valid and accessible?",
       "sourceURLValid": "Source URL valid and accessible?",
       "sourceMatchesDestination": "Source Project matches destination, or destination empty?",
-      "changeDestination": "Change Destination Repo"
+      "changeDestination": "Change Destination Repo",
+      "copyDestination": "Copy Destination"
     },
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",
