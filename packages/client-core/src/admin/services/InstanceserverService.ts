@@ -47,10 +47,10 @@ export const useInstanceserverState = () => useState(accessInstanceserverState()
 
 //Service
 export const InstanceserverService = {
-  patchInstanceserver: async (locationId) => {
+  patchInstanceserver: async (locationId: string, count: number) => {
     try {
       dispatchAction(AdminInstanceserverActions.patchInstanceserver({}))
-      const patch = await API.instance.client.service('instanceserver-provision').patch({ locationId })
+      const patch = await API.instance.client.service('instanceserver-provision').patch({ locationId, count })
       dispatchAction(AdminInstanceserverActions.patchedInstanceserver({ patch }))
     } catch (error) {
       logger.error(error)
