@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -169,12 +170,7 @@ const ReadyPlayerMenu = () => {
             </div>
           </section>
         )}
-        {!avatarUrl && (
-          <iframe
-            style={{ width: '100%', height: '100%' }}
-            src={`${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`}
-          />
-        )}
+        {!avatarUrl && <iframe style={{ width: '100%', height: '100%' }} src={config.client.readyPlayerMeUrl} />}
         <div
           id="stage"
           className="stage"

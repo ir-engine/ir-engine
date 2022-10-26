@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
-import config from '@xrengine/server-core/src/appconfig'
+import config from '@xrengine/common/src/config'
+import appConfig from '@xrengine/server-core/src/appconfig'
 
 import { Application } from '../declarations'
 import { seeder } from './seeder'
@@ -11,12 +11,12 @@ const logger = multiLogger.child({ component: 'server-core:sequelize' })
 
 export default (app: Application): void => {
   try {
-    const { forceRefresh } = config.db
+    const { forceRefresh } = appConfig.db
 
     logger.info('Starting app.')
 
     const sequelize = new Sequelize({
-      ...(config.db as any),
+      ...(appConfig.db as any),
       logging: forceRefresh ? logger.info.bind(logger) : false,
       define: {
         freezeTableName: true,
@@ -40,7 +40,8 @@ export default (app: Application): void => {
         const tableCount = await sequelize.query(
           `select table_schema as xrengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
         )
-        const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
+        const prepareDb =
+          process.env.PREPARE_DATABASE === 'true' || (config.common.isDev && tableCount[0] && !tableCount[0][0])
         // Sync to the database
         for (const model of Object.keys(sequelize.models)) {
           const sequelizeModel = sequelize.models[model]
@@ -95,7 +96,8 @@ export default (app: Application): void => {
         }
 
         promiseResolve()
-        if ((prepareDb || forceRefresh) && (isDev || process.env.EXIT_ON_DB_INIT === 'true')) process.exit(0)
+        if ((prepareDb || forceRefresh) && (config.common.isDev || process.env.EXIT_ON_DB_INIT === 'true'))
+          process.exit(0)
       } catch (err) {
         logger.error('Sequelize setup error')
         logger.error(err)

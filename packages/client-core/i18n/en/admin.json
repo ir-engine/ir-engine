@@ -323,7 +323,8 @@
       "defaultThemes": "Default Themes",
       "theme": "Theme",
       "editor": "Editor",
-      "admin": "Admin"
+      "admin": "Admin",
+      "key8thWall": "8th Wall Key"
     },
     "avatar": {
       "source": "Source",

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
+import config from '@xrengine/common/src/config'
+
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Container from '@mui/material/Container'
@@ -29,7 +31,7 @@ const defaultState = {
   descr: ''
 }
 
-const termsOfService = globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'] ?? '/terms-of-service'
+const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
 const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()

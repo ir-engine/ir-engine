@@ -5,7 +5,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import config, { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 // import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
@@ -114,9 +114,7 @@ const ProfileMenu = ({
 
   const loadCredentialHandler = async () => {
     try {
-      const mediator =
-        globalThis.process.env['VITE_MEDIATOR_SERVER'] +
-        `/mediator?origin=${encodeURIComponent(window.location.origin)}`
+      const mediator = config.client.mediatorServer + `/mediator?origin=${encodeURIComponent(window.location.origin)}`
 
       await polyfill.loadOnce(mediator)
       console.log('Ready to work with credentials!')

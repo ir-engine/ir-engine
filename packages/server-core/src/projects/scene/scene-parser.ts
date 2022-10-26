@@ -1,16 +1,16 @@
+import config from '@xrengine/common/src/config'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 
-import config from '../../appconfig'
+import appConfig from '../../appconfig'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 
 export const sceneRelativePathIdentifier = '__$project$__'
 export const sceneCorsPathIdentifier = '__$cors-proxy$__'
 export const corsPath =
-  isDev || process.env.VITE_LOCAL_BUILD
-    ? `https://${config.server.hostname}:${config.server.corsServerPort}`
-    : `https://${config.server.hostname}/cors-proxy`
+  config.common.isDev || process.env.VITE_LOCAL_BUILD
+    ? `https://${appConfig.server.hostname}:${appConfig.server.corsServerPort}`
+    : `https://${appConfig.server.hostname}/cors-proxy`
 
 export const parseSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
