@@ -1,4 +1,3 @@
-import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import AvatarSpawnSystem from './avatar/AvatarSpawnSystem'
 import AvatarSystem from './avatar/AvatarSystem'
@@ -50,7 +49,7 @@ export const initializeSceneSystems = async () => {
     systemsToLoad.push(...(await import('./initializeSceneClientSystems')).default())
 
     // todo: figure out the race condition that is stopping us from moving this to SceneObjectSystem
-    initializeKTX2Loader(getGLTFLoader())
+    initializeKTX2Loader(Engine.instance.gltfLoader)
   }
 
   await initSystems(world, systemsToLoad)

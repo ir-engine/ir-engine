@@ -220,7 +220,6 @@ const initializeInstance = async (
 
 const loadEngine = async (app: Application, sceneId: string) => {
   const hostId = app.instance.id as UserId
-  Engine.instance.publicPath = config.client.url
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world

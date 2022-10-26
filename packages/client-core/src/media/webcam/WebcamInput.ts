@@ -1,6 +1,7 @@
 import * as Comlink from 'comlink'
 
 import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -36,11 +37,9 @@ export const stopLipsyncTracking = () => {
 
 export const startFaceTracking = async () => {
   if (!faceWorker) {
-    console.log(inputWorkerURL)
-    //@ts-ignore
-    // new URL('./WebcamInputWorker.js', import.meta.url).href
-    const workerBlobUrl = await createWorkerFromCrossOriginURL(inputWorkerURL)
-    const worker = new Worker(workerBlobUrl, { type: 'module' })
+    //@ts-ignore   -- for vite dev environments use import.meta.url & built environments use ./worker.js?worker&url
+    const workerPath = isDev ? new URL('./WebcamInputWorker.js', import.meta.url).href : inputWorkerURL
+    const worker = createWorkerFromCrossOriginURL(workerPath)
     worker.onerror = console.error
     faceWorker = Comlink.wrap(worker)
     await faceWorker.initialise()
@@ -191,11 +190,11 @@ export const startLipsyncTracking = () => {
   }
 }
 
-export const lipToInput = (pucker, widen, open) => {
+export const lipToInput = (pucker: number, widen: number, open: number) => {
   if (pucker > 0.2)
     Engine.instance.currentWorld.inputState.set(nameToInputValue['pucker'], {
       type: InputType.ONEDIM,
-      value: pucker,
+      value: [pucker],
       lifecycleState: LifecycleValue.Changed
     })
   else if (Engine.instance.currentWorld.inputState.has(nameToInputValue['pucker']))
@@ -205,7 +204,7 @@ export const lipToInput = (pucker, widen, open) => {
   if (widen > 0.2)
     Engine.instance.currentWorld.inputState.set(nameToInputValue['widen'], {
       type: InputType.ONEDIM,
-      value: widen,
+      value: [widen],
       lifecycleState: LifecycleValue.Changed
     })
   else if (Engine.instance.currentWorld.inputState.has(nameToInputValue['widen']))
@@ -215,7 +214,7 @@ export const lipToInput = (pucker, widen, open) => {
   if (open > 0.2)
     Engine.instance.currentWorld.inputState.set(nameToInputValue['open'], {
       type: InputType.ONEDIM,
-      value: open,
+      value: [open],
       lifecycleState: LifecycleValue.Changed
     })
   else if (Engine.instance.currentWorld.inputState.has(nameToInputValue['open']))

@@ -139,12 +139,12 @@ export default defineConfig(async () => {
     }
   }
   if (
-    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER &&
+    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
     process.env.STORAGE_PROVIDER === 'aws' &&
     process.env.STORAGE_CLOUDFRONT_DOMAIN
   )
     returned.base = `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
-  else if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER && process.env.STORAGE_PROVIDER === 'local') {
+  else if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' && process.env.STORAGE_PROVIDER === 'local') {
     returned.base = `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
   }
   return await getProjectConfigExtensions(returned)

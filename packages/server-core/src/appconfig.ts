@@ -138,6 +138,16 @@ server.url = process.env.SERVER_URL || url.format(obj)
 const client = {
   logo: process.env.APP_LOGO!,
   title: process.env.APP_TITLE!,
+  get dist() {
+    if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
+      if (process.env.STORAGE_PROVIDER === 'aws' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
+        return `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
+      } else if (process.env.STORAGE_PROVIDER === 'local') {
+        return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
+      }
+    }
+    return client.url
+  },
   url:
     process.env.APP_URL ||
     (process.env.VITE_LOCAL_BUILD
