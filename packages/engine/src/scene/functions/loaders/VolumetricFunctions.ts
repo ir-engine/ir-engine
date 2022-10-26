@@ -74,7 +74,7 @@ export const enterVolumetric = async (entity: Entity) => {
     video: mediaElement.element as HTMLVideoElement,
     paths: [],
     playMode: PlayMode.single,
-    worker: new Worker(workerBlobUrl)
+    worker: new Worker(workerBlobUrl, { type: 'module' })
     // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
 
