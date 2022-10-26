@@ -15,6 +15,7 @@ import {
   defineQuery,
   getAllComponents,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeQuery,
@@ -49,7 +50,7 @@ export const prefetchModelAssets = (sceneJson: SceneJson, world: World) => {
       const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
       const sameSource =
         existingEntity &&
-        getComponent(existingEntity.entity, ModelComponent)?.src.value === entityModelComponent.props.src
+        getOptionalComponent(existingEntity.entity, ModelComponent)?.src === entityModelComponent.props.src
       if (!sameSource && entityModelComponent.props.src !== '') fetch(entityModelComponent.props.src, { mode: 'cors' })
     }
   }
@@ -277,7 +278,7 @@ export const deserializeSceneEntity = (
   sceneEntity: EntityJson,
   world = Engine.instance.currentWorld
 ): Entity => {
-  setComponent(entityNode.entity, NameComponent, sceneEntity.name)
+  setComponent(entityNode.entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
 
   /** remove ECS components that are in the scene register but not in the json */
   /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */

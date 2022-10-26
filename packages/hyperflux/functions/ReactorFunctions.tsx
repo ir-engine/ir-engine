@@ -40,10 +40,12 @@ const ReactorReconciler = Reconciler({
   detachDeletedInstance: () => {},
   getInstanceFromNode: () => null,
   getInstanceFromScope: () => null,
-  prepareScopeUpdate: () => {}
+  prepareScopeUpdate: () => {},
+  clearContainer: () => {}
 })
 
 export interface ReactorRoot {
+  fiber: any
   isRunning: boolean
   run: () => Promise<void>
   stop: () => Promise<void>
@@ -59,7 +61,7 @@ export function createReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
   const identifierPrefix = ''
   const onRecoverableError = (err) => console.error(err)
 
-  const root = ReactorReconciler.createContainer(
+  const fiberRoot = ReactorReconciler.createContainer(
     null,
     ConcurrentRoot,
     null,
@@ -71,16 +73,17 @@ export function createReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
   )
 
   const reactorRoot = {
+    fiber: fiberRoot,
     isRunning: false,
     run() {
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
-        ReactorReconciler.updateContainer(<Reactor root={root} />, root, null, () => resolve())
+        ReactorReconciler.updateContainer(<Reactor root={reactorRoot} />, fiberRoot, null, () => resolve())
       })
     },
     stop() {
       return new Promise<void>((resolve) => {
-        ReactorReconciler.updateContainer(null, root, null, () => resolve())
+        ReactorReconciler.updateContainer(null, fiberRoot, null, () => resolve())
       }).then(() => {
         reactorRoot.isRunning = false
       })

@@ -5,6 +5,7 @@ import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
+import { createReactor } from '@xrengine/hyperflux'
 import { createState, State, StateMethods, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
@@ -150,16 +151,7 @@ export const getOptionalComponentState = <ComponentType>(
   getRemoved = false,
   world = Engine.instance.currentWorld
 ): State<ComponentType> | undefined => {
-  if (!entity) {
-    throw new Error('[getComponent]: entity is undefined')
-  }
-  if (!world) {
-    throw new Error('[getComponent]: world is undefined')
-  }
-  if (!component.map) {
-    throw new Error('[getComponent]: tag components have no data')
-  }
-
+  if (entity === UndefinedEntity) return undefined
   if (getRemoved) return component.map[entity]
   if (bitECS.hasComponent(world, component, entity)) return component.map[entity]
   return undefined
@@ -171,8 +163,9 @@ export const getComponentState = <ComponentType>(
   getRemoved = false,
   world = Engine.instance.currentWorld
 ): State<ComponentType> => {
-  const componentState = getOptionalComponentState(entity, component, getRemoved, world)
-  if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
+  const componentState = getOptionalComponentState(entity, component, getRemoved, world)!
+  // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
+  // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
   return componentState
 }
 
@@ -199,7 +192,7 @@ export const getComponent = <ComponentType>(
  * Unlike calling removeComponent followed by addComponent, entry queue will not be rerun.
  *
  * @param entity
- * @param component
+ * @param Component
  * @param args
  * @param world
  *
@@ -207,7 +200,7 @@ export const getComponent = <ComponentType>(
  */
 export const setComponent = <C extends Component>(
   entity: Entity,
-  component: C,
+  Component: C,
   args: SetComponentType<C> | undefined = undefined,
   world = Engine.instance.currentWorld
 ) => {
@@ -220,17 +213,22 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(world, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  if (!hasComponent(entity, component)) {
-    const c = component.onInit(entity, world)
-    component.map[entity].set(c)
-    bitECS.addComponent(world, component, entity, false) // don't clear data on-add
+  if (!hasComponent(entity, Component)) {
+    const c = Component.onInit(entity, world)
+    Component.map[entity].set(c)
+    bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
+    if (Component.reactor) {
+      const root = createReactor(Component.reactor) as EntityReactorRoot
+      root.entity = entity
+      Component.reactorRoots.set(entity, root)
+    }
   }
   startTransition(() => {
-    component.onSet(entity, component.map[entity], args as Readonly<SerializedComponentType<C>>)
-    const root = component.reactorRoots.get(entity)
+    Component.onSet(entity, Component.map[entity], args as Readonly<SerializedComponentType<C>>)
+    const root = Component.reactorRoots.get(entity)
     if (!root?.isRunning) root?.run()
   })
-  return component.map[entity].get(NO_PROXY) as ComponentType<C>
+  return Component.map[entity].get(NO_PROXY) as ComponentType<C>
 }
 
 /**
@@ -238,11 +236,11 @@ export const setComponent = <C extends Component>(
  */
 export const updateComponent = <C extends Component>(
   entity: Entity,
-  component: C,
+  Component: C,
   props: Partial<SerializedComponentType<C>>,
   world = Engine.instance.currentWorld
 ) => {
-  const comp = getComponent(entity, component)
+  const comp = getComponent(entity, Component)
 
   if (!comp) {
     throw new Error('[updateComponent]: component does not exist')
@@ -266,7 +264,7 @@ export const updateComponent = <C extends Component>(
         result[finalProp] = value
       }
     }
-    const root = component.reactorRoots.get(entity)
+    const root = Component.reactorRoots.get(entity)
     if (!root?.isRunning) root?.run()
   })
 }
@@ -274,19 +272,19 @@ export const updateComponent = <C extends Component>(
 /**
  * Like `setComponent`, but throws an error if the component already exists.
  * @param entity
- * @param component
+ * @param Component
  * @param args
  * @param world
  * @returns
  */
 export const addComponent = <C extends Component>(
   entity: Entity,
-  component: C,
+  Component: C,
   args: SetComponentType<C> | undefined = undefined,
   world = Engine.instance.currentWorld
 ) => {
-  if (hasComponent(entity, component, world)) throw new Error(`${component.name} already exists on entity ${entity}`)
-  return setComponent(entity, component, args, world)
+  if (hasComponent(entity, Component, world)) throw new Error(`${Component.name} already exists on entity ${entity}`)
+  return setComponent(entity, Component, args, world)
 }
 
 export const hasComponent = <C extends Component>(
@@ -294,9 +292,7 @@ export const hasComponent = <C extends Component>(
   component: C,
   world = Engine.instance.currentWorld
 ) => {
-  if (!entity) {
-    throw new Error('[hasComponent]: entity is undefined')
-  }
+  if (entity === UndefinedEntity) return false
   return bitECS.hasComponent(world, component, entity)
 }
 
@@ -317,12 +313,7 @@ export const removeComponent = <C extends Component>(
   component: C,
   world = Engine.instance.currentWorld
 ) => {
-  if (!entity) {
-    throw new Error('[removeComponent]: entity is undefined')
-  }
-  if (!world) {
-    throw new Error('[removeComponent]: world is undefined')
-  }
+  if (entity === UndefinedEntity) return
   if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.map[entity])
   bitECS.removeComponent(world, component, entity, false)
   const root = component.reactorRoots.get(entity)

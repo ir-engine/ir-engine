@@ -23,7 +23,6 @@ export type ModelComponentType = {
   src: string
   generateBVH: boolean
   matrixAutoUpdate: boolean
-  curScr?: string
   scene?: Scene
 }
 
@@ -34,7 +33,8 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       generateBVH: false,
-      matrixAutoUpdate: true
+      matrixAutoUpdate: true,
+      scene: undefined
     } as ModelComponentType
   },
 

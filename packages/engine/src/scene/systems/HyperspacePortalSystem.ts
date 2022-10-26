@@ -3,7 +3,13 @@ import { AmbientLight, Color } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  removeComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
@@ -38,8 +44,10 @@ export default async function HyperspacePortalSystem(world: World) {
   const execute = () => {
     if (world.localClientEntity) return
 
-    const playerTransform = getComponent(world.localClientEntity, TransformComponent)
+    const playerTransform = getOptionalComponent(world.localClientEntity, TransformComponent)
     const sceneLoaded = !sceneAssetPendingTagQuery().length
+
+    if (!playerTransform) return
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
     for (const entity of hyperspaceTagComponent.enter()) {

@@ -9,7 +9,13 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -42,9 +48,9 @@ const prevRigidbodyScale = new Map<Entity, Vector3>()
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const world = Engine.instance.currentWorld
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
   const parentTransform = localTransform?.parentEntity
-    ? getComponent(localTransform.parentEntity, TransformComponent)
+    ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
     : undefined
   if (
     localTransform &&
@@ -64,8 +70,8 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   const world = Engine.instance.currentWorld
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  const velocity = getComponent(entity, VelocityComponent)
   const localTransform = getComponent(entity, LocalTransformComponent)
+  const velocity = getOptionalComponent(entity, VelocityComponent)
 
   // if transforms have been changed outside of the transform system, perform physics teleportation on the rigidbody
   if (world.dirtyTransforms.has(entity) || (localTransform && world.dirtyTransforms.has(localTransform.parentEntity))) {
@@ -102,10 +108,10 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   } else {
     transform.position.copy(rigidBody.previousPosition).lerp(scratchVector3.copy(bodyPosition), alpha)
     transform.rotation.copy(rigidBody.previousRotation).slerp(scratchQuaternion.copy(bodyRotation), alpha)
-    velocity.linear
+    velocity?.linear
       .copy(rigidBody.previousLinearVelocity)
       .lerp(scratchVector3.copy(rigidBody.body.linvel() as Vector3), alpha)
-    velocity.angular
+    velocity?.angular
       .copy(rigidBody.previousAngularVelocity)
       .lerp(scratchVector3.copy(rigidBody.body.angvel() as Vector3), alpha)
   }
@@ -122,17 +128,12 @@ const updateTransformFromRigidbody = (entity: Entity) => {
 
 export const updateEntityTransform = (entity: Entity, world = Engine.instance.currentWorld) => {
   const transform = getComponent(entity, TransformComponent)
-  if (!transform) return
-
-  const computedTransform = getComponent(entity, ComputedTransformComponent)
-  const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
+  const computedTransform = getOptionalComponent(entity, ComputedTransformComponent)
+  const group = getOptionalComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
 
   updateTransformFromLocalTransform(entity)
   updateTransformFromRigidbody(entity)
-
-  if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
-    computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
-  }
+  computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
 
   if (world.dirtyTransforms.has(entity)) {
     // avoid scale 0 to prevent NaN errors
@@ -171,8 +172,8 @@ export default async function TransformSystem(world: World) {
   const updateTransformDepth = (entity: Entity) => {
     if (transformDepths.has(entity)) return transformDepths.get(entity)
 
-    const referenceEntity = getComponent(entity, ComputedTransformComponent)?.referenceEntity
-    const parentEntity = getComponent(entity, LocalTransformComponent)?.parentEntity
+    const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
+    const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
 
     const referenceEntityDepth = referenceEntity ? updateTransformDepth(referenceEntity) : 0
     const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
@@ -258,7 +259,7 @@ export default async function TransformSystem(world: World) {
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
     if (entityExists(world, world.localClientEntity)) {
-      const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+      const localClientPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
       if (localClientPosition) {
         for (const entity of distanceFromLocalClientQuery())
           DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(

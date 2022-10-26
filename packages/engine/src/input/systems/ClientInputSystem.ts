@@ -3,7 +3,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { InputComponent, InputComponentType } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
@@ -157,7 +157,7 @@ export default async function ClientInputSystem(world: World) {
       world.prevInputState.set(key, value)
     }
 
-    const input = getComponent(world.localClientEntity, InputComponent)
+    const input = getOptionalComponent(world.localClientEntity, InputComponent)
     const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
 
     if (screenXY) {

@@ -4,7 +4,12 @@ import { Quaternion, Vector3 } from 'three'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -25,15 +30,18 @@ export const deserializeCollider: ComponentDeserializeFunction = (
 
 export const updateCollider = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
-  const colliderComponent = getComponent(entity, ColliderComponent)
-  const world = Engine.instance.currentWorld
+  const colliderComponent = getOptionalComponent(entity, ColliderComponent)
+
   if (!colliderComponent) return
+
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
     colliderComponent.bodyType !== getComponent(entity, RigidBodyComponent).body.bodyType()
 
+  const world = Engine.instance.currentWorld
+
   if (rigidbodyTypeChanged) {
-    const rigidbody = getComponent(entity, RigidBodyComponent)?.body
+    const rigidbody = getOptionalComponent(entity, RigidBodyComponent)?.body
     /**
      * If rigidbody exists, simply change it's type
      */

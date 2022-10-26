@@ -4,7 +4,7 @@ import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { removeEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
@@ -41,7 +41,7 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
     if (accumulator > 0.1) {
       accumulator = 0
 
-      const avatarPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+      const avatarPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
       if (!avatarPosition) return
 
       for (const entity of sceneObjectQuery()) {

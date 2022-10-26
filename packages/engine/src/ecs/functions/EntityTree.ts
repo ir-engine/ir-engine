@@ -74,7 +74,8 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
 
   world.entityTree = {
     rootNode: createEntityNode(world.sceneEntity),
-    entityNodeMap: new Map()
+    entityNodeMap: new Map(),
+    uuidNodeMap: new Map()
   } as EntityTree
 
   world.entityTree.entityNodeMap.set(world.entityTree.rootNode.entity, world.entityTree.rootNode)

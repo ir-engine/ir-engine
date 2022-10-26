@@ -9,7 +9,12 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { Component, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  Component,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
@@ -95,7 +100,7 @@ export const Debug = ({ showingStateRef }) => {
       ...Object.fromEntries(
         [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
-            const name = getComponent(eid, NameComponent)
+            const name = getOptionalComponent(eid, NameComponent)
             try {
               return [
                 '(eid:' + eid + ') ' + (name ?? tree.entityNodeMap.get(eid)?.uuid ?? ''),

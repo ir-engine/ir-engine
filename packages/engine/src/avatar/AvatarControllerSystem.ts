@@ -89,10 +89,10 @@ export default async function AvatarControllerSystem(world: World) {
 
     const controlledEntity = Engine.instance.currentWorld.localClientEntity
 
-    const controller = getComponent(controlledEntity, AvatarControllerComponent)
     if (hasComponent(controlledEntity, AvatarControllerComponent)) {
+      const controller = getComponent(controlledEntity, AvatarControllerComponent)
       updateAvatarControllerOnGround(controlledEntity)
-      if (controller?.movementEnabled) {
+      if (controller.movementEnabled) {
         moveAvatarWithVelocity(controlledEntity)
       }
 

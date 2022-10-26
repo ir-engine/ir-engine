@@ -19,7 +19,13 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
@@ -51,7 +57,7 @@ export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMateri
 
 const updateObject = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as (Object3DWithEntity & Mesh<any, MeshStandardMaterial>)[]
-  const shadowComponent = getComponent(entity, ShadowComponent)
+  const shadowComponent = getOptionalComponent(entity, ShadowComponent)
 
   for (const obj of group) {
     const material = obj.material
