@@ -84,8 +84,9 @@
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "validate": "npm run lint && lerna run validate",
-    "version-increment": "lerna version --conventional-commits --yes",
-    "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version"
+    "version-increment": "lerna version --conventional-commits --yes && cross-env ts-node --swc scripts/bump-project-versions.ts",
+    "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version && cross-env ts-node --swc scripts/bump-project-versions.ts",
+    "bump-project-versions": "cross-env ts-node --swc scripts/bump-project-versions.ts"
   },
   "types": "lib/",
   "pre-commit": [
