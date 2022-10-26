@@ -379,7 +379,7 @@ export class Project extends Service {
       await git.push('destination', branchName, ['-f', '--tags'])
     }
     // run project install script
-    if (projectConfig.onEvent) {
+    if (projectConfig.onEvent && !existingProjectResult) {
       await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
 
@@ -480,8 +480,9 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params?: UserParams): Promise<{ data: ProjectInterface[] }> {
+  async find(params?: UserParams): Promise<{ data: ProjectInterface[]; errors: any[] }> {
     let projectPushIds: string[] = []
+    const errors = [] as any
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
@@ -508,8 +509,20 @@ export class Project extends Service {
           const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
           if (!regexExec) return { repositoryPath: '', name: '' }
           const split = regexExec[1].split('/')
-          project.repositoryPath = await getRepo(split[0], split[1], githubIdentityProvider.oauthToken)
-          return project
+          try {
+            project.repositoryPath = await getRepo(
+              split[0],
+              split[1].replace(/.git/, ''),
+              githubIdentityProvider.oauthToken
+            )
+            return project
+          } catch (err) {
+            logger.error('repo fetch error %o', err)
+            errors.push(err)
+            return {
+              repositoryPath: 'ERROR'
+            }
+          }
         })
       )
       const pushableAllowedProjects = allowedProjectGithubRepos.filter(
@@ -554,15 +567,18 @@ export class Project extends Service {
       const values = (item as any).dataValues
         ? ((item as any).dataValues as ProjectInterface)
         : (item as ProjectInterface)
-      const packageJson = getProjectPackageJson(values.name)
-      values.version = packageJson.version
-      values.engineVersion = packageJson.etherealEngine?.version
-      values.description = packageJson.description
-      values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
+      try {
+        const packageJson = getProjectPackageJson(values.name)
+        values.version = packageJson.version
+        values.engineVersion = packageJson.etherealEngine?.version
+        values.description = packageJson.description
+        values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
+      } catch (err) {}
     })
 
     return {
-      data
+      data,
+      errors
     }
   }
 }

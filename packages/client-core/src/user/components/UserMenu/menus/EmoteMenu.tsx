@@ -39,7 +39,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
     {
       body: <img src="/static/sad.svg" alt="sad" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.CLAP)
+        onClick: () => runAnimation(AvatarStates.DANCE2)
       }
     },
     {
@@ -63,7 +63,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
     {
       body: <img src="/static/clap1.svg" alt="Dance 2" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE2)
+        onClick: () => runAnimation(AvatarStates.CLAP)
       }
     },
     {

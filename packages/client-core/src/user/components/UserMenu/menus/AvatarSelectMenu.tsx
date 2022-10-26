@@ -267,7 +267,7 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
     changeActiveMenu(Views.AvatarSelect)
   }
 
-  const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
+  const uploadButtonEnabled = fileSelected && !error && avatarName.length > 3
 
   return (
     <div ref={panelRef} className={styles.avatarUploadPanel}>

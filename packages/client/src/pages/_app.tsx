@@ -13,7 +13,7 @@ import { defaultAction } from '@xrengine/client-core/src/common/components/Notif
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@xrengine/client-core/src/components/InviteToast'
 import { theme } from '@xrengine/client-core/src/theme'
-import { AuthState, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
