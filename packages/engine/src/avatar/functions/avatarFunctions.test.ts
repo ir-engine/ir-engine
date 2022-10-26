@@ -3,7 +3,9 @@ import { AnimationClip, Bone, Group, Vector3 } from 'three'
 
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
+import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -26,12 +28,11 @@ before(async () => {
 const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'
 
 describe('avatarFunctions Unit', async () => {
+  let assetModel
+
   beforeEach(async () => {
     createEngine()
-  })
-
-  let assetModel
-  before(async () => {
+    Engine.instance.gltfLoader = createGLTFLoader()
     assetModel = await AssetLoader.loadAsync(testGLTF)
   })
 
