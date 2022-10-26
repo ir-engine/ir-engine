@@ -3,7 +3,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import config from '@xrengine/common/src/config'
+import { isDev } from '@xrengine/common/src/config'
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
@@ -149,7 +149,7 @@ export class Scene implements ServiceMethods<any> {
       logger.info(sceneAssetFiles)
     }
 
-    if (config.common.isDev) {
+    if (isDev) {
       const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
       for (const ext of sceneAssetFiles) {
         fs.copyFileSync(
@@ -187,7 +187,7 @@ export class Scene implements ServiceMethods<any> {
       }
     }
 
-    if (config.common.isDev) {
+    if (isDev) {
       for (const ext of sceneAssetFiles) {
         const oldSceneJsonPath = path.resolve(
           appRootPath.path,
@@ -242,7 +242,7 @@ export class Scene implements ServiceMethods<any> {
       logger.info(sceneAssetFiles)
     }
 
-    if (config.common.isDev) {
+    if (isDev) {
       const newSceneJsonPathLocal = path.resolve(
         appRootPath.path,
         `packages/projects/projects/${projectName}/${sceneName}.scene.json`
