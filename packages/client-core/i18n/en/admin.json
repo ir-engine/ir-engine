@@ -186,7 +186,9 @@
       "changeDestination": "Change Destination Repo"
     },
     "instance": {
-      "confirmInstanceDelete": "Do you want to delete instance"
+      "confirmInstanceDelete": "Do you want to delete instance",
+      "location": "Location",
+      "count": "Count"
     },
     "resources": {
       "resources": "resources",

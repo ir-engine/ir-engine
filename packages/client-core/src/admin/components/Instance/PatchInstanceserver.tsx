@@ -1,3 +1,4 @@
+import { useState } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -9,6 +10,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputText from '../../common/InputText'
 import { InstanceserverService } from '../../services/InstanceserverService'
 import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
@@ -19,9 +21,10 @@ interface Props {
 }
 
 const PatchInstanceserver = ({ open, onClose }: Props) => {
-  const [state, setState] = React.useState({
+  const state = useState({
     location: '',
-    locationError: ''
+    locationError: '',
+    count: 1
   })
 
   const { t } = useTranslation()
@@ -47,25 +50,30 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   useEffect(() => {
     if (location.created.value) {
       onClose()
-      setState({
-        ...state,
-        location: ''
-      })
+      state.location.set('')
     }
   }, [location.created])
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setState({ ...state, [name]: value, locationError: value.length < 2 ? 'Location is required!' : '' })
+  const handleChangeLocation = (e) => {
+    const { value } = e.target
+    state.merge({
+      location: value,
+      locationError: value.length < 2 ? 'Location is required!' : ''
+    })
+  }
+
+  const handleChangeCount = (e) => {
+    const { value } = e.target
+    state.count.set(value)
   }
 
   const handleSubmit = () => {
     let locationError = ''
-    if (!state.location) {
+    if (!state.location.value) {
       locationError = "Location can't be empty"
-      setState({ ...state, locationError })
+      state.locationError.set(locationError)
     } else {
-      InstanceserverService.patchInstanceserver(state.location)
+      InstanceserverService.patchInstanceserver(state.location.value, state.count.value)
       onClose()
     }
   }
@@ -77,13 +85,19 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
 
         <InputSelect
           name="location"
-          label={t('admin:components.bot.location')}
-          value={state.location}
-          error={state.locationError}
+          label={t('admin:components.instance.location')}
+          value={state.location.value}
+          error={state.locationError.value}
           menu={locationsMenu}
-          onChange={handleChange}
+          onChange={handleChangeLocation}
         />
-
+        <InputText
+          type="number"
+          name="location"
+          label={t('admin:components.instance.count')}
+          value={state.count.value}
+          onChange={handleChangeCount}
+        />
         <DialogActions>
           <Button onClick={onClose} className={styles.outlinedButton}>
             {t('admin:components.common.cancel')}
