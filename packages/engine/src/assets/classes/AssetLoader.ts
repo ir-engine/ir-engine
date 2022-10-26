@@ -30,10 +30,9 @@ import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
-import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
-import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import type { GLTF } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { DependencyTreeActions } from './DependencyTree'
@@ -51,14 +50,8 @@ export interface LoadGLTFResultInterface {
   stats: any
 }
 
-// TODO: refactor global scope
-const gltfLoader = createGLTFLoader()
-export function getGLTFLoader(): GLTFLoader {
-  return gltfLoader
-}
-
 export function disposeDracoLoaderWorkers(): void {
-  gltfLoader.dracoLoader?.dispose()
+  Engine.instance.gltfLoader.dracoLoader?.dispose()
 }
 
 export const loadExtensions = async (gltf: GLTF) => {
@@ -258,7 +251,7 @@ const xreLoader = () => new XRELoader(fileLoader())
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
   load: (src, onLoad) => {
-    const ktxLoader = gltfLoader.ktx2Loader
+    const ktxLoader = Engine.instance.gltfLoader.ktx2Loader
     if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
     ktxLoader.load(
       src,
@@ -283,7 +276,7 @@ export const getLoader = (assetType: AssetType) => {
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
-      return gltfLoader
+      return Engine.instance.gltfLoader
     case AssetType.USDZ:
       return usdzLoader()
     case AssetType.FBX:

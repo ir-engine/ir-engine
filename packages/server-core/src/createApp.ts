@@ -14,6 +14,7 @@ import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { pipe } from '@xrengine/common/src/utils/pipe'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createEngine, initializeNode, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import { Application, ServerTypeMode } from '../declarations'
@@ -131,6 +132,7 @@ export const createFeathersExpressApp = (
 
   if (!config.db.forceRefresh) {
     createEngine()
+    Engine.instance.publicPath = config.client.dist
     setupEngineActionSystems()
     initializeNode()
   }

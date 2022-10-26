@@ -8,6 +8,7 @@ import type { World } from '../classes/World'
 
 import '../utils/threejsPatches'
 
+import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { EngineState } from './EngineState'
 
 export class Engine {
@@ -63,6 +64,7 @@ export class Engine {
   worlds: World[] = []
 
   publicPath = ''
+  gltfLoader: GLTFLoader = null!
 
   xrFrame: XRFrame | null = null
 
