@@ -8,8 +8,9 @@ const faceApiOptions = new TinyFaceDetectorOptions()
 
 Comlink.expose({
   initialise: async () => {
-    await nets.tinyFaceDetector.loadFromUri(location.origin + '/facetracking')
-    await nets.faceExpressionNet.loadFromUri(location.origin + '/facetracking')
+    const origin = globalThis.process.env.BASE_URL === '/client/' ? location.origin : globalThis.process.env.BASE_URL
+    await nets.tinyFaceDetector.loadFromUri(origin + '/facetracking')
+    await nets.faceExpressionNet.loadFromUri(origin + '/facetracking')
   },
   create: (width, height) => {
     canvas = new OffscreenCanvas(width, height)

@@ -61,7 +61,7 @@ export const initializeBrowser = () => {
   const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
   audioContext.resume()
   Engine.instance.audioContext = audioContext
-  Engine.instance.publicPath = location.origin
+  Engine.instance.publicPath = process.env.BASE_URL === '/client/' ? location.origin : process.env.BASE_URL!
   Engine.instance.cameraGainNode = audioContext.createGain()
   Engine.instance.cameraGainNode.connect(audioContext.destination)
   const world = Engine.instance.currentWorld
