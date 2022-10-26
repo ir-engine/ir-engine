@@ -1,7 +1,7 @@
 import * as Comlink from 'comlink'
 
+import { isDev } from '@xrengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'

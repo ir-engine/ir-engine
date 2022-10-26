@@ -1,6 +1,6 @@
 import React, { MouseEventHandler } from 'react'
 
-import config from '@xrengine/common/src/config'
+import { isDev } from '@xrengine/common/src/config'
 
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import Fade from '@mui/material/Fade'
@@ -18,7 +18,7 @@ interface Props {
 
 export const DeleteDialog = (props: Props): any => {
   const str =
-    props.isProjectMenu && config.common.isDev
+    props.isProjectMenu && isDev
       ? `To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead.`
       : `Are you sure`
 
@@ -37,7 +37,7 @@ export const DeleteDialog = (props: Props): any => {
           Cancel
         </Button>
         <Button
-          disabled={props.isProjectMenu && config.common.isDev}
+          disabled={props.isProjectMenu && isDev}
           className={styles.confirmBtn}
           onClick={props.onConfirm}
           autoFocus

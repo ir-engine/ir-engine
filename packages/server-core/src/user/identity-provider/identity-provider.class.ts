@@ -4,7 +4,7 @@ import { random } from 'lodash'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
-import config from '@xrengine/common/src/config'
+import { isDev } from '@xrengine/common/src/config'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
@@ -182,7 +182,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     if (adminCount === 0) {
       // in dev mode make the first guest an admin
       // otherwise make the first logged in user an admin
-      if (config.common.isDev || !isGuest) {
+      if (isDev || !isGuest) {
         type = 'admin'
       }
     }
@@ -223,7 +223,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       result.accessToken = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: result.id.toString() })
-    } else if (config.common.isDev && type === 'admin') {
+    } else if (isDev && type === 'admin') {
       // in dev mode, add all scopes to the first user made an admin
       const data = scopeTypeSeed.templates.map(({ type }) => {
         return { userId, type }

@@ -12,13 +12,14 @@ import path from 'path'
 import { Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 
-import config from '@xrengine/common/src/config'
+import { isDev } from '@xrengine/common/src/config'
 import { pipe } from '@xrengine/common/src/utils/pipe'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createEngine, initializeNode, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import { Application, ServerTypeMode } from '../declarations'
 import appConfig from './appconfig'
+import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
@@ -193,7 +194,7 @@ export const createFeathersExpressApp = (
   // Receive client-side log events (only active when APP_ENV != 'development')
   app.post('/api/log', (req, res) => {
     const { msg, ...mergeObject } = req.body
-    if (!config.common.isDev) elasticOnlyLogger.info({ user: req.params?.user, ...mergeObject }, msg)
+    if (!isDev) elasticOnlyLogger.info({ user: req.params?.user, ...mergeObject }, msg)
     return res.status(204).send()
   })
 
