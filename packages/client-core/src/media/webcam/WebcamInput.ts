@@ -9,6 +9,8 @@ import { CameraInput } from '@xrengine/engine/src/input/enums/InputEnums'
 import { InputType } from '@xrengine/engine/src/input/enums/InputType'
 
 import { MediaStreams } from '../../transports/MediaStreams'
+// @ts-ignore
+import inputWorkerURL from './WebcamInputWorker.js?worker&url'
 
 const EXPRESSION_THRESHOLD = 0.1
 
@@ -34,9 +36,12 @@ export const stopLipsyncTracking = () => {
 
 export const startFaceTracking = async () => {
   if (!faceWorker) {
+    console.log(inputWorkerURL)
     //@ts-ignore
-    const workerBlobUrl = await createWorkerFromCrossOriginURL(new URL('./WebcamInputWorker.js', import.meta.url))
+    // new URL('./WebcamInputWorker.js', import.meta.url).href
+    const workerBlobUrl = await createWorkerFromCrossOriginURL(inputWorkerURL)
     const worker = new Worker(workerBlobUrl, { type: 'module' })
+    worker.onerror = console.error
     faceWorker = Comlink.wrap(worker)
     await faceWorker.initialise()
   }
@@ -102,7 +107,7 @@ export async function faceToInput(detection) {
       const inputKey = nameToInputValue[expression]
       Engine.instance.currentWorld.inputState.set(inputKey, {
         type: InputType.ONEDIM,
-        value: detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression],
+        value: [detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression]],
         lifecycleState: LifecycleValue.Changed
       })
     }

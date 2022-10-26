@@ -1,16 +1,19 @@
 import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectTagInterface } from '@xrengine/common/src/interfaces/ProjectTagInterface'
 
+import { Difference } from '@mui/icons-material'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import Container from '@mui/material/Container'
 import DialogTitle from '@mui/material/DialogTitle'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -85,6 +88,11 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       ProjectUpdateService.setBranchError(project, err.message)
       console.log('Branch fetch error', err)
     }
+  }
+
+  const copyDestination = async () => {
+    handleChangeSource({ target: { value: projectUpdateStatus.destinationURL.value } })
+    handleChangeSourceRepo({ target: { value: projectUpdateStatus.destinationURL.value } })
   }
 
   const handleChangeDestinationRepo = async (e) => {
@@ -303,15 +311,22 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
           {!changeDestination && (
             <div>
               {hasGithubProvider ? (
-                <InputText
-                  name="urlSelect"
-                  label={t('admin:components.project.githubUrl')}
-                  value={projectUpdateStatus.value?.sourceURL}
-                  placeholder="https://github.com/{user}/{repo}"
-                  error={projectUpdateStatus.value?.sourceURLError}
-                  onChange={handleChangeSource}
-                  onBlur={handleChangeSourceRepo}
-                />
+                <div className={styles.sourceContainer}>
+                  <InputText
+                    name="urlSelect"
+                    label={t('admin:components.project.githubUrl')}
+                    value={projectUpdateStatus.value?.sourceURL}
+                    placeholder="https://github.com/{user}/{repo}"
+                    error={projectUpdateStatus.value?.sourceURLError}
+                    onChange={handleChangeSource}
+                    onBlur={handleChangeSourceRepo}
+                  />
+                  <Tooltip title="Copy From Destination">
+                    <IconButton className={styles.gradientButton} onClick={copyDestination}>
+                      <Difference />
+                    </IconButton>
+                  </Tooltip>
+                </div>
               ) : (
                 <div className={styles.textAlign}>{t('admin:components.project.needsGithubProvider')}</div>
               )}
@@ -375,10 +390,6 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 {t('admin:components.project.mismatchedProjectWarning')}
               </div>
             )}
-
-          {processing && (
-            <LoadingView title={t('admin:components.project.processing')} variant="body1" fullHeight={false} />
-          )}
 
           {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
             <LoadingView

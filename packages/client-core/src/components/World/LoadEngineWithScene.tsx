@@ -1,17 +1,12 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { AvatarService, AvatarState } from '@xrengine/client-core/src/user/services/AvatarService'
-import {
-  SceneActions,
-  SceneServiceReceptor,
-  useSceneState
-} from '@xrengine/client-core/src/world/services/SceneService'
+import { SceneServiceReceptor, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
@@ -60,14 +55,9 @@ export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEnginePro
 export const useLocationSpawnAvatar = () => {
   const engineState = useEngineState()
   const authState = useAuthState()
-  const avatarState = useHookstate(getState(AvatarState))
   const didSpawn = useHookstate(false)
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
-
-  useEffect(() => {
-    AvatarService.fetchAvatarList()
-  }, [])
 
   useHookEffect(() => {
     if (
@@ -75,7 +65,7 @@ export const useLocationSpawnAvatar = () => {
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
-      !avatarState.avatarList.value.length ||
+      !authState.user.avatar.value ||
       spectateParam
     )
       return
@@ -83,7 +73,7 @@ export const useLocationSpawnAvatar = () => {
     // the avatar should only be spawned once, after user auth and scene load
 
     const user = authState.user.value
-    const avatarDetails = avatarState.avatarList.value.find((avatar) => avatar?.id === user.avatarId)!
+    const avatarDetails = user.avatar
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
@@ -98,7 +88,7 @@ export const useLocationSpawnAvatar = () => {
       },
       name: user.name
     })
-  }, [engineState.sceneLoaded, authState.user, avatarState.avatarList, spectateParam])
+  }, [engineState.sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
 }
 
 export const usePortalTeleport = () => {

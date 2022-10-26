@@ -41,7 +41,7 @@
     "validate": "npm run build && npm run test",
     "upload-avatar": "node ./scripts/upload-avatar.js",
     "upload-avatar-db-only": "node ./scripts/upload-avatar.js --db-only",
-    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
+    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=* --brotli --gzip"
   },
   "types": "lib/",
   "dependencies": {

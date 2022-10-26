@@ -155,7 +155,7 @@ const instanceserver = {
   rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
-  domain: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.theoverlay.io',
+  domain: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com',
   releaseName: process.env.RELEASE_NAME || 'local',
   port: process.env.INSTANCESERVER_PORT!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,

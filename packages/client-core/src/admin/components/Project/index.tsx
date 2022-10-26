@@ -67,12 +67,6 @@ const Projects = () => {
     return () => clearInterval(interval)
   }, [adminProjectState.rebuilding.value])
 
-  useEffect(() => {
-    if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      ProjectService.fetchProjects()
-    }
-  }, [user?.id.value, adminProjectState.updateNeeded.value])
-
   return (
     <div>
       <Grid container spacing={1} className={styles.mb10px}>

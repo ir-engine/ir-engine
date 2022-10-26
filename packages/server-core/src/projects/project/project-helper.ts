@@ -197,6 +197,8 @@ export const getEnginePackageJson = (): ProjectPackageJsonType => {
   return require(path.resolve(appRootPath.path, 'packages/server-core/package.json'))
 }
 
+//DO NOT REMOVE, even though an IDE may say that it's not used in the codebase, projects
+//may use this.
 export const getProjectEnv = async (app: Application, projectName: string) => {
   const projectSetting = await app.service('project-setting').find({
     query: {
@@ -243,47 +245,70 @@ export const checkProjectDestinationMatch = async (app: Application, params: Pro
       error: 'invalidDestinationURL',
       text: 'The destination URL is not valid, or you do not have access to it'
     }
-  const [sourceBlobResponse, destinationBlobResponse]: [sourceBlobResponse: any, destinationBlobResponse: any] =
-    await Promise.all([
-      new Promise(async (resolve, reject) => {
-        try {
-          const sourcePackage = await sourceOctoKit.rest.repos.getContent({
-            owner: sourceOwner,
-            repo: sourceRepo,
-            path: 'package.json',
-            ref: selectedSHA
+  const [sourceBlobResponse, sourceConfigResponse, destinationBlobResponse]: [
+    sourceBlobResponse: any,
+    sourceConfigResponse: any,
+    destinationBlobResponse: any
+  ] = await Promise.all([
+    new Promise(async (resolve, reject) => {
+      try {
+        const sourcePackage = await sourceOctoKit.rest.repos.getContent({
+          owner: sourceOwner,
+          repo: sourceRepo,
+          path: 'package.json',
+          ref: selectedSHA
+        })
+        resolve(sourcePackage)
+      } catch (err) {
+        logger.error(err)
+        if (err.status === 404) {
+          resolve({
+            error: 'sourcePackageMissing',
+            text: 'There is no package.json in the source repo'
           })
-          resolve(sourcePackage)
-        } catch (err) {
-          logger.error(err)
-          if (err.status === 404) {
-            resolve({
-              error: 'sourcePackageMissing',
-              text: 'There is no package.json in the source repo'
-            })
-          } else reject(err)
-        }
-      }),
-      new Promise(async (resolve, reject) => {
-        try {
-          const destinationPackage = await destinationOctoKit.rest.repos.getContent({
-            owner: destinationOwner,
-            repo: destinationRepo,
-            path: 'package.json'
+        } else reject(err)
+      }
+    }),
+    new Promise(async (resolve, reject) => {
+      try {
+        const sourceConfig = await sourceOctoKit.rest.repos.getContent({
+          owner: sourceOwner,
+          repo: sourceRepo,
+          path: 'xrengine.config.ts',
+          ref: selectedSHA
+        })
+        resolve(sourceConfig)
+      } catch (err) {
+        logger.error(err)
+        if (err.status === 404) {
+          resolve({
+            error: 'sourceConfigMissing',
+            text: 'There is no xrengine.config.ts in the source repo'
           })
-          resolve(destinationPackage)
-        } catch (err) {
-          logger.error('destination package fetch error', err)
-          if (err.status === 404) {
-            resolve({
-              error: 'destinationPackageMissing',
-              text: 'There is no package.json in the source repo'
-            })
-          } else reject(err)
-        }
-      })
-    ])
+        } else reject(err)
+      }
+    }),
+    new Promise(async (resolve, reject) => {
+      try {
+        const destinationPackage = await destinationOctoKit.rest.repos.getContent({
+          owner: destinationOwner,
+          repo: destinationRepo,
+          path: 'package.json'
+        })
+        resolve(destinationPackage)
+      } catch (err) {
+        logger.error('destination package fetch error', err)
+        if (err.status === 404) {
+          resolve({
+            error: 'destinationPackageMissing',
+            text: 'There is no package.json in the source repo'
+          })
+        } else reject(err)
+      }
+    })
+  ])
   if (sourceBlobResponse.error) return sourceBlobResponse
+  if (sourceConfigResponse.error) return sourceConfigResponse
   const sourceContent = JSON.parse(
     Buffer.from(sourceBlobResponse.data.content, sourceBlobResponse.data.encoding).toString()
   )

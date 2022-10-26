@@ -12,7 +12,7 @@ export const useRoomCodeURLParam = (roomCode = true, instanceId = true) => {
   const instance = locationInstance.instances[worldNetwork?.hostId]?.ornull
 
   useEffect(() => {
-    if (worldNetwork) {
+    if (worldNetwork && instance) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
       instanceId && query.set('roomCode', instance.roomCode.value)
