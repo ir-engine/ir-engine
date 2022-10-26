@@ -4,7 +4,7 @@
   "description": "",
   "main": "",
   "etherealEngine": {
-    "version": ""
+    "version": "1.0.0-rc4"
   },
   "scripts": {
     "test": "mocha --config .mocharc.js"
