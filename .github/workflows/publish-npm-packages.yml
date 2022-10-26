@@ -45,6 +45,8 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Delete root package.json
+        run: rm package.json
       - name: Install cross-env and ts-node
         run: npm install cross-env@7.0.3 ts-node@10.8.2
       - name: Bump default and template project version
