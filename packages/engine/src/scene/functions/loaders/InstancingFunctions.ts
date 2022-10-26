@@ -66,8 +66,8 @@ export const GRASS_PROPERTIES_DEFAULT_VALUES: GrassProperties = {
   bladeHeight: { mu: 0.3, sigma: 0.05 },
   bladeWidth: { mu: 0.03, sigma: 0.01 },
   joints: 4,
-  grassTexture: 'https://resources-dev.theoverlay.io/assets/grass/blade_diffuse.jpg',
-  alphaMap: 'https://resources-dev.theoverlay.io/assets/grass/blade_alpha.jpg',
+  grassTexture: 'https://resources-dev.etherealengine.com/assets/grass/blade_diffuse.jpg',
+  alphaMap: 'https://resources-dev.etherealengine.com/assets/grass/blade_alpha.jpg',
   ambientStrength: 0.5,
   diffuseStrength: 1,
   shininess: 128,
@@ -81,18 +81,18 @@ export const MESH_PROPERTIES_DEFAULT_VALUES: MeshProperties = {
 
 export const SCATTER_PROPERTIES_DEFAULT_VALUES: ScatterProperties = {
   isScatterProperties: true,
-  densityMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
+  densityMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
   densityMapStrength: 0.5,
-  heightMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
+  heightMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
   heightMapStrength: 0.5
 }
 
 export const VERTEX_PROPERTIES_DEFAULT_VALUES: VertexProperties = {
   isVertexProperties: true,
   vertexColors: false,
-  densityMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
+  densityMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
   densityMapStrength: 0.5,
-  heightMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
+  heightMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
   heightMapStrength: 0.5
 }
 
