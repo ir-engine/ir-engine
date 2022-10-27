@@ -174,8 +174,7 @@ export class Project extends Service {
    * On dev, sync the db with any projects installed locally
    */
   async _fetchDevLocalProjects() {
-    const dbEntries = (await super.find()) as any
-    const data: ProjectInterface[] = dbEntries.data
+    const data = (await this.Model.findAll({ paginate: false })) as ProjectInterface[]
 
     if (!fs.existsSync(projectsRootFolder)) {
       fs.mkdirSync(projectsRootFolder, { recursive: true })
@@ -189,7 +188,7 @@ export class Project extends Service {
     const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
-      if (!data.find((e) => e.name.toLowerCase() === projectName.toLowerCase())) {
+      if (!data.find((e) => e.name === projectName)) {
         try {
           promises.push(this._seedProject(projectName))
         } catch (e) {

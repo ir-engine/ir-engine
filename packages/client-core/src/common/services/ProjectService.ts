@@ -29,10 +29,8 @@ export const ProjectServiceReceptor = (action) => {
   const s = getState(ProjectState)
   matches(action)
     .when(ProjectAction.projectsFetched.matches, (action) => {
-      return s.merge({
-        projects: action.projectResult,
-        updateNeeded: false
-      })
+      s.projects.set(action.projectResult)
+      s.updateNeeded.set(false)
     })
     .when(ProjectAction.reloadStatusFetched.matches, (action) => {
       return s.merge({
