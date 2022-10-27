@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const fs = require('fs')
-const appRootPath = require('app-root-path')
-const cli = require('cli')
-const path = require('path')
+import fs from 'fs'
+import appRootPath from 'app-root-path'
+import cli from 'cli'
+import path from 'path'
 
 cli.enable('status');
 
