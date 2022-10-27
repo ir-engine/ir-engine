@@ -78,6 +78,10 @@ export default (app: Application) => {
       themeModes: {
         type: DataTypes.JSON,
         allowNull: true
+      },
+      key8thWall: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
     {

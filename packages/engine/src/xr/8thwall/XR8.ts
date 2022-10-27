@@ -1,5 +1,6 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
+import config from '@xrengine/common/src/config'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
@@ -20,8 +21,6 @@ import { XREPipeline } from './WebXR8thwallProxy'
 import { XR8CameraModule } from './XR8CameraModule'
 import { XR8Type } from './XR8Types'
 
-const apikey = process.env['VITE_8TH_WALL']
-
 type XR8Assets = {
   xr8Script: HTMLScriptElement
   xrExtrasScript: HTMLScriptElement
@@ -38,7 +37,7 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
       _8thwallScript.addEventListener('load', () => resolve(_8thwallScript))
       _8thwallScript.addEventListener('error', () => reject())
       document.head.appendChild(_8thwallScript)
-      _8thwallScript.src = `https://apps.8thwall.com/xrweb?appKey=${apikey}`
+      _8thwallScript.src = `https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`
     }),
     new Promise<HTMLScriptElement>((resolve, reject) => {
       const _xrExtrasScript = document.createElement('script')

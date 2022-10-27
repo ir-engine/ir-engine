@@ -1,6 +1,7 @@
 import * as bitECS from 'bitecs'
 import { startTransition, useEffect } from 'react'
 
+import config from '@xrengine/common/src/config'
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
@@ -15,7 +16,7 @@ import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
-const INITIAL_COMPONENT_SIZE = process.env['APP_ENV'] === 'test' ? 100000 : 1000 // TODO set to 0 after next bitECS update
+const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 : 1000 // TODO set to 0 after next bitECS update
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
 const NO_PROXY = { noproxy: true }

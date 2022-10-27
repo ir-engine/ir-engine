@@ -87,6 +87,12 @@ export const scopeTypeSeed = {
     },
     {
       type: 'settings:write'
+    },
+    {
+      type: 'server:read'
+    },
+    {
+      type: 'server:write'
     }
   ]
 }

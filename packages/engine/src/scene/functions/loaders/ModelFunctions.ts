@@ -1,4 +1,7 @@
+import { getState } from '@xrengine/hyperflux'
+
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { serializeComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'

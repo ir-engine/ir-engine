@@ -83,7 +83,8 @@ const ClientTheme = () => {
         appBackground: clientSetting?.appBackground,
         appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
         themeSettings: JSON.stringify(newThemeSettings),
-        themeModes: JSON.stringify(newThemeModes)
+        themeModes: JSON.stringify(newThemeModes),
+        key8thWall: clientSetting?.key8thWall
       },
       id
     )

@@ -67,14 +67,14 @@ export const enterVolumetric = async (entity: Entity) => {
     throw new Error('expected video media')
   }
 
-  const workerBlobUrl = await createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
+  const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
 
   const player = new VolumetricPlayer({
     renderer: EngineRenderer.instance.renderer,
     video: mediaElement.element as HTMLVideoElement,
     paths: [],
     playMode: PlayMode.single,
-    worker: new Worker(workerBlobUrl)
+    worker
     // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
 

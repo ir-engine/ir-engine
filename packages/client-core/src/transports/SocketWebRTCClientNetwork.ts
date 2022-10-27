@@ -2,7 +2,7 @@ import * as mediasoupClient from 'mediasoup-client'
 import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
-import { instanceserverHost } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -153,16 +153,16 @@ export class SocketWebRTCClientNetwork extends Network {
     if (!roomCode) delete query.roomCode
 
     try {
-      if (globalThis.process.env['VITE_LOCAL_BUILD'] === 'true') {
+      if (config.client.localBuild === 'true') {
         this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {
           query
         })
-      } else if (process.env.APP_ENV === 'development' && process.env.VITE_LOCAL_NGINX !== 'true') {
+      } else if (config.client.appEnv === 'development' && config.client.localNginx !== 'true') {
         this.socket = ioclient(`${ipAddress as string}:${port.toString()}`, {
           query
         })
       } else {
-        this.socket = ioclient(instanceserverHost, {
+        this.socket = ioclient(config.client.instanceserverUrl, {
           path: `/socket.io/${ipAddress as string}/${port.toString()}`,
           query
         })

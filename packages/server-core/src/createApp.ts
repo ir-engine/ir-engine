@@ -12,11 +12,13 @@ import path from 'path'
 import { Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
+import { isDev } from '@xrengine/common/src/config'
 import { pipe } from '@xrengine/common/src/utils/pipe'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createEngine, initializeNode, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import { Application, ServerTypeMode } from '../declarations'
+import appConfig from './appconfig'
 import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import sequelize from './sequelize'
@@ -56,9 +58,9 @@ export const configureSocketIO =
   (instanceserver = false, onSocket = (app: Application, socket: Socket) => {}) =>
   (app: Application) => {
     const origin = [
-      'https://' + config.server.clientHost,
-      'capacitor://' + config.server.clientHost,
-      'ionic://' + config.server.clientHost
+      'https://' + appConfig.server.clientHost,
+      'capacitor://' + appConfig.server.clientHost,
+      'ionic://' + appConfig.server.clientHost
     ]
     if (!instanceserver) origin.push('https://localhost:3001')
     app.configure(
@@ -87,12 +89,12 @@ export const configureSocketIO =
   }
 
 export const configureRedis = () => (app: Application) => {
-  if (config.redis.enabled) {
+  if (appConfig.redis.enabled) {
     app.configure(
       sync({
-        uri: config.redis.password
-          ? `redis://:${config.redis.password}@${config.redis.address}:${config.redis.port}`
-          : `redis://${config.redis.address}:${config.redis.port}`
+        uri: appConfig.redis.password
+          ? `redis://:${appConfig.redis.password}@${appConfig.redis.address}:${appConfig.redis.port}`
+          : `redis://${appConfig.redis.address}:${appConfig.redis.port}`
       })
     )
     app.sync.ready.then(() => {
@@ -103,7 +105,7 @@ export const configureRedis = () => (app: Application) => {
 }
 
 export const configureK8s = () => (app: Application) => {
-  if (config.kubernetes.enabled) {
+  if (appConfig.kubernetes.enabled) {
     const kc = new k8s.KubeConfig()
     kc.loadFromDefault()
 
@@ -125,12 +127,13 @@ export const createFeathersExpressApp = (
 ): Application => {
   createDefaultStorageProvider()
 
-  if (config.ipfs.enabled) {
+  if (appConfig.ipfs.enabled) {
     createIPFSStorageProvider()
   }
 
-  if (!config.db.forceRefresh) {
+  if (!appConfig.db.forceRefresh) {
     createEngine()
+    Engine.instance.publicPath = config.client.dist
     setupEngineActionSystems()
     initializeNode()
   }
@@ -141,11 +144,14 @@ export const createFeathersExpressApp = (
 
   // Feathers authentication-oauth will only append the port in production, but then it will also
   // hard-code http as the protocol, so manually mashing host + port together if in local.
-  app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
-  app.set('port', config.server.port)
+  app.set(
+    'host',
+    appConfig.server.local ? appConfig.server.hostname + ':' + appConfig.server.port : appConfig.server.hostname
+  )
+  app.set('port', appConfig.server.port)
 
-  app.set('paginate', config.server.paginate)
-  app.set('authentication', config.authentication)
+  app.set('paginate', appConfig.server.paginate)
+  app.set('authentication', appConfig.authentication)
 
   configurationPipe(app)
 

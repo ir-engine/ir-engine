@@ -1,5 +1,6 @@
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { createGLTFLoader } from './assets/functions/createGLTFLoader'
 import { isClient } from './common/functions/isClient'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions } from './ecs/classes/EngineState'
@@ -13,6 +14,8 @@ import SceneObjectUpdateSystem from './scene/systems/SceneObjectUpdateSystem'
 import TransformSystem from './transform/systems/TransformSystem'
 
 export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<any>[]) => {
+  Engine.instance.gltfLoader = createGLTFLoader()
+
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {

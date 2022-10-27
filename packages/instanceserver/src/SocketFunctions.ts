@@ -87,10 +87,7 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
           {}
         )
         userId = authResult['identity-provider'].userId as UserId
-        user = await network.app.service('user').Model.findOne({
-          attributes: ['id', 'name', 'instanceId', 'avatarId'],
-          where: { id: userId }
-        })
+        user = await network.app.service('user').get(userId)
 
         if (!user) {
           authTask.status = 'fail'

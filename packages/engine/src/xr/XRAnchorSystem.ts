@@ -184,9 +184,9 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const minDollhouseDist = 0.01
   const maxDollhouseDist = 0.6
   const lifeSize =
-    controlMode === 'attached' ||
-    world.sceneMetadata.xr.dollhouse.value ||
-    (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+    world.sceneMetadata.xr.dollhouse.value === 'auto'
+      ? controlMode === 'attached' || (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+      : world.sceneMetadata.xr.dollhouse.value
   const targetScale = lifeSize
     ? 1
     : 1 /

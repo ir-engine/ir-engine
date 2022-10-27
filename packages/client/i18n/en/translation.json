@@ -33,7 +33,7 @@
       "projectName": "Project Name",
       "projectURL": "Project URL",
       "link": "Link to GitHub repo",
-      "unlink": "Edit/Remove GitHub link",
+      "unlink": "Edit GitHub link",
       "resetToMain": "Reset to Main Branch",
       "updateFromGithub": "Update project from GitHub",
       "pushToGithub": "Push to GitHub",

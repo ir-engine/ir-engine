@@ -1,10 +1,11 @@
 import assert from 'assert'
 import _ from 'lodash'
 
+import config from '@xrengine/common/src/config'
+
 import { createDefaultStorageProvider, getStorageProvider } from '../../media/storageprovider/storageprovider'
 import {
   cleanSceneDataCacheURLs,
-  corsPath,
   parseSceneDataCacheURLs,
   sceneCorsPathIdentifier,
   sceneRelativePathIdentifier
@@ -49,7 +50,7 @@ describe('Scene Helper Functions', () => {
     }
 
     const parsedMockData = {
-      value: `${corsPath}/${mockDomain}`
+      value: `${config.client.cors.proxyUrl}/${mockDomain}`
     }
 
     it('should parse saved data', async function () {

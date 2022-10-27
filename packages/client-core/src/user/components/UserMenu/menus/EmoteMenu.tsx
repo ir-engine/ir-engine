@@ -31,15 +31,39 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
 
   let [items, setItems] = useState([
     {
-      body: <img src="/static/grinning.svg" alt="Dance 4" />,
+      body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE4)
+        onClick: () => runAnimation(AvatarStates.WAVE)
       }
     },
     {
-      body: <img src="/static/sad.svg" alt="sad" />,
+      body: <img src="/static/clap1.svg" alt="Clap" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.CLAP)
+      }
+    },
+    {
+      body: <img src="/static/Dance1.svg" alt="Dance 1" />,
+      containerProps: {
+        onClick: () => runAnimation(AvatarStates.DANCE1)
+      }
+    },
+    {
+      body: <img src="/static/Dance2.svg" alt="Dance 2" />,
+      containerProps: {
+        onClick: () => runAnimation(AvatarStates.DANCE2)
+      }
+    },
+    {
+      body: <img src="/static/Dance3.svg" alt="Dance 3" />,
+      containerProps: {
+        onClick: () => runAnimation(AvatarStates.DANCE3)
+      }
+    },
+    {
+      body: <img src="/static/Dance4.svg" alt="Dance 4" />,
+      containerProps: {
+        onClick: () => runAnimation(AvatarStates.DANCE4)
       }
     },
     {
@@ -55,24 +79,6 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
       }
     },
     {
-      body: <img src="/static/dance_new1.svg" alt="Dance 1" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE1)
-      }
-    },
-    {
-      body: <img src="/static/clap1.svg" alt="Dance 2" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE2)
-      }
-    },
-    {
-      body: <img src="/static/victory.svg" alt="Dance 3" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE3)
-      }
-    },
-    {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.LAUGH)
@@ -85,15 +91,9 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
       }
     },
     {
-      body: <img src="/static/Wave.svg" alt="Wave" />,
+      body: <img src="/static/restart.svg" alt="Reset" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.WAVE)
-      }
-    },
-    {
-      body: <img src="/static/restart.svg" />,
-      containerProps: {
-        //onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
+        onClick: () => runAnimation(AvatarStates.LOCOMOTION)
       }
     }
   ])

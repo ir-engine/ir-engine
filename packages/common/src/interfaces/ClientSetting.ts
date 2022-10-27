@@ -16,6 +16,7 @@ export interface ClientSetting {
   appSocialLinks: Array<SocialLink>
   themeSettings: ThemeSetting
   themeModes: ThemeMode
+  key8thWall: string
 }
 
 interface SocialLink {
@@ -88,4 +89,5 @@ export interface PatchClientSetting {
   appSocialLinks: string
   themeSettings: string
   themeModes: string
+  key8thWall: string
 }

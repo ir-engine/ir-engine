@@ -1,7 +1,7 @@
 import { SkinnedMesh, Vector2, Vector3 } from 'three'
 
+import { isDev } from '@xrengine/common/src/config'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { CameraSettings } from '../camera/CameraState'

@@ -225,7 +225,7 @@ export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socket
 
 export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, socket: Socket, user: UserInterface) => {
   const userId = user.id
-  const avatarDetail = await network.app.service('avatar').get(user.avatarId!)
+  const avatarDetail = user.avatar
 
   // Create a new client object
   // and add to the dictionary

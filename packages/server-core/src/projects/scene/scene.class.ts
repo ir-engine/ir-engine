@@ -3,8 +3,8 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
+import { isDev } from '@xrengine/common/src/config'
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
