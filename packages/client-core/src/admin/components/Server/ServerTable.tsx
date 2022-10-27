@@ -11,6 +11,7 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 
+import ConfirmDialog from '../../common/ConfirmDialog'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
@@ -30,8 +31,10 @@ interface Props {
 
 const ServerTable = ({ selectedCard }: Props) => {
   const { t } = useTranslation()
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [autoRefresh, setAutoRefresh] = useState('0')
   const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
+  const [selectedPod, setSelectedPod] = useState<ServerPodInfo | null>(null)
   const serverInfo = useServerInfoState()
 
   useEffect(() => {
@@ -76,14 +79,25 @@ const ServerTable = ({ selectedCard }: Props) => {
         </>
       ),
       action: (
-        <a href="#" className={styles.actionStyle} style={{ float: 'right' }} onClick={() => {}}>
-          <span
-            className={styles.spanDange}
+        <div style={{ float: 'right' }}>
+          <a
+            href="#"
+            className={styles.actionStyle}
             onClick={() => ServerLogsService.fetchServerLogs(el.name, el.containers[el.containers.length - 1].name)}
           >
-            {t('admin:components.server.logs')}
-          </span>
-        </a>
+            <span className={styles.spanWhite}>{t('admin:components.server.logs')}</span>
+          </a>
+          <a
+            href="#"
+            className={styles.actionStyle}
+            onClick={() => {
+              setSelectedPod(el)
+              setOpenConfirm(true)
+            }}
+          >
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
+          </a>
+        </div>
       )
     }
   }
@@ -97,6 +111,15 @@ const ServerTable = ({ selectedCard }: Props) => {
     const { value } = e.target
 
     setAutoRefresh(value)
+  }
+
+  const handleRemovePod = async () => {
+    if (!selectedPod) {
+      return
+    }
+
+    await ServerInfoService.removePod(selectedPod.name)
+    setOpenConfirm(false)
   }
 
   const autoRefreshMenu: InputMenuItem[] = [
@@ -170,16 +193,25 @@ const ServerTable = ({ selectedCard }: Props) => {
     })
 
   return (
-    <TableComponent
-      allowSort={false}
-      rows={rows}
-      column={serverInfoDataColumns}
-      page={0}
-      count={rows.length}
-      rowsPerPage={rows.length}
-      handlePageChange={() => {}}
-      handleRowsPerPageChange={() => {}}
-    />
+    <>
+      <TableComponent
+        allowSort={false}
+        rows={rows}
+        column={serverInfoDataColumns}
+        page={0}
+        count={rows.length}
+        rowsPerPage={rows.length}
+        handlePageChange={() => {}}
+        handleRowsPerPageChange={() => {}}
+      />
+
+      <ConfirmDialog
+        open={openConfirm}
+        description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.name}'?`}
+        onClose={() => setOpenConfirm(false)}
+        onSubmit={handleRemovePod}
+      />
+    </>
   )
 }
 
