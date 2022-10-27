@@ -4,13 +4,13 @@ import { random } from 'lodash'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
+import { isDev } from '@xrengine/common/src/config'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
+import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { UserParams } from '../user/user.class'
@@ -48,8 +48,8 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         { accessToken: params.authentication.accessToken },
         {}
       )
-      if (authResult[config.authentication.entity]?.userId) {
-        user = await this.app.service('user').get(authResult[config.authentication.entity]?.userId)
+      if (authResult[appConfig.authentication.entity]?.userId) {
+        user = await this.app.service('user').get(authResult[appConfig.authentication.entity]?.userId)
       }
     }
     if (
@@ -60,7 +60,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       type !== 'sms'
     )
       type = 'guest' //Non-password/magiclink create requests must always be for guests
-    let userId = data.userId || (authResult ? authResult[config.authentication.entity]?.userId : null)
+    let userId = data.userId || (authResult ? authResult[appConfig.authentication.entity]?.userId : null)
     let identityProvider: any
 
     switch (type) {
@@ -210,8 +210,8 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     // DRC
 
     if (type === 'guest') {
-      if (config.scopes.guest.length) {
-        const data = config.scopes.guest.map((el) => {
+      if (appConfig.scopes.guest.length) {
+        const data = appConfig.scopes.guest.map((el) => {
           return {
             type: el,
             userId

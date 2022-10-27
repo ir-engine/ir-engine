@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { corsProxyPath } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 
 import DnsIcon from '@mui/icons-material/Dns'
 
@@ -30,10 +30,10 @@ export const AddCorsProxyButton = (props: Props) => {
   const { t } = useTranslation()
 
   const onClick = () => {
-    props.onAddCorsProxy(`${corsProxyPath}/${props.value}`)
+    props.onAddCorsProxy(`${config.client.cors.proxyUrl}/${props.value}`)
   }
 
-  return props.value?.includes(corsProxyPath) ? null : (
+  return props.value?.includes(config.client.cors.proxyUrl) ? null : (
     <InfoTooltip title={t('editor:corsProxyButton:tooltip')!}>
       <DnsInfoIcon onClick={onClick} />
     </InfoTooltip>

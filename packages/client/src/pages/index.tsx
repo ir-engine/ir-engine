@@ -9,10 +9,11 @@ import { NotificationService } from '@xrengine/client-core/src/common/services/N
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import config from '@xrengine/common/src/config'
 
 import { Button } from '@mui/material'
 
-const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
+const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
   const { t } = useTranslation()

@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import { serverHost } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
@@ -456,9 +456,9 @@ export const AuthService = {
       path: path
     } as any
     if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
-    window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
-      redirectObject
-    )}`
+    window.location.href = `${
+      config.client.serverUrl
+    }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
   },
 
   async removeUserOAuth(service: string) {
@@ -761,7 +761,7 @@ export const AuthService = {
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: string
   ) {
-    window.open(`https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
+    window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
 
   async removeConnection(identityProviderId: number, userId: string) {

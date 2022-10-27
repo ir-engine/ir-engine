@@ -156,7 +156,7 @@ const initializeInstance = async (
   status: InstanceserverStatus,
   locationId: string,
   channelId: string,
-  userId: UserId
+  userId?: UserId
 ) => {
   logger.info('Initialized new instance')
 
@@ -207,7 +207,7 @@ const initializeInstance = async (
         })
       }
     }
-    if (!(await authorizeUserToJoinServer(app, instance, userId))) return
+    if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
     await assignExistingInstance(app, instance, channelId, locationId)
   }
 }
@@ -220,7 +220,6 @@ const initializeInstance = async (
 
 const loadEngine = async (app: Application, sceneId: string) => {
   const hostId = app.instance.id as UserId
-  Engine.instance.publicPath = config.client.url
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
@@ -330,7 +329,7 @@ const createOrUpdateInstance = async (
   locationId: string,
   channelId: string,
   sceneId: string,
-  userId: UserId
+  userId?: UserId
 ) => {
   logger.info('Creating new instance server or updating current one.')
   logger.info(`agones state is ${status.state}`)
@@ -350,7 +349,7 @@ const createOrUpdateInstance = async (
         await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
       }
       const instance = await app.service('instance').get(app.instance.id)
-      if (!(await authorizeUserToJoinServer(app, instance, userId))) return
+      if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
       await app.agonesSDK.allocate()
       await app.service('instance').patch(app.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
@@ -639,7 +638,7 @@ export default (app: Application): void => {
       return
     }
 
-    createOrUpdateInstance(app, status, locationId, null!, sceneId, null!)
+    createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
 
   app.on('connection', onConnection(app))

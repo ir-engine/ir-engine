@@ -1,9 +1,12 @@
 // TODO: Add config var for analytics ID
+
 import ReactGA from 'react-ga4'
 
+import config from '@xrengine/common/src/config'
+
 export const initGA = () => {
-  if (globalThis.process.env['VITE_GA_MEASUREMENT_ID'] && globalThis.process.env['VITE_GA_MEASUREMENT_ID'].length > 0)
-    ReactGA.initialize(globalThis.process.env['VITE_GA_MEASUREMENT_ID'])
+  if (config.client.gaMeasurementId && config.client.gaMeasurementId.length > 0)
+    ReactGA.initialize(config.client.gaMeasurementId)
 }
 
 export const logPageView = () => {

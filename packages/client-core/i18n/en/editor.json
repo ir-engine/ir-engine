@@ -720,8 +720,13 @@
       "header": "Your scene has been published.",
       "lbl-view": "View Your Scene"
     },
+    "saveScene": {
+      "title": "Save",
+      "lbl-thumbnail": "Generate thumbnail & envmap",
+      "lbl-confirm": "Save Scene"
+    },
     "saveNewScene": {
-      "title": "Support",
+      "title": "Save As",
       "lbl-name": "Scene Name",
       "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
       "lbl-confirm": "Save Scene"

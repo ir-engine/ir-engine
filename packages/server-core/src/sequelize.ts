@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
-import config from '@xrengine/server-core/src/appconfig'
+import config, { isDev } from '@xrengine/common/src/config'
+import appConfig from '@xrengine/server-core/src/appconfig'
 
 import { Application } from '../declarations'
 import { seeder } from './seeder'
@@ -11,12 +11,12 @@ const logger = multiLogger.child({ component: 'server-core:sequelize' })
 
 export default (app: Application): void => {
   try {
-    const { forceRefresh } = config.db
+    const { forceRefresh } = appConfig.db
 
     logger.info('Starting app.')
 
     const sequelize = new Sequelize({
-      ...(config.db as any),
+      ...(appConfig.db as any),
       logging: forceRefresh ? logger.info.bind(logger) : false,
       define: {
         freezeTableName: true,

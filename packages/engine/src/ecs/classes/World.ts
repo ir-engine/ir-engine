@@ -211,7 +211,7 @@ export class World {
         height: 0.05
       },
       xr: {
-        dollhouse: true
+        dollhouse: 'auto' as boolean | 'auto'
       }
     },
     subscribable()

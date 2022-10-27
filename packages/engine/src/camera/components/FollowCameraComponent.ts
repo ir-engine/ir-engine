@@ -41,7 +41,7 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   zoomVelocity: { value: 0 },
   minDistance: 2,
   maxDistance: 7,
-  theta: Math.PI,
+  theta: 180,
   phi: 0,
   minPhi: -70,
   maxPhi: 85,

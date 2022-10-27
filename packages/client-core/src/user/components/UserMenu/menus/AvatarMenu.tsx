@@ -69,11 +69,11 @@ const AvatarMenu = (props: Props) => {
   }, [isAvatarLoaded])
 
   useEffect(() => {
-    if (page * imgPerPage >= avatarState.avatarList.value.length) {
+    if (page * imgPerPage >= avatarState.total.value) {
       if (page === 0) return
       setPage(page - 1)
     }
-  }, [avatarState.avatarList])
+  }, [avatarState.total])
 
   useEffect(() => {
     window.addEventListener('resize', calculateMenuRadius)
@@ -100,7 +100,9 @@ const AvatarMenu = (props: Props) => {
 
   const loadNextAvatars = (e) => {
     e.preventDefault()
-    if ((page + 1) * imgPerPage >= avatarList.length) return
+    if ((page + 1) * imgPerPage >= avatarState.total.value) return
+    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
+      AvatarService.fetchAvatarList(false, 'increment')
     setPage(page + 1)
   }
   const loadPreviousAvatars = (e) => {
@@ -301,7 +303,9 @@ const AvatarMenu = (props: Props) => {
           <div className={styles.itemContainerNext}>
             <button
               type="button"
-              className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= avatarList.length ? styles.disabled : ''}`}
+              className={`${styles.iconBlock} ${
+                (page + 1) * imgPerPage >= avatarState.total.value ? styles.disabled : ''
+              }`}
               onClick={loadNextAvatars}
             >
               <NavigateNext />

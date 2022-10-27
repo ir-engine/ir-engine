@@ -13,10 +13,12 @@ import {
   Vector3
 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { CameraActions } from '../camera/CameraState'
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
 import { easeOutCubic, normalizeRange } from '../common/functions/MathFunctions'
+import { EngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
@@ -40,7 +42,7 @@ const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity:
 // Utility Vectors
 // Unit: m/s
 const initialVelocity = 4
-const dynamicVelocity = 10
+const dynamicVelocity = 6
 const gravity = new Vector3(0, -9.8, 0)
 const currentVertexLocal = new Vector3()
 const currentVertexWorld = new Vector3()
@@ -91,7 +93,7 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
 }
 
 export default async function AvatarTeleportSystem(world: World) {
-  const lineSegments = 32 // segments to make a whole circle, uses far less
+  const lineSegments = 64 // segments to make a whole circle, uses far less
   const lineGeometry = new BufferGeometry()
   const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
   lineGeometryVertices.fill(0)
@@ -127,12 +129,25 @@ export default async function AvatarTeleportSystem(world: World) {
 
   const xrState = getState(XRState)
   const avatarTeleportQuery = defineQuery([AvatarTeleportComponent])
+  let fadeBackInAccumulator = -1
+
+  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds
 
   const execute = () => {
+    if (fadeBackInAccumulator >= 0) {
+      fadeBackInAccumulator += fixedDeltaSeconds.value
+      if (fadeBackInAccumulator > 0.25) {
+        fadeBackInAccumulator = -1
+        teleportAvatar(world.localClientEntity, guideCursor.position)
+        dispatchAction(CameraActions.fadeToBlack({ in: false }))
+      }
+    }
     for (const entity of avatarTeleportQuery.exit(world)) {
-      // Get cursor position and teleport avatar to it
-      if (canTeleport) teleportAvatar(entity, guideCursor.position)
       transition.setState('OUT')
+      if (canTeleport) {
+        fadeBackInAccumulator = 0
+        dispatchAction(CameraActions.fadeToBlack({ in: true }))
+      }
     }
     for (const entity of avatarTeleportQuery.enter(world)) {
       setVisibleComponent(guidelineEntity, true)
@@ -140,7 +155,7 @@ export default async function AvatarTeleportSystem(world: World) {
     }
     for (const entity of avatarTeleportQuery(world)) {
       const sourceEntity =
-        getComponent(entity, AvatarTeleportComponent).side === 'left'
+        getComponent(world.localClientEntity, AvatarTeleportComponent).side === 'left'
           ? xrState.leftControllerEntity.value!
           : xrState.rightControllerEntity.value!
       const sourceTransform = getComponent(sourceEntity, TransformComponent)

@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
+import config from '@xrengine/common/src/config'
+import { isDev } from '@xrengine/common/src/config'
 import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
 import { V_001, V_010, V_100 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'

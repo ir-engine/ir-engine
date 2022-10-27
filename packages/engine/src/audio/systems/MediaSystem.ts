@@ -202,9 +202,7 @@ export default async function MediaSystem(world: World) {
   const videoQuery = defineQuery([MediaElementComponent, VideoComponent])
   const volumetricQuery = defineQuery([MediaElementComponent, VolumetricComponent])
 
-  await Promise.all(
-    Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
-  )
+  Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
 
   const enableAudioContext = () => {
     if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
