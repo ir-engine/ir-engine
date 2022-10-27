@@ -26,8 +26,8 @@ const Server = () => {
   let displayLogs = serverLogs.podName.value ? true : false
 
   useEffect(() => {
-    ServerInfoService.fetchServerInfo()
-  }, [])
+    if (serverInfo.updateNeeded.value) ServerInfoService.fetchServerInfo()
+  }, [serverInfo.updateNeeded.value])
 
   if (!serverInfo.value.fetched) {
     return (

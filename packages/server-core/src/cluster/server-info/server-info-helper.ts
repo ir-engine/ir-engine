@@ -67,6 +67,22 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
   return serverInfo
 }
 
+export const removePod = async (app: Application, podName: string): Promise<ServerPodInfo | undefined> => {
+  try {
+    logger.info(`Attempting to remove k8s pod ${podName}`)
+
+    if (app.k8DefaultClient) {
+      const podsResponse = await app.k8DefaultClient.deleteNamespacedPod(podName, 'default')
+      const pod = getServerPodInfo(podsResponse.body)
+
+      return pod
+    }
+  } catch (e) {
+    logger.error(e)
+    return e
+  }
+}
+
 const getPodsData = async (labelSelector: string, id: string, label: string, app: Application, nameFilter?: string) => {
   let pods: ServerPodInfo[] = []
 
@@ -85,7 +101,7 @@ const getPodsData = async (labelSelector: string, id: string, label: string, app
       items = items.filter((item) => item.metadata?.name?.startsWith(nameFilter))
     }
 
-    pods = getServerPodInfo(items)
+    pods = getServerPodsInfo(items)
   } catch (err) {
     logger.error('Failed to get pods info.', err)
   }
@@ -112,7 +128,7 @@ const getGameserversData = async (labelSelector: string, id: string, label: stri
       undefined,
       labelSelector
     )
-    gameservers = getServerPodInfo((gameserversResponse.body as any).items)
+    gameservers = getServerPodsInfo((gameserversResponse.body as any).items)
   } catch (err) {
     logger.error('Failed to get pods info.', err)
   }
@@ -124,15 +140,19 @@ const getGameserversData = async (labelSelector: string, id: string, label: stri
   }
 }
 
-const getServerPodInfo = (items: k8s.V1Pod[]) => {
+const getServerPodsInfo = (items: k8s.V1Pod[]) => {
   return items.map((item) => {
-    return {
-      name: item.metadata?.name,
-      status: item.status?.phase,
-      age: item.status?.startTime,
-      containers: getServerContainerInfo(item.status?.containerStatuses!)
-    } as ServerPodInfo
+    return getServerPodInfo(item)
   })
+}
+
+const getServerPodInfo = (item: k8s.V1Pod) => {
+  return {
+    name: item.metadata?.name,
+    status: item.status?.phase,
+    age: item.status?.startTime,
+    containers: getServerContainerInfo(item.status?.containerStatuses!)
+  } as ServerPodInfo
 }
 
 const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {

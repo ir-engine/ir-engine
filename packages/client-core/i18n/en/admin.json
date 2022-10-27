@@ -394,7 +394,8 @@
       "none": "None",
       "seconds": "seconds",
       "minutes": "minutes",
-      "download": "Download"
+      "download": "Download",
+      "confirmPodDelete": "Do you want to delete pod"
     }
   }
 }
