@@ -56,13 +56,11 @@ const Server = () => {
             <ServerTable selectedCard={selectedCard} />
           </ReflexElement>
 
-          <>
-            <ReflexSplitter />
+          <ReflexSplitter />
 
-            <ReflexElement flex={0.55} style={{ overflow: 'hidden' }}>
-              <ServerLogs />
-            </ReflexElement>
-          </>
+          <ReflexElement flex={0.55} style={{ overflow: 'hidden' }}>
+            <ServerLogs />
+          </ReflexElement>
         </ReflexContainer>
       )}
     </Box>
