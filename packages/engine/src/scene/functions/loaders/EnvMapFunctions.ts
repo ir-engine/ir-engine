@@ -20,35 +20,31 @@ import { isClient } from '../../../common/functions/isClient'
 import { isHMD } from '../../../common/functions/isMobile'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, hasComponent, removeComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
-import {
-  EnvmapComponent,
-  EnvmapComponentType,
-  SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
-} from '../../components/EnvmapComponent'
+import { getComponent, getOptionalComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EnvMapBakeComponent } from '../../components/EnvMapBakeComponent'
+import { EnvmapComponent } from '../../components/EnvmapComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../../constants/Util'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { EnvMapBakeTypes } from '../../types/EnvMapBakeTypes'
 import { addError, removeError } from '../ErrorFunctions'
-import { parseEnvMapBakeProperties } from './EnvMapBakeFunctions'
 
 const tempVector = new Vector3()
 const tempColor = new Color()
 
-export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, data: EnvmapComponentType) => {
+export const deserializeEnvMap: ComponentDeserializeFunction = (
+  entity: Entity,
+  data: ReturnType<typeof EnvmapComponent.toJSON>
+) => {
   if (!isClient) return
   if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) return
-
-  const props = parseEnvMapProperties(data)
-  setComponent(entity, EnvmapComponent, props)
+  setComponent(entity, EnvmapComponent, data)
 }
 
 export const updateEnvMap = async (entity: Entity) => {
   const component = getComponent(entity, EnvmapComponent)
-  const obj3d = getComponent(entity, ModelComponent).scene.value!
+  const obj3d = getComponent(entity, ModelComponent).scene!
   if (!obj3d) return
 
   switch (component.type) {
@@ -83,14 +79,14 @@ export const updateEnvMap = async (entity: Entity) => {
           {
             const texture = (await new Promise((resolve) =>
               loadCubeMapTexture(component.envMapSourceURL, resolve, undefined, (_) =>
-                addError(entity, 'envmapError', 'Skybox texture could not be found!')
+                addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
               )
             )) as CubeTexture | undefined
             if (texture) {
               const EnvMap = getPmremGenerator().fromCubemap(texture).texture
               EnvMap.encoding = sRGBEncoding
               applyEnvMap(obj3d, EnvMap)
-              removeError(entity, 'envmapError')
+              removeError(entity, EnvmapComponent, 'MISSING_FILE')
             }
           }
           break
@@ -104,10 +100,10 @@ export const updateEnvMap = async (entity: Entity) => {
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
               EnvMap.encoding = sRGBEncoding
               applyEnvMap(obj3d, EnvMap)
-              removeError(entity, 'envmapError')
+              removeError(entity, EnvmapComponent, 'MISSING_FILE')
               texture.dispose()
             } else {
-              addError(entity, 'envmapError', 'Skybox texture could not be found!')
+              addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
             }
           }
           break
@@ -115,23 +111,23 @@ export const updateEnvMap = async (entity: Entity) => {
       break
 
     case EnvMapSourceType.Default:
-      const options = component.envMapBake
+      const options = getOptionalComponent(entity, EnvMapBakeComponent)
+      if (options)
+        switch (options.bakeType) {
+          case EnvMapBakeTypes.Baked:
+            {
+            }
+            const texture = (await AssetLoader.loadAsync(options.envMapOrigin, {})) as Texture
+            texture.mapping = EquirectangularRefractionMapping
+            applyEnvMap(obj3d, texture)
 
-      switch (options.bakeType) {
-        case EnvMapBakeTypes.Baked:
-          {
-          }
-          const texture = (await AssetLoader.loadAsync(options.envMapOrigin, {})) as Texture
-          texture.mapping = EquirectangularRefractionMapping
-          applyEnvMap(obj3d, texture)
-
-          break
-        case EnvMapBakeTypes.Realtime:
-          // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
-          // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
-          // applyEnvMap(obj3d, EnvMap)
-          break
-      }
+            break
+          case EnvMapBakeTypes.Realtime:
+            // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
+            // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
+            // applyEnvMap(obj3d, EnvMap)
+            break
+        }
       break
 
     default:
@@ -159,21 +155,7 @@ export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
     envMapTextureType: component.envMapTextureType,
     envMapSourceColor: component.envMapSourceColor.getHex(),
     envMapSourceURL: component.envMapSourceURL,
-    envMapIntensity: component.envMapIntensity,
-    envMapBake: component.envMapBake
-  }
-}
-
-const parseEnvMapProperties = (props): EnvmapComponentType => {
-  return {
-    type: props.type ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.type,
-    envMapTextureType: props.envMapTextureType ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapTextureType,
-    envMapSourceColor: new Color(props.envMapSourceColor ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapSourceColor),
-    envMapSourceURL: props.envMapSourceURL ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapSourceURL,
-    envMapIntensity: props.envMapIntensity ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapIntensity,
-    envMapBake: parseEnvMapBakeProperties({
-      options: props.envMapBake ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapBake
-    })
+    envMapIntensity: component.envMapIntensity
   }
 }
 

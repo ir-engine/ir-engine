@@ -1,10 +1,8 @@
-import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { getComponentState } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@xrengine/engine/src/scene/constants/PlayMode'
 import { useHookstate } from '@xrengine/hyperflux'
@@ -17,7 +15,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType } from './Util'
 
 const PlayModeOptions = [
   {
@@ -41,12 +39,10 @@ const PlayModeOptions = [
 export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const engineState = useEngineState()
-  const media = getComponent(props.node.entity, MediaComponent)
+  const media = getComponentState(props.node.entity, MediaComponent)
 
   const mediaNoProxy = useHookstate(media).get({ noproxy: true })
-  const hasError = engineState.errorEntities[props.node.entity].get()
-  const error = getComponent(props.node.entity, ErrorComponent)
+  const errors = getEntityErrors(props.node.entity, MediaComponent)
 
   const toggle = () => {
     media.paused.set(!media.paused.value)
@@ -58,8 +54,12 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.media.name')}
       description={t('editor:properties.media.description')}
     >
-      {hasError && error.mediaError && (
-        <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + error.mediaError}</div>
+      {errors ? (
+        Object.entries(errors).map(([err, message]) => {
+          return <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + message}</div>
+        })
+      ) : (
+        <></>
       )}
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
         <CompoundNumericInput value={mediaNoProxy.volume} onChange={(value) => media.volume.set(value)} />
@@ -102,7 +102,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           key={props.node.entity}
           options={PlayModeOptions}
           value={mediaNoProxy.playMode}
-          onChange={(value) => media.playMode.set(value)}
+          onChange={(value: PlayMode) => media.playMode.set(value)}
         />
         {mediaNoProxy.paths && mediaNoProxy.paths.length > 0 && mediaNoProxy.paths[0] && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>

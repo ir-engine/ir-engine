@@ -14,6 +14,8 @@ import {
   ComponentType,
   defineComponent,
   getComponent,
+  getComponentState,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -50,7 +52,7 @@ export const createAudioNodeGroup = (
 export const MediaElementComponent = defineComponent({
   name: 'MediaElement',
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       element: undefined! as HTMLMediaElement,
       hls: undefined as Hls | undefined,
@@ -253,7 +255,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         return
       }
 
-      let mediaElement = getComponent(entity, MediaElementComponent)
+      const mediaElement = getOptionalComponent(entity, MediaElementComponent)
 
       const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
 
@@ -263,26 +265,28 @@ export function MediaReactor({ root }: EntityReactorProps) {
       }
 
       if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
-        mediaElement = setComponent(entity, MediaElementComponent, {
+        const mediaElementState = setComponent(entity, MediaElementComponent, {
           element: document.createElement(assetClass) as HTMLMediaElement
         })
 
-        mediaElement.element.crossOrigin = 'anonymous'
-        mediaElement.element.preload = 'auto'
-        mediaElement.element.muted = false
-        mediaElement.element.setAttribute('playsinline', 'true')
+        const element = mediaElementState.element.value
 
-        const signal = mediaElement.abortController.signal
+        element.crossOrigin = 'anonymous'
+        element.preload = 'auto'
+        element.muted = false
+        element.setAttribute('playsinline', 'true')
 
-        mediaElement.element.addEventListener(
+        const signal = mediaElementState.abortController.signal.value
+
+        element.addEventListener(
           'playing',
           () => {
             media.playing.set(true), clearErrors(entity, MediaElementComponent)
           },
           { signal }
         )
-        mediaElement.element.addEventListener('waiting', () => media.playing.set(false), { signal })
-        mediaElement.element.addEventListener(
+        element.addEventListener('waiting', () => media.playing.set(false), { signal })
+        element.addEventListener(
           'error',
           (err) => {
             addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
@@ -291,7 +295,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
           { signal }
         )
 
-        mediaElement.element.addEventListener(
+        element.addEventListener(
           'ended',
           () => {
             if (media.playMode.value === PlayMode.single) return
@@ -301,22 +305,24 @@ export function MediaReactor({ root }: EntityReactorProps) {
         )
 
         const audioNodes = createAudioNodeGroup(
-          mediaElement.element,
-          Engine.instance.audioContext.createMediaElementSource(mediaElement.element),
+          element,
+          Engine.instance.audioContext.createMediaElementSource(element),
           media.isMusic.value ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
         )
 
         audioNodes.gain.gain.setTargetAtTime(media.volume.value, Engine.instance.audioContext.currentTime, 0.1)
       }
 
-      mediaElement.hls?.destroy()
-      mediaElement.hls = undefined
+      const mediaElementState = setComponent(entity, MediaElementComponent)
+
+      mediaElementState.hls.value?.destroy()
+      mediaElementState.hls.set(undefined)
 
       if (isHLS(path)) {
-        mediaElement.hls = setupHLS(entity, path)
-        mediaElement.hls.attachMedia(mediaElement.element)
+        mediaElementState.hls.set(setupHLS(entity, path))
+        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)
       } else {
-        mediaElement.element.src = path
+        mediaElementState.element.src.set(path)
       }
     },
     [media?.paths, media?.track]
@@ -326,7 +332,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
     function updateVolume() {
       if (!media) return
       const volume = media.volume.value
-      const element = getComponent(entity, MediaElementComponent)?.element
+      const element = getComponent(entity, MediaElementComponent).element as HTMLMediaElement
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.gain.setTargetAtTime(volume, Engine.instance.audioContext.currentTime, 0.1)

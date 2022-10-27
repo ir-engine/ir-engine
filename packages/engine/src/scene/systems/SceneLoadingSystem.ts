@@ -34,7 +34,7 @@ import { initSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
-import { ModelComponent, ModelComponentType, SCENE_COMPONENT_MODEL } from '../components/ModelComponent'
+import { ModelComponent, SCENE_COMPONENT_MODEL } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
@@ -45,7 +45,7 @@ export const prefetchModelAssets = (sceneJson: SceneJson, world: World) => {
   for (const [uuid, entityJson] of Object.entries(sceneJson.entities)) {
     const entityModelComponent = entityJson.components.find(
       (comp) => comp.name === SCENE_COMPONENT_MODEL
-    ) as ComponentJson<ModelComponentType>
+    ) as ComponentJson<ReturnType<typeof ModelComponent.toJSON>>
     if (entityModelComponent) {
       const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
       const sameSource =

@@ -4,7 +4,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const ChildrenComponent = defineComponent({
   name: 'ChildrenComponent',
 
-  onAdd: () => [] as Entity[],
+  onInit: () => [] as Entity[],
 
   toJSON: (entity, component) => {
     return component.value

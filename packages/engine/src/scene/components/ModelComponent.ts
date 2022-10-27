@@ -19,13 +19,6 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaComponent } from './MediaComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
-export type ModelComponentType = {
-  src: string
-  generateBVH: boolean
-  matrixAutoUpdate: boolean
-  scene?: Scene
-}
-
 export const ModelComponent = defineComponent({
   name: 'EE_model',
 
@@ -34,8 +27,8 @@ export const ModelComponent = defineComponent({
       src: '',
       generateBVH: false,
       matrixAutoUpdate: true,
-      scene: undefined
-    } as ModelComponentType
+      scene: undefined as undefined | Scene
+    }
   },
 
   toJSON: (entity, component) => {

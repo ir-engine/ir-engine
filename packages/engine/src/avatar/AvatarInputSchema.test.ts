@@ -6,7 +6,7 @@ import { TargetCameraRotationComponent } from '../camera/components/TargetCamera
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { NumericalType } from '../common/types/NumericalTypes'
 import { Engine } from '../ecs/classes/Engine'
-import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { InputType } from '../input/enums/InputType'
@@ -28,7 +28,11 @@ describe('avatarInputSchema', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    const follower = addComponent(world.cameraEntity, FollowCameraComponent, FollowCameraDefaultValues)
+    const follower = addComponent(
+      world.cameraEntity,
+      FollowCameraComponent,
+      FollowCameraDefaultValues
+    ) as any as ComponentType<typeof FollowCameraComponent>
     const firstValue = follower.locked
     fixedCameraBehindAvatar(entity, 'Test', {
       type: InputType.ONEDIM,
@@ -47,7 +51,7 @@ describe('avatarInputSchema', () => {
       Engine.instance.currentWorld.cameraEntity,
       FollowCameraComponent,
       FollowCameraDefaultValues
-    )
+    ) as any as ComponentType<typeof FollowCameraComponent>
     const firstValue = follower.shoulderSide
     switchShoulderSide(entity, 'Test', {
       type: InputType.ONEDIM,
@@ -82,7 +86,7 @@ describe('avatarInputSchema', () => {
       theta: 2,
       thetaVelocity: { value: 0 },
       time: 0.3
-    })
+    }) as any as ComponentType<typeof FollowCameraComponent>
 
     const phi = 5
     const theta = 4
@@ -110,7 +114,7 @@ describe('avatarInputSchema', () => {
       localMovementDirection: new Vector3(),
       velocitySimulator,
       lastPosition: new Vector3()
-    })
+    }) as any as ComponentType<typeof AvatarControllerComponent>
 
     const firstValue = c.isWalking
 

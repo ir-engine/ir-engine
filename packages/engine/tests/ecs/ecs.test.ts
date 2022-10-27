@@ -5,7 +5,7 @@ import { Engine } from '../../src/ecs/classes/Engine'
 import { World } from '../../src/ecs/classes/World'
 import {
   addComponent,
-  createMappedComponent,
+  defineComponent,
   defineQuery,
   getComponent,
   removeComponent
@@ -17,11 +17,22 @@ import { createEngine } from '../../src/initializeEngine'
 
 const mockDeltaMillis = 1000 / 60
 
-type MockComponentData = {
-  mockValue: number
-}
-
-const MockComponent = createMappedComponent<MockComponentData>('MockComponent')
+const MockComponent = defineComponent({
+  name: 'MockComponent',
+  onInit: (entity) => {
+    return {
+      mockValue: 0
+    }
+  },
+  onSet: (entity, component, json: { mockValue: number }) => {
+    if (typeof json?.mockValue === 'number') component.mockValue.set(json.mockValue)
+  },
+  toJSON: (entity, component) => {
+    return {
+      mockValue: component.mockValue.value
+    }
+  }
+})
 
 const MocksystemLoader = async () => {
   return {

@@ -2,7 +2,13 @@ import { getState } from '@xrengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { createMappedComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  ComponentType,
+  createMappedComponent,
+  getComponent,
+  getOptionalComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 
 class ComputedTransform {
   _referenceEntity = UndefinedEntity
@@ -38,8 +44,10 @@ export function setComputedTransformComponent(
   computeFunction: (entity: Entity, referenceEntity: Entity) => void
 ) {
   const computed =
-    getComponent(entity, ComputedTransformComponent) ||
-    setComponent(entity, ComputedTransformComponent, new ComputedTransform())
+    getOptionalComponent(entity, ComputedTransformComponent) ||
+    (setComponent(entity, ComputedTransformComponent, new ComputedTransform()) as any as ComponentType<
+      typeof ComputedTransformComponent
+    >)
   computed.referenceEntity = referenceEntity
   computed.computeFunction = computeFunction
   return computed

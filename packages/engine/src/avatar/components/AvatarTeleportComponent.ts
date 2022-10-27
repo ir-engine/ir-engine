@@ -3,14 +3,14 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const AvatarTeleportComponent = defineComponent({
   name: 'AvatarTeleportComponent',
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       side: null! as 'left' | 'right'
     }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (json.side) component.side.set(json.side as 'left' | 'right')
+  onSet: (entity, component, json) => {
+    if (typeof json?.side === 'string') component.side.set(json.side as 'left' | 'right')
   },
 
   toJSON: () => {

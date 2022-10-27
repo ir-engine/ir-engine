@@ -17,7 +17,7 @@ import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { addComponent, getComponent, hasComponent, setComponent } from '../functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent, hasComponent, setComponent } from '../functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../functions/EntityFunctions'
 
 // Data structure to hold parent child relationship between entities
@@ -158,7 +158,7 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
   getState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
-    const localTransform = setLocalTransformComponent(node.entity, parent.entity)
+    const localTransform = setLocalTransformComponent(node.entity, parent.entity).value
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
 

@@ -82,7 +82,7 @@ export const enterVolumetric = async (entity: Entity) => {
     entity,
     player,
     height: 1.6,
-    loadingEffectActive: volumetricComponent.useLoadingEffect.value,
+    loadingEffectActive: volumetricComponent.useLoadingEffect,
     loadingEffectTime: 0
   }
   Volumetric.set(mediaElement.element, volumetric)
@@ -105,7 +105,7 @@ export const enterVolumetric = async (entity: Entity) => {
   player.video.addEventListener(
     'ended',
     () => {
-      volumetric.loadingEffectActive = volumetricComponent.useLoadingEffect.value
+      volumetric.loadingEffectActive = volumetricComponent.useLoadingEffect
       volumetric.loadingEffectTime = 0
     },
     { signal: mediaElement.abortController.signal }

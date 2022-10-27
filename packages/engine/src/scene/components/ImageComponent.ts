@@ -30,7 +30,7 @@ export const SPHERE_GEO_FLIPPED = flipNormals(new SphereGeometry(1, 64, 32))
 export const ImageComponent = defineComponent({
   name: 'XRE_image',
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       source: '',
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
@@ -52,7 +52,7 @@ export const ImageComponent = defineComponent({
     }
   },
 
-  onUpdate: (entity, component, json) => {
+  onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
     if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)

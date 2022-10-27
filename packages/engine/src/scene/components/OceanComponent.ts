@@ -55,6 +55,31 @@ export const OceanComponent = defineComponent({
       foamColor: new Color(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamColor)
     } as OceanComponentType
   },
+  toJSON: (entity, component) => {
+    return {
+      normalMap: component.normalMap.value,
+      distortionMap: component.distortionMap.value,
+      envMap: component.envMap.value,
+      color: component.color.value.getHexString() as any as Color,
+      opacityRange: component.opacityRange.value,
+      opacityFadeDistance: component.opacityFadeDistance.value,
+      shallowToDeepDistance: component.shallowToDeepDistance.value,
+      shallowWaterColor: component.shallowWaterColor.value,
+      waveScale: component.waveScale.value,
+      waveSpeed: component.waveSpeed.value,
+      waveTiling: component.waveTiling.value,
+      waveDistortionTiling: component.waveDistortionTiling.value,
+      waveDistortionSpeed: component.waveDistortionSpeed.value,
+      shininess: component.shininess.value,
+      reflectivity: component.reflectivity.value,
+      bigWaveHeight: component.bigWaveHeight.value,
+      bigWaveTiling: component.bigWaveTiling.value,
+      bigWaveSpeed: component.bigWaveSpeed.value,
+      foamSpeed: component.foamSpeed.value,
+      foamTiling: component.foamTiling.value,
+      foamColor: component.foamColor.value.getHexString() as any as Color
+    }
+  },
   errors: ['DISTORTION_MAP_ERROR', 'ENVIRONMENT_MAP_ERROR', 'NORMAL_MAP_ERROR']
 })
 

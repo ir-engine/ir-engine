@@ -4,7 +4,7 @@ import { Matrix4, Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
+import { applyIncomingActions, clearOutgoingActions } from '@xrengine/hyperflux'
 
 import { Engine } from '../../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
@@ -76,8 +76,8 @@ describe.skip('Equippables Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    ActionFunctions.clearOutgoingActions(world.worldNetwork.topic)
-    ActionFunctions.applyIncomingActions()
+    clearOutgoingActions(world.worldNetwork.topic)
+    applyIncomingActions()
 
     // equipperQueryEnter(equipperEntity)
 
@@ -91,8 +91,8 @@ describe.skip('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    ActionFunctions.clearOutgoingActions(world.worldNetwork.topic)
-    ActionFunctions.applyIncomingActions()
+    clearOutgoingActions(world.worldNetwork.topic)
+    applyIncomingActions()
 
     equipperQueryExit(equipperEntity)
 

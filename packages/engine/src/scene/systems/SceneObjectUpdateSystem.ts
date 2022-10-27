@@ -39,11 +39,7 @@ import {
   SCENE_COMPONENT_ENVMAP_BAKE,
   SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '../components/EnvMapBakeComponent'
-import {
-  EnvmapComponent,
-  SCENE_COMPONENT_ENVMAP,
-  SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
-} from '../components/EnvmapComponent'
+import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '../components/EnvmapComponent'
 import {
   GroundPlaneComponent,
   SCENE_COMPONENT_GROUND_PLANE,
@@ -78,11 +74,7 @@ import {
   SCENE_COMPONENT_SHADOW_DEFAULT_VALUES,
   ShadowComponent
 } from '../components/ShadowComponent'
-import {
-  SCENE_COMPONENT_SKYBOX,
-  SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
-  SkyboxComponent
-} from '../components/SkyboxComponent'
+import { SCENE_COMPONENT_SKYBOX, SkyboxComponent } from '../components/SkyboxComponent'
 import {
   SCENE_COMPONENT_SPAWN_POINT,
   SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA,
@@ -263,12 +255,12 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.skybox, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_SKYBOX, props: SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_SKYBOX, props: {} }
   ])
 
   world.sceneComponentRegistry.set(SkyboxComponent.name, SCENE_COMPONENT_SKYBOX)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
-    defaultData: SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
+    defaultData: {},
     deserialize: deserializeSkybox,
     serialize: serializeSkybox,
     shouldDeserialize: shouldDeserializeSkybox
@@ -294,7 +286,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.model, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: {} },
-    { name: SCENE_COMPONENT_ENVMAP, props: SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_ENVMAP, props: {} },
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
   ])
 

@@ -13,11 +13,6 @@ export const deserializePositionalAudio = (
   data: SerializedComponentType<typeof PositionalAudioComponent>
 ) => {
   addComponent(entity, PositionalAudioComponent, data)
-  // backwards-compat
-  const media = getComponent(entity, MediaComponent)
-  if (media) {
-    if (data['isMusic']) media.isMusic.set(data['isMusic'])
-  }
 }
 
 export const serializePositionalAudio = (entity: Entity) => {

@@ -14,7 +14,7 @@ export interface PositionalAudioInterface {
 export const PositionalAudioComponent = defineComponent({
   name: 'XRE_positionalAudio',
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       // default values as suggested at https://medium.com/@kfarr/understanding-web-audio-api-positional-audio-distance-models-for-webxr-e77998afcdff
       distanceModel: 'inverse' as DistanceModelType,
@@ -39,7 +39,7 @@ export const PositionalAudioComponent = defineComponent({
     }
   },
 
-  onUpdate: (entity, component, json) => {
+  onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)

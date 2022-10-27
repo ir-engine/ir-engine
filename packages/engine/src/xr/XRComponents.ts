@@ -81,20 +81,20 @@ export const XRHandsInputComponent = createMappedComponent<XRHandsInputComponent
 export const XRHitTestComponent = defineComponent({
   name: 'XRHitTest',
 
-  onAdd: (entity) => {
-    return hookstate({
-      hitTestSource: null as XRHitTestSource | null,
+  onInit: (entity) => {
+    return {
+      hitTestSource: null! as XRHitTestSource,
       hitTestResult: null as XRHitTestResult | null
-    })
+    }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (json.hitTestSource) component.hitTestSource.set(json.hitTestSource)
+  onSet: (entity, component, json) => {
+    if (json?.hitTestSource) component.hitTestSource.set(json.hitTestSource)
   },
 
   toJSON: () => {
     return null! as {
-      hitTestSource: XRHitTestSource | null
+      hitTestSource: XRHitTestSource
     }
   }
 })
@@ -102,14 +102,14 @@ export const XRHitTestComponent = defineComponent({
 export const XRAnchorComponent = defineComponent({
   name: 'XRAnchor',
 
-  onAdd: (entity) => {
-    return hookstate({
+  onInit: (entity) => {
+    return {
       anchor: null! as XRAnchor
-    })
+    }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (json.anchor) component.anchor.set(json.anchor)
+  onSet: (entity, component, json) => {
+    if (json?.anchor) component.anchor.set(json.anchor)
   },
 
   onRemove: (entity, component) => {
@@ -125,14 +125,14 @@ export const XRAnchorComponent = defineComponent({
 
 export const InputSourceComponent = defineComponent({
   name: 'XRControllerComponent',
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       inputSource: null! as XRInputSource
     }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (json.inputSource) component.inputSource = json.inputSource as XRInputSource
+  onSet: (entity, component, json) => {
+    if (json?.inputSource) component.inputSource.set(json.inputSource as XRInputSource)
   },
 
   toJSON: () => {
@@ -144,7 +144,7 @@ export const InputSourceComponent = defineComponent({
 
 export const XRControllerComponent = defineComponent({
   name: 'XRControllerComponent',
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       targetRaySpace: null! as XRSpace,
       handedness: null! as XRHandedness,
@@ -153,9 +153,9 @@ export const XRControllerComponent = defineComponent({
     }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (json.targetRaySpace) component.targetRaySpace = json.targetRaySpace as XRSpace
-    if (json.handedness) component.handedness = json.handedness as XRHandedness
+  onSet: (entity, component, json) => {
+    if (json?.targetRaySpace) component.targetRaySpace.set(json.targetRaySpace)
+    if (json?.handedness) component.handedness.set(json.handedness)
   },
 
   toJSON: () => {
@@ -177,14 +177,14 @@ export type PointerObject = Object3D & {
 export const XRPointerComponent = defineComponent({
   name: 'XRPointer',
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       pointer: null! as PointerObject
     }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (json.pointer) component.pointer = json.pointer as PointerObject
+  onSet: (entity, component, json) => {
+    if (json?.pointer) component.pointer.set(json.pointer as PointerObject)
   },
 
   toJSON: () => {
@@ -196,16 +196,16 @@ export const XRPointerComponent = defineComponent({
 
 export const XRControllerGripComponent = defineComponent({
   name: 'XRControllerGrip',
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       gripSpace: null! as XRSpace,
       handedness: null! as XRHandedness
     }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (json.gripSpace) component.gripSpace = json.gripSpace as XRSpace
-    if (json.handedness) component.handedness = json.handedness as XRHandedness
+  onSet: (entity, component, json) => {
+    if (json?.gripSpace) component.gripSpace.set(json.gripSpace)
+    if (json?.handedness) component.handedness.set(json.handedness)
   },
 
   toJSON: () => {
@@ -218,7 +218,7 @@ export const XRControllerGripComponent = defineComponent({
 
 export const XRHandComponent = defineComponent({
   name: 'XRHand',
-  onAdd: (entity) => {
+  onInit: (entity) => {
     const group = new Group()
     addObjectToGroup(entity, group)
     return {
@@ -230,9 +230,9 @@ export const XRHandComponent = defineComponent({
     }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (json.hand) component.hand = json.hand as XRHand
-    if (json.handedness) component.handedness = json.handedness as XRHandedness
+  onSet: (entity, component, json) => {
+    if (json?.hand) component.hand.set(json.hand)
+    if (json?.handedness) component.handedness.set(json.handedness)
   },
 
   toJSON: () => {

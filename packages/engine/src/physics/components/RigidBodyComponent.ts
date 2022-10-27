@@ -27,7 +27,7 @@ export const RigidBodyComponent = defineComponent<RigidBodyComponentType, typeof
   name: 'RigidBodyComponent',
   schema: SCHEMA,
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       body: null!,
       previousPosition: new Vector3(),
@@ -37,7 +37,7 @@ export const RigidBodyComponent = defineComponent<RigidBodyComponentType, typeof
     }
   },
 
-  onUpdate: (entity, component, json) => {
+  onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.body === 'object') component.body.set(json.body as RigidBody)
   },

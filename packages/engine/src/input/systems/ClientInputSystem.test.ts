@@ -5,7 +5,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { InputComponent } from '../components/InputComponent'
@@ -109,7 +109,7 @@ describe('ClientInputSystem Unit Tests', () => {
       const inputComponent = addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
-      })
+      }) as any as ComponentType<typeof InputComponent>
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'
@@ -141,7 +141,7 @@ describe('ClientInputSystem Unit Tests', () => {
       const inputComponent = addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
-      })
+      }) as any as ComponentType<typeof InputComponent>
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'
@@ -179,7 +179,7 @@ describe('ClientInputSystem Unit Tests', () => {
       const inputComponent = addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
-      })
+      }) as any as ComponentType<typeof InputComponent>
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'
@@ -206,7 +206,7 @@ describe('ClientInputSystem Unit Tests', () => {
       const inputComponent = addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
-      })
+      }) as any as ComponentType<typeof InputComponent>
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'
@@ -233,7 +233,7 @@ describe('ClientInputSystem Unit Tests', () => {
       const inputComponent = addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
-      })
+      }) as any as ComponentType<typeof InputComponent>
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'

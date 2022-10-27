@@ -85,7 +85,7 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
     previousRotation: proxifyQuaternion(RigidBodyComponent.previousRotation, entity),
     previousLinearVelocity: proxifyVector3(RigidBodyComponent.previousLinearVelocity, entity),
     previousAngularVelocity: proxifyVector3(RigidBodyComponent.previousAngularVelocity, entity)
-  })
+  }).value
 
   rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
   rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)

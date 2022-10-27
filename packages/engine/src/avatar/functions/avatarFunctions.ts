@@ -13,6 +13,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -180,7 +181,7 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const controllerComponent = getComponent(entity, AvatarControllerComponent)
+  const controllerComponent = getOptionalComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
   // Mixer has some issues when binding with the target skeleton

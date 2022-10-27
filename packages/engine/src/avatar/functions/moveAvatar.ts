@@ -11,6 +11,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
+  ComponentType,
   getComponent,
   hasComponent,
   removeComponent,
@@ -68,7 +69,7 @@ const avatarStepRaycast = {
  * @param entity
  */
 export const updateAvatarControllerOnGround = (entity: Entity) => {
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
 
   /**
    * Use physics contacts to detemine if avatar is grounded
@@ -143,7 +144,7 @@ export const avatarApplyRotation = (entity: Entity) => {
  * Avatar movement via velocity spring and collider velocity
  */
 export const avatarApplyVelocity = (entity, forwardOrientation) => {
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
   const isInVR = getControlMode() === 'attached'

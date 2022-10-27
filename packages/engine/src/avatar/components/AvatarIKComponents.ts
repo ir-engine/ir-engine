@@ -1,4 +1,4 @@
-import { Object3D } from 'three'
+import { Bone, Object3D } from 'three'
 
 import { ParityValue } from '../../common/enums/ParityValue'
 import { Entity } from '../../ecs/classes/Entity'
@@ -73,17 +73,20 @@ export const AvatarIKTargetsComponent = createMappedComponent<AvatarIKTargetsTyp
 export const getHandTarget = (entity: Entity, hand: ParityValue = ParityValue.NONE): Object3D | null => {
   switch (hand) {
     case ParityValue.LEFT:
-      if (hasComponent(entity, AvatarLeftHandIKComponent)) return getComponent(entity, AvatarLeftHandIKComponent).target
-      if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.LeftHand
+      if (hasComponent(entity, AvatarLeftHandIKComponent))
+        return getComponent(entity, AvatarLeftHandIKComponent).target as Object3D
+      if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.LeftHand as Bone
       break
     case ParityValue.RIGHT:
       if (hasComponent(entity, AvatarRightHandIKComponent))
-        return getComponent(entity, AvatarRightHandIKComponent).target
-      if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.RightHand
+        return getComponent(entity, AvatarRightHandIKComponent).target as Object3D
+      if (hasComponent(entity, AvatarRigComponent))
+        return getComponent(entity, AvatarRigComponent).rig.RightHand as Bone
       break
     case ParityValue.NONE:
-      if (hasComponent(entity, AvatarHeadIKComponent)) return getComponent(entity, AvatarHeadIKComponent).target
-      if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.Head
+      if (hasComponent(entity, AvatarHeadIKComponent))
+        return getComponent(entity, AvatarHeadIKComponent).target as Object3D
+      if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.Head as Bone
       break
   }
   return null

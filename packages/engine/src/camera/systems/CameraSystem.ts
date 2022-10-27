@@ -17,6 +17,7 @@ import {
   addComponent,
   defineQuery,
   getComponent,
+  getOptionalComponent,
   removeComponent,
   removeQuery,
   setComponent
@@ -83,7 +84,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   if (!cameraEntity) return
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const target = getComponent(cameraEntity, TargetCameraRotationComponent)
+  const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent)
   if (!target) return
 
   const epsilon = 0.001
@@ -252,7 +253,7 @@ export function cameraSpawnReceptor(
 
   console.log('Camera Spawn Receptor Call', entity)
 
-  addComponent(entity, CameraComponent, null)
+  setComponent(entity, CameraComponent)
 }
 
 export default async function CameraSystem(world: World) {

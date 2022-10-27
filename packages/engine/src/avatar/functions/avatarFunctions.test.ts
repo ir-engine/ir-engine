@@ -6,7 +6,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -61,7 +61,9 @@ describe('avatarFunctions Unit', async () => {
   describe('rigAvatarModel', () => {
     it('should add rig to skeleton', async () => {
       const entity = createEntity()
-      const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any)
+      const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any) as any as ComponentType<
+        typeof AvatarAnimationComponent
+      >
       const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
       AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh()
       rigAvatarModel(entity)(model)

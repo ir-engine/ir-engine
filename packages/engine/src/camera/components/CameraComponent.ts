@@ -10,10 +10,15 @@ export const CameraComponent = defineComponent({
       camera: new PerspectiveCamera(60, 1, 0.001, 10000) as PerspectiveCamera | OrthographicCamera
     }
   },
-  onSet: (entity, component, json?: void) => {
+  onSet: (entity, component, json: undefined) => {
     addObjectToGroup(entity, component.camera.value)
   },
   onRemove: (entity, component) => {
     removeObjectFromGroup(entity, component.camera.value)
+  },
+  toJSON: () => {
+    return null! as {
+      camera: PerspectiveCamera | OrthographicCamera
+    }
   }
 })

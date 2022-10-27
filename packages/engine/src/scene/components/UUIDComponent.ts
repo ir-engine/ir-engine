@@ -6,9 +6,9 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',
 
-  onAdd: () => '',
+  onInit: () => '',
 
-  onUpdate: (entity, component, uuid: string) => {
+  onSet: (entity, component, uuid: string) => {
     component.set(uuid)
     UUIDComponent.entitiesByUUID[uuid].set(entity)
   },

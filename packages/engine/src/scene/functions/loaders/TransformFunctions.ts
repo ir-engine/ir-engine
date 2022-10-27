@@ -23,7 +23,7 @@ export const deserializeTransform: ComponentDeserializeFunction = (entity: Entit
   const props = parseTransformProperties(data)
   const component = hasComponent(entity, TransformComponent)
     ? getComponent(entity, TransformComponent)
-    : setTransformComponent(entity)
+    : setTransformComponent(entity).value
 
   /** all scene entities are assumpted to have transform components already */
   component.position.copy(props?.position ?? new Vector3())

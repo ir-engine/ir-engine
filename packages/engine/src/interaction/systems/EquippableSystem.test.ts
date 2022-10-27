@@ -6,7 +6,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { createAvatar } from '../../avatar/functions/createAvatar'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -38,7 +38,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
       ownerId: Engine.instance.userId,
       authorityUserId: Engine.instance.userId,
       networkId: 0 as NetworkId
-    })
+    }) as any as ComponentType<typeof NetworkObjectComponent>
 
     createAvatar(
       WorldNetworkAction.spawnAvatar({
@@ -52,10 +52,10 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const equippedComponent = addComponent(item, EquippedComponent, {
       equipperEntity: player,
       attachmentPoint: EquippableAttachmentPoint.HEAD
-    })
+    }) as any as ComponentType<typeof EquippedComponent>
     addComponent(player, EquipperComponent, { equippedEntity: item })
 
-    const equippableTransform = setTransformComponent(item)
+    const equippableTransform = setTransformComponent(item) as any as ComponentType<typeof TransformComponent>
     const attachmentPoint = equippedComponent.attachmentPoint
     const target = getHandTarget(item, getParity(attachmentPoint))!
     const position = target.getWorldPosition(new Vector3())

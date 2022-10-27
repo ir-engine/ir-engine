@@ -7,6 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import {
   addComponent,
+  ComponentType,
   getComponent,
   hasComponent,
   removeComponent,
@@ -14,7 +15,11 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
-import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -44,7 +49,7 @@ const receiveSpawnObject = (
   if (action.position) position.copy(action.position)
   if (action.rotation) rotation.copy(action.rotation)
 
-  const transform = setTransformComponent(entity, position, rotation)
+  const transform = setTransformComponent(entity, position, rotation) as any as ComponentType<typeof TransformComponent>
 
   // set cached action refs to the new components so they stay up to date with future movements
   action.position = transform.position

@@ -1,26 +1,39 @@
 import { Color } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { EnvMapBakeComponentType } from './EnvMapBakeComponent'
 
-export type EnvmapComponentType = {
-  type: typeof EnvMapSourceType[keyof typeof EnvMapSourceType]
-  envMapTextureType: typeof EnvMapTextureType[keyof typeof EnvMapTextureType]
-  envMapSourceColor: Color
-  envMapSourceURL: string
-  envMapIntensity: number
-  envMapBake: EnvMapBakeComponentType
-}
+export const EnvmapComponent = defineComponent({
+  name: 'EnvmapComponent',
+  onInit: (entity) => {
+    return {
+      type: EnvMapSourceType.None as typeof EnvMapSourceType[keyof typeof EnvMapSourceType],
+      envMapTextureType: EnvMapTextureType.Equirectangular as typeof EnvMapTextureType[keyof typeof EnvMapTextureType],
+      envMapSourceColor: new Color(0xfff) as Color,
+      envMapSourceURL: '',
+      envMapIntensity: 1
+    }
+  },
 
-export const EnvmapComponent = createMappedComponent<EnvmapComponentType>('EnvmapComponent')
+  onSet: (entity, component, json) => {
+    if (typeof json?.type === 'string') component.type.set(json.type)
+    if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
+    if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(json.envMapSourceColor)
+    if (typeof json?.envMapSourceURL === 'string') component.envMapSourceURL.set(json.envMapSourceURL)
+    if (typeof json?.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      type: component.type.value,
+      envMapTextureType: component.envMapTextureType.value,
+      envMapSourceColor: component.envMapSourceColor.value,
+      envMapSourceURL: component.envMapSourceURL.value,
+      envMapIntensity: component.envMapIntensity.value
+    }
+  },
+
+  errors: ['MISSING_FILE']
+})
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
-export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
-  type: EnvMapSourceType.None,
-  envMapTextureType: EnvMapTextureType.Equirectangular,
-  envMapSourceColor: 0xfff,
-  envMapSourceURL: '',
-  envMapIntensity: 1,
-  envMapBake: {}
-}

@@ -12,6 +12,7 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import {
   addComponent,
+  ComponentType,
   defineQuery,
   getComponent,
   hasComponent,
@@ -112,7 +113,7 @@ export default async function MountPointSystem(world: World) {
         const sitting = addComponent(avatarEntity, SittingComponent, {
           mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
-        })
+        }) as any as ComponentType<typeof SittingComponent>
         getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
 
         const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)

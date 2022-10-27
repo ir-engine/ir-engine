@@ -1,4 +1,5 @@
 import * as bitECS from 'bitecs'
+import React from 'react'
 
 import { createReactor, ReactorRoot } from '@xrengine/hyperflux'
 

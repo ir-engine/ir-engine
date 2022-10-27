@@ -44,7 +44,7 @@ export default async function MediaControlSystem(world: World) {
 
   const execute = () => {
     for (const entity of mediaQuery.enter(world)) {
-      if (!getComponent(entity, MediaComponent).controls.value) continue
+      if (!getComponent(entity, MediaComponent).controls) continue
       addInteractableUI(entity, createMediaControlsUI(entity), update)
       const transition = createTransitionState(0.25)
       transition.setState('OUT')

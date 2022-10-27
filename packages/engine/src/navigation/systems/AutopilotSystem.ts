@@ -10,6 +10,7 @@ import {
   addComponent,
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeQuery
@@ -80,7 +81,7 @@ export default async function AutopilotSystem(world: World) {
   const execute = () => {
     for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
-      const overrideComponent = getComponent(entity, AutoPilotOverrideComponent)
+      const overrideComponent = getOptionalComponent(entity, AutoPilotOverrideComponent)
       raycaster.setFromCamera(coords, Engine.instance.currentWorld.camera)
 
       const raycasterResults: Intersection[] = []
