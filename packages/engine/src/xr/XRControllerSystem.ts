@@ -34,7 +34,6 @@ import { GamepadAxis } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { GamepadMapping } from '../input/functions/GamepadInput'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { setVelocityComponent, VelocityComponent } from '../physics/components/VelocityComponent'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
@@ -135,19 +134,9 @@ const updateInputSource = (entity: Entity, space: XRSpace, referenceSpace: XRRef
   const pose = Engine.instance.xrFrame!.getPose(space, referenceSpace)
   setVisibleComponent(entity, !!pose)
   if (!pose) return
-
   const transform = getComponent(entity, LocalTransformComponent)
-  const velocity = getComponent(entity, VelocityComponent)
   transform.position.copy(pose.transform.position as any)
   transform.rotation.copy(pose.transform.orientation as any)
-  // transform.matrix.fromArray(pose.transform.matrix)
-  // transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-
-  // @ts-ignore
-  if (pose.linearVelocity) velocity.linear.copy(pose.linearVelocity)
-
-  // @ts-ignore
-  if (pose.angularVelocity) velocity.angular.copy(pose.angularVelocity)
 }
 
 export function updateGamepadInput(source: XRInputSource) {
@@ -222,7 +211,6 @@ const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpac
     hand: null
   })
   setComponent(entity, InputSourceComponent, { inputSource })
-  setVelocityComponent(entity)
   xrInputSourcesMap.set(inputSource, entity)!
   const targetRayHelper = new AxesHelper(1)
   setObjectLayers(targetRayHelper, ObjectLayers.PhysicsHelper)
@@ -239,7 +227,6 @@ const addGripInputSource = (inputSource: XRInputSource, gripSpace: XRSpace) => {
   const gripEntity = createEntity()
   setComponent(gripEntity, XRControllerGripComponent, { gripSpace, handedness: inputSource.handedness })
   setComponent(gripEntity, InputSourceComponent, { inputSource })
-  setVelocityComponent(gripEntity)
   const world = Engine.instance.currentWorld
   setLocalTransformComponent(gripEntity, world.originEntity)
   setComponent(gripEntity, NameComponent, { name: `XR Grip${inputSource.handedness}` })
@@ -254,7 +241,6 @@ const addHandInputSource = (inputSource: XRInputSource, hand: XRHand) => {
   const handEntity = createEntity()
   setComponent(handEntity, XRHandComponent, { hand, handedness: inputSource.handedness })
   setComponent(handEntity, InputSourceComponent, { inputSource })
-  setVelocityComponent(handEntity)
   setComponent(handEntity, NameComponent, `XR Hand ${inputSource.handedness}`)
   // initializeHandModel(handEntity)
   const world = Engine.instance.currentWorld

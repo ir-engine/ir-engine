@@ -18,7 +18,6 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -70,8 +69,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   const world = Engine.instance.currentWorld
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
-  const velocity = getOptionalComponent(entity, VelocityComponent)
+  const localTransform = getComponent(entity, LocalTransformComponent)
 
   // if transforms have been changed outside of the transform system, perform physics teleportation on the rigidbody
   if (world.dirtyTransforms.has(entity) || (localTransform && world.dirtyTransforms.has(localTransform.parentEntity))) {
@@ -92,28 +90,18 @@ const updateTransformFromRigidbody = (entity: Entity) => {
     return
   }
 
-  /*
-  Interpolate the remaining time after the fixed pipeline is complete.
-  See https://gafferongames.com/post/fix_your_timestep/#the-final-touch
-  */
-  const accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
-  const alpha = accumulator / getState(EngineState).fixedDeltaSeconds.value
-
-  const bodyPosition = rigidBody.body.translation() as Vector3
-  const bodyRotation = rigidBody.body.rotation() as Quaternion
-
   if (rigidBody.body.isSleeping()) {
-    transform.position.copy(bodyPosition)
-    transform.rotation.copy(bodyRotation)
+    transform.position.copy(rigidBody.position)
+    transform.rotation.copy(rigidBody.rotation)
   } else {
-    transform.position.copy(rigidBody.previousPosition).lerp(scratchVector3.copy(bodyPosition), alpha)
-    transform.rotation.copy(rigidBody.previousRotation).slerp(scratchQuaternion.copy(bodyRotation), alpha)
-    velocity?.linear
-      .copy(rigidBody.previousLinearVelocity)
-      .lerp(scratchVector3.copy(rigidBody.body.linvel() as Vector3), alpha)
-    velocity?.angular
-      .copy(rigidBody.previousAngularVelocity)
-      .lerp(scratchVector3.copy(rigidBody.body.angvel() as Vector3), alpha)
+    /*
+    Interpolate the remaining time after the fixed pipeline is complete.
+    See https://gafferongames.com/post/fix_your_timestep/#the-final-touch
+    */
+    const accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
+    const alpha = accumulator / getState(EngineState).fixedDeltaSeconds.value
+    transform.position.copy(rigidBody.previousPosition).lerp(rigidBody.position, alpha)
+    transform.rotation.copy(rigidBody.previousRotation).slerp(rigidBody.rotation, alpha)
   }
 
   transform.matrix.compose(transform.position, transform.rotation, transform.scale)

@@ -26,8 +26,8 @@ const Server = () => {
   let displayLogs = serverLogs.podName.value ? true : false
 
   useEffect(() => {
-    ServerInfoService.fetchServerInfo()
-  }, [])
+    if (serverInfo.updateNeeded.value) ServerInfoService.fetchServerInfo()
+  }, [serverInfo.updateNeeded.value])
 
   if (!serverInfo.value.fetched) {
     return (
@@ -56,13 +56,11 @@ const Server = () => {
             <ServerTable selectedCard={selectedCard} />
           </ReflexElement>
 
-          <>
-            <ReflexSplitter />
+          <ReflexSplitter />
 
-            <ReflexElement flex={0.55} style={{ overflow: 'hidden' }}>
-              <ServerLogs />
-            </ReflexElement>
-          </>
+          <ReflexElement flex={0.55} style={{ overflow: 'hidden' }}>
+            <ServerLogs />
+          </ReflexElement>
         </ReflexContainer>
       )}
     </Box>

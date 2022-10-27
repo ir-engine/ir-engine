@@ -11,7 +11,7 @@ import { createEngine } from '../../initializeEngine'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { Physics } from '../../physics/classes/Physics'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { createAvatar } from './createAvatar'
 import { moveAvatarWithVelocity } from './moveAvatar'
@@ -41,14 +41,14 @@ describe('moveAvatar function tests', () => {
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
-    const velocity = getComponent(entity, VelocityComponent)
+    const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
     const avatar = getComponent(entity, AvatarControllerComponent)
 
     avatar.localMovementDirection.setZ(-1)
 
     // velocity starts at 0
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z, 0)
+    strictEqual(velocity.x, 0)
+    strictEqual(velocity.z, 0)
 
     /* run */
     moveAvatarWithVelocity(entity)
@@ -73,11 +73,11 @@ describe('moveAvatar function tests', () => {
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
-    const velocity = getComponent(entity, VelocityComponent)
+    const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z, 0)
+    strictEqual(velocity.x, 0)
+    strictEqual(velocity.z, 0)
 
     /* run */
     moveAvatarWithVelocity(entity)
@@ -107,11 +107,11 @@ describe('moveAvatar function tests', () => {
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
-    const velocity = getComponent(entity, VelocityComponent)
+    const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z, 0)
+    strictEqual(velocity.x, 0)
+    strictEqual(velocity.z, 0)
 
     /* run */
     moveAvatarWithVelocity(entity)
@@ -138,11 +138,11 @@ describe('moveAvatar function tests', () => {
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
-    const velocity = getComponent(entity, VelocityComponent)
+    const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z, 0)
+    strictEqual(velocity.x, 0)
+    strictEqual(velocity.z, 0)
 
     /* run */
     moveAvatarWithVelocity(entity)

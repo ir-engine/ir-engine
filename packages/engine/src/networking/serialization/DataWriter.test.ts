@@ -14,7 +14,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
@@ -170,21 +170,21 @@ describe('DataWriter', () => {
     const entity = 42 as Entity
 
     const [x, y, z] = [1.333, 2.333, 3.333]
-    VelocityComponent.linear.x[entity] = x
-    VelocityComponent.linear.y[entity] = y
-    VelocityComponent.linear.z[entity] = z
+    RigidBodyComponent.linearVelocity.x[entity] = x
+    RigidBodyComponent.linearVelocity.y[entity] = y
+    RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(VelocityComponent.linear)(writeView, entity)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
-    readCompressedVector3(VelocityComponent.linear)(readView, entity)
+    readCompressedVector3(RigidBodyComponent.linearVelocity)(readView, entity)
 
     strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
 
     // Round values and compare
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.x[entity], 1), roundNumberToPlaces(x, 1))
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.y[entity], 1), roundNumberToPlaces(y, 1))
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.z[entity], 1), roundNumberToPlaces(z, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.y[entity], 1), roundNumberToPlaces(y, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.z[entity], 1), roundNumberToPlaces(z, 1))
   })
 
   it('should writeTransform', () => {

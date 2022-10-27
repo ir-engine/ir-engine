@@ -20,7 +20,6 @@ import {
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -135,7 +134,7 @@ export const avatarApplyRotation = (entity: Entity) => {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       rotateBodyTowardsCameraDirection(entity)
     } else {
-      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
+      rotateBodyTowardsVector(entity, getComponent(entity, RigidBodyComponent).linearVelocity)
     }
   }
 }

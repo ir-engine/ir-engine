@@ -31,7 +31,6 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { VelocityComponent } from '../components/VelocityComponent'
 import { getInteractionGroups } from './getInteractionGroups'
 
 /**

@@ -10,7 +10,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
@@ -221,12 +221,15 @@ export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, 
 }
 
 export const writePosition = writeVector3(TransformComponent.position)
-export const writeLinearVelocity = writeVector3(VelocityComponent.linear)
-export const writeAngularVelocity = writeVector3(VelocityComponent.angular)
 export const writeRotation = writeCompressedRotation(TransformComponent.rotation)
 
+export const writeBodyPosition = writeVector3(RigidBodyComponent.position)
+export const writeBodyRotation = writeVector3(RigidBodyComponent.rotation)
+export const writeBodyLinearVelocity = writeVector3(RigidBodyComponent.linearVelocity)
+export const writeBodyAngularVelocity = writeVector3(RigidBodyComponent.angularVelocity)
+
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, TransformComponent)) return
+  if (!hasComponent(entity, TransformComponent) || hasComponent(entity, RigidBodyComponent)) return
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)
@@ -239,16 +242,18 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writeVelocity = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, VelocityComponent)) return
+export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
+  if (!hasComponent(entity, RigidBodyComponent)) return
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyPosition(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyRotation(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
@@ -372,7 +377,7 @@ export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity)
   let b = 0
 
   changeMask |= writeTransform(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeVelocity(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeRigidBody(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRHead(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRLeftHand(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRRightHand(v, entity) ? 1 << b++ : b++ && 0

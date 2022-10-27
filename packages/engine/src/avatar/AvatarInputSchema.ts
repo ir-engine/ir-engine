@@ -280,6 +280,8 @@ export const setCameraRotation: InputBehaviorType = (
     typeof FollowCameraComponent
   >
 
+  if (!followComponent) return
+
   switch (inputKey) {
     case BaseInput.CAMERA_ROTATE_LEFT:
       followComponent.theta += 100 * delta
