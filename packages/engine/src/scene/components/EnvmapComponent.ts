@@ -18,7 +18,7 @@ export const EnvmapComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (typeof json?.type === 'string') component.type.set(json.type)
     if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
-    if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(json.envMapSourceColor)
+    if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.value.set(json.envMapSourceColor)
     if (typeof json?.envMapSourceURL === 'string') component.envMapSourceURL.set(json.envMapSourceURL)
     if (typeof json?.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
   },

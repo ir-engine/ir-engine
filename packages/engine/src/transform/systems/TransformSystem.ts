@@ -127,7 +127,8 @@ const updateTransformFromRigidbody = (entity: Entity) => {
 }
 
 export const updateEntityTransform = (entity: Entity, world = Engine.instance.currentWorld) => {
-  const transform = getComponent(entity, TransformComponent)
+  const transform = getOptionalComponent(entity, TransformComponent)
+  if (!transform) return
   const computedTransform = getOptionalComponent(entity, ComputedTransformComponent)
   const group = getOptionalComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
 

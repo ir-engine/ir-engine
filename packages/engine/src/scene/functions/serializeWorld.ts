@@ -5,7 +5,12 @@ import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getAllComponents, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  getAllComponents,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
@@ -13,7 +18,7 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 
 export const serializeEntity = (entity: Entity, world = Engine.instance.currentWorld) => {
-  const ignoreComponents = getComponent(entity, GLTFLoadedComponent)
+  const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
   const jsonComponents = [] as ComponentJson[]
   const components = getAllComponents(entity)
@@ -26,7 +31,7 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
       world.sceneLoadingRegistry.has(sceneComponentID)
     ) {
       const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
-      const data = serialize ? serialize(entity) : getComponent(entity, component)
+      const data = serialize ? serialize(entity) : getOptionalComponent(entity, component)
       if (data) {
         jsonComponents.push({
           name: sceneComponentID,
@@ -56,7 +61,7 @@ export const serializeWorld = (
   iterateEntityNode(
     traverseNode,
     (node, index) => {
-      const ignoreComponents = getComponent(node.entity, GLTFLoadedComponent)
+      const ignoreComponents = getOptionalComponent(node.entity, GLTFLoadedComponent)
 
       if (ignoreComponents?.includes('entity')) return
 
@@ -80,7 +85,7 @@ export const serializeWorld = (
       if (hasComponent(node.entity, AssetComponent)) {
         const asset = getComponent(node.entity, AssetComponent)
         if (asset.loaded === LoadState.LOADED) {
-          const loaded = getComponent(node.entity, AssetLoadedComponent)
+          const loaded = getOptionalComponent(node.entity, AssetLoadedComponent)
           loaded?.roots?.forEach((root) => loadedAssets.add(root))
         }
       }

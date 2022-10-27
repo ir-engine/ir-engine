@@ -32,7 +32,7 @@ export const ModelComponent = defineComponent({
   },
 
   toJSON: (entity, component) => {
-    const model = component.value
+    const model = component
     return {
       src: model.src,
       generateBVH: model.generateBVH,
