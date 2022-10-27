@@ -34,7 +34,8 @@ import { ControlText } from './controlText/ControlText'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
-import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
+import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
+import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
@@ -278,7 +279,7 @@ const EditorContainer = () => {
         const blob = await takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
-            <SaveNewProjectDialog
+            <SaveNewSceneDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
               initialName={Engine.instance.currentWorld.scene.name}
               onConfirm={resolve}
@@ -388,6 +389,16 @@ const EditorContainer = () => {
       }
       return
     }
+
+    const result: { generateThumbnails: boolean } = (await new Promise((resolve) => {
+      setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+    })) as any
+
+    if (!result) {
+      setDialogComponent(null)
+      return
+    }
+
     const abortController = new AbortController()
 
     setDialogComponent(
@@ -404,12 +415,16 @@ const EditorContainer = () => {
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
 
-    const blob = await takeScreenshot(512, 320)
-
     try {
       if (projectName.value) {
-        await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
-        await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
+        if (result.generateThumbnails) {
+          const blob = await takeScreenshot(512, 320)
+
+          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
+          await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
+        } else {
+          await saveScene(projectName.value, sceneName.value, null, abortController.signal)
+        }
       }
 
       dispatchAction(EditorAction.sceneModified({ modified: false }))

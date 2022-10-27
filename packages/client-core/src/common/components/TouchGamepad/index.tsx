@@ -33,7 +33,7 @@ const normalizeValues = (val) => {
 const handleMove = (e) => {
   const event = new CustomEvent('touchstickmove', {
     detail: {
-      stick: GamepadAxis.LThumbstick,
+      stick: GamepadAxis.RThumbstick,
       value: { x: normalizeValues(-e.x), y: normalizeValues(e.y), angleRad: 0 }
     }
   })
@@ -42,7 +42,7 @@ const handleMove = (e) => {
 
 const handleStop = () => {
   const event = new CustomEvent('touchstickmove', {
-    detail: { stick: GamepadAxis.LThumbstick, value: { x: 0, y: 0, angleRad: 0 } }
+    detail: { stick: GamepadAxis.RThumbstick, value: { x: 0, y: 0, angleRad: 0 } }
   })
   document.dispatchEvent(event)
 }

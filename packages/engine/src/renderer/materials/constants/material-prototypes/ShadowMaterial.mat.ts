@@ -1,7 +1,8 @@
 import { Color, ShadowMaterial as Shadow } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { BoolArg, ColorArg, ObjectArg } from '../DefaultArgs'
+import { SourceType } from '../../components/MaterialSource'
+import { BoolArg, ColorArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   color: { ...ColorArg, default: new Color('#000') },
@@ -13,5 +14,5 @@ export const ShadowMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'ShadowMaterial',
   baseMaterial: Shadow,
   arguments: DefaultArgs,
-  src: { type: 'Built In', path: '' }
+  src: { type: SourceType.BUILT_IN, path: '' }
 }

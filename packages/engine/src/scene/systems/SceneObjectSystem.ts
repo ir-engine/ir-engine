@@ -29,6 +29,8 @@ import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
+import FogSystem from './FogSystem'
+import ShadowSystem from './ShadowSystem'
 
 type BPCEMProps = {
   bakeScale: Vector3
@@ -152,8 +154,8 @@ export default async function SceneObjectSystem(world: World) {
     removeQuery(world, updatableQuery)
   }
 
-  const subsystems = [() => import('./FogSystem')]
-  if (isClient) subsystems.push(() => import('./ShadowSystem'))
+  const subsystems = [() => Promise.resolve({ default: FogSystem })]
+  if (isClient) subsystems.push(() => Promise.resolve({ default: ShadowSystem }))
 
   return {
     execute,

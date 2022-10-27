@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import {
@@ -24,20 +25,15 @@ import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
-import {
-  LocalStateServiceReceptor,
-  StoredLocalAction,
-  StoredLocalStoreService
-} from '@xrengine/client-core/src/util/StoredLocalState'
-import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
+import $404 from '../pages/404'
+import $503 from '../pages/503'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
 const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))
-const $503 = React.lazy(() => import('../pages/503'))
-const $404 = React.lazy(() => import('../pages/404'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
@@ -48,12 +44,12 @@ function RouterComp() {
   const [routesReady, setRoutesReady] = useState(false)
   const routerState = useHookstate(getState(RouterState))
   const route = useRouter()
+  const { t } = useTranslation()
 
   InviteService.useAPIListeners()
 
   useEffect(() => {
     addActionReceptor(RouterServiceReceptor)
-    addActionReceptor(LocalStateServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
@@ -66,9 +62,6 @@ function RouterComp() {
     addActionReceptor(ProjectServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
-
-    dispatchAction(StoredLocalAction.restoreLocalData({}))
-    StoredLocalStoreService.fetchLocalStoredState()
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
@@ -84,7 +77,6 @@ function RouterComp() {
 
     return () => {
       removeActionReceptor(RouterServiceReceptor)
-      removeActionReceptor(LocalStateServiceReceptor)
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
@@ -120,12 +112,12 @@ function RouterComp() {
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
-    return <LoadingCircle />
+    return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle />}>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
         <Switch>
           {customRoutes.map((route, i) => (
             <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />

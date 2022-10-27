@@ -3,6 +3,8 @@ import matches from 'ts-matches'
 import { defineState, getState } from '@xrengine/hyperflux'
 import { defineAction } from '@xrengine/hyperflux'
 
+import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
+import { isHMD } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { NetworkTopics } from '../networking/classes/Network'
 import { DepthDataTexture } from './DepthDataTexture'
@@ -27,6 +29,7 @@ export const XRState = defineState({
      * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
     avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
+    avatarHeadLock: 'auto' as 'auto' | true | false,
     /** origin is always 0,0,0 */
     originReferenceSpace: null as XRReferenceSpace | null,
     viewerReferenceSpace: null as XRReferenceSpace | null,
@@ -70,13 +73,40 @@ export class XRAction {
     type: 'xre.xr.changePlacementMode',
     active: matches.boolean
   })
+
+  // todo, support more haptic formats other than just vibrating controllers
+  static vibrateController = defineAction({
+    type: 'xre.xr.vibrateController',
+    handedness: matches.literals('left', 'right'),
+    value: matches.number,
+    duration: matches.number
+  })
 }
 
 export const getControlMode = () => {
   const { avatarControlMode, sessionMode, sessionActive } = getState(XRState).value
   if (!sessionActive) return 'none'
   if (avatarControlMode === 'auto') {
-    return sessionMode === 'immersive-vr' || sessionMode === 'inline' ? 'attached' : 'detached'
+    return sessionMode === 'immersive-vr' || sessionMode === 'inline' || isHMD ? 'attached' : 'detached'
   }
   return avatarControlMode
+}
+
+export const getAvatarHeadLock = () => {
+  const { avatarHeadLock } = getState(XRState)
+  return avatarHeadLock.value === 'auto' ? true : avatarHeadLock.value
+}
+
+/**
+ * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
+ * @param {boolean} offhand specifies to return the non-preferred hand instead
+ * @returns {Entity}
+ */
+export const getPreferredControllerEntity = (offhand = false) => {
+  const xrState = getState(XRState)
+  if (!xrState.sessionActive.value) return null
+  const avatarInputSettings = getState(AvatarInputSettingsState)
+  if (avatarInputSettings.preferredHand.value === 'left')
+    return offhand ? xrState.rightControllerEntity.value : xrState.leftControllerEntity.value
+  return offhand ? xrState.leftControllerEntity.value : xrState.rightControllerEntity.value
 }

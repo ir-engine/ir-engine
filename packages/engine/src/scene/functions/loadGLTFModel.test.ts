@@ -24,14 +24,14 @@ describe('loadGLTFModel', () => {
   it('loadGLTFModel', async () => {
     const world = Engine.instance.currentWorld
 
-    const mockComponentData = { src: 'https://mock.site/asset.glb' } as any
+    const mockComponentData = { src: '' } as any
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
 
     const entity = createEntity()
+    addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
     const modelComponent = addComponent(entity, ModelComponent, {
       ...mockComponentData
     })
-    addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
     const entityName = 'entity name'
     const number = Math.random()
     const mesh = new Scene()

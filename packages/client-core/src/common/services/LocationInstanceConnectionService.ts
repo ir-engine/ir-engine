@@ -29,7 +29,7 @@ type InstanceState = {
 }
 
 //State
-const LocationInstanceState = defineState({
+export const LocationInstanceState = defineState({
   name: 'LocationInstanceState',
   initial: () => ({
     instances: {} as { [id: string]: InstanceState }
@@ -134,15 +134,58 @@ export const LocationInstanceConnectionService = {
       dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId ?? '' }))
     }
   },
+  provisionExistingServer: async (locationId: string, instanceId: string, sceneId: string) => {
+    logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
+    const token = accessAuthState().authUser.accessToken.value
+    const instance = (await API.instance.client.service('instance').find({
+      query: {
+        id: instanceId,
+        ended: false
+      }
+    })) as Paginated<Instance>
+    if (instance.total === 0) {
+      const parsed = new URL(window.location.href)
+      const query = parsed.searchParams
+      query.delete('instanceId')
+      parsed.search = query.toString()
+      if (typeof history.pushState !== 'undefined') {
+        window.history.replaceState({}, '', parsed.toString())
+      }
+      return
+    }
+    const provisionResult = await API.instance.client.service('instance-provision').find({
+      query: {
+        locationId,
+        instanceId,
+        sceneId,
+        token
+      }
+    })
+    if (provisionResult.ipAddress && provisionResult.port) {
+      dispatchAction(
+        LocationInstanceConnectionAction.serverProvisioned({
+          instanceId: provisionResult.id as UserId,
+          ipAddress: provisionResult.ipAddress,
+          port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
+          locationId: locationId,
+          sceneId: sceneId
+        })
+      )
+    } else {
+      console.warn('Failed to connect to expected existing instance')
+    }
+  },
   connectToServer: async (instanceId: string) => {
     dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
-    const transport = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
-    logger.info({ socket: !!transport.socket, transport }, 'Connect To World Server')
-    if (transport.socket) {
-      leaveNetwork(transport, false)
+    const network = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
+    logger.info({ socket: !!network.socket, transport: network }, 'Connect To World Server')
+    if (network.socket) {
+      leaveNetwork(network, false)
     }
-    const { ipAddress, port, locationId } = accessLocationInstanceConnectionState().instances.value[instanceId]
-    await transport.initialize({ port, ipAddress, locationId })
+    const { ipAddress, port, locationId, roomCode } =
+      accessLocationInstanceConnectionState().instances.value[instanceId]
+    await network.initialize({ port, ipAddress, locationId, roomCode })
   },
   useAPIListeners: () => {
     useEffect(() => {

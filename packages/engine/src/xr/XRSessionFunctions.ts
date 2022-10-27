@@ -1,7 +1,7 @@
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
+import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TouchInputs } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
@@ -65,8 +65,10 @@ export const requestXRSession = createHookableFunction(
       const xrSession = (EngineRenderer.instance.xrSession = await navigator.xr!.requestSession(mode, sessionInit))
 
       // @ts-ignore
-      if (xrSession.interactionMode === 'screen-space') {
+      if (xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen') {
         xrManager.setFramebufferScaleFactor(0.5)
+      } else {
+        xrManager.setFramebufferScaleFactor(1.2)
       }
 
       await xrManager.setSession(xrSession)
@@ -103,7 +105,6 @@ export const requestXRSession = createHookableFunction(
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)
         dispatchAction(XRAction.sessionChanged({ active: false }))
-        dispatchAction(WorldNetworkAction.setXRMode({ enabled: false, avatarInputControllerType: '' }))
       }
       xrManager.addEventListener('sessionend', onSessionEnd)
 
@@ -139,9 +140,7 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const setupVRSession = (world = Engine.instance.currentWorld) => {
-  dispatchAction(WorldNetworkAction.setXRMode({ enabled: true, avatarInputControllerType: '' }))
-}
+export const setupVRSession = (world = Engine.instance.currentWorld) => {}
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   EngineRenderer.instance.renderer.domElement.style.display = 'none'

@@ -21,7 +21,7 @@ const ConfirmEmail = (props: Props): JSX.Element => {
   const handleResendEmail = (e: any): any => {
     e.preventDefault()
 
-    const identityProvider = auth.identityProvider
+    const identityProvider = auth.authUser.identityProvider
 
     AuthService.resendVerificationEmail(identityProvider.token.value)
   }

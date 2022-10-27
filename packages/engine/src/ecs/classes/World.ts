@@ -209,6 +209,9 @@ export class World {
         far: 1000,
         timeScale: 1,
         height: 0.05
+      },
+      xr: {
+        dollhouse: 'auto' as boolean | 'auto'
       }
     },
     subscribable()

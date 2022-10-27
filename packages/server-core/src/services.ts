@@ -7,6 +7,7 @@ import { Application } from '../declarations'
 import AnalyticsServices from './analytics/services'
 import AssetServices from './assets/services'
 import BotService from './bot/services'
+import ClusterServices from './cluster/services'
 import MatchMakingServices from './matchmaking/services'
 import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
@@ -52,7 +53,8 @@ export default (app: Application): void => {
     ...SettingService,
     ...RouteService,
     ...installedProjects,
-    ...MatchMakingServices
+    ...MatchMakingServices,
+    ...ClusterServices
   ].forEach((service) => {
     app.configure(service)
   })

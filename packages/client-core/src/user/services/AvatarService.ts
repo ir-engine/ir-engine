@@ -2,31 +2,43 @@ import { Paginated } from '@feathersjs/feathers'
 import axios from 'axios'
 import i18n from 'i18next'
 
+import config from '@xrengine/common/src/config'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
 import { accessAuthState, AuthAction } from './AuthService'
 
+const AVATAR_PAGE_LIMIT = 100
+
 // State
 export const AvatarState = defineState({
   name: 'AvatarState',
   initial: () => ({
-    avatarList: [] as Array<AvatarInterface>
+    avatarList: [] as Array<AvatarInterface>,
+    skip: 0,
+    limit: AVATAR_PAGE_LIMIT,
+    total: 0
   })
 })
 
 export const AvatarServiceReceptor = (action) => {
   const s = getState(AvatarState)
   matches(action).when(AvatarActions.updateAvatarListAction.matches, (action) => {
-    return s.avatarList.set(action.avatarList)
+    s.skip.set(action.skip)
+    s.total.set(action.total)
+    return s.avatarList.merge(action.avatarList)
   })
 }
+
+export const accessAvatarState = () => getState(AvatarState)
+
+export const useAvatarService = () => useState(accessAvatarState())
 
 export const AvatarService = {
   async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean) {
@@ -56,13 +68,19 @@ export const AvatarService = {
     }
   },
 
-  async fetchAvatarList() {
+  async fetchAvatarList(reset = false, incDec?: 'increment' | 'decrement') {
+    const skip = accessAvatarState().skip.value
+    const newSkip =
+      incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
     const result = (await API.instance.client.service('avatar').find({
       query: {
-        $limit: 1000
+        $skip: newSkip,
+        $limit: AVATAR_PAGE_LIMIT
       }
     })) as Paginated<AvatarInterface>
-    dispatchAction(AvatarActions.updateAvatarListAction({ avatarList: result.data }))
+    dispatchAction(
+      AvatarActions.updateAvatarListAction({ avatarList: result.data, skip: result.skip, total: result.total })
+    )
   },
 
   async patchAvatar(avatarId: string, modelResourceId: string, thumbnailResourceId: string, avatarName: string) {
@@ -97,7 +115,7 @@ export const AvatarService = {
   async uploadAvatar(data: any) {
     const token = accessAuthState().authUser.accessToken.value
     const selfUser = accessAuthState().user
-    const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/upload`, data, {
+    const res = await axios.post(`https://${config.client.serverHost}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token
@@ -126,6 +144,8 @@ export const AvatarService = {
 export class AvatarActions {
   static updateAvatarListAction = defineAction({
     type: 'xre.client.avatar.AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
+    avatarList: matches.array as Validator<unknown, AvatarInterface[]>,
+    skip: matches.number,
+    total: matches.number
   })
 }

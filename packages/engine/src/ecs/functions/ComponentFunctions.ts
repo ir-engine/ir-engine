@@ -1,5 +1,6 @@
 import * as bitECS from 'bitecs'
 
+import config from '@xrengine/common/src/config'
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
@@ -10,7 +11,7 @@ import { World } from '../classes/World'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
-const INITIAL_COMPONENT_SIZE = process.env['APP_ENV'] === 'test' ? 100000 : 1000 // TODO set to 0 after next bitECS update
+const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 : 1000 // TODO set to 0 after next bitECS update
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
 /**

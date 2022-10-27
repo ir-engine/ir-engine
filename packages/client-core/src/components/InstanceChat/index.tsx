@@ -257,7 +257,7 @@ export const InstanceChat = ({
         messageRef.current.scrollTop = messageRef.current.scrollHeight
         clearInterval(messageRefCurrentRenderedInterval)
       }
-    }, 5000)
+    }, 500)
   }, [chatState.messageCreated])
 
   const hideOtherMenus = () => {
@@ -276,7 +276,7 @@ export const InstanceChat = ({
           setMessageContainerVisible(true)
           clearInterval(messageRefCurrentRenderedInterval)
         }
-      }, 5000)
+      }, 500)
     }
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
@@ -451,13 +451,13 @@ export const InstanceChatWrapper = () => {
   return (
     <>
       {engineState.connectedWorld.value ? (
-        <div className={bottomShelfStyle}>
+        <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>
       ) : (
         <div className={styles.modalConnecting}>
           <div className={styles.modalConnectingTitle}>
-            <p>{t('common:loader.connecting')}</p>
+            <p>{t('common:loader.connectingToWorld')}</p>
           </div>
         </div>
       )}

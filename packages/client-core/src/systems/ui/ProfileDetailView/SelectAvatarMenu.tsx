@@ -29,7 +29,7 @@ function createSelectAvatarMenuState() {
 const SelectAvatarMenu = () => {
   const { t } = useTranslation()
 
-  const MAX_AVATARS_PER_PAGE = window.innerWidth >= 1024 ? 9 : 12
+  const MAX_AVATARS_PER_PAGE = window.innerWidth <= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
@@ -37,7 +37,7 @@ const SelectAvatarMenu = () => {
   const avatarState = useHookstate(getState(AvatarState))
 
   const [page, setPage] = useState(0)
-  const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
+  const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.total.value))
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
 
   useEffect(() => {
@@ -45,11 +45,11 @@ const SelectAvatarMenu = () => {
   }, [])
 
   useEffect(() => {
-    if (page * imgPerPage >= avatarState.avatarList.value.length) {
+    if (page * imgPerPage >= avatarState.total.value) {
       if (page === 0) return
       setPage(page - 1)
     }
-  }, [avatarState.avatarList])
+  }, [avatarState.total])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
@@ -58,7 +58,9 @@ const SelectAvatarMenu = () => {
   }
 
   const loadNextAvatars = () => {
-    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length) return
+    if ((page + 1) * imgPerPage >= avatarState.total.value) return
+    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
+      AvatarService.fetchAvatarList(false, 'increment')
     setPage(page + 1)
   }
 
@@ -176,7 +178,7 @@ const SelectAvatarMenu = () => {
           <XRIconButton
             xr-layer="true"
             onClick={loadNextAvatars}
-            disabled={(page + 1) * imgPerPage >= avatarState.avatarList.value.length}
+            disabled={(page + 1) * imgPerPage >= avatarState.total.value}
             content={<ArrowForwardIos className="size" />}
           />
         </div>

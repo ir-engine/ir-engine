@@ -1,7 +1,7 @@
 import { Application } from '@feathersjs/express/lib'
-import { Accessor, Document, Format, Buffer as glBuffer, Property, Texture } from '@gltf-transform/core'
+import { Document, Format, Buffer as glBuffer, Material, Property, Texture } from '@gltf-transform/core'
 import { MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
-import { dedup, draco, partition, prune, quantize, reorder, unpartition } from '@gltf-transform/functions'
+import { dedup, draco, partition, prune, quantize, reorder } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import fs from 'fs'
@@ -11,13 +11,12 @@ import sharp from 'sharp'
 import { MathUtils } from 'three'
 import util from 'util'
 
+import { EEMaterial } from '@xrengine/engine/src/assets/classes/extensions/EE_MaterialTransformer'
 import ModelTransformLoader, {
   ModelTransformParameters
 } from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import { projectsRootFolder } from '../../media/file-browser/file-browser.class'
-import { delta, getContentType, snapshot } from '../../util/fileUtils'
+import { getContentType } from '../../util/fileUtils'
 
 export type ModelTransformArguments = {
   src: string
@@ -53,6 +52,40 @@ export async function getModelResources(app: Application, args: ModelResourcesAr
     resource
   ])
   return Object.fromEntries(entries)
+}
+
+export async function combineMaterials(document: Document) {
+  const root = document.getRoot()
+  const cache: Material[] = []
+  console.log('combining materials...')
+  root.listMaterials().map((material) => {
+    const eeMat = material.getExtension<EEMaterial>('EE_material')
+    const dupe = cache.find((cachedMaterial) => {
+      const cachedEEMat = cachedMaterial.getExtension<EEMaterial>('EE_material')
+      if (eeMat !== null && cachedEEMat !== null) {
+        return (
+          eeMat.prototype === cachedEEMat.prototype &&
+          ((eeMat.args === cachedEEMat.args) === null || (cachedEEMat.args && eeMat.args?.equals(cachedEEMat.args)))
+        )
+      } else return material.equals(cachedMaterial)
+    })
+    if (dupe !== undefined) {
+      console.log('found duplicate material...')
+      let dupeCount = 0
+      root
+        .listMeshes()
+        .flatMap((mesh) => mesh.listPrimitives())
+        .map((prim) => {
+          if (prim.getMaterial() === material) {
+            prim.setMaterial(dupe)
+            dupeCount++
+          }
+        })
+      console.log('replaced ' + dupeCount + ' materials')
+    } else {
+      cache.push(material)
+    }
+  })
 }
 
 export async function transformModel(app: Application, args: ModelTransformArguments) {
@@ -139,6 +172,8 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const root = document.getRoot()
 
   /* ID unnamed resources */
+  await combineMaterials(document)
+
   await document.transform(dedup())
 
   /* PROCESS MESHES */

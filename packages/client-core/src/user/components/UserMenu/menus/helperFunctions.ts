@@ -77,8 +77,6 @@ export const addAnimationLogic = (
       currentState: null!,
       stateChanged: null!
     },
-    rig: {} as BoneStructure,
-    bindRig: {} as BoneStructure,
     rootYRatio: 1,
     locomotion: new Vector3()
   })

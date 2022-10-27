@@ -177,6 +177,7 @@
       "controls": "Controls",
       "lbl-control-type": "Controller Type",
       "lbl-control-scheme": "Control Scheme",
+      "lbl-preferred-Hand": "Preferred Hand",
       "lbl-resolution": "Resolution",
       "lbl-shadow": "Shadows",
       "lbl-pp": "Post Processing",
@@ -295,7 +296,8 @@
       "scenes": "Scenes",
       "avatars": "Avatars",
       "benchmarking": "Benchmarking",
-      "bots": "Bots"
+      "bots": "Bots",
+      "server": "Server"
     }
   },
   "oauth": {
@@ -326,7 +328,8 @@
     "resources": "Resources",
     "benchmarking": "Benchmarking",
     "bots": "Bots",
-    "setting": "Settings"
+    "setting": "Settings",
+    "server": "Server"
   },
   "resource": {
     "createResource": "Create Resource"

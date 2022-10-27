@@ -3,7 +3,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
-import { V_000, V_001, V_010 } from '../common/constants/MathConstants'
+import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
@@ -17,10 +17,9 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { InputComponent } from '../input/components/InputComponent'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
-import { GamepadAxis } from '../input/enums/InputEnums'
+import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
@@ -28,8 +27,8 @@ import { setTransformComponent, TransformComponent } from '../transform/componen
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import { moveLocalAvatar } from './functions/moveAvatar'
+import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
+import { moveAvatarWithVelocity, updateAvatarControllerOnGround } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -92,8 +91,9 @@ export default async function AvatarControllerSystem(world: World) {
 
     const controller = getComponent(controlledEntity, AvatarControllerComponent)
     if (hasComponent(controlledEntity, AvatarControllerComponent)) {
+      updateAvatarControllerOnGround(controlledEntity)
       if (controller?.movementEnabled) {
-        moveLocalAvatar(controlledEntity)
+        moveAvatarWithVelocity(controlledEntity)
       }
 
       const rigidbody = getComponent(controlledEntity, RigidBodyComponent)
@@ -164,10 +164,10 @@ export const updateMap = () => {
   const avatarInputState = getState(AvatarInputSettingsState)
   const inputMap = AvatarInputSchema.inputMap
   if (avatarInputState.invertRotationAndMoveSticks.value) {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.MOVEMENT)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE_RIGHT)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE_LEFT)
   } else {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE_LEFT)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE_RIGHT)
   }
 }

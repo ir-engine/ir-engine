@@ -12,7 +12,16 @@ export const ItemTypes = {
   Folder: 'folder',
   Audios: [AssetType.MP3, 'mpeg', 'audio/mpeg'],
   Images: [AssetType.PNG, AssetType.JPEG, 'jpg', 'gif', AssetType.KTX2, 'image/png', 'image/jpeg', 'image/ktx2'],
-  Models: [AssetType.glB, AssetType.glTF, 'model/gltf', 'fbx'],
+  Models: [
+    AssetType.glB,
+    'model/glb',
+    AssetType.glTF,
+    'model/gltf',
+    AssetType.FBX,
+    'model/fbx',
+    AssetType.USDZ,
+    'model/usdz'
+  ],
   Scripts: ['tsx', AssetType.TS, 'jsx', 'js', AssetType.Script],
   Videos: [AssetType.MP4, 'm3u8', 'video/mp4', AssetType.MKV],
   Volumetrics: ['drcs', 'uvol'],

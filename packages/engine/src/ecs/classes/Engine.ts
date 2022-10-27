@@ -1,5 +1,6 @@
 import type { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createHyperStore, getState } from '@xrengine/hyperflux'
+import * as Hyperflux from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
 import { NetworkTopics } from '../../networking/classes/Network'
@@ -7,6 +8,7 @@ import type { World } from '../classes/World'
 
 import '../utils/threejsPatches'
 
+import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { EngineState } from './EngineState'
 
 export class Engine {
@@ -62,6 +64,7 @@ export class Engine {
   worlds: World[] = []
 
   publicPath = ''
+  gltfLoader: GLTFLoader = null!
 
   xrFrame: XRFrame | null = null
 
@@ -69,3 +72,4 @@ export class Engine {
 }
 
 globalThis.Engine = Engine
+globalThis.Hyperflux = Hyperflux

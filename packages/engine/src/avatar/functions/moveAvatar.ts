@@ -9,7 +9,13 @@ import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -19,13 +25,13 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { getControlMode, XRState } from '../../xr/XRState'
+import { getAvatarHeadLock, getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent'
-import { AvatarTeleportTagComponent } from '../components/AvatarTeleportTagComponent'
+import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
+import { AvatarTeleportComponent } from '../components/AvatarTeleportComponent'
 import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './createAvatar'
 
@@ -58,13 +64,11 @@ const avatarStepRaycast = {
 }
 
 /**
- * moves the avatar according to physics contacts, velocity, gravity and step testing
+ * Updates the avatar's isInAir property based on current physics contacts points
  * @param entity
  */
-export const moveLocalAvatar = (entity: Entity) => {
+export const updateAvatarControllerOnGround = (entity: Entity) => {
   const controller = getComponent(entity, AvatarControllerComponent)
-
-  let onGround = false
 
   /**
    * Use physics contacts to detemine if avatar is grounded
@@ -74,6 +78,8 @@ export const moveLocalAvatar = (entity: Entity) => {
   physicsWorld.contactsWith(controller.bodyCollider, (otherCollider) => {
     if (otherCollider) collidersInContactWithFeet.push(otherCollider)
   })
+
+  let onGround = false
 
   for (const otherCollider of collidersInContactWithFeet) {
     physicsWorld.contactPair(controller.bodyCollider, otherCollider, (manifold, flipped) => {
@@ -88,40 +94,67 @@ export const moveLocalAvatar = (entity: Entity) => {
   }
 
   controller.isInAir = !onGround
-
-  const avatarInputState = getState(AvatarInputSettingsState)
-  if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) moveAvatarWithTeleport(entity)
-  else moveAvatarWithVelocity(entity)
 }
+
+//   const avatarInputState = getState(AvatarInputSettingsState)
+//   /** teleport controls handled in AvatarInputSchema */
+//   if (getControlMode() === 'attached' && avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) return
+
+//   moveAvatarWithVelocity(entity)
+// }
 
 /**
  * Moves the avatar with velocity controls
  * @param entity
  */
 export const moveAvatarWithVelocity = (entity: Entity) => {
-  const camera = Engine.instance.currentWorld.camera
-  const timeStep = getState(EngineState).fixedDeltaSeconds.value
-
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
   const isInVR = getControlMode() === 'attached'
+  const avatarInputState = getState(AvatarInputSettingsState)
+  if (isInVR && avatarInputState.controlScheme.value !== AvatarMovementScheme.Linear) {
+    return
+  }
 
-  const rigidbody = getComponent(entity, RigidBodyComponent)
-  const controller = getComponent(entity, AvatarControllerComponent)
-
-  /**
-   * Do movement via velocity spring and collider velocity
-   */
+  const camera = Engine.instance.currentWorld.camera
   const cameraDirection = camera.getWorldDirection(_vec).setY(0).normalize()
   const forwardOrientation = _quat.setFromUnitVectors(AvatarDirection.Forward, cameraDirection)
 
-  controller.velocitySimulator.target.copy(controller.localMovementDirection)
-  controller.velocitySimulator.simulate(timeStep * (controller.isInAir ? 0.2 : 1))
-  const velocitySpringDirection = controller.velocitySimulator.position
+  avatarApplyVelocity(entity, forwardOrientation)
+  avatarApplyRotation(entity)
+  avatarStepOverObstacles(entity, forwardOrientation)
+}
+
+/**
+ * Rotates the avatar
+ * - if we are in attached mode, we dont need to do any extra rotation
+ *     as this is done via the webxr camera automatically
+ */
+export const avatarApplyRotation = (entity: Entity) => {
+  const isInVR = getControlMode() === 'attached'
+  if (!isInVR) {
+    if (hasComponent(entity, AvatarHeadDecapComponent)) {
+      rotateBodyTowardsCameraDirection(entity)
+    } else {
+      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
+    }
+  }
+}
+
+/**
+ * Avatar movement via velocity spring and collider velocity
+ */
+export const avatarApplyVelocity = (entity, forwardOrientation) => {
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const timeStep = getState(EngineState).fixedDeltaSeconds.value
+  const isInVR = getControlMode() === 'attached'
 
   // always walk in VR
   controller.currentSpeed =
     controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
+
+  controller.velocitySimulator.target.copy(controller.localMovementDirection)
+  controller.velocitySimulator.simulate(timeStep * (controller.isInAir ? 0.2 : 1))
+  const velocitySpringDirection = controller.velocitySimulator.position
 
   const prevVelocity = rigidBody.body.linvel()
   const currentVelocity = _vec
@@ -144,21 +177,15 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
     }
   }
 
-  rigidbody.body.setLinvel(currentVelocity, true)
+  rigidBody.body.setLinvel(currentVelocity, true)
+}
 
-  /**
-   * Do rotation
-   * - if we are in attached mode, we dont need to do any extra rotation
-   *     as this is done via the webxr camera automatically
-   */
-  if (!isInVR) {
-    if (hasComponent(entity, AvatarHeadDecapComponent)) {
-      rotateBodyTowardsCameraDirection(entity)
-    } else {
-      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
-    }
-  }
+export const avatarStepOverObstacles = (entity: Entity, forwardOrientation: Quaternion) => {
+  const transform = getComponent(entity, TransformComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
 
+  const velocitySpringDirection = controller.velocitySimulator.position
   /**
    * Step over small obstacles
    */
@@ -171,29 +198,28 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
       .copy(transform.position)
       .add(xzVelocity.normalize().multiplyScalar(expandedAvatarRadius).applyQuaternion(forwardOrientation))
     avatarStepRaycast.origin.y += stepLowerBound + stepHeight
-
     const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, avatarStepRaycast)
     if (hits.length && hits[0].collider !== controller.bodyCollider) {
       _vec.copy(hits[0].normal as Vector3)
       const angle = _vec.angleTo(V_010)
       if (angle < stepAngle) {
-        const pos = rigidbody.body.translation()
+        const pos = rigidBody.body.translation()
         pos.y += stepHeight - hits[0].distance
-        rigidbody.body.setTranslation(pos, true)
+        rigidBody.body.setTranslation(pos, true)
       }
     }
   }
 }
+
 /**
  * Moves the avatar with teleport controls
  * @param entity
  */
-export const moveAvatarWithTeleport = (entity: Entity) => {
-  const controller = getComponent(entity, AvatarControllerComponent)
-  if (controller.localMovementDirection.z < -0.75 && !hasComponent(entity, AvatarTeleportTagComponent)) {
-    addComponent(entity, AvatarTeleportTagComponent, true)
-  } else if (controller.localMovementDirection.z === 0.0) {
-    removeComponent(entity, AvatarTeleportTagComponent)
+export const moveAvatarWithTeleport = (entity: Entity, magnitude: number, side: 'left' | 'right') => {
+  if (magnitude < -0.75 && !hasComponent(entity, AvatarTeleportComponent)) {
+    setComponent(entity, AvatarTeleportComponent, { side })
+  } else if (magnitude === 0.0) {
+    removeComponent(entity, AvatarTeleportComponent)
   }
 }
 
@@ -209,17 +235,20 @@ export const updateReferenceSpace = (entity: Entity) => {
   const refSpace = xrState.originReferenceSpace.value
 
   if (getControlMode() === 'attached' && refSpace && viewerPose) {
-    const avatar = getComponent(entity, AvatarComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
-    const rig = getComponent(entity, AvatarAnimationComponent)
+    const rig = getComponent(entity, AvatarRigComponent)
 
-    rig.rig?.Head
-      ? rig.rig.Head.getWorldPosition(_vec)
-      : _vec.copy(avatarTransform.position).setComponent(1, avatarTransform.position.y + avatar.avatarHalfHeight)
+    const avatarHeadLock = getAvatarHeadLock()
 
-    _vec.y -= viewerPose.transform.position.y - 0.14
-    const headOffset = _vec2.set(0, 0, 0.1).applyQuaternion(avatarTransform.rotation)
-    _vec.add(headOffset)
+    if (avatarHeadLock && rig) {
+      rig.rig.Head.getWorldPosition(_vec)
+      _vec.y += 0.14
+      _vec.y -= viewerPose.transform.position.y
+      const headOffset = _vec2.set(0, 0, 0.1).applyQuaternion(avatarTransform.rotation)
+      _vec.add(headOffset)
+    } else {
+      _vec.copy(avatarTransform.position)
+    }
 
     // rotate 180 degrees as physics looks down +z, and webxr looks down -z
     quat.copy(avatarTransform.rotation).multiply(quat180y)

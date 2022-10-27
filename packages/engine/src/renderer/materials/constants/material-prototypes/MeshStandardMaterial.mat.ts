@@ -1,8 +1,7 @@
-import { Color, MeshStandardMaterialParameters, MeshStandardMaterial as Standard, Texture } from 'three'
+import { MeshStandardMaterial as Standard } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { extractDefaults as format } from '../../functions/Utilities'
-import { DudTexture, MaterialParms } from '../../MaterialParms'
+import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs } from '../BasicArgs'
 import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
@@ -25,7 +24,7 @@ export const MeshStandardMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshStandardMaterial',
   baseMaterial: Standard,
   arguments: DefaultArgs,
-  src: { type: 'Built In', path: '' }
+  src: { type: SourceType.BUILT_IN, path: '' }
 }
 
 export default MeshStandardMaterial

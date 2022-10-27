@@ -8,6 +8,7 @@ import {
 } from 'mediasoup-client/lib/types'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
+import config from '@xrengine/common/src/config'
 import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
@@ -185,7 +186,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   async function disconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
-    dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     network.socket.off(MessageTypes.WebRTCConsumeData.toString(), consumeDataHandler)
     network.socket.off(MessageTypes.Kick.toString(), kickHandler)
     removeActionReceptor(consumeDataHandler)
@@ -380,7 +380,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
     channelId: channelId
   })
 
-  if (process.env.NODE_ENV === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS
+  if (config.client.nodeEnv === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS
   if (direction === 'recv') transport = await network.mediasoupDevice.createRecvTransport(transportOptions)
   else if (direction === 'send') transport = await network.mediasoupDevice.createSendTransport(transportOptions)
   else throw new Error(`bad transport 'direction': ${direction}`)
@@ -952,6 +952,14 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
         if (mediaState.channelType === 'instance' && mediaState.connected) {
           leaveNetwork(world.mediaNetwork as SocketWebRTCClientNetwork)
         }
+      }
+      const parsed = new URL(window.location.href)
+      const query = parsed.searchParams
+      query.delete('roomCode')
+      query.delete('instanceId')
+      parsed.search = query.toString()
+      if (typeof history.pushState !== 'undefined') {
+        window.history.replaceState({}, '', parsed.toString())
       }
     }
     removeActionsForTopic(network.hostId)

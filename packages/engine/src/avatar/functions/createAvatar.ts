@@ -3,7 +3,7 @@ import { AnimationClip, AnimationMixer, Group, Quaternion, Vector3 } from 'three
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -27,6 +27,7 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarIKTargetsComponent } from '../components/AvatarIKComponents'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const avatarRadius = 0.25
@@ -75,10 +76,13 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
       currentState: null!,
       stateChanged: null!
     },
-    rig: {} as BoneStructure,
-    bindRig: {} as BoneStructure,
     rootYRatio: 1,
     locomotion: new Vector3()
+  })
+  setComponent(entity, AvatarIKTargetsComponent, {
+    head: false,
+    leftHand: false,
+    rightHand: false
   })
 
   addObjectToGroup(entity, tiltContainer)

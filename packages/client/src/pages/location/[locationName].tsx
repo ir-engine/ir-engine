@@ -7,7 +7,7 @@ import { LocationIcons } from '@xrengine/client-core/src/components/LocationIcon
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLocationScene'
 import NetworkInstanceProvisioning from '@xrengine/client-core/src/components/World/NetworkInstanceProvisioning'
-import OfflineLocation from '@xrengine/client-core/src/components/World/OfflineLocation'
+import { OfflineLocation } from '@xrengine/client-core/src/components/World/OfflineLocation'
 import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
@@ -48,7 +48,7 @@ const LocationPage = () => {
 
   return (
     <>
-      {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
+      {engineState.isEngineInitialized.value ? <></> : <LoadingCircle message={t('common:loader.loadingEngine')} />}
       <LoadEngineWithScene injectedSystems={DefaultLocationSystems} />
       {offline ? <OfflineLocation /> : <NetworkInstanceProvisioning />}
       <LoadLocationScene />

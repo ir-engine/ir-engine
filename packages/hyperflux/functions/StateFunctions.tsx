@@ -97,10 +97,42 @@ function removeStateReactor(reactorComponent: () => void, store = HyperFlux.stor
   }
 }
 
+const stateNamespaceKey = 'xre.hyperflux'
+
+/**
+ * Automatically synchronises specific root paths of a hyperflux state definition with the localStorage.
+ * Values get automatically populated if they exist in localStorage and saved when they are changed.
+ * @param {StateDefinition} stateDefinition
+ * @param {string[]} keys the root paths to synchronise
+ */
+const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
+  const state = getState(stateDefinition)
+
+  for (const key of keys) {
+    const storedValue = localStorage.getItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)
+    if (storedValue !== null) state[key].set(JSON.parse(storedValue))
+  }
+
+  state.attach(() => ({
+    id: Symbol('syncStateWithLocalStorage'),
+    init: () => ({
+      onSet(arg) {
+        for (const key of keys) {
+          localStorage.setItem(
+            `${stateNamespaceKey}.${stateDefinition.name}.${key}`,
+            JSON.stringify(state[key].get({ noproxy: true }))
+          )
+        }
+      }
+    })
+  }))
+}
+
 export default {
   defineState,
   registerState,
   getState,
   addStateReactor,
-  removeStateReactor
+  removeStateReactor,
+  syncStateWithLocalStorage
 }

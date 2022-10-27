@@ -44,7 +44,7 @@ export async function addMediaNode(
         },
         false
       )
-  } else if (contentType.startsWith('model/gltf')) {
+  } else if (contentType.startsWith('model/')) {
     prefabType = ScenePrefabs.model
     updateFunc = () =>
       setPropertyOnEntityNode(

@@ -50,7 +50,7 @@ const InputSelect = ({
   const { t } = useTranslation()
 
   if (!disabled) {
-    disabled = menu.length > 0 ? false : true
+    disabled = menu.length <= 0
   }
 
   return (
@@ -59,7 +59,7 @@ const InputSelect = ({
         <FormControl
           variant="outlined"
           className={className ?? styles.inputField}
-          error={error ? true : false}
+          error={!!error}
           disabled={disabled}
           size="small"
           sx={{ flexGrow: 1 }}

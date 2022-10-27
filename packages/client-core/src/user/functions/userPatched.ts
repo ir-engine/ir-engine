@@ -36,21 +36,17 @@ export const userPatched = (params) => {
     //   setRelationship('party', user.partyId);
     // }
     if (patchedUser.instanceId !== selfUser.instanceId.value) {
-      const parsed = new URL(window.location.href)
-      let query = parsed.searchParams
-      query.set('instanceId', patchedUser.instanceId || '')
-      parsed.search = query.toString()
-      if (patchedUser.instanceId && Engine.instance.currentWorld._worldHostId !== patchedUser.instanceId) {
+      if (
+        Engine.instance.currentWorld._worldHostId &&
+        patchedUser.instanceId &&
+        Engine.instance.currentWorld._worldHostId !== patchedUser.instanceId
+      ) {
         dispatchAction(
           LocationInstanceConnectionAction.changeActiveConnectionHostId({
             currentInstanceId: Engine.instance.currentWorld._worldHostId,
             newInstanceId: patchedUser.instanceId as UserId
           })
         )
-      }
-
-      if (typeof history.pushState !== 'undefined') {
-        window.history.replaceState({}, '', parsed.toString())
       }
     }
   } else {

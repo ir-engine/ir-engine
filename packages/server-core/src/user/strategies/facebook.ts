@@ -1,3 +1,4 @@
+import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
@@ -106,6 +107,18 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
       return returned
     }
+  }
+
+  async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
+    if (authentication.error) {
+      if (authentication.error?.error?.type === 'OAuthException')
+        throw new Error('You canceled the GitHub OAuth login flow')
+      else
+        throw new Error(
+          'There was a problem with the Facebook OAuth login flow: ' + authentication.error?.error?.message
+        )
+    }
+    return super.authenticate(authentication, originalParams)
   }
 }
 export default FacebookStrategy

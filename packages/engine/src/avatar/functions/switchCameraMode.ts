@@ -23,6 +23,7 @@ export const switchCameraMode = (
   }
 
   const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
+  if (!cameraFollow) return
   cameraFollow.mode = args.cameraMode
 
   if (cameraFollow.mode === CameraMode.FirstPerson) {

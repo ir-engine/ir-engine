@@ -18,7 +18,8 @@ import {
   createEntityNode,
   removeEntityNodeFromParent
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
+import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import '@xrengine/engine/src/patchEngineNode'
 

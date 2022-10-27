@@ -3,9 +3,10 @@ import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'th
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
@@ -25,10 +26,7 @@ export default async function LoadingUISystem(world: World) {
   const sceneState = accessSceneState()
   const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'envmap.png')!
 
-  const [ui, texture] = await Promise.all([
-    createLoaderDetailView(transition),
-    new Promise<Texture | null>((resolve) => textureLoader.load(thumbnailUrl, resolve, null!, () => resolve(null)))
-  ])
+  const ui = createLoaderDetailView(transition)
 
   addComponent(ui.entity, NameComponent, { name: 'Loading XRUI' })
 
@@ -36,7 +34,12 @@ export default async function LoadingUISystem(world: World) {
     new SphereGeometry(10),
     new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
   )
-  if (texture) mesh.material.map = texture!
+  mesh.visible = false
+  textureLoader.load(thumbnailUrl, (texture) => {
+    if (texture) mesh.material.map = texture!
+    mesh.visible = true
+  })
+
   // flip inside out
   mesh.scale.set(-1, 1, 1)
   mesh.renderOrder = 1
@@ -77,6 +80,7 @@ export default async function LoadingUISystem(world: World) {
         mat.visible = opacity > 0
         layer.visible = opacity > 0
       })
+      if (opacity < 0.001) setVisibleComponent(ui.entity, false)
     })
   }
 

@@ -22,7 +22,8 @@ export const awsSeed = {
       }),
       cloudfront: JSON.stringify({
         domain: process.env.STORAGE_CLOUDFRONT_DOMAIN,
-        distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID
+        distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID,
+        region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
       }),
       sms: JSON.stringify({
         accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID,
