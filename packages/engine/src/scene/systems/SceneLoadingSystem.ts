@@ -216,7 +216,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
   const oldLoadedEntityNodesToRemove = Array.from(world.entityTree.uuidNodeMap).filter(
     ([uuid, node]) =>
-      !sceneData.scene.entities[uuid] && !getComponent(node.entity, GLTFLoadedComponent)?.includes('entity')
+      !sceneData.scene.entities[uuid] && !getOptionalComponent(node.entity, GLTFLoadedComponent)?.includes('entity')
   )
   /** @todo this will not  */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {

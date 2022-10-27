@@ -332,7 +332,8 @@ export function MediaReactor({ root }: EntityReactorProps) {
     function updateVolume() {
       if (!media) return
       const volume = media.volume.value
-      const element = getComponent(entity, MediaElementComponent).element as HTMLMediaElement
+      const element = getOptionalComponent(entity, MediaElementComponent)?.element as HTMLMediaElement
+      if (!element) return
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.gain.setTargetAtTime(volume, Engine.instance.audioContext.currentTime, 0.1)

@@ -9,6 +9,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -41,14 +42,12 @@ import { EditorComponentType, updateProperty } from './Util'
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
-  const engineState = useEngineState()
   const entity = props.node.entity
   const modelComponent = getComponent(entity, ModelComponent)
   const errors = getEntityErrors(props.node.entity, ModelComponent)
-  const obj3d = modelComponent.scene ?? new Object3D() //getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
-  const errorComponent = getComponent(entity, ErrorComponent)
+  const obj3d = modelComponent.scene!
 
-  const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+  const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
   traverseEntityNode(Engine.instance.currentWorld.entityTree.rootNode, (node) => {
@@ -72,7 +71,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const animations = loopAnimationComponent?.hasAvatarAnimations
     ? AnimationManager.instance._animations
-    : obj3d.animations ?? []
+    : obj3d?.animations ?? []
 
   const animationOptions = [{ label: 'None', value: -1 }]
   if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
@@ -123,7 +122,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
-          value={loopAnimationComponent?.hasAvatarAnimations}
+          value={!!loopAnimationComponent?.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>

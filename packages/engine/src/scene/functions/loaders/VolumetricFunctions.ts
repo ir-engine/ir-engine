@@ -12,6 +12,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -59,9 +60,10 @@ export const enterVolumetric = async (entity: Entity) => {
   const VolumetricPlayer = await VolumetricPlayerPromise
   if (!entityExists(entity)) return
 
-  const mediaElement = getComponent(entity, MediaElementComponent)
-  const volumetricComponent = getComponent(entity, VolumetricComponent)
-  if (!mediaElement || !volumetricComponent) return
+  const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+  const volumetricComponent = getOptionalComponent(entity, VolumetricComponent)
+  if (!mediaElement) return
+  if (!volumetricComponent) return
 
   if (mediaElement.element instanceof HTMLVideoElement == false) {
     throw new Error('expected video media')
@@ -113,7 +115,8 @@ export const enterVolumetric = async (entity: Entity) => {
 }
 
 export const updateVolumetric = async (entity: Entity) => {
-  const mediaElement = getComponent(entity, MediaElementComponent)
+  const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+  if (!mediaElement) return
   const volumetric = Volumetric.get(mediaElement.element)
   if (volumetric) {
     volumetric.player.update()

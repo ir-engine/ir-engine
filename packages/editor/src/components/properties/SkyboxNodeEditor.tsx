@@ -1,9 +1,10 @@
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { ComponentType, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
 
@@ -55,9 +56,8 @@ const SkyOption = [
  */
 export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const engineState = useEngineState()
   const entity = props.node.entity
-  const hasError = hasComponent(entity, ErrorComponent)
+  const hasError = getEntityErrors(entity, SkyboxComponent)
 
   const onChangeEquirectangularPathOption = (equirectangularPath) => {
     if (equirectangularPath !== skyComponent.equirectangularPath) {
