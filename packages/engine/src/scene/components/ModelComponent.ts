@@ -12,7 +12,7 @@ import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/Utilities'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addError, clearErrors } from '../functions/ErrorFunctions'
+import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -57,6 +57,8 @@ export const ModelComponent = defineComponent({
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
+  errors: ['LOADING_ERROR'],
+
   reactor: ModelReactor
 })
 
@@ -70,8 +72,6 @@ function ModelReactor({ root }: EntityReactorProps) {
     const model = modelState.value
 
     const loadModel = async () => {
-      clearErrors(entity, ModelComponent)
-
       try {
         if (model.scene && model.scene.userData.src !== model.src) {
           removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
@@ -99,6 +99,7 @@ function ModelReactor({ root }: EntityReactorProps) {
 
         if (modelState.scene.value) return // src was changed again ?
 
+        removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
         modelState.scene.set(scene)
         addObjectToGroup(entity, scene)
@@ -109,7 +110,7 @@ function ModelReactor({ root }: EntityReactorProps) {
           scene.traverse(generateMeshBVH)
         }
       } catch (err) {
-        addError(entity, MediaComponent, 'LOADING_ERROR', err.message)
+        addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
       }
     }
 

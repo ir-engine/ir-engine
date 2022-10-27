@@ -14,7 +14,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
@@ -43,10 +43,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
   const engineState = useEngineState()
   const entity = props.node.entity
-  const modelState = getComponent(entity, ModelComponent)
-  const modelComponent = modelState.value
+  const modelComponent = getComponent(entity, ModelComponent)
+  const errors = getEntityErrors(props.node.entity, ModelComponent)
   const obj3d = modelComponent.scene ?? new Object3D() //getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
-  const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
 
   const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
@@ -98,7 +97,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={modelComponent.src} onChange={updateProperty(ModelComponent, 'src')} />
-        {hasError && errorComponent?.srcError && (
+        {errors?.LOADING_ERROR && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>

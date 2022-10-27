@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '@xrengine/engine/src/scene/components/EnvmapComponent'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { deserializeEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
 
@@ -61,8 +61,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     envmapComponent = getComponent(entity, EnvmapComponent)
   }
 
-  const hasError = engineState.errorEntities[entity].get()
-  const errorComponent = getComponent(entity, ErrorComponent)
+  const errors = getEntityErrors(props.node.entity, EnvmapComponent)
 
   return (
     <NodeEditor
@@ -107,7 +106,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
                 onChange={updateProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
-            {hasError && errorComponent.envmapError && (
+            {errors?.MISSING_FILE && (
               <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.scene.error-url')}</div>
             )}
           </InputGroup>

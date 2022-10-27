@@ -2,13 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ComponentType, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import {
-  SkyboxComponent,
-  SkyboxComponentType,
-  SkyBoxShaderProps
-} from '@xrengine/engine/src/scene/components/SkyboxComponent'
+import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
 
 import CloudIcon from '@mui/icons-material/Cloud'
@@ -82,7 +78,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     }
   }
 
-  const renderSkyboxSettings = (skyboxProps: SkyBoxShaderProps) => (
+  const renderSkyboxSettings = (skyboxProps: ComponentType<typeof SkyboxComponent>['skyboxProps']) => (
     <>
       <NumericInputGroup
         name="Time of Day"
@@ -179,7 +175,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   )
 
   // creating editor view for skybox Properties
-  const renderSkyBoxProps = (skyComponent: SkyboxComponentType) => {
+  const renderSkyBoxProps = (skyComponent: ComponentType<typeof SkyboxComponent>) => {
     switch (skyComponent.backgroundType) {
       case SkyTypeEnum.equirectangular:
         return renderEquirectangularSettings(skyComponent.equirectangularPath)

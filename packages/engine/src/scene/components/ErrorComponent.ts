@@ -2,7 +2,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   Component,
   ComponentErrorsType,
-  ComponentType,
   defineComponent,
   getComponentState
 } from '../../ecs/functions/ComponentFunctions'
@@ -18,9 +17,6 @@ export const ErrorComponent = defineComponent<ErrorComponentType>({
   onInit: () => ({} as ErrorComponentType)
 })
 
-export const getEntityErrors = <T>(entity: Entity, component: Component<T, unknown, unknown>) => {
-  return getComponentState(entity, ErrorComponent)?.[component.name].value as Record<
-    keyof ComponentErrorsType<Component<T, unknown, unknown>>,
-    string
-  >
+export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {
+  return getComponentState(entity, ErrorComponent)?.[component.name].value as Record<ComponentErrorsType<C>, string>
 }

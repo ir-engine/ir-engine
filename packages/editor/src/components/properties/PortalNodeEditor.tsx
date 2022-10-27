@@ -109,10 +109,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           options={portals}
           value={portalComponent.linkedPortalId}
           onChange={updateProperty(PortalComponent, 'linkedPortalId')}
-          filterOption={(option: PortalFilterOption, searchString: string) => {
-            return option.label.includes(searchString || '')
-          }}
-          getOptionLabel={(data) => data.name}
         />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>

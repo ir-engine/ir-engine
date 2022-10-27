@@ -6,6 +6,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   Component,
+  ComponentErrorsType,
   getComponentState,
   hasComponent,
   removeComponent
@@ -15,7 +16,7 @@ import { ErrorComponent } from '../components/ErrorComponent'
 export const addError = <C extends Component>(
   entity: Entity,
   Component: C,
-  error: C['errors'][number],
+  error: ComponentErrorsType<C>,
   message?: string
 ) => {
   console.error('[addError]:', entity, Component.name, error)
@@ -25,7 +26,7 @@ export const addError = <C extends Component>(
   errors[Component.name][error].set(message ?? '')
 }
 
-export const removeError = <C extends Component>(entity: Entity, Component: C, error: C['errors'][number]) => {
+export const removeError = <C extends Component>(entity: Entity, Component: C, error: ComponentErrorsType<C>) => {
   if (!hasComponent(entity, ErrorComponent)) return
   const errors = getComponentState(entity, ErrorComponent)
   const componentErrors = errors[Component.name]

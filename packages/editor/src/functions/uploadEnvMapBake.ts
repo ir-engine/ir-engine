@@ -108,9 +108,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const nameComponent = getComponent(entity, NameComponent)
   const sceneName = accessEditorState().sceneName.value!
   const projectName = accessEditorState().projectName.value!
-  const filename = isSceneEntity
-    ? `${sceneName}.envmap.png`
-    : `${sceneName}-${nameComponent.name.replace(' ', '-')}.png`
+  const filename = isSceneEntity ? `${sceneName}.envmap.png` : `${sceneName}-${nameComponent.replace(' ', '-')}.png`
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
 

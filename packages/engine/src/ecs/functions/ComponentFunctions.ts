@@ -73,7 +73,7 @@ export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
 export type ComponentType<C extends Component> = NonNullable<C['map']['value'][keyof C['map']['value']]>
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 export type SetComponentType<C extends Component> = Parameters<C['onSet']>[2]
-export type ComponentErrorsType<C extends Component> = C['errors']
+export type ComponentErrorsType<C extends Component> = C['errors'][number]
 
 export const defineComponent = <
   ComponentType = true,

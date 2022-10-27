@@ -419,7 +419,7 @@ export default function HierarchyPanel({
       setPropertyOnEntityNode({
         affectedNodes: [node.entityNode ?? node.obj3d],
         component: NameComponent,
-        properties: [{ name }]
+        properties: [name]
       })
 
       const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
