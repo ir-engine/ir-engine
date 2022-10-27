@@ -4,8 +4,8 @@ import { Entity } from '../../ecs/classes/Entity'
 
 const { defineProperties } = Object
 
-type Vector3Store = { x: Float32Array; y: Float32Array; z: Float32Array }
-type QuaternionStore = { x: Float32Array; y: Float32Array; z: Float32Array; w: Float32Array }
+type Vector3Store = { x: Float64Array; y: Float64Array; z: Float64Array }
+type QuaternionStore = { x: Float64Array; y: Float64Array; z: Float64Array; w: Float64Array }
 
 export const proxifyVector3 = (store: Vector3Store, entity: Entity, vector3 = new Vector3()): Vector3 => {
   // Set the initial values

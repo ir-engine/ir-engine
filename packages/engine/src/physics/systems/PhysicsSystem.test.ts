@@ -1,6 +1,5 @@
 import assert from 'assert'
 import sinon from 'sinon'
-import { Vector3 } from 'three'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -9,7 +8,6 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
-import { VelocityComponent } from '../components/VelocityComponent'
 import { teleportObjectReceptor } from './PhysicsSystem'
 
 /**
@@ -35,8 +33,6 @@ describe('PhysicsSystem', () => {
     addComponent(entity, AvatarControllerComponent, controller)
     const avatar = { avatarHalfHeight: 1 } as any
     addComponent(entity, AvatarComponent, avatar)
-    const velocity = { linear: new Vector3().setScalar(1), angular: new Vector3().setScalar(1) } as any
-    addComponent(entity, VelocityComponent, velocity)
 
     teleportObjectReceptor(action, worldStub)
 
@@ -45,7 +41,5 @@ describe('PhysicsSystem', () => {
     assert(setPositionArg.x === action.pose[0])
     assert(setPositionArg.y === action.pose[1] + avatar.avatarHalfHeight)
     assert(setPositionArg.z === action.pose[2])
-    assert(velocity.linear.length() === 0)
-    assert(velocity.angular.length() === 0)
   })
 })

@@ -1,16 +1,16 @@
 import { Entity } from '../../ecs/classes/Entity'
 
 export type Vector3SoA = {
-  x: Float32Array
-  y: Float32Array
-  z: Float32Array
+  x: Float64Array
+  y: Float64Array
+  z: Float64Array
 }
 
 export type Vector4SoA = {
-  x: Float32Array
-  y: Float32Array
-  z: Float32Array
-  w: Float32Array
+  x: Float64Array
+  y: Float64Array
+  z: Float64Array
+  w: Float64Array
 }
 
 /**
