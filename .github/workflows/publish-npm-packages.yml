@@ -45,10 +45,14 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Install cross-env and ts-node
-        run: npm install cross-env@7.0.3 ts-node@10.8.2
+      - name: Move root package.json
+        run: mv package.json package.json.altered
+      - name: Install dependencies for running bump-project-versions
+        run: npm install cross-env@7.0.3 ts-node@10.8.2 cli@1.0.1 app-root-path@3.0.0
+      - name: Move root package.json back
+        run: mv package.json.altered package.json
       - name: Bump default and template project version
-        run: npm run bump-project-versions
+        run: node scripts/bump-project-versions.js
       - name: Run git add
         run: git add .
       - name: Commit changes
