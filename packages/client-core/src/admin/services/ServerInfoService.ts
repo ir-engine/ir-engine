@@ -11,7 +11,8 @@ const AdminServerInfoState = defineState({
   initial: () => ({
     servers: [] as Array<ServerInfoInterface>,
     retrieving: false,
-    fetched: false
+    fetched: false,
+    updateNeeded: true
   })
 })
 
@@ -34,16 +35,23 @@ const fetchServerInfoRetrievedReceptor = (
     return state.merge({
       servers: action.data,
       retrieving: false,
-      fetched: true
+      fetched: true,
+      updateNeeded: false
     })
   } catch (err) {
     NotificationService.dispatchNotify(err.message, { variant: 'error' })
   }
 }
 
+const serverInfoPodRemovedReceptor = (action: typeof AdminServerInfoActions.serverInfoPodRemoved.matches._TYPE) => {
+  const state = getState(AdminServerInfoState)
+  return state.merge({ updateNeeded: true })
+}
+
 export const AdminServerInfoReceptors = {
   fetchServerInfoRequestedReceptor,
-  fetchServerInfoRetrievedReceptor
+  fetchServerInfoRetrievedReceptor,
+  serverInfoPodRemovedReceptor
 }
 
 export const accessServerInfoState = () => getState(AdminServerInfoState)
@@ -71,6 +79,10 @@ export const ServerInfoService = {
     ]
 
     dispatchAction(AdminServerInfoActions.fetchServerInfoRetrieved({ data: serverInfo }))
+  },
+  removePod: async (podName: string) => {
+    await API.instance.client.service('server-info').remove(podName)
+    dispatchAction(AdminServerInfoActions.serverInfoPodRemoved({}))
   }
 }
 
@@ -82,5 +94,8 @@ export class AdminServerInfoActions {
   static fetchServerInfoRetrieved = defineAction({
     type: 'xre.client.AdminServerInfo.FETCH_SERVER_INFO_RETRIEVED' as const,
     data: matches.array as Validator<unknown, ServerInfoInterface[]>
+  })
+  static serverInfoPodRemoved = defineAction({
+    type: 'xre.client.AdminLocation.SERVER_INFO_POD_REMOVED' as const
   })
 }

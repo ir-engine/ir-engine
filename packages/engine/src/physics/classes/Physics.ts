@@ -44,7 +44,6 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { getTagComponentForRigidBody, RigidBodyComponent } from '../components/RigidBodyComponent'
-import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
@@ -79,28 +78,13 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  const rigidBody = addComponent(entity, RigidBodyComponent, {
-    body: body,
-    previousPosition: proxifyVector3(RigidBodyComponent.previousPosition, entity),
-    previousRotation: proxifyQuaternion(RigidBodyComponent.previousRotation, entity),
-    previousLinearVelocity: proxifyVector3(RigidBodyComponent.previousLinearVelocity, entity),
-    previousAngularVelocity: proxifyVector3(RigidBodyComponent.previousAngularVelocity, entity)
-  })
-
-  rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
-  rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
-
+  const rigidBody = addComponent(entity, RigidBodyComponent, { body })
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
   addComponent(entity, RigidBodyTypeTagComponent, true)
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }
   body.userData = rigidBodyUserdata
-
-  // TODO: Add only when dynamic or kinematic?
-  const linearVelocity = proxifyVector3(VelocityComponent.linear, entity)
-  const angularVelocity = proxifyVector3(VelocityComponent.angular, entity)
-  addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
 
   return body
 }
@@ -306,7 +290,6 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
 
 function removeRigidBody(entity: Entity, world: World) {
   removeComponent(entity, RigidBodyComponent)
-  removeComponent(entity, VelocityComponent)
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {

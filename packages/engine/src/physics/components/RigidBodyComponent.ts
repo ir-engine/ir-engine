@@ -2,43 +2,47 @@ import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { createMappedComponent, defineComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 
-interface RigidBodyComponentType {
-  body: RigidBody
-  previousPosition: Vector3
-  previousRotation: Quaternion
-  previousLinearVelocity: Vector3
-  previousAngularVelocity: Vector3
-}
-
-const { f32 } = Types
-const Vector3Schema = { x: f32, y: f32, z: f32 }
-const QuaternionSchema = { x: f32, y: f32, z: f32, w: f32 }
+const { f64 } = Types
+const Vector3Schema = { x: f64, y: f64, z: f64 }
+const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
 const SCHEMA = {
   previousPosition: Vector3Schema,
   previousRotation: QuaternionSchema,
   previousLinearVelocity: Vector3Schema,
-  previousAngularVelocity: Vector3Schema
+  previousAngularVelocity: Vector3Schema,
+  position: Vector3Schema,
+  rotation: QuaternionSchema,
+  linearVelocity: Vector3Schema,
+  angularVelocity: Vector3Schema
 }
 
-export const RigidBodyComponent = defineComponent<RigidBodyComponentType, typeof SCHEMA, RigidBodyComponentType>({
+export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
   schema: SCHEMA,
 
-  onAdd: (entity) => {
+  onAdd(entity) {
     return {
-      body: null!,
-      previousPosition: new Vector3(),
-      previousRotation: new Quaternion(),
-      previousLinearVelocity: new Vector3(),
-      previousAngularVelocity: new Vector3()
+      body: null! as RigidBody,
+      previousPosition: proxifyVector3(this.previousPosition, entity),
+      previousRotation: proxifyQuaternion(this.previousRotation, entity),
+      previousLinearVelocity: proxifyVector3(this.previousLinearVelocity, entity),
+      previousAngularVelocity: proxifyVector3(this.previousAngularVelocity, entity),
+      position: proxifyVector3(this.position, entity),
+      rotation: proxifyQuaternion(this.rotation, entity),
+      linearVelocity: proxifyVector3(this.linearVelocity, entity),
+      angularVelocity: proxifyVector3(this.angularVelocity, entity)
     }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (typeof json.body === 'object') component.body = json.body as RigidBody
+  onUpdate: (entity, component, json: { body: RigidBody }) => {
+    if (!json?.body) throw new Error('RigidBodyComponent expects a RigidBody instance')
+    component.body = json.body
+    component.previousPosition.copy(component.body.translation() as Vector3)
+    component.previousRotation.copy(component.body.rotation() as Quaternion)
   },
 
   onRemove: (entity, component) => {

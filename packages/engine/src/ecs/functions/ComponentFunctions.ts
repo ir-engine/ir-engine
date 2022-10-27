@@ -17,21 +17,21 @@ bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 /**
  * @todo move this to engine scope
  */
-export const ComponentMap = new Map<string, Component<unknown, unknown, unknown>>()
+export const ComponentMap = new Map<string, Component>()
 globalThis.ComponentMap = ComponentMap
 
-export interface ComponentPartial<ComponentType = unknown, Schema = unknown, JSON = unknown> {
+export interface ComponentPartial<ComponentType = unknown, Schema extends bitECS.ISchema = {}, JSON = unknown> {
   name: string
   schema?: Schema
   isTag?: boolean
-  onAdd?: (entity: Entity) => ComponentType
+  onAdd?: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType
   toJSON?: (entity: Entity, component: ComponentType) => JSON
   onUpdate?: (entity: Entity, component: ComponentType, json: DeepReadonly<Partial<JSON>>) => void
   onRemove?: (entity: Entity, component: ComponentType) => void
 }
-export interface Component<ComponentType = unknown, Schema = unknown, JSON = unknown>
+export interface Component<ComponentType = unknown, Schema extends bitECS.ISchema = {}, JSON = unknown>
   extends ComponentPartial<ComponentType, Schema, JSON> {
-  onAdd: (entity: Entity) => ComponentType
+  onAdd: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType
   toJSON: (entity: Entity, component: ComponentType) => JSON
   onUpdate: (entity: Entity, component: ComponentType, json: DeepReadonly<Partial<JSON>>) => void
   onRemove: (entity: Entity, component: ComponentType) => void
@@ -84,12 +84,12 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
   return Component
 }
 
-export const getComponent = <ComponentType>(
+export const getComponent = <C extends Component>(
   entity: Entity,
-  component: Component<ComponentType, unknown, unknown>,
+  component: C,
   getRemoved = false,
   world = Engine.instance.currentWorld
-): ComponentType => {
+): ComponentType<C> => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[getComponent]: entity is undefined')
   }
@@ -99,8 +99,8 @@ export const getComponent = <ComponentType>(
   if (!component.map) {
     throw new Error('[getComponent]: tag components have no data')
   }
-  if (getRemoved) return component.map?.get(entity)!
-  if (bitECS.hasComponent(world, component, entity)) return component.map?.get(entity)!
+  if (getRemoved) return component.map?.get(entity)! as ComponentType<C>
+  if (bitECS.hasComponent(world, component, entity)) return component.map?.get(entity)! as ComponentType<C>
   return null!
 }
 
@@ -189,9 +189,9 @@ export const addComponent = <C extends Component>(
   return setComponent(entity, component, args, world)
 }
 
-export const hasComponent = <T, S, J>(
+export const hasComponent = <C extends Component>(
   entity: Entity,
-  component: Component<T, S, J>,
+  component: C,
   world = Engine.instance.currentWorld
 ) => {
   if (typeof entity === 'undefined' || entity === null) {
@@ -200,23 +200,19 @@ export const hasComponent = <T, S, J>(
   return bitECS.hasComponent(world, component, entity)
 }
 
-export const getOrAddComponent = <T, S, J>(
+export const getOrAddComponent = <C extends Component, J extends ReturnType<C['toJSON']>>(
   entity: Entity,
-  component: Component<T, S, J>,
+  component: C,
   args: J,
   getRemoved = false,
   world = Engine.instance.currentWorld
-) => {
+): ComponentType<C> => {
   return hasComponent(entity, component, world)
     ? getComponent(entity, component, getRemoved, world)
     : addComponent(entity, component, args, world)
 }
 
-export const removeComponent = <T, S, J>(
-  entity: Entity,
-  component: Component<T, S, J>,
-  world = Engine.instance.currentWorld
-) => {
+export const removeComponent = (entity: Entity, component: Component, world = Engine.instance.currentWorld) => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[removeComponent]: entity is undefined')
   }
@@ -271,7 +267,7 @@ export const removeAllComponents = (entity: Entity, world = Engine.instance.curr
   }
 }
 
-export const serializeComponent = <J>(entity: Entity, Component: Component<unknown, unknown, J>) => {
+export const serializeComponent = <J>(entity: Entity, Component: Component<unknown, any, J>) => {
   const component = getComponent(entity, Component)
   return Component.toJSON(entity, component)
 }

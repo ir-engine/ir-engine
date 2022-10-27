@@ -15,7 +15,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getAllComponents, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
@@ -283,26 +283,26 @@ describe('DataReader', () => {
     const rotation = TransformComponent.rotation
 
     const [x, y, z] = [1.333, 2.333, 3.333]
-    VelocityComponent.linear.x[entity] = x
-    VelocityComponent.linear.y[entity] = y
-    VelocityComponent.linear.z[entity] = z
+    RigidBodyComponent.linearVelocity.x[entity] = x
+    RigidBodyComponent.linearVelocity.y[entity] = y
+    RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(VelocityComponent.linear)(view, entity)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity)
 
-    VelocityComponent.linear.x[entity] = 0
-    VelocityComponent.linear.y[entity] = 0
-    VelocityComponent.linear.z[entity] = 0
+    RigidBodyComponent.linearVelocity.x[entity] = 0
+    RigidBodyComponent.linearVelocity.y[entity] = 0
+    RigidBodyComponent.linearVelocity.z[entity] = 0
 
     view.cursor = 0
 
-    readCompressedVector3(VelocityComponent.linear)(view, entity)
+    readCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity)
 
     strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.x[entity], 1), roundNumberToPlaces(x, 1))
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.y[entity], 1), roundNumberToPlaces(y, 1))
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.z[entity], 1), roundNumberToPlaces(z, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.y[entity], 1), roundNumberToPlaces(y, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.z[entity], 1), roundNumberToPlaces(z, 1))
   })
 
   it('should readTransform', () => {
@@ -554,7 +554,7 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 24)
+    strictEqual(view.cursor, 36)
   })
 
   it('should not readEntity if entity is undefined', () => {
@@ -599,7 +599,7 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 24)
+    strictEqual(view.cursor, 36)
   })
 
   it('should readEntities', () => {
