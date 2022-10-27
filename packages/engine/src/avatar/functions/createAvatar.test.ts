@@ -11,7 +11,6 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -45,7 +44,6 @@ describe('createAvatar', () => {
 
     // TODO: Update for rapier physics stuff
     assert(hasComponent(entity, TransformComponent))
-    assert(hasComponent(entity, VelocityComponent))
     assert(hasComponent(entity, AvatarComponent))
     assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))

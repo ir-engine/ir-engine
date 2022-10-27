@@ -39,6 +39,11 @@ export default function () {
       systemLoader: () => Promise.resolve({ default: AvatarTeleportSystem })
     },
     {
+      uuid: 'xre.engine.AnimationSystem',
+      type: SystemUpdateType.UPDATE,
+      systemLoader: () => Promise.resolve({ default: AnimationSystem })
+    },
+    {
       uuid: 'xre.engine.AvatarControllerSystem',
       type: SystemUpdateType.FIXED,
       systemLoader: () => Promise.resolve({ default: AvatarControllerSystem })
@@ -72,11 +77,6 @@ export default function () {
       uuid: 'xre.engine.AvatarLoadingSystem',
       type: SystemUpdateType.PRE_RENDER,
       systemLoader: () => Promise.resolve({ default: AvatarLoadingSystem })
-    },
-    {
-      uuid: 'xre.engine.AnimationSystem',
-      type: SystemUpdateType.PRE_RENDER,
-      systemLoader: () => Promise.resolve({ default: AnimationSystem })
     },
     {
       uuid: 'xre.engine.ParticleSystem',

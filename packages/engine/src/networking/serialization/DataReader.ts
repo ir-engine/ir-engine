@@ -1,4 +1,5 @@
 import { TypedArray } from 'bitecs'
+import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -9,7 +10,7 @@ import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponent
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
@@ -176,9 +177,12 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
 }
 
 export const readPosition = readVector3(TransformComponent.position)
-export const readLinearVelocity = readVector3(VelocityComponent.linear)
-export const readAngularVelocity = readVector3(VelocityComponent.angular)
 export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
+
+export const readBodyPosition = readVector3(RigidBodyComponent.position)
+export const readBodyRotation = readVector3(RigidBodyComponent.rotation)
+export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
+export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
 
 export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Set<Entity>) => {
   const changeMask = readUint8(v)
@@ -190,11 +194,21 @@ export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Se
   }
 }
 
-export const readVelocity = (v: ViewCursor, entity: Entity) => {
+export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readBodyPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readBodyRotation(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readBodyLinearVelocity(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readBodyAngularVelocity(v, entity)
+  if (hasComponent(entity, RigidBodyComponent)) {
+    const rigidBody = getComponent(entity, RigidBodyComponent)
+    const body = rigidBody.body
+    body.setTranslation(rigidBody.position, true)
+    body.setRotation(rigidBody.rotation, true)
+    body.setLinvel(rigidBody.linearVelocity, true)
+    body.setAngvel(rigidBody.angularVelocity, true)
+  }
 }
 
 export const readXRHeadPosition = readVector3(AvatarHeadIKComponent.target.position)
@@ -272,7 +286,7 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
 
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, world.dirtyTransforms)
-  if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readRigidBody(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRHead(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRLeftHand(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRRightHand(v, entity)

@@ -261,6 +261,8 @@ export const setCameraRotation: InputBehaviorType = (
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
   const followComponent = getComponent(cameraEntity, FollowCameraComponent)
 
+  if (!followComponent) return
+
   switch (inputKey) {
     case BaseInput.CAMERA_ROTATE_LEFT:
       followComponent.theta += 100 * delta
