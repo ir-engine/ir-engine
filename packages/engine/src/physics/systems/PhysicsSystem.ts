@@ -153,22 +153,6 @@ export default async function PhysicsSystem(world: World) {
       rigidBody.previousAngularVelocity.copy(body.angvel() as Vector3)
     }
 
-    // reset position and velocity for networked avatars every frame
-    // (this needs to be updated each frame, because remote avatars are not locally constrained)
-    // e.g., applying physics simulation to remote avatars is tricky, because avatar colliders should always be upright.
-    // TODO: look into constraining avatar bodies w/ the actual physics engine
-    // TODO: we need to ensure that physics state is applied on the same frame as the remote simulation
-    // for (const entity of networkedAvatarBodyQuery()) {
-    //   const { body } = getComponent(entity, RigidBodyComponent)
-    //   const { position, rotation } = getComponent(entity, TransformComponent)
-    //   const { linear, angular } = getComponent(entity, VelocityComponent)
-    //   body.setTranslation(position, true)
-    //   body.setRotation(rotation, true)
-    //   body.setLinvel(linear, true)
-    //   // angular velocity is unneeded for avatars
-    //   // body.setAngvel(angular, true)
-    // }
-
     // step physics world
     world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
     world.physicsWorld.step(world.physicsCollisionEventQueue)
