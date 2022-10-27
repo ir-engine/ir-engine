@@ -599,7 +599,7 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 24)
+    strictEqual(view.cursor, 36)
   })
 
   it('should readEntities', () => {
