@@ -6,14 +6,10 @@
   "etherealEngine": {
     "version": "1.0.0-rc4"
   },
-  "scripts": {
-    "test": "mocha --config .mocharc.js"
-  },
+  "scripts": {},
   "peerDependencies": {},
   "dependencies": {},
-  "devDependencies": {
-    "mocha": "10.0.0",
-    "trace-unhandled": "2.0.1"
+  "devDependencies": {"trace-unhandled": "2.0.1"
   },
   "license": "ISC"
 }
