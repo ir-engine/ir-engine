@@ -78,8 +78,9 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  const rigidBody = addComponent(entity, RigidBodyComponent, { body })
-  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.value.bodyType())
+  addComponent(entity, RigidBodyComponent, { body })
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
   addComponent(entity, RigidBodyTypeTagComponent, true)
 
   // set entity in userdata for fast look up when required.

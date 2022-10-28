@@ -61,7 +61,7 @@ describe.skip('Equippables Integration Tests', () => {
     Physics.createRigidBodyForGroup(equippableEntity, world.physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
-    const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
+    addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: world.worldNetwork.hostId,
       authorityUserId: world.worldNetwork.hostId,
       networkId: 0 as NetworkId

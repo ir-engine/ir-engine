@@ -263,7 +263,7 @@ describe('DataWriter', () => {
     })
 
     // add component
-    const xrHandsInput = addComponent(entity, XRHandsInputComponent, { hands: hands })
+    addComponent(entity, XRHandsInputComponent, { hands: hands })
 
     writeXRHands(writeView, entity)
 

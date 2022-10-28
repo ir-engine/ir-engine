@@ -55,7 +55,8 @@ describe('ComponentFunctions', async () => {
       const TestComponent = createMappedComponent('TestComponent')
 
       const entity = createEntity()
-      const component = addComponent(entity, TestComponent, {})
+      addComponent(entity, TestComponent, {})
+      const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
       assert.ok(bitECS.hasComponent(useWorld(), TestComponent, entity))
@@ -65,7 +66,8 @@ describe('ComponentFunctions', async () => {
       const TestComponent = createMappedComponent<{ value: number }>('TestComponent')
 
       const entity = createEntity()
-      const component = addComponent(entity, TestComponent, { value: 5 })
+      addComponent(entity, TestComponent, { value: 5 })
+      const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
       assert.equal(component.value, 5)

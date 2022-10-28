@@ -200,7 +200,6 @@ export const setComponent = <C extends Component>(
     const root = Component.reactorRoots.get(entity)
     if (!root?.isRunning) root?.run()
   })
-  return Component.map[entity] as State<ComponentType<C>>
 }
 
 /**
@@ -256,7 +255,7 @@ export const addComponent = <C extends Component>(
   world = Engine.instance.currentWorld
 ) => {
   if (hasComponent(entity, Component, world)) throw new Error(`${Component.name} already exists on entity ${entity}`)
-  return setComponent(entity, Component, args, world) as State<DeepReadonly<ComponentType<C>>>
+  setComponent(entity, Component, args, world)
 }
 
 export const hasComponent = <C extends Component>(

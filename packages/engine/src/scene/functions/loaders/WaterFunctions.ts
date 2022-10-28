@@ -1,6 +1,6 @@
 import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, ComponentType, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Water } from '../../classes/Water'
 import { setCallback } from '../../components/CallbackComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
@@ -8,9 +8,8 @@ import { UpdatableCallback, UpdatableComponent } from '../../components/Updatabl
 import { WaterComponent } from '../../components/WaterComponent'
 
 export const deserializeWater: ComponentDeserializeFunction = (entity: Entity) => {
-  const { water } = setComponent(entity, WaterComponent, { water: new Water() }) as any as ComponentType<
-    typeof WaterComponent
-  >
+  setComponent(entity, WaterComponent, { water: new Water() })
+  const water = getComponent(entity, WaterComponent).water
   addObjectToGroup(entity, water)
   setCallback(entity, UpdatableCallback, (dt: number) => {
     water.update(dt)

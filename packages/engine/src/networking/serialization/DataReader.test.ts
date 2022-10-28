@@ -395,7 +395,7 @@ describe('DataReader', () => {
     })
 
     // add component
-    const xrHandsInput = addComponent(entity, XRHandsInputComponent, { hands: hands })
+    addComponent(entity, XRHandsInputComponent, { hands: hands })
 
     writeXRHands(view, entity)
 

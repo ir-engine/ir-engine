@@ -28,11 +28,8 @@ describe('avatarInputSchema', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    const follower = addComponent(
-      world.cameraEntity,
-      FollowCameraComponent,
-      FollowCameraDefaultValues
-    ) as any as ComponentType<typeof FollowCameraComponent>
+    addComponent(world.cameraEntity, FollowCameraComponent, FollowCameraDefaultValues)
+    const follower = getComponent(world.cameraEntity, FollowCameraComponent)
     const firstValue = follower.locked
     fixedCameraBehindAvatar(entity, 'Test', {
       type: InputType.ONEDIM,
@@ -47,11 +44,8 @@ describe('avatarInputSchema', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    const follower = addComponent(
-      Engine.instance.currentWorld.cameraEntity,
-      FollowCameraComponent,
-      FollowCameraDefaultValues
-    ) as any as ComponentType<typeof FollowCameraComponent>
+    addComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent, FollowCameraDefaultValues)
+    const follower = getComponent(world.cameraEntity, FollowCameraComponent)
     const firstValue = follower.shoulderSide
     switchShoulderSide(entity, 'Test', {
       type: InputType.ONEDIM,
@@ -80,13 +74,14 @@ describe('avatarInputSchema', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    const tcr = addComponent(entity, TargetCameraRotationComponent, {
+    addComponent(entity, TargetCameraRotationComponent, {
       phi: 1,
       phiVelocity: { value: 0 },
       theta: 2,
       thetaVelocity: { value: 0 },
       time: 0.3
-    }) as any as ComponentType<typeof FollowCameraComponent>
+    })
+    const tcr = getComponent(entity, TargetCameraRotationComponent)
 
     const phi = 5
     const theta = 4
@@ -102,7 +97,7 @@ describe('avatarInputSchema', () => {
     const entity = createEntity(world)
 
     const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
-    const c = addComponent(entity, AvatarControllerComponent, {
+    addComponent(entity, AvatarControllerComponent, {
       cameraEntity: null!,
       bodyCollider: null!,
       currentSpeed: 0,
@@ -114,7 +109,8 @@ describe('avatarInputSchema', () => {
       localMovementDirection: new Vector3(),
       velocitySimulator,
       lastPosition: new Vector3()
-    }) as any as ComponentType<typeof AvatarControllerComponent>
+    })
+    const c = getComponent(entity, AvatarControllerComponent)
 
     const firstValue = c.isWalking
 

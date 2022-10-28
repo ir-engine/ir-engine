@@ -110,10 +110,11 @@ export default async function MountPointSystem(world: World) {
           true
         )
         rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-        const sitting = addComponent(avatarEntity, SittingComponent, {
+        addComponent(avatarEntity, SittingComponent, {
           mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
-        }).value as any as ComponentType<typeof SittingComponent>
+        })
+        const sitting = getComponent(avatarEntity, SittingComponent)
         getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
 
         const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)

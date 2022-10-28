@@ -60,9 +60,8 @@ describe('avatarFunctions Unit', async () => {
   describe('rigAvatarModel', () => {
     it('should add rig to skeleton', async () => {
       const entity = createEntity()
-      const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any) as any as ComponentType<
-        typeof AvatarAnimationComponent
-      >
+      addComponent(entity, AvatarAnimationComponent, {} as any)
+      const animationComponent = getComponent(entity, AvatarAnimationComponent)
       const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
       AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh()
       rigAvatarModel(entity)(model)

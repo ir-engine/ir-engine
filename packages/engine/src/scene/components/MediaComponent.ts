@@ -265,9 +265,10 @@ export function MediaReactor({ root }: EntityReactorProps) {
       }
 
       if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
-        const mediaElementState = setComponent(entity, MediaElementComponent, {
+        setComponent(entity, MediaElementComponent, {
           element: document.createElement(assetClass) as HTMLMediaElement
         })
+        const mediaElementState = getComponentState(entity, MediaElementComponent)
 
         const element = mediaElementState.element.value
 
@@ -313,7 +314,8 @@ export function MediaReactor({ root }: EntityReactorProps) {
         audioNodes.gain.gain.setTargetAtTime(media.volume.value, Engine.instance.audioContext.currentTime, 0.1)
       }
 
-      const mediaElementState = setComponent(entity, MediaElementComponent)
+      setComponent(entity, MediaElementComponent)
+      const mediaElementState = getComponentState(entity, MediaElementComponent)
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)
