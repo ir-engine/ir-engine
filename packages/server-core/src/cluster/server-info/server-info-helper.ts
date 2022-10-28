@@ -1,5 +1,8 @@
 import * as k8s from '@kubernetes/client-node'
+import { Op } from 'sequelize'
 
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { ServerContainerInfo, ServerInfoInterface, ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
 
 import { Application } from '../../../declarations'
@@ -44,6 +47,8 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
         app,
         `${config.server.releaseName}-instanceserver-`
       )
+
+      await populateInstanceServerType(app, instancePods.pods)
       serverInfo.push(instancePods)
 
       const analyticsPods = await getPodsData(
@@ -171,4 +176,58 @@ const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {
       restarts: item.restartCount
     } as ServerContainerInfo
   })
+}
+
+const populateInstanceServerType = async (app: Application, items: ServerPodInfo[]) => {
+  if (items.length === 0) {
+    return
+  }
+
+  const instances = (await app.service('instance').Model.findAll({
+    where: {
+      ended: false
+    },
+    include: [
+      {
+        model: app.service('location').Model,
+        required: false
+      }
+    ]
+  })) as Instance[]
+
+  if (instances.length === 0) {
+    return
+  }
+
+  const channelInstances = instances.filter((item) => item.channelId)
+  let channels: Channel[] = []
+
+  if (channelInstances) {
+    channels = (await app.service('channel').Model.findAll({
+      where: {
+        instanceId: {
+          [Op.in]: channelInstances.map((item) => item.channelId)
+        }
+      }
+    })) as Channel[]
+  }
+
+  for (const item of items) {
+    const instanceExists = instances.find((instance) => instance.podName === item.name)
+
+    item.instanceId = instanceExists ? instanceExists.id : ''
+    item.currentUsers = instanceExists ? instanceExists.currentUsers : 0
+
+    if (instanceExists && instanceExists.locationId) {
+      item.type = `World (${instanceExists.location.name})`
+    } else if (instanceExists && instanceExists.channelId) {
+      item.type = 'Media'
+      const channelExists = channels.find((channel) => channel.instanceId === instanceExists.id)
+      if (channelExists && channelExists.channelType) {
+        item.type = `Media (${channelExists.channelType})`
+      }
+    } else {
+      item.type = 'Unassigned'
+    }
+  }
 }

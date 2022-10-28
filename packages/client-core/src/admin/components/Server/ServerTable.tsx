@@ -57,8 +57,11 @@ const ServerTable = ({ selectedCard }: Props) => {
       el,
       name: el.name,
       status: el.status,
+      type: el.type || '',
+      currentUsers: el.currentUsers?.toString() || '',
       age: timeAgo.format(new Date(el.age)),
       restarts: el.containers.map((item) => item.restarts).join(', '),
+      instanceId: el.instanceId || '',
       containers: (
         <>
           {el.containers.map((item) => (
@@ -152,9 +155,12 @@ const ServerTable = ({ selectedCard }: Props) => {
   const serverInfoDataColumns: ServerColumn[] = [
     { id: 'name', label: t('admin:components.server.name'), minWidth: 65 },
     { id: 'status', label: t('admin:components.server.status'), minWidth: 65 },
+    { id: 'type', label: t('admin:components.server.type'), minWidth: 65 },
+    { id: 'currentUsers', label: t('admin:components.server.users'), minWidth: 65 },
     { id: 'restarts', label: t('admin:components.server.restarts'), minWidth: 65 },
     { id: 'containers', label: t('admin:components.server.containers'), minWidth: 65 },
     { id: 'age', label: t('admin:components.server.age'), minWidth: 65 },
+    { id: 'instanceId', label: t('admin:components.server.instance'), minWidth: 65 },
     {
       id: 'action',
       label: (

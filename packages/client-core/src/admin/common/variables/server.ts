@@ -11,8 +11,11 @@ export interface ServerPodData {
   el: ServerPodInfo
   name: string
   status: string
+  type: string
+  currentUsers: string
   age: string
   containers: JSX.Element
   restarts: string
+  instanceId: string
   action: JSX.Element
 }

@@ -9,12 +9,17 @@ export interface ServerPodInfo {
   status: string
   age: string | Date
   containers: ServerContainerInfo[]
+  type?: string
+  instanceId?: string
+  currentUsers?: number
 }
+
+export type ServerContainerStatus = 'Running' | 'Terminated' | 'Waiting' | 'Undefined'
 
 export interface ServerContainerInfo {
   name: string
   restarts: number
-  status: string
+  status: ServerContainerStatus
   ready: boolean
   started: boolean
 }
