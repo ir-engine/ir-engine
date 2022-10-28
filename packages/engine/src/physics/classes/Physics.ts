@@ -167,7 +167,6 @@ function createColliderDesc(
 
   // If custom size has been provided use that else use mesh scale
   const colliderSize = colliderDescOptions.size ? colliderDescOptions.size : mesh.scale
-
   let colliderDesc: ColliderDesc
   switch (shapeType as ShapeType) {
     case ShapeType.Cuboid:
@@ -245,6 +244,7 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
     obj.traverse((mesh: Mesh) => {
       // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
+      args.size = args.size ? new Vector3().copy(args.size).multiply(mesh.scale) : mesh.scale
       const colliderDesc = createColliderDesc(mesh, args)
       if (colliderDesc) {
         if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)

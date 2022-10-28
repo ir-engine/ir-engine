@@ -1,3 +1,4 @@
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { dispatchAction, getState } from '@xrengine/hyperflux'
@@ -19,10 +20,11 @@ import {
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
+import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { getControlMode } from '../../../xr/XRState'
-import { CallbackComponent, setCallback } from '../../components/CallbackComponent'
+import { CallbackComponent, EmptyCallback, setCallback } from '../../components/CallbackComponent'
 import { ColliderComponent } from '../../components/ColliderComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
 import {
@@ -52,7 +54,20 @@ export const updatePortal = (entity: Entity) => {
   setCallback(entity, 'teleport', portalTriggerEnter)
 
   if (!hasComponent(entity, ColliderComponent))
-    addComponent(entity, ColliderComponent, { ...SCENE_COMPONENT_PORTAL_COLLIDER_VALUES })
+    addComponent(entity, ColliderComponent, {
+      bodyType: RigidBodyType.Fixed,
+      shapeType: ShapeType.Cuboid,
+      scaleMultiplier: { x: 1, y: 1, z: 1 } as Vector3,
+      triggerCount: 1,
+
+      removeMesh: true,
+      collisionLayer: CollisionGroups.Trigger,
+      collisionMask: CollisionGroups.Avatars,
+
+      target: [''],
+      onEnter: ['teleport'],
+      onExit: [EmptyCallback]
+    })
 
   if (portalComponent.mesh && portalComponent.previewType === PortalPreviewTypeSimple) {
     portalComponent.mesh.removeFromParent()
@@ -116,6 +131,7 @@ export const revertAvatarToMovingStateFromTeleport = (world: World) => {
 }
 
 export const portalTriggerEnter = (triggerEntity: Entity) => {
+  console.log('Should be teleported')
   if (!getState(EngineState).isTeleporting.value && getComponent(triggerEntity, PortalComponent)) {
     const portalComponent = getComponent(triggerEntity, PortalComponent)
     Engine.instance.currentWorld.activePortal = portalComponent
