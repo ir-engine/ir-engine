@@ -111,7 +111,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
     name,
     schema,
     onSet: (entity, component, json) => {
-      Component.map[entity].set(json)
+      Component.map[entity].set(json ?? true)
     }
   })
   return Component

@@ -2,6 +2,7 @@ import assert from 'assert'
 import { MathUtils } from 'three'
 
 import { createEngine } from '../../initializeEngine'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
 import { createEntity } from '../functions/EntityFunctions'
@@ -41,7 +42,7 @@ describe('EntityTree', () => {
       const node = createEntityNode(createEntity())
       addToEntityTreeMaps(node)
       assert(world.entityTree.entityNodeMap.get(node.entity))
-      assert(world.entityTree.uuidNodeMap.get(node.uuid))
+      assert(UUIDComponent.entitiesByUUID[node.uuid].value)
     })
   })
 
@@ -51,7 +52,7 @@ describe('EntityTree', () => {
       addEntityNodeChild(node, root)
       removeFromEntityTreeMaps(node)
       assert(!world.entityTree.entityNodeMap.get(node.entity))
-      assert(!world.entityTree.uuidNodeMap.get(node.uuid))
+      assert(UUIDComponent.entitiesByUUID[node.uuid].value)
     })
   })
 
@@ -59,9 +60,7 @@ describe('EntityTree', () => {
     it('will initialize entity tree', () => {
       initializeEntityTree()
       assert(world.entityTree.entityNodeMap)
-      assert(world.entityTree.uuidNodeMap)
       assert.equal(world.entityTree.entityNodeMap.size, 1)
-      assert.equal(world.entityTree.uuidNodeMap.size, 1)
     })
   })
 
