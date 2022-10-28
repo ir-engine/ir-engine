@@ -1,4 +1,5 @@
 import { subscribable } from '@hookstate/subscribable'
+import { entityExists } from 'bitecs'
 import { Object3D, Scene } from 'three'
 
 import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
@@ -67,6 +68,9 @@ export const ModelComponent = defineComponent({
               scene = new Object3D() as Scene
               break
           }
+
+          if (!entityExists(Engine.instance.currentWorld, entity)) return
+
           scene.userData.src = model.src
           if (state.scene.value) removeObjectFromGroup(entity, state.scene.value)
           state.scene.set(scene)
