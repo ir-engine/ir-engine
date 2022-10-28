@@ -64,14 +64,11 @@ const ServerTable = ({ selectedCard }: Props) => {
       restarts: el.containers.map((item) => item.restarts).join(', '),
       instanceId: el.instanceId ? (
         <a
-          href={`${config.client.clientUrl}/location/${el.locationSlug}?instanceId=${el.instanceId}`}
+          href={`${window.location.protocol}//${window.location.host}/location/${el.locationSlug}?instanceId=${el.instanceId}`}
+          target="_blank"
           className={styles.actionStyle}
-          onClick={() => {
-            setSelectedPod(el)
-            setOpenConfirm(true)
-          }}
         >
-          {el.instanceId}
+          <span className={styles.spanDange}>{el.instanceId}</span>
         </a>
       ) : (
         <span />
