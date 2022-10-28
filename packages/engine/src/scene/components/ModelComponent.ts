@@ -58,6 +58,7 @@ export const ModelComponent = defineComponent({
                 uuid
               })) as GLTF
               scene = gltf.scene as Scene
+              scene.animations = gltf.animations
               break
             case '.fbx':
             case '.usdz':

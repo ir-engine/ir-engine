@@ -7,6 +7,8 @@ export const enum StandardCallbacks {
   STOP = 'xre.stop'
 }
 
+export const EmptyCallback = 'Empty'
+
 export const CallbackComponent = createMappedComponent<Map<string, (...params: any) => void>>('CallbackComponent')
 
 export function setCallback(entity: Entity, key: string, callback: (...params: any) => void) {

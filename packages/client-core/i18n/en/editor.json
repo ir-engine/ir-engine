@@ -184,8 +184,11 @@
       "error-url": "Error Loading From URL"
     },
     "collider": {
-      "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
-      "lbl-isTrigger": "Trigger"
+      "description": "An invisible collider that objects will bounce off of or rest on top of.\nSetting trigger events can make stuff happen on player touch.",
+      "lbl-events": "Trigger Events",
+      "lbl-shape": "Shape",
+      "lbl-scale": "Scale Multiplier",
+      "lbl-type": "Type"
     },
     "camera": {
       "name": "Camera",
@@ -296,6 +299,14 @@
       "lbl-skyColor": "Sky Color",
       "lbl-groundColor": "Ground Color",
       "lbl-intensity": "Intensity"
+    },
+    "animationSequencer":{
+      "name": "Animation Sequencer",
+      "description": "Plays animations on a target object when prompted by a trigger.",
+      "lbl-targetObject": "Target Object",
+      "lbl-animationIndex": "Animation Index",
+      "lbl-loop": "Loop Animation",
+      "lbl-playOnStart": "Play on Start"
     },
     "image": {
       "name": "Image",
@@ -544,10 +555,13 @@
       "lbl-scale": "Scale"
     },
     "triggereVolume": {
-      "description": "Sets a property on the target object on enter and leave.",
+      "description": "Calls a function on the target object on trigger",
+      "eventDescription": "Trigger Event:",
       "lbl-target": "Object",
-      "lbl-onenter": "On Enter",
-      "lbl-onexit": "On Exit",
+      "lbl-targetComponent": "Target Component",
+      "lbl-onenter": "On Player Touch",
+      "lbl-onexit": "On Player Exit",
+      "lbl-triggerType": "Trigger Type",
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
       "ph-selectNode": "Select node..."

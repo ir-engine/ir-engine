@@ -3,7 +3,8 @@ import { Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'th
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { ColliderComponentType } from './ColliderComponent'
+import { EmptyCallback } from './CallbackComponent'
+import { ColliderComponent } from './ColliderComponent'
 
 export type PortalComponentType = {
   location: string
@@ -41,10 +42,11 @@ export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
 export const SCENE_COMPONENT_PORTAL_COLLIDER_VALUES = {
   bodyType: RigidBodyType.Fixed,
   shapeType: ShapeType.Cuboid,
-  isTrigger: true,
+  isTrigger: 1,
   removeMesh: true,
   collisionLayer: CollisionGroups.Trigger,
   collisionMask: CollisionGroups.Avatars,
-  target: '',
-  onEnter: 'teleport'
-} as ColliderComponentType
+  target: [''],
+  onEnter: ['teleport'],
+  onExit: [EmptyCallback]
+}
