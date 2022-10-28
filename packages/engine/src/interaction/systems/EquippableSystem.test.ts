@@ -63,7 +63,8 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const equippedComponent = getComponent(player, EquippedComponent)
     addComponent(player, EquipperComponent, { equippedEntity: item })
 
-    const equippableTransform = setTransformComponent(item) as any as ComponentType<typeof TransformComponent>
+    setTransformComponent(item)
+    const equippableTransform = getComponent(item, TransformComponent)
     const attachmentPoint = equippedComponent.attachmentPoint
     const target = getHandTarget(item, getParity(attachmentPoint))!
     const position = target.getWorldPosition(new Vector3())

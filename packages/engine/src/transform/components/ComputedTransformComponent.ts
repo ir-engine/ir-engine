@@ -43,11 +43,8 @@ export function setComputedTransformComponent(
   referenceEntity: Entity,
   computeFunction: (entity: Entity, referenceEntity: Entity) => void
 ) {
-  const computed =
-    getOptionalComponent(entity, ComputedTransformComponent) ||
-    (setComponent(entity, ComputedTransformComponent, new ComputedTransform()).value as any as ComponentType<
-      typeof ComputedTransformComponent
-    >)
+  setComponent(entity, ComputedTransformComponent, new ComputedTransform())
+  const computed = getComponent(entity, ComputedTransformComponent)
   computed.referenceEntity = referenceEntity
   computed.computeFunction = computeFunction
   return computed

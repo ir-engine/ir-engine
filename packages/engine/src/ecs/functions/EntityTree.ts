@@ -9,6 +9,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
 import {
+  LocalTransformComponent,
   setLocalTransformComponent,
   setTransformComponent,
   TransformComponent
@@ -158,7 +159,8 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
   getState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
-    const localTransform = setLocalTransformComponent(node.entity, parent.entity).value
+    setLocalTransformComponent(node.entity, parent.entity)
+    const localTransform = getComponent(node.entity, LocalTransformComponent)
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
 

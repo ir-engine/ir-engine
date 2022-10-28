@@ -316,7 +316,8 @@ describe('DataReader', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+    setTransformComponent(entity)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(posX, posY, posZ)
     transform.rotation.set(rotX, rotY, rotZ, rotW)
 
@@ -455,7 +456,8 @@ describe('DataReader', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+    setTransformComponent(entity)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(posX, posY, posZ)
     transform.rotation.set(rotX, rotY, rotZ, rotW)
 
@@ -521,7 +523,8 @@ describe('DataReader', () => {
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
-    const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+    setTransformComponent(entity)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
@@ -574,7 +577,8 @@ describe('DataReader', () => {
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
-    const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+    setTransformComponent(entity)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
@@ -626,7 +630,8 @@ describe('DataReader', () => {
       const networkId = entity as unknown as NetworkId
       const userIndex = entity
 
-      const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(posX, posY, posZ)
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       addComponent(entity, NetworkObjectComponent, {
@@ -699,7 +704,8 @@ describe('DataReader', () => {
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
 
-      const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(posX, posY, posZ)
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       addComponent(entity, NetworkObjectComponent, {
@@ -794,7 +800,8 @@ describe('DataReader', () => {
       const networkId = entity as unknown as NetworkId
       const userId = entity as unknown as UserId
       const userIndex = entity
-      const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
@@ -838,7 +845,8 @@ describe('DataReader', () => {
       const userId = entity as unknown as UserId
       const userIndex = entity
 
-      const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
@@ -875,7 +883,8 @@ describe('DataReader', () => {
       const networkId = entity as unknown as NetworkId
       const userId = entity as unknown as UserId
       const userIndex = entity
-      const transform = setTransformComponent(entity) as any as ComponentType<typeof TransformComponent>
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
