@@ -163,7 +163,7 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
     if (JSONEntityIsDynamic && !Engine.instance.isEditor) {
       const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
       if (existingEntity) {
-        const previouslyNotDynamic = !getComponent(existingEntity.entity, SceneDynamicLoadTagComponent)?.loaded
+        const previouslyNotDynamic = !getOptionalComponent(existingEntity.entity, SceneDynamicLoadTagComponent)?.loaded
         if (previouslyNotDynamic) {
           // remove children from world (get from entity tree)
           // these are children who have potentially been previously loaded and are now to be dynamically loaded

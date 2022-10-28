@@ -34,9 +34,9 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     const model = component
     return {
-      src: model.src,
-      generateBVH: model.generateBVH,
-      matrixAutoUpdate: model.matrixAutoUpdate
+      src: model.src.value,
+      generateBVH: model.generateBVH.value,
+      matrixAutoUpdate: model.matrixAutoUpdate.value
     }
   },
 
