@@ -224,7 +224,7 @@ export const writePosition = writeVector3(TransformComponent.position)
 export const writeRotation = writeCompressedRotation(TransformComponent.rotation)
 
 export const writeBodyPosition = writeVector3(RigidBodyComponent.position)
-export const writeBodyRotation = writeVector3(RigidBodyComponent.rotation)
+export const writeBodyRotation = writeCompressedRotation(RigidBodyComponent.rotation)
 export const writeBodyLinearVelocity = writeVector3(RigidBodyComponent.linearVelocity)
 export const writeBodyAngularVelocity = writeVector3(RigidBodyComponent.angularVelocity)
 

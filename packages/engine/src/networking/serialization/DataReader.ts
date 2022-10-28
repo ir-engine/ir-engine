@@ -62,7 +62,7 @@ export const readComponent = (component: any) => {
 }
 
 export const readComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
-  if (!entity) prop[entity] = readProp(v, prop)
+  if (entity) prop[entity] = readProp(v, prop)
   else readProp(v, prop)
 }
 
@@ -96,7 +96,7 @@ export const readCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, en
   y /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
   z /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
 
-  if (!entity) {
+  if (entity) {
     vector3.x[entity] = x
     vector3.y[entity] = y
     vector3.z[entity] = z
@@ -163,7 +163,7 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
     w = d
   }
 
-  if (!entity) {
+  if (entity) {
     vector4.x[entity] = x
     vector4.y[entity] = y
     vector4.z[entity] = z
@@ -180,7 +180,7 @@ export const readPosition = readVector3(TransformComponent.position)
 export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
 
 export const readBodyPosition = readVector3(RigidBodyComponent.position)
-export const readBodyRotation = readVector3(RigidBodyComponent.rotation)
+export const readBodyRotation = readCompressedRotation(RigidBodyComponent.rotation)
 export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
 export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
 
@@ -189,7 +189,7 @@ export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Se
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
-  if (!entity) {
+  if (entity) {
     dirtyTransforms.add(entity)
   }
 }
