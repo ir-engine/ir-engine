@@ -109,7 +109,7 @@ export default async function AvatarLoadingSystem(world: World) {
         sourceTransform.position.clone(),
         sourceTransform.rotation.clone(),
         sourceTransform.scale.clone()
-      ) as any as ComponentType<typeof TransformComponent>
+      ).value as any as ComponentType<typeof TransformComponent>
       setComponent(entity, VisibleComponent, true)
       /**
        * cast ray to move this downward to be on the ground

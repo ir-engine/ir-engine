@@ -37,9 +37,6 @@ import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
-  // This is here to force the debug view to update ECS data on every frame
-  useHookstate(getState(EngineState).frameTime).value
-
   const engineRendererState = useEngineRendererState()
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()

@@ -69,7 +69,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   const world = Engine.instance.currentWorld
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
 
   // if transforms have been changed outside of the transform system, perform physics teleportation on the rigidbody
   if (world.dirtyTransforms.has(entity) || (localTransform && world.dirtyTransforms.has(localTransform.parentEntity))) {

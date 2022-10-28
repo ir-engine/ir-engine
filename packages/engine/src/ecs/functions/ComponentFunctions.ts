@@ -137,7 +137,7 @@ export const getComponentState = <ComponentType>(
 ): State<ComponentType> => {
   const componentState = getOptionalComponentState(entity, component, getRemoved, world)!
   // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
-  // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
+  if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
   return componentState
 }
 

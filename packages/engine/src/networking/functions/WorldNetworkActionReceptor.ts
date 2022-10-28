@@ -49,7 +49,9 @@ const receiveSpawnObject = (
   if (action.position) position.copy(action.position)
   if (action.rotation) rotation.copy(action.rotation)
 
-  const transform = setTransformComponent(entity, position, rotation) as any as ComponentType<typeof TransformComponent>
+  const transform = setTransformComponent(entity, position, rotation).value as any as ComponentType<
+    typeof TransformComponent
+  >
 
   // set cached action refs to the new components so they stay up to date with future movements
   action.position = transform.position
