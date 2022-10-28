@@ -16,6 +16,6 @@ export interface ServerPodData {
   age: string
   containers: JSX.Element
   restarts: string
-  instanceId: string
+  instanceId: JSX.Element
   action: JSX.Element
 }

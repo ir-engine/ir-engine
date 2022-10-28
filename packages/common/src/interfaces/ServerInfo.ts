@@ -10,6 +10,7 @@ export interface ServerPodInfo {
   age: string | Date
   containers: ServerContainerInfo[]
   type?: string
+  locationSlug?: string
   instanceId?: string
   currentUsers?: number
 }

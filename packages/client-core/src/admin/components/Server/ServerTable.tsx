@@ -3,6 +3,7 @@ import en from 'javascript-time-ago/locale/en'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import config from '@xrengine/common/src/config'
 import { ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
 import multiLogger from '@xrengine/common/src/logger'
 
@@ -61,7 +62,20 @@ const ServerTable = ({ selectedCard }: Props) => {
       currentUsers: el.currentUsers?.toString() || '',
       age: timeAgo.format(new Date(el.age)),
       restarts: el.containers.map((item) => item.restarts).join(', '),
-      instanceId: el.instanceId || '',
+      instanceId: el.instanceId ? (
+        <a
+          href={`${config.client.clientUrl}/location/${el.locationSlug}?instanceId=${el.instanceId}`}
+          className={styles.actionStyle}
+          onClick={() => {
+            setSelectedPod(el)
+            setOpenConfirm(true)
+          }}
+        >
+          {el.instanceId}
+        </a>
+      ) : (
+        <span />
+      ),
       containers: (
         <>
           {el.containers.map((item) => (

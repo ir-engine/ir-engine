@@ -220,6 +220,7 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
 
     if (instanceExists && instanceExists.locationId) {
       item.type = `World (${instanceExists.location.name})`
+      item.locationSlug = instanceExists.location.slugifiedName
     } else if (instanceExists && instanceExists.channelId) {
       item.type = 'Media'
       const channelExists = channels.find((channel) => channel.instanceId === instanceExists.id)
