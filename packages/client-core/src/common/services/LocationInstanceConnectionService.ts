@@ -176,6 +176,49 @@ export const LocationInstanceConnectionService = {
       console.warn('Failed to connect to expected existing instance')
     }
   },
+  provisionExistingServerByRoomCode: async (locationId: string, roomCode: string, sceneId: string) => {
+    logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
+    const token = accessAuthState().authUser.accessToken.value
+    const instance = (await API.instance.client.service('instance').find({
+      query: {
+        roomCode,
+        ended: false
+      }
+    })) as Paginated<Instance>
+    if (instance.total === 0) {
+      const parsed = new URL(window.location.href)
+      const query = parsed.searchParams
+      query.delete('roomCode')
+      parsed.search = query.toString()
+      if (typeof history.pushState !== 'undefined') {
+        window.history.replaceState({}, '', parsed.toString())
+      }
+      return
+    }
+    const provisionResult = await API.instance.client.service('instance-provision').find({
+      query: {
+        locationId,
+        roomCode,
+        instanceId: instance.data[0].id,
+        sceneId,
+        token
+      }
+    })
+    if (provisionResult.ipAddress && provisionResult.port) {
+      dispatchAction(
+        LocationInstanceConnectionAction.serverProvisioned({
+          instanceId: provisionResult.id as UserId,
+          ipAddress: provisionResult.ipAddress,
+          port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
+          locationId: locationId,
+          sceneId: sceneId
+        })
+      )
+    } else {
+      console.warn('Failed to connect to expected existing instance')
+    }
+  },
   connectToServer: async (instanceId: string) => {
     dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
     const network = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
