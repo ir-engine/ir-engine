@@ -27,7 +27,7 @@ export class ModelTransform implements ServiceMethods<any> {
   }
 
   processPath(inPath: string): string {
-    const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_]+).glb$/.exec(inPath)
+    const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_\\\/]+).glb$/.exec(inPath)
     if (!pathData) throw Error('could not extract path data')
     const [_, projectName, fileName] = pathData
     const commonPath = path.join(this.rootPath, `${projectName}/assets/${fileName}`)

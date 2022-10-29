@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 
 import { generateDefaults } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
 
+import BooleanInput from './BooleanInput'
 import ColorInput from './ColorInput'
 import InputGroup from './InputGroup'
 import NumericInput from './NumericInput'
@@ -59,6 +60,8 @@ export default function ParameterInput({
           <InputGroup key={compKey} name={k} label={k}>
             {(() => {
               switch (parms.type) {
+                case 'boolean':
+                  return <BooleanInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'float':
                   return <NumericInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'color':
