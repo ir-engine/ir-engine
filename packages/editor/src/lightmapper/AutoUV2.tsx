@@ -1,4 +1,3 @@
-/// <reference path="potpack.d.ts"/>
 import potpack, { PotpackBox } from 'potpack'
 import * as THREE from 'three'
 
