@@ -1,6 +1,6 @@
 import { MathUtils } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState, NO_PROXY } from '@xrengine/hyperflux'
 
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
@@ -18,17 +18,20 @@ import { updateEntityTransform } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { addComponent, ComponentType, getComponent, hasComponent, setComponent } from '../functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentType,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../functions/EntityFunctions'
 
 // Data structure to hold parent child relationship between entities
 export interface EntityTree {
   rootNode: EntityTreeNode
   entityNodeMap: Map<Entity, EntityTreeNode>
-  /**
-   * @deprecated use UUIDComponent.entitiesByUUID
-   */
-  uuidNodeMap: Map<string, EntityTreeNode>
 }
 export type EntityTreeNode = {
   type: 'EntityNode'
@@ -46,7 +49,7 @@ export type EntityTreeNode = {
  */
 export function addToEntityTreeMaps(node: EntityTreeNode, tree = Engine.instance.currentWorld.entityTree) {
   tree.entityNodeMap.set(node.entity, node)
-  tree.uuidNodeMap.set(node.uuid, node)
+  setComponent(node.entity, UUIDComponent, node.uuid)
 }
 
 /**
@@ -56,7 +59,7 @@ export function addToEntityTreeMaps(node: EntityTreeNode, tree = Engine.instance
  */
 export function removeFromEntityTreeMaps(node: EntityTreeNode, tree = Engine.instance.currentWorld.entityTree) {
   tree.entityNodeMap.delete(node.entity)
-  tree.uuidNodeMap.delete(node.uuid)
+  removeComponent(node.entity, UUIDComponent)
 }
 
 /**
@@ -75,18 +78,27 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
 
   world.entityTree = {
     rootNode: createEntityNode(world.sceneEntity),
-    entityNodeMap: new Map(),
-    uuidNodeMap: new Map()
+    entityNodeMap: new Map()
   } as EntityTree
 
-  world.entityTree.entityNodeMap.set(world.entityTree.rootNode.entity, world.entityTree.rootNode)
-  setComponent(world.entityTree.rootNode.entity, UUIDComponent, world.entityTree.rootNode.uuid)
+  addToEntityTreeMaps(world.entityTree.rootNode, world.entityTree)
+}
+
+export function getEntityTreeNodeByUUID(uuid: string) {
+  const entity = UUIDComponent.entitiesByUUID[uuid]?.value
+  if (!entity) return
+  return Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)
+}
+
+export function getAllEntityTreeNodesByUUID(): [string, EntityTreeNode][] {
+  const entities = UUIDComponent.entitiesByUUID.get(NO_PROXY)
+  return Object.entries(entities).map(([uuid, entity]) => [
+    uuid,
+    Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+  ])
 }
 
 export function updateRootNodeUuid(uuid: string, tree = Engine.instance.currentWorld.entityTree) {
-  tree.uuidNodeMap.delete(tree.rootNode.uuid)
-  tree.uuidNodeMap.set(uuid, tree.rootNode)
-
   tree.rootNode.uuid = uuid
   tree.rootNode.parentEntity = undefined
 }
@@ -104,11 +116,9 @@ export function emptyEntityTree(tree = Engine.instance.currentWorld.entityTree):
   }
 
   tree.entityNodeMap.clear()
-  tree.uuidNodeMap.clear()
 
   tree.rootNode = createEntityNode(createEntity())
   tree.entityNodeMap.set(tree.rootNode.entity, tree.rootNode)
-  tree.uuidNodeMap.set(tree.rootNode.uuid, tree.rootNode)
 }
 // ========== Entity Tree Functions ========== //
 
@@ -127,6 +137,7 @@ export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode 
     children: []
   }
   addComponent(entity, SceneObjectComponent, true)
+  if (!hasComponent(node.entity, TransformComponent)) setTransformComponent(node.entity)
   return node
 }
 
@@ -149,8 +160,6 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
 
   node.parentEntity = parent.entity
   addToEntityTreeMaps(node)
-
-  if (!hasComponent(node.entity, TransformComponent)) setTransformComponent(node.entity)
 
   updateEntityTransform(parent.entity)
   updateEntityTransform(node.entity)

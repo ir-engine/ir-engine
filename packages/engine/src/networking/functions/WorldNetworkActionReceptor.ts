@@ -14,6 +14,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { getEntityTreeNodeByUUID } from '../../ecs/functions/EntityTree'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import {
   setLocalTransformComponent,
@@ -61,7 +62,7 @@ const receiveRegisterSceneObject = (
   action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
-  const entity = world.entityTree.uuidNodeMap.get(action.objectUuid)?.entity!
+  const entity = getEntityTreeNodeByUUID(action.objectUuid)?.entity!
 
   if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
 

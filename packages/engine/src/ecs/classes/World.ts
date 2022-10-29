@@ -3,8 +3,6 @@ import { State } from '@hookstate/core'
 import { subscribable } from '@hookstate/subscribable'
 import * as bitecs from 'bitecs'
 import {
-  AxesHelper,
-  Color,
   Group,
   LinearToneMapping,
   Object3D,
@@ -20,8 +18,8 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { defineState, getState } from '@xrengine/hyperflux'
-import { createState, hookstate, none } from '@xrengine/hyperflux/functions/StateFunctions'
+import { getState } from '@xrengine/hyperflux'
+import { createState, hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -36,18 +34,12 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { FogType } from '../../scene/constants/FogType'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../../scene/constants/PostProcessing'
-import {
-  setLocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
+import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,

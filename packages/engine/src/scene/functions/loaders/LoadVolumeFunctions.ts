@@ -15,7 +15,11 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { iterateEntityNode, removeEntityNodeFromParent } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import {
+  getEntityTreeNodeByUUID,
+  iterateEntityNode,
+  removeEntityNodeFromParent
+} from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { Physics } from '@xrengine/engine/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
@@ -42,13 +46,12 @@ function parseLoadVolumeProperties(data: LoadVolumeComponentType) {
 export const updateLoadVolume: ComponentUpdateFunction = (entity: Entity) => {
   const world = Engine.instance.currentWorld
   const nodeMap = world.entityTree.entityNodeMap
-  const uuidMap = world.entityTree.uuidNodeMap
   const component = { ...getComponent(entity, LoadVolumeComponent) }
   component.targets = { ...component.targets }
   function finishUpdate() {
     component.targets?.map?.(({ uuid, componentJson }) => {
-      if (uuidMap.has(uuid)) {
-        const targetNode = uuidMap.get(uuid)!
+      const targetNode = getEntityTreeNodeByUUID(uuid)
+      if (targetNode) {
         component.targets.push({ uuid, componentJson: serializeEntity(targetNode.entity) })
       }
     })
@@ -64,8 +67,8 @@ export const updateLoadVolume: ComponentUpdateFunction = (entity: Entity) => {
     const nuComponent = { ...component }
     nuComponent.targets = []
     component.targets.map(({ uuid }) => {
-      if (uuidMap.has(uuid)) {
-        const targetNode = uuidMap.get(uuid)!
+      const targetNode = getEntityTreeNodeByUUID(uuid)
+      if (targetNode) {
         const targetEntity = targetNode.entity
         const componentJson = serializeEntity(targetEntity)
         nuComponent.targets.push({ uuid, componentJson })

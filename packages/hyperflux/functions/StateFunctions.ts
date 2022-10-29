@@ -8,6 +8,8 @@ export * from '@hookstate/core'
 
 const logger = multiLogger.child({ component: 'hyperflux:State' })
 
+export const NO_PROXY = { noproxy: true }
+
 type StateDefinition<S> = {
   name: string
   initial: SetInitialStateAction<S>

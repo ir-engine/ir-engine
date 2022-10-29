@@ -124,7 +124,6 @@ describe('RemoveObjectCommand', () => {
 
       command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
-        assert(!Engine.instance.currentWorld.entityTree.uuidNodeMap.get(node.uuid))
 
         const parent = Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.parentEntity!)
         assert(parent && parent.children)
@@ -139,7 +138,6 @@ describe('RemoveObjectCommand', () => {
 
       command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
-        assert(Engine.instance.currentWorld.entityTree.uuidNodeMap.get(node.uuid))
       })
     })
 
