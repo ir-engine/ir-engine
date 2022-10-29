@@ -2,22 +2,16 @@ import { MeshToonMaterial as Toon } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
-import { BasicArgs } from '../BasicArgs'
+import { BasicArgs, DisplacementMapArgs, EmissiveMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   ...BasicArgs,
-  displacementBias: FloatArg,
-  displacementMap: TextureArg,
-  displacementScale: { ...NormalizedFloatArg, default: 0.025 },
-  emissive: ColorArg,
-  emissiveIntensity: { ...FloatArg, default: 1 },
-  emissiveMap: TextureArg,
+  ...DisplacementMapArgs,
+  ...EmissiveMapArgs,
   fog: BoolArg,
   gradientMap: TextureArg,
-  normalMap: TextureArg,
-  transparent: BoolArg,
-  opacity: { ...NormalizedFloatArg, default: 1 }
+  ...NormalMapArgs
 }
 
 export const MeshToonMaterial: MaterialPrototypeComponentType = {

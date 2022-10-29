@@ -15,6 +15,7 @@ import {
 } from 'three'
 
 import { createMappedComponent } from '../../../ecs/functions/ComponentFunctions'
+import { WaterMaterial } from '../constants/material-prototypes/WaterMaterial.mat'
 import { MaterialSource } from './MaterialSource'
 
 export type MaterialPrototypeComponentType = {
@@ -30,6 +31,7 @@ export type MaterialPrototypeComponentType = {
     | typeof ShaderMaterial
     | typeof RawShaderMaterial
     | typeof ShadowMaterial
+    | typeof WaterMaterial
   arguments: {
     [_: string]: {
       type: string
