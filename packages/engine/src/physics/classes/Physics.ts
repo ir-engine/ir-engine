@@ -28,6 +28,7 @@ import {
 } from 'three'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
+import { V_000 } from '../../common/constants/MathConstants'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -68,13 +69,6 @@ function createCollisionEventQueue() {
 }
 
 function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
-  // apply the initial transform if there is one
-  if (hasComponent(entity, TransformComponent)) {
-    const { position, rotation } = getComponent(entity, TransformComponent)
-    rigidBodyDesc.setTranslation(position.x, position.y, position.z)
-    rigidBodyDesc.setRotation(rotation)
-  }
-
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
@@ -82,6 +76,21 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
   addComponent(entity, RigidBodyTypeTagComponent, true)
+
+  // apply the initial transform if there is one
+  if (hasComponent(entity, TransformComponent)) {
+    const { position, rotation } = getComponent(entity, TransformComponent)
+    rigidBody.body.setTranslation(position, true)
+    rigidBody.body.setRotation(rotation, true)
+    rigidBody.previousPosition.copy(position)
+    rigidBody.previousRotation.copy(rotation)
+    rigidBody.position.copy(position)
+    rigidBody.rotation.copy(rotation)
+    rigidBody.previousLinearVelocity.copy(V_000)
+    rigidBody.previousAngularVelocity.copy(V_000)
+    rigidBody.linearVelocity.copy(V_000)
+    rigidBody.angularVelocity.copy(V_000)
+  }
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }

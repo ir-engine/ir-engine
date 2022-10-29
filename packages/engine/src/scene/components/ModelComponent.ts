@@ -1,3 +1,4 @@
+import { entityExists } from 'bitecs'
 import { useEffect } from 'react'
 import { Object3D, Scene } from 'three'
 
@@ -97,6 +98,7 @@ function ModelReactor({ root }: EntityReactorProps) {
             break
         }
 
+        if (!entityExists(Engine.instance.currentWorld, entity)) return
         if (modelState.scene.value) return // src was changed again ?
 
         removeError(entity, ModelComponent, 'LOADING_ERROR')

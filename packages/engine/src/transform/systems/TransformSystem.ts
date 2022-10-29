@@ -1,4 +1,4 @@
-import { entityExists } from 'bitecs'
+import { entityExists, Not } from 'bitecs'
 import { Camera, Mesh, Quaternion, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
@@ -17,7 +17,11 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyFixedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -76,6 +80,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
     const prevScale = prevRigidbodyScale.get(entity)
     prevRigidbodyScale.set(entity, transform.scale.clone())
 
+    // if (hasComponent(entity, RigidBodyDynamicTagComponent)) console.warn('moved dynamic')
     rigidBody.body.setTranslation(transform.position, !rigidBody.body.isSleeping())
     rigidBody.body.setRotation(transform.rotation, !rigidBody.body.isSleeping())
 
@@ -89,6 +94,8 @@ const updateTransformFromRigidbody = (entity: Entity) => {
 
     return
   }
+
+  if (hasComponent(entity, RigidBodyFixedTagComponent)) return
 
   if (rigidBody.body.isSleeping()) {
     transform.position.copy(rigidBody.position)

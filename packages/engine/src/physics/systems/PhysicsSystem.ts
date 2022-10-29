@@ -32,7 +32,7 @@ import {
 } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../components/RigidBodyComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 // Receptor
@@ -108,7 +108,7 @@ export default async function PhysicsSystem(world: World) {
 
   const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
   const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
-  const allRigidBodyQuery = defineQuery([RigidBodyComponent])
+  const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
   const networkedAvatarBodyQuery = defineQuery([
     RigidBodyComponent,
     NetworkObjectComponent,
