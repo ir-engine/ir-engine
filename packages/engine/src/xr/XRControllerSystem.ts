@@ -363,9 +363,9 @@ export default async function XRControllerSystem(world: World) {
           updateInputSource(entity, gripSpace, referenceSpace)
         }
 
-        for (const entity of handQuery()) {
-          updateHand(entity, referenceSpace)
-        }
+        // for (const entity of handQuery()) {
+        //   updateHand(entity, referenceSpace)
+        // }
       }
 
       world.inputSources = [...session.inputSources.values()]

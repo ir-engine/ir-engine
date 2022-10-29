@@ -13,18 +13,15 @@ import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectL
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
-import { accessSceneState } from '../world/services/SceneService'
+import { SceneActions } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
 
 export default async function LoadingUISystem(world: World) {
   const transitionPeriodSeconds = 1
   const transition = createTransitionState(transitionPeriodSeconds, 'IN')
-
-  const sceneState = accessSceneState()
-  const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'envmap.png')!
 
   const ui = createLoaderDetailView(transition)
 
@@ -35,10 +32,6 @@ export default async function LoadingUISystem(world: World) {
     new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
   )
   mesh.visible = false
-  textureLoader.load(thumbnailUrl, (texture) => {
-    if (texture) mesh.material.map = texture!
-    mesh.visible = true
-  })
 
   // flip inside out
   mesh.scale.set(-1, 1, 1)
@@ -47,7 +40,19 @@ export default async function LoadingUISystem(world: World) {
 
   setObjectLayers(mesh, ObjectLayers.UI)
 
+  const currentSceneChangedQueue = createActionQueue(SceneActions.currentSceneChanged.matches)
+
   const execute = () => {
+    for (const action of currentSceneChangedQueue()) {
+      const thumbnailUrl = action.sceneData.thumbnailUrl.replace('thumbnail.jpeg', 'envmap.png')
+      if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
+        mesh.userData.url = thumbnailUrl
+        textureLoader.load(thumbnailUrl, (texture) => {
+          if (texture) mesh.material.map = texture!
+          mesh.visible = true
+        })
+      }
+    }
     if (transition.state === 'OUT' && transition.alpha === 0) return
 
     mesh.quaternion.copy(Engine.instance.currentWorld.camera.quaternion).invert()
