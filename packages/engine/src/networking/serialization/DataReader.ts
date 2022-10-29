@@ -90,7 +90,7 @@ export const readCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, en
   compressedBinaryData = compressedBinaryData >>> 10
 
   let offset_mult = 1
-  if (entity && getComponent(entity, AvatarComponent)) offset_mult = 100
+  if (entity && hasComponent(entity, AvatarComponent)) offset_mult = 100
 
   x /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
   y /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
