@@ -11,12 +11,11 @@ import sharp from 'sharp'
 import { MathUtils } from 'three'
 import util from 'util'
 
-import { EEMaterial } from '@xrengine/engine/src/assets/classes/extensions/EE_MaterialTransformer'
-import ModelTransformLoader, {
-  ModelTransformParameters
-} from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
+import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
 
 import { getContentType } from '../../util/fileUtils'
+import { EEMaterial } from '../extensions/EE_MaterialTransformer'
+import ModelTransformLoader from '../ModelTransformLoader'
 
 export type ModelTransformArguments = {
   src: string
