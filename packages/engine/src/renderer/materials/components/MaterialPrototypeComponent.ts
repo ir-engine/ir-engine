@@ -1,35 +1,11 @@
-import {
-  Material,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
-  MeshMatcapMaterial,
-  MeshPhongMaterial,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  MeshToonMaterial,
-  RawShaderMaterial,
-  Shader,
-  ShaderMaterial,
-  ShadowMaterial,
-  WebGLRenderer
-} from 'three'
+import { Material, Shader, WebGLRenderer } from 'three'
 
 import { createMappedComponent } from '../../../ecs/functions/ComponentFunctions'
 import { MaterialSource } from './MaterialSource'
 
-export type MaterialPrototypeComponentType = {
+export type MaterialPrototypeComponentType<T extends Material = Material> = {
   prototypeId: string
-  baseMaterial:
-    | typeof MeshBasicMaterial
-    | typeof MeshStandardMaterial
-    | typeof MeshMatcapMaterial
-    | typeof MeshPhysicalMaterial
-    | typeof MeshPhongMaterial
-    | typeof MeshLambertMaterial
-    | typeof MeshToonMaterial
-    | typeof ShaderMaterial
-    | typeof RawShaderMaterial
-    | typeof ShadowMaterial
+  baseMaterial: { new (params): T }
   arguments: {
     [_: string]: {
       type: string

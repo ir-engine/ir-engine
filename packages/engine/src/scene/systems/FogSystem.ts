@@ -110,6 +110,8 @@ export default async function FogSystem(world: World) {
   const type = world.sceneMetadata.fog.type
 
   const execute = () => {
+    if (world.fixedTick % 35 === 0) return
+
     const customShader = type.value === FogType.Brownian || type.value === FogType.Height
 
     if (customShader) {

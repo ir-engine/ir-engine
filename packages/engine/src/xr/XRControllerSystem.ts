@@ -15,7 +15,7 @@ import {
   XRGripSpace
 } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { BinaryValue } from '../common/enums/BinaryValue'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
@@ -53,7 +53,7 @@ import {
   XRHandComponent,
   XRPointerComponent
 } from './XRComponents'
-import { getControlMode, XRState } from './XRState'
+import { getControlMode, XRAction, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -273,8 +273,8 @@ const removeInputSourceEntity = (inputSource: XRInputSource) => {
 }
 
 const updateInputSourceEntities = () => {
-  const inputSources = Engine.instance.xrFrame?.session ? Array.from(Engine.instance.xrFrame.session.inputSources) : []
-  const existingInputSources = Array.from(xrInputSourcesMap).map(([is]) => is)
+  const inputSources = Engine.instance.xrFrame?.session ? Engine.instance.xrFrame.session.inputSources : []
+  const existingInputSources = xrInputSourcesMap
   let changed = false
   for (const inputSource of inputSources) {
     let targetRaySpace = inputSource.targetRaySpace
@@ -287,7 +287,7 @@ const updateInputSourceEntities = () => {
       gripSpace = null!
     }
 
-    if (targetRaySpace && !existingInputSources.includes(inputSource)) {
+    if (targetRaySpace && !existingInputSources.has(inputSource)) {
       addInputSourceEntity(inputSource, targetRaySpace)
       changed = true
     }
@@ -322,8 +322,15 @@ const updateInputSourceEntities = () => {
     }
   }
 
-  for (const inputSource of existingInputSources) {
-    if (!inputSources.includes(inputSource)) {
+  for (const [inputSource] of existingInputSources) {
+    let includes = false
+    for (const source of inputSources) {
+      if (source === inputSource) {
+        includes = true
+        break
+      }
+    }
+    if (!includes) {
       removeInputSourceEntity(inputSource)
       changed = true
     }
@@ -369,12 +376,12 @@ export default async function XRControllerSystem(world: World) {
           updateInputSource(entity, gripSpace, referenceSpace)
         }
 
-        for (const entity of handQuery()) {
-          updateHand(entity, referenceSpace)
-        }
+        // for (const entity of handQuery()) {
+        //   updateHand(entity, referenceSpace)
+        // }
       }
 
-      world.inputSources = [...session.inputSources.values()]
+      world.inputSources = session.inputSources
     } else {
       world.inputSources = []
     }

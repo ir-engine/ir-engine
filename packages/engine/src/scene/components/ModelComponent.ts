@@ -74,7 +74,15 @@ function ModelReactor({ root }: EntityReactorProps) {
     const loadModel = async () => {
       try {
         if (model.scene && model.scene.userData.src !== model.src) {
-          removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
+          try {
+            removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
+          } catch (e) {
+            if (e?.name === 'MaterialNotFound') {
+              console.warn('could not find material in source ' + model.scene.userData.src)
+            } else {
+              throw e
+            }
+          }
         }
         const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)

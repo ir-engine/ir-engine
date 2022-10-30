@@ -32,9 +32,6 @@
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.9.0",
     "@etherealjs/web-layer": "^3.5.5",
-    "@gltf-transform/core": "^2.4.1",
-    "@gltf-transform/extensions": "^2.4.1",
-    "@gltf-transform/functions": "^2.4.1",
     "@pixiv/three-vrm": "^1.0.0-beta.8",
     "@tweenjs/tween.js": "^18.6.4",
     "@vladmandic/face-api": "^1.6.1",

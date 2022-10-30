@@ -1,4 +1,4 @@
-import { Material } from 'three'
+import { Color, Material, Texture } from 'three'
 
 import {
   materialIdToDefaultArgs,
@@ -39,14 +39,24 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       : prototypeFromId(extension.prototype).arguments
     return Promise.all(
       Object.entries(extension.args).map(async ([k, v]) => {
-        materialParams[k] = v
+        switch (defaultArgs[k]?.type) {
+          case undefined:
+            break
+          case 'texture':
+            if ((v as Texture)?.isTexture) {
+              await parser.assignTexture(materialParams, k, v)
+            }
+            break
+          case 'color':
+            if (v && !(v as Color).isColor) {
+              materialParams[k] = new Color(v)
+              break
+            }
+          default:
+            materialParams[k] = v
+            break
+        }
       })
-    ).then(() =>
-      Promise.all(
-        Object.entries(defaultArgs)
-          .filter(([k, v]) => v.type === 'texture' && materialParams[k])
-          .map(async ([k, v]) => parser.assignTexture(materialParams, k, materialParams[k]))
-      )
     )
   }
 }

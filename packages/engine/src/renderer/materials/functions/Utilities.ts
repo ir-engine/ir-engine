@@ -10,6 +10,11 @@ import { MaterialSource, MaterialSourceComponentType } from '../components/Mater
 import { LibraryEntryType } from '../constants/LibraryEntry'
 import { MaterialLibrary, MaterialLibraryActions } from '../MaterialLibrary'
 
+export function MaterialNotFoundError(message) {
+  this.name = 'MaterialNotFound'
+  this.message = message
+}
+
 export function extractDefaults(defaultArgs) {
   return formatMaterialArgs(
     Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, v.default])),
@@ -50,7 +55,7 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
 
 export function materialFromId(matId: string): MaterialComponentType {
   const material = MaterialLibrary.materials.get(matId)
-  if (!material) throw new Error('could not find Material ' + matId)
+  if (!material) throw new MaterialNotFoundError('could not find Material with ID ' + matId)
   return material
 }
 
@@ -175,7 +180,12 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   const prototype = prototypeFromId(protoId)
 
   const factory = protoIdToFactory(protoId)
-  const commonParms = Object.fromEntries(Object.keys(prototype.arguments).map((key) => [key, material[key]]))
+  const matKeys = Object.keys(material)
+  const commonParms = Object.fromEntries(
+    Object.keys(prototype.arguments)
+      .filter((key) => matKeys.includes(key))
+      .map((key) => [key, material[key]])
+  )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
   Engine.instance.currentWorld.scene.traverse((mesh: Mesh) => {

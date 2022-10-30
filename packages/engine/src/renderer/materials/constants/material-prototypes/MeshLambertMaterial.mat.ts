@@ -2,19 +2,14 @@ import { MeshLambertMaterial as Lambert } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
-import { BasicArgs } from '../BasicArgs'
+import { BasicArgs, EmissiveMapArgs, EnvMapArgs } from '../BasicArgs'
 import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   ...BasicArgs,
-  emissive: ColorArg,
-  emissiveIntensity: { ...FloatArg, default: 1 },
-  emissiveMap: TextureArg,
-  fog: BoolArg,
-  opacity: { ...NormalizedFloatArg, default: 1 },
-  transparent: BoolArg,
-  reflectivity: NormalizedFloatArg,
-  refractionRatio: { ...NormalizedFloatArg, default: 0.2 }
+  ...EmissiveMapArgs,
+  ...EnvMapArgs,
+  fog: BoolArg
 }
 
 export const MeshLambertMaterial: MaterialPrototypeComponentType = {

@@ -259,7 +259,7 @@ export class World {
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()
 
-  inputSources: XRInputSource[] = []
+  inputSources: XRInputSourceArray = []
 
   reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()
 
