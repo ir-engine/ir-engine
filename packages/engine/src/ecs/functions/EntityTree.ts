@@ -1,6 +1,6 @@
 import { MathUtils } from 'three'
 
-import { getState, NO_PROXY } from '@xrengine/hyperflux'
+import { getState, NO_PROXY, none } from '@xrengine/hyperflux'
 
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
@@ -99,6 +99,8 @@ export function getAllEntityTreeNodesByUUID(): [string, EntityTreeNode][] {
 }
 
 export function updateRootNodeUuid(uuid: string, tree = Engine.instance.currentWorld.entityTree) {
+  UUIDComponent.entitiesByUUID[tree.rootNode.uuid].set(none)
+  UUIDComponent.entitiesByUUID[uuid].set(tree.rootNode.entity)
   tree.rootNode.uuid = uuid
   tree.rootNode.parentEntity = undefined
 }

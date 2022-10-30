@@ -14,34 +14,20 @@ import RAPIER, {
   TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
-import {
-  BufferGeometry,
-  LineSegments,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  OrthographicCamera,
-  PerspectiveCamera,
-  Quaternion,
-  Vector2,
-  Vector3
-} from 'three'
+import { Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
-  ComponentType,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { Vec3Arg } from '../../renderer/materials/constants/DefaultArgs'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { getTagComponentForRigidBody, RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -423,8 +409,8 @@ const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, hand
   const entity1 = (rigidBody1?.userData as any)['entity']
   const entity2 = (rigidBody2?.userData as any)['entity']
 
-  const collisionComponent1 = getComponent(entity1, CollisionComponent)
-  const collisionComponent2 = getComponent(entity2, CollisionComponent)
+  const collisionComponent1 = getOptionalComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getOptionalComponent(entity2, CollisionComponent)
 
   if (started) {
     const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START
@@ -462,8 +448,8 @@ const drainContactEventQueue = (physicsWorld: World) => (event: TempContactForce
   const entity1 = (rigidBody1?.userData as any)['entity']
   const entity2 = (rigidBody2?.userData as any)['entity']
 
-  const collisionComponent1 = getComponent(entity1, CollisionComponent)
-  const collisionComponent2 = getComponent(entity2, CollisionComponent)
+  const collisionComponent1 = getOptionalComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getOptionalComponent(entity2, CollisionComponent)
 
   const collision1 = collisionComponent1?.get(entity2)
   const collision2 = collisionComponent2?.get(entity1)

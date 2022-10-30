@@ -167,9 +167,7 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
         if (previouslyNotDynamic) {
           // remove children from world (get from entity tree)
           // these are children who have potentially been previously loaded and are now to be dynamically loaded
-          const nodes = getEntityTreeNodeByUUID(uuid)?.children.map(
-            (entity) => world.entityTree.entityNodeMap.get(entity)!
-          )!
+          const nodes = existingEntity?.children.map((entity) => world.entityTree.entityNodeMap.get(entity)!)!
           for (const node of nodes) removeEntityNode(node, false, world.entityTree)
         }
       }

@@ -3,7 +3,7 @@ import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -17,7 +17,7 @@ const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<ty
   const xrui = getComponent(mediaControls.entity, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.container.rootLayer.querySelector('button')
-  const group = getComponent(entity, GroupComponent)
+  const group = getOptionalComponent(entity, GroupComponent)
   const intersectObjects = group ? world.pointerScreenRaycaster.intersectObjects(group, true) : []
   if (intersectObjects.length) {
     transition.setState('IN')
