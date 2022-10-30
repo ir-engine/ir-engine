@@ -2,7 +2,7 @@ import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import path from 'path'
 
-import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
+import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
 import { Application } from '@xrengine/server-core/declarations'
 
 import { getModelResources, transformModel } from './model-transform.helpers'

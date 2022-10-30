@@ -1,18 +1,4 @@
-import {
-  Material,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
-  MeshMatcapMaterial,
-  MeshPhongMaterial,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  MeshToonMaterial,
-  RawShaderMaterial,
-  Shader,
-  ShaderMaterial,
-  ShadowMaterial,
-  WebGLRenderer
-} from 'three'
+import { Material, Shader, WebGLRenderer } from 'three'
 
 import { createMappedComponent } from '../../../ecs/functions/ComponentFunctions'
 import { MaterialSource } from './MaterialSource'

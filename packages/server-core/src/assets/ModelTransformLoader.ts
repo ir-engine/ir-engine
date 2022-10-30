@@ -35,15 +35,6 @@ import { FileLoader } from 'three'
 import { EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { MOZLightmapExtension } from './extensions/MOZ_LightmapTransformer'
 
-export type ModelTransformParameters = {
-  useDraco: boolean
-  useMeshopt: boolean
-  useMeshQuantization: boolean
-  textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
-  maxTextureSize: number
-  modelFormat: 'glb' | 'gltf'
-}
-
 const transformHistory: string[] = []
 export default async function ModelTransformLoader() {
   const io = new NodeIO(fetch, {}).setAllowHTTP(true)
