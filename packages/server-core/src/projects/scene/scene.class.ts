@@ -39,7 +39,7 @@ export const getSceneData = async (
     const sceneData: SceneData = {
       name: sceneName,
       project: projectName,
-      thumbnailUrl: thumbnailUrl + `?${Date.now()}`,
+      thumbnailUrl: thumbnailUrl,
       scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), cacheDomain)
     }
     return sceneData

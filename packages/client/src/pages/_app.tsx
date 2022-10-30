@@ -1,4 +1,4 @@
-import * as chapiWalletPolyfill from 'credential-handler-polyfill'
+// import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'

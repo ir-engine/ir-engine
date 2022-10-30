@@ -6,6 +6,7 @@ import arrayShallowEqual from '@xrengine/editor/src/functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeProperties } from '@xrengine/editor/src/functions/debug'
 import { EditorAction } from '@xrengine/editor/src/services/EditorServices'
 import { SelectionAction } from '@xrengine/editor/src/services/SelectionServices'
+import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -24,7 +25,7 @@ export type ModifyMaterialCommandParams = CommandParams & {
 function getMaterial(node: string, materialId: string) {
   let material: Material | undefined
   if (MaterialLibrary.materials.has(node)) {
-    material = MaterialLibrary.materials.get(node)!.material
+    material = materialFromId(node).material
   } else {
     const mesh = obj3dFromUuid(node) as Mesh
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]

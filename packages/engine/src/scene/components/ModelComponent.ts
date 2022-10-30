@@ -1,4 +1,5 @@
 import { subscribable } from '@hookstate/subscribable'
+import { entityExists } from 'bitecs'
 import { Object3D, Scene } from 'three'
 
 import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
@@ -45,7 +46,15 @@ export const ModelComponent = defineComponent({
       if (sourceChanged) {
         try {
           if (model.scene && model.scene.userData.src !== model.src) {
-            removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
+            try {
+              removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
+            } catch (e) {
+              if (e?.name === 'MaterialNotFound') {
+                console.warn('could not find material in source ' + model.scene.userData.src)
+              } else {
+                throw e
+              }
+            }
           }
           const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
           DependencyTree.add(uuid)
@@ -67,6 +76,9 @@ export const ModelComponent = defineComponent({
               scene = new Object3D() as Scene
               break
           }
+
+          if (!entityExists(Engine.instance.currentWorld, entity)) return
+
           scene.userData.src = model.src
           if (state.scene.value) removeObjectFromGroup(entity, state.scene.value)
           state.scene.set(scene)

@@ -14,6 +14,7 @@ import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMa
 import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './constants/material-prototypes/ShadowMaterial.mat'
+import WaterMaterialPrototype from './constants/material-prototypes/WaterMaterial.mat'
 import { registerMaterialPrototype } from './functions/Utilities'
 
 export type MaterialLibraryType = {
@@ -46,6 +47,7 @@ export function initializeMaterialLibrary() {
     MeshPhongMaterial,
     MeshToonMaterial,
     ShaderMaterial,
-    ShadowMaterial
+    ShadowMaterial,
+    WaterMaterialPrototype
   ].map(registerMaterialPrototype)
 }

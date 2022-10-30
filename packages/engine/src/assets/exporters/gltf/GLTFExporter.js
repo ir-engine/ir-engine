@@ -1285,14 +1285,14 @@ class GLTFWriter {
 		const json = this.json;
 
 		if ( cache.materials.has( material ) ) return cache.materials.get( material );
-
+/*
 		if ( material.isShaderMaterial ) {
 
 			console.warn( 'GLTFExporter: THREE.ShaderMaterial not supported.' );
 			return null;
 
 		}
-
+*/
 		if ( ! json.materials ) json.materials = [];
 
 		// @QUESTION Should we avoid including any attribute that has the default value?
@@ -1305,13 +1305,16 @@ class GLTFWriter {
 		}
 
 		// pbrMetallicRoughness.baseColorFactor
-		const color = material.color.toArray().concat( [ material.opacity ] );
+		if (material.color) {
+			const color = material.color.toArray().concat( [ material.opacity ] );
 
-		if ( ! equalArray( color, [ 1, 1, 1, 1 ] ) ) {
-
-			materialDef.pbrMetallicRoughness.baseColorFactor = color;
-
+			if ( ! equalArray( color, [ 1, 1, 1, 1 ] ) ) {
+	
+				materialDef.pbrMetallicRoughness.baseColorFactor = color;
+	
+			}
 		}
+		
 
 		if ( material.isMeshStandardMaterial ) {
 
