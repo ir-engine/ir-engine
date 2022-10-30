@@ -19,21 +19,7 @@ import { MaterialSource } from './MaterialSource'
 
 export type MaterialPrototypeComponentType<T extends Material = Material> = {
   prototypeId: string
-  baseMaterial:
-    | typeof MeshBasicMaterial
-    | typeof MeshStandardMaterial
-    | typeof MeshMatcapMaterial
-    | typeof MeshPhysicalMaterial
-    | typeof MeshPhongMaterial
-    | typeof MeshLambertMaterial
-    | typeof MeshToonMaterial
-    | typeof ShaderMaterial
-    | typeof RawShaderMaterial
-    | typeof ShadowMaterial
-    | {
-        new (params): T
-        type: string
-      }
+  baseMaterial: { new (params): T }
   arguments: {
     [_: string]: {
       type: string
