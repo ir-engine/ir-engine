@@ -10,7 +10,6 @@ import { defineQuery, getComponent, getComponentState, removeQuery } from '../..
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { SCENE_COMPONENT_VIDEO, VideoComponent } from '../../scene/components/VideoComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { SCENE_COMPONENT_VOLUMETRIC, VolumetricComponent } from '../../scene/components/VolumetricComponent'

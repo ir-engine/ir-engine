@@ -12,7 +12,7 @@ import {
   hasComponent,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeNode, getEntityTreeNodeByUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import {
@@ -137,7 +137,7 @@ export const PropertiesPanelContainer = () => {
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
   let nodeEntity = lockedNode
-    ? world.entityTree.uuidNodeMap.get(lockedNode)?.entity ?? lockedNode
+    ? getEntityTreeNodeByUUID(lockedNode)?.entity ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
   const isMaterial =
     typeof nodeEntity === 'string' &&

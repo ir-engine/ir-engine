@@ -93,7 +93,7 @@ export const writeCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, e
 
     // Since avatar velocity values are too small and precison is lost when quantized
     let offset_mult = 1
-    if (getComponent(entity, AvatarComponent)) offset_mult = 100
+    if (hasComponent(entity, AvatarComponent)) offset_mult = 100
 
     x *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
     y *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult

@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField'
 import styles from './selectInput.module.scss'
 
 interface SelectInputProp<T> {
-  value: T | string,
+  value: T | string
   options: Array<{ label: string; value: T }>
   onChange?: (value: T | string) => void
   placeholder?: string
@@ -28,7 +28,6 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
   creatable,
   isSearchable
 }: SelectInputProp<T>) {
-
   const [valueSelected, setValue] = React.useState(value)
   const [valueAutoSelected, setAutoValue] = React.useState(options.find((el) => el.value === value)?.label)
 

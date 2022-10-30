@@ -5,7 +5,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { removeEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { getEntityTreeNodeByUUID, removeEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   SCENE_COMPONENT_DYNAMIC_LOAD,
@@ -61,9 +61,9 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
         /** Unloaded loaded entities */
         if (dynamicLoadComponent.loaded && distanceToAvatar > loadDistance) {
           // unload all children
-          const nodes = world.entityTree.uuidNodeMap
-            .get(entityNode.uuid!)
-            ?.children.map((entity) => world.entityTree.entityNodeMap.get(entity)!)!
+          const nodes = getEntityTreeNodeByUUID(entityNode.uuid!)?.children.map(
+            (entity) => world.entityTree.entityNodeMap.get(entity)!
+          )!
           for (const node of nodes) removeEntityNodeRecursively(node, true, world.entityTree)
           dynamicLoadComponent.loaded = false
         }
