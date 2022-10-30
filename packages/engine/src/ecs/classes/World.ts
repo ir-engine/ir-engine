@@ -256,7 +256,7 @@ export class World {
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()
 
-  inputSources: XRInputSource[] = []
+  inputSources: XRInputSourceArray = []
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]

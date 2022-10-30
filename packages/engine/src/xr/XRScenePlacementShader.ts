@@ -35,25 +35,26 @@ export default async function XRScenePlacementShader(world: World) {
       xrState.sessionActive.value && xrState.sessionMode.value === 'immersive-ar' && xrState.scenePlacementMode.value
     // for (const entity of sceneQuery()) {
     //   for (const obj of getComponent(entity, GroupComponent)) {
-    world.scene.traverse((obj: Mesh<any, Material & ScenePlacementMaterialType>) => {
-      if (obj.material) {
-        const userData = obj.material.userData
-        if (useShader) {
-          if (!userData.ScenePlacement) {
-            userData.ScenePlacement = {
-              previouslyTransparent: obj.material.transparent,
-              previousOpacity: obj.material.opacity
+    world.fixedTick % 31 == 0 &&
+      world.scene.traverse((obj: Mesh<any, Material & ScenePlacementMaterialType>) => {
+        if (obj.material) {
+          const userData = obj.material.userData
+          if (useShader) {
+            if (!userData.ScenePlacement) {
+              userData.ScenePlacement = {
+                previouslyTransparent: obj.material.transparent,
+                previousOpacity: obj.material.opacity
+              }
             }
+            obj.material.transparent = true
+            obj.material.opacity = 0.4
+          } else if (userData.ScenePlacement) {
+            obj.material.transparent = userData.ScenePlacement.previouslyTransparent
+            obj.material.opacity = userData.ScenePlacement.previousOpacity
+            delete userData.ScenePlacement
           }
-          obj.material.transparent = true
-          obj.material.opacity = 0.4
-        } else if (userData.ScenePlacement) {
-          obj.material.transparent = userData.ScenePlacement.previouslyTransparent
-          obj.material.opacity = userData.ScenePlacement.previousOpacity
-          delete userData.ScenePlacement
         }
-      }
-    })
+      })
     //   }
     // }
   }
