@@ -19,6 +19,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeQuery,
@@ -198,7 +199,7 @@ export default async function EditorControlSystem(world: World) {
 
         const lastSelectedTransform = isUuid
           ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)
-          : getComponent(lastSelection as Entity, TransformComponent)
+          : getOptionalComponent(lastSelection as Entity, TransformComponent)
 
         if (lastSelectedTransform) {
           const isChanged =

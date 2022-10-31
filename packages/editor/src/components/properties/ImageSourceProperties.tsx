@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackSide, DoubleSide, FrontSide } from 'three'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ImageAlphaMode, ImageProjection } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 
@@ -24,7 +24,7 @@ const ImageProjectionSideOptions = [
 export const ImageSourceProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const imageComponent = getComponent(props.node.entity, ImageComponent)
+  const imageComponent = useComponent(props.node.entity, ImageComponent)
 
   return (
     <>
@@ -47,11 +47,11 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
         <SelectInput
           key={props.node.entity}
           options={imageTransparencyOptions}
-          value={imageComponent.alphaMode}
+          value={imageComponent.alphaMode.value}
           onChange={updateProperty(ImageComponent, 'alphaMode')}
         />
       </InputGroup>
-      {imageComponent.alphaMode === ImageAlphaMode.Mask && (
+      {imageComponent.alphaMode.value === ImageAlphaMode.Mask && (
         <NumericInputGroup
           name="Alpha Cutoff"
           label={t('editor:properties.image.lbl-alphaCutoff')}
@@ -61,7 +61,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={0.25}
-          value={imageComponent.alphaCutoff}
+          value={imageComponent.alphaCutoff.value}
           onChange={updateProperty(ImageComponent, 'alphaCutoff')}
         />
       )}
@@ -69,7 +69,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
         <SelectInput
           key={props.node.entity}
           options={imageProjectionOptions}
-          value={imageComponent.projection}
+          value={imageComponent.projection.value}
           onChange={updateProperty(ImageComponent, 'projection')}
         />
       </InputGroup>
@@ -77,7 +77,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
         <SelectInput
           key={props.node.entity}
           options={ImageProjectionSideOptions}
-          value={imageComponent.side}
+          value={imageComponent.side.value}
           onChange={updateProperty(ImageComponent, 'side')}
         />
       </InputGroup>

@@ -3,7 +3,12 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineQuery, getComponent, useQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  useComponent,
+  useQuery
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
@@ -27,7 +32,7 @@ const mediaComponentQuery = defineQuery([MediaComponent])
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const video = useState(getComponent(props.node.entity, VideoComponent))
+  const video = useComponent(props.node.entity, VideoComponent)
 
   const mediaEntities = useQuery(mediaComponentQuery)
 

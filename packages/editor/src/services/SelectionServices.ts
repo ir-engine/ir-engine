@@ -21,7 +21,7 @@ type SelectionServiceStateType = {
   transformPropertyChanged: boolean
 }
 
-const SelectionState = defineState({
+export const SelectionState = defineState({
   name: 'SelectionState',
   initial: () =>
     ({

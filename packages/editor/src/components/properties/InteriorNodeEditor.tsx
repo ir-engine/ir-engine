@@ -1,3 +1,4 @@
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'

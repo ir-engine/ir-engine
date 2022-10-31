@@ -387,6 +387,20 @@ export function useComponent<C extends Component<any>>(
 ) {
   const component = useHookstate(Component.map[entity]) as State<ComponentType<C>>
   const hasOrAllowRemoved = allowRemoved || hasComponent(entity, Component, world)
+  return hasOrAllowRemoved ? component : undefined!
+}
+
+/**
+ * Use a component in a reactive context (a React component)
+ */
+export function useOptionalComponent<C extends Component<any>>(
+  entity: Entity,
+  Component: C,
+  allowRemoved = false,
+  world = Engine.instance.currentWorld
+) {
+  const component = useHookstate(Component.map[entity]) as State<ComponentType<C>>
+  const hasOrAllowRemoved = allowRemoved || hasComponent(entity, Component, world)
   return hasOrAllowRemoved ? component : undefined
 }
 

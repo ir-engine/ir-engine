@@ -107,7 +107,6 @@ function ModelReactor({ root }: EntityReactorProps) {
         }
 
         if (!entityExists(Engine.instance.currentWorld, entity)) return
-        if (modelState.scene.value) return // src was changed again ?
 
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src

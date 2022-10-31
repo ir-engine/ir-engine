@@ -8,7 +8,8 @@ import {
   getComponent,
   getComponentState,
   getOrAddComponent,
-  hasComponent
+  hasComponent,
+  useComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {

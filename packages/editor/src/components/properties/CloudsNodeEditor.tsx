@@ -32,13 +32,13 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.clouds.description')}
     >
       <InputGroup name="Image" label={t('editor:properties.clouds.lbl-image')}>
-        <ImageInput value={cloudComponent?.texture.value} onChange={updateProperty(CloudComponent, 'texture')} />
+        <ImageInput value={cloudComponent.texture.value} onChange={updateProperty(CloudComponent, 'texture')} />
         {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.clouds.error-url')}</div>}
       </InputGroup>
 
       <InputGroup name="World Scale" label={t('editor:properties.clouds.lbl-wroldScale')}>
         <Vector3Input
-          value={cloudComponent?.worldScale.value}
+          value={cloudComponent.worldScale.value}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
@@ -48,7 +48,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Dimensions" label={t('editor:properties.clouds.lbl-dimensions')}>
         <Vector3Input
-          value={cloudComponent?.dimensions.value}
+          value={cloudComponent.dimensions.value}
           smallStep={1}
           mediumStep={1}
           largeStep={1}
@@ -58,7 +58,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Noise Zoom" label={t('editor:properties.clouds.lbl-noiseZoom')}>
         <Vector3Input
-          value={cloudComponent?.noiseZoom.value}
+          value={cloudComponent.noiseZoom.value}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
@@ -68,7 +68,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Noise Offset" label={t('editor:properties.clouds.lbl-noiseOffset')}>
         <Vector3Input
-          value={cloudComponent?.noiseOffset.value}
+          value={cloudComponent.noiseOffset.value}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
@@ -78,7 +78,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Sprite Scale" label={t('editor:properties.clouds.lbl-spriteScale')}>
         <Vector2Input
-          value={cloudComponent?.spriteScaleRange.value}
+          value={cloudComponent.spriteScaleRange.value}
           onChange={updateProperty(CloudComponent, 'spriteScaleRange')}
         />
       </InputGroup>
@@ -89,7 +89,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Fog Range" label={t('editor:properties.clouds.lbl-fogRange')}>
         <Vector2Input
-          value={cloudComponent?.fogRange.value}
+          value={cloudComponent.fogRange.value}
           onChange={updateProperty(CloudComponent, 'fogRange')}
           hideLabels
         />

@@ -3,7 +3,7 @@ import {
   Component,
   ComponentErrorsType,
   defineComponent,
-  getComponentState
+  getOptionalComponentState
 } from '../../ecs/functions/ComponentFunctions'
 
 export type ErrorComponentType = {
@@ -18,5 +18,8 @@ export const ErrorComponent = defineComponent<ErrorComponentType>({
 })
 
 export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  return getComponentState(entity, ErrorComponent)?.[component.name].value as Record<ComponentErrorsType<C>, string>
+  return getOptionalComponentState(entity, ErrorComponent)?.[component.name].value as Record<
+    ComponentErrorsType<C>,
+    string
+  >
 }
