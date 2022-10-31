@@ -5,6 +5,7 @@ import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
+import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -77,6 +78,8 @@ const updateTransformFromRigidbody = (entity: Entity) => {
     // if (hasComponent(entity, RigidBodyDynamicTagComponent)) console.warn('moved dynamic')
     rigidBody.body.setTranslation(transform.position, !rigidBody.body.isSleeping())
     rigidBody.body.setRotation(transform.rotation, !rigidBody.body.isSleeping())
+    rigidBody.body.setLinvel(V_000, true)
+    rigidBody.body.setAngvel(V_000, true)
 
     // if scale has changed, we have to recreate the collider
     const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(transform.scale) > 0.0001 : true

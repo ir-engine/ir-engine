@@ -58,7 +58,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.media.name')}
       description={t('editor:properties.media.description')}
     >
-      {hasError && error.mediaError && (
+      {hasError && error?.mediaError && (
         <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + error.mediaError}</div>
       )}
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>

@@ -122,7 +122,7 @@ export default async function SceneObjectSystem(world: World) {
     }
 
     /** ensure that hmd has no heavy materials */
-    if (isHMD || xrState.is8thWallActive.value) {
+    if (isHMD || (xrState.is8thWallActive.value && world.fixedTick % 30 == 0)) {
       // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
       world.scene.traverse((obj: Mesh<any, any>) => {
         if (obj.material)
