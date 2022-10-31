@@ -42,7 +42,6 @@ export const updateCollider = (entity: Entity) => {
     } else {
       /**
        * If rigidbody does not exist, create one
-       * note: this adds a VelocityComponent
        */
       let bodyDesc: RigidBodyDesc
       switch (colliderComponent.bodyType) {
