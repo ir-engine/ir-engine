@@ -90,7 +90,7 @@ export const MediaStreamService = {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
         const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-        dispatchAction(MediaStreamAction.setConsumersAction({ consumers: mediaNetwork.consumers }))
+        if (mediaNetwork) dispatchAction(MediaStreamAction.setConsumersAction({ consumers: mediaNetwork.consumers }))
         updateConsumerTimeout = null
       }, 1000)
     }
