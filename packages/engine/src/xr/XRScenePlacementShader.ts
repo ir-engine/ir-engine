@@ -48,7 +48,7 @@ export default async function XRScenePlacementShader(world: World) {
             }
             obj.material.transparent = true
             obj.material.opacity = 0.4
-          } else if (userData.ScenePlacement) {
+          } else if (userData?.ScenePlacement) {
             obj.material.transparent = userData.ScenePlacement.previouslyTransparent
             obj.material.opacity = userData.ScenePlacement.previousOpacity
             delete userData.ScenePlacement
