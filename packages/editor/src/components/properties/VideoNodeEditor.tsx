@@ -19,7 +19,14 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { Vector2Input } from '../inputs/Vector2Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
+
+const fitOptions = [
+  { label: 'Cover', value: 'cover' },
+  { label: 'Contain', value: 'contain' },
+  { label: 'Vertical', value: 'vertical' },
+  { label: 'Horizontal', value: 'horizontal' }
+]
 
 const mediaComponentQuery = defineQuery([MediaComponent])
 
@@ -56,9 +63,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       >
         <SelectInput
           value={video.mediaUUID.value}
-          onChange={(value) => {
-            video.mediaUUID.set(value)
-          }}
+          onChange={updateProperty(VideoComponent, 'mediaUUID')}
           options={mediaOptions}
           isSearchable
         />
@@ -69,12 +74,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.video.lbl-size')}
         info={t('editor:properties.video.lbl-size-info')}
       >
-        <Vector2Input
-          value={video.size.value}
-          onChange={(value) => {
-            video.size.set(value)
-          }}
-        />
+        <Vector2Input value={video.size.value} onChange={updateProperty(VideoComponent, 'size')} />
       </InputGroup>
 
       <InputGroup
@@ -82,13 +82,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.video.lbl-fit')}
         info={t('editor:properties.video.lbl-fit-info')}
       >
-        <SelectInput
-          value={video.mediaUUID.value}
-          onChange={(value) => {
-            video.mediaUUID.set(value)
-          }}
-          options={mediaOptions}
-        />
+        <SelectInput value={video.fit.value} onChange={updateProperty(VideoComponent, 'fit')} options={fitOptions} />
       </InputGroup>
     </NodeEditor>
   )
