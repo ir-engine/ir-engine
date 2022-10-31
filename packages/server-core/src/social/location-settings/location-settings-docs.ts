@@ -9,7 +9,7 @@ export default {
         videoEnabled: {
           type: 'boolean'
         },
-        instanceMediaChatEnabled: {
+        audioEnabled: {
           type: 'boolean'
         }
       }

@@ -1,14 +1,5 @@
 export interface LocationColumn {
-  id:
-    | 'sceneId'
-    | 'maxUsersPerInstance'
-    | 'scene'
-    | 'name'
-    | 'type'
-    | 'tags'
-    | 'instanceMediaChatEnabled'
-    | 'videoEnabled'
-    | 'action'
+  id: 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'type' | 'tags' | 'videoEnabled' | 'action'
   label: string
   minWidth?: number
   align?: 'right' | 'center'
@@ -37,12 +28,6 @@ export const locationColumns: LocationColumn[] = [
     id: 'tags',
     label: 'Tags',
     minWidth: 65,
-    align: 'center'
-  },
-  {
-    id: 'instanceMediaChatEnabled',
-    label: 'Instance Media Chat Enabled',
-    minWidth: 80,
     align: 'center'
   },
   {

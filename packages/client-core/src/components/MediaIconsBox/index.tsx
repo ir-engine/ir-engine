@@ -51,8 +51,8 @@ export const MediaIconsBox = () => {
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
     : false
-  const instanceMediaChatEnabled = currentLocation?.locationSetting?.value
-    ? currentLocation?.locationSetting?.instanceMediaChatEnabled?.value
+  const audioEnabled = currentLocation?.locationSetting?.value
+    ? currentLocation?.locationSetting?.audioEnabled?.value
     : false
 
   const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
@@ -78,10 +78,6 @@ export const MediaIconsBox = () => {
   }, [])
 
   const handleFaceClick = async () => {
-    const partyId =
-      currentLocation?.locationSetting?.instanceMediaChatEnabled?.value === true
-        ? 'instance'
-        : user.partyId?.value || 'instance'
     if (isFaceTrackingEnabled.value) {
       MediaStreams.instance.setFaceTracking(false)
       stopFaceTracking()
@@ -139,7 +135,7 @@ export const MediaIconsBox = () => {
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
-      {instanceMediaChatEnabled &&
+      {audioEnabled &&
       hasAudioDevice &&
       Engine.instance.currentWorld.mediaNetwork &&
       currentChannelInstanceConnection?.connected.value ? (
