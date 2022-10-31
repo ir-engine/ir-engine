@@ -375,7 +375,8 @@ const config = {
     tcpPort: process.env.KUBERNETES_PORT_443_TCP_PORT!
   },
   noSSL: process.env.NOSSL === 'true',
-  localBuild: process.env.VITE_LOCAL_BUILD === 'true'
+  localBuild: process.env.VITE_LOCAL_BUILD === 'true',
+  testEnabled
 }
 
 chargebeeInst.configure({
