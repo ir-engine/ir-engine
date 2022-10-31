@@ -384,22 +384,14 @@ const setLocalMovementDirection: InputBehaviorType = (
 const vrAxisLookSensitivity = 0.025
 
 const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const avatarController = getComponent(entity, AvatarControllerComponent)
-  const cameraEntity = avatarController.cameraEntity
-  const followCamera = getOptionalComponent(cameraEntity, FollowCameraComponent)
-
-  const cameraSettings = getState(CameraSettings)
-
-  if (followCamera) {
-    const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
-    if (target)
-      setTargetCameraRotation(
-        cameraEntity,
-        target.phi - inputValue.value[1] * cameraSettings.cameraRotationSpeed.value,
-        target.theta - inputValue.value[0] * cameraSettings.cameraRotationSpeed.value,
-        0.1
-      )
-    return
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
+  if (inputValue.type === InputType.TWODIM) {
+    controller.localMovementDirection.x = inputValue.value[0]
+    controller.localMovementDirection.z = inputValue.value[1]
+  } else if (inputValue.type === InputType.THREEDIM) {
+    // TODO: check if this mapping correct
+    controller.localMovementDirection.z = inputValue.value[2]
+    controller.localMovementDirection.x = inputValue.value[0]
   }
 
   // if vr, rotate the avatar
@@ -420,14 +412,22 @@ const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAl
 }
 
 const moveRightController: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
-  if (inputValue.type === InputType.TWODIM) {
-    controller.localMovementDirection.x = inputValue.value[0]
-    controller.localMovementDirection.z = inputValue.value[1]
-  } else if (inputValue.type === InputType.THREEDIM) {
-    // TODO: check if this mapping correct
-    controller.localMovementDirection.z = inputValue.value[2]
-    controller.localMovementDirection.x = inputValue.value[0]
+  const avatarController = getComponent(entity, AvatarControllerComponent)
+  const cameraEntity = avatarController.cameraEntity
+  const followCamera = getOptionalComponent(cameraEntity, FollowCameraComponent)
+
+  const cameraSettings = getState(CameraSettings)
+
+  if (followCamera) {
+    const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
+    if (target)
+      setTargetCameraRotation(
+        cameraEntity,
+        target.phi - inputValue.value[1] * cameraSettings.cameraRotationSpeed.value,
+        target.theta - inputValue.value[0] * cameraSettings.cameraRotationSpeed.value,
+        0.1
+      )
+    return
   }
 
   // if vr, rotate the avatar
