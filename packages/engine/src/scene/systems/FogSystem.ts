@@ -1,4 +1,7 @@
+import { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial } from 'three'
+
+import { createReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
@@ -20,92 +23,86 @@ const getFogPlugin = (world: World): PluginType => {
 }
 
 export default async function FogSystem(world: World) {
-  const updateFogType = () => {
-    const scene = world.scene
-    const fogData = world.sceneMetadata.fog.get({ noproxy: true })
-    switch (fogData.type) {
-      case FogType.Linear:
-        scene.fog = new Fog(fogData.color, fogData.near, fogData.far)
-        removeFogShader()
-        break
+  const reactor = createReactor(() => {
+    const fog = useHookstate(world.sceneMetadata.fog)
 
-      case FogType.Exponential:
-        scene.fog = new FogExp2(fogData.color, fogData.density)
-        removeFogShader()
-        break
+    useEffect(() => {
+      const scene = world.scene
+      const fogData = world.sceneMetadata.fog.get({ noproxy: true })
+      switch (fogData.type) {
+        case FogType.Linear:
+          scene.fog = new Fog(fogData.color, fogData.near, fogData.far)
+          removeFogShader()
+          break
 
-      case FogType.Brownian:
-        scene.fog = new FogExp2(fogData.color, fogData.density)
-        initBrownianMotionFogShader()
-        break
+        case FogType.Exponential:
+          scene.fog = new FogExp2(fogData.color, fogData.density)
+          removeFogShader()
+          break
 
-      case FogType.Height:
-        scene.fog = new FogExp2(fogData.color, fogData.density)
-        initHeightFogShader()
-        break
+        case FogType.Brownian:
+          scene.fog = new FogExp2(fogData.color, fogData.density)
+          initBrownianMotionFogShader()
+          break
 
-      default:
-        scene.fog = null
-        removeFogShader()
-        break
-    }
-  }
+        case FogType.Height:
+          scene.fog = new FogExp2(fogData.color, fogData.density)
+          initHeightFogShader()
+          break
 
-  const updateFogColor = () => {
-    const scene = world.scene
-    const fogData = world.sceneMetadata.fog.get({ noproxy: true })
-    if (scene.fog) scene.fog.color.set(fogData.color)
-  }
-
-  const updateFogDensity = () => {
-    const scene = world.scene
-    const fogData = world.sceneMetadata.fog.get({ noproxy: true })
-    if (scene.fog && fogData.type !== FogType.Linear) (scene.fog as FogExp2).density = fogData.density
-  }
-  const updateFogNear = () => {
-    const scene = world.scene
-    const fogData = world.sceneMetadata.fog.get({ noproxy: true })
-    if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).near = fogData.near
-  }
-
-  const updateFogFar = () => {
-    const scene = world.scene
-    const fogData = world.sceneMetadata.fog.get({ noproxy: true })
-    if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).far = fogData.far
-  }
-
-  const updateFogTimeScale = () => {
-    const scene = world.scene
-    const fogData = world.sceneMetadata.fog.get({ noproxy: true })
-    if (scene.fog && (fogData.type === FogType.Brownian || fogData.type === FogType.Height))
-      for (const s of world.fogShaders) s.uniforms.heightFactor.value = fogData.height
-  }
-
-  const updateFogHeight = () => {
-    const scene = world.scene
-    const fogData = world.sceneMetadata.fog.get({ noproxy: true })
-    if (scene.fog && fogData.type === FogType.Brownian)
-      for (const s of world.fogShaders) {
-        s.uniforms.fogTimeScale.value = fogData.timeScale
-        s.uniforms.fogTime.value = world.fixedElapsedSeconds
+        default:
+          scene.fog = null
+          removeFogShader()
+          break
       }
-  }
+    }, [fog.type])
 
-  world.sceneMetadata.fog.type.subscribe(updateFogType)
-  world.sceneMetadata.fog.color.subscribe(updateFogColor)
-  world.sceneMetadata.fog.density.subscribe(updateFogDensity)
-  world.sceneMetadata.fog.near.subscribe(updateFogNear)
-  world.sceneMetadata.fog.far.subscribe(updateFogFar)
-  world.sceneMetadata.fog.timeScale.subscribe(updateFogTimeScale)
-  world.sceneMetadata.fog.height.subscribe(updateFogHeight)
+    useEffect(() => {
+      console.log(world.sceneMetadata.fog.color.value)
+      const scene = world.scene
+      const fogData = world.sceneMetadata.fog.get({ noproxy: true })
+      if (scene.fog) scene.fog.color.set(fogData.color)
+    }, [fog.color])
 
-  updateFogType()
-  updateFogColor()
-  updateFogDensity()
-  updateFogNear()
-  updateFogFar()
-  updateFogTimeScale()
-  updateFogHeight()
+    useEffect(() => {
+      const scene = world.scene
+      const fogData = world.sceneMetadata.fog.get({ noproxy: true })
+      if (scene.fog && fogData.type !== FogType.Linear) (scene.fog as FogExp2).density = fogData.density
+    }, [fog.density])
+
+    useEffect(() => {
+      const scene = world.scene
+      const fogData = world.sceneMetadata.fog.get({ noproxy: true })
+      if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).near = fogData.near
+    }, [fog.near])
+
+    useEffect(() => {
+      const scene = world.scene
+      const fogData = world.sceneMetadata.fog.get({ noproxy: true })
+      if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).far = fogData.far
+    }, [fog.far])
+
+    useEffect(() => {
+      const scene = world.scene
+      const fogData = world.sceneMetadata.fog.get({ noproxy: true })
+      if (scene.fog && (fogData.type === FogType.Brownian || fogData.type === FogType.Height))
+        for (const s of world.fogShaders) s.uniforms.heightFactor.value = fogData.height
+    }, [fog.timeScale])
+
+    useEffect(() => {
+      const scene = world.scene
+      const fogData = world.sceneMetadata.fog.get({ noproxy: true })
+      if (scene.fog && fogData.type === FogType.Brownian)
+        for (const s of world.fogShaders) {
+          s.uniforms.fogTimeScale.value = fogData.timeScale
+          s.uniforms.fogTime.value = world.fixedElapsedSeconds
+        }
+    }, [fog.height])
+
+    return null
+  })
+
+  reactor.run()
 
   const type = world.sceneMetadata.fog.type
 
@@ -137,7 +134,9 @@ export default async function FogSystem(world: World) {
     }
   }
 
-  const cleanup = async () => {}
+  const cleanup = async () => {
+    reactor.stop()
+  }
 
   return { execute, cleanup }
 }

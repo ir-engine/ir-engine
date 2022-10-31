@@ -1,6 +1,5 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import { State } from '@hookstate/core'
-import { subscribable } from '@hookstate/subscribable'
 import * as bitecs from 'bitecs'
 import {
   Group,
@@ -173,44 +172,41 @@ export class World {
   fogShaders = [] as Shader[]
 
   /** stores a hookstate copy of scene metadata */
-  sceneMetadata = hookstate(
-    {
-      postprocessing: {
-        enabled: false,
-        effects: defaultPostProcessingSchema
-      },
-      mediaSettings: {
-        immersiveMedia: false,
-        refDistance: 20,
-        rolloffFactor: 1,
-        maxDistance: 10000,
-        distanceModel: 'linear' as DistanceModelType,
-        coneInnerAngle: 360,
-        coneOuterAngle: 0,
-        coneOuterGain: 0
-      },
-      renderSettings: {
-        LODs: DEFAULT_LOD_DISTANCES,
-        csm: true,
-        toneMapping: LinearToneMapping as ToneMapping,
-        toneMappingExposure: 0.8,
-        shadowMapType: PCFSoftShadowMap as ShadowMapType
-      },
-      fog: {
-        type: FogType.Linear as FogType,
-        color: '#FFFFFF',
-        density: 0.005,
-        near: 1,
-        far: 1000,
-        timeScale: 1,
-        height: 0.05
-      },
-      xr: {
-        dollhouse: 'auto' as boolean | 'auto'
-      }
+  sceneMetadata = hookstate({
+    postprocessing: {
+      enabled: false,
+      effects: defaultPostProcessingSchema
     },
-    subscribable()
-  )
+    mediaSettings: {
+      immersiveMedia: false,
+      refDistance: 20,
+      rolloffFactor: 1,
+      maxDistance: 10000,
+      distanceModel: 'linear' as DistanceModelType,
+      coneInnerAngle: 360,
+      coneOuterAngle: 0,
+      coneOuterGain: 0
+    },
+    renderSettings: {
+      LODs: DEFAULT_LOD_DISTANCES,
+      csm: true,
+      toneMapping: LinearToneMapping as ToneMapping,
+      toneMappingExposure: 0.8,
+      shadowMapType: PCFSoftShadowMap as ShadowMapType
+    },
+    fog: {
+      type: FogType.Linear as FogType,
+      color: '#FFFFFF',
+      density: 0.005,
+      near: 1,
+      far: 1000,
+      timeScale: 1,
+      height: 0.05
+    },
+    xr: {
+      dollhouse: 'auto' as boolean | 'auto'
+    }
+  })
 
   /**
    * The scene entity

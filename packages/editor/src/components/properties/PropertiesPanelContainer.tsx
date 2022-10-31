@@ -170,7 +170,6 @@ export const PropertiesPanelContainer = () => {
     const components = getAllComponents(nodeEntity as Entity).filter((c) => EntityNodeEditor.has(c))
     // todo - still WIP
     // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry.entries())
-    console.log(components.map(({ name }) => name))
 
     content = (
       <StyledNodeEditor>

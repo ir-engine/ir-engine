@@ -15,7 +15,6 @@
   "dependencies": {
     "react-nil": "1.2.0",
     "@hookstate/core": "4.0.0-rc21",
-    "@hookstate/subscribable": "4.0.0-rc21",
     "react-reconciler": "^0.29.0"
   },
   "devDependencies": {
