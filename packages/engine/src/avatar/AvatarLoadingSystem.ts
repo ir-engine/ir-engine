@@ -18,6 +18,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import {
   addComponent,
+  ComponentType,
   defineQuery,
   getComponent,
   hasComponent,
@@ -103,13 +104,14 @@ export default async function AvatarLoadingSystem(world: World) {
     for (const entity of effectQuery.enter()) {
       const effectComponent = getComponent(entity, AvatarEffectComponent)
       const sourceTransform = getComponent(effectComponent.sourceEntity, TransformComponent)
-      const transform = setTransformComponent(
+      setTransformComponent(
         entity,
         sourceTransform.position.clone(),
         sourceTransform.rotation.clone(),
         sourceTransform.scale.clone()
       )
-      addComponent(entity, VisibleComponent, true)
+      const transform = getComponent(entity, TransformComponent)
+      setComponent(entity, VisibleComponent, true)
       /**
        * cast ray to move this downward to be on the ground
        */

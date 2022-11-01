@@ -24,22 +24,18 @@ export type Object3DWithEntity = Object3D & { entity: Entity }
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
 
-  onAdd: (entity: Entity) => {
+  onInit: (entity: Entity) => {
     return [] as Object3DWithEntity[]
   },
 
   onRemove: (entity, component) => {
-    for (const obj of component) {
+    for (const obj of component.value) {
       obj.removeFromParent()
       obj.traverse((mesh: Mesh<BufferGeometry, Material>) => {
         mesh.material?.dispose()
         mesh.geometry?.dispose()
       })
     }
-  },
-
-  toJSON: (entity, component) => {
-    return component
   }
 })
 

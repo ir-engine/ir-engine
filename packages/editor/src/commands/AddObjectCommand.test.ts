@@ -192,8 +192,8 @@ describe('AddObjectCommand', () => {
       assert.notEqual(parentNodes.length, 0)
       assert.notEqual(beforeNodes.length, 0)
 
-      assert.equal(getComponent(nodes[0].entity, NameComponent)?.name, ScenePrefabs.group)
-      assert.equal(getComponent(nodes[1].entity, NameComponent)?.name, ScenePrefabs.group + ' 2')
+      assert.equal(getComponent(nodes[0].entity, NameComponent), ScenePrefabs.group)
+      assert.equal(getComponent(nodes[1].entity, NameComponent), ScenePrefabs.group + ' 2')
     })
 
     it('updates selection', () => {

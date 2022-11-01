@@ -1,7 +1,7 @@
 import { Matrix4, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
@@ -117,7 +117,7 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
       obj3d.updateMatrix()
     } else {
       const transform = getComponent(node.entity, TransformComponent)
-      const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+      const localTransform = getOptionalComponent(node.entity, LocalTransformComponent) ?? transform
 
       if (space === TransformSpace.Local) {
         if (addToPosition) localTransform.position.add(pos)

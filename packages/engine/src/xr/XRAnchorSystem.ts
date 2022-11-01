@@ -79,20 +79,20 @@ export const updateHitTest = (entity: Entity) => {
 
   const hitTestComponent = getComponent(entity, XRHitTestComponent)
 
-  if (hitTestComponent.hitTestSource.value) {
+  if (hitTestComponent.hitTestSource) {
     const localTransform = getComponent(entity, LocalTransformComponent)
-    const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource.value!)
+    const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource!)
     if (hitTestResults.length) {
       const hit = hitTestResults[0]
       const hitPose = hit.getPose(xrState.originReferenceSpace.value!)!
       localTransform.position.copy(hitPose.transform.position as any as Vector3)
       localTransform.rotation.copy(hitPose.transform.orientation as any as Quaternion)
-      hitTestComponent.hitTestResult.set(hit)
+      hitTestComponent.hitTestResult = hit
       return hit
     }
   }
 
-  hitTestComponent.hitTestResult.set(null)
+  hitTestComponent.hitTestResult = null
 }
 
 const _vec = new Vector3()
@@ -226,7 +226,7 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 
 export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorld) => {
   const xrState = getState(XRState)
-  const anchor = getComponent(entity, XRAnchorComponent).anchor.value
+  const anchor = getComponent(entity, XRAnchorComponent).anchor
   const xrFrame = Engine.instance.xrFrame!
   if (anchor) {
     const pose = xrFrame.getPose(anchor.anchorSpace, xrState.originReferenceSpace.value!)
@@ -247,7 +247,7 @@ export default async function XRAnchorSystem(world: World) {
   const xrState = getState(XRState)
 
   const scenePlacementEntity = createEntity()
-  setComponent(scenePlacementEntity, NameComponent, { name: 'xr-scene-placement' })
+  setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
   setLocalTransformComponent(scenePlacementEntity, world.originEntity)
   setComponent(scenePlacementEntity, VisibleComponent, true)
 
@@ -318,7 +318,7 @@ export default async function XRAnchorSystem(world: World) {
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
       if (changePlacementModeActions.length && changePlacementModeActions[0].active) {
         setComponent(scenePlacementEntity, XRHitTestComponent, {
-          hitTestSource: xrState.viewerHitTestSource.get({ noproxy: true })
+          hitTestSource: xrState.viewerHitTestSource.value
         })
       }
       for (const entity of xrHitTestQuery()) {
@@ -348,7 +348,7 @@ export default async function XRAnchorSystem(world: World) {
      * Hit Test Helper
      */
     for (const entity of xrHitTestQuery()) {
-      const hasHit = getComponent(entity, XRHitTestComponent).hitTestResult.value
+      const hasHit = getComponent(entity, XRHitTestComponent).hitTestResult
       if (hasHit && !hasComponent(entity, GroupComponent)) {
         addObjectToGroup(entity, xrViewerHitTestMesh)
       }

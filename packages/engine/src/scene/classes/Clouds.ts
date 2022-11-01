@@ -15,6 +15,7 @@ import {
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Entity } from '../../ecs/classes/Entity'
+import { CloudComponent } from '../components/CloudComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexShader = `
@@ -207,10 +208,10 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
     AssetLoader.loadAsync(path)
       .then((texture) => {
         this.material.uniforms.map.value = texture
-        removeError(this.entity, 'error')
+        removeError(this.entity, CloudComponent, 'TEXTURE_LOADING_ERROR')
       })
       .catch((error) => {
-        addError(this.entity, 'error', error.message)
+        addError(this.entity, CloudComponent, 'TEXTURE_LOADING_ERROR', error.message)
       })
   }
 

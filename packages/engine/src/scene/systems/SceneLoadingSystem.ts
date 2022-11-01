@@ -1,9 +1,10 @@
 import { cloneDeep, merge } from 'lodash'
 import { MathUtils } from 'three'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import logger from '@xrengine/common/src/logger'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState, NO_PROXY } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -15,13 +16,14 @@ import {
   defineQuery,
   getAllComponents,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeNode, getAllEntityTreeNodesByUUID, getEntityTreeNodeByUUID } from '../../ecs/functions/EntityTree'
 import {
   addEntityNodeChild,
   createEntityNode,
@@ -33,23 +35,23 @@ import { initSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
-import { ModelComponent, ModelComponentType, SCENE_COMPONENT_MODEL } from '../components/ModelComponent'
+import { ModelComponent, SCENE_COMPONENT_MODEL } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 
 export const prefetchModelAssets = (sceneJson: SceneJson, world: World) => {
   for (const [uuid, entityJson] of Object.entries(sceneJson.entities)) {
     const entityModelComponent = entityJson.components.find(
       (comp) => comp.name === SCENE_COMPONENT_MODEL
-    ) as ComponentJson<ModelComponentType>
+    ) as ComponentJson<ReturnType<typeof ModelComponent.toJSON>>
     if (entityModelComponent) {
-      const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
+      const existingEntity = UUIDComponent.entitiesByUUID[uuid]?.value
       const sameSource =
-        existingEntity &&
-        getComponent(existingEntity.entity, ModelComponent)?.src.value === entityModelComponent.props.src
+        existingEntity && getOptionalComponent(existingEntity, ModelComponent)?.src === entityModelComponent.props.src
       if (!sameSource && entityModelComponent.props.src !== '') fetch(entityModelComponent.props.src, { mode: 'cors' })
     }
   }
@@ -99,9 +101,12 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
 
 export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNode): Promise<EntityTreeNode[]> => {
   const entityMap = {} as { [key: string]: EntityTreeNode }
-  const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root)
-  const idMap = new Map<string, string>()
-  const loadedEntities = Engine.instance.currentWorld.entityTree.uuidNodeMap
+  const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root) as [
+    EntityUUID,
+    EntityJson
+  ][]
+  const idMap = new Map<EntityUUID, EntityUUID>()
+  const loadedEntities = UUIDComponent.entitiesByUUID.get(NO_PROXY)
 
   const root = assetRoot ?? Engine.instance.currentWorld.entityTree.rootNode
   const rootId = sceneData.root
@@ -109,13 +114,13 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNo
   entities.forEach(([_uuid, eJson]) => {
     //check if uuid already exists in scene
     let uuid = _uuid
-    if (loadedEntities.has(uuid)) {
-      uuid = MathUtils.generateUUID()
+    if (loadedEntities[uuid]) {
+      uuid = MathUtils.generateUUID() as EntityUUID
       idMap.set(_uuid, uuid)
     }
     const eNode = createEntityNode(createEntity(), uuid)
-    if (eJson.parent && loadedEntities.has(eJson.parent)) {
-      addEntityNodeChild(eNode, loadedEntities.get(eJson.parent)!)
+    if (eJson.parent && loadedEntities[eJson.parent]) {
+      addEntityNodeChild(eNode, getEntityTreeNodeByUUID(eJson.parent!)!)
     }
     entityMap[uuid] = eNode
   })
@@ -154,21 +159,21 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNo
  * @param world
  */
 export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.instance.currentWorld) => {
-  const entitiesToLoad = Object.entries(world.sceneJson.entities).filter(([uuid, entity]) => entity.parent === parent)
+  const entitiesToLoad = Object.entries(world.sceneJson.entities).filter(
+    ([uuid, entity]) => entity.parent === parent
+  ) as [EntityUUID, EntityJson][]
   for (const [uuid, entityJson] of entitiesToLoad) {
     updateSceneEntity(uuid, entityJson, world)
     const JSONEntityIsDynamic = !!entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)
 
     if (JSONEntityIsDynamic && !Engine.instance.isEditor) {
-      const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
+      const existingEntity = getEntityTreeNodeByUUID(uuid)
       if (existingEntity) {
-        const previouslyNotDynamic = !getComponent(existingEntity.entity, SceneDynamicLoadTagComponent)?.loaded
+        const previouslyNotDynamic = !getOptionalComponent(existingEntity.entity, SceneDynamicLoadTagComponent)?.loaded
         if (previouslyNotDynamic) {
           // remove children from world (get from entity tree)
           // these are children who have potentially been previously loaded and are now to be dynamically loaded
-          const nodes = world.entityTree.uuidNodeMap
-            .get(uuid!)
-            ?.children.map((entity) => world.entityTree.entityNodeMap.get(entity)!)!
+          const nodes = existingEntity?.children.map((entity) => world.entityTree.entityNodeMap.get(entity)!)!
           for (const node of nodes) removeEntityNode(node, false, world.entityTree)
         }
       }
@@ -213,9 +218,9 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
-  const oldLoadedEntityNodesToRemove = Array.from(world.entityTree.uuidNodeMap).filter(
+  const oldLoadedEntityNodesToRemove = getAllEntityTreeNodesByUUID().filter(
     ([uuid, node]) =>
-      !sceneData.scene.entities[uuid] && !getComponent(node.entity, GLTFLoadedComponent)?.includes('entity')
+      !sceneData.scene.entities[uuid] && !getOptionalComponent(node.entity, GLTFLoadedComponent)?.includes('entity')
   )
   /** @todo this will not  */
   for (const [uuid, node] of oldLoadedEntityNodesToRemove) {
@@ -231,7 +236,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   world.sceneJson = sceneData.scene
 
   /** @todo - check for removed metadata types */
-  world.sceneMetadata.set({ ...world.sceneMetadata.get({ noproxy: true }), ...sceneData.scene.metadata })
+  if (sceneData.scene.metadata) world.sceneMetadata.merge(sceneData.scene.metadata)
 
   /** 4. update scene entities with new data, and load new ones */
   updateRootNodeUuid(sceneData.scene.root, world.entityTree)
@@ -249,18 +254,18 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
  * @param entityJson
  * @param world
  */
-export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
+export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
   try {
-    const existingEntity = world.entityTree.uuidNodeMap.get(uuid)
+    const existingEntity = getEntityTreeNodeByUUID(uuid)
     if (existingEntity) {
       deserializeSceneEntity(existingEntity, entityJson)
       /** @todo handle reparenting due to changes in scene json */
       // const parent = world.entityTree.entityNodeMap.get(existingEntity!.parentEntity!)
       // if (parent && parent.uuid !== entityJson.parent)
-      //   reparentEntityNode(existingEntity, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
+      //   reparentEntityNode(existingEntity, getEntityTreeNodeByUUID(entityJson.parent!)!)
     } else {
       const node = createEntityNode(createEntity(), uuid)
-      addEntityNodeChild(node, world.entityTree.uuidNodeMap.get(entityJson.parent!)!)
+      addEntityNodeChild(node, getEntityTreeNodeByUUID(entityJson.parent!)!)
       deserializeSceneEntity(node, entityJson)
     }
   } catch (e) {
@@ -278,7 +283,7 @@ export const deserializeSceneEntity = (
   sceneEntity: EntityJson,
   world = Engine.instance.currentWorld
 ): Entity => {
-  setComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
+  setComponent(entityNode.entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
 
   /** remove ECS components that are in the scene register but not in the json */
   /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */

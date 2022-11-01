@@ -7,14 +7,20 @@ import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import {
   addComponent,
+  ComponentType,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { getEntityTreeNodeByUUID } from '../../ecs/functions/EntityTree'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
-import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -44,7 +50,8 @@ const receiveSpawnObject = (
   if (action.position) position.copy(action.position)
   if (action.rotation) rotation.copy(action.rotation)
 
-  const transform = setTransformComponent(entity, position, rotation)
+  setTransformComponent(entity, position, rotation)
+  const transform = getComponent(entity, TransformComponent)
 
   // set cached action refs to the new components so they stay up to date with future movements
   action.position = transform.position
@@ -55,7 +62,7 @@ const receiveRegisterSceneObject = (
   action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
-  const entity = world.entityTree.uuidNodeMap.get(action.objectUuid)?.entity!
+  const entity = getEntityTreeNodeByUUID(action.objectUuid)?.entity!
 
   if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
 

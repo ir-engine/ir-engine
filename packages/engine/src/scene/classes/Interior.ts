@@ -1,6 +1,7 @@
 import { Mesh, PlaneGeometry, ShaderMaterial, sRGBEncoding, Vector2 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
+import { InteriorComponent } from '../components/InteriorComponent'
 import { loadCubeMapTexture, loadDDSTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
@@ -90,9 +91,9 @@ export class Interior extends Mesh<PlaneGeometry, ShaderMaterial> {
     const onLoad = (texture) => {
       texture.encoding = sRGBEncoding
       this._material.uniforms.cubemap.value = texture
-      removeError(this.entity, 'error')
+      removeError(this.entity, InteriorComponent, 'LOADING_ERROR')
     }
-    const onError = (error) => addError(this.entity, 'error', error.message)
+    const onError = (error) => addError(this.entity, InteriorComponent, 'LOADING_ERROR', error.message)
 
     if (this._cubePath.endsWith('.dds')) {
       loadDDSTexture(path, onLoad, undefined, onError)

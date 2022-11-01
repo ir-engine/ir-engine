@@ -3,7 +3,13 @@ import { AmbientLight, Color } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  removeComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
@@ -22,11 +28,12 @@ const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
 
 export default async function HyperspacePortalSystem(world: World) {
-  const texture = await AssetLoader.loadAsync('/hdr/galaxyTexture.jpg')
-
   const transition = createTransitionState(0.25, 'OUT')
 
-  const hyperspaceEffect = new PortalEffect(texture)
+  const hyperspaceEffect = new PortalEffect()
+  AssetLoader.loadAsync('/hdr/galaxyTexture.jpg').then((texture) => {
+    hyperspaceEffect.texture = texture
+  })
   hyperspaceEffect.scale.set(10, 10, 10)
   setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
@@ -36,10 +43,12 @@ export default async function HyperspacePortalSystem(world: World) {
   let sceneVisible = true
 
   const execute = () => {
-    if (isNaN(world.localClientEntity)) return
+    if (!world.localClientEntity) return
 
-    const playerTransform = getComponent(world.localClientEntity, TransformComponent)
+    const playerTransform = getOptionalComponent(world.localClientEntity, TransformComponent)
     const sceneLoaded = !sceneAssetPendingTagQuery().length
+
+    if (!playerTransform) return
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
     for (const entity of hyperspaceTagComponent.enter()) {

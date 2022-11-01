@@ -2,6 +2,7 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import dotenv from 'dotenv-flow'
 
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/projects/scene/scene-parser'
 
 import sceneJson from '../../../projects/default-project/default.scene.json'
@@ -11,7 +12,7 @@ dotenv.config({
   silent: true
 })
 
-const sceneData = parseSceneDataCacheURLs(sceneJson, process.env.LOCAL_STORAGE_PROVIDER!)
+const sceneData = parseSceneDataCacheURLs(sceneJson as unknown as SceneJson, process.env.LOCAL_STORAGE_PROVIDER!)
 
 // TODO replace with inidivudal unit tests for relevant functions
 describe.skip('Portal', () => {

@@ -26,7 +26,7 @@ describe.skip('equippableFunctions', () => {
     assert(!hasComponent(entity1, EquipperComponent))
     assert(!hasComponent(entity2, EquippedComponent))
 
-    const networkObject = addComponent(entity2, NetworkObjectComponent, {
+    addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'world' as UserId,
       authorityUserId: 'world' as UserId,
       networkId: 0 as NetworkId
@@ -40,7 +40,7 @@ describe.skip('equippableFunctions', () => {
   it('unequipEntity', () => {
     const entity1: Entity = createEntity()
     const entity2: Entity = createEntity()
-    const networkObject = addComponent(entity2, NetworkObjectComponent, {
+    addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'world' as UserId,
       authorityUserId: 'world' as UserId,
       networkId: 0 as NetworkId

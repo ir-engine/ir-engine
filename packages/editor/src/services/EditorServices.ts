@@ -1,5 +1,6 @@
 import { useState } from '@hookstate/core'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, getState } from '@xrengine/hyperflux'
 
@@ -19,7 +20,7 @@ export const EditorState = defineState({
     projectLoaded: false,
     rendererInitialized: false,
     showObject3DInHierarchy: false,
-    lockPropertiesPanel: '',
+    lockPropertiesPanel: '' as EntityUUID,
     advancedMode: false
   })
 })
@@ -107,6 +108,6 @@ export class EditorAction {
 
   static lockPropertiesPanel = defineAction({
     type: 'xre.editor.Editor.LOCK_PROPERTIES_PANEL' as const,
-    lockPropertiesPanel: matches.string
+    lockPropertiesPanel: matches.string as Validator<unknown, EntityUUID>
   })
 }

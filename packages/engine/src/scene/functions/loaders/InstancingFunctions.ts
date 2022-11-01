@@ -34,8 +34,14 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import {
+  addComponent,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent
+} from '../../../ecs/functions/ComponentFunctions'
+import { getEntityTreeNodeByUUID, iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
@@ -306,7 +312,7 @@ export const deserializeInstancing: ComponentDeserializeFunction = (entity: Enti
 }
 
 export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
-  if (!getComponent(entity, GroupComponent)?.[0]) {
+  if (!getOptionalComponent(entity, GroupComponent)?.[0]) {
     addObjectToGroup(entity, new Object3D())
   }
   const scatterProps = getComponent(entity, InstancingComponent)
@@ -383,7 +389,7 @@ function parseInstancingProperties(props): InstancingComponentType {
 }
 
 export const serializeInstancing: ComponentSerializeFunction = (entity) => {
-  const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
+  const comp = getOptionalComponent(entity, InstancingComponent) as InstancingComponentType
   if (!comp) return
   const toSave = { ...comp }
   if (comp.state === ScatterState.STAGING) toSave.state = ScatterState.UNSTAGED
@@ -722,7 +728,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       }
       break
     case SampleMode.NODES:
-      const root = world.entityTree.uuidNodeMap.get((scatter.sampleProperties as NodeProperties).root)
+      const root = getEntityTreeNodeByUUID((scatter.sampleProperties as NodeProperties).root)
       numInstances = 0
       if (root === undefined) {
         console.error('could not find root node with uuid', (scatter.sampleProperties as NodeProperties).root)
@@ -833,7 +839,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   }
   switch (scatter.sampling) {
     case SampleMode.NODES:
-      const rootNode = world.entityTree.uuidNodeMap.get(sampleProps.root)
+      const rootNode = getEntityTreeNodeByUUID(sampleProps.root)
       function update(dt: number) {
         if (rootNode === undefined) {
           console.error('could not find root node with uuid', sampleProps.root)

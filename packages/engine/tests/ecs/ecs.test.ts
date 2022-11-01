@@ -5,9 +5,10 @@ import { Engine } from '../../src/ecs/classes/Engine'
 import { World } from '../../src/ecs/classes/World'
 import {
   addComponent,
-  createMappedComponent,
+  defineComponent,
   defineQuery,
   getComponent,
+  getOptionalComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
@@ -17,11 +18,22 @@ import { createEngine } from '../../src/initializeEngine'
 
 const mockDeltaMillis = 1000 / 60
 
-type MockComponentData = {
-  mockValue: number
-}
-
-const MockComponent = createMappedComponent<MockComponentData>('MockComponent')
+const MockComponent = defineComponent({
+  name: 'MockComponent',
+  onInit: (entity) => {
+    return {
+      mockValue: 0
+    }
+  },
+  onSet: (entity, component, json: { mockValue: number }) => {
+    if (typeof json?.mockValue === 'number') component.mockValue.set(json.mockValue)
+  },
+  toJSON: (entity, component) => {
+    return {
+      mockValue: component.mockValue.value
+    }
+  }
+})
 
 const MocksystemLoader = async () => {
   return {
@@ -227,7 +239,7 @@ describe('ECS', () => {
     const entities = world.entityQuery()
     assert(entities.includes(entity))
     removeEntity(entity)
-    assert.ok(!getComponent(entity, MockComponent))
+    assert.ok(!getOptionalComponent(entity, MockComponent))
     assert.ok(getComponent(entity, MockComponent, true))
     world.execute(world.startTime + mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(world)!, [])

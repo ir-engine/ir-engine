@@ -12,7 +12,7 @@ import { createInteractiveModalView } from '../ui/InteractiveModalView'
 export function createInteractUI(entity: Entity, interactMessage: string) {
   const ui = createInteractiveModalView(entity, interactMessage)
   const nameComponent = getComponent(entity, NameComponent)
-  addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + nameComponent.name })
+  addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + nameComponent })
 
   addEntityNodeChild(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 

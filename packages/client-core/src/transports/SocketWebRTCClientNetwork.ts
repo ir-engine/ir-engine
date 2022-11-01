@@ -10,7 +10,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { clearOutgoingActions, dispatchAction } from '@xrengine/hyperflux'
-import ActionFunctions, { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, addOutgoingTopicIfNecessary, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import {
   accessLocationInstanceConnectionState,
@@ -81,7 +81,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
 export class SocketWebRTCClientNetwork extends Network {
   constructor(hostId: UserId, topic: Topic) {
     super(hostId, topic)
-    ActionFunctions.addOutgoingTopicIfNecessary(topic)
+    addOutgoingTopicIfNecessary(topic)
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)

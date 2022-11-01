@@ -4,17 +4,25 @@ import ReactJson from 'react-json-view'
 
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  ComponentType,
+  getComponent,
+  hasComponent,
+  useComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { formatMaterialArgs } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
+import {
+  ParticleEmitterComponent,
+  ParticleEmitterComponentType
+} from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
 import {
   disposeParticleSystem,
   initializeParticleSystem
 } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 import { DefaultArguments, ParticleLibrary } from '@xrengine/engine/src/scene/functions/particles/ParticleLibrary'
 import { ParticleSystemActions } from '@xrengine/engine/src/scene/systems/ParticleSystem'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, State } from '@xrengine/hyperflux'
 
 import GrainIcon from '@mui/icons-material/Grain'
 
@@ -35,38 +43,43 @@ import { EditorComponentType, updateProperty } from './Util'
 
 export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const engineState = useEngineState()
+
   const entity = props.node.entity
-  const particleComponent = getComponent(entity, ParticleEmitterComponent)
-  const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
+  const particleComponent = useComponent(entity, ParticleEmitterComponent)
 
   const _onChangeArgs = updateProperty(ParticleEmitterComponent, 'args')
-  const onChangeArgs = (value) => {
-    _onChangeArgs(value)
+  const onChangeArgs = (value: State<ParticleEmitterComponentType>) => {
+    _onChangeArgs(value.args.get({ noproxy: true }))
   }
   function getArguments(particleID) {
     if (!Object.keys(DefaultArguments).includes(particleID)) return <></>
     const defaultArguments = DefaultArguments[particleID]
     const defaultValues = Object.fromEntries(Object.entries(defaultArguments).map(([k, v]) => [k, (v as any).default]))
     if (!defaultArguments) return
+    if (!particleComponent) return
+
     const args = formatMaterialArgs(
-      particleComponent.args ? { ...defaultValues, ...particleComponent.args } : defaultValues,
+      particleComponent.args.value
+        ? { ...defaultValues, ...particleComponent.args.get({ noproxy: true }) }
+        : defaultValues,
       defaultArguments
     )
 
     function setArgsProp(prop) {
       return (value) => {
-        if (!particleComponent.args) particleComponent.args = args
-        particleComponent.args[prop] = value
-        onChangeArgs(particleComponent.args)
+        if (!particleComponent) return
+        if (!particleComponent.args.value) particleComponent.args.set(args)
+        particleComponent.args[prop].set(value)
+        onChangeArgs(particleComponent)
       }
     }
 
     function setArgsArrayProp(prop, idx) {
       return (value) => {
-        if (!particleComponent.args) particleComponent.args = args
-        particleComponent.args[prop][idx] = value
-        onChangeArgs(particleComponent.args)
+        if (!particleComponent) return
+        if (!particleComponent.args.value) particleComponent.args.set(args)
+        particleComponent.args[prop][idx].set(value)
+        onChangeArgs(particleComponent)
       }
     }
     return (
@@ -127,7 +140,7 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
     <NodeEditor {...props} description={t('editor:properties.partileEmitter.description')}>
       <InputGroup name="Generation Mode" label="Generation Mode">
         <SelectInput
-          value={particleComponent.mode}
+          value={particleComponent?.mode.value}
           options={[
             { label: 'Particle System Library', value: 'LIBRARY' },
             { label: 'From JSON', value: 'JSON' }
@@ -136,28 +149,30 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <Button onClick={() => dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))}>Refresh</Button>
-      {particleComponent.mode === 'JSON' && (
+      {particleComponent?.mode.value === 'JSON' && (
         <InputGroup name="JSON" label="JSON">
           <StringInput
             value={
-              typeof particleComponent.src === 'string' ? particleComponent.src : JSON.stringify(particleComponent.src)
+              typeof particleComponent?.src.value === 'string'
+                ? particleComponent?.src.value
+                : JSON.stringify(particleComponent?.src.value)
             }
             onChange={updateProperty(ParticleEmitterComponent, 'src')}
           />
         </InputGroup>
       )}
-      {particleComponent.mode === 'LIBRARY' && (
+      {particleComponent?.mode.value === 'LIBRARY' && (
         <Fragment>
           <InputGroup name="Library Entry" label="Library Entry">
             <SelectInput
-              value={particleComponent.src}
+              value={particleComponent?.src.value}
               onChange={updateProperty(ParticleEmitterComponent, 'src')}
               options={particleIDs}
               creatable={false}
               isSearchable={true}
             />
           </InputGroup>
-          {getArguments(particleComponent.src)}
+          {getArguments(particleComponent?.src.value)}
         </Fragment>
       )}
     </NodeEditor>

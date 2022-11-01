@@ -114,6 +114,9 @@
       "density": 0.005,
       "height": 0.05,
       "timeScale": 1
+    },
+    "xr": {
+      "dollhouse": "auto"
     }
   },
   "entities": {
@@ -134,7 +137,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -184,7 +188,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -215,7 +220,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -264,7 +270,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -297,7 +304,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -321,7 +329,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
-            "materialOverrides": [],
             "generateBVH": true,
             "matrixAutoUpdate": true
           }
@@ -340,29 +347,7 @@
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
-            "envMapIntensity": 20,
-            "envMapBake": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
-            }
+            "envMapIntensity": 20
           }
         }
       ],
@@ -383,7 +368,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -419,12 +405,13 @@
               "z": 12.5
             },
             "rotation": {
-              "x": -3.141592653589793,
-              "y": 1.2246468525851679e-16,
-              "z": -3.141592653589793
+              "x": -6.123233995736766e-17,
+              "y": -1,
+              "z": -6.123233995736766e-17,
+              "w": -6.123234262925839e-17
             },
             "scale": {
-              "x": 1,
+              "x": 1.6,
               "y": 1,
               "z": 1
             }
@@ -454,25 +441,15 @@
           }
         },
         {
-          "name": "audio",
+          "name": "video",
           "props": {
-            "distanceModel": "inverse",
-            "rolloffFactor": 1,
-            "refDistance": 20,
-            "maxDistance": 1000,
-            "coneInnerAngle": 120,
-            "coneOuterAngle": 180,
-            "coneOuterGain": 0
-          }
-        },
-        {
-          "name": "image",
-          "props": {
-            "source": "",
-            "alphaMode": "Opaque",
-            "alphaCutoff": 0.5,
-            "projection": "Flat",
-            "side": 2
+            "mediaUUID": "",
+            "side": 2,
+            "size": {
+              "x": 1,
+              "y": 1
+            },
+            "fit": "contain"
           }
         }
       ],
@@ -491,9 +468,10 @@
               "z": 22.027408599853516
             },
             "rotation": {
-              "x": -1.5707962925663537,
+              "x": -0.70710676908493,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 0.7071067932881648
             },
             "scale": {
               "x": 2,
@@ -565,7 +543,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -589,7 +568,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "materialOverrides": [],
             "generateBVH": false,
             "matrixAutoUpdate": true
           }
@@ -608,29 +586,7 @@
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
-            "envMapIntensity": 1,
-            "envMapBake": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
-            }
+            "envMapIntensity": 1
           }
         }
       ],
@@ -650,8 +606,9 @@
             },
             "rotation": {
               "x": 0,
-              "y": 1.5704263768429216,
-              "z": 0
+              "y": 0.7069759720303314,
+              "z": 0,
+              "w": 0.7072375661485808
             },
             "scale": {
               "x": 0.5,
@@ -724,7 +681,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -779,7 +737,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -852,7 +811,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,
@@ -925,7 +885,8 @@
             "rotation": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 0,
+              "w": 1
             },
             "scale": {
               "x": 1,

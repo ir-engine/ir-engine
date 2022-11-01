@@ -5,7 +5,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { InputComponent } from '../components/InputComponent'
@@ -106,10 +106,11 @@ describe('ClientInputSystem Unit Tests', () => {
   describe('processCombinationLifecycle', () => {
     it('should start combination', () => {
       const entity = createEntity()
-      const inputComponent = addComponent(entity, InputComponent, {
+      addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
       })
+      const inputComponent = getComponent(entity, InputComponent)
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'
@@ -138,10 +139,11 @@ describe('ClientInputSystem Unit Tests', () => {
 
     it('should continue combination', () => {
       const entity = createEntity()
-      const inputComponent = addComponent(entity, InputComponent, {
+      addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
       })
+      const inputComponent = getComponent(entity, InputComponent)
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'
@@ -176,10 +178,11 @@ describe('ClientInputSystem Unit Tests', () => {
 
     it('should end combination when previously started', () => {
       const entity = createEntity()
-      const inputComponent = addComponent(entity, InputComponent, {
+      addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
       })
+      const inputComponent = getComponent(entity, InputComponent)
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'
@@ -203,10 +206,11 @@ describe('ClientInputSystem Unit Tests', () => {
 
     it('should end combination when previously continued', () => {
       const entity = createEntity()
-      const inputComponent = addComponent(entity, InputComponent, {
+      addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
       })
+      const inputComponent = getComponent(entity, InputComponent)
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'
@@ -230,10 +234,11 @@ describe('ClientInputSystem Unit Tests', () => {
 
     it('should remove combination when previously ended', () => {
       const entity = createEntity()
-      const inputComponent = addComponent(entity, InputComponent, {
+      addComponent(entity, InputComponent, {
         schema: AvatarInputSchema,
         data: new Map<InputAlias, InputValue>()
       })
+      const inputComponent = getComponent(entity, InputComponent)
       const prevData = new Map<InputAlias, InputValue>()
 
       const mapping = 'mapping'

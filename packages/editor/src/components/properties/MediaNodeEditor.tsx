@@ -1,13 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@xrengine/engine/src/scene/constants/PlayMode'
-import { useHookstate } from '@xrengine/hyperflux'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
@@ -41,12 +39,8 @@ const PlayModeOptions = [
 export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const engineState = useEngineState()
-  const media = getComponent(props.node.entity, MediaComponent)
-
-  const mediaNoProxy = useHookstate(media).get({ noproxy: true })
-  const hasError = engineState.errorEntities[props.node.entity].get()
-  const error = getComponent(props.node.entity, ErrorComponent)
+  const media = useComponent(props.node.entity, MediaComponent)
+  const errors = getEntityErrors(props.node.entity, MediaComponent)
 
   const toggle = () => {
     media.paused.set(!media.paused.value)
@@ -58,41 +52,45 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.media.name')}
       description={t('editor:properties.media.description')}
     >
-      {hasError && error?.mediaError && (
-        <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + error.mediaError}</div>
+      {errors ? (
+        Object.entries(errors).map(([err, message]) => {
+          return <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + message}</div>
+        })
+      ) : (
+        <></>
       )}
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
-        <CompoundNumericInput value={mediaNoProxy.volume} onChange={(value) => media.volume.set(value)} />
+        <CompoundNumericInput value={media.volume.value} onChange={updateProperty(MediaComponent, 'volume')} />
       </InputGroup>
       <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
-        <BooleanInput value={mediaNoProxy.isMusic} onChange={(value) => media.isMusic.set(value)} />
+        <BooleanInput value={media.isMusic.value} onChange={updateProperty(MediaComponent, 'isMusic')} />
       </InputGroup>
       <InputGroup
         name="Controls"
         label={t('editor:properties.media.lbl-controls')}
         info={t('editor:properties.media.info-controls')}
       >
-        <BooleanInput value={mediaNoProxy.controls} onChange={(value) => media.controls.set(value)} />
+        <BooleanInput value={media.controls.value} onChange={updateProperty(MediaComponent, 'controls')} />
       </InputGroup>
       <InputGroup
         name="Auto Play"
         label={t('editor:properties.media.lbl-autoplay')}
         info={t('editor:properties.media.info-autoplay')}
       >
-        <BooleanInput value={mediaNoProxy.autoplay} onChange={(value) => media.autoplay.set(value)} />
+        <BooleanInput value={media.autoplay.value} onChange={updateProperty(MediaComponent, 'autoplay')} />
       </InputGroup>
       <InputGroup
         name="Synchronize"
         label={t('editor:properties.media.lbl-synchronize')}
         info={t('editor:properties.media.info-synchronize')}
       >
-        <BooleanInput value={mediaNoProxy.synchronize} onChange={(value) => media.synchronize.set(value)} />
+        <BooleanInput value={media.synchronize.value} onChange={updateProperty(MediaComponent, 'synchronize')} />
       </InputGroup>
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
-        values={mediaNoProxy.paths}
-        onChange={(value) => media.paths.set(value)}
+        values={media.paths.value}
+        onChange={updateProperty(MediaComponent, 'paths')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}
         itemType={SupportedFileTypes}
@@ -101,12 +99,12 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.node.entity}
           options={PlayModeOptions}
-          value={mediaNoProxy.playMode}
-          onChange={(value) => media.playMode.set(value)}
+          value={media.playMode.value}
+          onChange={updateProperty(MediaComponent, 'playMode')}
         />
-        {mediaNoProxy.paths && mediaNoProxy.paths.length > 0 && mediaNoProxy.paths[0] && (
+        {media.paths && media.paths.length > 0 && media.paths[0] && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
-            {mediaNoProxy.paused ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
+            {media.paused ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
           </Button>
         )}
       </InputGroup>

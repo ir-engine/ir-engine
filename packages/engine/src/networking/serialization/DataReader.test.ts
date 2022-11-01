@@ -12,7 +12,7 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createTh
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getAllComponents, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getAllComponents, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -50,7 +50,15 @@ import {
   writeXRHands
 } from './DataWriter'
 import { Vector3SoA, Vector4SoA } from './Utils'
-import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
+import {
+  createViewCursor,
+  readFloat32,
+  readFloat64,
+  readUint8,
+  readUint32,
+  sliceViewCursor,
+  writeProp
+} from './ViewCursor'
 
 describe('DataReader', () => {
   beforeEach(() => {
@@ -316,7 +324,8 @@ describe('DataReader', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    const transform = setTransformComponent(entity)
+    setTransformComponent(entity)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(posX, posY, posZ)
     transform.rotation.set(rotX, rotY, rotZ, rotW)
 
@@ -395,7 +404,7 @@ describe('DataReader', () => {
     })
 
     // add component
-    const xrHandsInput = addComponent(entity, XRHandsInputComponent, { hands: hands })
+    addComponent(entity, XRHandsInputComponent, { hands: hands })
 
     writeXRHands(view, entity)
 
@@ -455,7 +464,8 @@ describe('DataReader', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    const transform = setTransformComponent(entity)
+    setTransformComponent(entity)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(posX, posY, posZ)
     transform.rotation.set(rotX, rotY, rotZ, rotW)
 
@@ -521,7 +531,8 @@ describe('DataReader', () => {
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
-    const transform = setTransformComponent(entity)
+    setTransformComponent(entity)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
@@ -574,7 +585,8 @@ describe('DataReader', () => {
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
-    const transform = setTransformComponent(entity)
+    setTransformComponent(entity)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
@@ -626,7 +638,8 @@ describe('DataReader', () => {
       const networkId = entity as unknown as NetworkId
       const userIndex = entity
 
-      const transform = setTransformComponent(entity)
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(posX, posY, posZ)
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       addComponent(entity, NetworkObjectComponent, {
@@ -699,7 +712,8 @@ describe('DataReader', () => {
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
 
-      const transform = setTransformComponent(entity)
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(posX, posY, posZ)
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       addComponent(entity, NetworkObjectComponent, {
@@ -733,9 +747,9 @@ describe('DataReader', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), posX)
-      strictEqual(readFloat32(readView), posY)
-      strictEqual(readFloat32(readView), posZ)
+      strictEqual(readFloat64(readView), posX)
+      strictEqual(readFloat64(readView), posY)
+      strictEqual(readFloat64(readView), posZ)
 
       // read writeRotation changeMask
       strictEqual(readUint8(readView), 0b1111)
@@ -794,7 +808,8 @@ describe('DataReader', () => {
       const networkId = entity as unknown as NetworkId
       const userId = entity as unknown as UserId
       const userIndex = entity
-      const transform = setTransformComponent(entity)
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
@@ -838,7 +853,8 @@ describe('DataReader', () => {
       const userId = entity as unknown as UserId
       const userIndex = entity
 
-      const transform = setTransformComponent(entity)
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
@@ -852,7 +868,7 @@ describe('DataReader', () => {
 
     const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
-    strictEqual(packet.byteLength, 252)
+    strictEqual(packet.byteLength, 372)
   })
 
   it('should createDataReader and detect changes', () => {
@@ -875,7 +891,8 @@ describe('DataReader', () => {
       const networkId = entity as unknown as NetworkId
       const userId = entity as unknown as UserId
       const userIndex = entity
-      const transform = setTransformComponent(entity)
+      setTransformComponent(entity)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
@@ -905,7 +922,7 @@ describe('DataReader', () => {
 
     packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
-    strictEqual(packet.byteLength, 31)
+    strictEqual(packet.byteLength, 43)
 
     readView = createViewCursor(packet)
 
@@ -929,9 +946,9 @@ describe('DataReader', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), 1)
-      strictEqual(readFloat32(readView), 1)
-      strictEqual(readFloat32(readView), 1)
+      strictEqual(readFloat64(readView), 1)
+      strictEqual(readFloat64(readView), 1)
+      strictEqual(readFloat64(readView), 1)
 
       // ensure rotation wasn't written and we reached the end of the packet
       assert.throws(() => {

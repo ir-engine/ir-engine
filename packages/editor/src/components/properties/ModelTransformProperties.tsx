@@ -9,13 +9,18 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
 import { AssetClass } from '@xrengine/engine/src/assets/enum/AssetClass'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  ComponentType,
+  getComponent,
+  getComponentState,
+  hasComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialSource, SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
 import MeshBasicMaterial from '@xrengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
 import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
 import { batchSetMaterialProperty } from '@xrengine/engine/src/renderer/materials/functions/batchEditMaterials'
 import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
-import { ModelComponent, ModelComponentType } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
@@ -94,7 +99,7 @@ export default function ModelTransformProperties({
   modelState,
   onChangeModel
 }: {
-  modelState: State<ModelComponentType>
+  modelState: State<ComponentType<typeof ModelComponent>>
   onChangeModel: any
 }) {
   const { t } = useTranslation()
@@ -118,7 +123,7 @@ export default function ModelTransformProperties({
   })
 
   const doVertexBake = useCallback(
-    (modelState: State<ModelComponentType>) => async () => {
+    (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       const attribs = [
         ...(vertexBakeOptions.map.value ? [{ field: 'map', attribName: 'uv' }] : []),
         ...(vertexBakeOptions.emissive.value ? [{ field: 'emissiveMap', attribName: 'uv' }] : []),
@@ -145,7 +150,7 @@ export default function ModelTransformProperties({
   const attribToDelete = useHookstate('uv uv2')
 
   const deleteAttribute = useCallback(
-    (modelState: State<ModelComponentType>) => () => {
+    (modelState: State<ComponentType<typeof ModelComponent>>) => () => {
       const toDeletes = attribToDelete.value.split(/\s+/)
       modelState.scene.value?.traverse((mesh: Mesh) => {
         if (!mesh?.isMesh) return
@@ -171,7 +176,7 @@ export default function ModelTransformProperties({
   )
 
   const onTransformModel = useCallback(
-    (modelState: State<ModelComponentType>) => async () => {
+    (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
       const nuPath = await API.instance.client.service('model-transform').create({
@@ -200,7 +205,7 @@ export default function ModelTransformProperties({
       .map((entity: Entity) => entity)
     for (const entity of selectedModelEntities) {
       console.log('at entity ' + entity)
-      const modelComponent = getComponent(entity, ModelComponent)
+      const modelComponent = getComponentState(entity, ModelComponent)
       console.log('processing model from src ' + modelComponent.src.value)
       //bake lightmaps to vertices
       console.log('baking vertices...')

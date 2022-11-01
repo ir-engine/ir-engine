@@ -2,7 +2,12 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
@@ -16,16 +21,15 @@ const v3 = new Vector3()
 
 export const deserializeTransform: ComponentDeserializeFunction = (entity: Entity, data: TransformComponentType) => {
   const props = parseTransformProperties(data)
-  const component = hasComponent(entity, TransformComponent)
-    ? getComponent(entity, TransformComponent)
-    : setTransformComponent(entity)
+  setTransformComponent(entity)
+  const component = getComponent(entity, TransformComponent)
 
   /** all scene entities are assumpted to have transform components already */
   component.position.copy(props?.position ?? new Vector3())
   component.rotation.copy(props?.rotation ?? new Quaternion())
   component.scale.copy(props?.scale ?? new Vector3(1, 1, 1))
 
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
   if (localTransform) {
     localTransform.position.copy(props.position)
     localTransform.rotation.copy(props.rotation)

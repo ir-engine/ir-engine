@@ -25,7 +25,7 @@ export default async function LoadingUISystem(world: World) {
 
   const ui = createLoaderDetailView(transition)
 
-  addComponent(ui.entity, NameComponent, { name: 'Loading XRUI' })
+  addComponent(ui.entity, NameComponent, 'Loading XRUI')
 
   const mesh = new Mesh(
     new SphereGeometry(10),

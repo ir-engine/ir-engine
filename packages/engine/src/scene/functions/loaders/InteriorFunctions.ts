@@ -33,9 +33,9 @@ export const updateInterior: ComponentUpdateFunction = (entity: Entity) => {
   if (obj3d.cubeMap !== component.cubeMap) {
     try {
       obj3d.cubeMap = component.cubeMap
-      removeError(entity, 'error')
+      removeError(entity, InteriorComponent, 'LOADING_ERROR')
     } catch (error) {
-      addError(entity, 'error', error.message)
+      addError(entity, InteriorComponent, 'LOADING_ERROR', error.message)
     }
   }
 

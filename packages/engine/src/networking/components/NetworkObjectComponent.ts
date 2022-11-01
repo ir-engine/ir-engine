@@ -21,15 +21,30 @@ export const NetworkObjectComponent = defineComponent({
     networkId: Types.ui32
   },
 
-  toJSON: (entity, component: NetworkObjectComponentType) => {
-    return component
+  onInit: (entity) => {
+    return {
+      /** The user who is authority over this object. */
+      ownerId: '' as UserId,
+      /** The user who is authority over this object. */
+      authorityUserId: '' as UserId,
+      /** The network id for this object (this id is only unique per owner) */
+      networkId: 0 as NetworkId
+    }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (typeof json.ownerId === 'string') component.ownerId = json.ownerId
-    if (typeof json.authorityUserId === 'string') component.authorityUserId = json.authorityUserId
-    if (typeof json.networkId === 'number') {
-      component.networkId = json.networkId
+  toJSON: (entity, component) => {
+    return {
+      ownerId: component.ownerId.value,
+      authorityUserId: component.authorityUserId.value,
+      networkId: component.networkId.value
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (typeof json?.ownerId === 'string') component.ownerId.set(json.ownerId)
+    if (typeof json?.authorityUserId === 'string') component.authorityUserId.set(json.authorityUserId)
+    if (typeof json?.networkId === 'number') {
+      component.networkId.set(json.networkId)
       NetworkObjectComponent.networkId[entity] = json.networkId
     }
   }
