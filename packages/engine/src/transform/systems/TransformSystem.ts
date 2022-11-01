@@ -117,7 +117,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   transform.matrix.compose(transform.position, transform.rotation, transform.scale)
 
   if (localTransform) {
-    const parentTransform = getComponent(localTransform.parentEntity, TransformComponent) || transform
+    const parentTransform = getOptionalComponent(localTransform.parentEntity, TransformComponent) || transform
     localTransform.matrix.multiplyMatrices(parentTransform.matrixInverse, transform.matrix)
     localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
     updateTransformFromLocalTransform(entity)
