@@ -34,7 +34,13 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { getEntityTreeNodeByUUID, iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
@@ -306,7 +312,7 @@ export const deserializeInstancing: ComponentDeserializeFunction = (entity: Enti
 }
 
 export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
-  if (!getComponent(entity, GroupComponent)?.[0]) {
+  if (!getOptionalComponent(entity, GroupComponent)?.[0]) {
     addObjectToGroup(entity, new Object3D())
   }
   const scatterProps = getComponent(entity, InstancingComponent)
@@ -383,7 +389,7 @@ function parseInstancingProperties(props): InstancingComponentType {
 }
 
 export const serializeInstancing: ComponentSerializeFunction = (entity) => {
-  const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
+  const comp = getOptionalComponent(entity, InstancingComponent) as InstancingComponentType
   if (!comp) return
   const toSave = { ...comp }
   if (comp.state === ScatterState.STAGING) toSave.state = ScatterState.UNSTAGED

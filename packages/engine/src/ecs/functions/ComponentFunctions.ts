@@ -209,8 +209,7 @@ export const updateComponent = <C extends Component>(
   props: Partial<SerializedComponentType<C>>,
   world = Engine.instance.currentWorld
 ) => {
-  const comp = getComponent(entity, Component)
-
+  const comp = getComponentState(entity, Component)
   if (!comp) {
     throw new Error('[updateComponent]: component does not exist')
   }
@@ -261,7 +260,6 @@ export const hasComponent = <C extends Component>(
   component: C,
   world = Engine.instance.currentWorld
 ) => {
-  if (entity === UndefinedEntity) return false
   return bitECS.hasComponent(world, component, entity)
 }
 
@@ -283,7 +281,6 @@ export const removeComponent = <C extends Component>(
   world = Engine.instance.currentWorld
 ) => {
   if (!bitECS.entityExists(world, entity)) return
-  if (entity === UndefinedEntity) return
   if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.map[entity])
   bitECS.removeComponent(world, component, entity, false)
   const root = component.reactorRoots.get(entity)

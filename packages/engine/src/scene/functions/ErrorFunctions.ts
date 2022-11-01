@@ -19,7 +19,7 @@ export const addError = <C extends Component>(
   error: ComponentErrorsType<C>,
   message?: string
 ) => {
-  console.error('[addError]:', entity, Component.name, error)
+  console.error('[addError]:', entity, Component.name, error, message)
   if (!hasComponent(entity, ErrorComponent)) addComponent(entity, ErrorComponent)
   const errors = getComponentState(entity, ErrorComponent)
   if (!errors[Component.name].value) errors[Component.name].set({})

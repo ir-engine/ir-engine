@@ -134,6 +134,7 @@ export const updateLoadingEffect = (volumetric: NonNullable<ReturnType<typeof Vo
 }
 
 const endLoadingEffect = (entity, object) => {
+  if (!hasComponent(entity, AvatarEffectComponent)) return
   const plateComponent = getComponent(entity, AvatarEffectComponent)
   plateComponent.originMaterials.forEach(({ id, material }) => {
     object.traverse((obj) => {

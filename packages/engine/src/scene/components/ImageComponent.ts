@@ -119,8 +119,6 @@ export function ImageReactor({ root }: EntityReactorProps) {
 
   useEffect(
     function updateTextureSource() {
-      if (!image) return
-
       const source = image.source.value
 
       if (!source) {
@@ -133,8 +131,8 @@ export function ImageReactor({ root }: EntityReactorProps) {
       }
 
       AssetLoader.loadAsync(source)
-        .then((texture) => {
-          texture.set(texture)
+        .then((_texture) => {
+          texture.set(_texture)
         })
         .catch((e) => {
           addError(entity, ImageComponent, `LOADING_ERROR`, e.message)
@@ -144,12 +142,12 @@ export function ImageReactor({ root }: EntityReactorProps) {
         // TODO: abort load request, pending https://github.com/mrdoob/three.js/pull/23070
       }
     },
-    [image?.source]
+    [image.source]
   )
 
   useEffect(
     function updateTexture() {
-      if (!image || !texture.value) return
+      if (!texture.value) return
 
       clearErrors(entity, ImageComponent)
 
@@ -176,33 +174,34 @@ export function ImageReactor({ root }: EntityReactorProps) {
 
   useEffect(
     function updateGeometry() {
-      if (!image?.mesh.material.map.value) return
+      if (!image.mesh.material.map.value) return
 
       const flippedTexture = image.mesh.material.map.value.flipY
       switch (image.projection.value) {
         case ImageProjection.Equirectangular360:
-          image.mesh.geometry.set(flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED)
+          image.mesh.value.geometry = flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED
           image.mesh.scale.value.set(-1, 1, 1)
           break
         case ImageProjection.Flat:
         default:
-          image.mesh.geometry.set(flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED)
+          image.mesh.value.geometry = flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED
           resizeImageMesh(image.mesh.value)
       }
     },
-    [image?.mesh.material.map, image?.projection]
+    [image.mesh.material.map, image.projection]
   )
 
   useEffect(
     function updateMaterial() {
-      if (!image) return
-      image.mesh.material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
-      image.mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
-      image.mesh.material.side.set(image.side.value)
-      image.mesh.material.value.needsUpdate = true
+      const material = image.mesh.material.value
+      material.transparent = image.alphaMode.value === ImageAlphaMode.Blend
+      material.alphaTest = image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0
+      material.side = image.side.value
+      material.needsUpdate = true
     },
-    [image?.alphaMode, image?.alphaCutoff, image?.side]
+    [image.alphaMode, image.alphaCutoff, image.side]
   )
 
   return null
 }
+//https://192.168.0.17:8642/projects/eepro-augmented-reality/EEARTarget.png
