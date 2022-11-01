@@ -8,6 +8,7 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
+  getOptionalComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
@@ -238,7 +239,7 @@ describe('ECS', () => {
     const entities = world.entityQuery()
     assert(entities.includes(entity))
     removeEntity(entity)
-    assert.ok(!getComponent(entity, MockComponent))
+    assert.ok(!getOptionalComponent(entity, MockComponent))
     assert.ok(getComponent(entity, MockComponent, true))
     world.execute(world.startTime + mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(world)!, [])

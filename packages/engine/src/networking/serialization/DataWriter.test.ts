@@ -32,7 +32,15 @@ import {
   writeVector3,
   writeXRHands
 } from './DataWriter'
-import { createViewCursor, readFloat32, readUint8, readUint16, readUint32, sliceViewCursor } from './ViewCursor'
+import {
+  createViewCursor,
+  readFloat32,
+  readFloat64,
+  readUint8,
+  readUint16,
+  readUint32,
+  sliceViewCursor
+} from './ViewCursor'
 
 describe('DataWriter', () => {
   before(() => {
@@ -57,12 +65,12 @@ describe('DataWriter', () => {
 
     const testView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(testView), 0b111)
-    strictEqual(readFloat32(testView), x)
-    strictEqual(readFloat32(testView), y)
-    strictEqual(readFloat32(testView), z)
+    strictEqual(readFloat64(testView), x)
+    strictEqual(readFloat64(testView), y)
+    strictEqual(readFloat64(testView), z)
 
     sliceViewCursor(writeView)
 
@@ -73,11 +81,11 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(readView), 0b101)
-    strictEqual(readFloat32(readView), x + 1)
-    strictEqual(readFloat32(readView), z + 1)
+    strictEqual(readFloat64(readView), x + 1)
+    strictEqual(readFloat64(readView), z + 1)
   })
 
   it('should writeVector3', () => {
@@ -93,12 +101,12 @@ describe('DataWriter', () => {
 
     const testView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(testView), 0b111)
-    strictEqual(readFloat32(testView), x)
-    strictEqual(readFloat32(testView), y)
-    strictEqual(readFloat32(testView), z)
+    strictEqual(readFloat64(testView), x)
+    strictEqual(readFloat64(testView), y)
+    strictEqual(readFloat64(testView), z)
 
     sliceViewCursor(writeView)
 
@@ -109,11 +117,11 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(readView), 0b101)
-    strictEqual(readFloat32(readView), x + 1)
-    strictEqual(readFloat32(readView), z + 1)
+    strictEqual(readFloat64(readView), x + 1)
+    strictEqual(readFloat64(readView), z + 1)
   })
 
   it('should writePosition', () => {
@@ -129,12 +137,12 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(readView), 0b111)
-    strictEqual(readFloat32(readView), x)
-    strictEqual(readFloat32(readView), y)
-    strictEqual(readFloat32(readView), z)
+    strictEqual(readFloat64(readView), x)
+    strictEqual(readFloat64(readView), y)
+    strictEqual(readFloat64(readView), z)
   })
 
   it('should writeCompressedRotation', () => {
@@ -156,7 +164,7 @@ describe('DataWriter', () => {
     const readView = createViewCursor(writeView.buffer)
     readRotation(readView, entity)
 
-    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
@@ -179,7 +187,7 @@ describe('DataWriter', () => {
     const readView = createViewCursor(writeView.buffer)
     readCompressedVector3(RigidBodyComponent.linearVelocity)(readView, entity)
 
-    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values and compare
     strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
@@ -209,15 +217,18 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 3 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(
+      writeView.cursor,
+      3 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 1 * Uint32Array.BYTES_PER_ELEMENT
+    )
 
     strictEqual(readUint8(readView), 0b11)
 
     strictEqual(readUint8(readView), 0b111)
 
-    strictEqual(readFloat32(readView), posX)
-    strictEqual(readFloat32(readView), posY)
-    strictEqual(readFloat32(readView), posZ)
+    strictEqual(readFloat64(readView), posX)
+    strictEqual(readFloat64(readView), posY)
+    strictEqual(readFloat64(readView), posZ)
 
     readRotation(readView, entity)
 
@@ -285,7 +296,8 @@ describe('DataWriter', () => {
         (1 * Uint16Array.BYTES_PER_ELEMENT +
           1 * Uint8Array.BYTES_PER_ELEMENT +
           6 * Uint16Array.BYTES_PER_ELEMENT +
-          (2 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT) * numOfJoints) *
+          (2 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 1 * Uint32Array.BYTES_PER_ELEMENT) *
+            numOfJoints) *
           numOfHands
     )
 
@@ -305,9 +317,9 @@ describe('DataWriter', () => {
 
         bone.forEach((joint) => {
           strictEqual(readUint8(readView), 0b111)
-          strictEqual(readFloat32(readView), posX)
-          strictEqual(readFloat32(readView), posY)
-          strictEqual(readFloat32(readView), posZ)
+          strictEqual(readFloat64(readView), posX)
+          strictEqual(readFloat64(readView), posY)
+          strictEqual(readFloat64(readView), posZ)
 
           readRotation(readView, entity)
 
@@ -356,7 +368,10 @@ describe('DataWriter', () => {
 
     strictEqual(
       writeView.cursor,
-      1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT
+      1 * Uint32Array.BYTES_PER_ELEMENT +
+        4 * Uint8Array.BYTES_PER_ELEMENT +
+        3 * Float64Array.BYTES_PER_ELEMENT +
+        1 * Uint32Array.BYTES_PER_ELEMENT
     )
 
     // read networkId
@@ -372,9 +387,9 @@ describe('DataWriter', () => {
     strictEqual(readUint8(readView), 0b111)
 
     // read position values
-    strictEqual(readFloat32(readView), posX)
-    strictEqual(readFloat32(readView), posY)
-    strictEqual(readFloat32(readView), posZ)
+    strictEqual(readFloat64(readView), posX)
+    strictEqual(readFloat64(readView), posY)
+    strictEqual(readFloat64(readView), posZ)
 
     // read rotation values
     readRotation(readView, entity)
@@ -426,7 +441,11 @@ describe('DataWriter', () => {
 
     const expectedBytes =
       1 * Uint32Array.BYTES_PER_ELEMENT +
-      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
+      n *
+        (1 * Uint32Array.BYTES_PER_ELEMENT +
+          4 * Uint8Array.BYTES_PER_ELEMENT +
+          3 * Float64Array.BYTES_PER_ELEMENT +
+          1 * Uint32Array.BYTES_PER_ELEMENT)
 
     strictEqual(writeView.cursor, 0)
     strictEqual(packet.byteLength, expectedBytes)
@@ -450,9 +469,9 @@ describe('DataWriter', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), posX)
-      strictEqual(readFloat32(readView), posY)
-      strictEqual(readFloat32(readView), posZ)
+      strictEqual(readFloat64(readView), posX)
+      strictEqual(readFloat64(readView), posY)
+      strictEqual(readFloat64(readView), posZ)
 
       // read rotation values
       readRotation(readView, entities[i])
@@ -507,7 +526,11 @@ describe('DataWriter', () => {
 
     const expectedBytes =
       3 * Uint32Array.BYTES_PER_ELEMENT +
-      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
+      n *
+        (1 * Uint32Array.BYTES_PER_ELEMENT +
+          4 * Uint8Array.BYTES_PER_ELEMENT +
+          3 * Float64Array.BYTES_PER_ELEMENT +
+          1 * Uint32Array.BYTES_PER_ELEMENT)
 
     strictEqual(packet.byteLength, expectedBytes)
 
@@ -533,9 +556,9 @@ describe('DataWriter', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), posX)
-      strictEqual(readFloat32(readView), posY)
-      strictEqual(readFloat32(readView), posZ)
+      strictEqual(readFloat64(readView), posX)
+      strictEqual(readFloat64(readView), posY)
+      strictEqual(readFloat64(readView), posZ)
 
       // read rotation values
       readRotation(readView, entities[i])

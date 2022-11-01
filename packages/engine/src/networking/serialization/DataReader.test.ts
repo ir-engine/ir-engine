@@ -50,7 +50,15 @@ import {
   writeXRHands
 } from './DataWriter'
 import { Vector3SoA, Vector4SoA } from './Utils'
-import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
+import {
+  createViewCursor,
+  readFloat32,
+  readFloat64,
+  readUint8,
+  readUint32,
+  sliceViewCursor,
+  writeProp
+} from './ViewCursor'
 
 describe('DataReader', () => {
   beforeEach(() => {
@@ -739,9 +747,9 @@ describe('DataReader', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), posX)
-      strictEqual(readFloat32(readView), posY)
-      strictEqual(readFloat32(readView), posZ)
+      strictEqual(readFloat64(readView), posX)
+      strictEqual(readFloat64(readView), posY)
+      strictEqual(readFloat64(readView), posZ)
 
       // read writeRotation changeMask
       strictEqual(readUint8(readView), 0b1111)
@@ -860,7 +868,7 @@ describe('DataReader', () => {
 
     const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
-    strictEqual(packet.byteLength, 252)
+    strictEqual(packet.byteLength, 372)
   })
 
   it('should createDataReader and detect changes', () => {
@@ -914,7 +922,7 @@ describe('DataReader', () => {
 
     packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
 
-    strictEqual(packet.byteLength, 31)
+    strictEqual(packet.byteLength, 43)
 
     readView = createViewCursor(packet)
 
@@ -938,9 +946,9 @@ describe('DataReader', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), 1)
-      strictEqual(readFloat32(readView), 1)
-      strictEqual(readFloat32(readView), 1)
+      strictEqual(readFloat64(readView), 1)
+      strictEqual(readFloat64(readView), 1)
+      strictEqual(readFloat64(readView), 1)
 
       // ensure rotation wasn't written and we reached the end of the packet
       assert.throws(() => {
