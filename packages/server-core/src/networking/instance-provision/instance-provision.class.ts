@@ -545,7 +545,7 @@ export class InstanceProvision implements ServiceMethods<any> {
             (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
             instance.currentUsers < location.maxUsersPerInstance
           ) {
-            if (roomCode) {
+            if (roomCode && roomCode === instance.roomCode) {
               const existingInstanceAuthorizedUser = (await this.app.service('instance-authorized-user').find({
                 query: {
                   instanceId: instance.id,
