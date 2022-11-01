@@ -32,7 +32,6 @@ export const InstanceSeed: Instance = {
       id: '',
       locationId: '',
       locationType: 'public',
-      instanceMediaChatEnabled: false,
       audioEnabled: false,
       screenSharingEnabled: false,
       faceStreamingEnabled: false,
