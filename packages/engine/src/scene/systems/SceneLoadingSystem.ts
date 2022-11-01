@@ -355,6 +355,8 @@ export default async function SceneLoadingSystem(world: World) {
   }
 
   const execute = () => {
+    if (!getState(EngineState).sceneLoading.value) return
+
     const pendingAssets = sceneAssetPendingTagQuery().length
 
     for (const entity of sceneAssetPendingTagQuery.enter()) {
@@ -365,7 +367,7 @@ export default async function SceneLoadingSystem(world: World) {
       onComplete(pendingAssets)
       if (pendingAssets === 0) {
         totalPendingAssets = 0
-        if (getState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
+        dispatchAction(EngineActions.sceneLoaded({}))
       }
     }
   }

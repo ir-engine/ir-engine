@@ -71,7 +71,6 @@ export const ModelComponent = defineComponent({
 function ModelReactor({ root }: EntityReactorProps) {
   const entity = root.entity
   const modelComponent = useOptionalComponent(entity, ModelComponent)
-  console.log({ modelComponent })
 
   // update src
   useEffect(() => {
@@ -92,7 +91,6 @@ function ModelReactor({ root }: EntityReactorProps) {
             }
           }
         }
-        console.log(model.src)
         const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)
         let scene: Scene
