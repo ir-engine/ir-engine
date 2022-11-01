@@ -1,10 +1,12 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
@@ -29,6 +31,9 @@ describe('RemoveObjectCommand', () => {
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
     beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
+    ;[...nodes, ...parentNodes, ...beforeNodes].map((node) =>
+      setComponent(node.entity, NameComponent, `Test-RemoveObjectCommandEntity-${node.entity}`)
+    )
 
     addEntityNodeChild(nodes[0], parentNodes[0])
     addEntityNodeChild(nodes[1], parentNodes[1])

@@ -225,11 +225,7 @@ export const updateComponent = <C extends Component>(
     for (const propertyName of Object.keys(props as any)) {
       const value = props[propertyName]
       const { result, finalProp } = getNestedObject(comp, propertyName)
-
-      if (value && value.copy) {
-        if (!result[finalProp]) result[finalProp] = new value.constructor()
-        result[finalProp].copy(value)
-      } else if (
+      if (
         typeof value !== 'undefined' &&
         typeof result[finalProp] === 'object' &&
         typeof result[finalProp].set === 'function'

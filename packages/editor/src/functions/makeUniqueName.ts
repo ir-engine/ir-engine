@@ -1,5 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -24,7 +24,7 @@ export default function makeUniqueName(node: EntityTreeNode) {
   traverseEntityNode(Engine.instance.currentWorld.entityTree.rootNode, (child) => {
     if (child.entity === node.entity) return
 
-    const nameComponent = getComponent(child.entity, NameComponent)
+    const nameComponent = getOptionalComponent(child.entity, NameComponent)
 
     if (!nameComponent || !nameComponent?.startsWith(nameWithoutIndex)) return
 
