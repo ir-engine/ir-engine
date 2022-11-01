@@ -385,6 +385,9 @@
       "loadingLogs": "Fetching Server Logs",
       "name": "Name",
       "status": "Status",
+      "type": "Type",
+      "users": "Users",
+      "instance": "Instance",
       "restarts": "Restarts",
       "containers": "Containers",
       "container": "Container",
@@ -393,6 +396,7 @@
       "autoRefresh": "Auto Refresh",
       "none": "None",
       "seconds": "seconds",
+      "minute": "minute",
       "minutes": "minutes",
       "download": "Download",
       "confirmPodDelete": "Do you want to delete pod"
