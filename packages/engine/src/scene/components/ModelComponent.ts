@@ -77,6 +77,7 @@ function ModelReactor({ root }: EntityReactorProps) {
   useEffect(() => {
     if (!modelComponent) return
     const model = modelComponent.value
+    if (model.src === model.scene?.userData?.src) return
 
     const loadModel = async () => {
       try {
@@ -91,6 +92,7 @@ function ModelReactor({ root }: EntityReactorProps) {
             }
           }
         }
+        console.log(model.src)
         const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)
         let scene: Scene
