@@ -1,13 +1,7 @@
 import { subscribable } from '@hookstate/subscribable'
-import { string } from 'ts-matches'
 
-import { ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import {
-  createMappedComponent,
-  defineComponent,
-  hasComponent,
-  removeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { defineComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -15,7 +9,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode, removeEntityNodeFromParent } from '../../ecs/functions/EntityTree'
 import { serializeEntity } from '../functions/serializeWorld'
-import { updateNamedSceneEntity, updateSceneEntity } from '../systems/SceneLoadingSystem'
+import { updateSceneEntity } from '../systems/SceneLoadingSystem'
 import { CallbackComponent, setCallback } from './CallbackComponent'
 
 export type LoadVolumeTarget = {

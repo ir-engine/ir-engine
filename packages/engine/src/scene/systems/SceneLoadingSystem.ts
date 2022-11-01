@@ -271,27 +271,6 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
 }
 
 /**
- * Updates or creates a named entity and deserializes its components
- * @param name
- * @param entityJson
- * @param world
- */
-export const updateNamedSceneEntity = (entityJson: EntityJson, world = Engine.instance.currentWorld) => {
-  try {
-    const name = entityJson.name
-    let entity = world.namedEntities.get(name)
-    if (entity) {
-      removeAllComponents(entity)
-    } else {
-      entity = createEntity()
-    }
-    entityJson.components.map(deserializeComponent.bind({}, entity))
-  } catch (e) {
-    logger.error(e, `Failed to update named scene entity ${name}`)
-  }
-}
-
-/**
  * Loads all the components from scene json for an entity
  * @param {EntityTreeNode} entityNode
  * @param {EntityJson} sceneEntity

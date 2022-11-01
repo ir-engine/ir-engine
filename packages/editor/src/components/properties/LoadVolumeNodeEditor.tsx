@@ -9,7 +9,7 @@ import Well from '@xrengine/editor/src/components/layout/Well'
 import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType, updateProperty } from '@xrengine/editor/src/components/properties/Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { LoadVolumeComponent } from '@xrengine/engine/src/scene/components/LoadVolumeComponent'
+import { LoadVolumeComponent, LoadVolumeTarget } from '@xrengine/engine/src/scene/components/LoadVolumeComponent'
 
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import { Grid } from '@mui/material'
@@ -17,36 +17,34 @@ import { Grid } from '@mui/material'
 const LoadVolumeNodeEditor: EditorComponentType = (props) => {
   const loadVolumeComponent = getComponent(props.node.entity, LoadVolumeComponent)
   const targets = loadVolumeComponent.targets
-  const updateTargets = updateProperty(LoadVolumeComponent, 'targets')
   function onEditTargets(index) {
     return (value) => {
-      const nuTargets = targets.map(({ uuid, componentJson }, i) => {
-        if (i !== index) return { uuid, componentJson }
-        return { uuid: value, componentJson: [] }
-      })
-      updateTargets(nuTargets)
+      const nuTargets = [...targets.value.values()].map(({ uuid, entityJson, loaded }, i) => {
+        if (i !== index) return [uuid, { uuid, entityJson, loaded }]
+        return [value, { uuid: value }]
+      }) as [string, LoadVolumeTarget][]
+      targets.set(new Map(nuTargets))
     }
   }
 
   function onAddTarget() {
     return () => {
-      const nuTargets = [...targets]
-      nuTargets.push({ uuid: '', componentJson: [] })
-      updateTargets(nuTargets)
+      const nuTargets = [...targets.value.entries(), ['', {}] as [string, LoadVolumeTarget]]
+      targets.set(new Map(nuTargets))
     }
   }
 
   function onRemoveTarget(index) {
     return () => {
-      const nuTargets = targets.filter(({}, i) => i !== index)
-      updateTargets(nuTargets)
+      const nuTargets = [...targets.value.entries()].filter((_, i) => i !== index)
+      targets.set(new Map(nuTargets))
     }
   }
 
   return (
     <NodeEditor description={'Description'} {...props}>
       <PaginatedList
-        list={range(0, targets.length)}
+        list={range(0, targets.size.value)}
         element={(i) => {
           const { uuid } = targets[i]
           return (
