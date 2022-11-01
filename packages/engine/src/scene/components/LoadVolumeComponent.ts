@@ -18,15 +18,9 @@ import { serializeEntity } from '../functions/serializeWorld'
 import { updateNamedSceneEntity, updateSceneEntity } from '../systems/SceneLoadingSystem'
 import { CallbackComponent, setCallback } from './CallbackComponent'
 
-export enum LoadVolumeTargetType {
-  ENTITY_NODE = 'Entity Node',
-  NAMED_ENTITY = 'Named Entity'
-}
-
 export type LoadVolumeTarget = {
   uuid: string
-  type: LoadVolumeTargetType
-  componentJson: ComponentJson<any>[]
+  entityJson: EntityJson
   loaded: boolean
 }
 
@@ -59,16 +53,9 @@ export const LoadVolumeComponent = defineComponent({
     }
 
     function doLoad() {
-      ;[...component.targets.value.values()].map(({ uuid, type, loaded, componentJson: components }) => {
+      ;[...component.targets.value.values()].map(({ uuid, loaded, entityJson }) => {
         if (loaded) return
-        switch (type) {
-          case LoadVolumeTargetType.ENTITY_NODE:
-            updateSceneEntity(uuid, { name: uuid, components })
-            break
-          case LoadVolumeTargetType.NAMED_ENTITY:
-            updateNamedSceneEntity({ name: uuid, components })
-            break
-        }
+        updateSceneEntity(entityJson.name, entityJson)
         component.targets.merge((_targets) => {
           _targets.set(uuid, { ..._targets.get(uuid)!, loaded: true })
           return _targets
@@ -77,27 +64,24 @@ export const LoadVolumeComponent = defineComponent({
     }
 
     function doUnload() {
-      const nuTargets = [...component.targets.value.values()].map(({ uuid, type, loaded, componentJson: oldCJson }) => {
-        if (!loaded) return { uuid, type, loaded, componentJson: oldCJson }
+      const nuTargets = [...component.targets.value.values()].map(({ uuid, loaded, entityJson: oldEJson }) => {
+        if (!loaded) return { uuid, loaded, componentJson: oldEJson }
         let targetEntity: Entity
         let clearChildren = () => removeEntity(targetEntity)
-        switch (type) {
-          case LoadVolumeTargetType.ENTITY_NODE:
-            const targetNode = uuidMap.get(uuid)!
-            targetEntity = targetNode.entity
-            clearChildren = () =>
-              iterateEntityNode(targetNode, (node) => {
-                node.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
-                removeEntityNodeFromParent(node)
-                removeEntity(node.entity)
-              })
-            break
-          case LoadVolumeTargetType.NAMED_ENTITY:
-            targetEntity = world.namedEntities.get(uuid)!
-        }
+
+        const targetNode = uuidMap.get(uuid)!
+        const parentNode = nodeMap.get(targetNode.parentEntity!)!
+        targetEntity = targetNode.entity
+        clearChildren = () =>
+          iterateEntityNode(targetNode, (node) => {
+            node.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
+            removeEntityNodeFromParent(node)
+            removeEntity(node.entity)
+          })
         const componentJson = serializeEntity(targetEntity)
         clearChildren()
-        return { uuid, type, loaded: false, componentJson }
+        const entityJson: EntityJson = { name: uuid, parent: parentNode.uuid, components: componentJson }
+        return { uuid, loaded: false, entityJson }
       })
       component.targets.set(new Map(nuTargets.map((target) => [target.uuid, target] as [string, LoadVolumeTarget])))
     }

@@ -34,7 +34,6 @@ import { InputAlias } from '../input/types/InputAlias'
 import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { unequipEntity } from '../interaction/functions/equippableFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
-import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { Physics, RaycastArgs } from '../physics/classes/Physics'
@@ -454,15 +453,6 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
     dispatchAction(EngineActions.buttonClicked({ clicked: true, button: BaseInput.PRIMARY }))
   if (inputValue.lifecycleState === LifecycleValue.Ended)
     dispatchAction(EngineActions.buttonClicked({ clicked: false, button: BaseInput.PRIMARY }))
-
-  if (inputValue.lifecycleState !== LifecycleValue.Ended) {
-    return
-  }
-  const input = getComponent(entity, InputComponent)
-  const coords = input.data.get(BaseInput.SCREENXY)?.value
-  if (coords) {
-    addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
-  }
 }
 
 export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, inputValue) => {
