@@ -22,4 +22,4 @@ ttab -t 'xrengine-world-instanceserver' -d ../packages/instanceserver npm run de
 ttab -t 'xrengine-channel-instanceserver' -d ../packages/instanceserver npm run dev-channel
 
 ## Start analytics server
-ttab -t 'xrengine-channel-analytics' -d ../packages/analytics npm run dev
+ttab -t 'xrengine-analytics' -d ../packages/analytics npm run dev
