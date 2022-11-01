@@ -1,5 +1,5 @@
 import * as bitECS from 'bitecs'
-import { startTransition, useEffect } from 'react'
+import { FC, startTransition, useEffect } from 'react'
 
 import config from '@xrengine/common/src/config'
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
@@ -7,12 +7,19 @@ import multiLogger from '@xrengine/common/src/logger'
 import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 import { createReactor } from '@xrengine/hyperflux'
-import { createState, NO_PROXY, State, StateMethods, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
+import {
+  createState,
+  NO_PROXY,
+  none,
+  State,
+  StateMethods,
+  useHookstate
+} from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { World } from '../classes/World'
-import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
+import { createEntityReactorWrapper, EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -188,7 +195,7 @@ export const setComponent = <C extends Component>(
     Component.map[entity].set(c)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
-      const root = createReactor(Component.reactor) as EntityReactorRoot
+      const root = createReactor(createEntityReactorWrapper(Component, Component.reactor)) as EntityReactorRoot
       root.entity = entity
       Component.reactorRoots.set(entity, root)
     }
@@ -282,6 +289,7 @@ export const removeComponent = <C extends Component>(
 ) => {
   if (!bitECS.entityExists(world, entity)) return
   if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.map[entity])
+  // component.map[entity].set(none)
   bitECS.removeComponent(world, component, entity, false)
   const root = component.reactorRoots.get(entity)
   if (!root?.isRunning) root?.stop()
@@ -384,7 +392,8 @@ export function useComponent<C extends Component<any>>(
 ) {
   const component = useHookstate(Component.map[entity]) as State<ComponentType<C>>
   const hasOrAllowRemoved = allowRemoved || hasComponent(entity, Component, world)
-  return hasOrAllowRemoved ? component : undefined!
+  if (!hasOrAllowRemoved) throw new Error(`${Component.name} does not exist on entity ${entity}`)
+  return component
 }
 
 /**

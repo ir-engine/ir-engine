@@ -83,6 +83,7 @@ export function createReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
     },
     stop() {
       return new Promise<void>((resolve) => {
+        console.warn('[Reactor]: Stopping a reactor, ignore any warnings errors thrown by react.')
         ReactorReconciler.updateContainer(null, fiberRoot, null, () => resolve())
       }).then(() => {
         reactorRoot.isRunning = false

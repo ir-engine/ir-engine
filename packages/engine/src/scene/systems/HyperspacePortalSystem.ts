@@ -28,11 +28,12 @@ const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
 
 export default async function HyperspacePortalSystem(world: World) {
-  const texture = await AssetLoader.loadAsync('/hdr/galaxyTexture.jpg')
-
   const transition = createTransitionState(0.25, 'OUT')
 
-  const hyperspaceEffect = new PortalEffect(texture)
+  const hyperspaceEffect = new PortalEffect()
+  AssetLoader.loadAsync('/hdr/galaxyTexture.jpg').then((texture) => {
+    hyperspaceEffect.texture = texture
+  })
   hyperspaceEffect.scale.set(10, 10, 10)
   setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
@@ -42,7 +43,7 @@ export default async function HyperspacePortalSystem(world: World) {
   let sceneVisible = true
 
   const execute = () => {
-    if (world.localClientEntity) return
+    if (!world.localClientEntity) return
 
     const playerTransform = getOptionalComponent(world.localClientEntity, TransformComponent)
     const sceneLoaded = !sceneAssetPendingTagQuery().length

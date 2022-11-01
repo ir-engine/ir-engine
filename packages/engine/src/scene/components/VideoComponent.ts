@@ -2,7 +2,12 @@ import { useEffect } from 'react'
 import { DoubleSide, Group, Mesh, MeshBasicMaterial, Side, Vector2 } from 'three'
 import { VideoTexture } from 'three'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { ContentFitType } from '../../xrui/functions/ObjectFitFunctions'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
@@ -67,20 +72,21 @@ export const SCENE_COMPONENT_VIDEO = 'video'
 
 function VideoReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const video = useComponent(entity, VideoComponent)
-  if (!video) throw root.stop()
+  const video = useOptionalComponent(entity, VideoComponent)
 
-  const mediaUUID = video.mediaUUID.value ?? ''
+  const mediaUUID = video?.mediaUUID.value ?? ''
   const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID].value ?? entity
-  const mediaElement = useComponent(mediaEntity, MediaElementComponent)
+  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
   // update side
   useEffect(() => {
+    if (!video) return
     video.videoMesh.material.side.set(video.side.value)
-  }, [video.side])
+  }, [video?.side])
 
   // update mesh
   useEffect(() => {
+    if (!video) return
     const videoMesh = video.videoMesh.value
     resizeImageMesh(videoMesh)
     const scale = ObjectFitFunctions.computeContentFitScale(
@@ -96,10 +102,11 @@ function VideoReactor({ root }: EntityReactorProps) {
     const videoGroup = video.videoGroup.value
     addObjectToGroup(entity, videoGroup)
     return () => removeObjectFromGroup(entity, videoGroup)
-  }, [video.size, video.fit, video.videoMesh.material.map])
+  }, [video?.size, video?.fit, video?.videoMesh.material.map])
 
   // update video texture
   useEffect(() => {
+    if (!video) return
     if (!mediaEntity) return addError(entity, VideoComponent, 'INVALID_MEDIA_UUID')
     if (!mediaElement) return addError(entity, VideoComponent, 'MISSING_MEDIA_ELEMENT')
     const material = video.videoMesh.material.value

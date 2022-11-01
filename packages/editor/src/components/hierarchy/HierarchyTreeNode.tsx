@@ -10,7 +10,8 @@ import {
   getAllComponents,
   getComponent,
   hasComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
@@ -79,7 +80,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     ? getComponent(node.entityNode.entity, NameComponent)
     : ''
 
-  const errors = useComponent(node.entityNode.entity, ErrorComponent)
+  const errors = useOptionalComponent(node.entityNode.entity, ErrorComponent)
   const firstError = errors?.keys[0]
 
   const onClickToggle = useCallback(

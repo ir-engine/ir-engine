@@ -6,7 +6,13 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../assets/classes/DependencyTree'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, removeComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -64,12 +70,13 @@ export const ModelComponent = defineComponent({
 
 function ModelReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const modelState = useComponent(entity, ModelComponent)
+  const modelComponent = useOptionalComponent(entity, ModelComponent)
+  console.log({ modelComponent })
 
   // update src
   useEffect(() => {
-    if (!modelState) return
-    const model = modelState.value
+    if (!modelComponent) return
+    const model = modelComponent.value
 
     const loadModel = async () => {
       try {
@@ -109,7 +116,7 @@ function ModelReactor({ root }: EntityReactorProps) {
 
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
-        modelState.scene.set(scene)
+        modelComponent.scene.set(scene)
         addObjectToGroup(entity, scene)
         setBoundingBoxComponent(entity)
         parseGLTFModel(entity)
@@ -123,20 +130,20 @@ function ModelReactor({ root }: EntityReactorProps) {
     }
 
     loadModel()
-  }, [modelState?.src])
+  }, [modelComponent?.src])
 
   // update scene
   useEffect(() => {
-    if (!modelState) return
-    const scene = modelState.scene.value
+    if (!modelComponent) return
+    const scene = modelComponent.scene.value
     if (!scene) return
 
     addObjectToGroup(entity, scene)
-    enableObjectLayer(scene, ObjectLayers.Camera, modelState.generateBVH.value)
+    enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
     removeComponent(entity, SceneAssetPendingTagComponent)
 
     return () => removeObjectFromGroup(entity, scene)
-  }, [modelState?.scene])
+  }, [modelComponent?.scene])
 
   return null
 }

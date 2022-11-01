@@ -19,9 +19,10 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { defineEntityReactor, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
@@ -184,10 +185,8 @@ export const MediaComponent = defineComponent({
 
 export function MediaReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const media = useComponent(entity, MediaComponent)
-  const mediaElement = useComponent(entity, MediaElementComponent)
-
-  if (!media) throw root.stop()
+  const media = useOptionalComponent(entity, MediaComponent)
+  const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
   useEffect(
     function updatePlay() {

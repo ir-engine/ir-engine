@@ -6,16 +6,8 @@ import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import {
-  defineComponent,
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  removeQuery,
-  setComponent
-} from '../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQueryReactorSystem } from '../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -72,10 +64,11 @@ const removeShaderFromObject = (entity: Entity) => {
 export default async function XRScenePlacementShader(world: World) {
   const xrState = getState(XRState)
 
-  const ScenePlacementShaderReactorComponent = defineComponent({
-    name: 'XRE_ScenePlacementShaderReactorComponent',
-
-    reactor: function (props) {
+  return defineQueryReactorSystem(
+    world,
+    'XRE_ScenePlacementShaderReactorComponent',
+    [GroupComponent, Not(SceneTagComponent), VisibleComponent],
+    function (props) {
       const entity = props.root.entity
       const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
       const sessionActive = useHookstate(xrState.sessionActive)
@@ -91,18 +84,5 @@ export default async function XRScenePlacementShader(world: World) {
 
       return null
     }
-  })
-
-  const sceneQuery = defineQuery([GroupComponent, Not(SceneTagComponent), VisibleComponent])
-
-  const execute = () => {
-    for (const entity of sceneQuery.enter()) setComponent(entity, ScenePlacementShaderReactorComponent)
-    for (const entity of sceneQuery.exit()) removeComponent(entity, ScenePlacementShaderReactorComponent)
-  }
-
-  const cleanup = async () => {
-    removeQuery(world, sceneQuery)
-  }
-
-  return { execute, cleanup }
+  )
 }

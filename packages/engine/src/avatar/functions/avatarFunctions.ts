@@ -278,7 +278,7 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
-  const avatarRigComponent = getComponent(entity, AvatarRigComponent)
+  const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
   if (!avatarRigComponent) return false
   const bone = avatarRigComponent.rig[boneName]
   if (!bone) return false
