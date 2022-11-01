@@ -38,7 +38,7 @@ export const VideoComponent = defineComponent({
       /**
        * An entity with with an attached MediaComponent;if an empty string, then the current entity is assumed
        */
-      mediaUUID: '',
+      mediaUUID: component.mediaUUID.value,
       side: component.side.value,
       size: component.size.value,
       fit: component.fit.value
@@ -102,8 +102,13 @@ function VideoReactor({ root }: EntityReactorProps) {
   useEffect(() => {
     if (!mediaEntity) return addError(entity, VideoComponent, 'INVALID_MEDIA_UUID')
     if (!mediaElement) return addError(entity, VideoComponent, 'MISSING_MEDIA_ELEMENT')
-    video.videoMesh.material.map.set(new VideoTexture(mediaElement.element.value as HTMLVideoElement))
-    video.videoMesh.material.value.needsUpdate = true
+    const material = video.videoMesh.material.value
+    if (material.map) {
+      material.map.image = mediaElement.element.value as HTMLVideoElement
+    } else {
+      material.map = new VideoTexture(mediaElement.element.value as HTMLVideoElement)
+    }
+    material.needsUpdate = true
     clearErrors(entity, VideoComponent)
   }, [video, mediaEntity, mediaElement])
 

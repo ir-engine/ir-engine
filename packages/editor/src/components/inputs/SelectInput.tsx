@@ -43,7 +43,7 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
 
   const Component = isSearchable ? (
     <Autocomplete
-      options={options}
+      options={options.map(({ label }) => label)}
       onChange={onValueChanged}
       freeSolo={creatable}
       disablePortal

@@ -19,7 +19,6 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { shouldPrefabDeserialize } from '../../functions/shouldDeserialize'
 import { useSelectionState } from '../../services/SelectionServices'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
@@ -36,14 +35,12 @@ const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
 
   Engine.instance.currentWorld.scenePrefabRegistry.forEach((_, prefabType: string) => {
-    if (shouldPrefabDeserialize(prefabType)) {
-      arr.push({
-        prefabType,
-        type: ItemTypes.Prefab,
-        Icon: prefabIcons[prefabType] || null,
-        label: prefabType
-      })
-    }
+    arr.push({
+      prefabType,
+      type: ItemTypes.Prefab,
+      Icon: prefabIcons[prefabType] || null,
+      label: prefabType
+    })
   })
 
   return arr

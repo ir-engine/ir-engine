@@ -34,17 +34,6 @@ if (isClient) {
   VolumetricPlayerPromise = import('@xrfoundation/volumetric/player').then((module) => module.default)
 }
 
-export const deserializeVolumetric: ComponentDeserializeFunction = (
-  entity: Entity,
-  data: SerializedComponentType<typeof VolumetricComponent>
-) => {
-  addComponent(entity, VolumetricComponent, data)
-}
-
-export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
-  return serializeComponent(entity, VolumetricComponent)
-}
-
 const Volumetric = new WeakMap<
   HTMLMediaElement,
   {

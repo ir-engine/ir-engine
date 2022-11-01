@@ -13,18 +13,7 @@ import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '..
 import { SCENE_COMPONENT_VIDEO, VideoComponent } from '../../scene/components/VideoComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { SCENE_COMPONENT_VOLUMETRIC, VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { deserializeMedia, serializeMedia } from '../../scene/functions/loaders/MediaFunctions'
-import {
-  deserializePositionalAudio,
-  serializePositionalAudio
-} from '../../scene/functions/loaders/PositionalAudioFunctions'
-import { deserializeVideo, serializeVideo } from '../../scene/functions/loaders/VideoFunctions'
-import {
-  deserializeVolumetric,
-  enterVolumetric,
-  serializeVolumetric,
-  updateVolumetric
-} from '../../scene/functions/loaders/VolumetricFunctions'
+import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { defaultSpatialComponents } from '../../scene/systems/SceneObjectUpdateSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -133,30 +122,22 @@ export default async function MediaSystem(world: World) {
 
   world.sceneComponentRegistry.set(PositionalAudioComponent.name, SCENE_COMPONENT_POSITIONAL_AUDIO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSITIONAL_AUDIO, {
-    defaultData: {},
-    deserialize: deserializePositionalAudio,
-    serialize: serializePositionalAudio
+    defaultData: {}
   })
 
   world.sceneComponentRegistry.set(VideoComponent.name, SCENE_COMPONENT_VIDEO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
-    defaultData: {},
-    deserialize: deserializeVideo,
-    serialize: serializeVideo
+    defaultData: {}
   })
 
   world.sceneComponentRegistry.set(MediaComponent.name, SCENE_COMPONENT_MEDIA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
-    defaultData: {},
-    deserialize: deserializeMedia,
-    serialize: serializeMedia
+    defaultData: {}
   })
 
   world.sceneComponentRegistry.set(VolumetricComponent.name, SCENE_COMPONENT_VOLUMETRIC)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
-    defaultData: {},
-    deserialize: deserializeVolumetric,
-    serialize: serializeVolumetric
+    defaultData: {}
   })
 
   const audioState = getState(AudioState)

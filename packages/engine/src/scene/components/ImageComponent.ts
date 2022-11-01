@@ -54,6 +54,10 @@ export const ImageComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
+    // backwards compatability
+    if (typeof json['imageSource'] === 'string' && json['imageSource'] !== component.source.value)
+      component.source.set(json['imageSource'])
+    //
     if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
     if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)
       component.alphaMode.set(json.alphaMode)

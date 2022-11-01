@@ -24,5 +24,4 @@ export type SceneLoaderType = {
    * - not setting defaultData will result in this component being treated as a tag component
    */
   deserialize?: ComponentDeserializeFunction
-  shouldDeserialize?: ComponentShouldDeserializeFunction
 }

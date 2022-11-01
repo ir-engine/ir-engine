@@ -11,7 +11,6 @@ import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
-import { shouldNodeDeserialize } from '../functions/shouldDeserialize'
 import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
@@ -34,7 +33,7 @@ export type DuplicateObjectCommandParams = CommandParams & {
 }
 
 function prepare(command: DuplicateObjectCommandParams) {
-  command.affectedNodes = command.affectedNodes.filter((o) => typeof o !== 'string' && shouldNodeDeserialize(o))
+  command.affectedNodes = command.affectedNodes.filter((o) => typeof o !== 'string')
 
   if (command.keepHistory) {
     command.undo = {

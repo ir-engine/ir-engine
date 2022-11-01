@@ -105,17 +105,12 @@ import {
   updateGroundPlane
 } from '../functions/loaders/GroundPlaneFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
-import { deserializeImage, serializeImage } from '../functions/loaders/ImageFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
-import { deserializeModel, serializeModel } from '../functions/loaders/ModelFunctions'
+import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePortal, serializePortal, updatePortal } from '../functions/loaders/PortalFunctions'
-import {
-  enterScenePreviewCamera,
-  serializeScenePreviewCamera,
-  shouldDeserializeScenePreviewCamera
-} from '../functions/loaders/ScenePreviewCameraFunctions'
+import { enterScenePreviewCamera, serializeScenePreviewCamera } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
   deserializeSkybox,
@@ -193,7 +188,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ScenePreviewCameraComponent.name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
-    shouldDeserialize: shouldDeserializeScenePreviewCamera,
     serialize: serializeScenePreviewCamera
   })
 
@@ -262,8 +256,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
     defaultData: {},
     deserialize: deserializeSkybox,
-    serialize: serializeSkybox,
-    shouldDeserialize: shouldDeserializeSkybox
+    serialize: serializeSkybox
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
@@ -293,8 +286,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
     defaultData: {},
-    deserialize: deserializeModel,
-    serialize: serializeModel
+    deserialize: deserializeModel
   })
 
   world.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)
@@ -327,8 +319,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
     defaultData: SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES,
     deserialize: deserializeGround,
-    serialize: serializeGroundPlane,
-    shouldDeserialize: shouldDeserializeGroundPlane
+    serialize: serializeGroundPlane
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.image, [
@@ -341,9 +332,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ImageComponent.name, SCENE_COMPONENT_IMAGE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {
-    defaultData: {},
-    deserialize: deserializeImage,
-    serialize: serializeImage
+    defaultData: {}
   })
 
   world.sceneComponentRegistry.set(LoopAnimationComponent.name, SCENE_COMPONENT_LOOP_ANIMATION)

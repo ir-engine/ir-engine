@@ -9,7 +9,9 @@ import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
-  hasComponent
+  getOptionalComponentState,
+  hasComponent,
+  serializeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
@@ -31,7 +33,7 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
       world.sceneLoadingRegistry.has(sceneComponentID)
     ) {
       const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
-      const data = serialize ? serialize(entity) : getOptionalComponent(entity, component)
+      const data = serialize ? serialize(entity) : serializeComponent(entity, component)
       if (data) {
         jsonComponents.push({
           name: sceneComponentID,

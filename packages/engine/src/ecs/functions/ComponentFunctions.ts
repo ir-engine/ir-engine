@@ -336,7 +336,7 @@ export const removeAllComponents = (entity: Entity, world = Engine.instance.curr
 }
 
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {
-  const component = getComponent(entity, Component)
+  const component = getComponentState(entity, Component)
   return Component.toJSON(entity, component) as ReturnType<C['toJSON']>
 }
 
