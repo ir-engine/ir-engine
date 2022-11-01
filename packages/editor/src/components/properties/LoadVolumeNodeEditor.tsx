@@ -1,6 +1,7 @@
 import { range } from 'lodash'
 import React from 'react'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { Button } from '@xrengine/editor/src/components/inputs/Button'
 import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
 import { SceneObjectInput } from '@xrengine/editor/src/components/inputs/SceneObjectInput'
@@ -31,7 +32,7 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
   function onAddTarget() {
     return () => {
       const nuTargets = [...targets]
-      nuTargets.push({ uuid: '', componentJson: [] })
+      nuTargets.push({ uuid: '' as EntityUUID, componentJson: [] })
       updateTargets(nuTargets)
     }
   }

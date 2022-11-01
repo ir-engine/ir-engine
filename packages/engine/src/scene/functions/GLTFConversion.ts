@@ -1,5 +1,6 @@
 import { Color, MathUtils, Object3D } from 'three'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -28,7 +29,7 @@ export const nodeToEntityJson = (node: any): EntityJson => {
 export const gltfToSceneJson = (gltf: any): SceneJson => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
-  const rootUuid = MathUtils.generateUUID()
+  const rootUuid = MathUtils.generateUUID() as EntityUUID
   const result: SceneJson = {
     entities: {},
     root: rootUuid,

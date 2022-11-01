@@ -1,5 +1,6 @@
 import { MathUtils } from 'three'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { getState, NO_PROXY, none } from '@xrengine/hyperflux'
 
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -36,7 +37,7 @@ export interface EntityTree {
 export type EntityTreeNode = {
   type: 'EntityNode'
   entity: Entity
-  uuid: string
+  uuid: EntityUUID
   children: Entity[]
   parentEntity?: Entity
 }
@@ -98,7 +99,7 @@ export function getAllEntityTreeNodesByUUID(): [string, EntityTreeNode][] {
   ])
 }
 
-export function updateRootNodeUuid(uuid: string, tree = Engine.instance.currentWorld.entityTree) {
+export function updateRootNodeUuid(uuid: EntityUUID, tree = Engine.instance.currentWorld.entityTree) {
   UUIDComponent.entitiesByUUID[tree.rootNode.uuid].set(none)
   UUIDComponent.entitiesByUUID[uuid].set(tree.rootNode.entity)
   tree.rootNode.uuid = uuid
@@ -131,11 +132,11 @@ export function emptyEntityTree(tree = Engine.instance.currentWorld.entityTree):
  * @param uuid UUID of newly created node. If not provided new one will be generated
  * @returns Newly created Entity node
  */
-export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode {
+export function createEntityNode(entity: Entity, uuid?: EntityUUID): EntityTreeNode {
   const node = {
     type: 'EntityNode' as const,
     entity,
-    uuid: uuid ?? MathUtils.generateUUID(),
+    uuid: uuid ?? (MathUtils.generateUUID() as EntityUUID),
     children: []
   }
   addComponent(entity, SceneObjectComponent, true)

@@ -1,6 +1,8 @@
 import assert from 'assert'
 import { MathUtils } from 'three'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+
 import { createEngine } from '../../initializeEngine'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Engine } from '../classes/Engine'
@@ -122,7 +124,7 @@ describe('EntityTree', () => {
       assert(node_0.uuid)
 
       const entity1 = createEntity()
-      const uuid = MathUtils.generateUUID()
+      const uuid = MathUtils.generateUUID() as EntityUUID
       const node_1 = createEntityNode(entity1, uuid)
       assert.equal(node_1.type, 'EntityNode')
       assert.equal(node_1.entity, entity1)

@@ -2,6 +2,7 @@ import { useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   defineQuery,
@@ -48,7 +49,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const mediaOptions = mediaEntities.map((entity) => {
     return { label: getComponent(entity, NameComponent), value: entityTree.entityNodeMap.get(entity)!.uuid }
   })
-  mediaOptions.unshift({ label: 'Self', value: '' })
+  mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
 
   return (
     <NodeEditor
