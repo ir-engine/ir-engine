@@ -135,6 +135,13 @@ uniform float vHeight;
   uniform float heightMapStrength;
   uniform sampler2D heightMap;
 #endif
+#ifdef USE_LOGDEPTHBUF
+  #ifdef USE_LOGDEPTHBUF_EXT
+    varying float vFragDepth;
+  #else
+    uniform float logDepthBufFC;
+  #endif
+#endif
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
@@ -204,6 +211,14 @@ vNormal = rotateVectorByQuaternion(vNormal, direction);
 idx = index;
 
 gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition + offset, 1.0);
+#ifdef USE_LOGDEPTHBUF
+  #ifdef USE_LOGDEPTHBUF_EXT
+    vFragDepth = 1.0 + gl_Position.w;
+  #else
+    gl_Position.z = log2( max( 0.00001, gl_Position.w + 1.0 ) ) * logDepthBufFC - 1.0;
+    gl_Position.z *= gl_Position.w;
+  #endif
+#endif
 }`
 
 const grassFragmentSource = `
@@ -232,6 +247,13 @@ varying float frc;
 
 #ifdef DENSITY_MAPPED
   varying float doClip;
+#endif
+
+#ifdef USE_LOGDEPTHBUF
+  #ifdef USE_LOGDEPTHBUF_EXT
+    uniform float logDepthBufFC;
+    varying float vFragDepth;
+  #endif
 #endif
 
 vec3 ACESFilm(vec3 x){
@@ -287,7 +309,11 @@ float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
     vec3 skyLight = sky * vec3(0.12, 0.29, 0.55);
     vec3 col = 0.3 * skyLight * textureColor + diffuse * diffuseStrength + ambient * ambientStrength;
     gl_FragColor = vec4(col, 1.0);
-    return;
+#ifdef USE_LOGDEPTHBUF
+  #ifdef USE_LOGDEPTHBUF_EXT
+    gl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;
+  #endif
+#endif
 }`
 
 export class InstancingActions {
@@ -773,7 +799,11 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
         },
         vertexShader: grassVertexSource,
         fragmentShader: grassFragmentSource,
-        side: DoubleSide
+        side: DoubleSide,
+        defines: {
+          USE_LOGDEPTHBUF: '',
+          USE_LOGDEPTHBUF_EXT: ''
+        }
       })
       const shaderMat = resultMat as RawShaderMaterial
       if (sampleProps.densityMap) {

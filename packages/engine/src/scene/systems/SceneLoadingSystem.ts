@@ -11,11 +11,13 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
+  addComponent,
   ComponentMap,
   defineQuery,
   getAllComponents,
   getComponent,
   hasComponent,
+  removeAllComponents,
   removeComponent,
   removeQuery,
   setComponent
@@ -265,6 +267,27 @@ export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = 
     }
   } catch (e) {
     logger.error(e, `Failed to update scene entity ${uuid}`)
+  }
+}
+
+/**
+ * Updates or creates a named entity and deserializes its components
+ * @param name
+ * @param entityJson
+ * @param world
+ */
+export const updateNamedSceneEntity = (entityJson: EntityJson, world = Engine.instance.currentWorld) => {
+  try {
+    const name = entityJson.name
+    let entity = world.namedEntities.get(name)
+    if (entity) {
+      removeAllComponents(entity)
+    } else {
+      entity = createEntity()
+    }
+    entityJson.components.map(deserializeComponent.bind({}, entity))
+  } catch (e) {
+    logger.error(e, `Failed to update named scene entity ${name}`)
   }
 }
 
