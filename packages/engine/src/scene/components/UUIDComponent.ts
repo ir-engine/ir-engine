@@ -1,3 +1,4 @@
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { createState, none } from '@xrengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
@@ -6,9 +7,9 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',
 
-  onInit: () => '',
+  onInit: () => '' as EntityUUID,
 
-  onSet: (entity, component, uuid: string) => {
+  onSet: (entity, component, uuid: EntityUUID) => {
     component.set(uuid)
     UUIDComponent.entitiesByUUID[uuid].set(entity)
   },
@@ -20,5 +21,5 @@ export const UUIDComponent = defineComponent({
     }
   },
 
-  entitiesByUUID: createState({} as Record<string, Entity>)
+  entitiesByUUID: createState({} as Record<EntityUUID, Entity>)
 })

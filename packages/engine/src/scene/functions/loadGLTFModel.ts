@@ -1,6 +1,8 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
 import { NavMesh, Polygon } from 'yuka'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
@@ -109,7 +111,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
 
-    const node = createEntityNode(e, mesh.uuid)
+    const node = createEntityNode(e, mesh.uuid as EntityUUID)
     addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
     addComponent(e, NameComponent, {

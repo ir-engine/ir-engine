@@ -1,3 +1,4 @@
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -73,8 +74,8 @@ function execute(command: DuplicateObjectCommandParams) {
   const sceneData = command.duplicatedObjects.map((obj) =>
     typeof obj === 'string'
       ? {
-          entities: {} as { [uuid: string]: EntityJson },
-          root: '',
+          entities: {} as { [uuid: EntityUUID]: EntityJson },
+          root: '' as EntityUUID,
           version: 0,
           metadata: {}
         }

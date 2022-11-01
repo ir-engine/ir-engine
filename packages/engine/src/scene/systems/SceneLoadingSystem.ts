@@ -1,6 +1,7 @@
 import { cloneDeep, merge } from 'lodash'
 import { MathUtils } from 'three'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import logger from '@xrengine/common/src/logger'
 import { dispatchAction, getState, NO_PROXY } from '@xrengine/hyperflux'
@@ -100,8 +101,11 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
 
 export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNode): Promise<EntityTreeNode[]> => {
   const entityMap = {} as { [key: string]: EntityTreeNode }
-  const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root)
-  const idMap = new Map<string, string>()
+  const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root) as [
+    EntityUUID,
+    EntityJson
+  ][]
+  const idMap = new Map<EntityUUID, EntityUUID>()
   const loadedEntities = UUIDComponent.entitiesByUUID.get(NO_PROXY)
 
   const root = assetRoot ?? Engine.instance.currentWorld.entityTree.rootNode
@@ -111,7 +115,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNo
     //check if uuid already exists in scene
     let uuid = _uuid
     if (loadedEntities[uuid]) {
-      uuid = MathUtils.generateUUID()
+      uuid = MathUtils.generateUUID() as EntityUUID
       idMap.set(_uuid, uuid)
     }
     const eNode = createEntityNode(createEntity(), uuid)
@@ -155,7 +159,9 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNo
  * @param world
  */
 export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.instance.currentWorld) => {
-  const entitiesToLoad = Object.entries(world.sceneJson.entities).filter(([uuid, entity]) => entity.parent === parent)
+  const entitiesToLoad = Object.entries(world.sceneJson.entities).filter(
+    ([uuid, entity]) => entity.parent === parent
+  ) as [EntityUUID, EntityJson][]
   for (const [uuid, entityJson] of entitiesToLoad) {
     updateSceneEntity(uuid, entityJson, world)
     const JSONEntityIsDynamic = !!entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)
@@ -248,7 +254,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
  * @param entityJson
  * @param world
  */
-export const updateSceneEntity = (uuid: string, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
+export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
   try {
     const existingEntity = getEntityTreeNodeByUUID(uuid)
     if (existingEntity) {
