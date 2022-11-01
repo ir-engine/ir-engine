@@ -54,7 +54,6 @@ import { SpotLightComponent } from '../../scene/components/SpotLightComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { PositionalAudioHelper } from '../PositionalAudioHelper'
 
 const vector3 = new Vector3()
@@ -84,7 +83,6 @@ export default async function DebugHelpersSystem(world: World) {
     skeletonHelpers: new Map(),
     ikExtents: new Map(),
     box: new Map<Entity, Box3Helper>(),
-    navmesh: new Map(),
     navpath: new Map(),
     positionalAudioHelper: new Map()
   }
