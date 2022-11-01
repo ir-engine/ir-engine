@@ -396,6 +396,7 @@
       "autoRefresh": "Auto Refresh",
       "none": "None",
       "seconds": "seconds",
+      "minute": "minute",
       "minutes": "minutes",
       "download": "Download",
       "confirmPodDelete": "Do you want to delete pod"

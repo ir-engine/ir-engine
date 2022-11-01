@@ -33,7 +33,7 @@ interface Props {
 const ServerTable = ({ selectedCard }: Props) => {
   const { t } = useTranslation()
   const [openConfirm, setOpenConfirm] = useState(false)
-  const [autoRefresh, setAutoRefresh] = useState('0')
+  const [autoRefresh, setAutoRefresh] = useState('60')
   const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
   const [selectedPod, setSelectedPod] = useState<ServerPodInfo | null>(null)
   const serverInfo = useServerInfoState()
@@ -156,7 +156,7 @@ const ServerTable = ({ selectedCard }: Props) => {
     },
     {
       value: '60',
-      label: `60 ${t('admin:components.server.seconds')}`
+      label: `1 ${t('admin:components.server.minute')}`
     },
     {
       value: '300',

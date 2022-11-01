@@ -21,7 +21,7 @@ const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
 const ServerLogs = () => {
   const { t } = useTranslation()
   const logsEndRef = useRef(null)
-  const [autoRefresh, setAutoRefresh] = useState('0')
+  const [autoRefresh, setAutoRefresh] = useState('60')
   const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
   const serverInfo = useServerInfoState()
   const serverLogs = useServerLogsState()
@@ -101,7 +101,7 @@ const ServerLogs = () => {
     },
     {
       value: '60',
-      label: `60 ${t('admin:components.server.seconds')}`
+      label: `1 ${t('admin:components.server.minute')}`
     },
     {
       value: '300',
