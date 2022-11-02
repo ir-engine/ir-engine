@@ -15,7 +15,7 @@ export const useRoomCodeURLParam = (roomCode = true, instanceId = true) => {
     if (worldNetwork && instance) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
-      instanceId && query.set('roomCode', instance.roomCode.value)
+      // instanceId && query.set('roomCode', instance.roomCode.value)
       roomCode && query.set('instanceId', worldNetwork.hostId)
       parsed.search = query.toString()
       if (typeof history.pushState !== 'undefined') {
