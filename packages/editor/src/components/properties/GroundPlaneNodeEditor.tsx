@@ -27,12 +27,6 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
         <ColorInput value={groundPlaneComponent.color} onChange={updateProperty(GroundPlaneComponent, 'color')} />
       </InputGroup>
-      <InputGroup name="Generate Navmesh" label={t('editor:properties.groundPlane.lbl-generateNavmesh')}>
-        <BooleanInput
-          value={groundPlaneComponent.generateNavmesh}
-          onChange={updateProperty(GroundPlaneComponent, 'generateNavmesh')}
-        />
-      </InputGroup>
       <ShadowProperties node={props.node} />
     </NodeEditor>
   )

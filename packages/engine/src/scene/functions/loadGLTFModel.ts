@@ -1,11 +1,8 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
-import { NavMesh, Polygon } from 'yuka'
 
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { parseGeometry } from '../../common/functions/parseGeometry'
-import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -17,12 +14,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import {
-  setLocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
+import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -129,40 +121,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   }
 }
 
-export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
-  const scene = object3d ?? getComponent(entity, ModelComponent).scene
-  let polygons = [] as Polygon[]
-
-  if (!scene) return
-
-  scene.traverse((child: Mesh) => {
-    child.visible = false
-
-    if (!child.geometry || !(child.geometry instanceof BufferGeometry)) return
-
-    const childPolygons = parseGeometry({
-      position: child.geometry.attributes.position.array as number[],
-      index: child.geometry.index ? (child.geometry.index.array as number[]) : []
-    })
-
-    if (childPolygons.length) polygons = polygons.concat(childPolygons)
-  })
-
-  if (polygons.length) {
-    const navMesh = new NavMesh()
-    navMesh.fromPolygons(polygons)
-
-    // const helper = createConvexRegionHelper(navMesh)
-    // Engine.instance.currentWorld.scene.add(helper)
-
-    addComponent(entity, NavMeshComponent, {
-      yukaNavMesh: navMesh,
-      navTarget: scene
-    })
-    addComponent(entity, DebugNavMeshComponent, null!)
-  }
-}
-
 export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
   if (!model.scene) return
@@ -176,11 +134,6 @@ export const parseGLTFModel = (entity: Entity) => {
   parseObjectComponentsFromGLTF(entity, scene)
 
   setObjectLayers(scene, ObjectLayers.Scene)
-
-  // DIRTY HACK TO LOAD NAVMESH
-  if (model.src.match(/navmesh/)) {
-    loadNavmesh(entity, scene)
-  }
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {

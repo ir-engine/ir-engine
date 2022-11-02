@@ -55,6 +55,7 @@ async function installAllProjects() {
     process.exit(0)
   } catch (e) {
     logger.fatal(e)
+    process.exit(1)
   }
 
 }
