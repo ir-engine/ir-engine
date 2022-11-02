@@ -18,7 +18,7 @@ import { Grid } from '@mui/material'
 const LoadVolumeNodeEditor: EditorComponentType = (props) => {
   const loadVolumeComponent = getComponent(props.node.entity, LoadVolumeComponent)
   const targets = loadVolumeComponent.targets
-  function onEditTargets(index) {
+  /*function onEditTargets(index) {
     return (value) => {
       const nuTargets = [...targets.values()].map(({ uuid, entityJson, loaded }, i) => {
         if (i !== index) return [uuid, { uuid, entityJson, loaded }]
@@ -40,8 +40,8 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
       const nuTargets = [...targets.entries()].filter((_, i) => i !== index)
       loadVolumeComponent.targets = new Map(nuTargets)
     }
-  }
-
+  }*/
+  /*
   return (
     <NodeEditor description={'Description'} {...props}>
       <PaginatedList
@@ -68,7 +68,8 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
       />
       <Button onClick={onAddTarget()}>Add Target</Button>
     </NodeEditor>
-  )
+  )*/
+  return <></>
 }
 
 LoadVolumeNodeEditor.iconComponent = CloudSyncIcon
