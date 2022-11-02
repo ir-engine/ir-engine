@@ -1,122 +1,58 @@
-import { Not } from 'bitecs'
+import { hasComponent, Not } from 'bitecs'
 import { useEffect } from 'react'
-import {
-  Color,
-  Mesh,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
-  MeshPhongMaterial,
-  MeshStandardMaterial,
-  Vector3
-} from 'three'
+import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
 
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
-import { isHMD, isMobileOrHMD } from '../../common/functions/isMobile'
-import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
+import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
-  hasComponent,
-  removeQuery
+  removeQuery,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
 import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
-import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { beforeMaterialCompile } from '../classes/BPCEMShader'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
-import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import FogSystem from './FogSystem'
 import ShadowSystem from './ShadowSystem'
 
-type BPCEMProps = {
-  bakeScale: Vector3
-  bakePositionOffset: Vector3
-}
-
-export class SceneOptions {
-  static instance: SceneOptions
-  bpcemOptions: BPCEMProps = {
-    bakeScale: new Vector3(1, 1, 1),
-    bakePositionOffset: new Vector3()
-  }
-  envMapIntensity = 1
-  boxProjection = false
-}
-
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-const updateObject = (entity: Entity) => {
-  const group = getComponent(entity, GroupComponent) as (Object3DWithEntity & Mesh<any, MeshStandardMaterial>)[]
-  const shadowComponent = getOptionalComponent(entity, ShadowComponent)
-
-  for (const obj of group) {
-    const material = obj.material
-    if (typeof material !== 'undefined') material.dithering = true
-
-    if (shadowComponent) {
-      obj.receiveShadow = shadowComponent.receive
-      obj.castShadow = shadowComponent.cast
-    }
-  }
-  if (isHMD) return
-
-  if (hasComponent(entity, XRUIComponent)) return
-
-  let abort = false
-
-  for (const obj of group) {
-    if (abort || (obj.entity && hasComponent(entity, XRUIComponent))) {
-      abort = true
-      return
-    }
-
-    obj.traverse(applyMaterial)
-  }
-}
-
-const applyMaterial = (obj: Mesh<any, any>) => {
-  if (!obj.material?.userData) return
-  const material = obj.material
-
-  // BPCEM
-  if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
-    addOBCPlugin(
-      material,
-      beforeMaterialCompile(
-        SceneOptions.instance.bpcemOptions.bakeScale,
-        SceneOptions.instance.bpcemOptions.bakePositionOffset
-      )
-    )
-    material.userData.hasBoxProjectionApplied = true
-  }
-
-  material.envMapIntensity = SceneOptions.instance.envMapIntensity
-
-  if (obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
+/** @todo reimplement BPCEM */
+const applyBPCEM = (material) => {
+  // SceneOptions needs to be replaced with a proper state
+  // if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
+  //   addOBCPlugin(
+  //     material,
+  //     beforeMaterialCompile(
+  //       SceneOptions.instance.bpcemOptions.bakeScale,
+  //       SceneOptions.instance.bpcemOptions.bakePositionOffset
+  //     )
+  //   )
+  //   material.userData.hasBoxProjectionApplied = true
+  // }
 }
 
 export default async function SceneObjectSystem(world: World) {
-  SceneOptions.instance = new SceneOptions()
   if (isNode) {
     await loadDRACODecoder()
   }
 
-  const sceneObjectQuery = defineQuery([GroupComponent])
+  const groupQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
   const xrState = getState(XRState)
@@ -156,19 +92,63 @@ export default async function SceneObjectSystem(world: World) {
     }
   )
 
-  const execute = () => {
-    for (const entity of sceneObjectQuery.exit()) {
-      const group = getComponent(entity, GroupComponent, true)
-      const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
-      for (const obj of group) {
-        for (const layer of layers) {
-          if (layer.has(obj)) layer.delete(obj)
+  const addedToGroup = (obj) => {
+    const material = obj.material
+    if (typeof material !== 'undefined') {
+      material.dithering = true
+      if (obj.material?.userData && obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
+    }
+  }
+
+  const groupReactorSystem = defineQueryReactorSystem(world, 'XRE_GroupSystem', [GroupComponent], function (props) {
+    const entity = props.root.entity
+
+    const visibleComponent = useOptionalComponent(entity, VisibleComponent)
+    const groupComponent = useOptionalComponent(entity, GroupComponent)
+    const _groupLength = useHookstate(0)
+    const _groups = useHookstate([] as Object3DWithEntity[])
+
+    useEffect(() => {
+      _groupLength.set(groupComponent?.length ?? 0)
+    }, [groupComponent?.length])
+
+    useEffect(() => {
+      const length = groupComponent?.value?.length ?? 0
+      const addedGroup = length > _groups.value.length
+      const removedGroup = length < _groups.value.length
+
+      if (addedGroup && groupComponent?.value) {
+        for (const group of groupComponent.value) {
+          if (!_groups.value.includes(group)) {
+            addedToGroup(group)
+          }
         }
       }
-    }
-    reactorSystem.execute()
 
-    if (isClient) for (const entity of sceneObjectQuery()) updateObject(entity)
+      if (removedGroup) {
+        const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
+        for (const obj of _groups.value) {
+          if (!groupComponent?.value.includes(obj)) {
+            for (const layer of layers) {
+              if (layer.has(obj)) layer.delete(obj)
+            }
+          }
+        }
+      }
+
+      groupComponent?.value ? _groups.set([...groupComponent.value]) : _groups.set([])
+    }, [_groupLength])
+
+    useEffect(() => {
+      if (groupComponent?.value) for (const obj of groupComponent.value) obj.visible = !!visibleComponent?.value
+    }, [visibleComponent, _groupLength])
+
+    return null
+  })
+
+  const execute = () => {
+    groupReactorSystem.execute()
+    reactorSystem.execute()
 
     const delta = getState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
@@ -178,8 +158,9 @@ export default async function SceneObjectSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, sceneObjectQuery)
+    removeQuery(world, groupQuery)
     removeQuery(world, updatableQuery)
+    groupReactorSystem.cleanup()
     reactorSystem.cleanup()
   }
 

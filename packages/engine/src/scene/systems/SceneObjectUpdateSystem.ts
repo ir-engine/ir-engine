@@ -398,7 +398,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   })
 
   const cameraQuery = defineQuery([CameraComponent])
-  const obj3dQuery = defineQuery([GroupComponent])
   const shadowQuery = defineQuery([GroupComponent, ShadowComponent])
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
@@ -417,9 +416,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   const execute = () => {
-    for (const entity of obj3dQuery())
-      for (const obj of getComponent(entity, GroupComponent)) obj.visible = hasComponent(entity, VisibleComponent)
-
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ShadowComponent) && hasComponent(entity, GroupComponent)) updateShadow(entity)
@@ -573,7 +569,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
 
     removeQuery(world, cameraQuery)
-    removeQuery(world, obj3dQuery)
     removeQuery(world, shadowQuery)
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)

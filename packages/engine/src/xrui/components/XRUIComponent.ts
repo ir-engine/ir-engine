@@ -1,10 +1,28 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { XRUIManager } from '../classes/XRUIManager'
 
-export type XRUIComponentType = {
-  state: any
-  container: WebContainer3D
-}
+export const XRUIComponent = defineComponent({
+  name: 'XRUIComponent',
 
-export const XRUIComponent = createMappedComponent<XRUIComponentType>('XRUIComponent')
+  onInit: (entity) => {
+    return null! as WebContainer3D
+  },
+
+  onSet: (entity, component, json: WebContainer3D) => {
+    if (typeof json !== 'undefined') component.set(json)
+  },
+
+  onCreate: (entity, component) => {
+    component.value.interactionRays = XRUIManager.instance.interactionRays
+  },
+
+  toJSON: (entity, component) => {
+    return undefined as any as WebContainer3D
+  },
+
+  onRemove: (entity, component) => {
+    component.value.destroy()
+  }
+})

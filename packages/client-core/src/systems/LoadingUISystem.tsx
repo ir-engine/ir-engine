@@ -95,19 +95,19 @@ export default async function LoadingUISystem(world: World) {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
     const distance = 0.1
-    const ppu = xrui.container.options.manager.pixelsPerMeter
+    const ppu = xrui.options.manager.pixelsPerMeter
     const contentWidth = ui.state.imageWidth.value / ppu
     const contentHeight = ui.state.imageHeight.value / ppu
 
     const loadingState = getState(LoadingSystemState).loadingScreenOpacity
 
     const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
-    ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
+    ObjectFitFunctions.attachObjectInFrontOfCamera(xrui, scale, distance)
     transition.update(world.deltaSeconds, (opacity) => {
       if (opacity !== loadingState.value) loadingState.set(opacity)
       mesh.material.opacity = opacity
       mesh.visible = opacity > 0
-      xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+      xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
         const mat = layer.contentMesh.material as MeshBasicMaterial
         mat.opacity = opacity
         mat.visible = opacity > 0

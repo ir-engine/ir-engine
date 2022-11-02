@@ -26,7 +26,6 @@ import { EnvmapComponent } from '../../components/EnvmapComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../../constants/Util'
-import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { EnvMapBakeTypes } from '../../types/EnvMapBakeTypes'
 import { addError, removeError } from '../ErrorFunctions'
 
@@ -135,17 +134,17 @@ export const updateEnvMap = async (entity: Entity) => {
       break
   }
 
-  if (SceneOptions.instance.envMapIntensity !== component.envMapIntensity) {
-    obj3d.traverse((obj: Mesh) => {
-      if (!obj.material) return
+  // if (SceneOptions.instance.envMapIntensity !== component.envMapIntensity) {
+  obj3d.traverse((obj: Mesh) => {
+    if (!obj.material) return
 
-      if (Array.isArray(obj.material)) {
-        obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = component.envMapIntensity))
-      } else {
-        ;(obj.material as MeshStandardMaterial).envMapIntensity = component.envMapIntensity
-      }
-    })
-  }
+    if (Array.isArray(obj.material)) {
+      obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = component.envMapIntensity))
+    } else {
+      ;(obj.material as MeshStandardMaterial).envMapIntensity = component.envMapIntensity
+    }
+  })
+  // }
 }
 
 export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
