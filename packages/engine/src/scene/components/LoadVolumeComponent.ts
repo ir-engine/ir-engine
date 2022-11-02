@@ -1,13 +1,19 @@
 import { subscribable } from '@hookstate/subscribable'
+import { useEffect } from 'react'
 
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { defineComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  useOptionalComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { hookstate, State, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode, removeEntityNodeFromParent } from '../../ecs/functions/EntityTree'
 import { serializeEntity } from '../functions/serializeWorld'
 import { updateSceneEntity } from '../systems/SceneLoadingSystem'
@@ -25,20 +31,12 @@ export type LoadVolumeComponentType = {
 
 export const LoadVolumeComponent = defineComponent({
   name: 'EE_load_volume',
-  onAdd: (entity) => {
-    const state = hookstate(
-      {
-        targets: new Map()
-      } as LoadVolumeComponentType,
-      subscribable()
-    )
-    return state as typeof state & StateMethodsDestroy
+  onInit: (entity) => ({ targets: new Map() } as LoadVolumeComponentType),
+  toJSON: (entity, component) => {
+    return component.value
   },
-  toJSON: (entity, component: State<LoadVolumeComponentType>) => {
-    const loadVol = component.value
-    return { ...loadVol }
-  },
-  onUpdate: (entity, component, json) => {
+  onSet: (entity, component, json) => {
+    if (!json) return
     const world = Engine.instance.currentWorld
     const uuidMap = world.entitiesByUuid.value
     const nodeMap = world.entityTree.entityNodeMap
@@ -78,7 +76,7 @@ export const LoadVolumeComponent = defineComponent({
         const entityJson: EntityJson = { name: uuid, parent: parentNode.uuid, components: componentJson }
         return { uuid, loaded: false, entityJson }
       })
-      component.targets.set(new Map(nuTargets.map((target) => [target.uuid, target] as [string, LoadVolumeTarget])))
+      component.targets.set(new Map(nuTargets.map((target) => [target.uuid, target] as [EntityUUID, LoadVolumeTarget])))
     }
 
     if (hasComponent(entity, CallbackComponent)) {
