@@ -15,6 +15,7 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 import { ArrowBack, Check } from '@mui/icons-material'
 import CircularProgress from '@mui/material/CircularProgress'
 
+import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
@@ -67,8 +68,11 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   const handleMessageEvent = async (event, entity) => {
     const url = event.data
 
+    const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
+
     if (url && url.toString().toLowerCase().startsWith('http')) {
       setAvatarUrl(url)
+      setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
       try {
         const assetType = AssetLoader.getAssetType(url)
         if (assetType) {
@@ -112,7 +116,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     const newContext = canvas.getContext('2d')
     newContext?.drawImage(renderer.domElement, 0, 0)
 
-    var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
+    const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
       setShowLoading(true)

@@ -29,6 +29,7 @@ export type AvatarUploadArguments = {
   avatarName: string
   isPublic: boolean
   avatarFileType?: string
+  avatarId?: string
 }
 
 // todo: move this somewhere else
@@ -106,6 +107,15 @@ export const uploadAvatarStaticResource = async (
   const [modelResource, thumbnailResource] = await Promise.all([modelPromise, thumbnailPromise])
 
   logger.info('Successfully uploaded avatar %o %o', modelResource, thumbnailResource)
+
+  if (data.avatarId) {
+    try {
+      await app.service('avatar').patch(data.avatarId, {
+        modelResourceId: modelResource.id,
+        thumbnailResourceId: thumbnailResource.id
+      })
+    } catch (err) {}
+  }
 
   return [modelResource, thumbnailResource]
 }

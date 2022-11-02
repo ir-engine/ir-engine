@@ -1,6 +1,7 @@
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -44,6 +45,11 @@ const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
+  if (!avatarURL)
+    return NotificationService.dispatchNotify(
+      'Your avatar is missing a a model. Please change your avatar from the user menu.',
+      { variant: 'error' }
+    )
   const model = await AssetLoader.loadAsync(avatarURL)
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
@@ -91,7 +97,7 @@ export const loadAvatarForUser = async (
 
   removeComponent(entity, AvatarPendingComponent)
 
-  setupAvatarForUser(entity, parent)
+  if (parent) setupAvatarForUser(entity, parent)
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
