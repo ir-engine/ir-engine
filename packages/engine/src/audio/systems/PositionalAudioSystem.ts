@@ -109,7 +109,7 @@ export default async function PositionalAudioSystem(world: World) {
     for (const entity of positionalAudioQuery.enter()) {
       const el = getComponent(entity, MediaElementComponent).element
       const audioGroup = AudioNodeGroups.get(el)
-      if (audioGroup) addPannerNode(audioGroup, getComponent(entity, PositionalAudioComponent).value)
+      if (audioGroup) addPannerNode(audioGroup, getComponent(entity, PositionalAudioComponent))
     }
 
     for (const entity of positionalAudioQuery.exit()) {
@@ -203,7 +203,7 @@ export default async function PositionalAudioSystem(world: World) {
       const { position, rotation } = getComponent(entity, TransformComponent)
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
       const audioObject = AudioNodeGroups.get(element)!
-      audioObject.panner && updateAudioPanner(audioObject.panner, position, rotation, endTime, positionalAudio.value)
+      audioObject.panner && updateAudioPanner(audioObject.panner, position, rotation, endTime, positionalAudio)
     }
 
     /** @todo, only apply this to closest 8 (configurable) avatars */

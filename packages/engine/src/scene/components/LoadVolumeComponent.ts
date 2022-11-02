@@ -1,8 +1,9 @@
 import { subscribable } from '@hookstate/subscribable'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { defineComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
+import { hookstate, State, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -13,13 +14,13 @@ import { updateSceneEntity } from '../systems/SceneLoadingSystem'
 import { CallbackComponent, setCallback } from './CallbackComponent'
 
 export type LoadVolumeTarget = {
-  uuid: string
+  uuid: EntityUUID
   entityJson: EntityJson
   loaded: boolean
 }
 
 export type LoadVolumeComponentType = {
-  targets: Map<string, LoadVolumeTarget>
+  targets: Map<EntityUUID, LoadVolumeTarget>
 }
 
 export const LoadVolumeComponent = defineComponent({
@@ -33,13 +34,13 @@ export const LoadVolumeComponent = defineComponent({
     )
     return state as typeof state & StateMethodsDestroy
   },
-  toJSON: (entity, component) => {
+  toJSON: (entity, component: State<LoadVolumeComponentType>) => {
     const loadVol = component.value
     return { ...loadVol }
   },
   onUpdate: (entity, component, json) => {
     const world = Engine.instance.currentWorld
-    const uuidMap = world.entityTree.uuidNodeMap
+    const uuidMap = world.entitiesByUuid.value
     const nodeMap = world.entityTree.entityNodeMap
 
     if (json.targets instanceof Map<string, LoadVolumeTarget>) {
@@ -63,7 +64,7 @@ export const LoadVolumeComponent = defineComponent({
         let targetEntity: Entity
         let clearChildren = () => removeEntity(targetEntity)
 
-        const targetNode = uuidMap.get(uuid)!
+        const targetNode = nodeMap.get(uuidMap[uuid])!
         const parentNode = nodeMap.get(targetNode.parentEntity!)!
         targetEntity = targetNode.entity
         clearChildren = () =>

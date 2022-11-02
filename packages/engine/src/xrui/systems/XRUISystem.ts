@@ -5,7 +5,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -117,7 +117,7 @@ export default async function XRUISystem(world: World) {
   document.body.addEventListener('dblclick', redirectDOMEvent)
 
   const execute = () => {
-    const input = getComponent(world.localClientEntity, InputComponent)
+    const input = getOptionalComponent(world.localClientEntity, InputComponent)
 
     for (const entity of xruiQuery.enter()) {
       const layer = getComponent(entity, XRUIComponent).container

@@ -3,7 +3,6 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'

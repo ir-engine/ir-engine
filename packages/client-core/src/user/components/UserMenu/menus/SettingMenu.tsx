@@ -14,7 +14,7 @@ import {
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
@@ -80,13 +80,16 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.user_setting.value
 
+  const world = Engine.instance.currentWorld
+  // const avatar = useComponent(world.localClientEntity, AvatarComponent)
+
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
 
-  const showWorldSettings = Engine.instance.currentWorld.localClientEntity || Engine.instance.isEditor
+  const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
 
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && !hasAdminAccess) {
@@ -124,23 +127,21 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     )
   }
 
-  const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
-  }
+  // const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
+  // }
 
-  useEffect(() => {
-    const world = Engine.instance.currentWorld
-    const entity = world.localClientEntity
-    const avatar = getComponent(entity, AvatarComponent)
-    if (!avatar) return
-    if (showAvatar) {
-      if (avatar.modelContainer.visible) return
-      avatar.modelContainer.visible = showAvatar
-    } else {
-      if (!avatar.modelContainer.visible) return
-      avatar.modelContainer.visible = showAvatar
-    }
-  }, [showAvatar])
+  // useEffect(() => {
+  //   if (!avatar) return
+
+  //   if (showAvatar) {
+  //     if (avatar.modelContainer.visible) return
+  //     avatar.modelContainer.visible = showAvatar
+  //   } else {
+  //     if (!avatar.modelContainer.visible) return
+  //     avatar.modelContainer.visible = showAvatar
+  //   }
+  // }, [showAvatar, avatar])
 
   useLayoutEffect(() => {
     if (firstRender.current) {

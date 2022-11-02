@@ -24,7 +24,7 @@ export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
   schema: SCHEMA,
 
-  onAdd(entity) {
+  onInit(entity) {
     return {
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
@@ -38,16 +38,14 @@ export const RigidBodyComponent = defineComponent({
     }
   },
 
-  onUpdate: (entity, component, json: { body: RigidBody }) => {
-    if (!json?.body) throw new Error('RigidBodyComponent expects a RigidBody instance')
-    component.body = json.body
-    component.previousPosition.copy(component.body.translation() as Vector3)
-    component.previousRotation.copy(component.body.rotation() as Quaternion)
+  onSet: (entity, component, json: { body: RigidBody }) => {
+    if (typeof json.body === 'object') component.body.set(json.body as RigidBody)
+    else throw new Error('RigidBodyComponent expects a RigidBody instance')
   },
 
   onRemove: (entity, component) => {
     const world = Engine.instance.currentWorld.physicsWorld
-    const rigidBody = component.body
+    const rigidBody = component.body.value
     if (rigidBody) {
       const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
       if (world.bodies.contains(rigidBody.handle)) {

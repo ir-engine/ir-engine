@@ -12,7 +12,7 @@ import {
   hasComponent,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeNode, getEntityTreeNodeByUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import {
@@ -21,6 +21,7 @@ import {
 } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Close } from '@mui/icons-material'
 import AddIcon from '@mui/icons-material/Add'
@@ -30,7 +31,7 @@ import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useEditorState } from '../../services/EditorServices'
-import { useSelectionState } from '../../services/SelectionServices'
+import { SelectionAction, useSelectionState } from '../../services/SelectionServices'
 import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -96,8 +97,6 @@ export const PropertiesPanelContainer = () => {
   const selectedEntities = selectionState.selectedEntities.value
   const { t } = useTranslation()
 
-  const [isMenuOpen, setMenuOpen] = useState(false)
-
   const forceUpdate = useForceUpdate()
 
   // force react to re-render upon any object changing
@@ -137,7 +136,7 @@ export const PropertiesPanelContainer = () => {
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
   let nodeEntity = lockedNode
-    ? world.entityTree.uuidNodeMap.get(lockedNode)?.entity ?? lockedNode
+    ? getEntityTreeNodeByUUID(lockedNode)?.entity ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
   const isMaterial =
     typeof nodeEntity === 'string' &&
@@ -168,8 +167,7 @@ export const PropertiesPanelContainer = () => {
   } else {
     nodeEntity = nodeEntity as Entity
     const components = getAllComponents(nodeEntity as Entity).filter((c) => EntityNodeEditor.has(c))
-    // todo - still WIP
-    // const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry.entries())
+    const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry.entries())
 
     content = (
       <StyledNodeEditor>
@@ -192,30 +190,26 @@ export const PropertiesPanelContainer = () => {
           </NameInputGroupContainer>
         </PropertiesHeader>
         {/** @todo this is the add component menu - still a work in progress */}
-        {/* {typeof nodeEntity === 'number' && <div style={{ pointerEvents: 'auto' }}>
-          <MainMenu
-            icon={isMenuOpen ? Close : AddIcon}
-            isMenuOpen={isMenuOpen}
-            setMenuOpen={setMenuOpen}
-            commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
-              name: component._name,
-              action: () => {
-                const [sceneComponentID] = registeredComponents.find(([_, prefab]) => prefab === component._name)!
-                const sceneComponent = Engine.instance.currentWorld.sceneLoadingRegistry.get(sceneComponentID)!
-                if (!sceneComponentID)
-                  return console.warn('[ SceneLoading] could not find component name', sceneComponentID)
-                if (!ComponentMap.get(sceneComponentID))
-                  return console.warn('[ SceneLoading] could not find component', sceneComponentID)
-                const isTagComponent = !sceneComponent.defaultData
-                setComponent(
-                  nodeEntity,
-                  ComponentMap.get(sceneComponentID),
-                  isTagComponent ? true : { ...sceneComponent.defaultData }
-                )
-              }
-            }))}
-          />
-        </div>} */}
+        {editorState.advancedMode.value && typeof nodeEntity === 'number' && (
+          <div style={{ pointerEvents: 'auto' }}>
+            <MainMenu
+              icon={AddIcon}
+              commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
+                name: component.name,
+                action: () => {
+                  const comp = registeredComponents.find(([comp, prefab]) => comp === component.name)!
+                  if (!comp) return console.warn('could not find component name', component.name)
+                  const [sceneComponentID] = comp
+                  if (!sceneComponentID) return console.warn('could not find component name', sceneComponentID)
+                  if (!ComponentMap.get(sceneComponentID))
+                    return console.warn('could not find component', sceneComponentID)
+                  setComponent(nodeEntity as Entity, ComponentMap.get(sceneComponentID)!)
+                  dispatchAction(SelectionAction.forceUpdate({}))
+                }
+              }))}
+            />
+          </div>
+        )}
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
           // nodeEntity is used as key here to signal to React when the entity has changed,

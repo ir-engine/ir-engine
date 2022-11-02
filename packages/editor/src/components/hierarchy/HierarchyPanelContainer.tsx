@@ -146,8 +146,7 @@ export default function HierarchyPanel({
     const condition = new RegExp(searchHierarchy.toLowerCase())
     nodes.forEach((node) => {
       if (
-        (node.entityNode &&
-          condition.test(getComponent(node.entityNode.entity, NameComponent)?.name?.toLowerCase() ?? '')) ||
+        (node.entityNode && condition.test(getComponent(node.entityNode.entity, NameComponent)?.toLowerCase() ?? '')) ||
         (node.obj3d && condition.test(node.obj3d.name?.toLowerCase() ?? ''))
       )
         nodeSearch.push(node)
@@ -404,7 +403,7 @@ export default function HierarchyPanel({
 
     if (node.entityNode) {
       const entity = node.entityNode.entity
-      setRenamingNode({ entity, name: getComponent(entity, NameComponent).name })
+      setRenamingNode({ entity, name: getComponent(entity, NameComponent) })
     } else {
       // todo
     }
@@ -420,7 +419,7 @@ export default function HierarchyPanel({
       setPropertyOnEntityNode({
         affectedNodes: [node.entityNode ?? node.obj3d],
         component: NameComponent,
-        properties: [{ name }]
+        properties: [name]
       })
 
       const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value

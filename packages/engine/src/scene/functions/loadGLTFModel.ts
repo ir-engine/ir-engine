@@ -1,5 +1,7 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -81,7 +83,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
 }
 
 export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
-  const scene = object3d ?? getComponent(entity, ModelComponent).scene.value
+  const scene = object3d ?? getComponent(entity, ModelComponent).scene
   const meshesToProcess: Mesh[] = []
 
   if (!scene) return
@@ -101,7 +103,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
 
-    const node = createEntityNode(e, mesh.uuid)
+    const node = createEntityNode(e, mesh.uuid as EntityUUID)
     addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
     addComponent(e, NameComponent, {
@@ -114,18 +116,18 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     // setTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
     setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
     addObjectToGroup(e, mesh)
-    addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent._name])
+    addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
     createObjectEntityFromGLTF(e, mesh)
   }
 }
 
 export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
-  if (!model.scene.value) return
-  const scene = model.scene.value
+  if (!model.scene) return
+  const scene = model.scene
   scene.updateMatrixWorld(true)
   scene.traverse((child) => {
-    child.matrixAutoUpdate = model.matrixAutoUpdate.value
+    child.matrixAutoUpdate = model.matrixAutoUpdate
   })
 
   // always parse components first

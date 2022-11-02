@@ -2,7 +2,7 @@ import assert, { strictEqual } from 'assert'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
   createViewCursor,
@@ -47,30 +47,30 @@ describe('ViewCursor read/write', () => {
     it('should writeProp', () => {
       const view = createViewCursor()
       const prop = new Float32Array(1)
-      const entity = 0 as Entity
+      const entity = UndefinedEntity
       const val = 1.5
       prop[entity] = val
-      writeProp(view, prop, 0 as Entity)
+      writeProp(view, prop, UndefinedEntity)
       strictEqual(view.getFloat32(0), val)
     })
 
     it('should writePropIfChanged', () => {
       const view = createViewCursor()
       const prop = new Float32Array(1)
-      const entity = 0 as Entity
+      const entity = UndefinedEntity
       const val = 1.5
 
       prop[entity] = val
 
-      writePropIfChanged(view, prop, 0 as Entity)
+      writePropIfChanged(view, prop, UndefinedEntity)
       strictEqual(view.getFloat32(0), val)
 
-      writePropIfChanged(view, prop, 0 as Entity)
+      writePropIfChanged(view, prop, UndefinedEntity)
       strictEqual(view.getFloat32(4), 0)
 
       prop[entity]++
 
-      writePropIfChanged(view, prop, 0 as Entity)
+      writePropIfChanged(view, prop, UndefinedEntity)
       strictEqual(view.getFloat32(4), val + 1)
     })
 

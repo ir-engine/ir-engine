@@ -1,6 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { getEntityTreeNodeByUUID } from '../../ecs/functions/EntityTree'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
 import { CallbackComponent } from '../components/CallbackComponent'
@@ -9,10 +10,10 @@ import { ColliderComponent } from '../components/ColliderComponent'
 export const triggerEnter = (world: World, entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!triggerComponent?.onEnter) return
-  if (triggerComponent.target && !world.entityTree.uuidNodeMap.has(triggerComponent.target)) return
+  if (triggerComponent.target && !getEntityTreeNodeByUUID(triggerComponent.target)) return
 
   const targetEntity = triggerComponent.target
-    ? world.entityTree.uuidNodeMap.get(triggerComponent.target)!.entity
+    ? getEntityTreeNodeByUUID(triggerComponent.target)!.entity
     : triggerEntity
 
   if (targetEntity) {
@@ -24,10 +25,10 @@ export const triggerEnter = (world: World, entity: Entity, triggerEntity: Entity
 export const triggerExit = (world: World, entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!triggerComponent?.onExit) return
-  if (triggerComponent.target && !world.entityTree.uuidNodeMap.has(triggerComponent.target)) return
+  if (triggerComponent.target && !getEntityTreeNodeByUUID(triggerComponent.target)) return
 
   const targetEntity = triggerComponent.target
-    ? world.entityTree.uuidNodeMap.get(triggerComponent.target)!.entity
+    ? getEntityTreeNodeByUUID(triggerComponent.target)!.entity
     : triggerEntity
 
   if (targetEntity) {

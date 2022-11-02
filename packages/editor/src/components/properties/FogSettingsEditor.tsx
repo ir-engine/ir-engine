@@ -44,7 +44,11 @@ export const FogSettingsEditor = () => {
   return (
     <PropertyGroup name={t('editor:properties.fog.name')} description={t('editor:properties.fog.description')}>
       <InputGroup name="Fog Type" label={t('editor:properties.fog.lbl-fogType')}>
-        <SelectInput options={FogTypeOptions} value={settings.type} onChange={(val) => sceneMetadata.type.set(val)} />
+        <SelectInput
+          options={FogTypeOptions}
+          value={settings.type}
+          onChange={(val: FogType) => sceneMetadata.type.set(val)}
+        />
       </InputGroup>
       {settings.type !== FogType.Disabled && (
         <>

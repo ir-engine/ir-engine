@@ -1,6 +1,7 @@
 import { range } from 'lodash'
 import React from 'react'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { Button } from '@xrengine/editor/src/components/inputs/Button'
 import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
 import { SceneObjectInput } from '@xrengine/editor/src/components/inputs/SceneObjectInput'
@@ -19,32 +20,32 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
   const targets = loadVolumeComponent.targets
   function onEditTargets(index) {
     return (value) => {
-      const nuTargets = [...targets.value.values()].map(({ uuid, entityJson, loaded }, i) => {
+      const nuTargets = [...targets.values()].map(({ uuid, entityJson, loaded }, i) => {
         if (i !== index) return [uuid, { uuid, entityJson, loaded }]
         return [value, { uuid: value }]
-      }) as [string, LoadVolumeTarget][]
-      targets.set(new Map(nuTargets))
+      }) as [EntityUUID, LoadVolumeTarget][]
+      loadVolumeComponent.targets = new Map(nuTargets)
     }
   }
 
   function onAddTarget() {
     return () => {
-      const nuTargets = [...targets.value.entries(), ['', {}] as [string, LoadVolumeTarget]]
-      targets.set(new Map(nuTargets))
+      const nuTargets = [...targets.entries(), ['', {}] as [EntityUUID, LoadVolumeTarget]]
+      loadVolumeComponent.targets = new Map(nuTargets)
     }
   }
 
   function onRemoveTarget(index) {
     return () => {
-      const nuTargets = [...targets.value.entries()].filter((_, i) => i !== index)
-      targets.set(new Map(nuTargets))
+      const nuTargets = [...targets.entries()].filter((_, i) => i !== index)
+      loadVolumeComponent.targets = new Map(nuTargets)
     }
   }
 
   return (
     <NodeEditor description={'Description'} {...props}>
       <PaginatedList
-        list={range(0, targets.size.value)}
+        list={range(0, targets.size)}
         element={(i) => {
           const { uuid } = targets[i]
           return (

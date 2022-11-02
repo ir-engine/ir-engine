@@ -1,8 +1,13 @@
 /** Functions to provide system level functionalities. */
+
+import * as bitECS from 'bitecs'
+
 import multiLogger from '@xrengine/common/src/logger'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
+import { defineComponent, defineQuery, removeComponent, removeQuery, setComponent } from './ComponentFunctions'
+import { EntityReactorProps } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
@@ -205,4 +210,22 @@ export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
       pipeline.splice(i, 1)
     })
   })
+}
+
+export const defineQueryReactorSystem = (
+  world: World,
+  name: string,
+  components: (bitECS.Component | bitECS.QueryModifier)[],
+  reactor: React.FC<EntityReactorProps>
+): SystemDefintion => {
+  const query = defineQuery(components)
+  const C = defineComponent({ name, reactor })
+  const execute = () => {
+    for (const entity of query.enter()) setComponent(entity, C)
+    for (const entity of query.exit()) removeComponent(entity, C)
+  }
+  const cleanup = async () => {
+    removeQuery(world, query)
+  }
+  return { execute, cleanup }
 }

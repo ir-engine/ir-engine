@@ -22,6 +22,7 @@ describe('moveAvatar function tests', () => {
     createEngine()
     await Physics.load()
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.userId = 'userId' as UserId
   })
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {

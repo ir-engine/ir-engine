@@ -20,10 +20,10 @@ import checkPositionIsValid from '../common/functions/checkPositionIsValid'
 import { easeOutCubic, normalizeRange } from '../common/functions/MathFunctions'
 import { EngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
-import { setNameComponent } from '../scene/components/NameComponent'
+import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from '../xr/XRState'
@@ -107,7 +107,7 @@ export default async function AvatarTeleportSystem(world: World) {
   const guidelineEntity = createEntity()
   setTransformComponent(guidelineEntity)
   addObjectToGroup(guidelineEntity, guideline)
-  setNameComponent(guidelineEntity, 'Teleport Guideline')
+  setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
   const guidelineTransform = getComponent(guidelineEntity, TransformComponent)
 
   // The guide cursor at the end of the line
@@ -121,7 +121,7 @@ export default async function AvatarTeleportSystem(world: World) {
   const guideCursorEntity = createEntity()
   setTransformComponent(guideCursorEntity)
   addObjectToGroup(guideCursorEntity, guideCursor)
-  setNameComponent(guideCursorEntity, 'Teleport Guideline Cursor')
+  setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
 
   const transition = createTransitionState(0.5)
 

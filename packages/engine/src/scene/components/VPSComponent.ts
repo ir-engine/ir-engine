@@ -5,7 +5,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const VPSComponent = defineComponent({
   name: 'VPSComponent',
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return null!
   },
 
@@ -15,4 +15,3 @@ export const VPSComponent = defineComponent({
 })
 
 export const SCENE_COMPONENT_SYSTEM = 'vps'
-export const SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES = {}

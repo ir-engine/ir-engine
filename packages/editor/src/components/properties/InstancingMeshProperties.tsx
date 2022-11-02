@@ -32,7 +32,7 @@ export default function InstancingMeshProperties({ value, onChange, ...rest }) {
   )
     .filter((x) => x !== null)
     .map((node) => {
-      return { label: getComponent(node!.entity, NameComponent)?.name, value: node!.uuid }
+      return { label: getComponent(node!.entity, NameComponent), value: node!.uuid }
     })
 
   function updateProp(prop: keyof MeshProperties) {
@@ -46,7 +46,6 @@ export default function InstancingMeshProperties({ value, onChange, ...rest }) {
     <CollapsibleBlock label={t('editor:properties.instancing.mesh.properties')}>
       <InputGroup name="Instanced Mesh" label={t('editor:properties.instancing.mesh.instancedMesh')}>
         <SelectInput
-          error={t('editor:properties.instancing.mesh.error-instancedMesh')}
           placeholder={t('editor:properties.instancing.mesh.placeholder-instancedMesh')}
           value={props.instancedMesh}
           onChange={updateProp('instancedMesh')}

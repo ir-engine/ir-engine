@@ -26,7 +26,7 @@ import {
 import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export default async function ScatterSystem(world: World) {
-  world.sceneComponentRegistry.set(InstancingComponent._name, SCENE_COMPONENT_INSTANCING)
+  world.sceneComponentRegistry.set(InstancingComponent.name, SCENE_COMPONENT_INSTANCING)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
     deserialize: deserializeInstancing,
     serialize: serializeInstancing
@@ -71,7 +71,7 @@ export default async function ScatterSystem(world: World) {
   }
 
   const cleanup = async () => {
-    world.sceneComponentRegistry.delete(InstancingComponent._name)
+    world.sceneComponentRegistry.delete(InstancingComponent.name)
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_INSTANCING)
     world.scenePrefabRegistry.delete(ScenePrefabs.instancing)
 
