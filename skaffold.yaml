@@ -1,0 +1,42 @@
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: xrengine
+build:
+  artifacts:
+    - image: root-builder
+      context: .
+      docker:
+        dockerfile: dockerfiles/package-root/Dockerfile-root
+    - image: xrengine
+      context: .
+      docker:
+        dockerfile: Dockerfile
+        buildArgs:
+          NODE_ENV: 'development'
+          MYSQL_HOST: 'host.minikube.internal'
+          MYSQL_PORT: '3304'
+          MYSQL_PASSWORD: 'password'
+          MYSQL_USER: 'server'
+          MYSQL_DATABASE: 'xrengine'
+          VITE_CLIENT_HOST: 'local.theoverlay.io'
+          VITE_SERVER_HOST: 'api-local.theoverlay.io'
+          VITE_FILE_SERVER: 'https://localhost:8642'
+          VITE_MEDIATOR_SERVER: 'https://authn.io'
+          VITE_INSTANCESERVER_HOST: 'instanceserver-local.theoverlay.io'
+          VITE_READY_PLAYER_ME_URL: 'https://xre.readyplayer.me'
+          VITE_DISABLE_LOG: 'false'
+          VITE_8TH_WALL: 'null'
+          VITE_LOGIN_WITH_WALLET: 'false'
+deploy:
+  helm:
+    flags:
+      upgrade:
+        - --reuse-values
+        - --debug
+    releases:
+      - name: local
+        chartPath: packages/ops/xrengine
+        valuesFiles:
+          - packages/ops/values/xrengine.values.yaml
+        version: 4.3.0
