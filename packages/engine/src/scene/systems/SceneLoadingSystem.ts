@@ -12,12 +12,14 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
+  addComponent,
   ComponentMap,
   defineQuery,
   getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  removeAllComponents,
   removeComponent,
   removeQuery,
   setComponent

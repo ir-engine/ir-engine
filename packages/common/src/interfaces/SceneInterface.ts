@@ -6,7 +6,7 @@ export interface ComponentJson<T extends any = any> {
   props: T
 }
 export interface EntityJson {
-  name: string
+  name: EntityUUID | string
   components: Array<ComponentJson>
   parent?: EntityUUID
   index?: number
