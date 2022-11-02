@@ -27,7 +27,6 @@ import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 
-const EPSILON = 1e-6
 const _vec = new Vector3()
 
 export function avatarDetailsReceptor(
@@ -165,16 +164,6 @@ export default async function AvatarSystem(world: World) {
       }
 
       // removeComponent(entity, AvatarArmsTwistCorrectionComponent)
-    }
-
-    for (const entity of headDecapQuery(world)) {
-      const rig = getComponent(entity, AvatarRigComponent).rig
-      rig.Head?.scale.setScalar(EPSILON)
-    }
-
-    for (const entity of headDecapQuery.exit(world)) {
-      const rig = getComponent(entity, AvatarRigComponent, true).rig
-      rig?.Head?.scale.setScalar(1)
     }
   }
 

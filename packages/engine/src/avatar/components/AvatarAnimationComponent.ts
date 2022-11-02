@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationGraph } from '../animation/AnimationGraph'
 import { BoneStructure } from '../AvatarBoneMatching'
 
@@ -17,12 +17,36 @@ export type AvatarAnimationComponentType = {
 
 export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')
 
-export type AvatarRigComponentType = {
-  /** Holds all the bones */
-  rig: BoneStructure
+const EPSILON = 1e-6
 
-  /** Read-only bones in bind pose */
-  bindRig: BoneStructure
-}
+export const AvatarRigComponent = defineComponent({
+  name: 'AvatarRigComponent',
 
-export const AvatarRigComponent = createMappedComponent<AvatarRigComponentType>('AvatarRigComponent')
+  onInit: (entity) => {
+    return {
+      /** Holds all the bones */
+      rig: null! as BoneStructure,
+      /** Read-only bones in bind pose */
+      bindRig: null! as BoneStructure
+    }
+  },
+
+  onSet: (
+    entity,
+    component,
+    json: {
+      rig: BoneStructure
+      bindRig: BoneStructure
+    }
+  ) => {
+    if (typeof json?.rig === 'object') {
+      component.rig.set(json.rig)
+      json.rig.Head?.scale.setScalar(EPSILON)
+    }
+    if (typeof json?.bindRig === 'object') component.bindRig.set(json.bindRig)
+  },
+
+  onRemove: (entity, component) => {
+    component.value.rig?.Head?.scale.setScalar(1)
+  }
+})

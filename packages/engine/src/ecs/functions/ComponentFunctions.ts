@@ -51,7 +51,6 @@ export interface ComponentPartial<
   onInit?: (entity: Entity, world: World) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
   onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
-  onCreate?: (entity: Entity, component: State<ComponentType>) => void
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
   reactor?: React.FC<EntityReactorProps>
   errors?: ErrorTypes[]
@@ -68,7 +67,6 @@ export interface Component<
   onInit: (entity: Entity, world: World) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
-  onCreate: (entity: Entity, component: State<ComponentType>) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: HookableFunction<React.FC<EntityReactorProps>>
   reactorRoots: Map<Entity, EntityReactorRoot>
@@ -97,9 +95,8 @@ export const defineComponent = <
     Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
-  Component.onCreate = (entity, component) => {}
   Component.onRemove = () => {}
-  Component.toJSON = (entity, component) => component.value as any
+  Component.toJSON = (entity, component) => null!
   Component.errors = []
   Object.assign(Component, def)
   Component.reactorRoots = new Map()
@@ -120,7 +117,8 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
     schema,
     onSet: (entity, component, json) => {
       Component.map[entity].set(json ?? true)
-    }
+    },
+    toJSON: (entity, component) => component.value as any
   })
   return Component
 }
@@ -188,8 +186,7 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(world, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  const componentExists = hasComponent(entity, Component)
-  if (!componentExists) {
+  if (!hasComponent(entity, Component)) {
     const c = Component.onInit(entity, world)
     Component.map[entity].set(c)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
@@ -201,7 +198,6 @@ export const setComponent = <C extends Component>(
   }
   startTransition(() => {
     Component.onSet(entity, Component.map[entity], args as Readonly<SerializedComponentType<C>>)
-    if (!componentExists) Component.onCreate(entity, Component.map[entity])
     const root = Component.reactorRoots.get(entity)
     if (!root?.isRunning) root?.run()
   })

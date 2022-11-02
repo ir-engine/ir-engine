@@ -11,15 +11,10 @@ export const XRUIComponent = defineComponent({
   },
 
   onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') component.set(json)
-  },
-
-  onCreate: (entity, component) => {
-    component.value.interactionRays = XRUIManager.instance.interactionRays
-  },
-
-  toJSON: (entity, component) => {
-    return undefined as any as WebContainer3D
+    if (typeof json !== 'undefined') {
+      component.set(json)
+      component.value.interactionRays = XRUIManager.instance.interactionRays
+    }
   },
 
   onRemove: (entity, component) => {
