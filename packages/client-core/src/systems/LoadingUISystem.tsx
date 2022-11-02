@@ -1,7 +1,9 @@
 import type { WebLayer3D } from '@etherealjs/web-layer/three'
+import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -13,8 +15,9 @@ import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectL
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, createReactor, getState, useHookstate } from '@xrengine/hyperflux'
 
+import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
 import { SceneActions } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
@@ -41,6 +44,22 @@ export default async function LoadingUISystem(world: World) {
   setObjectLayers(mesh, ObjectLayers.UI)
 
   const currentSceneChangedQueue = createActionQueue(SceneActions.currentSceneChanged.matches)
+  const avatarModelChangedQueue = createActionQueue(EngineActions.avatarModelChanged.matches)
+
+  const appLoadingState = getState(AppLoadingState)
+  const engineState = getState(EngineState)
+
+  const reactor = createReactor(() => {
+    const loadingState = useHookstate(appLoadingState)
+
+    useEffect(() => {
+      if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
+        transition.setState('IN')
+      }
+    }, [loadingState.state])
+
+    return null
+  })
 
   const execute = () => {
     for (const action of currentSceneChangedQueue()) {
@@ -52,6 +71,15 @@ export default async function LoadingUISystem(world: World) {
           mesh.visible = true
         })
       }
+    }
+
+    for (const action of avatarModelChangedQueue()) {
+      if (
+        action.entity === world.localClientEntity &&
+        appLoadingState.state.value === AppLoadingStates.SUCCESS &&
+        engineState.sceneLoaded.value
+      )
+        transition.setState('OUT')
     }
     if (transition.state === 'OUT' && transition.alpha === 0) return
 
@@ -80,7 +108,7 @@ export default async function LoadingUISystem(world: World) {
       mesh.material.opacity = opacity
       mesh.visible = opacity > 0
       xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-        const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+        const mat = layer.contentMesh.material as MeshBasicMaterial
         mat.opacity = opacity
         mat.visible = opacity > 0
         layer.visible = opacity > 0
@@ -92,6 +120,7 @@ export default async function LoadingUISystem(world: World) {
   const cleanup = async () => {
     removeEntity(ui.entity)
     mesh.removeFromParent()
+    reactor.stop()
   }
 
   return { execute, cleanup }

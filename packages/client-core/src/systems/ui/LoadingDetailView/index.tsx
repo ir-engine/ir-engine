@@ -41,8 +41,6 @@ function setDefaultPalette(colors) {
 }
 
 const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
-  const loadingSystemState = useHookstate(getState(LoadingSystemState))
-  const loadingState = useLoadingState()
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
@@ -84,15 +82,6 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
       img.onload = null
     }
   }, [sceneState.currentScene.ornull?.thumbnailUrl])
-
-  useHookEffect(() => {
-    if (loadingState.state.value === AppLoadingStates.SUCCESS) {
-      props.transition.setState('OUT')
-    }
-    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
-      props.transition.setState('IN')
-    }
-  }, [loadingState.state])
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value

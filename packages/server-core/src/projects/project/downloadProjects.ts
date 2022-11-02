@@ -62,8 +62,8 @@ export const download = async (projectName: string, storageProviderName?: string
       ])
     }
   } catch (e) {
-    logger.error(e, `[ProjectLoader]: Failed to download project with error: ${e.message}`)
-    return false
+    logger.error(e, `[ProjectLoader]: Failed to download project ${projectName} with error: ${e.message}`)
+    throw e
   }
 
   return true
