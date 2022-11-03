@@ -103,6 +103,9 @@ export default async function AvatarTeleportSystem(world: World) {
   lineGeometry.setAttribute('color', new BufferAttribute(lineGeometryColors, 3))
   const lineMaterial = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
   const guideline = new Line(lineGeometry, lineMaterial)
+  guideline.frustumCulled = false
+
+  let visibleSegments = 2
 
   const guidelineEntity = createEntity()
   setTransformComponent(guidelineEntity)
@@ -143,6 +146,7 @@ export default async function AvatarTeleportSystem(world: World) {
       }
     }
     for (const entity of avatarTeleportQuery.exit(world)) {
+      visibleSegments = 1
       transition.setState('OUT')
       if (canTeleport) {
         fadeBackInAccumulator = 0
@@ -172,7 +176,8 @@ export default async function AvatarTeleportSystem(world: World) {
       let lastValidationData: ReturnType<typeof checkPositionIsValid> = null!
       let guidelineBlocked = false
       let i = 0
-      for (i = 1; i <= lineSegments && !guidelineBlocked; i++) {
+      if (visibleSegments < lineSegments) visibleSegments += 8
+      for (i = 1; i <= visibleSegments && !guidelineBlocked; i++) {
         // set vertex to current position of the virtual ball at time t
         positionAtT(currentVertexWorld, (i * t) / lineSegments, p, v, gravity)
         currentVertexLocal.copy(currentVertexWorld)
