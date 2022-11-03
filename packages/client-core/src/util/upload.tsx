@@ -11,11 +11,10 @@ export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => vo
 /**
  * upload used to upload image as blob data.
  *
- * @param  {any}  blobs
+ * @param  {any}  service
  * @param  {any}  onUploadProgress
- * @param  {any}  signal
- * @param  {any}  projectId
- * @param  {string}  fileIdentifier
+ * @param  {any}  files
+ * @param  {any}  params
  * @return {Promise}
  */
 

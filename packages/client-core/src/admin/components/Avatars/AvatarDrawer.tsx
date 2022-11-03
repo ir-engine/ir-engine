@@ -321,7 +321,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
           avatarBlob,
           thumbnailBlob,
           state.name + '_' + selectedAvatar.id,
-          selectedAvatar.isPublic
+          selectedAvatar.isPublic,
+          selectedAvatar.id
         )
         const removalPromises = [] as any
         if (uploadResponse[0].id !== selectedAvatar.modelResourceId)

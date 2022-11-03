@@ -47,14 +47,13 @@ export const AvatarService = {
       isPublic
     })
 
-    const uploadResponse = await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName, isPublic)
-
-    const patchedAvatar = (await AvatarService.patchAvatar(
-      newAvatar.id,
-      uploadResponse[0].id,
-      uploadResponse[1].id,
-      newAvatar.name
-    )) as AvatarInterface
+    const uploadResponse = await AvatarService.uploadAvatarModel(
+      model,
+      thumbnail,
+      newAvatar.identifierName,
+      isPublic,
+      newAvatar.id
+    )
 
     if (!isPublic) {
       const selfUser = accessAuthState().user
@@ -62,8 +61,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         newAvatar.id,
-        patchedAvatar.modelResource?.url || '',
-        patchedAvatar.thumbnailResource?.url || ''
+        uploadResponse[0]?.url || '',
+        uploadResponse[1]?.url || ''
       )
     }
   },
@@ -130,11 +129,12 @@ export const AvatarService = {
     dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
   },
 
-  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean) {
+  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean, avatarId?: string) {
     return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
         avatarName,
+        avatarId,
         isPublic
       }
     }).promise as Promise<StaticResourceInterface[]>
