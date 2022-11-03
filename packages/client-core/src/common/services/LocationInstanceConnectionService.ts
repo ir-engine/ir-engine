@@ -94,7 +94,7 @@ export const LocationInstanceConnectionService = {
     instanceId?: string,
     sceneId?: string,
     roomCode?: string,
-    createNewRoom?: boolean
+    createPrivateRoom?: boolean
   ) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
     const token = accessAuthState().authUser.accessToken.value
@@ -116,7 +116,7 @@ export const LocationInstanceConnectionService = {
         sceneId,
         roomCode,
         token,
-        createNewRoom
+        createPrivateRoom
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {

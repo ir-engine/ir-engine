@@ -17,6 +17,7 @@ import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import {
   PortalEffects,
   setAvatarToLocationTeleportingState
@@ -106,7 +107,10 @@ export const usePortalTeleport = () => {
       if (!activePortal) return
 
       const currentLocation = locationState.locationName.value.split('/')[1]
-      if (currentLocation === activePortal.location || world.entityTree.uuidNodeMap.get(activePortal.linkedPortalId)) {
+      if (
+        currentLocation === activePortal.location ||
+        UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
+      ) {
         teleportAvatar(
           world.localClientEntity,
           activePortal.remoteSpawnPosition

@@ -10,7 +10,7 @@ export const AppLoadingStates = {
 type AppLoadingStatesType = typeof AppLoadingStates[keyof typeof AppLoadingStates]
 
 //State
-const AppLoadingState = defineState({
+export const AppLoadingState = defineState({
   name: 'AppLoadingState',
   initial: () => ({
     loaded: false,

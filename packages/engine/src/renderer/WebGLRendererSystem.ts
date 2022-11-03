@@ -12,6 +12,7 @@ import {
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
+import { useEffect } from 'react'
 import {
   Light,
   PerspectiveCamera,
@@ -24,7 +25,14 @@ import {
   WebXRManager
 } from 'three'
 
-import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  createActionQueue,
+  createReactor,
+  dispatchAction,
+  getState,
+  removeActionQueue,
+  useHookstate
+} from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
@@ -287,29 +295,30 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolHeightActions = createActionQueue(EngineRendererAction.changeGridToolHeight.matches)
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
 
-  const updateToneMapping = () => {
-    EngineRenderer.instance.renderer.toneMapping = world.sceneMetadata.renderSettings.toneMapping.value
-  }
-  const updateToneMappingExposure = () => {
-    EngineRenderer.instance.renderer.toneMappingExposure = world.sceneMetadata.renderSettings.toneMappingExposure.value
-  }
-  const updatePostprocessing = () => {
-    configureEffectComposer()
-  }
-  const _updateShadowMap = () => {
-    updateShadowMap()
-  }
+  const reactor = createReactor(() => {
+    const renderSettings = useHookstate(world.sceneMetadata.renderSettings)
+    const postprocessing = useHookstate(world.sceneMetadata.postprocessing)
 
-  world.sceneMetadata.renderSettings.toneMapping.subscribe(updateToneMapping)
-  world.sceneMetadata.renderSettings.toneMappingExposure.subscribe(updateToneMappingExposure)
-  world.sceneMetadata.renderSettings.shadowMapType.subscribe(_updateShadowMap)
-  world.sceneMetadata.postprocessing.subscribe(updatePostprocessing)
+    useEffect(() => {
+      EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
+    }, [renderSettings.toneMapping])
 
-  // remove the following once subscribers detect merged state https://github.com/avkonst/hookstate/issues/338
-  updateToneMapping()
-  updateToneMappingExposure()
-  _updateShadowMap()
-  updatePostprocessing()
+    useEffect(() => {
+      EngineRenderer.instance.renderer.toneMappingExposure =
+        world.sceneMetadata.renderSettings.toneMappingExposure.value
+    }, [renderSettings.toneMappingExposure])
+
+    useEffect(() => {
+      updateShadowMap()
+    }, [renderSettings.shadowMapType])
+
+    useEffect(() => {
+      configureEffectComposer()
+    }, [postprocessing])
+
+    return null
+  })
+  reactor.run()
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)
@@ -335,6 +344,7 @@ export default async function WebGLRendererSystem(world: World) {
     removeActionQueue(changeNodeHelperVisibilityActions)
     removeActionQueue(changeGridToolHeightActions)
     removeActionQueue(changeGridToolVisibilityActions)
+    reactor.stop()
   }
 
   return { execute, cleanup }

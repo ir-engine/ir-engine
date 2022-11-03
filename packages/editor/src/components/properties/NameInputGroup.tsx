@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import { useSelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -31,9 +30,9 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
  */
 export const NameInputGroup: EditorComponentType = (props) => {
   const selectionState = useSelectionState()
-  const nodeName = getComponent(props.node.entity, NameComponent)?.name
+  const nodeName = useComponent(props.node.entity, NameComponent)
 
-  const [name, setName] = useState(nodeName)
+  const [name, setName] = useState(nodeName.value)
   const [focusedNode, setFocusedNode] = useState<EntityTreeNode>()
   const { t } = useTranslation()
 
@@ -42,31 +41,28 @@ export const NameInputGroup: EditorComponentType = (props) => {
   }, [selectionState.objectChangeCounter])
 
   const onObjectChange = (_: any, propertyName: string) => {
-    if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent).name)
+    if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent))
   }
 
   //function to handle change in name property
   const updateName = () => {
-    setPropertyOnSelectionEntities({
-      component: NameComponent,
-      properties: [{ name }]
-    })
+    nodeName.set(name)
 
-    const obj3d = getComponent(props.node.entity, Object3DComponent)?.value
+    const obj3d = getOptionalComponent(props.node.entity, Object3DComponent)?.value
     if (obj3d) obj3d.name = name
   }
 
   //function called when element get focused
   const onFocus = () => {
     setFocusedNode(props.node)
-    setName(nodeName)
+    setName(nodeName.value)
   }
 
   // function to handle onBlur event on name property
   const onBlurName = () => {
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
-    if (nodeName !== name && props?.node === focusedNode) {
+    if (nodeName.value !== name && props?.node === focusedNode) {
       updateName()
     }
 

@@ -112,8 +112,10 @@ const Scrubber = ({
   }
 
   useEffect(() => {
-    window.removeEventListener('mousemove', handleMouseMove)
-    window.removeEventListener('mouseup', handleMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
   }, [])
 
   const handleMouseDown = (event) => {

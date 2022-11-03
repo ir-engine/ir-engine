@@ -10,7 +10,15 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getComponentState,
+  getOptionalComponent,
+  getOptionalComponentState,
+  hasComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import {
   RigidBodyComponent,
@@ -44,11 +52,27 @@ const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCam
 
 const prevRigidbodyScale = new Map<Entity, Vector3>()
 
+// const updateTransformFromLocalTransform = (entity: Entity) => {
+//   const world = Engine.instance.currentWorld
+//   if (!hasComponent(entity, LocalTransformComponent) || !world.dirtyTransforms.has(entity)) return
+
+//   const localTransform = getComponentState(entity, LocalTransformComponent)
+//   if (!hasComponent(localTransform.parentEntity.value, TransformComponent)) return
+
+//   if (!world.dirtyTransforms.has(localTransform.parentEntity.value)) return
+
+//   const parentTransform = getComponentState(localTransform.parentEntity.value, TransformComponent)
+//   const transform = getComponentState(entity, TransformComponent)
+
+//   localTransform.matrix.value.compose(localTransform.position.value, localTransform.rotation.value, localTransform.scale.value)
+//   transform.matrix.value.multiplyMatrices(parentTransform.matrix.value, localTransform.matrix.value)
+//   transform.matrix.value.decompose(transform.position.value, transform.rotation.value, transform.scale.value)
+// }
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const world = Engine.instance.currentWorld
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
   const parentTransform = localTransform?.parentEntity
-    ? getComponent(localTransform.parentEntity, TransformComponent)
+    ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
     : undefined
   if (
     localTransform &&
@@ -68,7 +92,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   const world = Engine.instance.currentWorld
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
 
   // if transforms have been changed outside of the transform system, perform physics teleportation on the rigidbody
   if (world.dirtyTransforms.has(entity) || (localTransform && world.dirtyTransforms.has(localTransform.parentEntity))) {
@@ -111,7 +135,7 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   transform.matrix.compose(transform.position, transform.rotation, transform.scale)
 
   if (localTransform) {
-    const parentTransform = getComponent(localTransform.parentEntity, TransformComponent) || transform
+    const parentTransform = getOptionalComponent(localTransform.parentEntity, TransformComponent) || transform
     localTransform.matrix.multiplyMatrices(parentTransform.matrixInverse, transform.matrix)
     localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
     updateTransformFromLocalTransform(entity)
@@ -119,18 +143,14 @@ const updateTransformFromRigidbody = (entity: Entity) => {
 }
 
 export const updateEntityTransform = (entity: Entity, world = Engine.instance.currentWorld) => {
-  const transform = getComponent(entity, TransformComponent)
+  const transform = getOptionalComponent(entity, TransformComponent)
   if (!transform) return
-
-  const computedTransform = getComponent(entity, ComputedTransformComponent)
-  const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
+  const computedTransform = getOptionalComponent(entity, ComputedTransformComponent)
+  const group = getOptionalComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
 
   updateTransformFromLocalTransform(entity)
   updateTransformFromRigidbody(entity)
-
-  if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
-    computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
-  }
+  computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
 
   if (world.dirtyTransforms.has(entity)) {
     // avoid scale 0 to prevent NaN errors
@@ -169,8 +189,8 @@ export default async function TransformSystem(world: World) {
   const updateTransformDepth = (entity: Entity) => {
     if (transformDepths.has(entity)) return transformDepths.get(entity)
 
-    const referenceEntity = getComponent(entity, ComputedTransformComponent)?.referenceEntity
-    const parentEntity = getComponent(entity, LocalTransformComponent)?.parentEntity
+    const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
+    const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
 
     const referenceEntityDepth = referenceEntity ? updateTransformDepth(referenceEntity) : 0
     const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
@@ -256,7 +276,7 @@ export default async function TransformSystem(world: World) {
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
     if (entityExists(world, world.localClientEntity)) {
-      const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+      const localClientPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
       if (localClientPosition) {
         for (const entity of distanceFromLocalClientQuery())
           DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(

@@ -9,12 +9,15 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
+  getComponentState,
+  getOptionalComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  useComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
@@ -41,22 +44,24 @@ import { EditorComponentType, updateProperty } from './Util'
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
-  const engineState = useEngineState()
-  const entity = props.node.entity
-  const modelState = getComponent(entity, ModelComponent)
-  const modelComponent = modelState.value
-  const obj3d = modelComponent.scene ?? new Object3D() //getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
-  const hasError = engineState.errorEntities[entity].get()
-  const errorComponent = getComponent(entity, ErrorComponent)
 
-  const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+  const entity = props.node.entity
+  const modelComponent = useComponent(entity, ModelComponent)
+  const [exporting, setExporting] = useState(false)
+  const [exportPath, setExportPath] = useState(modelComponent?.src.value)
+
+  if (!modelComponent) return <></>
+  const errors = getEntityErrors(props.node.entity, ModelComponent)
+  const obj3d = modelComponent.value.scene
+
+  const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
   traverseEntityNode(Engine.instance.currentWorld.entityTree.rootNode, (node) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
-      label: hasComponent(node.entity, NameComponent) ? getComponent(node.entity, NameComponent).name : node.uuid,
+      label: hasComponent(node.entity, NameComponent) ? getComponent(node.entity, NameComponent) : node.uuid,
       value: node.uuid
     })
   })
@@ -73,13 +78,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const animations = loopAnimationComponent?.hasAvatarAnimations
     ? AnimationManager.instance._animations
-    : obj3d.animations ?? []
+    : obj3d?.animations ?? []
 
   const animationOptions = [{ label: 'None', value: -1 }]
   if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
 
-  const [exporting, setExporting] = useState(false)
-  const [exportPath, setExportPath] = useState(modelComponent.src)
   const onExportModel = async () => {
     if (exporting) {
       console.warn('already exporting')
@@ -97,17 +100,20 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src} onChange={updateProperty(ModelComponent, 'src')} />
-        {hasError && errorComponent?.srcError && (
+        <ModelInput value={modelComponent.src.value} onChange={updateProperty(ModelComponent, 'src')} />
+        {errors?.LOADING_ERROR && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
-        <BooleanInput value={modelComponent.generateBVH} onChange={updateProperty(ModelComponent, 'generateBVH')} />
+        <BooleanInput
+          value={modelComponent.generateBVH.value}
+          onChange={updateProperty(ModelComponent, 'generateBVH')}
+        />
       </InputGroup>
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput
-          value={modelComponent.matrixAutoUpdate}
+          value={modelComponent.matrixAutoUpdate.value}
           onChange={updateProperty(ModelComponent, 'matrixAutoUpdate')}
         />
       </InputGroup>
@@ -124,14 +130,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
-          value={loopAnimationComponent?.hasAvatarAnimations}
+          value={!!loopAnimationComponent?.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
       <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
       <ShadowProperties node={props.node} />
-      <ModelTransformProperties modelState={modelState} onChangeModel={updateProperty(ModelComponent, 'src')} />
-      {!exporting && modelComponent.src && (
+      <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
+      {!exporting && modelComponent.src.value && (
         <Well>
           <ModelInput value={exportPath} onChange={setExportPath} />
           <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>

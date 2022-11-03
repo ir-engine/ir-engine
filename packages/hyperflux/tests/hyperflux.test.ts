@@ -12,9 +12,9 @@ import {
   defineState,
   dispatchAction,
   getState,
+  registerState,
   removeActionReceptor
 } from '..'
-import StateFunctions from '../functions/StateFunctions'
 
 describe('Hyperflux Unit Tests', () => {
   it('should be able to define and create an action', () => {
@@ -419,7 +419,7 @@ describe('Hyperflux Unit Tests', () => {
       })
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
-    StateFunctions.registerState(HospitalityState, store)
+    registerState(HospitalityState, store)
     assert(store.state.hospitality)
   })
 
@@ -435,7 +435,7 @@ describe('Hyperflux Unit Tests', () => {
       }
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
-    StateFunctions.registerState(HospitalityState, store)
+    registerState(HospitalityState, store)
     const hospitality = getState(HospitalityState, store).value
     assert.equal(hospitality.create, true)
   })
@@ -449,7 +449,7 @@ describe('Hyperflux Unit Tests', () => {
       })
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
-    StateFunctions.registerState(HospitalityState, store)
+    registerState(HospitalityState, store)
     assert(store.state.hospitality)
     const hospitality = getState(HospitalityState, store).value
     assert.equal(hospitality.greetingCount, 0)
@@ -470,7 +470,7 @@ describe('Hyperflux Unit Tests', () => {
     })
 
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
-    StateFunctions.registerState(HospitalityState, store)
+    registerState(HospitalityState, store)
     assert(store.state.hospitality)
 
     addActionReceptor((action) => {

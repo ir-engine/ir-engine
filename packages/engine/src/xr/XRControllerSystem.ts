@@ -20,9 +20,15 @@ import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux
 import { BinaryValue } from '../common/enums/BinaryValue'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { Engine } from '../ecs/classes/Engine'
-import { Entity } from '../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getComponentState,
+  removeQuery,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
@@ -55,7 +61,7 @@ const createPointer = (inputSource: XRInputSource): PointerObject => {
     case 'gaze': {
       const geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
       const material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
-      return new Mesh(geometry, material)
+      return new Mesh(geometry, material) as PointerObject
     }
     default:
     case 'tracked-pointer': {
@@ -186,7 +192,7 @@ const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpac
   const entity = createEntity()
   const handednessLabel =
     inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
-  setComponent(entity, NameComponent, { name: `XR Controller${handednessLabel}` })
+  setComponent(entity, NameComponent, `XR Controller${handednessLabel}`)
   const pointer = createPointer(inputSource)
   addObjectToGroup(entity, pointer)
   setComponent(entity, XRPointerComponent, { pointer })
@@ -235,7 +241,7 @@ const addHandInputSource = (inputSource: XRInputSource, hand: XRHand) => {
   const handEntity = createEntity()
   setComponent(handEntity, XRHandComponent, { hand, handedness: inputSource.handedness })
   setComponent(handEntity, InputSourceComponent, { inputSource })
-  setComponent(handEntity, NameComponent, { name: `XR Hand ${inputSource.handedness}` })
+  setComponent(handEntity, NameComponent, `XR Hand ${inputSource.handedness}`)
   // initializeHandModel(handEntity)
   const world = Engine.instance.currentWorld
   setLocalTransformComponent(handEntity, world.originEntity)
@@ -248,9 +254,9 @@ const addHandInputSource = (inputSource: XRInputSource, hand: XRHand) => {
 const removeInputSourceEntity = (inputSource: XRInputSource) => {
   const xrState = getState(XRState)
   if (!xrInputSourcesMap.has(inputSource)) return
-  if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(null)
-  if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(null)
-  if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(null)
+  if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(UndefinedEntity)
+  if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(UndefinedEntity)
+  if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(UndefinedEntity)
   const controllerEntity = xrInputSourcesMap.get(inputSource)!
   const controller = getComponent(controllerEntity, XRControllerComponent)
   if (controller.grip) {
@@ -287,31 +293,31 @@ const updateInputSourceEntities = () => {
     }
 
     const controllerEntity = xrInputSourcesMap.get(inputSource)!
-    const controller = getComponent(controllerEntity, XRControllerComponent)
+    const controller = getComponentState(controllerEntity, XRControllerComponent)
 
-    if (gripSpace && !controller.grip) {
+    if (gripSpace && !controller.grip.value) {
       const gripEntity = addGripInputSource(inputSource, gripSpace)
-      controller.grip = gripEntity
+      controller.grip.set(gripEntity)
       changed = true
     }
 
-    if (hand && !controller.hand) {
+    if (hand && !controller.hand.value) {
       const handEntity = addHandInputSource(inputSource, hand)
-      controller.hand = handEntity
+      controller.hand.set(handEntity)
       changed = true
     }
 
-    if (!gripSpace && controller.grip) {
-      xrGripInputSourcesMap.delete(getComponent(controller.grip, XRControllerGripComponent).gripSpace)
-      removeEntity(controller.grip)
-      controller.grip = null
+    if (!gripSpace && controller.grip.value) {
+      xrGripInputSourcesMap.delete(getComponent(controller.grip.value, XRControllerGripComponent).gripSpace)
+      removeEntity(controller.grip.value)
+      controller.grip.set(UndefinedEntity)
       changed = true
     }
 
-    if (!hand && controller.hand) {
-      xrHandInputSourcesMap.delete(getComponent(controller.hand, XRHandComponent).hand)
-      removeEntity(controller.hand)
-      controller.hand = null
+    if (!hand && controller.hand.value) {
+      xrHandInputSourcesMap.delete(getComponent(controller.hand.value, XRHandComponent).hand)
+      removeEntity(controller.hand.value)
+      controller.hand.set(UndefinedEntity)
       changed = true
     }
   }

@@ -27,7 +27,6 @@ import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 
-const EPSILON = 1e-6
 const _vec = new Vector3()
 
 export function avatarDetailsReceptor(
@@ -126,7 +125,6 @@ export function setupRightHandIK(entity: Entity) {
 
 export default async function AvatarSystem(world: World) {
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
-  const headDecapQuery = defineQuery([AvatarHeadDecapComponent, AvatarRigComponent])
   const avatarIKTargetsQuery = defineQuery([AvatarIKTargetsComponent, AvatarRigComponent])
 
   const avatarIKTargetsQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
@@ -152,35 +150,24 @@ export default async function AvatarSystem(world: World) {
 
       if (targets.leftHand && !hasComponent(entity, AvatarLeftHandIKComponent)) setupLeftHandIK(entity)
       if (!targets.leftHand && hasComponent(entity, AvatarLeftHandIKComponent)) {
-        const leftHand = getComponent(entity, AvatarLeftHandIKComponent, true)
+        const leftHand = getComponent(entity, AvatarLeftHandIKComponent)
         leftHand?.hint?.removeFromParent()
         removeComponent(entity, AvatarLeftHandIKComponent)
       }
 
       if (targets.rightHand && !hasComponent(entity, AvatarRightHandIKComponent)) setupRightHandIK(entity)
       if (!targets.rightHand && hasComponent(entity, AvatarRightHandIKComponent)) {
-        const rightHand = getComponent(entity, AvatarRightHandIKComponent, true)
+        const rightHand = getComponent(entity, AvatarRightHandIKComponent)
         rightHand?.hint?.removeFromParent()
         removeComponent(entity, AvatarRightHandIKComponent)
       }
 
       // removeComponent(entity, AvatarArmsTwistCorrectionComponent)
     }
-
-    for (const entity of headDecapQuery(world)) {
-      const rig = getComponent(entity, AvatarRigComponent).rig
-      rig.Head?.scale.setScalar(EPSILON)
-    }
-
-    for (const entity of headDecapQuery.exit(world)) {
-      const rig = getComponent(entity, AvatarRigComponent, true).rig
-      rig?.Head?.scale.setScalar(1)
-    }
   }
 
   const cleanup = async () => {
     removeActionQueue(avatarDetailsQueue)
-    removeQuery(world, headDecapQuery)
   }
 
   return { execute, cleanup, subsystems: [] }

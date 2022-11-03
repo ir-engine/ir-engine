@@ -125,7 +125,6 @@ export const prefabIcons = {
   [ScenePrefabs.chair]: ChairIcon,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,
-  [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,

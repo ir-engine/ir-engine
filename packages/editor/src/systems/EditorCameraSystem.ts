@@ -5,6 +5,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeQuery
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -57,7 +58,9 @@ export default async function EditorCameraSystem(world: World) {
           box.makeEmpty()
           for (const object of cameraComponent.focusedObjects) {
             const group =
-              typeof object === 'string' ? [obj3dFromUuid(object)] : getComponent(object.entity, GroupComponent) || []
+              typeof object === 'string'
+                ? [obj3dFromUuid(object)]
+                : getOptionalComponent(object.entity, GroupComponent) || []
             for (const obj of group) {
               box.expandByObject(obj)
             }
@@ -66,11 +69,8 @@ export default async function EditorCameraSystem(world: World) {
             // Focusing on an Group, AmbientLight, etc
             const object = cameraComponent.focusedObjects[0]
 
-            const obj3d =
-              typeof object === 'string' ? obj3dFromUuid(object) : getComponent(object.entity, GroupComponent)?.[0]
-
             if (typeof object === 'string') {
-              cameraComponent.center.setFromMatrixPosition(obj3d.matrixWorld)
+              cameraComponent.center.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
             } else if (hasComponent(object.entity, TransformComponent)) {
               const position = getComponent(object.entity, TransformComponent).position
               cameraComponent.center.copy(position)

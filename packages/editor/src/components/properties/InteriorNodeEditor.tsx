@@ -1,9 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { InteriorComponent } from '@xrengine/engine/src/scene/components/InteriorComponent'
 
 import LocationCityIcon from '@mui/icons-material/LocationCity'
@@ -22,10 +21,9 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const InteriorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const engineState = useEngineState()
   const entity = props.node.entity
   const interiorComponent = getComponent(entity, InteriorComponent)
-  const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
+  const errors = getEntityErrors(props.node.entity, InteriorComponent)
 
   return (
     <NodeEditor
@@ -35,7 +33,7 @@ export const InteriorNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Cube Map" label={t('editor:properties.interior.lbl-cubeMap')}>
         <ImageInput value={interiorComponent.cubeMap} onChange={updateProperty(InteriorComponent, 'cubeMap')} />
-        {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.interior.error-url')}</div>}
+        {errors && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.interior.error-url')}</div>}
       </InputGroup>
       <InputGroup name="Size" label={t('editor:properties.interior.lbl-size')}>
         <Vector2Input value={interiorComponent.size} onChange={updateProperty(InteriorComponent, 'size')} />

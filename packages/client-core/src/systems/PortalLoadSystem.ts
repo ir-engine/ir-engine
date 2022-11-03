@@ -14,7 +14,14 @@ export const enterPortal = async (entity: Entity) => {
   const portalDetails = (await API.instance.client.service('portal').get(portalComponent.linkedPortalId)).data!
   if (portalDetails) {
     portalComponent.remoteSpawnPosition.copy(portalDetails.spawnPosition)
-    portalComponent.remoteSpawnRotation.setFromEuler(new Euler().copy(portalDetails.spawnRotation))
+    portalComponent.remoteSpawnRotation.setFromEuler(
+      new Euler(
+        portalDetails.spawnRotation.x,
+        portalDetails.spawnRotation.y,
+        portalDetails.spawnRotation.z,
+        portalDetails.spawnRotation.order
+      )
+    )
     if (typeof portalComponent.previewImageURL !== 'undefined' && portalComponent.previewImageURL !== '') {
       if (portalComponent.mesh) {
         const texture = (await AssetLoader.loadAsync(portalDetails.previewImageURL)) as Texture

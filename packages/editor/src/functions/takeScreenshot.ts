@@ -41,7 +41,8 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
 
   if (!scenePreviewCamera) {
     const entity = createEntity()
-    scenePreviewCamera = addComponent(entity, ScenePreviewCameraComponent, null).camera
+    addComponent(entity, ScenePreviewCameraComponent, null)
+    scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
     setTransformComponent(entity, position, rotation)
     addObjectToGroup(entity, scenePreviewCamera)

@@ -2,9 +2,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PositionalAudioComponent } from '@xrengine/engine/src/audio/components/PositionalAudioComponent'
-import { AudioType, DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useHookstate } from '@xrengine/hyperflux'
+import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
@@ -24,8 +23,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const audioComponentState = useHookstate(getComponent(props.node.entity, PositionalAudioComponent))
-  const audioComponent = audioComponentState.value
+  const audioComponent = useComponent(props.node.entity, PositionalAudioComponent)
 
   return (
     <NodeEditor
@@ -41,12 +39,12 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.node.entity}
           options={DistanceModelOptions}
-          value={audioComponent.distanceModel}
-          onChange={(value: DistanceModelType) => audioComponentState.distanceModel.set(value)}
+          value={audioComponent.distanceModel.value}
+          onChange={updateProperty(PositionalAudioComponent, 'distanceModel')}
         />
       </InputGroup>
 
-      {audioComponent.distanceModel === DistanceModel.Linear ? (
+      {audioComponent.distanceModel.value === DistanceModel.Linear ? (
         <InputGroup
           name="Rolloff Factor"
           label={t('editor:properties.audio.lbl-rolloffFactor')}
@@ -58,8 +56,8 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
             smallStep={0.001}
             mediumStep={0.01}
             largeStep={0.1}
-            value={audioComponent.rolloffFactor}
-            onChange={(value) => audioComponentState.rolloffFactor.set(value)}
+            value={audioComponent.rolloffFactor.value}
+            onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
           />
         </InputGroup>
       ) : (
@@ -71,8 +69,8 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={audioComponent.rolloffFactor}
-          onChange={(value) => audioComponentState.rolloffFactor.set(value)}
+          value={audioComponent.rolloffFactor.value}
+          onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
         />
       )}
       <NumericInputGroup
@@ -83,8 +81,8 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={audioComponent.refDistance}
-        onChange={(value) => audioComponentState.refDistance.set(value)}
+        value={audioComponent.refDistance.value}
+        onChange={updateProperty(PositionalAudioComponent, 'refDistance')}
         unit="m"
       />
       <NumericInputGroup
@@ -95,8 +93,8 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={audioComponent.maxDistance}
-        onChange={(value) => audioComponentState.maxDistance.set(value)}
+        value={audioComponent.maxDistance.value}
+        onChange={updateProperty(PositionalAudioComponent, 'maxDistance')}
         unit="m"
       />
       <NumericInputGroup
@@ -108,8 +106,8 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={audioComponent.coneInnerAngle}
-        onChange={(value) => audioComponentState.coneInnerAngle.set(value)}
+        value={audioComponent.coneInnerAngle.value}
+        onChange={updateProperty(PositionalAudioComponent, 'coneInnerAngle')}
         unit="°"
       />
       <NumericInputGroup
@@ -121,8 +119,8 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={audioComponent.coneOuterAngle}
-        onChange={(value) => audioComponentState.coneOuterAngle.set(value)}
+        value={audioComponent.coneOuterAngle.value}
+        onChange={updateProperty(PositionalAudioComponent, 'coneOuterAngle')}
         unit="°"
       />
       <InputGroup
@@ -134,8 +132,8 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           min={0}
           max={1}
           step={0.01}
-          value={audioComponent.coneOuterGain}
-          onChange={(value) => audioComponentState.coneOuterGain.set(value)}
+          value={audioComponent.coneOuterGain.value}
+          onChange={updateProperty(PositionalAudioComponent, 'coneOuterGain')}
         />
       </InputGroup>
     </NodeEditor>

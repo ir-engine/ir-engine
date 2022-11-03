@@ -74,7 +74,7 @@ export default async function AvatarHandAnimationSystem(world: World) {
     // for (const entity of xrHandsInputQuery.enter(world)) {
     //   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
     //   const xrHandsComponent = getComponent(entity, )
-    //   const container = xrInputSourceComponent.container
+    //   const container = xrInputSourceComponent
     //   container.add(...xrHandsComponent.hands)
     // }
 

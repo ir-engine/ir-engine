@@ -1,16 +1,28 @@
 /**
  * Adapted from https://github.com/tentone/webxr-occlusion-lighting/tree/main/src/material
  */
+
+import { Not } from 'bitecs'
+import { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue, useHookstate } from '@xrengine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery
+} from '../ecs/functions/ComponentFunctions'
+import { defineQueryReactorSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../scene/components/GroupComponent'
+import { SceneTagComponent } from '../scene/components/SceneTagComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XRAction, XRState } from './XRState'
@@ -230,6 +242,32 @@ export default async function XRDepthOcclusionSystem(world: World) {
 
   const useDepthTextureDebug = false
   const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
+  let depthSupported = false
+
+  const reactorSystem = defineQueryReactorSystem(
+    world,
+    'XRE_DepthOcclusionShaderSystem',
+    [GroupComponent, Not(SceneTagComponent), VisibleComponent],
+    function (props) {
+      const entity = props.root.entity
+      if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+
+      const depthDataTexture = useHookstate(xrState.depthDataTexture)
+
+      useEffect(() => {
+        for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
+          object.traverse((obj: Mesh<any, Material>) => {
+            if (obj.material) {
+              if (depthDataTexture && depthSupported)
+                XRDepthOcclusion.addDepthOBCPlugin(obj.material, depthDataTexture.value!)
+              else XRDepthOcclusion.removeDepthOBCPlugin(obj.material)
+            }
+          })
+      }, [depthDataTexture])
+
+      return null
+    }
+  )
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
@@ -244,18 +282,8 @@ export default async function XRDepthOcclusionSystem(world: World) {
       }
     }
     const xrFrame = Engine.instance.xrFrame as XRFrame & getDepthInformationType
-    const depthSupported = typeof xrFrame?.getDepthInformation === 'function'
-    const depthDataTexture = xrState.depthDataTexture.value
-    for (const entity of groupQuery()) {
-      for (const obj of getComponent(entity, GroupComponent)) {
-        obj.traverse((obj: Mesh<any, Material>) => {
-          if (obj.material) {
-            if (depthDataTexture && depthSupported) XRDepthOcclusion.addDepthOBCPlugin(obj.material, depthDataTexture)
-            else XRDepthOcclusion.removeDepthOBCPlugin(obj.material)
-          }
-        })
-      }
-    }
+    depthSupported = typeof xrFrame?.getDepthInformation === 'function'
+    reactorSystem.execute()
     if (!depthSupported) return
     XRDepthOcclusion.updateDepthMaterials(
       Engine.instance.xrFrame as any,
@@ -267,6 +295,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, groupQuery)
     removeActionQueue(xrSessionChangedQueue)
+    reactorSystem.cleanup()
   }
 
   return { execute, cleanup }

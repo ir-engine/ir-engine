@@ -253,7 +253,6 @@ export function disposeScene() {
     }
     emptyEntityTree(eTree)
     eTree.entityNodeMap.clear()
-    eTree.uuidNodeMap.clear()
     Engine.instance.currentWorld.scene.clear()
   }
 

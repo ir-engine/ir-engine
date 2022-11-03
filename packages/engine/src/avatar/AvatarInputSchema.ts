@@ -15,7 +15,14 @@ import { clamp } from '../common/functions/MathLerpFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentType,
+  getComponent,
+  getOptionalComponent,
+  removeComponent,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { PhysicsDebugInput } from '../input/enums/DebugEnum'
@@ -34,7 +41,6 @@ import { InputAlias } from '../input/types/InputAlias'
 import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { unequipEntity } from '../interaction/functions/equippableFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
-import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { Physics, RaycastArgs } from '../physics/classes/Physics'
@@ -111,7 +117,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
 
 const drop = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   console.log('dropping')
-  const equipper = getComponent(entity, EquipperComponent)
+  const equipper = getOptionalComponent(entity, EquipperComponent)
   if (!equipper?.equippedEntity) return
 
   unequipEntity(entity)
@@ -125,7 +131,9 @@ const cycleCameraMode = (entity: Entity, inputKey: InputAlias, inputValue: Input
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
 
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
-  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
+  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent) as
+    | ComponentType<typeof FollowCameraComponent>
+    | undefined
 
   switch (cameraFollow?.mode) {
     case CameraMode.FirstPerson:
@@ -155,7 +163,10 @@ export const fixedCameraBehindAvatar: InputBehaviorType = (
   inputValue: InputValue
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const follower = getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent)
+  const follower = getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent) as
+    | ComponentType<typeof FollowCameraComponent>
+    | undefined
+  console.log(follower)
   if (follower && follower.mode !== CameraMode.FirstPerson) {
     follower.locked = !follower.locked
   }
@@ -168,14 +179,18 @@ export const switchShoulderSide: InputBehaviorType = (
 ): void => {
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
+  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent) as
+    | ComponentType<typeof FollowCameraComponent>
+    | undefined
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
   }
 }
 
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
-  const cameraRotationTransition = getComponent(entity, TargetCameraRotationComponent)
+  const cameraRotationTransition = getOptionalComponent(entity, TargetCameraRotationComponent) as
+    | ComponentType<typeof TargetCameraRotationComponent>
+    | undefined
   if (!cameraRotationTransition) {
     addComponent(entity, TargetCameraRotationComponent, {
       phi: phi,
@@ -212,7 +227,9 @@ export const changeCameraDistanceByDelta: InputBehaviorType = (
 
   const avatarController = getComponent(entity, AvatarControllerComponent)
   const cameraEntity = avatarController.cameraEntity
-  const followComponent = getComponent(cameraEntity, FollowCameraComponent)
+  const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent) as
+    | ComponentType<typeof FollowCameraComponent>
+    | undefined
 
   if (!followComponent) {
     return
@@ -259,7 +276,9 @@ export const setCameraRotation: InputBehaviorType = (
   const { deltaSeconds: delta } = Engine.instance.currentWorld
 
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
-  const followComponent = getComponent(cameraEntity, FollowCameraComponent)
+  const followComponent = getComponent(cameraEntity, FollowCameraComponent) as ComponentType<
+    typeof FollowCameraComponent
+  >
 
   if (!followComponent) return
 
@@ -330,7 +349,7 @@ export const toggleRunning: InputBehaviorType = (
   inputKey: InputAlias,
   inputValue: InputValue
 ): void => {
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   if (inputValue.lifecycleState === LifecycleValue.Started) controller.isWalking = !controller.isWalking
 }
 
@@ -339,7 +358,7 @@ const setLocalMovementDirection: InputBehaviorType = (
   inputKey: InputAlias,
   inputValue: InputValue
 ): void => {
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   const hasEnded = inputValue.lifecycleState === LifecycleValue.Ended
   switch (inputKey) {
     case BaseInput.JUMP:
@@ -366,12 +385,12 @@ const vrAxisLookSensitivity = 0.025
 const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const avatarController = getComponent(entity, AvatarControllerComponent)
   const cameraEntity = avatarController.cameraEntity
-  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
+  const followCamera = getOptionalComponent(cameraEntity, FollowCameraComponent)
 
   const cameraSettings = getState(CameraSettings)
 
   if (followCamera) {
-    const target = getComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
+    const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
     if (target)
       setTargetCameraRotation(
         cameraEntity,
@@ -454,15 +473,6 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
     dispatchAction(EngineActions.buttonClicked({ clicked: true, button: BaseInput.PRIMARY }))
   if (inputValue.lifecycleState === LifecycleValue.Ended)
     dispatchAction(EngineActions.buttonClicked({ clicked: false, button: BaseInput.PRIMARY }))
-
-  if (inputValue.lifecycleState !== LifecycleValue.Ended) {
-    return
-  }
-  const input = getComponent(entity, InputComponent)
-  const coords = input.data.get(BaseInput.SCREENXY)?.value
-  if (coords) {
-    addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
-  }
 }
 
 export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, inputValue) => {

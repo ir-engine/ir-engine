@@ -219,7 +219,9 @@ export class Scene implements ServiceMethods<any> {
     await storageProvider.putObject({
       Key: newSceneJsonPath,
       Body: Buffer.from(
-        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain))
+        JSON.stringify(
+          cleanSceneDataCacheURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson), storageProvider.cacheDomain)
+        )
       ),
       ContentType: 'application/json'
     })
@@ -250,7 +252,11 @@ export class Scene implements ServiceMethods<any> {
 
       fs.writeFileSync(
         path.resolve(newSceneJsonPathLocal),
-        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain), null, 2)
+        JSON.stringify(
+          cleanSceneDataCacheURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson), storageProvider.cacheDomain),
+          null,
+          2
+        )
       )
 
       if (thumbnailBuffer) {

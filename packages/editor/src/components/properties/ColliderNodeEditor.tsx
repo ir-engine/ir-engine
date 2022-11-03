@@ -61,7 +61,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       if (entity === props.node.entity || !eNodeMap.has(entity)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
-        label: getComponent(entity, NameComponent)?.name,
+        label: getComponent(entity, NameComponent),
         value: eNodeMap.get(entity)!.uuid,
         callbacks: Object.keys(callbacks).map((cb) => {
           return { label: cb, value: cb }

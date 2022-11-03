@@ -37,9 +37,9 @@ export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {
   if (obj3d.normalMap !== component.normalMap) {
     try {
       obj3d.normalMap = component.normalMap
-      removeError(entity, 'normalMapError')
+      removeError(entity, OceanComponent, 'NORMAL_MAP_ERROR')
     } catch (error) {
-      addError(entity, 'normalMapError', error.message)
+      addError(entity, OceanComponent, 'NORMAL_MAP_ERROR', error.message)
       console.error(error)
     }
   }
@@ -47,9 +47,9 @@ export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {
   if (obj3d.distortionMap !== component.distortionMap) {
     try {
       obj3d.distortionMap = component.distortionMap
-      removeError(entity, 'distortionMapError')
+      removeError(entity, OceanComponent, 'DISTORTION_MAP_ERROR')
     } catch (error) {
-      addError(entity, 'distortionMapError', error.message)
+      addError(entity, OceanComponent, 'DISTORTION_MAP_ERROR', error.message)
       console.error(error)
     }
   }
@@ -57,9 +57,9 @@ export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {
   if (obj3d.envMap !== component.envMap) {
     try {
       obj3d.envMap = component.envMap
-      removeError(entity, 'envMapError')
+      removeError(entity, OceanComponent, 'ENVIRONMENT_MAP_ERROR')
     } catch (error) {
-      addError(entity, 'envMapError', error.message)
+      addError(entity, OceanComponent, 'ENVIRONMENT_MAP_ERROR', error.message)
       console.error(error)
     }
   }

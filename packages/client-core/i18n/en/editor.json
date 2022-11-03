@@ -554,15 +554,13 @@
     },
     "video": {
       "name": "Video",
-      "description": "Dynamically loads a video.",
-      "lbl-video": "Video",
-      "lbl-projection": "Projection",
-      "lbl-islivestream": "Live Stream",
-      "lbl-interactable": "Interactable",
-      "lbl-id": "Element Id",
-      "lbl-play": "Play",
-      "lbl-pause": "Pause",
-      "error-url": "Error Loading From URL"
+      "lbl-media": "Media Source",
+      "lbl-size": "Canvas Size",
+      "lbl-size-info": "The dimensions of the surface on which the video will be presented",
+      "lbl-fit": "Video Fit",
+      "lbl-fit-info": "How the video should be stretched within the given canvas size",
+      "lbl-media-info": "An entity w/ a media component that should be sourced for display",
+      "description": "Display a video"
     },
     "volumetric": {
       "name": "Volumetric",

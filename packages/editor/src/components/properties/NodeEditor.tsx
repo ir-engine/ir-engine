@@ -1,8 +1,10 @@
 import React, { PropsWithChildren } from 'react'
 
 import { hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { useEditorState } from '../../services/EditorServices'
+import { SelectionAction } from '../../services/SelectionServices'
 import PropertyGroup from './PropertyGroup'
 import { EditorPropType } from './Util'
 
@@ -31,7 +33,10 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
       description={description}
       onClose={
         editorState.advancedMode.value && component && hasComponent(node.entity, component)
-          ? () => removeComponent(node.entity, component)
+          ? () => {
+              dispatchAction(SelectionAction.forceUpdate({}))
+              removeComponent(node.entity, component)
+            }
           : undefined
       }
     >

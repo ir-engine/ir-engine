@@ -101,9 +101,9 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
 }
 
 export function equipperQueryExit(entity: Entity, world = Engine.instance.currentWorld) {
-  const equipperComponent = getComponent(entity, EquipperComponent, true)
-  const equippedEntity = equipperComponent.equippedEntity
-  removeComponent(equippedEntity, EquippedComponent)
+  // const equipperComponent = getComponent(entity, EquipperComponent, true)
+  // const equippedEntity = equipperComponent.equippedEntity
+  // removeComponent(equippedEntity, EquippedComponent)
 }
 
 const vec3 = new Vector3()
@@ -135,7 +135,7 @@ const vec3 = new Vector3()
 //     }
 //   }
 //   transition.update(world, (opacity) => {
-//     xrui.container.rootLayer.traverseLayersPreOrder((layer) => {
+//     xrui.rootLayer.traverseLayersPreOrder((layer) => {
 //       const mat = layer.contentMesh.material as MeshBasicMaterial
 //       mat.opacity = opacity
 //     })
