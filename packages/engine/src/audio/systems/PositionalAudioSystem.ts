@@ -15,7 +15,8 @@ import {
   getComponent,
   getOptionalComponentState,
   hasComponent,
-  removeQuery
+  removeQuery,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
@@ -113,7 +114,7 @@ export default async function PositionalAudioSystem(world: World) {
       const entity = props.root.entity
       if (!hasComponent(entity, PositionalAudioComponent)) throw props.root.stop()
 
-      const mediaElement = getOptionalComponentState(entity, MediaElementComponent)
+      const mediaElement = useOptionalComponent(entity, MediaElementComponent)
       const panner = useHookstate(null as ReturnType<typeof addPannerNode> | null)
 
       useEffect(() => {
