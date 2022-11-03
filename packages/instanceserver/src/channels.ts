@@ -75,7 +75,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
-    const channelResult = await app.service('channel').create({
+    await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
     })
@@ -207,6 +207,8 @@ const initializeInstance = async (
         })
       }
     }
+    await app.agonesSDK.allocate()
+    if (!app.instance) app.instance = instance
     if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
     await assignExistingInstance(app, instance, channelId, locationId)
   }
@@ -333,7 +335,7 @@ const createOrUpdateInstance = async (
 ) => {
   logger.info('Creating new instance server or updating current one.')
   logger.info(`agones state is ${status.state}`)
-  logger.info('app instance is %o, app.instance')
+  logger.info('app instance is %o', app.instance)
   logger.info(`instanceLocationId: ${app.instance?.locationId}, locationId: ${locationId}`)
 
   const isReady = status.state === 'Ready'
