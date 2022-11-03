@@ -126,6 +126,7 @@ function ModelReactor({ root }: EntityReactorProps) {
           scene.traverse(generateMeshBVH)
         }
       } catch (err) {
+        console.error(err)
         addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
       }
     }

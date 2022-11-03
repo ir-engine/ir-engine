@@ -130,7 +130,7 @@ export function removeMaterialSource(src: MaterialSource): boolean {
     srcComp.entries.map((matId) => {
       const toDelete = materialFromId(matId)
       Object.values(toDelete.parameters)
-        .filter((val) => (val as Texture).isTexture)
+        .filter((val) => (val as Texture)?.isTexture)
         .map((val: Texture) => val.dispose())
       toDelete.material.dispose()
       MaterialLibrary.materials.delete(matId)
