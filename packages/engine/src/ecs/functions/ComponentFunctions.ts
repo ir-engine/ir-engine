@@ -70,12 +70,13 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: HookableFunction<React.FC<EntityReactorProps>>
   reactorRoots: Map<Entity, EntityReactorRoot>
-  map: StateMethods<Record<Entity, ComponentType>>
+  mapState: StateMethods<Record<Entity, ComponentType>>
+  map: Record<Entity, ComponentType>
   errors: ErrorTypes[]
 }
 
 export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
-export type ComponentType<C extends Component> = NonNullable<C['map']['value'][keyof C['map']['value']]>
+export type ComponentType<C extends Component> = NonNullable<C['map'][keyof C['map']]>
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 export type SetComponentType<C extends Component> = Parameters<C['onSet']>[2]
 export type ComponentErrorsType<C extends Component> = C['errors'][number]
@@ -100,7 +101,8 @@ export const defineComponent = <
   Component.errors = []
   Object.assign(Component, def)
   Component.reactorRoots = new Map()
-  Component.map = createState({} as Record<Entity, ComponentType>)
+  Component.mapState = createState({} as Record<Entity, ComponentType>)
+  Component.map = Component.mapState.get(NO_PROXY)
   ComponentMap.set(Component.name, Component)
   return Component
 }
@@ -116,7 +118,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
     name,
     schema,
     onSet: (entity, component, json) => {
-      Component.map[entity].set(json ?? true)
+      Component.mapState[entity].set(json ?? true)
     },
     toJSON: (entity, component) => component.value as any
   })
@@ -129,7 +131,7 @@ export const getOptionalComponentState = <ComponentType>(
   world = Engine.instance.currentWorld
 ): State<ComponentType> | undefined => {
   // if (entity === UndefinedEntity) return undefined
-  if (bitECS.hasComponent(world, component, entity)) return component.map[entity]
+  if (bitECS.hasComponent(world, component, entity)) return component.mapState[entity]
   return undefined
 }
 
@@ -149,7 +151,7 @@ export const getOptionalComponent = <ComponentType>(
   component: Component<ComponentType, unknown, unknown>,
   world = Engine.instance.currentWorld
 ): ComponentType | undefined => {
-  return getOptionalComponentState(entity, component, world)?.get(NO_PROXY) as ComponentType | undefined
+  return component.map[entity] as ComponentType | undefined
 }
 
 export const getComponent = <ComponentType>(
@@ -157,7 +159,7 @@ export const getComponent = <ComponentType>(
   component: Component<ComponentType, unknown, unknown>,
   world = Engine.instance.currentWorld
 ): ComponentType => {
-  return getComponentState(entity, component, world).get(NO_PROXY)
+  return component.map[entity] as ComponentType
 }
 
 /**
@@ -188,7 +190,7 @@ export const setComponent = <C extends Component>(
   }
   if (!hasComponent(entity, Component)) {
     const c = Component.onInit(entity, world)
-    Component.map[entity].set(c)
+    Component.mapState[entity].set(c)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
       const root = createReactor(Component.reactor) as EntityReactorRoot
@@ -197,7 +199,7 @@ export const setComponent = <C extends Component>(
     }
   }
   startTransition(() => {
-    Component.onSet(entity, Component.map[entity], args as Readonly<SerializedComponentType<C>>)
+    Component.onSet(entity, Component.mapState[entity], args as Readonly<SerializedComponentType<C>>)
     const root = Component.reactorRoots.get(entity)
     if (!root?.isRunning) root?.run()
   })
@@ -279,9 +281,9 @@ export const removeComponent = <C extends Component>(
   world = Engine.instance.currentWorld
 ) => {
   if (!bitECS.entityExists(world, entity)) return
-  if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.map[entity])
+  if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.mapState[entity])
   bitECS.removeComponent(world, component, entity, false)
-  component.map[entity].set(none)
+  component.mapState[entity].set(none)
   const root = component.reactorRoots.get(entity)
   if (!root?.isRunning) root?.stop()
   component.reactorRoots.delete(entity)
@@ -382,7 +384,7 @@ export function useComponent<C extends Component<any>>(
 ) {
   if (!bitECS.hasComponent(world, Component, entity))
     throw new Error(`${Component.name} does not exist on entity ${entity}`)
-  return useHookstate(Component.map[entity]) as State<ComponentType<C>>
+  return useHookstate(Component.mapState[entity]) as State<ComponentType<C>>
 }
 
 /**
@@ -393,7 +395,7 @@ export function useOptionalComponent<C extends Component<any>>(
   Component: C,
   world = Engine.instance.currentWorld
 ) {
-  const component = useHookstate(Component.map[entity]) as State<ComponentType<C>>
+  const component = useHookstate(Component.mapState[entity]) as State<ComponentType<C>>
   return bitECS.hasComponent(world, Component, entity) ? component : undefined
 }
 
