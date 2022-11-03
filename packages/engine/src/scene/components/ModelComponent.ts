@@ -70,11 +70,12 @@ export const ModelComponent = defineComponent({
 
 function ModelReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
+  if (!hasComponent(entity, ModelComponent)) throw root.stop()
+
+  const modelComponent = useComponent(entity, ModelComponent)
 
   // update src
   useEffect(() => {
-    if (!modelComponent) return
     const model = modelComponent.value
     if (model.src === model.scene?.userData?.src) return
 
@@ -130,11 +131,10 @@ function ModelReactor({ root }: EntityReactorProps) {
     }
 
     loadModel()
-  }, [modelComponent?.src])
+  }, [modelComponent.src])
 
   // update scene
   useEffect(() => {
-    if (!modelComponent) return
     const scene = modelComponent.scene.value
     if (!scene) return
 
@@ -143,7 +143,7 @@ function ModelReactor({ root }: EntityReactorProps) {
     removeComponent(entity, SceneAssetPendingTagComponent)
 
     return () => removeObjectFromGroup(entity, scene)
-  }, [modelComponent?.scene])
+  }, [modelComponent.scene])
 
   return null
 }

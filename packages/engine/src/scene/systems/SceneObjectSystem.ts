@@ -1,4 +1,4 @@
-import { hasComponent, Not } from 'bitecs'
+import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
 
@@ -15,7 +15,9 @@ import {
   defineQuery,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeQuery,
+  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
@@ -100,17 +102,17 @@ export default async function SceneObjectSystem(world: World) {
     }
   }
 
+  /**
+   * Group Reactor System
+   * responds to any changes in the
+   */
   const groupReactorSystem = defineQueryReactorSystem(world, 'XRE_GroupSystem', [GroupComponent], function (props) {
     const entity = props.root.entity
+    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
-    const visibleComponent = useOptionalComponent(entity, VisibleComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
-    const _groupLength = useHookstate(0)
+    const visibleComponent = useOptionalComponent(entity, VisibleComponent)
     const _groups = useHookstate([] as Object3DWithEntity[])
-
-    useEffect(() => {
-      _groupLength.set(groupComponent?.length ?? 0)
-    }, [groupComponent?.length])
 
     useEffect(() => {
       const length = groupComponent?.value?.length ?? 0
@@ -118,9 +120,9 @@ export default async function SceneObjectSystem(world: World) {
       const removedGroup = length < _groups.value.length
 
       if (addedGroup && groupComponent?.value) {
-        for (const group of groupComponent.value) {
-          if (!_groups.value.includes(group)) {
-            addedToGroup(group)
+        for (const obj of groupComponent.value) {
+          if (!_groups.value.includes(obj)) {
+            addedToGroup(obj)
           }
         }
       }
@@ -137,11 +139,20 @@ export default async function SceneObjectSystem(world: World) {
       }
 
       groupComponent?.value ? _groups.set([...groupComponent.value]) : _groups.set([])
-    }, [_groupLength])
+
+      return () => {
+        const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
+        for (const obj of _groups.value) {
+          for (const layer of layers) {
+            if (layer.has(obj)) layer.delete(obj)
+          }
+        }
+      }
+    }, [groupComponent])
 
     useEffect(() => {
       if (groupComponent?.value) for (const obj of groupComponent.value) obj.visible = !!visibleComponent?.value
-    }, [visibleComponent, _groupLength])
+    }, [visibleComponent, groupComponent])
 
     return null
   })

@@ -14,6 +14,7 @@ import {
   defineQuery,
   getComponent,
   getOptionalComponentState,
+  hasComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
@@ -110,6 +111,7 @@ export default async function PositionalAudioSystem(world: World) {
     [PositionalAudioComponent, TransformComponent],
     function (props) {
       const entity = props.root.entity
+      if (!hasComponent(entity, PositionalAudioComponent)) throw props.root.stop()
 
       const mediaElement = getOptionalComponentState(entity, MediaElementComponent)
       const panner = useHookstate(null as ReturnType<typeof addPannerNode> | null)

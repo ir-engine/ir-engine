@@ -72,21 +72,20 @@ export const SCENE_COMPONENT_VIDEO = 'video'
 
 function VideoReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const video = useOptionalComponent(entity, VideoComponent)
+  if (!hasComponent(entity, VideoComponent)) throw root.stop()
 
-  const mediaUUID = video?.mediaUUID.value ?? ''
+  const video = useComponent(entity, VideoComponent)
+  const mediaUUID = video.mediaUUID.value ?? ''
   const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID].value ?? entity
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
   // update side
   useEffect(() => {
-    if (!video) return
     video.videoMesh.material.side.set(video.side.value)
-  }, [video?.side])
+  }, [video.side])
 
   // update mesh
   useEffect(() => {
-    if (!video) return
     const videoMesh = video.videoMesh.value
     resizeImageMesh(videoMesh)
     const scale = ObjectFitFunctions.computeContentFitScale(
@@ -102,11 +101,10 @@ function VideoReactor({ root }: EntityReactorProps) {
     const videoGroup = video.videoGroup.value
     addObjectToGroup(entity, videoGroup)
     return () => removeObjectFromGroup(entity, videoGroup)
-  }, [video?.size, video?.fit, video?.videoMesh.material.map])
+  }, [video.size, video.fit, video.videoMesh.material.map])
 
   // update video texture
   useEffect(() => {
-    if (!video) return
     if (!mediaEntity) return addError(entity, VideoComponent, 'INVALID_MEDIA_UUID')
     if (!mediaElement) return addError(entity, VideoComponent, 'MISSING_MEDIA_ELEMENT')
     const material = video.videoMesh.material.value

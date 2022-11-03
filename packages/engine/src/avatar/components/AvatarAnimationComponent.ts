@@ -17,8 +17,6 @@ export type AvatarAnimationComponentType = {
 
 export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')
 
-const EPSILON = 1e-6
-
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
@@ -39,14 +37,7 @@ export const AvatarRigComponent = defineComponent({
       bindRig: BoneStructure
     }
   ) => {
-    if (typeof json?.rig === 'object') {
-      component.rig.set(json.rig)
-      json.rig.Head?.scale.setScalar(EPSILON)
-    }
+    if (typeof json?.rig === 'object') component.rig.set(json.rig)
     if (typeof json?.bindRig === 'object') component.bindRig.set(json.bindRig)
-  },
-
-  onRemove: (entity, component) => {
-    component.value.rig?.Head?.scale.setScalar(1)
   }
 })

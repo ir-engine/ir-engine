@@ -185,25 +185,25 @@ export const MediaComponent = defineComponent({
 
 export function MediaReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const media = useOptionalComponent(entity, MediaComponent)
+  if (!hasComponent(entity, MediaComponent)) throw root.stop()
+
+  const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
   useEffect(
     function updatePlay() {
-      if (!media || !mediaElement) return
+      if (!mediaElement) return
       if (media.paused.value) {
         mediaElement.element.value.pause()
       } else {
         mediaElement.element.value.play()
       }
     },
-    [media?.paused, mediaElement]
+    [media.paused, mediaElement]
   )
 
   useEffect(
     function updateTrackMetadata() {
-      if (!media) return
-
       clearErrors(entity, MediaComponent)
 
       const paths = media.paths.value
@@ -240,12 +240,12 @@ export function MediaReactor({ root }: EntityReactorProps) {
         }
       }
     },
-    [media?.paths]
+    [media.paths]
   )
 
   useEffect(
     function updateMediaElement() {
-      if (!isClient || !media) return
+      if (!isClient) return
 
       const track = media.track.value
       const path = media.paths[track].value
@@ -326,12 +326,11 @@ export function MediaReactor({ root }: EntityReactorProps) {
         mediaElementState.element.src.set(path)
       }
     },
-    [media?.paths, media?.track]
+    [media.paths, media.track]
   )
 
   useEffect(
     function updateVolume() {
-      if (!media) return
       const volume = media.volume.value
       const element = getOptionalComponent(entity, MediaElementComponent)?.element as HTMLMediaElement
       if (!element) return
@@ -340,12 +339,12 @@ export function MediaReactor({ root }: EntityReactorProps) {
         audioNodes.gain.gain.setTargetAtTime(volume, Engine.instance.audioContext.currentTime, 0.1)
       }
     },
-    [media?.volume]
+    [media.volume]
   )
 
   useEffect(
     function updateMixbus() {
-      if (!media || !mediaElement) return
+      if (!mediaElement) return
       const element = mediaElement.element.get({ noproxy: true })
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
@@ -356,7 +355,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         audioNodes.gain.connect(audioNodes.mixbus)
       }
     },
-    [mediaElement, media?.isMusic]
+    [mediaElement, media.isMusic]
   )
 
   return null

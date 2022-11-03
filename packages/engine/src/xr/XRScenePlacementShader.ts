@@ -70,6 +70,8 @@ export default async function XRScenePlacementShader(world: World) {
     [GroupComponent, Not(SceneTagComponent), VisibleComponent],
     function (props) {
       const entity = props.root.entity
+      if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+
       const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
       const sessionActive = useHookstate(xrState.sessionActive)
 

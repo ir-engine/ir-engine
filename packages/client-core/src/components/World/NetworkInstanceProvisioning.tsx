@@ -62,7 +62,7 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [])
 
-  useRoomCodeURLParam()
+  useRoomCodeURLParam(false, true)
 
   // 2. once we have the location, provision the instance server
   useEffect(() => {

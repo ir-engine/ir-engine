@@ -181,7 +181,7 @@ export default async function MediaSystem(world: World) {
 
   const mediaQuery = defineQuery([MediaComponent])
   const videoQuery = defineQuery([VideoComponent])
-  const volumetricQuery = defineQuery([VolumetricComponent])
+  const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
 
   Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
 

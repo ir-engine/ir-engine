@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Reconciler from 'react-reconciler'
 import {
   ConcurrentRoot,
@@ -62,7 +62,7 @@ export function createReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
   const onRecoverableError = (err) => console.error(err)
 
   const fiberRoot = ReactorReconciler.createContainer(
-    null,
+    {},
     ConcurrentRoot,
     null,
     isStrictMode,
@@ -82,10 +82,8 @@ export function createReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
       })
     },
     stop() {
-      return new Promise<void>((resolve) => {
-        console.warn('[Reactor]: Stopping a reactor, ignore any warnings errors thrown by react.')
-        ReactorReconciler.updateContainer(null, fiberRoot, null, () => resolve())
-      }).then(() => {
+      return Promise.resolve().then(() => {
+        ReactorReconciler.updateContainer(null, fiberRoot, null, () => {})
         reactorRoot.isRunning = false
       })
     }

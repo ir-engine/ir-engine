@@ -125,7 +125,6 @@ export function setupRightHandIK(entity: Entity) {
 
 export default async function AvatarSystem(world: World) {
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
-  const headDecapQuery = defineQuery([AvatarHeadDecapComponent, AvatarRigComponent])
   const avatarIKTargetsQuery = defineQuery([AvatarIKTargetsComponent, AvatarRigComponent])
 
   const avatarIKTargetsQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
@@ -169,7 +168,6 @@ export default async function AvatarSystem(world: World) {
 
   const cleanup = async () => {
     removeActionQueue(avatarDetailsQueue)
-    removeQuery(world, headDecapQuery)
   }
 
   return { execute, cleanup, subsystems: [] }

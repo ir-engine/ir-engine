@@ -1,5 +1,5 @@
 import * as bitECS from 'bitecs'
-import { FC, startTransition, useEffect } from 'react'
+import { startTransition, useEffect } from 'react'
 
 import config from '@xrengine/common/src/config'
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
@@ -17,9 +17,9 @@ import {
 } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
-import { Entity, UndefinedEntity } from '../classes/Entity'
+import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
-import { createEntityReactorWrapper, EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
+import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -191,7 +191,7 @@ export const setComponent = <C extends Component>(
     Component.map[entity].set(c)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
-      const root = createReactor(createEntityReactorWrapper(Component, Component.reactor)) as EntityReactorRoot
+      const root = createReactor(Component.reactor) as EntityReactorRoot
       root.entity = entity
       Component.reactorRoots.set(entity, root)
     }
@@ -280,8 +280,8 @@ export const removeComponent = <C extends Component>(
 ) => {
   if (!bitECS.entityExists(world, entity)) return
   if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.map[entity])
-  component.map[entity].set(none)
   bitECS.removeComponent(world, component, entity, false)
+  component.map[entity].set(none)
   const root = component.reactorRoots.get(entity)
   if (!root?.isRunning) root?.stop()
   component.reactorRoots.delete(entity)
