@@ -61,7 +61,7 @@ const createPointer = (inputSource: XRInputSource): PointerObject => {
     case 'gaze': {
       const geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
       const material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
-      return new Mesh(geometry, material)
+      return new Mesh(geometry, material) as PointerObject
     }
     default:
     case 'tracked-pointer': {

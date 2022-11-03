@@ -1,20 +1,7 @@
 // TODO: this should not be here
 import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
-import {
-  AdditiveBlending,
-  BoxGeometry,
-  BufferAttribute,
-  BufferGeometry,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  RingGeometry
-} from 'three'
+import { BufferGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, RingGeometry } from 'three'
 
-import { hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
-
-import { proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
 import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -168,7 +155,7 @@ export const XRControllerComponent = defineComponent({
   }
 })
 
-export type PointerObject = Object3D & {
+export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<RingGeometry, MeshBasicMaterial>) & {
   targetRay?: Mesh<BufferGeometry, MeshBasicMaterial>
   cursor?: Mesh<BufferGeometry, MeshBasicMaterial>
   lastHit?: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
