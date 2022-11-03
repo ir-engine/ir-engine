@@ -56,13 +56,11 @@ export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEnginePro
 export const useLocationSpawnAvatar = () => {
   const engineState = useEngineState()
   const authState = useAuthState()
-  const didSpawn = useHookstate(false)
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
   useHookEffect(() => {
     if (
-      didSpawn.value ||
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
