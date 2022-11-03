@@ -1,12 +1,42 @@
+import { useEffect } from 'react'
 import { Bone, Object3D } from 'three'
 
 import { ParityValue } from '../../common/enums/ParityValue'
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  createMappedComponent,
+  defineComponent,
+  getComponent,
+  hasComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
-export const AvatarHeadDecapComponent = createMappedComponent<true>('AvatarHeadDecapComponent')
+const EPSILON = 1e-6
+
+export const AvatarHeadDecapComponent = defineComponent({
+  name: 'AvatarHeadDecapComponent',
+
+  reactor: function ({ root }) {
+    const entity = root.entity
+
+    const headDecap = useOptionalComponent(entity, AvatarHeadDecapComponent)
+    const rig = useOptionalComponent(entity, AvatarRigComponent)
+
+    useEffect(() => {
+      if (rig?.value) {
+        if (headDecap?.value) {
+          rig.value.rig.Head?.scale.setScalar(EPSILON)
+        } else {
+          rig.value.rig?.Head?.scale.setScalar(1)
+        }
+      }
+    }, [headDecap, rig])
+
+    return null
+  }
+})
 
 export type AvatarHeadIKComponentType = {
   target: Object3D

@@ -50,19 +50,12 @@ async function MockSystemInitialiser(world: World, args: {}) {
   const execute = () => {
     const mockState = MockSystemState.get(world)!
 
-    // console.log('run MockSystem')
     for (const entity of mockQuery.enter()) {
-      const component = getComponent(entity, MockComponent)
-      // console.log('Mock query enter', entity, component)
-      mockState.push(component.mockValue)
-      // console.log('externalState', mockState)
+      mockState.push(entity)
     }
 
     for (const entity of mockQuery.exit()) {
-      const component = getComponent(entity, MockComponent, true)
-      // console.log('Mock query exit', entity, component)
-      mockState.splice(mockState.indexOf(component.mockValue))
-      // console.log('externalState', mockState)
+      mockState.splice(mockState.indexOf(entity))
     }
   }
 
@@ -178,14 +171,14 @@ describe('ECS', () => {
     addComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
     world.execute(world.startTime + mockDeltaMillis)
-    assert.strictEqual(component.mockValue, MockSystemState.get(world)![0])
+    assert.strictEqual(entity, MockSystemState.get(world)![0])
 
     const entity2 = createEntity()
     const mockValue2 = Math.random()
     addComponent(entity2, MockComponent, { mockValue: mockValue2 })
     const component2 = getComponent(entity2, MockComponent)
     world.execute(world.startTime + mockDeltaMillis * 2)
-    assert.strictEqual(component2.mockValue, MockSystemState.get(world)![1])
+    assert.strictEqual(entity2, MockSystemState.get(world)![1])
   })
 
   it('should remove and clean up component', async () => {
@@ -227,7 +220,7 @@ describe('ECS', () => {
     assert.strictEqual(component.mockValue, newMockValue)
     world.execute(world.startTime + mockDeltaMillis * 2)
     world.execute(world.startTime + mockDeltaMillis * 3)
-    assert.strictEqual(newMockValue, state[0])
+    assert.strictEqual(entity, state[0])
   })
 
   it('should remove and clean up entity', async () => {
@@ -240,7 +233,6 @@ describe('ECS', () => {
     assert(entities.includes(entity))
     removeEntity(entity)
     assert.ok(!getOptionalComponent(entity, MockComponent))
-    assert.ok(getComponent(entity, MockComponent, true))
     world.execute(world.startTime + mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(world)!, [])
     assert.ok(!world.entityQuery().includes(entity))

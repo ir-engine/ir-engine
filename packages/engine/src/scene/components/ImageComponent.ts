@@ -15,7 +15,12 @@ import { useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { defineComponent, useComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
@@ -112,12 +117,13 @@ export const SCENE_COMPONENT_IMAGE = 'image'
 
 export function ImageReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const image = useOptionalComponent(entity, ImageComponent)
+  if (!hasComponent(entity, ImageComponent)) throw root.stop()
+
+  const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
 
   useEffect(
     function updateTextureSource() {
-      if (!image) return
       const source = image.source.value
 
       if (!source) {
@@ -141,7 +147,7 @@ export function ImageReactor({ root }: EntityReactorProps) {
         // TODO: abort load request, pending https://github.com/mrdoob/three.js/pull/23070
       }
     },
-    [image?.source]
+    [image.source]
   )
 
   useEffect(
@@ -174,7 +180,6 @@ export function ImageReactor({ root }: EntityReactorProps) {
 
   useEffect(
     function updateGeometry() {
-      if (!image) return
       if (!image.mesh.material.map.value) return
 
       const flippedTexture = image.mesh.material.map.value.flipY
@@ -189,19 +194,18 @@ export function ImageReactor({ root }: EntityReactorProps) {
           resizeImageMesh(image.mesh.value)
       }
     },
-    [image?.mesh.material.map, image?.projection]
+    [image.mesh.material.map, image.projection]
   )
 
   useEffect(
     function updateMaterial() {
-      if (!image) return
       const material = image.mesh.material.value
       material.transparent = image.alphaMode.value === ImageAlphaMode.Blend
       material.alphaTest = image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0
       material.side = image.side.value
       material.needsUpdate = true
     },
-    [image?.alphaMode, image?.alphaCutoff, image?.side]
+    [image.alphaMode, image.alphaCutoff, image.side]
   )
 
   return null

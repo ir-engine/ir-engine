@@ -50,7 +50,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const [exporting, setExporting] = useState(false)
   const [exportPath, setExportPath] = useState(modelComponent?.src.value)
 
-  console.log('ModelNodeEditor', { modelComponent })
   if (!modelComponent) return <></>
   const errors = getEntityErrors(props.node.entity, ModelComponent)
   const obj3d = modelComponent.value.scene

@@ -1,7 +1,7 @@
 import * as bitECS from 'bitecs'
 import React, { useEffect } from 'react'
 
-import { createReactor, ReactorProps, ReactorRoot, useHookstate } from '@xrengine/hyperflux'
+import { createReactor, ReactorProps, ReactorRoot } from '@xrengine/hyperflux'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
@@ -9,10 +9,8 @@ import {
   Component,
   defineComponent,
   EntityRemovedComponent,
-  getComponent,
   removeAllComponents,
   setComponent,
-  useComponent,
   useOptionalComponent
 } from './ComponentFunctions'
 
@@ -43,26 +41,6 @@ export interface EntityReactorRoot extends ReactorRoot {
 
 export interface EntityReactorProps {
   root: EntityReactorRoot
-}
-
-export function UnmountComponent({ root }) {
-  useEffect(() => {
-    root.stop()
-  }, [])
-  return null
-}
-
-export function createEntityReactorWrapper<ComponentType>(
-  Component: Component<ComponentType, unknown, unknown>,
-  Reactor: React.FC<ReactorProps>
-) {
-  return function EntityReactorWrapper({ root }: EntityReactorProps) {
-    const component = useOptionalComponent(root.entity, Component) //useHookstate(Component.map[root.entity])
-    const validReactor = bitECS.entityExists(Engine.instance.currentWorld, root.entity) && component
-    // console.log(validReactor, Component.name, root.entity)
-    // if (!validReactor) root.stop() /** @todo throw root.stop() */
-    return validReactor ? <Reactor root={root} /> : <UnmountComponent root={root} />
-  }
 }
 
 export const defineEntityReactor = (def: { name: string; EntityReactor: React.FC<EntityReactorProps> }) => {

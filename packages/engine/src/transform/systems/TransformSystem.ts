@@ -13,7 +13,9 @@ import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
+  getComponentState,
   getOptionalComponent,
+  getOptionalComponentState,
   hasComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
@@ -50,6 +52,22 @@ const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCam
 
 const prevRigidbodyScale = new Map<Entity, Vector3>()
 
+// const updateTransformFromLocalTransform = (entity: Entity) => {
+//   const world = Engine.instance.currentWorld
+//   if (!hasComponent(entity, LocalTransformComponent) || !world.dirtyTransforms.has(entity)) return
+
+//   const localTransform = getComponentState(entity, LocalTransformComponent)
+//   if (!hasComponent(localTransform.parentEntity.value, TransformComponent)) return
+
+//   if (!world.dirtyTransforms.has(localTransform.parentEntity.value)) return
+
+//   const parentTransform = getComponentState(localTransform.parentEntity.value, TransformComponent)
+//   const transform = getComponentState(entity, TransformComponent)
+
+//   localTransform.matrix.value.compose(localTransform.position.value, localTransform.rotation.value, localTransform.scale.value)
+//   transform.matrix.value.multiplyMatrices(parentTransform.matrix.value, localTransform.matrix.value)
+//   transform.matrix.value.decompose(transform.position.value, transform.rotation.value, transform.scale.value)
+// }
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const world = Engine.instance.currentWorld
   const localTransform = getOptionalComponent(entity, LocalTransformComponent)

@@ -7,7 +7,7 @@ import { createReactor, useHookstate } from '@xrengine/hyperflux'
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { World } from '../../ecs/classes/World'
-import { getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
@@ -116,6 +116,7 @@ export default async function FogSystem(world: World) {
     [GroupComponent, Not(SceneTagComponent), VisibleComponent],
     function (props) {
       const entity = props.root.entity
+      if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
       const type = useHookstate(world.sceneMetadata.fog.type)
 

@@ -11,7 +11,13 @@ import { createActionQueue, getState, removeActionQueue, useHookstate } from '@x
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery
+} from '../ecs/functions/ComponentFunctions'
 import { defineQueryReactorSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../scene/components/GroupComponent'
@@ -244,6 +250,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
     [GroupComponent, Not(SceneTagComponent), VisibleComponent],
     function (props) {
       const entity = props.root.entity
+      if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
       const depthDataTexture = useHookstate(xrState.depthDataTexture)
 

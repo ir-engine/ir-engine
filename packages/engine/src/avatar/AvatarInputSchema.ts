@@ -117,7 +117,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
 
 const drop = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   console.log('dropping')
-  const equipper = getComponent(entity, EquipperComponent)
+  const equipper = getOptionalComponent(entity, EquipperComponent)
   if (!equipper?.equippedEntity) return
 
   unequipEntity(entity)
@@ -131,7 +131,7 @@ const cycleCameraMode = (entity: Entity, inputKey: InputAlias, inputValue: Input
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
 
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
-  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent) as
+  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent) as
     | ComponentType<typeof FollowCameraComponent>
     | undefined
 
