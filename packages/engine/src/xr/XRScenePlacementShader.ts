@@ -64,7 +64,7 @@ const removeShaderFromObject = (entity: Entity) => {
 export default async function XRScenePlacementShader(world: World) {
   const xrState = getState(XRState)
 
-  return defineQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
+  defineQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
@@ -82,4 +82,6 @@ export default async function XRScenePlacementShader(world: World) {
 
     return null
   })
+
+  return { execute: () => {}, cleanup: async () => {} }
 }
