@@ -20,7 +20,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
+import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
@@ -59,40 +59,35 @@ export default async function SceneObjectSystem(world: World) {
 
   const xrState = getState(XRState)
 
-  const reactorSystem = defineQueryReactorSystem(
-    world,
-    'XRE_ExpensiveMaterialReplacementSystem',
-    [GroupComponent, Not(SceneTagComponent), VisibleComponent],
-    function (props) {
-      const entity = props.root.entity
+  const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
+    const entity = props.root.entity
 
-      const is8thWallActive = useHookstate(xrState.is8thWallActive)
+    const is8thWallActive = useHookstate(xrState.is8thWallActive)
 
-      useEffect(() => {
-        /** ensure that hmd has no heavy materials */
-        if (isHMD || is8thWallActive.value) {
-          // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
-          for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
-            object.traverse((obj: Mesh<any, any>) => {
-              if (obj.material)
-                if (ExpensiveMaterials.has(obj.material.constructor)) {
-                  const prevMaterial = obj.material
-                  const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-                  prevMaterial.dispose()
-                  obj.material = new MeshBasicMaterial().copy(prevMaterial)
-                  obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
-                  obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
+    useEffect(() => {
+      /** ensure that hmd has no heavy materials */
+      if (isHMD || is8thWallActive.value) {
+        // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
+        for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
+          object.traverse((obj: Mesh<any, any>) => {
+            if (obj.material)
+              if (ExpensiveMaterials.has(obj.material.constructor)) {
+                const prevMaterial = obj.material
+                const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+                prevMaterial.dispose()
+                obj.material = new MeshBasicMaterial().copy(prevMaterial)
+                obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
+                obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
-                  // todo: find out why leaving the envMap makes basic & lambert materials transparent here
-                  obj.material.envMap = null
-                }
-            })
-        }
-      }, [is8thWallActive])
+                // todo: find out why leaving the envMap makes basic & lambert materials transparent here
+                obj.material.envMap = null
+              }
+          })
+      }
+    }, [is8thWallActive])
 
-      return null
-    }
-  )
+    return null
+  })
 
   const addedToGroup = (obj) => {
     const material = obj.material
@@ -106,7 +101,7 @@ export default async function SceneObjectSystem(world: World) {
    * Group Reactor System
    * responds to any changes in the
    */
-  const groupReactorSystem = defineQueryReactorSystem(world, 'XRE_GroupSystem', [GroupComponent], function (props) {
+  const groupReactorSystem = startQueryReactor([GroupComponent], function (props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
@@ -158,9 +153,6 @@ export default async function SceneObjectSystem(world: World) {
   })
 
   const execute = () => {
-    groupReactorSystem.execute()
-    reactorSystem.execute()
-
     const delta = getState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
       const callbacks = getComponent(entity, CallbackComponent)
@@ -171,8 +163,6 @@ export default async function SceneObjectSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, groupQuery)
     removeQuery(world, updatableQuery)
-    groupReactorSystem.cleanup()
-    reactorSystem.cleanup()
   }
 
   const subsystems = [() => Promise.resolve({ default: FogSystem })]

@@ -20,7 +20,7 @@ export const OfflineLocation = () => {
       const world = Engine.instance.currentWorld
       const userId = Engine.instance.userId
 
-      world._worldHostId = userId
+      world.hostIds.world.set(userId)
       world.networks.set(userId, new Network(userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 

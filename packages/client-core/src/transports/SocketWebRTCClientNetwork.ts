@@ -42,7 +42,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
   if (locationConnectionFailed) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld._worldHostId ?? ''
+    const instanceId = Engine.instance.currentWorld.hostIds.world.value ?? ''
     if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
@@ -53,7 +53,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
     }
   } else {
     const mediaInstanceConnectionState = accessMediaInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld._mediaHostId ?? ''
+    const instanceId = Engine.instance.currentWorld.hostIds.media.value ?? ''
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = accessAuthState()

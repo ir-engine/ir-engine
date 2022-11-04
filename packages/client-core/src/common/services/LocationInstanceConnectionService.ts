@@ -1,6 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@hookstate/core'
-import { useEffect } from 'react'
+import { none, State } from '@hookstate/core'
+import React, { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -36,11 +36,21 @@ export const LocationInstanceState = defineState({
   })
 })
 
+export function useWorldInstance() {
+  const [state, setState] = React.useState(null as null | State<InstanceState>)
+  const worldInstanceState = useState(getState(LocationInstanceState).instances)
+  const worldHostId = useState(Engine.instance.currentWorld.hostIds.world)
+  useEffect(() => {
+    setState(worldHostId.value ? worldInstanceState[worldHostId.value] : null)
+  }, [worldInstanceState, worldHostId])
+  return state
+}
+
 export const LocationInstanceConnectionServiceReceptor = (action) => {
   const s = getState(LocationInstanceState)
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.currentWorld._worldHostId = action.instanceId
+      Engine.instance.currentWorld.hostIds.world.set(action.instanceId)
       Engine.instance.currentWorld.networks.set(
         action.instanceId,
         new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
@@ -77,7 +87,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       Engine.instance.currentWorld.worldNetwork.hostId = action.newInstanceId as UserId
       Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.worldNetwork)
       Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
-      Engine.instance.currentWorld._worldHostId = action.newInstanceId as UserId
+      Engine.instance.currentWorld.hostIds.world.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })

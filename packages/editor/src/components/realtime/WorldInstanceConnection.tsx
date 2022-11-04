@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import {
   LocationInstanceConnectionAction,
   LocationInstanceConnectionServiceReceptor,
-  useLocationInstanceConnectionState
+  useLocationInstanceConnectionState,
+  useWorldInstance
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -74,8 +75,7 @@ export const WorldInstanceConnection = () => {
   // const incrementPage = () => { }
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
-  const instanceConnectionState = useLocationInstanceConnectionState()
-  const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
+  const currentLocationInstanceConnection = useWorldInstance()
 
   const getIcon = () => {
     if (currentLocationInstanceConnection?.value) {

@@ -69,7 +69,7 @@ describe('AmbientLightFunctions', () => {
     })
 
     it('should return undefine if there is no ambient light component', () => {
-      assert.throws(() => serializeAmbientLight(entity))
+      assert.equal(serializeAmbientLight(entity), undefined)
     })
   })
 

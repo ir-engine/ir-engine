@@ -1,12 +1,12 @@
 import * as bitECS from 'bitecs'
-import { startTransition, useEffect } from 'react'
+import React, { startTransition, useEffect } from 'react'
 
 import config from '@xrengine/common/src/config'
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
-import { createReactor } from '@xrengine/hyperflux'
+import { startReactor } from '@xrengine/hyperflux'
 import {
   createState,
   NO_PROXY,
@@ -193,7 +193,7 @@ export const setComponent = <C extends Component>(
     Component.mapState[entity].set(c)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
-      const root = createReactor(Component.reactor) as EntityReactorRoot
+      const root = startReactor(Component.reactor) as EntityReactorRoot
       root.entity = entity
       Component.reactorRoots.set(entity, root)
     }
@@ -280,8 +280,8 @@ export const removeComponent = <C extends Component>(
   component: C,
   world = Engine.instance.currentWorld
 ) => {
-  if (!bitECS.entityExists(world, entity)) return
-  if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.mapState[entity])
+  if (!bitECS.entityExists(world, entity) || !bitECS.hasComponent(world, component, entity)) return
+  component.onRemove(entity, component.mapState[entity])
   bitECS.removeComponent(world, component, entity, false)
   component.mapState[entity].set(none)
   const root = component.reactorRoots.get(entity)

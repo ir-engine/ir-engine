@@ -65,6 +65,8 @@ export default class InfiniteGridHelper extends Mesh {
   plane: Plane
   intersectionPointWorld: Vector3
   intersection: any
+  matrixAutoUpdate = false
+  matrixWorldAutoUpdate = false
 
   constructor(size1?, size2?, color?, distance?) {
     color = color || new Color('white')

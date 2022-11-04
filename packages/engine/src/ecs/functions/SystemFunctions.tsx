@@ -1,13 +1,23 @@
 /** Functions to provide system level functionalities. */
 
 import * as bitECS from 'bitecs'
+import React from 'react'
 
 import multiLogger from '@xrengine/common/src/logger'
+import { ReactorProps, ReactorRoot, startReactor } from '@xrengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
-import { defineComponent, defineQuery, removeComponent, removeQuery, setComponent } from './ComponentFunctions'
-import { EntityReactorProps } from './EntityFunctions'
+import {
+  defineComponent,
+  defineQuery,
+  Query,
+  removeComponent,
+  removeQuery,
+  setComponent,
+  useQuery
+} from './ComponentFunctions'
+import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
@@ -212,20 +222,23 @@ export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
   })
 }
 
-export const defineQueryReactorSystem = (
-  world: World,
-  name: string,
+function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReactor: React.FC<EntityReactorProps> }) {
+  const entities = useQuery(props.query)
+  return (
+    <>
+      {entities.map((entity) => (
+        <props.ChildEntityReactor key={entity} root={{ ...props.root, entity }} />
+      ))}
+    </>
+  )
+}
+
+export const startQueryReactor = (
   components: (bitECS.Component | bitECS.QueryModifier)[],
-  reactor: React.FC<EntityReactorProps>
-): SystemDefintion => {
+  ChildEntityReactor: React.FC<EntityReactorProps>
+) => {
   const query = defineQuery(components)
-  const C = defineComponent({ name, reactor })
-  const execute = () => {
-    for (const entity of query.enter()) setComponent(entity, C)
-    for (const entity of query.exit()) removeComponent(entity, C)
-  }
-  const cleanup = async () => {
-    removeQuery(world, query)
-  }
-  return { execute, cleanup }
+  return startReactor(({ root }: ReactorProps) => (
+    <QueryReactor query={query} ChildEntityReactor={ChildEntityReactor} root={root} />
+  ))
 }

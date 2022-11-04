@@ -33,7 +33,7 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       generateBVH: false,
-      matrixAutoUpdate: true,
+      matrixAutoUpdate: false,
       scene: undefined as undefined | Scene
     }
   },
