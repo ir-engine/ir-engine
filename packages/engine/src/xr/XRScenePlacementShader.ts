@@ -7,7 +7,7 @@ import { getState, useHookstate } from '@xrengine/hyperflux'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { defineQueryReactor } from '../ecs/functions/SystemFunctions'
+import { startQueryReactor } from '../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -64,7 +64,7 @@ const removeShaderFromObject = (entity: Entity) => {
 export default async function XRScenePlacementShader(world: World) {
   const xrState = getState(XRState)
 
-  defineQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
+  startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 

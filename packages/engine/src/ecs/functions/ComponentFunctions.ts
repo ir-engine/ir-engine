@@ -6,7 +6,7 @@ import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
-import { createReactor } from '@xrengine/hyperflux'
+import { startReactor } from '@xrengine/hyperflux'
 import {
   createState,
   NO_PROXY,
@@ -193,7 +193,7 @@ export const setComponent = <C extends Component>(
     Component.mapState[entity].set(c)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
-      const root = createReactor(Component.reactor) as EntityReactorRoot
+      const root = startReactor(Component.reactor) as EntityReactorRoot
       root.entity = entity
       Component.reactorRoots.set(entity, root)
     }

@@ -445,6 +445,14 @@ export default async function DebugHelpersSystem(world: World) {
       helpersByEntity.box.delete(entity)
     }
 
+    for (const entity of boundingBoxQuery()) {
+      if (!debugEnabled && helpersByEntity.box.has(entity)) {
+        const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
+        boxHelper.removeFromParent()
+        helpersByEntity.box.delete(entity)
+      }
+    }
+
     for (const entity of boundingBoxQuery.enter()) {
       const boundingBox = getComponent(entity, BoundingBoxComponent)
       const helper = new Box3Helper(boundingBox.box)

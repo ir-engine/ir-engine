@@ -18,7 +18,7 @@ import {
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { defineQueryReactor } from '../../ecs/functions/SystemFunctions'
+import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
@@ -106,7 +106,7 @@ export default async function PositionalAudioSystem(world: World) {
   /** Weak map entry is automatically GC'd when network object is removed */
   const avatarAudioStreams: WeakMap<NetworkObjectComponentType, MediaStream> = new WeakMap()
 
-  const positionalAudioPannerReactor = defineQueryReactor(
+  const positionalAudioPannerReactor = startQueryReactor(
     [PositionalAudioComponent, TransformComponent],
     function (props) {
       const entity = props.root.entity
