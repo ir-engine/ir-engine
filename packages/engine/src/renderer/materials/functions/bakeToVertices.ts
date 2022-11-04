@@ -18,7 +18,7 @@ import { changeMaterialPrototype } from './Utilities'
 
 export default async function bakeToVertices<T extends Material>(
   material: T,
-  colors: { field: keyof T; attribName: string }[],
+  colors: (keyof T)[],
   maps: { field: keyof T; attribName: string }[],
   root: Object3D = Engine.instance.currentWorld.scene,
   nuPrototype: string = 'MeshMatcapMaterial'
@@ -58,12 +58,12 @@ export default async function bakeToVertices<T extends Material>(
           })
         }),
       ...colors
-        .filter(({ field }) => (material[field] as Color)?.isColor)
-        .map((colorEntry) => {
-          const color = material[colorEntry.field] as Color
+        .filter((field) => (material[field] as Color)?.isColor)
+        .map((field) => {
+          const color = material[field] as Color
           const result = new Array<Color>(mesh.geometry.getAttribute('position').count)
           result.fill(color)
-          ;(material as any)[colorEntry.field] = new Color('#fff')
+          ;(material as any)[field] = new Color('#fff')
           return Promise.resolve(result)
         })
     ]).then((samples) => {

@@ -32,6 +32,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
+import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
@@ -140,10 +141,7 @@ export default function ModelTransformProperties({
         ...(vertexBakeOptions.emissive.value ? [{ field: 'emissiveMap', attribName: 'uv' }] : []),
         ...(vertexBakeOptions.lightMap.value ? [{ field: 'lightMap', attribName: 'uv2' }] : [])
       ] as { field: keyof MeshStandardMaterial; attribName: string }[]
-      const colors = [{ field: 'color', attribName: 'uv' }] as {
-        field: keyof MeshStandardMaterial
-        attribName: string
-      }[]
+      const colors: (keyof MeshStandardMaterial)[] = ['color']
       const src: MaterialSource = { type: SourceType.MODEL, path: modelState.src.value }
       await Promise.all(
         materialsFromSource(src)?.map((matComponent) =>
@@ -274,11 +272,21 @@ export default function ModelTransformProperties({
                 value={transformParms.meshQuantization.enabled.value}
                 onChange={onChangeTransformParm(transformParms.meshQuantization, 'enabled')}
               />
+              <ParameterInput
+                entity={`${modelState.src.value}-mesh-quantization`}
+                values={transformParms.meshQuantization.options.value}
+                onChange={onChangeTransformParm.bind({}, transformParms.meshQuantization.options)}
+              />
             </InputGroup>
             <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
               <BooleanInput
                 value={transformParms.dracoCompression.enabled.value}
                 onChange={onChangeTransformParm(transformParms.dracoCompression, 'useDraco')}
+              />
+              <ParameterInput
+                entity={`${modelState.src.value}-draco-compression`}
+                values={transformParms.dracoCompression.options.value}
+                onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
               />
             </InputGroup>
             <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
@@ -339,7 +347,7 @@ export default function ModelTransformProperties({
             />
           </InputGroup>
           <Button onClick={doVertexBake(modelState)}>Bake To Vertices</Button>
-          <Button onClick={onBakeSelected}>Bake Selected</Button>
+          <Button onClick={onBakeSelected}>Bake And Optimize</Button>
         </CollapsibleBlock>
       </TransformContainer>
     </CollapsibleBlock>
