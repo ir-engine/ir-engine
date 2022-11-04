@@ -23,10 +23,9 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
 
-export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
+export const parseECSData = (entity: Entity, data: [string, any][]): void => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
-  const data = Object.entries(obj3d.userData)
 
   for (const [key, value] of data) {
     const parts = key.split('.')
@@ -43,7 +42,6 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
           if (value === 'false') val = false
           _toLoad[parts[1]][parts[2]] = val
         }
-        delete obj3d.userData[key]
       }
     }
   }
@@ -80,6 +78,10 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       })
     }
   }
+}
+
+export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
+  parseECSData(entity, Object.entries(obj3d.userData))
 }
 
 export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
