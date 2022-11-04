@@ -38,8 +38,8 @@ const promisedRequest = (socket: Socket) => {
   }
 }
 
-const handleFailedConnection = (locationConnectionFailed) => {
-  if (locationConnectionFailed) {
+const handleFailedConnection = (isLocation: boolean) => {
+  if (isLocation) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
     const instanceId = Engine.instance.currentWorld.hostIds.world.value ?? ''

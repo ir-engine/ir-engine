@@ -1,4 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { hookstate } from '@xrengine/hyperflux'
 import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
@@ -107,4 +108,11 @@ export class Network {
     this.hostId = hostId
     this.topic = topic
   }
+}
+
+export const createNetwork = <S extends {}>(extensionProps = {} as S) => {
+  return hookstate({
+    hostId: '' as UserId,
+    ...extensionProps
+  })
 }
