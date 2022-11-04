@@ -1,5 +1,14 @@
 import { Application } from '@feathersjs/express/lib'
-import { Document, Format, Buffer as glBuffer, Material, Property, Texture } from '@gltf-transform/core'
+import {
+  BufferUtils,
+  Document,
+  Format,
+  Buffer as glBuffer,
+  Material,
+  Primitive,
+  Property,
+  Texture
+} from '@gltf-transform/core'
 import { MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
 import { dedup, draco, partition, prune, quantize, reorder } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
@@ -21,36 +30,6 @@ export type ModelTransformArguments = {
   src: string
   dst: string
   parms: ModelTransformParameters
-}
-
-export type ModelResourcesArguments = {
-  src: string
-  filter: string
-}
-
-export async function getModelResources(app: Application, args: ModelResourcesArguments) {
-  const { io } = await ModelTransformLoader()
-  const document = await io.read(args.src)
-  const root = document.getRoot()
-  const listTable = (element) => {
-    switch (element) {
-      case 'meshes':
-        return root.listMeshes()
-      case 'textures':
-        return root.listTextures()
-      case 'materials':
-        return root.listMaterials()
-      case 'nodes':
-        return root.listNodes()
-      default:
-        return []
-    }
-  }
-  const entries = listTable(args.filter).map((resource, idx): [string, Property] => [
-    `${resource.propertyType}-${idx}`,
-    resource
-  ])
-  return Object.fromEntries(entries)
 }
 
 export async function combineMaterials(document: Document) {
@@ -87,12 +66,46 @@ export async function combineMaterials(document: Document) {
   })
 }
 
+export async function combineMeshes(document: Document) {
+  const root = document.getRoot()
+  const prims = root.listMeshes().flatMap((mesh) => mesh.listPrimitives())
+  const matMap = new Map<Material, Primitive[]>()
+  for (const prim of prims) {
+    const material = prim.getMaterial()
+    if (material) {
+      if (!matMap.has(material)) {
+        matMap.set(material, [])
+      }
+      const matPrims = matMap.get(material)
+      matPrims?.push(prim)
+    }
+  }
+  ;[...matMap.entries()].map(([material, prims]) => {
+    const nuPrim = document.createPrimitive()
+    nuPrim.setMaterial(material)
+    prims.map((prim) => {
+      prim.listAttributes().map((accessor) => {
+        let nuAttrib = nuPrim.getAttribute(accessor.getName())
+        if (!nuAttrib) {
+          nuPrim.setAttribute(accessor.getName(), accessor)
+          nuAttrib = accessor
+        } else {
+          nuAttrib.setArray(
+            BufferUtils.concat([Uint8Array.from(nuAttrib.getArray()!), Uint8Array.from(accessor.getArray()!)])
+          )
+        }
+      })
+    })
+  })
+}
+
 export async function transformModel(app: Application, args: ModelTransformArguments) {
   const parms = args.parms
   const promiseExec = util.promisify(exec)
   const serverDir = path.join(appRootPath.path, 'packages/server')
   const tmpDir = path.join(serverDir, 'tmp')
   const BASIS_U = path.join(appRootPath.path, 'packages/server/public/loader_decoders/basisu')
+  const GLTF_PACK = path.join(appRootPath.path, 'packages/server/public/loader_decoders/gltfpack')
   const toTmp = (fileName) => {
     return `${tmpDir}/${fileName}`
   }
@@ -172,37 +185,21 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
   /* ID unnamed resources */
   await combineMaterials(document)
-
-  await document.transform(dedup())
+  if (args.parms.dedup) {
+    await document.transform(dedup())
+  }
+  if (args.parms.prune) {
+    await document.transform(prune())
+  }
 
   /* PROCESS MESHES */
-  if (args.parms.useMeshopt) {
-    document
-      .createExtension(MeshoptCompression)
-      .setRequired(true)
-      .setEncoderOptions({ method: MeshoptCompression.EncoderMethod.QUANTIZE })
-
-    await MeshoptEncoder.ready
-    await document.transform(prune(), reorder({ encoder: MeshoptEncoder }))
-  }
-  if (args.parms.useMeshQuantization) {
+  if (args.parms.meshQuantization.enabled) {
     document.createExtension(MeshQuantization).setRequired(true)
-    await document.transform(
-      quantize({
-        quantizeColor: 8,
-        quantizeNormal: 8,
-        quantizePosition: 16
-      })
-    )
+    await document.transform(quantize(args.parms.meshQuantization.options))
   }
-  if (args.parms.useDraco) {
-    await document.transform(
-      draco({
-        method: 'sequential',
-        encodeSpeed: 0,
-        decodeSpeed: 0
-      })
-    )
+
+  if (args.parms.dracoCompression.enabled) {
+    await document.transform(draco(args.parms.dracoCompression.options))
   }
   /* /PROCESS MESHES */
 
