@@ -280,8 +280,8 @@ export const removeComponent = <C extends Component>(
   component: C,
   world = Engine.instance.currentWorld
 ) => {
-  if (!bitECS.entityExists(world, entity)) return
-  if (bitECS.hasComponent(world, component, entity)) component.onRemove(entity, component.mapState[entity])
+  if (!bitECS.entityExists(world, entity) || !bitECS.hasComponent(world, component, entity)) return
+  component.onRemove(entity, component.mapState[entity])
   bitECS.removeComponent(world, component, entity, false)
   component.mapState[entity].set(none)
   const root = component.reactorRoots.get(entity)

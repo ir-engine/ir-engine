@@ -52,6 +52,10 @@ export function setupHeadIK(entity: Entity) {
     rotationClamp: 0.785398
   })
 
+  const target = AvatarHeadIKComponent.map[entity].target
+  target.matrixAutoUpdate = false
+  target.matrixWorldAutoUpdate = false
+
   const headIK = getComponent(entity, AvatarHeadIKComponent)
   proxifyVector3(AvatarHeadIKComponent.target.position, entity, headIK.target.position)
   proxifyQuaternion(AvatarHeadIKComponent.target.quaternion, entity, headIK.target.quaternion)
@@ -81,6 +85,10 @@ export function setupLeftHandIK(entity: Entity) {
     targetRotWeight: 1,
     hintWeight: 1
   })
+
+  const target = AvatarLeftHandIKComponent.map[entity].target
+  target.matrixAutoUpdate = false
+  target.matrixWorldAutoUpdate = false
 
   const lefthand = getComponent(entity, AvatarLeftHandIKComponent)
   proxifyVector3(AvatarLeftHandIKComponent.target.position, entity, lefthand.target.position)
@@ -117,6 +125,10 @@ export function setupRightHandIK(entity: Entity) {
     targetRotWeight: 1,
     hintWeight: 1
   })
+
+  const target = AvatarLeftHandIKComponent.map[entity].target
+  target.matrixAutoUpdate = false
+  target.matrixWorldAutoUpdate = false
 
   const rightHand = getComponent(entity, AvatarRightHandIKComponent)
   proxifyVector3(AvatarRightHandIKComponent.target.position, entity, rightHand.target.position)
