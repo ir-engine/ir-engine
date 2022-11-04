@@ -14,6 +14,7 @@ export type ColliderComponentType = {
   removeMesh: boolean
   collisionLayer: number
   collisionMask: number
+  restitution: number
   /**
    * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
    */
@@ -40,6 +41,7 @@ export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {
   shapeType: ShapeType.Cuboid,
   isTrigger: false,
   removeMesh: false,
+  restitution: 1,
   collisionLayer: CollisionGroups.Default,
   collisionMask: DefaultCollisionMask
 }
