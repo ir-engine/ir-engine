@@ -45,11 +45,6 @@ const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
-  if (!avatarURL)
-    return NotificationService.dispatchNotify(
-      'Your avatar is missing a a model. Please change your avatar from the user menu.',
-      { variant: 'error' }
-    )
   const model = await AssetLoader.loadAsync(avatarURL)
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
@@ -97,7 +92,7 @@ export const loadAvatarForUser = async (
 
   removeComponent(entity, AvatarPendingComponent)
 
-  if (parent) setupAvatarForUser(entity, parent)
+  setupAvatarForUser(entity, parent)
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)

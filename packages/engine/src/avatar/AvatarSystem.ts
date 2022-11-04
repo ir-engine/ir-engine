@@ -35,7 +35,7 @@ export function avatarDetailsReceptor(
 ) {
   const userAvatarDetails = getState(WorldState).userAvatarDetails
   userAvatarDetails[action.$from].set(action.avatarDetail)
-  if (isClient) {
+  if (isClient && action.avatarDetail.avatarURL) {
     const entity = world.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
   }
