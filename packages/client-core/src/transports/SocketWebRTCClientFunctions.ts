@@ -27,7 +27,13 @@ import {
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { addActionReceptor, dispatchAction, removeActionReceptor, removeActionsForTopic } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  dispatchAction,
+  none,
+  removeActionReceptor,
+  removeActionsForTopic
+} from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
@@ -938,12 +944,12 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       MediaStreams.instance.localScreen = null!
       network.consumers = []
       world.networks.delete(network.hostId)
-      world._mediaHostId = null!
+      world.hostIds.media.set(none)
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
     } else {
       NetworkPeerFunctions.destroyAllPeers(network, world)
       world.networks.delete(network.hostId)
-      world._worldHostId = null!
+      world.hostIds.world.set(none)
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
       dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
       // if world has a media server connection

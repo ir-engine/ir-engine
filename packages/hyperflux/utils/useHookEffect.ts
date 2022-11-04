@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 type PrimitiveType = string | number | boolean | null | undefined
 
 /**
- * @deprecate use standard React useEffect; this function is no longer necessary
+ * @deprecated use standard React useEffect; this function is no longer necessary
  */
 export const useHookEffect = (value: () => void, deps: Array<StateMethods<any> | PrimitiveType>) => {
   const updatedDeps = deps.map((dep) => {

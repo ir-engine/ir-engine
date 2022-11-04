@@ -2,7 +2,10 @@ import { useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect, useRef, useState, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  useLocationInstanceConnectionState,
+  useWorldInstance
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import multiLogger from '@xrengine/common/src/logger'
@@ -41,16 +44,13 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   /**
    * Provisioning logic
    */
-
-  const locationInstanceConnectionState = useLocationInstanceConnectionState()
-  const currentInstanceConnection =
-    locationInstanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId]
+  const currentInstanceConnection = useWorldInstance()
 
   useEffect(() => {
     if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
       ChatService.getInstanceChannel()
     }
-  }, [currentInstanceConnection?.connected?.value])
+  }, [currentInstanceConnection?.connected])
 
   /**
    * Message display logic
