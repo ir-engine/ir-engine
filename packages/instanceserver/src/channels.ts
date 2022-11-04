@@ -234,13 +234,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
-    world._mediaHostId = hostId as UserId
+    world.hostIds.media.set(hostId as UserId)
     await initializeRealtimeSystems(true, false)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    world._worldHostId = hostId as UserId
+    world.hostIds.world.set(hostId as UserId)
 
     const [projectName, sceneName] = sceneId.split('/')
 

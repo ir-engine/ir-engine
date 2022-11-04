@@ -98,14 +98,14 @@ export class World {
    * get the default world network
    */
   get worldNetwork() {
-    return this.networks.get(this._worldHostId)!
+    return this.networks.get(this.hostIds.world.value!)!
   }
 
   /**
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(this._mediaHostId)!
+    return this.networks.get(this.hostIds.media.value!)!
   }
 
   /** @todo parties */
@@ -113,8 +113,14 @@ export class World {
   //   return this.networks.get(NetworkTopics.localMedia)?.get(this._mediaHostId)!
   // }
 
-  _worldHostId = null! as UserId
-  _mediaHostId = null! as UserId
+  /** temporary until Network.ts is refactored to be function & hookstate */
+  hostIds = hookstate({
+    media: null as UserId | null,
+    world: null as UserId | null
+  })
+
+  // _worldHostId = null! as UserId
+  // _mediaHostId = null! as UserId
 
   networks = new Map<string, Network>()
 

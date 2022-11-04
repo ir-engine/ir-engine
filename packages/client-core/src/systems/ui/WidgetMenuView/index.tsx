@@ -11,7 +11,7 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Refresh as RefreshIcon } from '@mui/icons-material'
 
-import { useMediaInstanceConnectionState } from '../../../common/services/MediaInstanceConnectionService'
+import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
 import { MediaStreams } from '../../../transports/MediaStreams'
@@ -70,9 +70,7 @@ const WidgetButtons = () => {
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
-  const mediaState = useMediaInstanceConnectionState()
-  const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
-  const mediaInstanceConnection = mediaHostId && mediaState.instances[mediaHostId].ornull
+  const mediaInstanceState = useMediaInstance()
 
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
   const instanceChannel = channelEntries.find(
@@ -148,12 +146,13 @@ const WidgetButtons = () => {
         xr-layer="true"
       >
         <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
-        <WidgetButton
-          disabled={!mediaInstanceConnection}
-          Icon={MicIcon}
-          toggle={handleMicClick}
-          label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
-        />
+        {mediaInstanceState?.value && (
+          <WidgetButton
+            Icon={MicIcon}
+            toggle={handleMicClick}
+            label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
+          />
+        )}
         {/* <WidgetButton
           Icon={VrIcon}
           toggle={toggleVRSession}
