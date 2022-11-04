@@ -1,5 +1,7 @@
 import * as bitECS from 'bitecs'
 
+import { ReactorRoot } from '@xrengine/hyperflux'
+
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { EntityRemovedComponent, removeAllComponents, setComponent } from './ComponentFunctions'
@@ -23,4 +25,12 @@ export const removeEntity = (entity: Entity, immediately = false, world = Engine
 
 export const entityExists = (entity: Entity, world = Engine.instance.currentWorld) => {
   return bitECS.entityExists(world, entity)
+}
+
+export interface EntityReactorRoot extends ReactorRoot {
+  entity: Entity
+}
+
+export interface EntityReactorProps {
+  root: EntityReactorRoot
 }

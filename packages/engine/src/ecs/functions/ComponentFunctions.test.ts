@@ -218,7 +218,7 @@ describe('ComponentFunctions', async () => {
 
     it('should return undefined on null entity argument', () => {
       assert.equal(removeComponent(null!, null!), undefined)
-      assert.throws(() => removeComponent(undefined!, undefined!))
+      assert.equal(removeComponent(undefined!, undefined!), undefined)
     })
   })
 
