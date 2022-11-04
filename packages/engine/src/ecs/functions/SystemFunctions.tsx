@@ -238,7 +238,9 @@ export const defineQueryReactor = (
   ChildEntityReactor: React.FC<EntityReactorProps>
 ) => {
   const query = defineQuery(components)
-  return createReactor(({ root }: ReactorProps) => (
+  const reactor = createReactor(({ root }: ReactorProps) => (
     <QueryReactor query={query} ChildEntityReactor={ChildEntityReactor} root={root} />
   ))
+  reactor.run()
+  return reactor
 }
