@@ -8,7 +8,7 @@ import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { World } from '../../ecs/classes/World'
 import { getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
+import { defineQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
@@ -110,9 +110,7 @@ export default async function FogSystem(world: World) {
 
   reactor.run()
 
-  const reactorSystem = defineQueryReactorSystem(
-    world,
-    'XRE_FogSystemShaderSystem',
+  const reactorSystem = defineQueryReactor(
     [GroupComponent, Not(SceneTagComponent), VisibleComponent],
     function (props) {
       const entity = props.root.entity
@@ -150,13 +148,9 @@ export default async function FogSystem(world: World) {
     }
   )
 
-  const execute = () => {
-    reactorSystem.execute()
-  }
+  const execute = () => {}
 
-  const cleanup = async () => {
-    reactorSystem.cleanup()
-  }
+  const cleanup = async () => {}
 
   return { execute, cleanup }
 }

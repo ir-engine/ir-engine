@@ -20,7 +20,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
+import { defineQueryReactor } from '../../ecs/functions/SystemFunctions'
 import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
@@ -59,9 +59,7 @@ export default async function SceneObjectSystem(world: World) {
 
   const xrState = getState(XRState)
 
-  const reactorSystem = defineQueryReactorSystem(
-    world,
-    'XRE_ExpensiveMaterialReplacementSystem',
+  const reactorSystem = defineQueryReactor(
     [GroupComponent, Not(SceneTagComponent), VisibleComponent],
     function (props) {
       const entity = props.root.entity
@@ -106,7 +104,7 @@ export default async function SceneObjectSystem(world: World) {
    * Group Reactor System
    * responds to any changes in the
    */
-  const groupReactorSystem = defineQueryReactorSystem(world, 'XRE_GroupSystem', [GroupComponent], function (props) {
+  const groupReactorSystem = defineQueryReactor([GroupComponent], function (props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
@@ -158,9 +156,6 @@ export default async function SceneObjectSystem(world: World) {
   })
 
   const execute = () => {
-    groupReactorSystem.execute()
-    reactorSystem.execute()
-
     const delta = getState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
       const callbacks = getComponent(entity, CallbackComponent)
@@ -171,8 +166,6 @@ export default async function SceneObjectSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, groupQuery)
     removeQuery(world, updatableQuery)
-    groupReactorSystem.cleanup()
-    reactorSystem.cleanup()
   }
 
   const subsystems = [() => Promise.resolve({ default: FogSystem })]

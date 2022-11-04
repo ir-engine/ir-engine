@@ -1,5 +1,5 @@
 import * as bitECS from 'bitecs'
-import { startTransition, useEffect } from 'react'
+import React, { startTransition, useEffect } from 'react'
 
 import config from '@xrengine/common/src/config'
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'

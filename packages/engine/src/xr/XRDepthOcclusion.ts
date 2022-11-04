@@ -18,7 +18,7 @@ import {
   hasComponent,
   removeQuery
 } from '../ecs/functions/ComponentFunctions'
-import { defineQueryReactorSystem } from '../ecs/functions/SystemFunctions'
+import { defineQueryReactor } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
@@ -244,9 +244,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
   let depthSupported = false
 
-  const reactorSystem = defineQueryReactorSystem(
-    world,
-    'XRE_DepthOcclusionShaderSystem',
+  const reactorSystem = defineQueryReactor(
     [GroupComponent, Not(SceneTagComponent), VisibleComponent],
     function (props) {
       const entity = props.root.entity
@@ -283,7 +281,6 @@ export default async function XRDepthOcclusionSystem(world: World) {
     }
     const xrFrame = Engine.instance.xrFrame as XRFrame & getDepthInformationType
     depthSupported = typeof xrFrame?.getDepthInformation === 'function'
-    reactorSystem.execute()
     if (!depthSupported) return
     XRDepthOcclusion.updateDepthMaterials(
       Engine.instance.xrFrame as any,
@@ -295,7 +292,6 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, groupQuery)
     removeActionQueue(xrSessionChangedQueue)
-    reactorSystem.cleanup()
   }
 
   return { execute, cleanup }
