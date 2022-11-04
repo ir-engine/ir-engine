@@ -30,7 +30,8 @@ export class TwitterStrategy extends CustomOAuthStrategy {
       ...baseData,
       email: profile.email,
       type: 'twitter',
-      userId
+      userId,
+      accountIdentifier: profile.screen_name
     }
   }
 
