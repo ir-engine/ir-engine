@@ -378,7 +378,8 @@
       "confirmUserDelete": "Do you want to delete user",
       "isGuest": "Is guest",
       "selectAllScopes": "Select All Scopes",
-      "clearAllScopes": "Clear All Scopes"
+      "clearAllScopes": "Clear All Scopes",
+      "userSearch": "user by id, name or account identifier"
     },
     "server": {
       "loading": "Fetching Server Info",

@@ -105,11 +105,27 @@ export class User extends Service<UserInterface> {
 
       const searchedUser = await this.app.service('user').Model.findAll({
         where: {
-          name: {
-            [Op.like]: `%${search}%`
-          }
+          [Op.or]: [
+            {
+              id: {
+                [Op.like]: `%${search}%`
+              }
+            },
+            {
+              name: {
+                [Op.like]: `%${search}%`
+              }
+            }
+          ]
         },
-        raw: true
+        include: [
+          {
+            model: this.app.service('identity-provider').Model,
+            as: 'identity_providers'
+          }
+        ],
+        raw: true,
+        nest: true
       })
 
       if (search) {
@@ -134,22 +150,6 @@ export class User extends Service<UserInterface> {
       }
 
       delete params?.query?.$sort
-      return super.find(params)
-    } else if (action === 'search') {
-      const searchUser = params.query.data
-      delete params.query.action
-      const searchedUser = await this.app.service('user').Model.findAll({
-        where: {
-          name: {
-            [Op.like]: `%${searchUser}%`
-          }
-        },
-        raw: true,
-        nest: true
-      })
-      params.query.id = {
-        $in: searchedUser.map((user) => user.id)
-      }
       return super.find(params)
     } else if (action === 'invite-code-lookup') {
       delete params.query.action

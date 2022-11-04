@@ -106,7 +106,7 @@ const UserTable = ({ className, search }: UserProps) => {
 
   const rows = adminUsers.map((el) => {
     return createData(
-      el.id || '',
+      el.id,
       el,
       el.name,
       el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,

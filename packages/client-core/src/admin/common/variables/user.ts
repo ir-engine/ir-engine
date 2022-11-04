@@ -1,11 +1,12 @@
 export interface UserColumn {
-  id: 'name' | 'avatarId' | 'isGuest' | 'location' | 'inviteCode' | 'instanceId' | 'action'
+  id: 'id' | 'name' | 'avatarId' | 'isGuest' | 'location' | 'inviteCode' | 'instanceId' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
 }
 
 export const userColumns: UserColumn[] = [
+  { id: 'id', label: 'User Id', minWidth: 65 },
   { id: 'name', label: 'Name', minWidth: 65 },
   { id: 'avatarId', label: 'Avatar', minWidth: 65 },
   {
