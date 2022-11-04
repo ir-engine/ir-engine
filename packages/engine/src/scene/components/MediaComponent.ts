@@ -344,7 +344,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   useEffect(
     function updateMixbus() {
-      if (!mediaElement) return
+      if (!mediaElement?.value) return
       const element = mediaElement.element.get({ noproxy: true })
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
