@@ -369,6 +369,7 @@
       "avatarRequired": "Avatar is required",
       "scopeTypeRequired": "Scope type is required",
       "hideGuests": "Hide guests",
+      "id": "Id",
       "name": "Name",
       "avatar": "Avatar",
       "grantScope": "Grant Scope",

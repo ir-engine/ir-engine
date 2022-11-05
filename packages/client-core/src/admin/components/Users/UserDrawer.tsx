@@ -47,6 +47,7 @@ interface Props {
 }
 
 const defaultState = {
+  id: '',
   name: '',
   avatar: '',
   isGuest: true,
@@ -125,6 +126,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     if (selectedUser) {
       setState({
         ...defaultState,
+        id: selectedUser.id,
         name: selectedUser.name || '',
         avatar: selectedUser.avatarId || '',
         isGuest: selectedUser.isGuest,
@@ -221,6 +223,8 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             `${t('admin:components.common.update')} ${selectedUser?.name}`}
           {mode === UserDrawerMode.ViewEdit && !editMode && selectedUser?.name}
         </DialogTitle>
+
+        <InputText name="id" label={t('admin:components.user.id')} value={state.id} disabled />
 
         <InputText
           name="name"
