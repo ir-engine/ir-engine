@@ -264,7 +264,8 @@ export class Location<T = LocationDataType> extends Service<T> {
           screenSharingEnabled: !!location_settings.screenSharingEnabled,
           maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
           locationType: location_settings.locationType || 'private',
-          locationId: location.id
+          locationId: location.id,
+          _8wlocationId: location_settings._8wlocationId || ''
         },
         { transaction: t }
       )
@@ -334,7 +335,8 @@ export class Location<T = LocationDataType> extends Service<T> {
           faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
           screenSharingEnabled: !!location_settings.screenSharingEnabled,
           maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
-          locationType: location_settings.locationType || 'private'
+          locationType: location_settings.locationType || 'private',
+          _8wlocationId: location_settings._8wlocationId || ''
         },
         { where: { id: oldSettings.id }, transaction: t }
       )

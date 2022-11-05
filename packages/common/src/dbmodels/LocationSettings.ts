@@ -4,4 +4,5 @@ export interface LocationSettingsInterface {
   audioEnabled: boolean
   screenSharingEnabled: boolean
   faceStreamingEnabled: boolean
+  _8wlocationId: string
 }
