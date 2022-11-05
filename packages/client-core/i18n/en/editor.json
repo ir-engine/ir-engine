@@ -2,7 +2,7 @@
   "loading": "Loading Project",
   "loadingError": "Error loading project",
   "loadingErrorMsg": "There was an error when loading the project.",
-  "selectSceneMsg": "Select Scene to start playing with the engine",
+  "selectSceneMsg": "Select a Scene in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
   "generateScreenshot": "Generating Project Screenshot",
