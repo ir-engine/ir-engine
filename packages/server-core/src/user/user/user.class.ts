@@ -118,19 +118,23 @@ export class User extends Service<UserInterface> {
             }
           ]
         },
-        include: [
-          {
-            model: this.app.service('identity-provider').Model,
-            as: 'identity_providers'
+        raw: true
+      })
+      const searchedIdentityProviders = await this.app.service('identity-provider').Model.findAll({
+        where: {
+          accountIdentifier: {
+            [Op.like]: `%${search}%`
           }
-        ],
-        raw: true,
-        nest: true
+        },
+        raw: true
       })
 
       if (search) {
+        const userIds = searchedUser.map((user) => user.id)
+        const ipUserIds = searchedIdentityProviders.map((ip) => ip.userId)
+
         params.query.id = {
-          $in: searchedUser.map((user) => user.id)
+          $in: [...userIds, ...ipUserIds]
         }
       }
 
