@@ -18,6 +18,7 @@ import { changeMaterialPrototype } from './Utilities'
 
 export default async function bakeToVertices<T extends Material>(
   material: T,
+  colors: (keyof T)[],
   maps: { field: keyof T; attribName: string }[],
   root: Object3D = Engine.instance.currentWorld.scene,
   nuPrototype: string = 'MeshMatcapMaterial'
@@ -27,8 +28,8 @@ export default async function bakeToVertices<T extends Material>(
     //for each vertex in each mesh with material assigned:
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     if (!materials.includes(material)) return //skip meshes without selected material
-    const samples = Promise.all(
-      maps
+    const samples = Promise.all([
+      ...maps
         .filter(({ field }) => (material[field] as Texture)?.isTexture)
         .map((map) => {
           const texture = material[map.field] as Texture
@@ -55,8 +56,17 @@ export default async function bakeToVertices<T extends Material>(
             ;(material as any)[map.field] = null
             resolve(result)
           })
+        }),
+      ...colors
+        .filter((field) => (material[field] as Color)?.isColor)
+        .map((field) => {
+          const color = material[field] as Color
+          const result = new Array<Color>(mesh.geometry.getAttribute('position').count)
+          result.fill(color)
+          ;(material as any)[field] = new Color('#fff')
+          return Promise.resolve(result)
         })
-    ).then((samples) => {
+    ]).then((samples) => {
       const composited = samples.reduce(
         (sample1, sample0) => sample0.map((col, idx) => (sample1.length <= idx ? col : col.multiply(sample1[idx]))),
         []

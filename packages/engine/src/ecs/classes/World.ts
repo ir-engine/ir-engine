@@ -390,8 +390,8 @@ export class World {
     for (const entity of this.#entityRemovedQuery(this)) removeEntity(entity as Entity, true, this)
 
     for (const { query, state } of this.reactiveQueryStates) {
-      const entitiesAdded = query.enter()
-      const entitiesRemoved = query.exit()
+      const entitiesAdded = query.enter().length
+      const entitiesRemoved = query.exit().length
       if (entitiesAdded || entitiesRemoved) {
         state.set(query())
       }

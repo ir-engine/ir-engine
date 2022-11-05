@@ -4,7 +4,7 @@ import * as bitECS from 'bitecs'
 import React from 'react'
 
 import multiLogger from '@xrengine/common/src/logger'
-import { createReactor, ReactorProps, ReactorRoot } from '@xrengine/hyperflux'
+import { ReactorProps, ReactorRoot, startReactor } from '@xrengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
@@ -233,12 +233,12 @@ function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReact
   )
 }
 
-export const defineQueryReactor = (
+export const startQueryReactor = (
   components: (bitECS.Component | bitECS.QueryModifier)[],
   ChildEntityReactor: React.FC<EntityReactorProps>
 ) => {
   const query = defineQuery(components)
-  return createReactor(({ root }: ReactorProps) => (
+  return startReactor(({ root }: ReactorProps) => (
     <QueryReactor query={query} ChildEntityReactor={ChildEntityReactor} root={root} />
   ))
 }

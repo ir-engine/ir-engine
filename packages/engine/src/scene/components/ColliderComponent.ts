@@ -41,7 +41,7 @@ export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {
   shapeType: ShapeType.Cuboid,
   isTrigger: false,
   removeMesh: false,
-  restitution: 1,
+  restitution: 0.5,
   collisionLayer: CollisionGroups.Default,
   collisionMask: DefaultCollisionMask
 }

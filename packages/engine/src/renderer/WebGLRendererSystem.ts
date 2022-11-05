@@ -27,10 +27,10 @@ import {
 
 import {
   createActionQueue,
-  createReactor,
   dispatchAction,
   getState,
   removeActionQueue,
+  startReactor,
   useHookstate
 } from '@xrengine/hyperflux'
 
@@ -295,7 +295,7 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolHeightActions = createActionQueue(EngineRendererAction.changeGridToolHeight.matches)
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
 
-  const reactor = createReactor(() => {
+  const reactor = startReactor(() => {
     const renderSettings = useHookstate(world.sceneMetadata.renderSettings)
     const postprocessing = useHookstate(world.sceneMetadata.postprocessing)
 

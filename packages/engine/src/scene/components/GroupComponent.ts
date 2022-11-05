@@ -55,6 +55,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.quaternion.copy(transform.rotation)
   obj.scale.copy(transform.scale)
   obj.matrixAutoUpdate = false
+  obj.matrixWorldAutoUpdate = false
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrix
   obj.matrixWorldInverse = transform.matrixInverse
