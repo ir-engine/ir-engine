@@ -1,5 +1,6 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
+import { accessLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import config from '@xrengine/common/src/config'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
@@ -98,6 +99,15 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
 
   const requiredPermissions = XR8.XrPermissions.permissions()
   return new Promise<HTMLCanvasElement>((resolve, reject) => {
+    const locationState = accessLocationState()
+    const vpsWayspotName = locationState.currentLocation.location.location_setting.value?._8wlocationId
+
+    if (vpsWayspotName) {
+      XR8.VpsCoachingOverlay.config({
+        wayspotName: vpsWayspotName
+      })
+    }
+
     XR8.addCameraPipelineModules([
       XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
       XR8.Threejs.pipelineModule(),
@@ -105,8 +115,9 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
         // enableLighting: true
         // enableWorldPoints: true,
         // imageTargets: true,
-        // enableVps: true
+        enableVps: !!vpsWayspotName
       }),
+      XR8.VpsCoachingOverlay.pipelineModule(),
       XRExtras.RuntimeError.pipelineModule()
     ])
 
@@ -246,8 +257,12 @@ const skyboxQuery = defineQuery([SkyboxComponent])
 export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
   const xrState = getState(XRState)
+  const locationState = accessLocationState()
 
-  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
+  const vpsWayspotName = locationState.currentLocation.location.location_setting.value?._8wlocationId
+
+  const using8thWall =
+    (isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))) || vpsWayspotName
 
   const vpsComponent = defineQuery([VPSComponent])
 
