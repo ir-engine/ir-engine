@@ -46,7 +46,6 @@ export const LocationSeed: Location = {
     screenSharingEnabled: false,
     faceStreamingEnabled: false,
     locationType: 'private',
-    videoEnabled: false,
-    _8wlocationId: ''
+    videoEnabled: false
   }
 }
