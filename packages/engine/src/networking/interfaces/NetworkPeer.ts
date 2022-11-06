@@ -11,7 +11,7 @@ export interface NetworkPeer {
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
   // The following properties are only present on the server
   socket?: SocketIO.Socket
-  socketId?: PeerID
+  peerID?: PeerID
   lastSeenTs?: any
   joinTs?: any
   media?: {}

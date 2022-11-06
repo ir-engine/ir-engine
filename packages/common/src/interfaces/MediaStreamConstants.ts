@@ -1,8 +1,9 @@
 import { ChannelType } from './Channel'
+import { PeerID } from './PeerID'
 
 export type MediaStreamAppData = {
   mediaTag: MediaTagType
-  peerId: string
+  peerId: PeerID
   direction: TransportDirection
   channelType: ChannelType
   channelId: string

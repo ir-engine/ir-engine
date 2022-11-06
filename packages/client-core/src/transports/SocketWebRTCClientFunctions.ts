@@ -75,6 +75,7 @@ function actionDataHandler(message) {
 }
 
 type PeersUpdateType = Array<{
+  peerId: PeerID
   userId: UserId
   index: number
   name: string
@@ -112,10 +113,10 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   function peerUpdateHandler(peers: PeersUpdateType) {
     for (const peer of peers) {
-      NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
+      NetworkPeerFunctions.createPeer(network, peer.peerId, peer.userId, peer.index, peer.name)
     }
-    for (const [userId, peer] of network.peers) {
-      if (!peers.find((p) => p.userId === userId)) NetworkPeerFunctions.destroyPeer(network, userId)
+    for (const [peerId, peer] of network.peers) {
+      if (!peers.find((p) => p.peerId === peerId)) NetworkPeerFunctions.destroyPeer(network, peerId)
     }
     logger.info('Updated peers %o', { topic: network.topic, peers })
   }
@@ -235,7 +236,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   }
 
   async function webRTCCreateProducerHandler(
-    socketId: PeerID,
+    peerId: PeerID,
     mediaTag,
     producerId,
     channelType: ChannelType,
@@ -246,7 +247,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
 
     const consumerMatch = network.consumers?.find(
-      (c) => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
+      (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
     )
     if (
       producerId != null &&
@@ -259,7 +260,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
           currentChannelInstanceConnection.channelId.value === channelId)
     ) {
       // that we don't already have consumers for...
-      await subscribeToTrack(network as SocketWebRTCClientNetwork, socketId, mediaTag)
+      await subscribeToTrack(network as SocketWebRTCClientNetwork, peerId, mediaTag)
     }
   }
 

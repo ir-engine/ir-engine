@@ -36,8 +36,8 @@ describe('NetworkPeerFunctions', () => {
       assert.equal(network.peers.get(userId)?.userId, userId)
       assert.equal(network.peers.get(userId)?.index, userIndex)
       assert.equal(worldState.userNames[userId]?.value, userName)
-      assert.equal(network.userIndexToUserId.get(userIndex), userId)
-      assert.equal(network.userIdToUserIndex.get(userId), userIndex)
+      assert.equal(network.userIndexToUserID.get(userIndex), userId)
+      assert.equal(network.userIDToUserIndex.get(userId), userIndex)
     })
 
     it('should udpate peer if it already exists', () => {
@@ -79,8 +79,8 @@ describe('NetworkPeerFunctions', () => {
       assert(!network.peers.get(userId))
 
       // indexes shouldn't be removed (no reason for these to ever change in a network)
-      assert.equal(network.userIndexToUserId.get(userIndex), userId)
-      assert.equal(userIndex, network.userIdToUserIndex.get(userId))
+      assert.equal(network.userIndexToUserID.get(userIndex), userId)
+      assert.equal(userIndex, network.userIDToUserIndex.get(userId))
     })
 
     it('should remove peer and owned network objects', () => {
@@ -110,8 +110,8 @@ describe('NetworkPeerFunctions', () => {
       world.execute(0)
 
       assert(!network.peers.get(userId))
-      assert.equal(network.userIndexToUserId.get(1), userId)
-      assert.equal(network.userIdToUserIndex.get(userId), 1)
+      assert.equal(network.userIndexToUserID.get(1), userId)
+      assert.equal(network.userIDToUserIndex.get(userId), 1)
 
       assert(!world.getNetworkObject(userId, networkId))
     })

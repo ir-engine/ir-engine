@@ -2,6 +2,7 @@ import { MathUtils } from 'three'
 import { matches, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
@@ -42,6 +43,11 @@ export type ActionOptions = {
    * The uuid of this action, uniquely identifying it
    */
   $uuid?: string
+
+  /**
+   * The id of the sender's socket
+   */
+  $peer?: PeerID
 
   /**
    * The id of the sender

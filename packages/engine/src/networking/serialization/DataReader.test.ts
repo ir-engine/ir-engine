@@ -454,8 +454,8 @@ describe('DataReader', () => {
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserId = new Map([[userIndex, userId]])
-    network.userIdToUserIndex = new Map([[userId, userIndex]])
+    network.userIndexToUserID = new Map([[userIndex, userId]])
+    network.userIDToUserIndex = new Map([[userId, userIndex]])
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -526,8 +526,8 @@ describe('DataReader', () => {
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserId = new Map([[userIndex, userId]])
-    network.userIdToUserIndex = new Map([[userId, userIndex]])
+    network.userIndexToUserID = new Map([[userIndex, userId]])
+    network.userIDToUserIndex = new Map([[userId, userIndex]])
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -580,8 +580,8 @@ describe('DataReader', () => {
     const userIndex = 0
 
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserId = new Map([[userIndex, userId]])
-    network.userIdToUserIndex = new Map([[userId, userIndex]])
+    network.userIndexToUserID = new Map([[userIndex, userId]])
+    network.userIDToUserIndex = new Map([[userId, userIndex]])
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -618,8 +618,8 @@ describe('DataReader', () => {
     const writeView = createViewCursor()
 
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserId = new Map()
-    network.userIdToUserIndex = new Map()
+    network.userIndexToUserID = new Map()
+    network.userIDToUserIndex = new Map()
 
     const userId = 'userId' as UserId
     const n = 50
@@ -647,8 +647,8 @@ describe('DataReader', () => {
         authorityUserId: userId,
         ownerId: userId
       })
-      network.userIndexToUserId.set(userIndex, userId)
-      network.userIdToUserIndex.set(userId, userIndex)
+      network.userIndexToUserID.set(userIndex, userId)
+      network.userIDToUserIndex.set(userId, userIndex)
     })
 
     writeEntities(writeView, entities)
@@ -688,14 +688,14 @@ describe('DataReader', () => {
     const write = createDataWriter()
     const network = Engine.instance.currentWorld.worldNetwork
 
-    network.userIndexToUserId = new Map()
-    network.userIdToUserIndex = new Map()
+    network.userIndexToUserID = new Map()
+    network.userIDToUserIndex = new Map()
 
     Engine.instance.userId = 'userId' as UserId
     const userId = Engine.instance.userId
     const userIndex = 0
-    network.userIndexToUserId.set(userIndex, userId)
-    network.userIdToUserIndex.set(userId, userIndex)
+    network.userIndexToUserID.set(userIndex, userId)
+    network.userIDToUserIndex.set(userId, userIndex)
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -792,8 +792,8 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserId = new Map()
-    network.userIdToUserIndex = new Map()
+    network.userIndexToUserID = new Map()
+    network.userIDToUserIndex = new Map()
     const engineState = getState(EngineState)
     engineState.fixedTick.set(1)
 
@@ -817,8 +817,8 @@ describe('DataReader', () => {
         authorityUserId: userId,
         ownerId: userId
       })
-      network.userIndexToUserId.set(userIndex, userId)
-      network.userIdToUserIndex.set(userId, userIndex)
+      network.userIndexToUserID.set(userIndex, userId)
+      network.userIDToUserIndex.set(userId, userIndex)
     })
 
     const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
@@ -836,8 +836,8 @@ describe('DataReader', () => {
     const write = createDataWriter()
     const network = Engine.instance.currentWorld.worldNetwork
 
-    network.userIndexToUserId = new Map()
-    network.userIdToUserIndex = new Map()
+    network.userIndexToUserID = new Map()
+    network.userIDToUserIndex = new Map()
     const engineState = getState(EngineState)
     engineState.fixedTick.set(60)
 
@@ -862,8 +862,8 @@ describe('DataReader', () => {
         authorityUserId: userId,
         ownerId: userId
       })
-      network.userIndexToUserId.set(userIndex, userId)
-      network.userIdToUserIndex.set(userId, userIndex)
+      network.userIndexToUserID.set(userIndex, userId)
+      network.userIDToUserIndex.set(userId, userIndex)
     })
 
     const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
@@ -875,8 +875,8 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserId = new Map()
-    network.userIdToUserIndex = new Map()
+    network.userIndexToUserID = new Map()
+    network.userIDToUserIndex = new Map()
     const engineState = getState(EngineState)
     engineState.fixedTick.set(1)
 
@@ -900,8 +900,8 @@ describe('DataReader', () => {
         authorityUserId: userId,
         ownerId: userId
       })
-      network.userIndexToUserId.set(userIndex, userId)
-      network.userIdToUserIndex.set(userId, userIndex)
+      network.userIndexToUserID.set(userIndex, userId)
+      network.userIDToUserIndex.set(userId, userIndex)
     })
 
     let packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)

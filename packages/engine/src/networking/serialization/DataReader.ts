@@ -305,7 +305,7 @@ export const readEntities = (v: ViewCursor, world: World, byteLength: number, fr
 export const readMetadata = (v: ViewCursor, world: World) => {
   const userIndex = readUint32(v)
   const fixedTick = readUint32(v)
-  // if (userIndex === world.userIdToUserIndex.get(world.worldNetwork.hostId)! && !world.worldNetwork.isHosting) world.fixedTick = fixedTick
+  // if (userIndex === world.peerIDToUserIndex.get(world.worldNetwork.hostId)! && !world.worldNetwork.isHosting) world.fixedTick = fixedTick
   return userIndex
 }
 
@@ -313,7 +313,7 @@ export const createDataReader = () => {
   return (world: World, network: Network, packet: ArrayBuffer) => {
     const view = createViewCursor(packet)
     const userIndex = readMetadata(view, world)
-    const fromUserId = network.userIndexToUserId.get(userIndex)
+    const fromUserId = network.userIndexToUserID.get(userIndex)
     if (fromUserId) readEntities(view, world, packet.byteLength, fromUserId)
   }
 }

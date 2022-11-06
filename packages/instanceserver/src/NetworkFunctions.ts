@@ -220,23 +220,25 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   return true
 }
 
-export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socketId: SocketId | PeerID) {
-  const client = Array.from(network.peers.values()).find((c) => c.socketId === socketId)
+export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socketID: SocketId | PeerID) {
+  const client = Array.from(network.peers.values()).find((c) => c.peerID === socketID)
   return client?.userId
 }
 
 export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, socket: Socket, user: UserInterface) => {
   const userId = user.id
   const avatarDetail = user.avatar
+  const peerID = socket.id as PeerID
 
   // Create a new client object
   // and add to the dictionary
-  const userIndex = network.userIndexCount++
-  network.peers.set(userId, {
+  const existingUserIndex = Array.from(network.peers.values()).find((client) => client.userId === userId)
+  const userIndex = existingUserIndex ? existingUserIndex.index : network.userIndexCount++
+  network.peers.set(peerID, {
     userId,
     index: userIndex,
     socket: socket,
-    socketId: socket.id as PeerID,
+    peerID: peerID,
     lastSeenTs: Date.now(),
     joinTs: Date.now(),
     media: {},
@@ -253,10 +255,10 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     thumbnailURL: avatarDetail.thumbnailResource?.url || ''
   })
 
-  network.userIdToUserIndex.set(userId, userIndex)
-  network.userIndexToUserId.set(userIndex, userId)
+  network.userIDToUserIndex.set(userId, userIndex)
+  network.userIndexToUserID.set(userIndex, userId)
 
-  const spectating = network.peers.get(userId)!.spectating
+  const spectating = network.peers.get(peerID)!.spectating
 
   network.app.service('message').create(
     {
@@ -299,11 +301,11 @@ export async function handleJoinWorld(
   if (data.inviteCode && !network.app.isChannelInstance) await getUserSpawnFromInvite(network, user, data.inviteCode!)
 }
 
-export function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, userId: UserId) {
+export function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, peerId: PeerID) {
   // If we are already logged in, kick the other socket
-  const client = network.peers.get(userId)
+  const client = network.peers.get(peerId)
   if (client) {
-    if (client.socketId === socket.id) {
+    if (client.peerID === socket.id) {
       logger.info('Client already logged in, disallowing new connection')
       return true
     }
@@ -384,30 +386,28 @@ const getUserSpawnFromInvite = async (
 
 export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket: Socket, message) {
   if (!message) return
-
-  const userIdMap = {} as { [socketId: string]: UserId }
-  for (const [id, client] of network.peers) userIdMap[client.socketId!] = id
-  if (!userIdMap[socket.id])
-    throw new Error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
+  const networkPeer = network.peers.get(socket.id as PeerID)
+  if (!networkPeer) throw new Error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
-    a['$fromSocketId'] = socket.id
-    a.$from = userIdMap[socket.id]
+    a.$peer = socket.id as PeerID
+    a.$from = networkPeer.userId
     dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
 export async function handleHeartbeat(network: SocketWebRTCServerNetwork, socket: Socket): Promise<any> {
-  const userId = getUserIdFromSocketId(network, socket.id)!
+  const peerID = socket.id as PeerID
   // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
-  if (network.peers.has(userId)) network.peers.get(userId)!.lastSeenTs = Date.now()
+  if (network.peers.has(peerID)) network.peers.get(peerID)!.lastSeenTs = Date.now()
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, socket: Socket): Promise<any> {
   const userId = getUserIdFromSocketId(network, socket.id) as UserId
-  const disconnectedClient = network.peers.get(userId)
+  const peerID = socket.id as PeerID
+  const disconnectedClient = network.peers.get(peerID)
   if (!disconnectedClient)
     return logger.warn(
       'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake.'
@@ -415,7 +415,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
-  if (socket.id === disconnectedClient?.socketId) {
+  if (socket.id === disconnectedClient?.peerID) {
     const state = getState(WorldState)
     const userName = state.userNames[userId].value
 
@@ -433,7 +433,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
       }
     )
 
-    NetworkPeerFunctions.destroyPeer(network, userId, Engine.instance.currentWorld)
+    NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
     network.updatePeers()
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
@@ -451,11 +451,11 @@ export async function handleLeaveWorld(
   data,
   callback
 ): Promise<any> {
-  const userId = getUserIdFromSocketId(network, socket.id)!
+  const peerID = socket.id as PeerID
   for (const [, transport] of Object.entries(network.mediasoupTransports))
-    if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
-  if (network.peers.has(userId)) {
-    NetworkPeerFunctions.destroyPeer(network, userId, Engine.instance.currentWorld)
+    if ((transport as any).appData.peerId === peerID) closeTransport(network, transport)
+  if (network.peers.has(peerID)) {
+    NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
     network.updatePeers()
   }
   if (callback !== undefined) callback({})

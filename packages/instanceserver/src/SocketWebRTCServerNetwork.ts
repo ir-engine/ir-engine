@@ -44,6 +44,7 @@ export class SocketWebRTCServerNetwork extends Network {
     const userNames = getState(WorldState).userNames
     const peers = Array.from(this.peers.values()).map((peer) => {
       return {
+        peerID: peer.peerID,
         userId: peer.userId,
         index: peer.index,
         name: userNames[peer.userId].value
@@ -60,8 +61,6 @@ export class SocketWebRTCServerNetwork extends Network {
     const actions = [...Engine.instance.store.actions.outgoing[this.topic].queue]
     if (!actions.length) return
 
-    const userIdMap = {} as { [socketId: string]: UserId }
-    for (const [id, client] of this.peers) userIdMap[client.socketId!] = id
     const outgoing = Engine.instance.store.actions.outgoing
 
     for (const [socketID, socket] of this.app.io.of('/').sockets) {
@@ -73,7 +72,7 @@ export class SocketWebRTCServerNetwork extends Network {
           outgoing[this.topic].queue.splice(idx, 1)
         }
         if (!action.$to) continue
-        const toUserId = userIdMap[socketID]
+        const toUserId = this.peers.get(socketID)!.userId
         if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
           arr.push(action)
         }

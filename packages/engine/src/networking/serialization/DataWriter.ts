@@ -401,7 +401,7 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 }
 
 export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, world: World) => {
-  writeUint32(v, network.userIdToUserIndex.get(userId)!)
+  writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, world.fixedTick)
 }
 

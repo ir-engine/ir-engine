@@ -7,6 +7,7 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -227,7 +228,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
   const network = new SocketWebRTCServerNetwork(hostId, topic, app)
-  app.transport = network
+  app.network = network
   const initPromise = network.initialize()
 
   world.networks.set(hostId, network)
@@ -266,6 +267,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   NetworkPeerFunctions.createPeer(
     network,
+    'self' as PeerID,
     hostId,
     network.userIndexCount++,
     'server-' + hostId,
@@ -401,8 +403,10 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
-  const activeClients = app.transport.peers
-  const activeUsers = [...activeClients].filter(([id]) => id !== Engine.instance.userId && id !== userToIgnore.id)
+  const activeClients = app.network.peers
+  const activeUsers = [...activeClients].filter(
+    ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
+  )
   return activeUsers.length
 }
 
@@ -482,7 +486,7 @@ const handleUserDisconnect = async (
 
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (app.transport.peers.size <= 1) {
+  if (app.network.peers.size <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }

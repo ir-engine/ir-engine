@@ -1,3 +1,4 @@
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -11,37 +12,42 @@ import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
-import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
 
 function createPeer(
   network: Network,
-  userId: UserId,
+  peerID: PeerID,
+  userID: UserId,
   index: number,
   name: string,
   world = Engine.instance.currentWorld
 ) {
-  console.log('[Network]: Create Peer', network.topic, userId, index, name)
+  console.log('[Network]: Create Peer', network.topic, peerID, index, name)
 
-  network.userIdToUserIndex.set(userId, index)
-  network.userIndexToUserId.set(index, userId)
+  network.userIDToUserIndex.set(userID, index)
+  network.userIndexToUserID.set(index, userID)
 
-  network.peers.set(userId, {
-    userId: userId,
+  network.peers.set(peerID, {
+    peerID: peerID,
+    userId: userID,
     index: index
   })
 
   const worldState = getState(WorldState)
-  worldState.userNames[userId].set(name)
+  worldState.userNames[userID].set(name)
 }
 
-function destroyPeer(network: Network, userId: UserId, world = Engine.instance.currentWorld) {
-  console.log('[Network]: Destroy Peer', network.topic, userId)
-  if (!network.peers.has(userId))
-    return console.warn(`[WorldNetworkActionReceptors]: tried to remove client with userId ${userId} that doesn't exit`)
-  if (userId === Engine.instance.userId)
+function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.currentWorld) {
+  console.log('[Network]: Destroy Peer', network.topic, peerID)
+  if (!network.peers.has(peerID))
+    return console.warn(`[WorldNetworkActionReceptors]: tried to remove client with peerId ${peerID} that doesn't exit`)
+  const userID = network.peers.get(peerID)!.userId
+  if (userID === Engine.instance.userId)
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
 
-  network.peers.delete(userId)
+  network.peers.delete(peerID)
+  const index = network.userIDToUserIndex.get(userID)!
+  network.userIDToUserIndex.delete(userID)
+  network.userIndexToUserID.delete(index)
 
   /**
    * if no other connections exist for this user, and this action is occurring on the world network,
@@ -50,17 +56,17 @@ function destroyPeer(network: Network, userId: UserId, world = Engine.instance.c
   if (network.topic === 'world') {
     const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
       .map(([id, network]: [string, Network]) => {
-        return network.peers.has(userId)
+        return network.peers.has(peerID)
       })
       .filter((peer) => !!peer)
 
     if (!remainingPeersForDisconnectingUser.length) {
-      Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userId)
-      for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
+      Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
+      for (const eid of world.getOwnedNetworkObjects(userID)) removeEntity(eid)
     }
 
-    clearCachedActionsForUser(network, userId)
-    clearActionsHistoryForUser(userId)
+    clearCachedActionsForUser(network, userID)
+    clearActionsHistoryForUser(userID)
   }
 }
 

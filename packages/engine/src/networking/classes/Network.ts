@@ -1,3 +1,4 @@
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -66,16 +67,16 @@ export class Network {
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
   /** Connected peers */
-  peers = new Map() as Map<UserId, NetworkPeer>
+  peers = new Map() as Map<PeerID, NetworkPeer>
 
   /** Publish to connected peers that peer information has changed */
   updatePeers() {}
 
   /** Map of numerical user index to user client IDs */
-  userIndexToUserId = new Map<number, UserId>()
+  userIndexToUserID = new Map<number, UserId>()
 
   /** Map of user client IDs to numerical user index */
-  userIdToUserIndex = new Map<UserId, number>()
+  userIDToUserIndex = new Map<UserId, number>()
 
   /**
    * The index to increment when a new user joins

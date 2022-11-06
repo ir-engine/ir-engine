@@ -116,7 +116,7 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
          * @todo Check if the user is banned
          */
 
-        disconnectClientIfConnected(network, socket, userId)
+        // disconnectClientIfConnected(network, socket, socket.id)
 
         await handleConnectingPeer(network, socket, user)
       } catch (e) {
