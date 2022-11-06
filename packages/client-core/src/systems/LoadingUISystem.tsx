@@ -15,7 +15,7 @@ import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectL
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue, createReactor, getState, useHookstate } from '@xrengine/hyperflux'
+import { createActionQueue, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
 import { SceneActions } from '../world/services/SceneService'
@@ -49,7 +49,7 @@ export default async function LoadingUISystem(world: World) {
   const appLoadingState = getState(AppLoadingState)
   const engineState = getState(EngineState)
 
-  const reactor = createReactor(() => {
+  const reactor = startReactor(() => {
     const loadingState = useHookstate(appLoadingState)
 
     useEffect(() => {

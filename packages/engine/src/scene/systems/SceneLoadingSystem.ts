@@ -45,20 +45,6 @@ import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../c
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 
-export const prefetchModelAssets = (sceneJson: SceneJson, world: World) => {
-  for (const [uuid, entityJson] of Object.entries(sceneJson.entities)) {
-    const entityModelComponent = entityJson.components.find(
-      (comp) => comp.name === SCENE_COMPONENT_MODEL
-    ) as ComponentJson<ReturnType<typeof ModelComponent.toJSON>>
-    if (entityModelComponent) {
-      const existingEntity = UUIDComponent.entitiesByUUID[uuid]?.value
-      const sameSource =
-        existingEntity && getOptionalComponent(existingEntity, ModelComponent)?.src === entityModelComponent.props.src
-      if (!sameSource && entityModelComponent.props.src !== '') fetch(entityModelComponent.props.src, { mode: 'cors' })
-    }
-  }
-}
-
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
   const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
@@ -194,8 +180,6 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
   getState(EngineState).sceneLoading.set(true)
-
-  prefetchModelAssets(sceneData.scene, world)
 
   /** get systems that have changed */
   const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)

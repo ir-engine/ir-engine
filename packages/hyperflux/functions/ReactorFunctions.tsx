@@ -55,7 +55,7 @@ export interface ReactorProps {
   root: ReactorRoot
 }
 
-export function createReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
+export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -88,6 +88,8 @@ export function createReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
       })
     }
   }
+
+  reactorRoot.run()
 
   return reactorRoot
 }

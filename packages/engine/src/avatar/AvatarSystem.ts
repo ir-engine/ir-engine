@@ -47,12 +47,13 @@ export function avatarDetailsReceptor(
  * @returns
  */
 export function setupHeadIK(entity: Entity) {
+  const target = new Object3D()
+
   setComponent(entity, AvatarHeadIKComponent, {
-    target: new Object3D(),
+    target,
     rotationClamp: 0.785398
   })
 
-  const target = AvatarHeadIKComponent.map[entity].target
   target.matrixAutoUpdate = false
   target.matrixWorldAutoUpdate = false
 
@@ -77,18 +78,18 @@ export function setupLeftHandIK(entity: Entity) {
     rig.rig.LeftShoulder.attach(leftHint)
   }
 
+  const target = new Object3D()
+  target.matrixAutoUpdate = false
+  target.matrixWorldAutoUpdate = false
+
   setComponent(entity, AvatarLeftHandIKComponent, {
-    target: new Object3D(),
+    target,
     hint: leftHint,
     targetOffset: leftOffset,
     targetPosWeight: 1,
     targetRotWeight: 1,
     hintWeight: 1
   })
-
-  const target = AvatarLeftHandIKComponent.map[entity].target
-  target.matrixAutoUpdate = false
-  target.matrixWorldAutoUpdate = false
 
   const lefthand = getComponent(entity, AvatarLeftHandIKComponent)
   proxifyVector3(AvatarLeftHandIKComponent.target.position, entity, lefthand.target.position)
@@ -117,18 +118,18 @@ export function setupRightHandIK(entity: Entity) {
     rig.rig.RightShoulder.attach(rightHint)
   }
 
+  const target = new Object3D()
+  target.matrixAutoUpdate = false
+  target.matrixWorldAutoUpdate = false
+
   setComponent(entity, AvatarRightHandIKComponent, {
-    target: new Object3D(),
+    target,
     hint: rightHint,
     targetOffset: rightOffset,
     targetPosWeight: 1,
     targetRotWeight: 1,
     hintWeight: 1
   })
-
-  const target = AvatarLeftHandIKComponent.map[entity].target
-  target.matrixAutoUpdate = false
-  target.matrixWorldAutoUpdate = false
 
   const rightHand = getComponent(entity, AvatarRightHandIKComponent)
   proxifyVector3(AvatarRightHandIKComponent.target.position, entity, rightHand.target.position)
