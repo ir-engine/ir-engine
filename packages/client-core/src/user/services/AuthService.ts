@@ -9,6 +9,7 @@ import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import config from '@xrengine/common/src/config'
 import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import {
   resolveUser,
@@ -234,7 +235,7 @@ export class AuthAction {
 
   static userAvatarIdUpdatedAction = defineAction({
     type: 'xre.client.Auth.USERAVATARID_UPDATED' as const,
-    avatarId: matches.string
+    avatarId: matches.string as Validator<unknown, AvatarID>
   })
 
   static userPatchedAction = defineAction({

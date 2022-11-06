@@ -1,7 +1,8 @@
+import { AvatarID } from './AvatarID'
 import { StaticResourceInterface } from './StaticResourceInterface'
 
 export type AvatarInterface = {
-  id: string
+  id: AvatarID
   name: string
   isPublic: boolean
   userId: string

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
@@ -47,7 +48,7 @@ const selectAvatarMenu = (props: Props) => {
     }
   }, [avatarState.total])
 
-  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+  const setAvatar = (avatarId: AvatarID, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
       AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)

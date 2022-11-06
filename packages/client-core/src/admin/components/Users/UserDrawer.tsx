@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { CreateEditUser, UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import Button from '@mui/material/Button'
@@ -37,7 +38,7 @@ interface Props {
 
 const defaultState = {
   name: '',
-  avatar: '',
+  avatar: '' as AvatarID,
   isGuest: true,
   scopes: [] as Array<AdminScopeType>,
   formErrors: {
@@ -105,7 +106,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       setState({
         ...defaultState,
         name: selectedUser.name || '',
-        avatar: selectedUser.avatarId || '',
+        avatar: selectedUser.avatarId || ('' as AvatarID),
         isGuest: selectedUser.isGuest,
         scopes: selectedUser.scopes?.map((el) => ({ type: el.type })) || []
       })

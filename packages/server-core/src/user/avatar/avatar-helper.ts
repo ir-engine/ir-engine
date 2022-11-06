@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
@@ -29,7 +30,7 @@ export type AvatarUploadArguments = {
   avatarName: string
   isPublic: boolean
   avatarFileType?: string
-  avatarId?: string
+  avatarId?: AvatarID
 }
 
 // todo: move this somewhere else

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
+
 import DeleteIcon from '@mui/icons-material/Delete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -19,7 +21,7 @@ const Avatar = () => {
   const [search, setSearch] = useState('')
   const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
   const [openDeleteAvatarModal, setOpenDeleteAvatarModal] = React.useState(false)
-  const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
+  const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<AvatarID>())
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

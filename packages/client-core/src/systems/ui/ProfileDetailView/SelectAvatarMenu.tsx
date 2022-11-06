@@ -2,6 +2,7 @@ import { createState, useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -51,7 +52,7 @@ const SelectAvatarMenu = () => {
     }
   }, [avatarState.total])
 
-  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+  const setAvatar = (avatarId: AvatarID, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value)
       AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)

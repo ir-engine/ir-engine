@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 import Box from '@mui/material/Box'
@@ -33,7 +34,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [openConfirm, setOpenConfirm] = useState(false)
-  const [avatarId, setAvatarId] = useState('')
+  const [avatarId, setAvatarId] = useState('' as AvatarID)
   const [avatarName, setAvatarName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')

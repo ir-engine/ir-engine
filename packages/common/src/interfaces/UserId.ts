@@ -1,3 +1,8 @@
 import { OpaqueType } from './OpaqueType'
 
-export type UserId = OpaqueType<'userId'> & string
+/** prefer `ID` over `Id` */
+export type UserID = OpaqueType<'UserID'> & string
+
+/** @todo deprecate */
+// /**@deprecated */
+export type UserId = UserID

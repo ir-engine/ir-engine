@@ -2,6 +2,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
@@ -79,7 +80,7 @@ const AvatarMenu = (props: Props) => {
     window.addEventListener('resize', calculateMenuRadius)
   }, [])
 
-  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+  const setAvatar = (avatarId: AvatarID, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
       AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
@@ -114,7 +115,7 @@ const AvatarMenu = (props: Props) => {
   const selectAvatar = (avatar: AvatarInterface) => {
     setSelectedAvatarId(avatar?.id || '')
     if (avatarId !== avatar?.id) {
-      setAvatar(avatar?.id || '', avatar?.modelResource?.url || '', avatar?.thumbnailResource?.url || '')
+      setAvatar(avatar?.id || ('' as AvatarID), avatar?.modelResource?.url || '', avatar?.thumbnailResource?.url || '')
     }
   }
 

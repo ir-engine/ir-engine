@@ -1,4 +1,5 @@
 import { InstanceInterface } from '../dbmodels/Instance'
+import { AvatarID } from './AvatarID'
 import { AvatarInterface } from './AvatarInterface'
 import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
@@ -24,7 +25,7 @@ export interface UserInterface {
   id: UserId
   name: string
   isGuest: boolean
-  avatarId: string
+  avatarId: AvatarID
   avatar: AvatarInterface
   identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
@@ -50,9 +51,9 @@ export const UserSeed: UserInterface = {
   id: '' as UserId,
   name: '',
   isGuest: true,
-  avatarId: '',
+  avatarId: '' as AvatarID,
   avatar: {
-    id: '',
+    id: '' as AvatarID,
     name: '',
     isPublic: true,
     userId: '',
@@ -71,7 +72,7 @@ export const UserSeed: UserInterface = {
 
 export interface CreateEditUser {
   name: string
-  avatarId?: string
+  avatarId?: AvatarID
   inviteCode?: string
   isGuest?: boolean
   scopes?: UserScope[]
@@ -117,7 +118,7 @@ export function resolveWalletUser(credentials: any): UserInterface {
     isGuest: true,
     avatarId: credentials.user.id,
     avatar: {
-      id: '',
+      id: '' as AvatarID,
       name: '',
       isPublic: true,
       userId: '',

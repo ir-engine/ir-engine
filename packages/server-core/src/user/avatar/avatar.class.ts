@@ -2,6 +2,7 @@ import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 import { Application } from '../../../declarations'
@@ -20,7 +21,7 @@ export class Avatar extends Service<AvatarInterface> {
     this.app = app
   }
 
-  async get(id: string, params?: Params): Promise<AvatarInterface> {
+  async get(id: AvatarID, params?: Params): Promise<AvatarInterface> {
     const avatar = await super.get(id, params)
     if (avatar.modelResourceId)
       try {
@@ -104,7 +105,7 @@ export class Avatar extends Service<AvatarInterface> {
     return avatar
   }
 
-  async patch(id: string, data: AvatarPatchArguments, params?: UserParams): Promise<AvatarInterface> {
+  async patch(id: AvatarID, data: AvatarPatchArguments, params?: UserParams): Promise<AvatarInterface> {
     let avatar = (await super.get(id, params)) as AvatarInterface
 
     if (avatar.userId !== params?.user!.id && params && params.user && params.user.id) {
@@ -130,7 +131,7 @@ export class Avatar extends Service<AvatarInterface> {
     return avatar
   }
 
-  async remove(id: string, params?: Params): Promise<AvatarInterface> {
+  async remove(id: AvatarID, params?: Params): Promise<AvatarInterface> {
     const avatar = await this.get(id, params)
     try {
       await this.app.service('static-resource').remove(avatar.modelResourceId)

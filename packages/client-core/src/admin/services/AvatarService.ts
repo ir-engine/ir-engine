@@ -1,5 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
 
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
@@ -90,7 +91,7 @@ export const AdminAvatarService = {
     })) as Paginated<AvatarInterface>
     dispatchAction(AdminAvatarActions.avatarsFetched({ avatars }))
   },
-  removeAdminAvatar: async (id: string) => {
+  removeAdminAvatar: async (id: AvatarID) => {
     try {
       await API.instance.client.service('avatar').remove(id)
       dispatchAction(AdminAvatarActions.avatarRemoved({}))

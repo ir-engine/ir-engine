@@ -3,6 +3,7 @@ import axios from 'axios'
 import i18n from 'i18next'
 
 import config from '@xrengine/common/src/config'
+import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -82,7 +83,7 @@ export const AvatarService = {
     )
   },
 
-  async patchAvatar(avatarId: string, modelResourceId: string, thumbnailResourceId: string, avatarName: string) {
+  async patchAvatar(avatarId: AvatarID, modelResourceId: string, thumbnailResourceId: string, avatarName: string) {
     return API.instance.client.service('avatar').patch(avatarId, {
       modelResourceId: modelResourceId,
       thumbnailResourceId: thumbnailResourceId,
@@ -91,7 +92,7 @@ export const AvatarService = {
   },
 
   async removeAvatar(keys: string) {
-    await API.instance.client.service('avatar').remove('', { query: { keys } })
+    await API.instance.client.service('avatar').remove('' as AvatarID, { query: { keys } })
     NotificationService.dispatchNotify(i18n.t('user:avatar.remove-success-msg'), { variant: 'success' })
     return this.fetchAvatarList()
   },
@@ -100,7 +101,7 @@ export const AvatarService = {
     return API.instance.client.service('static-resource').remove(id)
   },
 
-  async updateUserAvatarId(userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) {
+  async updateUserAvatarId(userId: string, avatarId: AvatarID, avatarURL: string, thumbnailURL: string) {
     const res = await API.instance.client.service('user').patch(userId, { avatarId: avatarId })
     // dispatchAlertSuccess(dispatch, 'User Avatar updated');
     dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
@@ -129,7 +130,7 @@ export const AvatarService = {
     dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
   },
 
-  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean, avatarId?: string) {
+  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean, avatarId?: AvatarID) {
     return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
