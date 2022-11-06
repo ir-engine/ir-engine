@@ -100,11 +100,11 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
   return new Promise<HTMLCanvasElement>((resolve, reject) => {
     const vpsWayspotName = world.sceneMetadata.xr.vpsWayspotName.value
 
-    if (vpsWayspotName) {
-      XR8.VpsCoachingOverlay.config({
-        wayspotName: vpsWayspotName
-      })
-    }
+    //if (vpsWayspotName) {
+    //  XR8.VpsCoachingOverlay.config({
+    //    wayspotName: vpsWayspotName
+    //  })
+    //}
 
     XR8.addCameraPipelineModules([
       XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
@@ -115,7 +115,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
         // imageTargets: true,
         enableVps: !!vpsWayspotName
       }),
-      XR8.VpsCoachingOverlay.pipelineModule(),
+      //XR8.VpsCoachingOverlay.pipelineModule(),
       XRExtras.RuntimeError.pipelineModule()
     ])
 
