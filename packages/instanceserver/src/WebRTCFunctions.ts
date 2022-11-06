@@ -116,7 +116,7 @@ export const sendCurrentProducers = async (
         )
       ) {
         const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(network, userId)
-        if (cachedActions.find((action) => MediaNetworkAction.pauseProducer.matches.test(action) && !action.globalMute))
+        if (cachedActions.find((action) => MediaNetworkAction.pauseProducer.matches.test(action) && !action.pause))
           Object.entries(client.media).map(([subName, subValue]) => {
             if ((subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
               selfClient.socket!.emit(
