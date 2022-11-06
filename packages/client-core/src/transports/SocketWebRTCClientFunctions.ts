@@ -12,6 +12,7 @@ import config from '@xrengine/common/src/config'
 import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
@@ -233,7 +234,13 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     dispatchAction(MediaStreams.actions.triggerUpdateConsumers({}))
   }
 
-  async function webRTCCreateProducerHandler(socketId, mediaTag, producerId, channelType: ChannelType, channelId) {
+  async function webRTCCreateProducerHandler(
+    socketId: PeerID,
+    mediaTag,
+    producerId,
+    channelType: ChannelType,
+    channelId
+  ) {
     const selfProducerIds = [MediaStreams.instance.camVideoProducer?.id, MediaStreams.instance.camAudioProducer?.id]
     const channelConnectionState = accessMediaInstanceConnectionState()
     const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
@@ -790,7 +797,7 @@ export function resetProducer(): void {
   }
 }
 
-export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerId: string, mediaTag: string) {
+export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerId: PeerID, mediaTag: string) {
   const socket = network.socket
   if (!socket?.connected) return
   const channelConnectionState = accessMediaInstanceConnectionState()

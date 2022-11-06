@@ -36,7 +36,7 @@ export const InstanceSeed: Instance = {
       screenSharingEnabled: false,
       faceStreamingEnabled: false,
       videoEnabled: false
-    },
+    } as any,
     isLobby: false,
     isFeatured: false
   },

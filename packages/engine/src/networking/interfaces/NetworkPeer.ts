@@ -1,6 +1,7 @@
 import type SocketIO from 'socket.io'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 export interface NetworkPeer {
@@ -10,7 +11,7 @@ export interface NetworkPeer {
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
   // The following properties are only present on the server
   socket?: SocketIO.Socket
-  socketId?: string
+  socketId?: PeerID
   lastSeenTs?: any
   joinTs?: any
   media?: {}

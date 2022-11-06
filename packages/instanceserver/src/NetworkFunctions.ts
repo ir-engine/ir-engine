@@ -1,7 +1,9 @@
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Socket } from 'socket.io'
+import type { SocketId } from 'socket.io-adapter'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
@@ -218,7 +220,7 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   return true
 }
 
-export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socketId: string) {
+export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socketId: SocketId | PeerID) {
   const client = Array.from(network.peers.values()).find((c) => c.socketId === socketId)
   return client?.userId
 }
@@ -234,7 +236,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     userId,
     index: userIndex,
     socket: socket,
-    socketId: socket.id,
+    socketId: socket.id as PeerID,
     lastSeenTs: Date.now(),
     joinTs: Date.now(),
     media: {},
