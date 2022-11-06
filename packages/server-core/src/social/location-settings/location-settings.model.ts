@@ -33,6 +33,10 @@ export default (app: Application) => {
       faceStreamingEnabled: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+      },
+      _8wlocationId: {
+        type: DataTypes.STRING,
+        defaultValue: ''
       }
     },
     {

@@ -6,4 +6,5 @@ export interface LocationSettings {
   screenSharingEnabled: boolean
   faceStreamingEnabled: boolean
   videoEnabled: boolean
+  _8wlocationId: string
 }

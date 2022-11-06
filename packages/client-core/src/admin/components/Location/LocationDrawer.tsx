@@ -48,7 +48,8 @@ const defaultState = {
     maxUsers: '',
     scene: '',
     type: ''
-  }
+  },
+  _8wlocationId: ''
 }
 
 const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
@@ -98,6 +99,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         audioEnabled: selectedLocation.location_setting?.audioEnabled,
         screenSharingEnabled: selectedLocation.location_setting?.screenSharingEnabled,
         faceStreamingEnabled: selectedLocation.location_setting?.faceStreamingEnabled,
+        _8wlocationId: selectedLocation.location_setting?._8wlocationId,
         isLobby: selectedLocation.isLobby,
         isFeatured: selectedLocation.isFeatured
       })
@@ -151,7 +153,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         audioEnabled: state.audioEnabled,
         screenSharingEnabled: state.screenSharingEnabled,
         faceStreamingEnabled: state.faceStreamingEnabled,
-        videoEnabled: state.videoEnabled
+        videoEnabled: state.videoEnabled,
+        _8wlocationId: state._8wlocationId
       },
       isLobby: state.isLobby,
       isFeatured: state.isFeatured
@@ -284,6 +287,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
             </div>
           </Grid>
         </Grid>
+        <InputText
+          name="_8wlocationId"
+          label="8th Wall Location ID"
+          value={state._8wlocationId}
+          onChange={handleChange}
+          disabled={viewMode}
+        />
         <DialogActions>
           <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
