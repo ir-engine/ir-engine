@@ -608,6 +608,10 @@
       "lbl-fogFarDistance": "Fog Far Distance",
       "lbl-fogDensity": "Fog Density"
     },
+    "xr": {
+      "name": "XR Settings",
+      "lbl-vpsWaypointName": "VPS Waypoint Name"
+    },
     "mountPoint": {
       "name": "Mount point",
       "description": "An object with a pose to define interactable behaviors.",
