@@ -72,7 +72,7 @@ export class SocketWebRTCServerNetwork extends Network {
           outgoing[this.topic].queue.splice(idx, 1)
         }
         if (!action.$to) continue
-        const toUserId = this.peers.get(socketID)!.userId
+        const toUserId = this.peers.get(socketID)?.userId
         if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
           arr.push(action)
         }

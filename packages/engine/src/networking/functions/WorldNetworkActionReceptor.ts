@@ -30,6 +30,10 @@ const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
+  const existingAvatar =
+    WorldNetworkAction.spawnAvatar.matches.test(action) && !!world.getUserAvatarEntity(action.$from)
+  if (existingAvatar) return
+
   const entity = createEntity()
 
   addComponent(entity, NetworkObjectComponent, {

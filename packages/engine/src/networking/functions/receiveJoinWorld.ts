@@ -1,7 +1,6 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -20,7 +19,6 @@ export type JoinWorldProps = {
   highResTimeOrigin: number
   worldStartTime: number
   cachedActions: Required<Action>[]
-  spectateUserId?: UserId | 'none'
 }
 
 export type SpawnInWorldProps = {

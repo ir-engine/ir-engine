@@ -1,7 +1,9 @@
+import { Validator } from 'ts-matches'
+
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, ActionShape, ResolvedActionType } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { none } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -65,7 +67,7 @@ function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.c
       for (const eid of world.getOwnedNetworkObjects(userID)) removeEntity(eid)
     }
 
-    clearCachedActionsForUser(network, userID)
+    clearCachedActionsForUser(userID)
     clearActionsHistoryForUser(userID)
   }
 }
@@ -82,7 +84,7 @@ function clearActionsHistoryForUser(userId: UserId) {
   }
 }
 
-function clearCachedActionsForUser(network: Network, userId: UserId) {
+function clearCachedActionsForUser(userId: UserId) {
   const cached = Engine.instance.store.actions.cached
   for (const action of [...cached]) {
     if (action.$from === userId) {
@@ -92,13 +94,21 @@ function clearCachedActionsForUser(network: Network, userId: UserId) {
   }
 }
 
-function getCachedActionsForUser(network: Network, toUserId: UserId) {
+function clearCachedActionsOfTypeForUser(userId: UserId, actionShape: Validator<unknown, ResolvedActionType>) {
+  const cached = Engine.instance.store.actions.cached
+  for (const action of [...cached]) {
+    if (action.$from === userId && actionShape.test(action)) {
+      const idx = cached.indexOf(action)
+      cached.splice(idx, 1)
+    }
+  }
+}
+
+function getCachedActionsForUser(toUserId: UserId) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached as Array<
-    ReturnType<typeof WorldNetworkAction.spawnAvatar>
-  >) {
-    if (action.$from === toUserId) continue
+  for (const action of Engine.instance.store.actions.cached) {
+    // if (action.$from === toUserId) continue
     if (action.$to === 'all' || action.$to === toUserId) cachedActions.push({ ...action, $stack: undefined! })
   }
 
@@ -110,5 +120,6 @@ export const NetworkPeerFunctions = {
   destroyPeer,
   destroyAllPeers,
   clearCachedActionsForUser,
+  clearCachedActionsOfTypeForUser,
   getCachedActionsForUser
 }

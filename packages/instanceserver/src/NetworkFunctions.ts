@@ -232,8 +232,9 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
   // Create a new client object
   // and add to the dictionary
-  const existingUserIndex = Array.from(network.peers.values()).find((client) => client.userId === userId)
-  const userIndex = existingUserIndex ? existingUserIndex.index : network.userIndexCount++
+  const existingUser = Array.from(network.peers.values()).find((client) => client.userId === userId)
+  const userIndex = existingUser ? existingUser.index : network.userIndexCount++
+
   network.peers.set(peerID, {
     userId,
     index: userIndex,
@@ -287,7 +288,7 @@ export async function handleJoinWorld(
 
   const world = Engine.instance.currentWorld
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(network, userId)
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId)
 
   network.updatePeers()
 

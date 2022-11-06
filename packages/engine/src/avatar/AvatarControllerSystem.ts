@@ -23,6 +23,7 @@ import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { NameComponent } from '../scene/components/NameComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
@@ -62,6 +63,7 @@ export default async function AvatarControllerSystem(world: World) {
       if (hasComponent(avatarEntity, AvatarComponent)) {
         const avatarComponent = getComponent(avatarEntity, AvatarComponent)
         targetEntity = createEntity()
+        setComponent(targetEntity, NameComponent, `Camera Target for: ${getComponent(avatarEntity, NameComponent)}`)
         setTransformComponent(targetEntity)
         setComputedTransformComponent(targetEntity, avatarEntity, () => {
           const avatarTransform = getComponent(avatarEntity, TransformComponent)
