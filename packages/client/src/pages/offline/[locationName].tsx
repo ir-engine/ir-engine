@@ -5,7 +5,7 @@ import { useRouteMatch } from 'react-router-dom'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { LocationIcons } from '@xrengine/client-core/src/components/LocationIcons'
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
-import OfflineLocation from '@xrengine/client-core/src/components/World/OfflineLocation'
+import { OfflineLocation } from '@xrengine/client-core/src/components/World/OfflineLocation'
 import { LocationAction } from '@xrengine/client-core/src/social/services/LocationService'
 import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -27,7 +27,7 @@ const LocationPage = () => {
 
   return (
     <>
-      {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
+      {engineState.isEngineInitialized.value ? <></> : <LoadingCircle message={t('common:loader.loadingEngine')} />}
       <LoadEngineWithScene injectedSystems={DefaultLocationSystems} />
       <OfflineLocation />
       <LocationIcons />

@@ -7,6 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
@@ -144,7 +145,11 @@ export function setPropertyOnSelectionEntities<C extends Component<any, any>>(
   const selectionState = accessSelectionState()
 
   ;(command as ModifyPropertyCommandParams<C>).affectedNodes = editorState.lockPropertiesPanel.value
-    ? [Engine.instance.currentWorld.entityTree.uuidNodeMap.get(editorState.lockPropertiesPanel.value)!]
+    ? [
+        Engine.instance.currentWorld.entityTree.entityNodeMap.get(
+          UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value
+        )!
+      ]
     : getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
   executeModifyPropertyCommand(command as ModifyPropertyCommandParams<C>, withHistory)
 }

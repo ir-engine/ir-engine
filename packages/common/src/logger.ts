@@ -12,18 +12,11 @@
 import { LruCache } from '@digitalcredentials/lru-memoize'
 import fetch from 'cross-fetch'
 
+import config from './config'
+
 const logRequestCache = new LruCache({
   maxAge: 1000 * 5 // 5 seconds cache expiry
 })
-
-const hostDefined = !!globalThis.process.env['VITE_SERVER_HOST']
-// TODO: Hate to dupe the two config vars below, would prefer to load them from @xrengine/client-core/src/utils/config
-export const localBuildOrDev = process.env.APP_ENV === 'development' || process.env['VITE_LOCAL_BUILD'] === 'true'
-export const serverHost = localBuildOrDev
-  ? `https://${globalThis.process.env['VITE_SERVER_HOST']}:${globalThis.process.env['VITE_SERVER_PORT']}`
-  : `https://${globalThis.process.env['VITE_SERVER_HOST']}`
-
-const disableLog = process.env['VITE_DISABLE_LOG']
 
 const baseComponent = 'client-core'
 /**
@@ -62,7 +55,7 @@ const multiLogger = {
    * @param opts.component {string}
    */
   child: (opts: any) => {
-    if (localBuildOrDev && !process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE) {
+    if (!config.client.serverHost || (config.client.localBuildOrDev && !config.client.logs.forceClientAggregate)) {
       // Locally, this will provide correct file & line numbers in browser console
       return {
         debug: console.debug.bind(console, `[${opts.component}]`),
@@ -74,7 +67,7 @@ const multiLogger = {
     } else {
       // For non-local builds, this send() is used
       const send = (level) => {
-        const url = new URL('/api/log', serverHost)
+        const url = new URL('/api/log', config.client.serverUrl)
 
         return async (...args) => {
           const consoleMethods = {
@@ -93,7 +86,7 @@ const multiLogger = {
 
           // Send an async rate-limited request to backend /api/log endpoint for aggregation
           // Also suppress logger.info() levels (the equivalent to console.log())
-          if (hostDefined && level !== 'info') {
+          if (config.client.serverHost && level !== 'info') {
             logRequestCache.memoize({
               key: logParams.msg,
               fn: () =>
@@ -111,7 +104,7 @@ const multiLogger = {
         }
       }
 
-      return disableLog
+      return config.client.logs.disabled
         ? nullLogger
         : {
             debug: send('debug'),

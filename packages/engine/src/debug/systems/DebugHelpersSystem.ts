@@ -29,28 +29,19 @@ import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperf
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
-import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarPendingComponent } from '../../avatar/components/AvatarPendingComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { createGraphHelper } from '../../navigation/GraphHelper'
-import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { EngineRendererAction, EngineRendererState } from '../../renderer/EngineRendererState'
 import EditorDirectionalLightHelper from '../../scene/classes/EditorDirectionalLightHelper'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import Spline from '../../scene/classes/Spline'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
-import {
-  addObjectToGroup,
-  GroupComponent,
-  removeGroupComponent,
-  removeObjectFromGroup
-} from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
@@ -63,9 +54,6 @@ import { SpotLightComponent } from '../../scene/components/SpotLightComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHitTestComponent, XRInputSourceComponent } from '../../xr/XRComponents'
-import { XRState } from '../../xr/XRState'
-import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { PositionalAudioHelper } from '../PositionalAudioHelper'
 
 const vector3 = new Vector3()
@@ -86,9 +74,6 @@ export default async function DebugHelpersSystem(world: World) {
     AssetLoader.loadAsync(GLTF_PATH)
   ])
 
-  const xrViewerHitTestMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
-  xrViewerHitTestMesh.geometry.rotateX(-Math.PI / 2)
-
   spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
 
   const editorHelpers = new Map<Entity, Object3D>()
@@ -98,7 +83,6 @@ export default async function DebugHelpersSystem(world: World) {
     skeletonHelpers: new Map(),
     ikExtents: new Map(),
     box: new Map<Entity, Box3Helper>(),
-    navmesh: new Map(),
     navpath: new Map(),
     positionalAudioHelper: new Map()
   }
@@ -118,11 +102,8 @@ export default async function DebugHelpersSystem(world: World) {
   ])
 
   const boundingBoxQuery = defineQuery([TransformComponent, BoundingBoxComponent])
-  const ikAvatarQuery = defineQuery([XRInputSourceComponent])
-  const avatarAnimationQuery = defineQuery([AvatarAnimationComponent])
-  const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
+  const avatarAnimationQuery = defineQuery([AvatarRigComponent])
   const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
-  const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
@@ -425,7 +406,7 @@ export default async function DebugHelpersSystem(world: World) {
      * AVATAR HELPERS
      */
     for (const entity of avatarAnimationQuery()) {
-      const anim = getComponent(entity, AvatarAnimationComponent)
+      const anim = getComponent(entity, AvatarRigComponent)
       if (
         !helpersByEntity.skeletonHelpers.has(entity) &&
         debugEnabled &&
@@ -454,56 +435,24 @@ export default async function DebugHelpersSystem(world: World) {
       }
     }
 
-    for (const entity of ikAvatarQuery()) {
-      if (debugEnabled) {
-        if (!helpersByEntity.ikExtents.has(entity)) {
-          const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
-          if (entity === world.localClientEntity) debugHead.material.visible = false
-          const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
-          const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
-          debugHead.visible = debugEnabled
-          debugLeft.visible = debugEnabled
-          debugRight.visible = debugEnabled
-          Engine.instance.currentWorld.scene.add(debugHead)
-          Engine.instance.currentWorld.scene.add(debugLeft)
-          Engine.instance.currentWorld.scene.add(debugRight)
-          helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
-        }
-        const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-        const [debugHead, debugLeft, debugRight] = helpersByEntity.ikExtents.get(entity) as Object3D[]
-        debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
-        debugHead.quaternion.copy(xrInputSourceComponent.head.getWorldQuaternion(quat))
-        debugLeft.position.copy(xrInputSourceComponent.controllerLeft.getWorldPosition(vector3))
-        debugLeft.quaternion.copy(xrInputSourceComponent.controllerLeft.getWorldQuaternion(quat))
-        debugRight.position.copy(xrInputSourceComponent.controllerRight.getWorldPosition(vector3))
-        debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
-      } else {
-        if (helpersByEntity.ikExtents.has(entity)) {
-          ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
-            obj.removeFromParent()
-          })
-          helpersByEntity.ikExtents.delete(entity)
-        }
-      }
-    }
-
-    for (const entity of ikAvatarQuery.exit()) {
-      if (helpersByEntity.ikExtents.has(entity)) {
-        ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
-          obj.removeFromParent()
-        })
-        helpersByEntity.ikExtents.delete(entity)
-      }
-    }
-
     /**
      * DEBUG HELPERS
      */
 
     for (const entity of boundingBoxQuery.exit()) {
       const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
-      boxHelper.removeFromParent()
-      helpersByEntity.box.delete(entity)
+      if (boxHelper) {
+        boxHelper.removeFromParent()
+        helpersByEntity.box.delete(entity)
+      }
+    }
+
+    for (const entity of boundingBoxQuery()) {
+      if (!debugEnabled && helpersByEntity.box.has(entity)) {
+        const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
+        boxHelper.removeFromParent()
+        helpersByEntity.box.delete(entity)
+      }
     }
 
     for (const entity of boundingBoxQuery.enter()) {
@@ -515,34 +464,6 @@ export default async function DebugHelpersSystem(world: World) {
       helper.visible = debugEnabled
     }
 
-    // ===== NAVMESH Helper ===== //
-    for (const entity of navmeshQuery.enter()) {
-      console.log('add navmesh helper!')
-      const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
-      const convexHelper = createConvexRegionHelper(navMesh)
-      const graphHelper = createGraphHelper(navMesh!.graph, 0.2)
-      const helper = new Group()
-      helper.add(convexHelper)
-      helper.add(graphHelper)
-      console.log('navhelper', helper)
-      Engine.instance.currentWorld.scene.add(helper)
-      helpersByEntity.navmesh.set(entity, helper)
-    }
-
-    for (const entity of navmeshQuery.exit()) {
-      const helper = helpersByEntity.navmesh.get(entity) as Object3D
-      Engine.instance.currentWorld.scene.remove(helper)
-      helpersByEntity.navmesh.delete(entity)
-    }
-
-    if (debugEnabled)
-      for (const entity of navmeshQuery()) {
-        // update
-        const helper = helpersByEntity.navmesh.get(entity) as Object3D
-        const transform = getComponent(entity, TransformComponent)
-        helper.position.copy(transform.position)
-        // helper.quaternion.copy(transform.rotation)
-      }
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
 
@@ -573,20 +494,6 @@ export default async function DebugHelpersSystem(world: World) {
           helper?.position.copy(getComponent(entity, TransformComponent).position)
         }
     }
-
-    /**
-     * XR Hit Test
-     */
-
-    for (const entity of xrHitTestQuery()) {
-      const hasHit = getComponent(entity, XRHitTestComponent).hasHit.value
-      if (debugEnabled && hasHit && !hasComponent(entity, GroupComponent)) {
-        addObjectToGroup(entity, xrViewerHitTestMesh)
-      }
-      if ((!debugEnabled || !hasHit) && hasComponent(entity, GroupComponent)) {
-        removeGroupComponent(entity)
-      }
-    }
   }
 
   const cleanup = async () => {
@@ -604,11 +511,8 @@ export default async function DebugHelpersSystem(world: World) {
     removeQuery(world, directionalLightSelectQuery)
     removeQuery(world, scenePreviewCameraSelectQuery)
     removeQuery(world, boundingBoxQuery)
-    removeQuery(world, ikAvatarQuery)
     removeQuery(world, avatarAnimationQuery)
-    removeQuery(world, navmeshQuery)
     removeQuery(world, audioHelper)
-    removeQuery(world, xrHitTestQuery)
 
     removeActionQueue(debugActionQueue)
   }

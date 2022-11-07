@@ -3,7 +3,11 @@ import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
-import ActionFunctions, { ActionRecipients } from '@xrengine/hyperflux/functions/ActionFunctions'
+import {
+  ActionRecipients,
+  addActionReceptor,
+  applyIncomingActions
+} from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
@@ -43,19 +47,17 @@ describe('IncomingActionSystem Unit Tests', async () => {
       Engine.instance.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor((a) =>
-        matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a))
-      )
+      addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
-      ActionFunctions.applyIncomingActions()
+      applyIncomingActions()
 
       /* assert */
       strictEqual(recepted.length, 0)
 
       // fixed tick update
       engineState.fixedTick.set(2)
-      ActionFunctions.applyIncomingActions()
+      applyIncomingActions()
 
       /* assert */
       strictEqual(recepted.length, 1)
@@ -77,12 +79,10 @@ describe('IncomingActionSystem Unit Tests', async () => {
       Engine.instance.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor((a) =>
-        matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a))
-      )
+      addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
-      ActionFunctions.applyIncomingActions()
+      applyIncomingActions()
 
       /* assert */
       strictEqual(recepted.length, 1)
@@ -107,12 +107,10 @@ describe('IncomingActionSystem Unit Tests', async () => {
       Engine.instance.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor((a) =>
-        matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a))
-      )
+      addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
-      ActionFunctions.applyIncomingActions()
+      applyIncomingActions()
 
       /* assert */
       strictEqual(recepted.length, 1)

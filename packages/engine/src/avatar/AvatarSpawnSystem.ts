@@ -6,6 +6,7 @@ import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { getEntityTreeNodeByUUID } from '../ecs/functions/EntityTree'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -40,7 +41,7 @@ export function getRandomSpawnPoint(userId: UserId): { position: Vector3; rotati
 }
 
 export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { position: Vector3; rotation: Quaternion } {
-  const entity = Engine.instance.currentWorld.entityTree.uuidNodeMap.get(spawnPointNodeId)?.entity
+  const entity = getEntityTreeNodeByUUID(spawnPointNodeId)?.entity
   if (entity) {
     const spawnTransform = getComponent(entity, TransformComponent)
     const spawnComponent = getComponent(entity, SpawnPointComponent)

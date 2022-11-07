@@ -1,3 +1,4 @@
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -11,7 +12,6 @@ import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
-import { shouldNodeDeserialize } from '../functions/shouldDeserialize'
 import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
@@ -34,7 +34,7 @@ export type DuplicateObjectCommandParams = CommandParams & {
 }
 
 function prepare(command: DuplicateObjectCommandParams) {
-  command.affectedNodes = command.affectedNodes.filter((o) => typeof o !== 'string' && shouldNodeDeserialize(o))
+  command.affectedNodes = command.affectedNodes.filter((o) => typeof o !== 'string')
 
   if (command.keepHistory) {
     command.undo = {
@@ -74,9 +74,10 @@ function execute(command: DuplicateObjectCommandParams) {
   const sceneData = command.duplicatedObjects.map((obj) =>
     typeof obj === 'string'
       ? {
-          entities: {} as { [uuid: string]: EntityJson },
-          root: '',
-          version: 0
+          entities: {} as { [uuid: EntityUUID]: EntityJson },
+          root: '' as EntityUUID,
+          version: 0,
+          metadata: {}
         }
       : serializeWorld(obj, true)
   )

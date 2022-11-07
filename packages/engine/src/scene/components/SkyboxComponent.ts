@@ -1,43 +1,45 @@
 import { Color } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { Sky } from '../classes/Sky'
-import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 
-export type SkyBoxShaderProps = {
-  turbidity: number
-  rayleigh: number
-  luminance: number
-  mieCoefficient: number
-  mieDirectionalG: number
-  inclination: number
-  azimuth: number
-}
-
-export type SkyboxComponentType = {
-  backgroundColor: Color
-  equirectangularPath: string
-  cubemapPath: string
-  backgroundType: SkyTypeEnum
-  skyboxProps: SkyBoxShaderProps
-  sky?: Sky
-}
-
-export const SkyboxComponent = createMappedComponent<SkyboxComponentType>('SkyboxComponent')
+export const SkyboxComponent = defineComponent({
+  name: 'SkyboxComponent',
+  onInit: (entity) => {
+    return {
+      backgroundColor: new Color(0x000000),
+      equirectangularPath: '',
+      cubemapPath: '/hdr/cubemap/skyboxsun25deg/',
+      backgroundType: 1,
+      sky: null! as Sky | null,
+      skyboxProps: {
+        turbidity: 10,
+        rayleigh: 1,
+        luminance: 1,
+        mieCoefficient: 0.004999999999999893,
+        mieDirectionalG: 0.99,
+        inclination: 0.10471975511965978,
+        azimuth: 0.16666666666666666
+      }
+    }
+  },
+  onSet: (entity, component, json) => {
+    if (typeof json?.backgroundColor === 'number') component.backgroundColor.set(new Color(json.backgroundColor))
+    if (typeof json?.equirectangularPath === 'string') component.equirectangularPath.set(json.equirectangularPath)
+    if (typeof json?.cubemapPath === 'string') component.cubemapPath.set(json.cubemapPath)
+    if (typeof json?.backgroundType === 'number') component.backgroundType.set(json.backgroundType)
+    if (typeof json?.skyboxProps === 'object') component.skyboxProps.set(json.skyboxProps)
+  },
+  toJSON: (entity, component) => {
+    return {
+      backgroundColor: component.backgroundColor.value.getHexString() as any as Color,
+      equirectangularPath: component.equirectangularPath.value,
+      cubemapPath: component.cubemapPath.value,
+      backgroundType: component.backgroundType.value,
+      skyboxProps: component.skyboxProps.get({ noproxy: true }) as any
+    }
+  },
+  errors: ['FILE_ERROR']
+})
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
-export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
-  backgroundColor: 0x000000,
-  equirectangularPath: '',
-  cubemapPath: '/hdr/cubemap/skyboxsun25deg/',
-  backgroundType: 1,
-  skyboxProps: {
-    turbidity: 10,
-    rayleigh: 1,
-    luminance: 1,
-    mieCoefficient: 0.004999999999999893,
-    mieDirectionalG: 0.99,
-    inclination: 0.10471975511965978,
-    azimuth: 0.16666666666666666
-  }
-}

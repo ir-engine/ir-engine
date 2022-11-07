@@ -1,6 +1,7 @@
 import type VolumetricPlayer from '@xrfoundation/volumetric/player'
 import { Box3, Group, Material, Mesh, MeshStandardMaterial, Object3D } from 'three'
 
+import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
@@ -11,6 +12,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   serializeComponent,
@@ -32,17 +34,6 @@ if (isClient) {
   VolumetricPlayerPromise = import('@xrfoundation/volumetric/player').then((module) => module.default)
 }
 
-export const deserializeVolumetric: ComponentDeserializeFunction = (
-  entity: Entity,
-  data: SerializedComponentType<typeof VolumetricComponent>
-) => {
-  addComponent(entity, VolumetricComponent, data)
-}
-
-export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
-  return serializeComponent(entity, VolumetricComponent)
-}
-
 const Volumetric = new WeakMap<
   HTMLMediaElement,
   {
@@ -58,19 +49,23 @@ export const enterVolumetric = async (entity: Entity) => {
   const VolumetricPlayer = await VolumetricPlayerPromise
   if (!entityExists(entity)) return
 
-  const mediaElement = getComponent(entity, MediaElementComponent)
-  const volumetricComponent = getComponent(entity, VolumetricComponent)
-  if (!mediaElement || !volumetricComponent) return
+  const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+  const volumetricComponent = getOptionalComponent(entity, VolumetricComponent)
+  if (!mediaElement) return
+  if (!volumetricComponent) return
 
   if (mediaElement.element instanceof HTMLVideoElement == false) {
     throw new Error('expected video media')
   }
 
+  const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
+
   const player = new VolumetricPlayer({
     renderer: EngineRenderer.instance.renderer,
     video: mediaElement.element as HTMLVideoElement,
     paths: [],
-    playMode: PlayMode.single
+    playMode: PlayMode.single,
+    worker
     // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
 
@@ -78,7 +73,7 @@ export const enterVolumetric = async (entity: Entity) => {
     entity,
     player,
     height: 1.6,
-    loadingEffectActive: volumetricComponent.useLoadingEffect.value,
+    loadingEffectActive: volumetricComponent.useLoadingEffect,
     loadingEffectTime: 0
   }
   Volumetric.set(mediaElement.element, volumetric)
@@ -101,7 +96,7 @@ export const enterVolumetric = async (entity: Entity) => {
   player.video.addEventListener(
     'ended',
     () => {
-      volumetric.loadingEffectActive = volumetricComponent.useLoadingEffect.value
+      volumetric.loadingEffectActive = volumetricComponent.useLoadingEffect
       volumetric.loadingEffectTime = 0
     },
     { signal: mediaElement.abortController.signal }
@@ -109,7 +104,8 @@ export const enterVolumetric = async (entity: Entity) => {
 }
 
 export const updateVolumetric = async (entity: Entity) => {
-  const mediaElement = getComponent(entity, MediaElementComponent)
+  const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+  if (!mediaElement) return
   const volumetric = Volumetric.get(mediaElement.element)
   if (volumetric) {
     volumetric.player.update()
@@ -138,6 +134,7 @@ export const updateLoadingEffect = (volumetric: NonNullable<ReturnType<typeof Vo
 }
 
 const endLoadingEffect = (entity, object) => {
+  if (!hasComponent(entity, AvatarEffectComponent)) return
   const plateComponent = getComponent(entity, AvatarEffectComponent)
   plateComponent.originMaterials.forEach(({ id, material }) => {
     object.traverse((obj) => {

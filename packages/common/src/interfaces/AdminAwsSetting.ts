@@ -35,6 +35,7 @@ interface S3 {
 interface CloudFront {
   domain: string
   distributionId: string
+  region: string
 }
 
 interface Sms {
@@ -47,4 +48,5 @@ interface Sms {
 
 export interface PatchAwsSetting {
   sms: string
+  cloudfront: string
 }

@@ -9,7 +9,12 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { Component, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  Component,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
@@ -32,9 +37,6 @@ import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
-  // This is here to force the debug view to update ECS data on every frame
-  useHookstate(getState(EngineState).frameTime).value
-
   const engineRendererState = useEngineRendererState()
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()
@@ -63,8 +65,9 @@ export const Debug = ({ showingStateRef }) => {
         ...node.children.reduce(
           (r, child, i) =>
             Object.assign(r, {
-              [`${i} - ${getComponent(child, NameComponent)?.name ?? tree.entityNodeMap.get(child)?.uuid}`]:
-                renderEntityTree(tree.entityNodeMap.get(child)!)
+              [`${i} - ${getComponent(child, NameComponent) ?? tree.entityNodeMap.get(child)?.uuid}`]: renderEntityTree(
+                tree.entityNodeMap.get(child)!
+              )
             }),
           {}
         )
@@ -79,7 +82,7 @@ export const Debug = ({ showingStateRef }) => {
             (components, C: Component<any, any>) => {
               if (C !== NameComponent) {
                 const component = getComponent(entity, C)
-                components.push([C._name, { ...component }])
+                components.push([C.name, { ...component }])
               }
               return components
             },
@@ -94,7 +97,7 @@ export const Debug = ({ showingStateRef }) => {
       ...Object.fromEntries(
         [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
-            const name = getComponent(eid, NameComponent)?.name
+            const name = getOptionalComponent(eid, NameComponent)
             try {
               return [
                 '(eid:' + eid + ') ' + (name ?? tree.entityNodeMap.get(eid)?.uuid ?? ''),
@@ -127,7 +130,6 @@ export const Debug = ({ showingStateRef }) => {
 
   const namedEntities = useHookstate({})
   const entityTree = useHookstate({})
-
   const pipelines = Engine.instance.currentWorld.pipelines
 
   namedEntities.set(renderAllEntities())
@@ -177,20 +179,37 @@ export const Debug = ({ showingStateRef }) => {
           data={pipelines}
           postprocessValue={(v: SystemInstance) => {
             if (!v?.name) return v
-            const s = new String(`${v?.name} - ${v.uuid}`) as any
+            const s = new String(v.sceneSystem ? v.name : v.uuid) as any
+            if (v.subsystems?.length) {
+              s.parentSystem = v
+              return {
+                [s]: s,
+                subsystems: v.subsystems
+              }
+            }
             s.instance = v
             return s
           }} // yes, all this is a hack. We probably shouldn't use JSONTree for this
-          valueRenderer={(raw, value: { instance: SystemInstance }) => (
-            <>
-              <input
-                type="checkbox"
-                checked={value?.instance?.enabled}
-                onChange={() => (value.instance.enabled = !value.instance.enabled)}
-              ></input>{' '}
-              — {value}
-            </>
-          )}
+          valueRenderer={(raw, value: { instance: SystemInstance; parentSystem: SystemInstance }) => {
+            return value.parentSystem ? (
+              <>
+                <input
+                  type="checkbox"
+                  checked={value?.parentSystem?.enabled}
+                  onChange={() => (value.parentSystem.enabled = !value.parentSystem.enabled)}
+                ></input>
+              </>
+            ) : (
+              <>
+                <input
+                  type="checkbox"
+                  checked={value?.instance?.enabled}
+                  onChange={() => (value.instance.enabled = !value.instance.enabled)}
+                ></input>{' '}
+                — {value}
+              </>
+            )
+          }}
           shouldExpandNode={(keyPath, data, level) => level > 0}
         />
       </div>

@@ -1,12 +1,12 @@
 import { useHookstate } from '@hookstate/core'
-import * as polyfill from 'credential-handler-polyfill'
+// import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import { requestVcForEvent } from '@xrengine/common/src/credentials/credentials'
+import config, { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+// import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -112,22 +112,20 @@ const ProfileMenu = ({
     (authState.linkedin && oauthConnectedState.linkedin) ||
     (authState.twitter && oauthConnectedState.twitter)
 
-  const loadCredentialHandler = async () => {
-    try {
-      const mediator =
-        globalThis.process.env['VITE_MEDIATOR_SERVER'] +
-        `/mediator?origin=${encodeURIComponent(window.location.origin)}`
+  // const loadCredentialHandler = async () => {
+  //   try {
+  //     const mediator = config.client.mediatorServer + `/mediator?origin=${encodeURIComponent(window.location.origin)}`
 
-      await polyfill.loadOnce(mediator)
-      console.log('Ready to work with credentials!')
-    } catch (e) {
-      logger.error(e, 'Error loading polyfill')
-    }
-  }
+  //     await polyfill.loadOnce(mediator)
+  //     console.log('Ready to work with credentials!')
+  //   } catch (e) {
+  //     logger.error(e, 'Error loading polyfill')
+  //   }
+  // }
 
-  useEffect(() => {
-    loadCredentialHandler()
-  }, []) // Only run once
+  // useEffect(() => {
+  //   loadCredentialHandler()
+  // }, []) // Only run once
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name.value)
@@ -239,47 +237,25 @@ const ProfileMenu = ({
    * some in-engine action, makes a payment, etc).
    */
   async function handleIssueCredentialClick() {
-    const signedVp = await requestVcForEvent('EnteredVolumeEvent')
-    console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
-
-    const webCredentialType = 'VerifiablePresentation'
-    // @ts-ignore
-    const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
-      recommendedHandlerOrigins: ['https://uniwallet.cloud']
-    })
-
-    // Use Credential Handler API to store
-    const result = await navigator.credentials.store(webCredentialWrapper)
-    console.log('Result of receiving via store() request:', result)
+    /** @todo temporarily disabled for vite upgrade */
+    // const signedVp = await requestVcForEvent('EnteredVolumeEvent')
+    // console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
+    // const webCredentialType = 'VerifiablePresentation'
+    // // @ts-ignore
+    // const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
+    //   recommendedHandlerOrigins: ['https://uniwallet.cloud']
+    // })
+    // // Use Credential Handler API to store
+    // const result = await navigator.credentials.store(webCredentialWrapper)
+    // console.log('Result of receiving via store() request:', result)
   }
 
   /**
    * Example function, requests a Verifiable Credential from the user's wallet.
    */
   async function handleRequestCredentialClick() {
-    const vpRequestQuery: any = {
-      web: {
-        VerifiablePresentation: {
-          query: [
-            {
-              type: 'QueryByExample',
-              credentialQuery: [
-                {
-                  example: {
-                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
-                    type: 'VerifiableCredential'
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      }
-    }
-
-    const result = await navigator.credentials.get(vpRequestQuery)
-
-    console.log('VC Request query result:', result)
+    // const result = await navigator.credentials.get(vpRequestQuery)
+    // console.log('VC Request query result:', result)
   }
 
   async function handleWalletLoginClick() {
@@ -368,13 +344,7 @@ const ProfileMenu = ({
     }
   }
 
-  const goToEthNFT = () => {
-    let token = JSON.stringify(localStorage.getItem('TheOverlay-Auth-Store'))
-    if (userId && token)
-      window.open(`${globalThis.process.env['VITE_ETH_MARKETPLACE']}?data=${userId}&token=${token}`, '_blank')
-  }
-
-  const enableWalletLogin = authState?.didWallet
+  const enableWalletLogin = false // authState?.didWallet
 
   const enableSocial =
     authState?.discord ||

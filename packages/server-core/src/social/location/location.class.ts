@@ -7,7 +7,7 @@ import { Location as LocationType } from '@xrengine/common/src/interfaces/Locati
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
 export type LocationDataType = LocationType
@@ -133,8 +133,8 @@ export class Location<T = LocationDataType> extends Service<T> {
       Object.keys($sort).forEach((name, val) => {
         if (name === 'type') {
           order.push(['location_setting', 'locationType', $sort[name] === 0 ? 'DESC' : 'ASC'])
-        } else if (name === 'instanceMediaChatEnabled') {
-          order.push(['location_setting', 'instanceMediaChatEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else if (name === 'audioEnabled') {
+          order.push(['location_setting', 'audioEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
         } else if (name === 'videoEnabled') {
           order.push(['location_setting', 'videoEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
         } else {
@@ -262,7 +262,6 @@ export class Location<T = LocationDataType> extends Service<T> {
           audioEnabled: !!location_settings.audioEnabled,
           faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
           screenSharingEnabled: !!location_settings.screenSharingEnabled,
-          instanceMediaChatEnabled: !!location_settings.instanceMediaChatEnabled,
           maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
           locationType: location_settings.locationType || 'private',
           locationId: location.id
@@ -334,7 +333,6 @@ export class Location<T = LocationDataType> extends Service<T> {
           audioEnabled: !!location_settings.audioEnabled,
           faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
           screenSharingEnabled: !!location_settings.screenSharingEnabled,
-          instanceMediaChatEnabled: !!location_settings.instanceMediaChatEnabled,
           maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
           locationType: location_settings.locationType || 'private'
         },

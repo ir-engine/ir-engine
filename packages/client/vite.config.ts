@@ -4,13 +4,12 @@ import fs from 'fs'
 import fsExtra from 'fs-extra'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
-import { defineConfig, loadEnv, UserConfig, UserConfigExport } from 'vite'
+import { defineConfig, loadEnv, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
-import { injectHtml } from 'vite-plugin-html'
+import { createHtmlPlugin } from 'vite-plugin-html'
 import PkgConfig from 'vite-plugin-package-config'
 
 import { getClientSetting } from './scripts/getClientSettings'
-import OptimizationPersist from './scripts/viteoptimizeplugin'
 
 const merge = (src, dest) =>
   mergeWith({}, src, dest, function (a, b) {
@@ -40,7 +39,7 @@ const copyProjectDependencies = () => {
   }
 }
 
-const getProjectConfigExtensions = async (config) => {
+const getProjectConfigExtensions = async (config: UserConfig) => {
   const projects = fs
     .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
@@ -51,43 +50,17 @@ const getProjectConfigExtensions = async (config) => {
       const { default: viteConfigExtension } = require(staticPath)
       if (typeof viteConfigExtension === 'function') {
         const configExtension = await viteConfigExtension()
-        config.plugins = [...config.plugins, ...configExtension.default.plugins]
+        config.plugins = [...config.plugins!, ...configExtension.default.plugins]
         delete configExtension.default.plugins
-        merge(config, configExtension.default)
+        config = merge(config, configExtension.default)
       }
     }
   }
-  return config
+  return config as UserConfig
 }
 
 // this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
 copyProjectDependencies()
-
-const getDependenciesToOptimize = () => {
-  const jsonPath = path.resolve(__dirname, `./optimizeDeps.json`)
-
-  // catch stale imports
-  if (fs.existsSync(jsonPath)) {
-    const pkg = fsExtra.readJSONSync(jsonPath)
-    for (let i = 0; i < pkg.dependencies.length; i++) {
-      const dep = pkg.dependencies[i]
-      const p = path.resolve(__dirname, '../../../node_modules/', dep)
-      if (!fs.existsSync(p)) {
-        fsExtra.removeSync(jsonPath)
-        console.log('stale dependency found. regenerating dependencies')
-        break
-      }
-    }
-  }
-
-  if (!fs.existsSync(jsonPath)) {
-    fs.writeFileSync(jsonPath, JSON.stringify({ dependencies: [] }))
-  }
-
-  const { dependencies } = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
-  const defaultDeps = JSON.parse(fs.readFileSync(path.resolve(__dirname, `./defaultDeps.json`), 'utf8'))
-  return [...dependencies, ...defaultDeps.dependencies]
-}
 
 export default defineConfig(async () => {
   const env = loadEnv('', process.cwd() + '../../')
@@ -102,38 +75,41 @@ export default defineConfig(async () => {
 
   const returned = {
     optimizeDeps: {
-      include: getDependenciesToOptimize(),
       exclude: ['@xrfoundation/volumetric']
     },
     plugins: [
       PkgConfig(),
-      OptimizationPersist(),
-      injectHtml({
-        data: {
-          title: clientSetting.title || 'XRENGINE',
-          appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
-          favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
-          favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
-          icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
-          icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
-          webmanifestLink: clientSetting.webmanifestLink || '/site.webmanifest',
-          paymentPointer: clientSetting.paymentPointer || ''
+      // OptimizationPersist(),
+      createHtmlPlugin({
+        inject: {
+          data: {
+            title: clientSetting.title || 'XRENGINE',
+            appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
+            favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
+            favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
+            icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
+            icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
+            webmanifestLink: clientSetting.webmanifestLink || '/site.webmanifest',
+            paymentPointer: clientSetting.paymentPointer || ''
+          }
         }
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,
+        algorithm: 'brotliCompress',
         deleteOriginFile: true
       })
     ],
     server: {
       hmr: false,
-      host: true
+      host: process.env['VITE_APP_HOST'],
+      port: process.env['VITE_APP_PORT']
     },
     resolve: {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         'socket.io-client': 'socket.io-client/dist/socket.io.js',
-        '@mui/styled-engine': '@mui/styled-engine-sc'
+        '@mui/styled-engine': '@mui/styled-engine-sc/'
       }
     },
     build: {
@@ -144,7 +120,7 @@ export default defineConfig(async () => {
         warnOnError: true
       },
       rollupOptions: {
-        external: ['dotenv-flow'],
+        external: ['dotenv-flow', 'fs'],
         output: {
           dir: 'dist',
           format: 'es'
@@ -161,6 +137,15 @@ export default defineConfig(async () => {
       key: fs.readFileSync('../../certs/key.pem'),
       cert: fs.readFileSync('../../certs/cert.pem')
     }
+  }
+  if (
+    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
+    process.env.STORAGE_PROVIDER === 'aws' &&
+    process.env.STORAGE_CLOUDFRONT_DOMAIN
+  )
+    returned.base = `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
+  else if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' && process.env.STORAGE_PROVIDER === 'local') {
+    returned.base = `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
   }
   return await getProjectConfigExtensions(returned)
 })

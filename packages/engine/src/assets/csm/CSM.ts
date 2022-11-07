@@ -67,6 +67,7 @@ export class CSM {
   mainFrustum: Frustum
   frustums: Frustum[]
   breaks: number[]
+  sourceLight: DirectionalLight | null
   lights: DirectionalLight[]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
@@ -92,12 +93,13 @@ export class CSM {
 
     this.lights = []
 
-    this.createLights(data.light)
+    this.createLights()
     this.updateFrustums()
     this.injectInclude()
   }
 
   changeLights(light: DirectionalLight): void {
+    if (light === this.sourceLight) return
     this.remove()
     this.createLights(light)
     this.updateShadowBounds()
@@ -123,6 +125,7 @@ export class CSM {
 
   createLights(light?: DirectionalLight): void {
     if (light) {
+      this.sourceLight = light
       for (let i = 0; i < this.cascades; i++) {
         light = light?.clone()
         light.matrixAutoUpdate = true

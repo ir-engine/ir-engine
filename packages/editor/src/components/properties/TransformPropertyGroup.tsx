@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Euler } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   SCENE_COMPONENT_DYNAMIC_LOAD,
   SceneDynamicLoadTagComponent
 } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
@@ -70,7 +70,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //rendering editor view for Transform properties
   const transform =
-    getComponent(props.node.entity, LocalTransformComponent) ?? getComponent(props.node.entity, TransformComponent)
+    getOptionalComponent(props.node.entity, LocalTransformComponent) ??
+    getComponent(props.node.entity, TransformComponent)
 
   return (
     <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>

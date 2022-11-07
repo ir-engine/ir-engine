@@ -33,10 +33,6 @@ export default (app: Application) => {
       faceStreamingEnabled: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
-      },
-      instanceMediaChatEnabled: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
       }
     },
     {

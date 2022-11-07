@@ -6,10 +6,10 @@ import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import {
   resolveUser,
   resolveWalletUser,
@@ -20,13 +20,18 @@ import {
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getState,
+  syncStateWithLocalStorage,
+  useState
+} from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
-import { serverHost } from '../../util/config'
-import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
@@ -40,29 +45,10 @@ export const AuthState = defineState({
     isProcessing: false,
     error: '',
     authUser: AuthUserSeed,
-    user: UserSeed,
-    identityProvider: IdentityProviderSeed,
-    avatarList: [] as Array<AvatarInterface>
+    user: UserSeed
   }),
-
-  onCreate: (store, s) => {
-    s.attach(() => ({
-      id: Symbol('AuthPersist'),
-      init: () => ({
-        onSet(arg) {
-          const state = s.attach(Downgraded).value
-          if (state.isLoggedIn)
-            dispatchAction(
-              StoredLocalAction.storedLocal({
-                newState: {
-                  authUser: state.authUser
-                }
-              }),
-              store
-            )
-        }
-      })
-    }))
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(AuthState, ['authUser'])
   }
 })
 
@@ -115,7 +101,7 @@ export const AuthServiceReceptor = (action) => {
       return s.merge({ error: action.message })
     })
     .when(AuthAction.registerUserByEmailSuccessAction.matches, (action) => {
-      return s.merge({ identityProvider: action.identityProvider })
+      return s.authUser.merge({ identityProvider: action.identityProvider })
     })
     .when(AuthAction.registerUserByEmailErrorAction.matches, (action) => {
       return s
@@ -124,14 +110,7 @@ export const AuthServiceReceptor = (action) => {
       return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     })
     .when(AuthAction.didVerifyEmailAction.matches, (action) => {
-      return s.identityProvider.merge({ isVerified: action.result })
-    })
-    .when(StoredLocalAction.restoreLocalData.matches, () => {
-      const stored = accessStoredLocalState().attach(Downgraded).value
-      return s.merge({
-        authUser: stored.authUser,
-        identityProvider: stored.authUser?.identityProvider
-      })
+      return s.authUser.identityProvider.merge({ isVerified: action.result })
     })
     .when(AuthAction.avatarUpdatedAction.matches, (action) => {
       return s.user.merge({ avatarUrl: action.url })
@@ -153,9 +132,6 @@ export const AuthServiceReceptor = (action) => {
     })
     .when(AuthAction.updatedUserSettingsAction.matches, (action) => {
       return s.user.merge({ user_setting: action.data })
-    })
-    .when(AuthAction.updateAvatarListAction.matches, (action) => {
-      return s.avatarList.set(action.avatarList)
     })
 }
 
@@ -271,11 +247,6 @@ export class AuthAction {
     user: matches.object as Validator<unknown, UserInterface>
   })
 
-  static updateAvatarListAction = defineAction({
-    type: 'xre.client.Auth.AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
-  })
-
   static apiKeyUpdatedAction = defineAction({
     type: 'xre.client.Auth.USER_API_KEY_UPDATED' as const,
     apiKey: matches.object as Validator<unknown, UserApiKey>
@@ -303,8 +274,8 @@ async function _resetToGuestToken(options = { reset: true }) {
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
     try {
-      const authData = accessStoredLocalState().attach(Downgraded).value
-      let accessToken = !forceClientAuthReset && authData?.authUser?.accessToken
+      const authData = getState(AuthState)
+      let accessToken = !forceClientAuthReset && authData?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) {
         await API.instance.client.authentication.reset()
@@ -450,7 +421,7 @@ export const AuthService = {
         identityProvider: {
           id: 0,
           token: '',
-          type: 'chapiWallet',
+          type: 'didWallet',
           isVerified: true,
           userId: walletUser.id
         }
@@ -485,9 +456,9 @@ export const AuthService = {
       path: path
     } as any
     if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
-    window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
-      redirectObject
-    )}`
+    window.location.href = `${
+      config.client.serverUrl
+    }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
   },
 
   async removeUserOAuth(service: string) {
@@ -537,8 +508,8 @@ export const AuthService = {
       // in properly. This interval waits to make sure the token has been updated before redirecting
       const waitForTokenStored = setInterval(() => {
         timeoutTimer += TIMEOUT_INTERVAL
-        const authData = accessStoredLocalState().attach(Downgraded).value
-        let storedToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
+        const authData = getState(AuthState)
+        const storedToken = authData.authUser?.accessToken?.value
         if (storedToken === accessToken) {
           clearInterval(waitForTokenStored)
           window.location.href = redirectSuccess
@@ -790,7 +761,7 @@ export const AuthService = {
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: string
   ) {
-    window.open(`https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
+    window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
 
   async removeConnection(identityProviderId: number, userId: string) {

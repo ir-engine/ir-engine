@@ -30,7 +30,7 @@ const Instance = () => {
   }
 
   return (
-    <React.Fragment>
+    <div>
       <Grid container spacing={1} className={styles.mb10px}>
         <Grid item xs={12} sm={8}>
           <Search text="instance" handleChange={handleChange} />
@@ -48,7 +48,7 @@ const Instance = () => {
       </Grid>
       <InstanceTable className={styles.rootTableWithSearch} search={search} />
       {patchInstanceserverOpen && <PatchInstanceserver open onClose={() => setPatchInstanceserverOpen(false)} />}
-    </React.Fragment>
+    </div>
   )
 }
 

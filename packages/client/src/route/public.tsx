@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
@@ -17,40 +18,42 @@ import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/Ap
 import { DialogServiceReceptor } from '@xrengine/client-core/src/common/services/DialogService'
 import { MediaInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ProjectServiceReceptor } from '@xrengine/client-core/src/common/services/ProjectService'
+import { RouterServiceReceptor, RouterState, useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { FriendServiceReceptor } from '@xrengine/client-core/src/social/services/FriendService'
 import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
-import {
-  LocalStateServiceReceptor,
-  StoredLocalAction,
-  StoredLocalStoreService
-} from '@xrengine/client-core/src/util/StoredLocalState'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
+import $404 from '../pages/404'
+import $503 from '../pages/503'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
 const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))
-const $503 = React.lazy(() => import('../pages/503'))
-const $404 = React.lazy(() => import('../pages/404'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
   const clientSettingsState = useClientSettingState()
   const authSettingsState = useAuthSettingState()
   const location = useLocation()
+  const history = useHistory()
   const [routesReady, setRoutesReady] = useState(false)
+  const routerState = useHookstate(getState(RouterState))
+  const route = useRouter()
+  const { t } = useTranslation()
 
   InviteService.useAPIListeners()
 
   useEffect(() => {
-    addActionReceptor(LocalStateServiceReceptor)
+    addActionReceptor(RouterServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
+    addActionReceptor(AvatarServiceReceptor)
     addActionReceptor(InviteServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(DialogServiceReceptor)
@@ -59,9 +62,6 @@ function RouterComp() {
     addActionReceptor(ProjectServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
-
-    dispatchAction(StoredLocalAction.restoreLocalData({}))
-    StoredLocalStoreService.fetchLocalStoredState()
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
@@ -76,10 +76,11 @@ function RouterComp() {
     })
 
     return () => {
-      removeActionReceptor(LocalStateServiceReceptor)
+      removeActionReceptor(RouterServiceReceptor)
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
+      removeActionReceptor(AvatarServiceReceptor)
       removeActionReceptor(InviteServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(DialogServiceReceptor)
@@ -92,6 +93,18 @@ function RouterComp() {
   }, [])
 
   useEffect(() => {
+    if (location.pathname !== routerState.pathname.value) {
+      route(location.pathname)
+    }
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (location.pathname !== routerState.pathname.value) {
+      history.push(routerState.pathname.value)
+    }
+  }, [routerState.pathname])
+
+  useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes
     if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
     if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
@@ -99,12 +112,12 @@ function RouterComp() {
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
-    return <LoadingCircle />
+    return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle />}>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
         <Switch>
           {customRoutes.map((route, i) => (
             <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />

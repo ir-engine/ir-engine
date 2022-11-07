@@ -11,15 +11,9 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import {
-  createEngine,
-  initializeCoreSystems,
-  initializeMediaServerSystems,
-  initializeNode,
-  initializeRealtimeSystems,
-  initializeSceneSystems,
-  setupEngineActionSystems
-} from '@xrengine/engine/src/initializeEngine'
+import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+import { initializeRealtimeSystems } from '@xrengine/engine/src/initializeRealtimeSystems'
+import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -28,8 +22,8 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
-import multiLogger from '@xrengine/server-core/src/logger'
 import { getProjectsList } from '@xrengine/server-core/src/projects/project/project.service'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 import { authorizeUserToJoinServer } from './NetworkFunctions'
@@ -45,6 +39,7 @@ interface SocketIOConnectionType {
     locationId?: string
     instanceId?: string
     channelId?: string
+    roomCode?: string
     token: string
     EIO: string
     transport: string
@@ -80,7 +75,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
-    const channelResult = await app.service('channel').create({
+    await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
     })
@@ -161,7 +156,7 @@ const initializeInstance = async (
   status: InstanceserverStatus,
   locationId: string,
   channelId: string,
-  userId: UserId
+  userId?: UserId
 ) => {
   logger.info('Initialized new instance')
 
@@ -199,22 +194,22 @@ const initializeInstance = async (
   } else {
     const instance = existingInstanceResult.data[0]
     if (locationId) {
-      const user = await app.service('user').get(userId)
-      const existingChannel = (await app.service('channel').find({
-        query: {
+      const existingChannel = await app.service('channel').Model.findOne({
+        where: {
           channelType: 'instance',
           instanceId: instance.id
-        },
-        'identity-provider': user['identity_providers']![0]
-      } as any)) as Channel[]
-      if (existingChannel.length === 0) {
+        }
+      })
+      if (!existingChannel) {
         await app.service('channel').create({
           channelType: 'instance',
           instanceId: instance.id
         })
       }
     }
-    if (!(await authorizeUserToJoinServer(app, instance, userId))) return
+    await app.agonesSDK.allocate()
+    if (!app.instance) app.instance = instance
+    if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
     await assignExistingInstance(app, instance, channelId, locationId)
   }
 }
@@ -227,7 +222,6 @@ const initializeInstance = async (
 
 const loadEngine = async (app: Application, sceneId: string) => {
   const hostId = app.instance.id as UserId
-  Engine.instance.publicPath = config.client.url
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
@@ -240,13 +234,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
-    world._mediaHostId = hostId as UserId
-    await initializeMediaServerSystems()
+    world.hostIds.media.set(hostId as UserId)
     await initializeRealtimeSystems(true, false)
+    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    world._worldHostId = hostId as UserId
+    world.hostIds.world.set(hostId as UserId)
 
     const [projectName, sceneName] = sceneId.split('/')
 
@@ -337,11 +331,11 @@ const createOrUpdateInstance = async (
   locationId: string,
   channelId: string,
   sceneId: string,
-  userId: UserId
+  userId?: UserId
 ) => {
   logger.info('Creating new instance server or updating current one.')
   logger.info(`agones state is ${status.state}`)
-  logger.info('app instance is %o, app.instance')
+  logger.info('app instance is %o', app.instance)
   logger.info(`instanceLocationId: ${app.instance?.locationId}, locationId: ${locationId}`)
 
   const isReady = status.state === 'Ready'
@@ -357,7 +351,7 @@ const createOrUpdateInstance = async (
         await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
       }
       const instance = await app.service('instance').get(app.instance.id)
-      if (!(await authorizeUserToJoinServer(app, instance, userId))) return
+      if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
       await app.agonesSDK.allocate()
       await app.service('instance').patch(app.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
@@ -392,6 +386,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
   }
   app.instance.ended = true
   if (config.kubernetes.enabled) {
+    // @ts-ignore
     delete app.instance
     const gsName = app.instanceServer.objectMeta.name
     if (gsName !== undefined) {
@@ -508,6 +503,7 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   const userId = identityProvider.userId
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId!
+  let roomCode = connection.socketQuery.roomCode!
 
   if (locationId === '') {
     locationId = undefined!
@@ -515,8 +511,15 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   if (channelId === '') {
     channelId = undefined!
   }
+  if (roomCode === '') {
+    roomCode = undefined!
+  }
 
-  logger.info(`user ${userId} joining ${locationId ?? channelId} with sceneId ${connection.socketQuery.sceneId}`)
+  logger.info(
+    `user ${userId} joining ${locationId ?? channelId} with sceneId ${
+      connection.socketQuery.sceneId
+    } and room code ${roomCode}`
+  )
 
   const isResult = await app.agonesSDK.getGameServer()
   const status = isResult.status as InstanceserverStatus
@@ -528,11 +531,14 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   const isLocalServerNeedingNewLocation =
     !config.kubernetes.enabled &&
     app.instance &&
-    (app.instance.locationId != locationId || app.instance.channelId != channelId)
+    (app.instance.locationId != locationId ||
+      app.instance.channelId != channelId ||
+      (roomCode && app.instance.roomCode !== roomCode))
 
   logger.info(
-    `current id: ${locationId ?? channelId} and new id: ${app.instance?.locationId ?? app.instance?.channelId}`
+    `current id: ${app.instance?.locationId ?? app.instance?.channelId} and new id: ${locationId ?? channelId}`
   )
+  logger.info(`current id: ${roomCode} and new id: ${app.instance?.roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
     app.restart()
@@ -547,6 +553,8 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
       return logger.warn('got a connection to the wrong location id', app.instance.locationId, locationId)
     if (channelId && app.instance.channelId !== channelId)
       return logger.warn('got a connection to the wrong channel id', app.instance.channelId, channelId)
+    if (roomCode && app.instance.roomCode !== roomCode)
+      return logger.warn('got a connection to the wrong room code', app.instance.roomCode, roomCode)
   }
 
   const sceneId = locationId ? (await app.service('location').get(locationId)).sceneId : ''
@@ -616,10 +624,6 @@ export default (app: Application): void => {
     return
   }
 
-  createEngine()
-  setupEngineActionSystems()
-  initializeNode()
-
   app.service('instanceserver-load').on('patched', async (params) => {
     const { id, ipAddress, podName, locationId, sceneId } = params
 
@@ -636,7 +640,7 @@ export default (app: Application): void => {
       return
     }
 
-    createOrUpdateInstance(app, status, locationId, null!, sceneId, null!)
+    createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
 
   app.on('connection', onConnection(app))

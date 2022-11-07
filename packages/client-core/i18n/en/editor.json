@@ -2,7 +2,7 @@
   "loading": "Loading Project",
   "loadingError": "Error loading project",
   "loadingErrorMsg": "There was an error when loading the project.",
-  "selectSceneMsg": "Select Scene to start playing with the engine",
+  "selectSceneMsg": "Select a Scene in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
   "generateScreenshot": "Generating Project Screenshot",
@@ -446,10 +446,14 @@
         "placeholder-instancedMesh": "Select Mesh to Instance"
       }
     },
-    "scene": {
-      "name": "Scene",
-      "description": "The root object of the scene.",
-      "lbl-bgcolor": "Background Color",
+    "postprocessing": {
+      "name": "Post Processing",
+      "enabled": "Enabled",
+      "description": "For applying Post Processing effects to you scene."
+    },
+    "mediaSettings": {
+      "name": "Media Settings",
+      "description": "Customise the scene media settings",
       "lbl-audioSettings": "Use Positional Audio",
       "lbl-avatarDistanceModel": "Avatar Distance Model",
       "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
@@ -477,7 +481,12 @@
       "info-mediaMaxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
       "info-mediaConeInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
       "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
-      "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
+      "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
+    },
+    "renderSettings": {
+      "name": "Render Settings",
+      "description": "Customise the scene renderer settings",
+      "lbl-bgcolor": "Background Color",
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
       "lbl-rendererSettings": "Override Renderer Settings",
@@ -488,7 +497,11 @@
       "lbl-toneMappingExposure": "Tone Mapping Exposure",
       "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-shadowMapType": "Shadow Map Type",
-      "info-shadowMapType": "Type of shadow map",
+      "info-shadowMapType": "Type of shadow map"
+    },
+    "scene": {
+      "name": "Scene",
+      "description": "The root object of the scene.",
       "error-url": "Error Loading From URL"
     },
     "sceneCamera": {
@@ -541,15 +554,13 @@
     },
     "video": {
       "name": "Video",
-      "description": "Dynamically loads a video.",
-      "lbl-video": "Video",
-      "lbl-projection": "Projection",
-      "lbl-islivestream": "Live Stream",
-      "lbl-interactable": "Interactable",
-      "lbl-id": "Element Id",
-      "lbl-play": "Play",
-      "lbl-pause": "Pause",
-      "error-url": "Error Loading From URL"
+      "lbl-media": "Media Source",
+      "lbl-size": "Canvas Size",
+      "lbl-size-info": "The dimensions of the surface on which the video will be presented",
+      "lbl-fit": "Video Fit",
+      "lbl-fit-info": "How the video should be stretched within the given canvas size",
+      "lbl-media-info": "An entity w/ a media component that should be sourced for display",
+      "description": "Display a video"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -586,10 +597,6 @@
       "lbl-triggerRotation": "Trigger Rotation",
       "lbl-triggerScale": "Trigger Scale"
     },
-    "postprocessing": {
-      "name": "Post Processing",
-      "description": "For applying Post Processing effects to you scene."
-    },
     "fog": {
       "name": "Fog",
       "description": "A universal fog",
@@ -600,6 +607,10 @@
       "lbl-forNearDistance": "Fog Near Distance",
       "lbl-fogFarDistance": "Fog Far Distance",
       "lbl-fogDensity": "Fog Density"
+    },
+    "xr": {
+      "name": "XR Settings",
+      "lbl-vpsWaypointName": "VPS Waypoint Name"
     },
     "mountPoint": {
       "name": "Mount point",
@@ -711,11 +722,16 @@
       "header": "Your scene has been published.",
       "lbl-view": "View Your Scene"
     },
-    "saveNewProject": {
-      "title": "Support",
-      "lbl-name": "Project Name",
+    "saveScene": {
+      "title": "Save",
+      "lbl-thumbnail": "Generate thumbnail & envmap",
+      "lbl-confirm": "Save Scene"
+    },
+    "saveNewScene": {
+      "title": "Save As",
+      "lbl-name": "Scene Name",
       "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
-      "lbl-confirm": "Save Project"
+      "lbl-confirm": "Save Scene"
     },
     "support": {
       "title": "Support",

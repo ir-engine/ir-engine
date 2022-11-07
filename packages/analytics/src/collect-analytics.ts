@@ -1,5 +1,5 @@
 import config from '@xrengine/server-core/src/appconfig'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
 const logger = multiLogger.child({ component: 'analytics' })
 
@@ -14,10 +14,7 @@ export default (app): void => {
     const activeScenes: any[] = []
     const activeParties = await app.service('party').find({
       query: {
-        $limit: 0,
-        instanceId: {
-          $ne: null
-        }
+        $limit: 0
       },
       isInternal: true
     })

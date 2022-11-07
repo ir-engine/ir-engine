@@ -3,7 +3,7 @@ import { Op } from 'sequelize'
 import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRelationship'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { UserRelationship } from './user-relationship.class'
 import userRelationshipDocs from './user-relationship.docs'
 import hooks from './user-relationship.hooks'

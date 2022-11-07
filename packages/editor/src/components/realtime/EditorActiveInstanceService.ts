@@ -58,6 +58,7 @@ export const EditorActiveInstanceService = {
           instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
           locationId: locationId!,
           sceneId: sceneId!
         })

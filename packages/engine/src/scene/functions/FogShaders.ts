@@ -163,11 +163,11 @@ const FogShaders = {
     default: ShaderChunk.fog_vertex,
     brownianMotionFog: `
       #ifdef USE_FOG
-        vWorldPosition = worldPosition.xyz;
+        vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz; // From local position to global position
       #endif`,
     heightFog: `
       #ifdef USE_FOG
-        vWorldPosition = worldPosition.xyz;
+        vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz; // From local position to global position
       #endif`
   },
   fog_pars_vertex: {

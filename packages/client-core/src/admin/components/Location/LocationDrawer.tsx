@@ -41,7 +41,6 @@ const defaultState = {
   audioEnabled: false,
   screenSharingEnabled: false,
   faceStreamingEnabled: false,
-  globalMediaEnabled: false,
   isLobby: false,
   isFeatured: false,
   formErrors: {
@@ -99,7 +98,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         audioEnabled: selectedLocation.location_setting?.audioEnabled,
         screenSharingEnabled: selectedLocation.location_setting?.screenSharingEnabled,
         faceStreamingEnabled: selectedLocation.location_setting?.faceStreamingEnabled,
-        globalMediaEnabled: selectedLocation.location_setting?.instanceMediaChatEnabled,
         isLobby: selectedLocation.isLobby,
         isFeatured: selectedLocation.isFeatured
       })
@@ -150,7 +148,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
       maxUsersPerInstance: state.maxUsers,
       location_settings: {
         locationType: state.type,
-        instanceMediaChatEnabled: state.globalMediaEnabled,
         audioEnabled: state.audioEnabled,
         screenSharingEnabled: state.screenSharingEnabled,
         faceStreamingEnabled: state.faceStreamingEnabled,
@@ -249,14 +246,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
               checked={state.audioEnabled}
               disabled={viewMode}
               onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
-            />
-
-            <InputSwitch
-              name="globalMediaEnabled"
-              label={t('admin:components.location.lbl-gme')}
-              checked={state.globalMediaEnabled}
-              disabled={viewMode}
-              onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
             />
 
             <InputSwitch

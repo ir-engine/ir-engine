@@ -1,18 +1,12 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { AvatarService } from '@xrengine/client-core/src/user/services/AvatarService'
-import {
-  SceneActions,
-  SceneServiceReceptor,
-  useSceneState
-} from '@xrengine/client-core/src/world/services/SceneService'
+import { SceneServiceReceptor, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
@@ -23,13 +17,16 @@ import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import {
   PortalEffects,
   setAvatarToLocationTeleportingState
 } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
+import { NotificationService } from '../../common/services/NotificationService'
+import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
@@ -60,48 +57,49 @@ export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEnginePro
 export const useLocationSpawnAvatar = () => {
   const engineState = useEngineState()
   const authState = useAuthState()
-  const didSpawn = useHookstate(false)
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
-  useEffect(() => {
-    AvatarService.fetchAvatarList()
-  }, [])
-
   useHookEffect(() => {
     if (
-      didSpawn.value ||
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
-      !authState.avatarList.value.length ||
+      !authState.user.avatar.value ||
       spectateParam
     )
       return
 
     // the avatar should only be spawned once, after user auth and scene load
 
-    const user = authState.user.value
-    const avatarDetails = authState.avatarList.value.find((avatar) => avatar?.id === user.avatarId)!
+    const user = authState.user
+    const avatarDetails = user.avatar.value
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
       ? getSpawnPoint(spawnPoint, Engine.instance.userId)
       : getRandomSpawnPoint(Engine.instance.userId)
 
-    spawnLocalAvatarInWorld({
-      avatarSpawnPose,
-      avatarDetail: {
-        avatarURL: avatarDetails.modelResource?.url!,
-        thumbnailURL: avatarDetails.thumbnailResource?.url!
-      },
-      name: user.name
-    })
-  }, [engineState.sceneLoaded, authState.user, authState.avatarList, spectateParam])
+    if (avatarDetails.modelResource?.url)
+      spawnLocalAvatarInWorld({
+        avatarSpawnPose,
+        avatarDetail: {
+          avatarURL: avatarDetails.modelResource?.url!,
+          thumbnailURL: avatarDetails.thumbnailResource?.url!
+        },
+        name: user.name.value
+      })
+    else {
+      NotificationService.dispatchNotify(
+        'Your avatar is missing its model. Please change your avatar from the user menu.',
+        { variant: 'error' }
+      )
+    }
+  }, [engineState.sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
 }
 
 export const usePortalTeleport = () => {
-  const history = useHistory()
+  const route = useRouter()
   const engineState = useEngineState()
   const locationState = useLocationState()
   const authState = useAuthState()
@@ -115,7 +113,10 @@ export const usePortalTeleport = () => {
       if (!activePortal) return
 
       const currentLocation = locationState.locationName.value.split('/')[1]
-      if (currentLocation === activePortal.location || world.entityTree.uuidNodeMap.get(activePortal.linkedPortalId)) {
+      if (
+        currentLocation === activePortal.location ||
+        UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
+      ) {
         teleportAvatar(
           world.localClientEntity,
           activePortal.remoteSpawnPosition
@@ -131,7 +132,7 @@ export const usePortalTeleport = () => {
         return
       }
 
-      history.push('/location/' + world.activePortal!.location)
+      route('/location/' + world.activePortal!.location)
       LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
 
       // shut down connection with existing world instance server

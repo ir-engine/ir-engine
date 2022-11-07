@@ -26,7 +26,8 @@ export const clientSeed = {
         { icon: 'static/github.svg', link: 'https://github.com/XRFoundation' }
       ]),
       themeSettings: JSON.stringify(defaultThemeSettings),
-      themeModes: JSON.stringify(defaultThemeModes)
+      themeModes: JSON.stringify(defaultThemeModes),
+      key8thWall: process.env.VITE_8TH_WALL
     }
   ]
 }

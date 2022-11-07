@@ -2,31 +2,24 @@ import { Bone, Euler, MathUtils, Vector3 } from 'three'
 
 import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
-import { Axis } from '../common/constants/Axis3D'
-import { V_000 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { updateAnimationGraph } from './animation/AnimationGraph'
-import { applyBoneTwist } from './animation/armsTwistCorrection'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
-import { getForwardVector, solveLookIK } from './animation/LookAtIKSolver'
-import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
+import AvatarHandAnimationSystem from './AvatarHandAnimationSystem'
+import AvatarIKTargetSystem from './AvatarIKTargetSystem'
 import { AnimationComponent } from './components/AnimationComponent'
-import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
-import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
-import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 
-const EPSILON = 1e-6
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
@@ -49,16 +42,21 @@ export function animationActionReceptor(
 }
 
 export default async function AnimationSystem(world: World) {
-  const vrIKQuery = defineQuery([AvatarHandsIKComponent, AvatarAnimationComponent])
-  const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarAnimationComponent])
-  const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
-  const animationQuery = defineQuery([AnimationComponent])
-  const forward = new Vector3()
-  const movingAvatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, VelocityComponent])
-  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
-  const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarAnimationComponent])
+  const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
+  const movingAvatarAnimationQuery = defineQuery([
+    AnimationComponent,
+    AvatarAnimationComponent,
+    AvatarRigComponent,
+    RigidBodyComponent
+  ])
+  const avatarAnimationQuery = defineQuery([
+    AnimationComponent,
+    AvatarAnimationComponent,
+    AvatarRigComponent,
+    VisibleComponent
+  ])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
@@ -104,20 +102,19 @@ export default async function AnimationSystem(world: World) {
     }
 
     /** Apply motion to velocity controlled animations */
-
     for (const entity of movingAvatarAnimationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
       const deltaTime = delta * animationComponent.animationSpeed
-      const velocity = getComponent(entity, VelocityComponent)
 
       // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
       avatarAnimationComponent.locomotion.x = 0
-      avatarAnimationComponent.locomotion.y = velocity.linear.y
+      avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
       // lerp animated forward animation to smoothly animate to a stop
       avatarAnimationComponent.locomotion.z = MathUtils.lerp(
         avatarAnimationComponent.locomotion.z || 0,
-        _vector3.copy(velocity.linear).setComponent(1, 0).length(),
+        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
         10 * deltaTime
       )
 
@@ -127,12 +124,12 @@ export default async function AnimationSystem(world: World) {
     /**
      * Apply retargeting
      */
-
     for (const entity of avatarAnimationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const rootBone = animationComponent.mixer.getRoot() as Bone
-      const rig = avatarAnimationComponent.rig
+      const avatarRigComponent = getComponent(entity, AvatarRigComponent)
+      const rig = avatarRigComponent.rig
 
       rootBone.traverse((bone: Bone) => {
         if (!bone.isBone) return
@@ -153,121 +150,25 @@ export default async function AnimationSystem(world: World) {
 
       // TODO: Find a more elegant way to handle root motion
       const rootPos = AnimationManager.instance._defaultRootBone.position
-      if (avatarAnimationComponent.rig.Hips) avatarAnimationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
-    }
-
-    for (const entity of armsTwistCorrectionQuery.enter()) {
-      const { bindRig } = getComponent(entity, AvatarAnimationComponent)
-      const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
-      twistCorrection.LeftHandBindRotationInv.copy(bindRig.LeftHand.quaternion).invert()
-      twistCorrection.RightHandBindRotationInv.copy(bindRig.RightHand.quaternion).invert()
-    }
-
-    for (const entity of vrIKQuery()) {
-      const ik = getComponent(entity, AvatarHandsIKComponent)
-      const { rig } = getComponent(entity, AvatarAnimationComponent)
-
-      if (!rig) continue
-
-      // Arms should not be straight for the solver to work properly
-      // TODO: Make this configurable
-
-      // TODO: should we break hand IK apart into left and right components?
-      // some devices only support one hand controller. How do we handle that?
-      // how do we report that tracking is lost or still pending?
-      // FOR NOW: we'll assume that we don't have tracking if the target is at exactly (0, 0, 0);
-      // we may want to add a flag for this in the future, or to generally allow animations to play even if tracking is available
-
-      if (!ik.leftTarget.position.equals(V_000)) {
-        rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-        rig.LeftForeArm.updateWorldMatrix(false, true)
-        solveTwoBoneIK(
-          rig.LeftArm,
-          rig.LeftForeArm,
-          rig.LeftHand,
-          ik.leftTarget,
-          ik.leftHint,
-          ik.leftTargetOffset,
-          ik.leftTargetPosWeight,
-          ik.leftTargetRotWeight,
-          ik.leftHintWeight
-        )
-      }
-
-      if (!ik.rightTarget.position.equals(V_000)) {
-        rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
-        rig.RightForeArm.updateWorldMatrix(false, true)
-        solveTwoBoneIK(
-          rig.RightArm,
-          rig.RightForeArm,
-          rig.RightHand,
-          ik.rightTarget,
-          ik.rightHint,
-          ik.rightTargetOffset,
-          ik.rightTargetPosWeight,
-          ik.rightTargetRotWeight,
-          ik.rightHintWeight
-        )
-      }
-    }
-
-    for (const entity of armsTwistCorrectionQuery()) {
-      const { rig, bindRig } = getComponent(entity, AvatarAnimationComponent)
-      const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
-
-      if (rig.LeftForeArmTwist) {
-        applyBoneTwist(
-          twistCorrection.LeftHandBindRotationInv,
-          rig.LeftHand.quaternion,
-          bindRig.LeftForeArmTwist.quaternion,
-          rig.LeftForeArmTwist.quaternion,
-          twistCorrection.LeftArmTwistAmount
-        )
-      }
-
-      if (rig.RightForeArmTwist) {
-        applyBoneTwist(
-          twistCorrection.RightHandBindRotationInv,
-          rig.RightHand.quaternion,
-          bindRig.RightForeArmTwist.quaternion,
-          rig.RightForeArmTwist.quaternion,
-          twistCorrection.RightArmTwistAmount
-        )
-      }
-    }
-
-    for (const entity of headIKQuery(world)) {
-      const rig = getComponent(entity, AvatarAnimationComponent).rig
-      const ik = getComponent(entity, AvatarHeadIKComponent)
-      getForwardVector(ik.camera.matrixWorld, forward).multiplyScalar(-1)
-      solveLookIK(rig.Head, forward, ik.rotationClamp)
-    }
-
-    for (const entity of headDecapQuery(world)) {
-      if (!hasComponent(entity, AvatarAnimationComponent)) continue
-      const rig = getComponent(entity, AvatarAnimationComponent).rig
-      rig.Head?.scale.setScalar(EPSILON)
-    }
-
-    for (const entity of headDecapQuery.exit(world)) {
-      if (!hasComponent(entity, AvatarAnimationComponent)) continue
-      const rig = getComponent(entity, AvatarAnimationComponent).rig
-      rig.Head?.scale.setScalar(1)
+      rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
     }
   }
 
   const cleanup = async () => {
-    removeQuery(world, vrIKQuery)
-    removeQuery(world, headIKQuery)
-    removeQuery(world, headDecapQuery)
     removeQuery(world, desiredTransformQuery)
     removeQuery(world, tweenQuery)
     removeQuery(world, animationQuery)
     removeQuery(world, movingAvatarAnimationQuery)
     removeQuery(world, avatarAnimationQuery)
-    removeQuery(world, armsTwistCorrectionQuery)
     removeActionQueue(avatarAnimationQueue)
   }
 
-  return { execute, cleanup }
+  return {
+    execute,
+    cleanup,
+    subsystems: [
+      () => Promise.resolve({ default: AvatarIKTargetSystem }),
+      () => Promise.resolve({ default: AvatarHandAnimationSystem })
+    ]
+  }
 }

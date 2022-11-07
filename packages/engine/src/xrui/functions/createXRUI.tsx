@@ -6,7 +6,7 @@ import { Group } from 'three'
 
 import { isNode } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getComponentState } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -46,10 +46,10 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
 
   const root = new Group()
   root.add(container)
-  addObjectToGroup(entity, root)
   setTransformComponent(entity)
+  addObjectToGroup(entity, root)
   setObjectLayers(container, ObjectLayers.UI)
-  addComponent(entity, XRUIComponent, { container, state })
+  addComponent(entity, XRUIComponent, container)
   addComponent(entity, VisibleComponent, true)
 
   return { entity, state, container }

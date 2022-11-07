@@ -21,6 +21,7 @@ import {
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { getControlMode } from '../../../xr/XRState'
 import { CallbackComponent, setCallback } from '../../components/CallbackComponent'
 import { ColliderComponent } from '../../components/ColliderComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
@@ -96,8 +97,7 @@ const parsePortalProperties = (props): PortalComponentType => {
 }
 
 export const setAvatarToLocationTeleportingState = (world: World) => {
-  if (!EngineRenderer.instance.xrSession)
-    switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
+  switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
   getComponent(world.localClientEntity, AvatarControllerComponent).movementEnabled = false
   dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
 }

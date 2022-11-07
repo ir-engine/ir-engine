@@ -15,6 +15,10 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       },
+      roomCode: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       ipAddress: {
         type: DataTypes.STRING
       },

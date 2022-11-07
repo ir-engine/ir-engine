@@ -26,6 +26,10 @@ export interface StorageObjectInterface {
    * A standard MIME type describing the format of the object data.
    */
   ContentType: string
+
+  ContentEncoding?: string
+
+  Metadata?: object
 }
 
 /**

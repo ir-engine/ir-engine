@@ -18,7 +18,7 @@ export const authenticationSeed = {
         { google: true },
         { linkedin: true },
         { twitter: true },
-        { didWallet: false }
+        { didWallet: true }
       ]),
       local: JSON.stringify({
         usernameField: 'email',
@@ -59,7 +59,8 @@ export const authenticationSeed = {
         github: JSON.stringify({
           appid: process.env.GITHUB_APP_ID,
           key: process.env.GITHUB_CLIENT_ID,
-          secret: process.env.GITHUB_CLIENT_SECRET
+          secret: process.env.GITHUB_CLIENT_SECRET,
+          scope: ['repo', 'user']
         }),
         google: JSON.stringify({
           key: process.env.GOOGLE_CLIENT_ID,

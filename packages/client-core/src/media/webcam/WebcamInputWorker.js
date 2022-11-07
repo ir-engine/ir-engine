@@ -1,8 +1,6 @@
 import './faceEnvWorkerPatch.js' // polyfill for face-api in webworker - MUST BE FIRST
 import * as Comlink from 'comlink'
-import { detectSingleFace } from '@vladmandic/face-api'
-import { nets } from '@vladmandic/face-api'
-import { TinyFaceDetectorOptions } from '@vladmandic/face-api'
+import { detectSingleFace, nets, TinyFaceDetectorOptions } from '@vladmandic/face-api'
 
 let canvas
 let imageData
@@ -10,8 +8,9 @@ const faceApiOptions = new TinyFaceDetectorOptions()
 
 Comlink.expose({
   initialise: async () => {
-    await nets.tinyFaceDetector.loadFromUri('/facetracking')
-    await nets.faceExpressionNet.loadFromUri('/facetracking')
+    const origin = globalThis.process.env.BASE_URL === '/client/' ? location.origin : globalThis.process.env.BASE_URL
+    await nets.tinyFaceDetector.loadFromUri(origin + '/facetracking')
+    await nets.faceExpressionNet.loadFromUri(origin + '/facetracking')
   },
   create: (width, height) => {
     canvas = new OffscreenCanvas(width, height)

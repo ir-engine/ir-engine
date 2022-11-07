@@ -3,24 +3,32 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  Group,
+  DoubleSide,
   Line,
   LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
-  Object3D,
-  TorusGeometry,
+  Quaternion,
+  RingGeometry,
   Vector3
 } from 'three'
 
+import { dispatchAction, getState } from '@xrengine/hyperflux'
+
+import { CameraActions } from '../camera/CameraState'
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
-import { normalizeRange } from '../common/functions/MathFunctions'
+import { easeOutCubic, normalizeRange } from '../common/functions/MathFunctions'
+import { EngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
-import { XRInputSourceComponent } from '../xr/XRComponents'
-import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
+import { NameComponent } from '../scene/components/NameComponent'
+import { setVisibleComponent } from '../scene/components/VisibleComponent'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { XRState } from '../xr/XRState'
+import { createTransitionState } from '../xrui/functions/createTransitionState'
+import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
 
 // Guideline parabola function
@@ -33,8 +41,8 @@ const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity:
 
 // Utility Vectors
 // Unit: m/s
-const initialVelocity = 6
-const dynamicVelocity = 10
+const initialVelocity = 4
+const dynamicVelocity = 6
 const gravity = new Vector3(0, -9.8, 0)
 const currentVertexLocal = new Vector3()
 const currentVertexWorld = new Vector3()
@@ -45,16 +53,24 @@ const tempVecV = new Vector3()
 const white = new Color('white')
 const red = new Color('red')
 
+/**
+ * @param position in world space
+ * @param rotation in world space
+ * @param initialVelocity
+ * @param gravity
+ * @returns
+ */
 const getParabolaInputParams = (
-  controller: Group,
+  position: Vector3,
+  rotation: Quaternion,
   initialVelocity: number,
   gravity: Vector3
 ): { p: Vector3; v: Vector3; t: number } => {
   // Controller start position
-  const p = controller.getWorldPosition(tempVecP)
+  const p = tempVecP.copy(position)
 
   // Set Vector V to the direction of the controller, at 1m/s
-  const v = controller.getWorldDirection(tempVecV)
+  const v = tempVecV.set(0, 0, 1).applyQuaternion(rotation)
 
   // Scale the initial velocity
   let normalizedYDirection = 1 - normalizeRange(v.y, -1, 1)
@@ -77,8 +93,7 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
 }
 
 export default async function AvatarTeleportSystem(world: World) {
-  // The guideline
-  const lineSegments = 10
+  const lineSegments = 64 // segments to make a whole circle, uses far less
   const lineGeometry = new BufferGeometry()
   const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
   lineGeometryVertices.fill(0)
@@ -88,76 +103,102 @@ export default async function AvatarTeleportSystem(world: World) {
   lineGeometry.setAttribute('color', new BufferAttribute(lineGeometryColors, 3))
   const lineMaterial = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
   const guideline = new Line(lineGeometry, lineMaterial)
+  guideline.frustumCulled = false
+
+  let visibleSegments = 2
+
+  const guidelineEntity = createEntity()
+  setTransformComponent(guidelineEntity)
+  addObjectToGroup(guidelineEntity, guideline)
+  setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
+  const guidelineTransform = getComponent(guidelineEntity, TransformComponent)
 
   // The guide cursor at the end of the line
-  const guideCursorGeometry = new TorusGeometry(1, 0.1, 10, 20)
-  const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffff00 })
-  const guideCursorTorusMesh = new Mesh(guideCursorGeometry, guideCursorMaterial)
-  const guideCursor = new Object3D()
-  guideCursor.add(guideCursorTorusMesh)
-  guideCursor.scale.set(0.2, 0.2, 0.2)
-  guideCursor.lookAt(0, 1, 0)
-  guideCursor.visible = false
+  const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
+  guideCursorGeometry.rotateX(-Math.PI / 2)
+  guideCursorGeometry.translate(0, 0.01, 0)
+  const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide, transparent: true })
+  const guideCursor = new Mesh(guideCursorGeometry, guideCursorMaterial)
+  guideCursor.frustumCulled = false
 
   const guideCursorEntity = createEntity()
+  setTransformComponent(guideCursorEntity)
   addObjectToGroup(guideCursorEntity, guideCursor)
+  setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
+
+  const transition = createTransitionState(0.5)
 
   let canTeleport = false
 
-  const avatarTeleportQuery = defineQuery([AvatarTeleportTagComponent])
+  const xrState = getState(XRState)
+  const avatarTeleportQuery = defineQuery([AvatarTeleportComponent])
+  let fadeBackInAccumulator = -1
+
+  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds
+
   const execute = () => {
+    if (fadeBackInAccumulator >= 0) {
+      fadeBackInAccumulator += fixedDeltaSeconds.value
+      if (fadeBackInAccumulator > 0.25) {
+        fadeBackInAccumulator = -1
+        teleportAvatar(world.localClientEntity, guideCursor.position)
+        dispatchAction(CameraActions.fadeToBlack({ in: false }))
+      }
+    }
     for (const entity of avatarTeleportQuery.exit(world)) {
-      // Get cursor position and teleport avatar to it
-      if (canTeleport) teleportAvatar(entity, guideCursor.position)
-      guideCursor.visible = false
-      if (guideline.parent) guideline.removeFromParent()
+      visibleSegments = 1
+      transition.setState('OUT')
+      if (canTeleport) {
+        fadeBackInAccumulator = 0
+        dispatchAction(CameraActions.fadeToBlack({ in: true }))
+      }
     }
-
     for (const entity of avatarTeleportQuery.enter(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const guidingController = xrInputSourceComponent.controllerRight
-      guidingController.add(guideline)
+      setVisibleComponent(guidelineEntity, true)
+      transition.setState('IN')
     }
-
     for (const entity of avatarTeleportQuery(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const guidingController = xrInputSourceComponent.controllerRight
-
-      const { p, v, t } = getParabolaInputParams(guidingController, initialVelocity, gravity)
-
+      const sourceEntity =
+        getComponent(world.localClientEntity, AvatarTeleportComponent).side === 'left'
+          ? xrState.leftControllerEntity.value!
+          : xrState.rightControllerEntity.value!
+      const sourceTransform = getComponent(sourceEntity, TransformComponent)
+      guidelineTransform.position.copy(sourceTransform.position)
+      guidelineTransform.rotation.copy(sourceTransform.rotation)
+      const { p, v, t } = getParabolaInputParams(
+        sourceTransform.position,
+        sourceTransform.rotation,
+        initialVelocity,
+        gravity
+      )
       lineGeometryVertices.fill(0)
       currentVertexLocal.set(0, 0, 0)
-      let lastValidationData
+      let lastValidationData: ReturnType<typeof checkPositionIsValid> = null!
       let guidelineBlocked = false
       let i = 0
-      for (i = 1; i <= lineSegments && !guidelineBlocked; i++) {
+      if (visibleSegments < lineSegments) visibleSegments += 8
+      for (i = 1; i <= visibleSegments && !guidelineBlocked; i++) {
         // set vertex to current position of the virtual ball at time t
         positionAtT(currentVertexWorld, (i * t) / lineSegments, p, v, gravity)
         currentVertexLocal.copy(currentVertexWorld)
-        guidingController.worldToLocal(currentVertexLocal)
+        currentVertexLocal.applyMatrix4(sourceTransform.matrixInverse) // worldToLocal
         currentVertexLocal.toArray(lineGeometryVertices, i * 3)
-
         positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
         const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
-
         const validationData = checkPositionIsValid(currentVertexWorld, false, currentVertexDirection)
         if (validationData.raycastHit !== null) {
           guidelineBlocked = true
           currentVertexWorld.copy(validationData.raycastHit.position)
         }
-
         lastValidationData = validationData
       }
-
       lastValidationData.positionValid ? (canTeleport = true) : (canTeleport = false)
-
       // Line should extend only up to last valid vertex
       currentVertexLocal.copy(currentVertexWorld)
-      guidingController.worldToLocal(currentVertexLocal)
+      currentVertexLocal.applyMatrix4(sourceTransform.matrixInverse) // worldToLocal
       currentVertexLocal.toArray(lineGeometryVertices, i * 3)
       stopGuidelineAtVertex(currentVertexLocal, lineGeometryVertices, i + 1, lineSegments)
       guideline.geometry.attributes.position.needsUpdate = true
-
       if (canTeleport) {
         // Place the cursor near the end of the line
         guideCursor.position.copy(currentVertexWorld)
@@ -167,10 +208,21 @@ export default async function AvatarTeleportSystem(world: World) {
         guideCursor.visible = false
         lineMaterial.color = red
       }
+      setVisibleComponent(guideCursorEntity, canTeleport)
     }
+    transition.update(world.deltaSeconds, (alpha) => {
+      if (alpha === 0 && transition.state === 'OUT') {
+        setVisibleComponent(guidelineEntity, false)
+        setVisibleComponent(guideCursorEntity, false)
+      }
+      const smoothedAlpha = easeOutCubic(alpha)
+      guideCursorMaterial.opacity = smoothedAlpha
+      guideCursor.scale.setScalar(smoothedAlpha * 0.2 + 0.8)
+    })
   }
 
   const cleanup = async () => {
+    removeEntity(guidelineEntity)
     removeEntity(guideCursorEntity)
     removeQuery(world, avatarTeleportQuery)
   }

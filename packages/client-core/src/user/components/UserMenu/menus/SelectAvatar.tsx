@@ -6,13 +6,14 @@ import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSyste
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 
 import { useAuthState } from '../../../services/AuthService'
-import { AvatarService } from '../../../services/AvatarService'
+import { AvatarService, AvatarState } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 
@@ -23,15 +24,16 @@ interface Props {
 const selectAvatarMenu = (props: Props) => {
   const { t } = useTranslation()
 
-  const MAX_AVATARS_PER_PAGE = window.innerWidth >= 1024 ? 9 : 12
+  const MAX_AVATARS_PER_PAGE = window.innerWidth <= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
-  const avatarList = authState.avatarList.value
+  const avatarState = useHookstate(getState(AvatarState))
+  const avatarList = avatarState.avatarList.value
 
   const [page, setPage] = useState(0)
-  const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
+  const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.limit.value))
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
 
   useEffect(() => {
@@ -39,11 +41,11 @@ const selectAvatarMenu = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (page * imgPerPage >= authState.avatarList.value.length) {
+    if (page * imgPerPage >= avatarState.total.value) {
       if (page === 0) return
       setPage(page - 1)
     }
-  }, [authState.avatarList.value])
+  }, [avatarState.total])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
@@ -54,7 +56,9 @@ const selectAvatarMenu = (props: Props) => {
 
   const loadNextAvatars = (e) => {
     e.preventDefault()
-    if ((page + 1) * imgPerPage >= avatarList.length) return
+    if ((page + 1) * imgPerPage >= avatarState.total.value) return
+    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
+      AvatarService.fetchAvatarList(false, 'increment')
     setPage(page + 1)
   }
   const loadPreviousAvatars = (e) => {
@@ -186,7 +190,7 @@ const selectAvatarMenu = (props: Props) => {
         <button
           type="button"
           className={`${styles.btn} ${styles.btnArrow} ${
-            (page + 1) * imgPerPage >= avatarList.length ? styles.disabled : ''
+            (page + 1) * imgPerPage >= avatarState.total.value ? styles.disabled : ''
           }`}
           onClick={loadNextAvatars}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}

@@ -6,7 +6,7 @@ import { PartyUser as PartyUserDataType } from '@xrengine/common/src/interfaces/
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 import { PartyUserModelStatic } from './party-user.model'
 

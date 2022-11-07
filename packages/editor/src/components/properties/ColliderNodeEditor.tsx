@@ -56,12 +56,13 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       value: 'Self',
       callbacks: []
     })
+    const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
     for (const entity of callbackQuery()) {
-      if (entity === props.node.entity) continue
+      if (entity === props.node.entity || !eNodeMap.has(entity)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
-        label: getComponent(entity, NameComponent)?.name,
-        value: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid,
+        label: getComponent(entity, NameComponent),
+        value: eNodeMap.get(entity)!.uuid,
         callbacks: Object.keys(callbacks).map((cb) => {
           return { label: cb, value: cb }
         })

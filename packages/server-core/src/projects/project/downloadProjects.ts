@@ -3,9 +3,9 @@ import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
-import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 
 /**
@@ -62,8 +62,8 @@ export const download = async (projectName: string, storageProviderName?: string
       ])
     }
   } catch (e) {
-    logger.error(e, `[ProjectLoader]: Failed to download project with error: ${e.message}`)
-    return false
+    logger.error(e, `[ProjectLoader]: Failed to download project ${projectName} with error: ${e.message}`)
+    throw e
   }
 
   return true

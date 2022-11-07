@@ -6,7 +6,7 @@ import { ActiveRoutesInterface, InstalledRoutesInterface } from '@xrengine/commo
 import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 import { Route } from './route.class'
 import routeDocs from './route.docs'
 import hooks from './route.hooks'

@@ -1,22 +1,22 @@
 import { Sequelize } from 'sequelize'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
-import config from '@xrengine/server-core/src/appconfig'
+import config, { isDev } from '@xrengine/common/src/config'
+import appConfig from '@xrengine/server-core/src/appconfig'
 
 import { Application } from '../declarations'
-import multiLogger from './logger'
 import { seeder } from './seeder'
+import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:sequelize' })
 
 export default (app: Application): void => {
   try {
-    const { forceRefresh } = config.db
+    const { forceRefresh } = appConfig.db
 
     logger.info('Starting app.')
 
     const sequelize = new Sequelize({
-      ...(config.db as any),
+      ...(appConfig.db as any),
       logging: forceRefresh ? logger.info.bind(logger) : false,
       define: {
         freezeTableName: true,
@@ -62,7 +62,13 @@ export default (app: Application): void => {
               }
               if (columnKeys.indexOf(value.fieldName) >= 0 && !value.primaryKey) {
                 try {
-                  if (!value.references) await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
+                  if (!value.references) {
+                    if (value.unique)
+                      try {
+                        await sequelize.getQueryInterface().removeIndex(model, value.fieldName)
+                      } catch (err) {}
+                    await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
+                  }
                 } catch (err) {
                   logger.error(err)
                 }

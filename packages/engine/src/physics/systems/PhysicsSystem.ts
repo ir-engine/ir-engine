@@ -32,8 +32,7 @@ import {
 } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { VelocityComponent } from '../components/VelocityComponent'
+import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../components/RigidBodyComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 // Receptor
@@ -109,7 +108,7 @@ export default async function PhysicsSystem(world: World) {
 
   const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
   const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
-  const allRigidBodyQuery = defineQuery([RigidBodyComponent])
+  const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
   const networkedAvatarBodyQuery = defineQuery([
     RigidBodyComponent,
     NetworkObjectComponent,
@@ -147,30 +146,25 @@ export default async function PhysicsSystem(world: World) {
 
     for (const entity of allRigidBodyQuery()) {
       const rigidBody = getComponent(entity, RigidBodyComponent)
-      rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
-      rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
-      rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
-      rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
-    }
-
-    // reset position and velocity for networked avatars every frame
-    // (this needs to be updated each frame, because remote avatars are not locally constrained)
-    // e.g., applying physics simulation to remote avatars is tricky, because avatar colliders should always be upright.
-    // TODO: look into constraining avatar bodies w/ the actual physics engine
-    for (const entity of networkedAvatarBodyQuery()) {
-      const { body } = getComponent(entity, RigidBodyComponent)
-      const { position, rotation } = getComponent(entity, TransformComponent)
-      const { linear, angular } = getComponent(entity, VelocityComponent)
-      body.setTranslation(position, true)
-      body.setRotation(rotation, true)
-      body.setLinvel(linear, true)
-      // angular velocity is unneeded for avatars
-      // body.setAngvel(angular, true)
+      const body = rigidBody.body
+      rigidBody.previousPosition.copy(body.translation() as Vector3)
+      rigidBody.previousRotation.copy(body.rotation() as Quaternion)
+      rigidBody.previousLinearVelocity.copy(body.linvel() as Vector3)
+      rigidBody.previousAngularVelocity.copy(body.angvel() as Vector3)
     }
 
     // step physics world
     world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
     world.physicsWorld.step(world.physicsCollisionEventQueue)
+
+    for (const entity of allRigidBodyQuery()) {
+      const rigidBody = getComponent(entity, RigidBodyComponent)
+      const body = rigidBody.body
+      rigidBody.position.copy(body.translation() as Vector3)
+      rigidBody.rotation.copy(body.rotation() as Quaternion)
+      rigidBody.linearVelocity.copy(body.linvel() as Vector3)
+      rigidBody.angularVelocity.copy(body.angvel() as Vector3)
+    }
 
     processCollisions(world, drainCollisions, drainContacts, collisionQuery())
   }

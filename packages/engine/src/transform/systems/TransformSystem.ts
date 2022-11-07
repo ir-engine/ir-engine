@@ -1,18 +1,30 @@
-import { entityExists } from 'bitecs'
+import { entityExists, Not } from 'bitecs'
 import { Camera, Mesh, Quaternion, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
+import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getComponentState,
+  getOptionalComponent,
+  getOptionalComponentState,
+  hasComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyFixedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -20,8 +32,8 @@ import { updateCollider, updateModelColliders } from '../../scene/functions/load
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
-import { LocalTransformComponent } from '../components/LocalTransformComponent'
 import {
+  LocalTransformComponent,
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
@@ -40,11 +52,27 @@ const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCam
 
 const prevRigidbodyScale = new Map<Entity, Vector3>()
 
+// const updateTransformFromLocalTransform = (entity: Entity) => {
+//   const world = Engine.instance.currentWorld
+//   if (!hasComponent(entity, LocalTransformComponent) || !world.dirtyTransforms.has(entity)) return
+
+//   const localTransform = getComponentState(entity, LocalTransformComponent)
+//   if (!hasComponent(localTransform.parentEntity.value, TransformComponent)) return
+
+//   if (!world.dirtyTransforms.has(localTransform.parentEntity.value)) return
+
+//   const parentTransform = getComponentState(localTransform.parentEntity.value, TransformComponent)
+//   const transform = getComponentState(entity, TransformComponent)
+
+//   localTransform.matrix.value.compose(localTransform.position.value, localTransform.rotation.value, localTransform.scale.value)
+//   transform.matrix.value.multiplyMatrices(parentTransform.matrix.value, localTransform.matrix.value)
+//   transform.matrix.value.decompose(transform.position.value, transform.rotation.value, transform.scale.value)
+// }
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const world = Engine.instance.currentWorld
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
   const parentTransform = localTransform?.parentEntity
-    ? getComponent(localTransform.parentEntity, TransformComponent)
+    ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
     : undefined
   if (
     localTransform &&
@@ -64,16 +92,18 @@ const updateTransformFromRigidbody = (entity: Entity) => {
   const world = Engine.instance.currentWorld
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  const velocity = getComponent(entity, VelocityComponent)
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
 
   // if transforms have been changed outside of the transform system, perform physics teleportation on the rigidbody
   if (world.dirtyTransforms.has(entity) || (localTransform && world.dirtyTransforms.has(localTransform.parentEntity))) {
     const prevScale = prevRigidbodyScale.get(entity)
     prevRigidbodyScale.set(entity, transform.scale.clone())
 
+    // if (hasComponent(entity, RigidBodyDynamicTagComponent)) console.warn('moved dynamic')
     rigidBody.body.setTranslation(transform.position, !rigidBody.body.isSleeping())
     rigidBody.body.setRotation(transform.rotation, !rigidBody.body.isSleeping())
+    rigidBody.body.setLinvel(V_000, true)
+    rigidBody.body.setAngvel(V_000, true)
 
     // if scale has changed, we have to recreate the collider
     const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(transform.scale) > 0.0001 : true
@@ -86,29 +116,26 @@ const updateTransformFromRigidbody = (entity: Entity) => {
     return
   }
 
-  /*
-  Interpolate the remaining time after the fixed pipeline is complete.
-  See https://gafferongames.com/post/fix_your_timestep/#the-final-touch
-  */
-  const accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
-  const alpha = accumulator / getState(EngineState).fixedDeltaSeconds.value
+  if (hasComponent(entity, RigidBodyFixedTagComponent)) return
 
-  const bodyPosition = rigidBody.body.translation() as Vector3
-  const bodyRotation = rigidBody.body.rotation() as Quaternion
+  if (rigidBody.body.isSleeping()) {
+    transform.position.copy(rigidBody.position)
+    transform.rotation.copy(rigidBody.rotation)
+  } else {
+    /*
+    Interpolate the remaining time after the fixed pipeline is complete.
+    See https://gafferongames.com/post/fix_your_timestep/#the-final-touch
+    */
+    const accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
+    const alpha = accumulator / getState(EngineState).fixedDeltaSeconds.value
+    transform.position.copy(rigidBody.previousPosition).lerp(rigidBody.position, alpha)
+    transform.rotation.copy(rigidBody.previousRotation).slerp(rigidBody.rotation, alpha)
+  }
 
-  transform.position.copy(rigidBody.previousPosition).lerp(scratchVector3.copy(bodyPosition), alpha)
-  transform.rotation.copy(rigidBody.previousRotation).slerp(scratchQuaternion.copy(bodyRotation), alpha)
   transform.matrix.compose(transform.position, transform.rotation, transform.scale)
 
-  velocity.linear
-    .copy(rigidBody.previousLinearVelocity)
-    .lerp(scratchVector3.copy(rigidBody.body.linvel() as Vector3), alpha)
-  velocity.angular
-    .copy(rigidBody.previousAngularVelocity)
-    .lerp(scratchVector3.copy(rigidBody.body.angvel() as Vector3), alpha)
-
   if (localTransform) {
-    const parentTransform = getComponent(localTransform.parentEntity, TransformComponent) || transform
+    const parentTransform = getOptionalComponent(localTransform.parentEntity, TransformComponent) || transform
     localTransform.matrix.multiplyMatrices(parentTransform.matrixInverse, transform.matrix)
     localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
     updateTransformFromLocalTransform(entity)
@@ -116,24 +143,20 @@ const updateTransformFromRigidbody = (entity: Entity) => {
 }
 
 export const updateEntityTransform = (entity: Entity, world = Engine.instance.currentWorld) => {
-  const transform = getComponent(entity, TransformComponent)
+  const transform = getOptionalComponent(entity, TransformComponent)
   if (!transform) return
-
-  const computedTransform = getComponent(entity, ComputedTransformComponent)
-  const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
+  const computedTransform = getOptionalComponent(entity, ComputedTransformComponent)
+  const group = getOptionalComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
 
   updateTransformFromLocalTransform(entity)
   updateTransformFromRigidbody(entity)
-
-  if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
-    computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
-  }
+  computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
 
   if (world.dirtyTransforms.has(entity)) {
     // avoid scale 0 to prevent NaN errors
-    transform.scale.x = Math.max(1e-10, transform.scale.x)
-    transform.scale.y = Math.max(1e-10, transform.scale.y)
-    transform.scale.z = Math.max(1e-10, transform.scale.z)
+    // transform.scale.x = Math.max(1e-10, transform.scale.x)
+    // transform.scale.y = Math.max(1e-10, transform.scale.y)
+    // transform.scale.z = Math.max(1e-10, transform.scale.z)
     transform.matrix.compose(transform.position, transform.rotation, transform.scale)
     transform.matrixInverse.copy(transform.matrix).invert()
   }
@@ -166,8 +189,8 @@ export default async function TransformSystem(world: World) {
   const updateTransformDepth = (entity: Entity) => {
     if (transformDepths.has(entity)) return transformDepths.get(entity)
 
-    const referenceEntity = getComponent(entity, ComputedTransformComponent)?.referenceEntity
-    const parentEntity = getComponent(entity, LocalTransformComponent)?.parentEntity
+    const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
+    const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
 
     const referenceEntityDepth = referenceEntity ? updateTransformDepth(referenceEntity) : 0
     const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
@@ -253,7 +276,7 @@ export default async function TransformSystem(world: World) {
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
     if (entityExists(world, world.localClientEntity)) {
-      const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+      const localClientPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
       if (localClientPosition) {
         for (const entity of distanceFromLocalClientQuery())
           DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(

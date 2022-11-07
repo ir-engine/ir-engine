@@ -1,0 +1,45 @@
+.roomMenu {
+  pointer-events: auto;
+  padding-bottom: 50px;
+}
+
+.radioLabel {
+  font-size: 16px;
+  color: var(--textColor);
+}
+
+.inputSection {
+  margin: 0 30px;
+}
+
+.disabled {
+  opacity: 0.5;
+}
+
+.divider {
+  margin: 30px 70px 20px;
+  border: 0.2px solid var(--buttonOutlined);
+  border-bottom: none;
+}
+
+.button {
+  height: 35px;
+  font-size: 14px;
+  width: 250px;
+  max-width: 100%;
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  color: var(--textColor);
+  border-radius: 20px;
+  margin: 0 auto;
+  margin-top: 20px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    color: var(--textColor);
+    opacity: 0.5 !important;
+  }
+}

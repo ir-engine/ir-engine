@@ -1,12 +1,24 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
+import { State } from '@hookstate/core'
 import * as bitecs from 'bitecs'
-import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
+import {
+  Group,
+  LinearToneMapping,
+  Object3D,
+  PCFSoftShadowMap,
+  Raycaster,
+  Scene,
+  Shader,
+  ShadowMapType,
+  ToneMapping
+} from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getState } from '@xrengine/hyperflux'
+import { createState, hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -19,13 +31,14 @@ import { InputAlias } from '../../input/types/InputAlias'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
-import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { FogType } from '../../scene/constants/FogType'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import { defaultPostProcessingSchema } from '../../scene/constants/PostProcessing'
+import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -34,16 +47,17 @@ import {
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent
+  hasComponent,
+  Query,
+  setComponent
 } from '../functions/ComponentFunctions'
-import { createEntity } from '../functions/EntityFunctions'
-import { initializeEntityTree } from '../functions/EntityTree'
-import { EntityTree } from '../functions/EntityTree'
+import { createEntity, removeEntity } from '../functions/EntityFunctions'
+import { EntityTree, initializeEntityTree } from '../functions/EntityTree'
 import { SystemInstance } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
-import { Entity } from './Entity'
+import { Entity, UndefinedEntity } from './Entity'
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -60,11 +74,18 @@ export class World {
 
     initializeEntityTree(this)
 
+    this.originEntity = createEntity()
+    addComponent(this.originEntity, NameComponent, 'origin')
+    setTransformComponent(this.originEntity)
+    setComponent(this.originEntity, VisibleComponent, true)
+    addObjectToGroup(this.originEntity, this.origin)
+
     this.cameraEntity = createEntity()
-    addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
+    addComponent(this.cameraEntity, NameComponent, 'camera')
+    addComponent(this.cameraEntity, CameraComponent)
     addComponent(this.cameraEntity, VisibleComponent, true)
     setTransformComponent(this.cameraEntity)
-    addObjectToGroup(this.cameraEntity, addComponent(this.cameraEntity, CameraComponent, null).camera)
+    setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
     /** @todo */
     // this.scene.matrixAutoUpdate = false
@@ -77,14 +98,14 @@ export class World {
    * get the default world network
    */
   get worldNetwork() {
-    return this.networks.get(this._worldHostId)!
+    return this.networks.get(this.hostIds.world.value!)!
   }
 
   /**
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(this._mediaHostId)!
+    return this.networks.get(this.hostIds.media.value!)!
   }
 
   /** @todo parties */
@@ -92,8 +113,14 @@ export class World {
   //   return this.networks.get(NetworkTopics.localMedia)?.get(this._mediaHostId)!
   // }
 
-  _worldHostId = null! as UserId
-  _mediaHostId = null! as UserId
+  /** temporary until Network.ts is refactored to be function & hookstate */
+  hostIds = hookstate({
+    media: null as UserId | null,
+    world: null as UserId | null
+  })
+
+  // _worldHostId = null! as UserId
+  // _mediaHostId = null! as UserId
 
   networks = new Map<string, Network>()
 
@@ -148,34 +175,65 @@ export class World {
 
   sceneJson = null! as SceneJson
 
-  // sceneDynamicallyUnloadedEntities = new Map<
-  //   string,
-  //   {
-  //     json: EntityJson
-  //     position: Vector3
-  //     distance: number
-  //   }
-  // >()
+  fogShaders = [] as Shader[]
 
-  // sceneDynamicallyLoadedEntities = new Map<
-  //   Entity,
-  //   {
-  //     json: EntityJson
-  //     position: Vector3
-  //     distance: number
-  //     uuid: string
-  //   }
-  // >()
+  /** stores a hookstate copy of scene metadata */
+  sceneMetadata = hookstate({
+    postprocessing: {
+      enabled: false,
+      effects: defaultPostProcessingSchema
+    },
+    mediaSettings: {
+      immersiveMedia: false,
+      refDistance: 20,
+      rolloffFactor: 1,
+      maxDistance: 10000,
+      distanceModel: 'linear' as DistanceModelType,
+      coneInnerAngle: 360,
+      coneOuterAngle: 0,
+      coneOuterGain: 0
+    },
+    renderSettings: {
+      LODs: DEFAULT_LOD_DISTANCES,
+      csm: true,
+      toneMapping: LinearToneMapping as ToneMapping,
+      toneMappingExposure: 0.8,
+      shadowMapType: PCFSoftShadowMap as ShadowMapType
+    },
+    fog: {
+      type: FogType.Linear as FogType,
+      color: '#FFFFFF',
+      density: 0.005,
+      near: 1,
+      far: 1000,
+      timeScale: 1,
+      height: 0.05
+    },
+    xr: {
+      dollhouse: 'auto' as boolean | 'auto',
+      vpsWayspotName: ''
+    }
+  })
 
   /**
    * The scene entity
    */
-  sceneEntity: Entity = NaN as Entity
+  sceneEntity: Entity = UndefinedEntity
+
+  /**
+   * The xr origin reference space entity
+   */
+  originEntity: Entity = UndefinedEntity
+
+  /**
+   * The xr origin group
+   */
+  origin = new Group()
 
   /**
    * The camera entity
    */
-  cameraEntity: Entity = NaN as Entity
+  cameraEntity: Entity = UndefinedEntity
 
   /**
    * Reference to the three.js camera object.
@@ -188,13 +246,17 @@ export class World {
    * The local client entity
    */
   get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
   }
 
   dirtyTransforms = new Set<Entity>()
 
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()
+
+  inputSources: XRInputSourceArray = []
+
+  reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
@@ -218,29 +280,16 @@ export class World {
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstance[] }
 
-  #nameMap = new Map<string, Entity>()
-  #nameQuery = defineQuery([NameComponent])
-
   /**
    * Entities mapped by name
+   * @deprecated use entitiesByName
    */
   get namedEntities() {
-    const nameMap = this.#nameMap
-    for (const entity of this.#nameQuery.enter()) {
-      const { name } = getComponent(entity, NameComponent)
-      if (nameMap.has(name)) {
-        logger.warn(`An Entity with name "${name}" already exists.`)
-      }
-      nameMap.set(name, entity)
-      const obj3d = getComponent(entity, Object3DComponent)?.value
-      if (obj3d) obj3d.name = name
-    }
-    for (const entity of this.#nameQuery.exit()) {
-      const { name } = getComponent(entity, NameComponent, true)
-      nameMap.delete(name)
-    }
-    return nameMap as ReadonlyMap<string, Entity>
+    return new Map(Object.entries(this.entitiesByName.value))
   }
+
+  entitiesByName = createState({} as Record<string, Entity>)
+  entitiesByUuid = createState({} as Record<string, Entity>)
 
   /**
    * Network object query
@@ -281,7 +330,7 @@ export class World {
       this.networkObjectQuery(this).find((eid) => {
         const networkObject = getComponent(eid, NetworkObjectComponent)
         return networkObject.networkId === networkId && networkObject.ownerId === ownerId
-      }) || (NaN as Entity)
+      }) || UndefinedEntity
     )
   }
 
@@ -304,7 +353,7 @@ export class World {
     return (
       this.getOwnedNetworkObjects(userId).find((eid) => {
         return hasComponent(eid, component, this)
-      }) || (NaN as Entity)
+      }) || UndefinedEntity
     )
   }
 
@@ -315,8 +364,6 @@ export class World {
   createNetworkId(): NetworkId {
     return ++this.#availableNetworkId as NetworkId
   }
-
-  LOD_DISTANCES = DEFAULT_LOD_DISTANCES
 
   /**
    * Execute systems on this world
@@ -341,7 +388,15 @@ export class World {
     for (const system of this.pipelines[SystemUpdateType.RENDER]) system.enabled && system.execute()
     for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
 
-    for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
+    for (const entity of this.#entityRemovedQuery(this)) removeEntity(entity as Entity, true, this)
+
+    for (const { query, state } of this.reactiveQueryStates) {
+      const entitiesAdded = query.enter().length
+      const entitiesRemoved = query.exit().length
+      if (entitiesAdded || entitiesRemoved) {
+        state.set(query())
+      }
+    }
 
     const end = nowMilliseconds()
     const duration = end - start

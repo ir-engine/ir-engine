@@ -4,6 +4,7 @@ import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { Physics } from '../../../physics/classes/Physics'
 import { setTransformComponent } from '../../../transform/components/TransformComponent'
@@ -20,6 +21,9 @@ describe('PortalFunctions', () => {
 
   it('deserializePortal', async () => {
     const entity = createEntity()
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
 
     const quat = new Quaternion().random()
     const triggerRotation = new Euler().setFromQuaternion(quat, 'XYZ')

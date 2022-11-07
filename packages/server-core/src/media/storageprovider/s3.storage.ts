@@ -57,7 +57,7 @@ export class S3Provider implements StorageProviderInterface {
   })
 
   private cloudfront: AWS.CloudFront = new AWS.CloudFront({
-    region: config.aws.s3.region,
+    region: config.aws.cloudfront.region,
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey
   })
@@ -192,6 +192,10 @@ export class S3Provider implements StorageProviderInterface {
           ContentType: data.ContentType,
           Key: key
         }
+
+    if (data.ContentEncoding) (args as StorageObjectInterface).ContentEncoding = data.ContentEncoding
+
+    if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
 
     const result = await this.provider.putObject(args).promise()
 

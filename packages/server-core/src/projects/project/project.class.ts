@@ -4,20 +4,21 @@ import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
 import path from 'path'
-import { Op } from 'sequelize'
+import Sequelize, { Op } from 'sequelize'
 
-import { GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
+import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import templateProjectJson from '@xrengine/projects/template-project/package.json'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
@@ -25,18 +26,33 @@ import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } fro
 import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import {
+  checkAppOrgStatus,
   checkUserOrgWriteStatus,
   checkUserRepoWriteStatus,
   getAuthenticatedRepo,
-  getGitHubAppRepos,
-  getUserRepos,
-  pushProjectToGithub
-} from '../githubapp/githubapp-helper'
-import { getProjectConfig, onProjectEvent } from './project-helper'
+  getRepo,
+  getUserRepos
+} from './github-helper'
+import { getEnginePackageJson, getProjectConfig, getProjectPackageJson, onProjectEvent } from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
+
+export type ProjectQueryParams = {
+  sourceURL?: string
+  destinationURL?: string
+  existingProject?: boolean
+  inputProjectURL?: string
+  branchName?: string
+  selectedSHA?: string
+}
+
+export type ProjectParams = {
+  user: UserInterface
+} & Params<ProjectQueryParams>
+
+export type ProjectParamsClient = Omit<ProjectParams, 'user'>
 
 export const copyDefaultProject = () => {
   deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
@@ -158,8 +174,7 @@ export class Project extends Service {
    * On dev, sync the db with any projects installed locally
    */
   async _fetchDevLocalProjects() {
-    const dbEntries = (await super.find()) as any
-    const data: ProjectInterface[] = dbEntries.data
+    const data = (await this.Model.findAll({ paginate: false })) as ProjectInterface[]
 
     if (!fs.existsSync(projectsRootFolder)) {
       fs.mkdirSync(projectsRootFolder, { recursive: true })
@@ -220,6 +235,7 @@ export class Project extends Service {
 
     const packageData = Object.assign({}, templateProjectJson) as any
     packageData.name = projectName
+    packageData.etherealEngine.version = getEnginePackageJson().version
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
     await uploadLocalProjectToProvider(projectName, false)
@@ -246,19 +262,27 @@ export class Project extends Service {
    */
   // @ts-ignore
   async update(
-    data: { url: string; name?: string; needsRebuild?: boolean; reset?: boolean },
+    data: {
+      sourceURL: string
+      destinationURL: string
+      name?: string
+      needsRebuild?: boolean
+      reset?: boolean
+      commitSHA?: string
+    },
     placeholder?: null,
     params?: UserParams
   ) {
-    if (data.url === 'default-project') {
+    if (data.sourceURL === 'default-project') {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project')
       return
     }
 
-    const urlParts = data.url.split('/')
+    const urlParts = data.sourceURL.split('/')
     let projectName = data.name || urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
+    projectName = projectName.toLowerCase()
     if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
     if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
 
@@ -271,20 +295,30 @@ export class Project extends Service {
       deleteFolderRecursive(projectDirectory)
     }
 
-    let repoPath = await getAuthenticatedRepo(data.url)
-    if (!repoPath) repoPath = data.url //public repo
+    const user = params!.user!
+    const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
+      where: {
+        userId: user.id,
+        type: 'github'
+      }
+    })
+
+    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.sourceURL)
+    if (!repoPath) repoPath = data.sourceURL //public repo
 
     const gitCloner = useGit(projectLocalDirectory)
-    await gitCloner.clone(repoPath)
+    await gitCloner.clone(repoPath, projectDirectory)
     const git = useGit(projectDirectory)
     const branchName = `${config.server.releaseName}-deployment`
     try {
       const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
-      if (branchExists.length === 0) await git.checkoutLocalBranch(branchName)
-      else {
-        if (data.reset) await git.checkoutLocalBranch(branchName)
-        else await git.checkout(branchName)
-      }
+      if (data.commitSHA) git.checkout(data.commitSHA)
+      if (branchExists.length === 0 || data.reset) {
+        try {
+          await git.deleteLocalBranch(branchName)
+        } catch (err) {}
+        await git.checkoutLocalBranch(branchName)
+      } else await git.checkout(branchName)
     } catch (err) {
       logger.error(err)
       throw err
@@ -297,16 +331,26 @@ export class Project extends Service {
     // when we have successfully re-installed the project, remove the database entry if it already exists
     const existingProjectResult = await this.Model.findOne({
       where: {
-        name: projectName
+        [Op.or]: [
+          Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {
+            [Op.like]: '%' + projectName + '%'
+          })
+        ]
       }
     })
+    let repositoryPath = data.destinationURL || data.sourceURL
+    const publicSignedExec = PUBLIC_SIGNED_REGEX.exec(repositoryPath)
+    //In testing, intermittently the signed URL was being entered into the database, which made matching impossible.
+    //Stripping the signed portion out if it's about to be inserted.
+    if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
+
     const returned = !existingProjectResult
       ? // Add to DB
         await super.create(
           {
             thumbnail: projectConfig.thumbnail,
             name: projectName,
-            repositoryPath: data.url,
+            repositoryPath,
             needsRebuild: data.needsRebuild ? data.needsRebuild : true
           },
           params || {}
@@ -322,9 +366,19 @@ export class Project extends Service {
       })
     }
 
-    if (data.reset) await pushProjectToGithub(this.app, returned, params!.user!, true)
+    if (returned.name !== projectName)
+      await super.patch(existingProjectResult.id, {
+        name: projectName
+      })
+
+    if (data.reset) {
+      let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.destinationURL)
+      if (!repoPath) repoPath = data.destinationURL //public repo
+      await git.addRemote('destination', repoPath)
+      await git.push('destination', branchName, ['-f', '--tags'])
+    }
     // run project install script
-    if (projectConfig.onEvent) {
+    if (projectConfig.onEvent && !existingProjectResult) {
       await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
 
@@ -347,6 +401,11 @@ export class Project extends Service {
       const split = githubPathRegexExec[1].split('/')
       const org = split[0]
       const repo = split[1].replace('.git', '')
+      const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.oauthToken)
+      if (!appOrgAccess)
+        throw new Forbidden(
+          `The organization ${org} needs to install the GitHub OAuth app ${config.authentication.oauth.github.key} in order to push code to its repositories`
+        )
       const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.oauthToken)
       if (repoWriteStatus !== 200) {
         if (repoWriteStatus === 404) {
@@ -420,25 +479,10 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params?: UserParams): Promise<{ data: ProjectInterface[] }> {
+  async find(params?: UserParams): Promise<{ data: ProjectInterface[]; errors: any[] }> {
     let projectPushIds: string[] = []
+    const errors = [] as any
     if (params?.query?.allowed != null) {
-      // Get all of the projects that this user has permissions for, then calculate push status by whether the GitHub
-      // app associated with the installation can push to it. This will make sure no one tries to push to a repo
-      // that the app cannot push to.
-      const projectPermissions = (await this.app.service('project-permission').Model.findAll({
-        where: { userId: params.user!.id },
-        include: [{ model: this.app.service('project').Model }],
-        paginate: false
-      })) as any
-      let allowedProjects = await projectPermissions.map((permission) => permission.project)
-      const repos = await getGitHubAppRepos()
-      const repoPaths = repos.map((repo) => repo.repositoryPath.replace(/.git/, ''))
-      allowedProjects = allowedProjects.filter(
-        (project) => repoPaths.indexOf(project.repositoryPath.replace(/.git/, '')) > -1
-      )
-      projectPushIds = projectPushIds.concat(allowedProjects.map((project) => project.id))
-
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
       const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
@@ -447,22 +491,51 @@ export class Project extends Service {
           type: 'github'
         }
       })
+
+      // Get all of the projects that this user has permissions for, then calculate push status by whether the user
+      // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
+      const projectPermissions = (await this.app.service('project-permission').Model.findAll({
+        where: { userId: params.user!.id },
+        include: [{ model: this.app.service('project').Model }],
+        paginate: false
+      })) as any
+      let allowedProjects = await projectPermissions.map((permission) => permission.project)
+      const repos = githubIdentityProvider ? await getUserRepos(githubIdentityProvider.oauthToken) : []
+      const repoPaths = repos.map((repo) => repo.svn_url.toLowerCase())
+      let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
+      allowedProjectGithubRepos = await Promise.all(
+        allowedProjectGithubRepos.map(async (project) => {
+          const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
+          if (!regexExec) return { repositoryPath: '', name: '' }
+          const split = regexExec[1].split('/')
+          try {
+            project.repositoryPath = await getRepo(
+              split[0],
+              split[1].replace(/.git/, ''),
+              githubIdentityProvider.oauthToken
+            )
+            return project
+          } catch (err) {
+            logger.error('repo fetch error %o', err)
+            errors.push(err)
+            return {
+              repositoryPath: 'ERROR'
+            }
+          }
+        })
+      )
+      const pushableAllowedProjects = allowedProjectGithubRepos.filter(
+        (project) => repoPaths.indexOf(project.repositoryPath.toLowerCase().replace(/.git$/, '')) > -1
+      )
+      projectPushIds = projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
+
       if (githubIdentityProvider) {
-        const allowedRepos = await getUserRepos(this.app, githubIdentityProvider.oauthToken)
+        const allowedRepos = await getUserRepos(githubIdentityProvider.oauthToken)
         const matchingAllowedRepos = await this.app.service('project').Model.findAll({
           where: {
-            [Op.or]: [
-              {
-                repositoryPath: {
-                  [Op.in]: allowedRepos
-                }
-              },
-              {
-                repositoryPath: {
-                  [Op.in]: allowedRepos.map((repo) => repo.replace('.git', ''))
-                }
-              }
-            ]
+            repositoryPath: {
+              [Op.in]: allowedRepos.map((repo) => repo.svn_url)
+            }
           }
         })
 
@@ -470,7 +543,7 @@ export class Project extends Service {
       }
 
       if (!params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
-        params.query.id = { $in: [...new Set(projectPushIds)] }
+        params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
       delete params.query.allowed
       if (!params.sequelize) params.sequelize = { raw: false }
       if (!params.sequelize.include) params.sequelize.include = []
@@ -488,14 +561,23 @@ export class Project extends Service {
       }
     }
 
-    let data: ProjectInterface[] = ((await super.find(params)) as any).data
-    data.forEach((item) =>
-      (item as any).dataValues
-        ? ((item as any).dataValues.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
-        : (item.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
-    )
+    const data: ProjectInterface[] = ((await super.find(params)) as any).data
+    data.forEach((item) => {
+      const values = (item as any).dataValues
+        ? ((item as any).dataValues as ProjectInterface)
+        : (item as ProjectInterface)
+      try {
+        const packageJson = getProjectPackageJson(values.name)
+        values.version = packageJson.version
+        values.engineVersion = packageJson.etherealEngine?.version
+        values.description = packageJson.description
+        values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
+      } catch (err) {}
+    })
+
     return {
-      data
+      data,
+      errors
     }
   }
 }

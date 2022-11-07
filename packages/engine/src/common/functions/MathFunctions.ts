@@ -284,6 +284,10 @@ export function easeOutElastic(x: number): number {
   return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1
 }
 
+export function easeOutCubic(x: number): number {
+  return 1 - Math.pow(1 - x, 3)
+}
+
 export function PRNG(seed, modulo) {
   //@ts-ignore
   const str = `${((2 ** 31 - 1) & Math.imul(48271, seed)) / 2 ** 31}`.split('').slice(-10).join('') % modulo
@@ -305,4 +309,29 @@ export function stringHash(str: string) {
     hash |= 0 // Convert to 32bit integer
   }
   return hash
+}
+
+/**
+ * Use the swing-twist decomposition to get the component of a rotation
+ * around the given axis.
+ *
+ * @param rotation  The rotation.
+ * @param direction The axis (should be normalized).
+ * @return The component of rotation about the axis.
+ */
+const vec = new Vector3()
+export const extractRotationAboutAxis = (rot: Quaternion, direction: Vector3, out: Quaternion) => {
+  const rotAxis = vec.set(rot.x, rot.y, rot.z)
+  const dotProd = direction.dot(rotAxis)
+  // Shortcut calculation of `projection` requires `direction` to be normalized
+  const projection = vec.copy(direction).multiplyScalar(dotProd)
+  const twist = out.set(projection.x, projection.y, projection.z, rot.w).normalize()
+  if (dotProd < 0.0) {
+    // Ensure `twist` points towards `direction`
+    twist.x = -twist.x
+    twist.y = -twist.y
+    twist.z = -twist.z
+    twist.w = -twist.w
+  }
+  return twist
 }

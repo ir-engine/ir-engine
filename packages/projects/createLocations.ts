@@ -30,8 +30,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           locationType: 'public',
           audioEnabled: true,
           videoEnabled: true,
-          faceStreamingEnabled: true,
-          instanceMediaChatEnabled: true
+          faceStreamingEnabled: true
         }
         const location = {
           id: locationId,

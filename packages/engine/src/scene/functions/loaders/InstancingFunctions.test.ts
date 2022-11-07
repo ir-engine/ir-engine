@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { createSandbox, SinonSandbox } from 'sinon'
 import { Color } from 'three'
 
+import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
@@ -12,7 +14,7 @@ import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
 import { createEntityNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
-import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '../../../initializeEngine'
+import { createEngine, setupEngineActionSystems } from '../../../initializeEngine'
 import {
   GrassProperties,
   InstancingComponent,

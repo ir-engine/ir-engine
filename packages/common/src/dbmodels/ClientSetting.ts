@@ -16,4 +16,5 @@ export interface ClientSettingInterface {
   appSocialLinks: string
   themeSettings: string
   themeModes: string
+  key8thWall: string
 }

@@ -1,12 +1,12 @@
-import { corsProxyPath } from '@xrengine/client-core/src/util/config'
 import { SceneActions } from '@xrengine/client-core/src/world/services/SceneService'
+import config from '@xrengine/common/src/config'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 const sceneRelativePathIdentifier = '__$project$__'
 const sceneCorsPathIdentifier = '__$cors-proxy$__'
-const fileServer = process.env[`VITE_FILE_SERVER`] ?? `https://localhost:8642`
-const corsPath = process.env[`VITE_CORS_SERVER_PORT`] ? corsProxyPath : `https://localhost:3029`
+const fileServer = config.client.fileServer ?? `https://localhost:8642`
+const corsPath = config.client.cors.serverPort ? config.client.cors.proxyUrl : `https://localhost:3029`
 
 const parseSceneDataCacheURLsLocal = (projectName: string, sceneData: any) => {
   for (const [key, val] of Object.entries(sceneData)) {

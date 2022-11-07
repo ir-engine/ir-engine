@@ -1,9 +1,8 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
-import { NavMesh, Polygon } from 'yuka'
+
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { parseGeometry } from '../../common/functions/parseGeometry'
-import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -15,9 +14,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -26,10 +23,9 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
 
-export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
+export const parseECSData = (entity: Entity, data: [string, any][]): void => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
-  const data = Object.entries(obj3d.userData)
 
   for (const [key, value] of data) {
     const parts = key.split('.')
@@ -41,9 +37,11 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
           _toLoad[parts[1]] = {}
         }
         if (parts.length > 2) {
-          _toLoad[parts[1]][parts[2]] = value
+          let val = value
+          if (value === 'true') val = true
+          if (value === 'false') val = false
+          _toLoad[parts[1]][parts[2]] = val
         }
-        delete obj3d.userData[key]
       }
     }
   }
@@ -82,8 +80,12 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
   }
 }
 
+export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
+  parseECSData(entity, Object.entries(obj3d.userData))
+}
+
 export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
-  const scene = object3d ?? getComponent(entity, ModelComponent).scene.value
+  const scene = object3d ?? getComponent(entity, ModelComponent).scene
   const meshesToProcess: Mesh[] = []
 
   if (!scene) return
@@ -103,7 +105,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
 
-    const node = createEntityNode(e, mesh.uuid)
+    const node = createEntityNode(e, mesh.uuid as EntityUUID)
     addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
     addComponent(e, NameComponent, {
@@ -113,65 +115,29 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
+    // setTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
     setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
     addObjectToGroup(e, mesh)
-    addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent._name])
+    addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
     createObjectEntityFromGLTF(e, mesh)
-  }
-}
 
-export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
-  const scene = object3d ?? getComponent(entity, ModelComponent).scene.value
-  let polygons = [] as Polygon[]
-
-  if (!scene) return
-
-  scene.traverse((child: Mesh) => {
-    child.visible = false
-
-    if (!child.geometry || !(child.geometry instanceof BufferGeometry)) return
-
-    const childPolygons = parseGeometry({
-      position: child.geometry.attributes.position.array as number[],
-      index: child.geometry.index ? (child.geometry.index.array as number[]) : []
-    })
-
-    if (childPolygons.length) polygons = polygons.concat(childPolygons)
-  })
-
-  if (polygons.length) {
-    const navMesh = new NavMesh()
-    navMesh.fromPolygons(polygons)
-
-    // const helper = createConvexRegionHelper(navMesh)
-    // Engine.instance.currentWorld.scene.add(helper)
-
-    addComponent(entity, NavMeshComponent, {
-      yukaNavMesh: navMesh,
-      navTarget: scene
-    })
-    addComponent(entity, DebugNavMeshComponent, null!)
+    mesh.visible = false
   }
 }
 
 export const parseGLTFModel = (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
-  if (!model.scene.value) return
-  const scene = model.scene.value
+  if (!model.scene) return
+  const scene = model.scene
   scene.updateMatrixWorld(true)
   scene.traverse((child) => {
-    child.matrixAutoUpdate = model.matrixAutoUpdate.value
+    child.matrixAutoUpdate = model.matrixAutoUpdate
   })
 
   // always parse components first
   parseObjectComponentsFromGLTF(entity, scene)
 
   setObjectLayers(scene, ObjectLayers.Scene)
-
-  // DIRTY HACK TO LOAD NAVMESH
-  if (model.src.value.match(/navmesh/)) {
-    loadNavmesh(entity, scene)
-  }
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {

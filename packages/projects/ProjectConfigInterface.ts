@@ -77,3 +77,9 @@ export interface ProjectSettingSchema {
 }
 
 export type ProjectEventHookType = keyof ProjectEventHooks
+
+/**
+ * Systems imported from a scene MUST have their filename end with `System.ts` and be in the `/src/systems` folder.
+ * This is to optimize vite's code-splitting bundling process, as each potentially dynamically
+ * importable file will result in a new bundle with it's own copy of all of it's import dependencies.
+ */

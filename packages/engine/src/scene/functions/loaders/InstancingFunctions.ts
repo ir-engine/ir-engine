@@ -34,8 +34,14 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import {
+  addComponent,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent
+} from '../../../ecs/functions/ComponentFunctions'
+import { getEntityTreeNodeByUUID, iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
@@ -66,8 +72,8 @@ export const GRASS_PROPERTIES_DEFAULT_VALUES: GrassProperties = {
   bladeHeight: { mu: 0.3, sigma: 0.05 },
   bladeWidth: { mu: 0.03, sigma: 0.01 },
   joints: 4,
-  grassTexture: 'https://resources-dev.theoverlay.io/assets/grass/blade_diffuse.jpg',
-  alphaMap: 'https://resources-dev.theoverlay.io/assets/grass/blade_alpha.jpg',
+  grassTexture: 'https://resources-dev.etherealengine.com/assets/grass/blade_diffuse.jpg',
+  alphaMap: 'https://resources-dev.etherealengine.com/assets/grass/blade_alpha.jpg',
   ambientStrength: 0.5,
   diffuseStrength: 1,
   shininess: 128,
@@ -81,18 +87,18 @@ export const MESH_PROPERTIES_DEFAULT_VALUES: MeshProperties = {
 
 export const SCATTER_PROPERTIES_DEFAULT_VALUES: ScatterProperties = {
   isScatterProperties: true,
-  densityMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
+  densityMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
   densityMapStrength: 0.5,
-  heightMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
+  heightMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
   heightMapStrength: 0.5
 }
 
 export const VERTEX_PROPERTIES_DEFAULT_VALUES: VertexProperties = {
   isVertexProperties: true,
   vertexColors: false,
-  densityMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
+  densityMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
   densityMapStrength: 0.5,
-  heightMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
+  heightMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
   heightMapStrength: 0.5
 }
 
@@ -134,6 +140,13 @@ uniform float vHeight;
 #ifdef HEIGHT_MAPPED
   uniform float heightMapStrength;
   uniform sampler2D heightMap;
+#endif
+#ifdef USE_LOGDEPTHBUF
+  #ifdef USE_LOGDEPTHBUF_EXT
+    varying float vFragDepth;
+  #else
+    uniform float logDepthBufFC;
+  #endif
 #endif
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
@@ -204,6 +217,14 @@ vNormal = rotateVectorByQuaternion(vNormal, direction);
 idx = index;
 
 gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition + offset, 1.0);
+#ifdef USE_LOGDEPTHBUF
+  #ifdef USE_LOGDEPTHBUF_EXT
+    vFragDepth = 1.0 + gl_Position.w;
+  #else
+    gl_Position.z = log2( max( 0.00001, gl_Position.w + 1.0 ) ) * logDepthBufFC - 1.0;
+    gl_Position.z *= gl_Position.w;
+  #endif
+#endif
 }`
 
 const grassFragmentSource = `
@@ -232,6 +253,13 @@ varying float frc;
 
 #ifdef DENSITY_MAPPED
   varying float doClip;
+#endif
+
+#ifdef USE_LOGDEPTHBUF
+  #ifdef USE_LOGDEPTHBUF_EXT
+    uniform float logDepthBufFC;
+    varying float vFragDepth;
+  #endif
 #endif
 
 vec3 ACESFilm(vec3 x){
@@ -287,7 +315,11 @@ float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
     vec3 skyLight = sky * vec3(0.12, 0.29, 0.55);
     vec3 col = 0.3 * skyLight * textureColor + diffuse * diffuseStrength + ambient * ambientStrength;
     gl_FragColor = vec4(col, 1.0);
-    return;
+#ifdef USE_LOGDEPTHBUF
+  #ifdef USE_LOGDEPTHBUF_EXT
+    gl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;
+  #endif
+#endif
 }`
 
 export class InstancingActions {
@@ -306,7 +338,7 @@ export const deserializeInstancing: ComponentDeserializeFunction = (entity: Enti
 }
 
 export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
-  if (!getComponent(entity, GroupComponent)?.[0]) {
+  if (!getOptionalComponent(entity, GroupComponent)?.[0]) {
     addObjectToGroup(entity, new Object3D())
   }
   const scatterProps = getComponent(entity, InstancingComponent)
@@ -383,7 +415,7 @@ function parseInstancingProperties(props): InstancingComponentType {
 }
 
 export const serializeInstancing: ComponentSerializeFunction = (entity) => {
-  const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
+  const comp = getOptionalComponent(entity, InstancingComponent) as InstancingComponentType
   if (!comp) return
   const toSave = { ...comp }
   if (comp.state === ScatterState.STAGING) toSave.state = ScatterState.UNSTAGED
@@ -722,7 +754,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       }
       break
     case SampleMode.NODES:
-      const root = world.entityTree.uuidNodeMap.get((scatter.sampleProperties as NodeProperties).root)
+      const root = getEntityTreeNodeByUUID((scatter.sampleProperties as NodeProperties).root)
       numInstances = 0
       if (root === undefined) {
         console.error('could not find root node with uuid', (scatter.sampleProperties as NodeProperties).root)
@@ -773,7 +805,11 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
         },
         vertexShader: grassVertexSource,
         fragmentShader: grassFragmentSource,
-        side: DoubleSide
+        side: DoubleSide,
+        defines: {
+          USE_LOGDEPTHBUF: '',
+          USE_LOGDEPTHBUF_EXT: ''
+        }
       })
       const shaderMat = resultMat as RawShaderMaterial
       if (sampleProps.densityMap) {
@@ -833,7 +869,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   }
   switch (scatter.sampling) {
     case SampleMode.NODES:
-      const rootNode = world.entityTree.uuidNodeMap.get(sampleProps.root)
+      const rootNode = getEntityTreeNodeByUUID(sampleProps.root)
       function update(dt: number) {
         if (rootNode === undefined) {
           console.error('could not find root node with uuid', sampleProps.root)

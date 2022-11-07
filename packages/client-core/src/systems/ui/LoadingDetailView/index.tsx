@@ -25,22 +25,10 @@ interface LoadingUIState {
   imageHeight: number
 }
 
-export async function createLoaderDetailView(transition: ReturnType<typeof createTransitionState>) {
-  let hasSceneColors = false
-  const xrui = await new Promise<XRUI<State<LoadingUIState>>>((resolve) => {
-    const xrui = createXRUI(function Loading() {
-      return (
-        <LoadingDetailView
-          onStateChange={(state) => {
-            hasSceneColors = state.hasSceneColors
-          }}
-          transition={transition}
-          colorsLoadedCallback={() => resolve(xrui)}
-        />
-      )
-    }, createState({ imageWidth: 1, imageHeight: 1 }))
-  })
-  await xrui.container.updateUntilReady()
+export function createLoaderDetailView(transition: ReturnType<typeof createTransitionState>) {
+  const xrui = createXRUI(function Loading() {
+    return <LoadingDetailView transition={transition} />
+  }, createState({ imageWidth: 1, imageHeight: 1 }))
   return xrui
 }
 
@@ -52,13 +40,7 @@ function setDefaultPalette(colors) {
   colors.alternate.set('black')
 }
 
-const LoadingDetailView = (props: {
-  colorsLoadedCallback
-  transition: ReturnType<typeof createTransitionState>
-  onStateChange: (state: { hasSceneColors: boolean }) => void
-}) => {
-  const loadingSystemState = useHookstate(getState(LoadingSystemState))
-  const loadingState = useLoadingState()
+const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
@@ -90,42 +72,16 @@ const LoadingDetailView = (props: {
         } else {
           setDefaultPalette(colors)
         }
-        props.colorsLoadedCallback()
       }
       img.src = thumbnailUrl
     } else {
       setDefaultPalette(colors)
-      props.colorsLoadedCallback()
     }
 
     return () => {
       img.onload = null
     }
   }, [sceneState.currentScene.ornull?.thumbnailUrl])
-
-  useEffect(() => {
-    const hasScene = !!sceneState.currentScene
-    const hasThumbnail = !!sceneState.currentScene.ornull?.thumbnailUrl.value
-    const hasColors = !!colors.main.value
-    props.onStateChange({
-      hasSceneColors: (hasScene && hasThumbnail && hasColors) || (hasScene && !hasThumbnail && hasColors)
-    })
-  }, [colors, sceneState])
-
-  useHookEffect(() => {
-    if (loadingState.state.value === AppLoadingStates.SUCCESS) {
-      props.transition.setState('OUT')
-    }
-    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
-      props.transition.setState('IN')
-    }
-  }, [loadingState.state])
-
-  useEffect(() => {
-    /** renderering is disabled on an HMD when a session is not active ,
-     *   render it here whenever the loading screen changes */
-    if (isHMD && !getState(XRState).sessionActive.value) EngineRenderer.instance.execute(Engine.instance.tickRate)
-  }, [engineState.loadingProgress, loadingSystemState.loadingScreenOpacity])
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value

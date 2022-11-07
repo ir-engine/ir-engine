@@ -2,6 +2,7 @@ import * as mediasoupClient from 'mediasoup-client'
 import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
+import config from '@xrengine/common/src/config'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -9,7 +10,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { clearOutgoingActions, dispatchAction } from '@xrengine/hyperflux'
-import ActionFunctions, { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, addOutgoingTopicIfNecessary, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import {
   accessLocationInstanceConnectionState,
@@ -24,7 +25,6 @@ import {
 import { accessChatState } from '../social/services/ChatService'
 import { accessLocationState } from '../social/services/LocationService'
 import { accessAuthState } from '../user/services/AuthService'
-import { instanceserverHost } from '../util/config'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientNetwork' })
@@ -42,8 +42,8 @@ const handleFailedConnection = (locationConnectionFailed) => {
   if (locationConnectionFailed) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld._worldHostId
-    if (!locationInstanceConnectionState.instances[instanceId].connected.value) {
+    const instanceId = Engine.instance.currentWorld.hostIds.world.value ?? ''
+    if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
         currentLocation.id.value,
@@ -53,8 +53,8 @@ const handleFailedConnection = (locationConnectionFailed) => {
     }
   } else {
     const mediaInstanceConnectionState = accessMediaInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld._mediaHostId
-    if (!mediaInstanceConnectionState.instances[instanceId].connected.value) {
+    const instanceId = Engine.instance.currentWorld.hostIds.media.value ?? ''
+    if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = accessAuthState()
       const selfUser = authState.user
@@ -81,7 +81,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
 export class SocketWebRTCClientNetwork extends Network {
   constructor(hostId: UserId, topic: Topic) {
     super(hostId, topic)
-    ActionFunctions.addOutgoingTopicIfNecessary(topic)
+    addOutgoingTopicIfNecessary(topic)
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
@@ -129,13 +129,14 @@ export class SocketWebRTCClientNetwork extends Network {
     port: string
     locationId?: string | null
     channelId?: string | null
+    roomCode?: string | null
   }): Promise<void> {
     this.reconnecting = false
     if (this.socket) {
       return logger.error(new Error('Network already initialized'))
     }
     logger.info('Initialising transport with args %o', args)
-    const { ipAddress, port, locationId, channelId } = args
+    const { ipAddress, port, locationId, channelId, roomCode } = args
 
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value
@@ -143,23 +144,25 @@ export class SocketWebRTCClientNetwork extends Network {
     const query = {
       locationId,
       channelId,
+      roomCode,
       token
     }
 
     if (locationId) delete query.channelId
     if (channelId) delete query.locationId
+    if (!roomCode) delete query.roomCode
 
     try {
-      if (globalThis.process.env['VITE_LOCAL_BUILD'] === 'true') {
+      if (config.client.localBuild === 'true') {
         this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {
           query
         })
-      } else if (process.env.APP_ENV === 'development') {
+      } else if (config.client.appEnv === 'development' && config.client.localNginx !== 'true') {
         this.socket = ioclient(`${ipAddress as string}:${port.toString()}`, {
           query
         })
       } else {
-        this.socket = ioclient(instanceserverHost, {
+        this.socket = ioclient(config.client.instanceserverUrl, {
           path: `/socket.io/${ipAddress as string}/${port.toString()}`,
           query
         })

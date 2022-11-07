@@ -4,8 +4,8 @@ import path from 'path'
 import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
+import logger from '../../ServerLogger'
 import { UserParams } from '../user/user.class'
 
 export type AvatarCreateArguments = {
@@ -29,6 +29,7 @@ export type AvatarUploadArguments = {
   avatarName: string
   isPublic: boolean
   avatarFileType?: string
+  avatarId?: string
 }
 
 // todo: move this somewhere else
@@ -106,6 +107,15 @@ export const uploadAvatarStaticResource = async (
   const [modelResource, thumbnailResource] = await Promise.all([modelPromise, thumbnailPromise])
 
   logger.info('Successfully uploaded avatar %o %o', modelResource, thumbnailResource)
+
+  if (data.avatarId) {
+    try {
+      await app.service('avatar').patch(data.avatarId, {
+        modelResourceId: modelResource.id,
+        thumbnailResourceId: thumbnailResource.id
+      })
+    } catch (err) {}
+  }
 
   return [modelResource, thumbnailResource]
 }

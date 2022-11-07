@@ -12,12 +12,12 @@ import { createInteractiveModalView } from '../ui/InteractiveModalView'
 export function createInteractUI(entity: Entity, interactMessage: string) {
   const ui = createInteractiveModalView(entity, interactMessage)
   const nameComponent = getComponent(entity, NameComponent)
-  addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + nameComponent.name })
+  addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + nameComponent })
 
   addEntityNodeChild(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
   const xrui = getComponent(ui.entity, XRUIComponent)
-  xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+  xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
     const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
     mat.transparent = true
   })

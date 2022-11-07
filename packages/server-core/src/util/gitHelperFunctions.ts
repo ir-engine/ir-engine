@@ -1,6 +1,6 @@
 import simpleGit from 'simple-git'
 
-import logger from '../logger'
+import logger from '../ServerLogger'
 
 export const useGit = (path?, options?) =>
   simpleGit(path, options).outputHandler((command, stdout, stderr) => {

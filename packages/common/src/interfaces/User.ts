@@ -1,4 +1,5 @@
 import { InstanceInterface } from '../dbmodels/Instance'
+import { AvatarInterface } from './AvatarInterface'
 import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
@@ -23,7 +24,8 @@ export interface UserInterface {
   id: UserId
   name: string
   isGuest: boolean
-  avatarId?: string
+  avatarId: string
+  avatar: AvatarInterface
   identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
@@ -49,6 +51,15 @@ export const UserSeed: UserInterface = {
   name: '',
   isGuest: true,
   avatarId: '',
+  avatar: {
+    id: '',
+    name: '',
+    isPublic: true,
+    userId: '',
+    modelResourceId: '',
+    thumbnailResourceId: '',
+    identifierName: ''
+  },
   apiKey: {
     id: '',
     token: '',
@@ -105,6 +116,15 @@ export function resolveWalletUser(credentials: any): UserInterface {
     name: credentials.user.displayName,
     isGuest: true,
     avatarId: credentials.user.id,
+    avatar: {
+      id: '',
+      name: '',
+      isPublic: true,
+      userId: '',
+      modelResourceId: '',
+      thumbnailResourceId: '',
+      identifierName: ''
+    },
     identityProviders: [],
     locationAdmins: [],
     avatarUrl: credentials.user.icon,

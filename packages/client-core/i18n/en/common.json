@@ -7,7 +7,12 @@
     "left": "left"
   },
   "loader": {
-    "connecting": "Connecting to world...",
+    "connecting": "Connecting...",
+    "loadingEngine": "Loading engine...",
+    "loadingRoutes": "Loading routes...",
+    "loadingRoute": "Loading route...",
+    "loadingXRSystems": "Loading immersive session...",
+    "connectingToWorld": "Connecting to world...",
     "entering": "Entering world...",
     "loading": "Loading...",
     "objectRemaining": "{{count}} object remaining",
@@ -68,6 +73,11 @@
     "loading": "loading",
     "low-frame-error": "Detected a poor perfomance consider enabling Use Hardware acceleration in your browser and relauch your browser",
     "low-frame-title": "Enable hardware acceleration for better experience!"
+  },
+  "ar": {
+    "placeScene": "Place Scene",
+    "doneTrigger": "Hold Trigger To Confirm",
+    "done": "Done"
   },
   "error": {
     "loading-error": "Failed to load user data",

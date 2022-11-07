@@ -114,7 +114,6 @@ describe('LoopAnimationFunctions', () => {
     //     const animationComponent = getComponent(entity, AnimationComponent)
 
     //     assert(hasComponent(entity, AvatarAnimationComponent))
-    //     //assert(hasComponent(entity, VelocityComponent)) velocity component no longer present by default
     //     assert.equal(animationComponent.animations, AnimationManager.instance._animations)
     //   })
 
@@ -126,7 +125,6 @@ describe('LoopAnimationFunctions', () => {
     //     const animationComponent = getComponent(entity, AnimationComponent)
 
     //     assert(!hasComponent(entity, AvatarAnimationComponent))
-    //     //assert(!hasComponent(entity, VelocityComponent))
     //     assert.equal(animationComponent.animations, obj3d.animations)
     //   })
     // }

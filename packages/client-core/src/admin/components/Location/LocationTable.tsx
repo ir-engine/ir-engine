@@ -86,7 +86,6 @@ const LocationTable = ({ className, search }: Props) => {
     scene: string,
     type: string,
     tags: any,
-    instanceMediaChatEnabled: ReactElement<any, any>,
     videoEnabled: ReactElement<any, any>
   ) => {
     return {
@@ -98,7 +97,6 @@ const LocationTable = ({ className, search }: Props) => {
       scene,
       type,
       tags,
-      instanceMediaChatEnabled,
       videoEnabled,
       action: (
         <>
@@ -147,12 +145,6 @@ const LocationTable = ({ className, search }: Props) => {
             // onClick={handleClick}
           />
         )}
-      </div>,
-      <div>
-        {/**@ts-ignore*/}
-        {el.location_setting?.instanceMediaChatEnabled
-          ? t('admin:components.common.yes')
-          : t('admin:components.common.no')}
       </div>,
       <div>
         {/**@ts-ignore*/}

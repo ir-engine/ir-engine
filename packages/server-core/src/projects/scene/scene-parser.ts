@@ -1,18 +1,13 @@
+import config from '@xrengine/common/src/config'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { isDev } from '@xrengine/common/src/utils/isDev'
+import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import config from '../../appconfig'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 
 export const sceneRelativePathIdentifier = '__$project$__'
 export const sceneCorsPathIdentifier = '__$cors-proxy$__'
-export const corsPath =
-  isDev || process.env.VITE_LOCAL_BUILD
-    ? `https://${config.server.hostname}:${config.server.corsServerPort}`
-    : `https://${config.server.hostname}/cors-proxy`
 
-export const parseSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => {
+export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
       sceneData[key] = parseSceneDataCacheURLs(val, cacheDomain)
@@ -21,14 +16,14 @@ export const parseSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => 
       if (val.includes(sceneRelativePathIdentifier)) {
         sceneData[key] = getCachedURL(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain)
       } else if (val.startsWith(sceneCorsPathIdentifier)) {
-        sceneData[key] = val.replace(sceneCorsPathIdentifier, corsPath)
+        sceneData[key] = val.replace(sceneCorsPathIdentifier, config.client.cors.proxyUrl)
       }
     }
   }
   return sceneData
 }
 
-export const cleanSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => {
+export const cleanSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
       sceneData[key] = cleanSceneDataCacheURLs(val, cacheDomain)
@@ -36,8 +31,8 @@ export const cleanSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => 
     if (typeof val === 'string') {
       if (val.includes('https://' + cacheDomain + '/projects')) {
         sceneData[key] = val.replace('https://' + cacheDomain + '/projects', sceneRelativePathIdentifier)
-      } else if (val.startsWith(corsPath)) {
-        sceneData[key] = val.replace(corsPath, sceneCorsPathIdentifier)
+      } else if (val.startsWith(config.client.cors.proxyUrl)) {
+        sceneData[key] = val.replace(config.client.cors.proxyUrl, sceneCorsPathIdentifier)
       }
     }
   }

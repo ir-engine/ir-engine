@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react'
-import { useHistory } from 'react-router'
 
 import {
   LocationInstanceConnectionService,
-  useLocationInstanceConnectionState
+  useLocationInstanceConnectionState,
+  useWorldInstance
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
+  useMediaInstance,
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
@@ -14,46 +15,35 @@ import { ChatAction, ChatService, useChatState } from '@xrengine/client-core/src
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import {
+  NetworkUserService,
+  NetworkUserServiceReceptor,
+  useNetworkUserState
+} from '@xrengine/client-core/src/user/services/NetworkUserService'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import {
-  addActionReceptor,
-  dispatchAction,
-  getState,
-  removeActionReceptor,
-  useHookEffect,
-  useHookstate
-} from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
-import { AppState } from '../../common/services/AppService'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
-import { UserServiceReceptor } from '../../user/services/UserService'
+import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const chatState = useChatState()
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
-  const history = useHistory()
   const partyState = usePartyState()
 
-  const appState = useHookstate(getState(AppState))
-  const showTopShelf = appState.showTopShelf.value
-  const showBottomShelf = appState.showTopShelf.value
-
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
-  const instanceConnectionState = useLocationInstanceConnectionState()
-  const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
+  const currentLocationInstanceConnection = useWorldInstance()
 
   const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
-  const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId!].ornull
+  const currentChannelInstanceConnection = useMediaInstance()
 
   MediaInstanceConnectionService.useAPIListeners()
 
@@ -65,26 +55,17 @@ export const NetworkInstanceProvisioning = () => {
         MediaStreamService.triggerUpdateConsumers
       )
     })
-    addActionReceptor(UserServiceReceptor)
+    addActionReceptor(NetworkUserServiceReceptor)
     return () => {
       removeActionReceptor(MediaServiceReceptor)
-      removeActionReceptor(UserServiceReceptor)
+      removeActionReceptor(NetworkUserServiceReceptor)
     }
   }, [])
 
-  /** if the instance that got provisioned is not the one that was entered into the URL, update the URL */
-  useHookEffect(() => {
-    if (worldNetworkHostId) {
-      const url = new URL(window.location.href)
-      const searchParams = url.searchParams
-      const instanceId = searchParams.get('instanceId')
-      if (instanceId !== worldNetworkHostId) searchParams.set('instanceId', worldNetworkHostId)
-      history.push(url.pathname + url.search)
-    }
-  }, [currentLocationInstanceConnection])
+  useRoomCodeURLParam(false, true)
 
   // 2. once we have the location, provision the instance server
-  useHookEffect(() => {
+  useEffect(() => {
     const currentLocation = locationState.currentLocation.location
     const isProvisioned = worldNetworkHostId && currentLocationInstanceConnection?.provisioned.value
 
@@ -92,22 +73,25 @@ export const NetworkInstanceProvisioning = () => {
       if (!isUserBanned && !isProvisioned) {
         const search = window.location.search
         let instanceId
+        let roomCode
 
         if (search != null) {
           instanceId = new URL(window.location.href).searchParams.get('instanceId')
+          roomCode = new URL(window.location.href).searchParams.get('roomCode')
         }
 
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,
-          currentLocation.sceneId.value
+          currentLocation.sceneId.value,
+          roomCode || undefined
         )
       }
     }
   }, [locationState.currentLocation.location])
 
-  // 3. once engine is initialised and the server is provisioned, connect the the instance server
-  useHookEffect(() => {
+  // 3. once engine is initialised and the server is provisioned, connect to the instance server
+  useEffect(() => {
     if (
       engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
@@ -126,7 +110,7 @@ export const NetworkInstanceProvisioning = () => {
   ])
 
   // media server provisioning
-  useHookEffect(() => {
+  useEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
@@ -135,16 +119,17 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [chatState.instanceChannelFetched])
 
-  useHookEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
+  useEffect(() => {
+    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value)
+      NetworkUserService.getLayerUsers(true)
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value)
-      UserService.getLayerUsers(false)
+      NetworkUserService.getLayerUsers(false)
   }, [selfUser?.channelInstanceId, userState.channelLayerUsersUpdateNeeded])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
       const partyChannel = Object.values(chatState.channels.channels.value).find(
         (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
@@ -170,16 +155,16 @@ export const NetworkInstanceProvisioning = () => {
     chatState.partyChannelFetched?.value
   ])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (selfUser.partyId.value) dispatchAction(ChatAction.refetchPartyChannelAction({}))
   }, [selfUser.partyId.value])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (partyState.updateNeeded.value) PartyService.getParty()
   }, [partyState.updateNeeded.value])
 
   // if a media connection has been provisioned and is ready, connect to it
-  useHookEffect(() => {
+  useEffect(() => {
     if (
       mediaNetworkHostId &&
       currentChannelInstanceConnection?.value &&

@@ -1,17 +1,18 @@
 import { WebContainer3D } from '@etherealjs/web-layer/three'
-import { Color } from 'three'
+import { Color, Object3D, Ray } from 'three'
 
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ControllerGroup, XRInputSourceComponent } from '../../xr/XRComponents'
+import { PointerObject, XRPointerComponent } from '../../xr/XRComponents'
+import { xrInputSourcesMap } from '../../xr/XRControllerSystem'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
@@ -24,9 +25,8 @@ export default async function XRUISystem(world: World) {
 
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
-  const xruiQuery = defineQuery([XRUIComponent])
   const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent])
-  const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
+  const pointerQuery = defineQuery([XRPointerComponent])
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
   xrui.WebLayerModule.WebLayerManager.initialize(renderer)
@@ -50,7 +50,8 @@ export default async function XRUISystem(world: World) {
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
     for (const entity of visibleXruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).container
+      const layer = getComponent(entity, XRUIComponent)
+      layer.updateWorldMatrix(true, true)
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
@@ -60,12 +61,12 @@ export default async function XRUISystem(world: World) {
     }
   }
 
-  const updateControllerRayInteraction = (controller: ControllerGroup) => {
+  const updateControllerRayInteraction = (controller: PointerObject, xruiEntities: Entity[]) => {
     const cursor = controller.cursor
     let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
-    for (const entity of visibleXruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).container
+    for (const entity of xruiEntities) {
+      const layer = getComponent(entity, XRUIComponent)
 
       /**
        * get closest hit from all XRUIs
@@ -98,9 +99,9 @@ export default async function XRUISystem(world: World) {
     }
   }
 
-  const updateClickEventsForController = (controller: ControllerGroup, inputValue: InputValue) => {
+  const updateClickEventsForController = (controller: PointerObject, inputValue: InputValue) => {
     if (inputValue.lifecycleState !== LifecycleValue.Started) return
-    if (controller.cursor.visible) {
+    if (controller.cursor?.visible) {
       const hit = controller.lastHit
       if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new PointerEvent('click', { bubbles: true }))
@@ -109,62 +110,51 @@ export default async function XRUISystem(world: World) {
     }
   }
 
-  const canvas = EngineRenderer.instance.renderer.getContext().canvas
-  canvas.addEventListener('click', redirectDOMEvent)
-  canvas.addEventListener('contextmenu', redirectDOMEvent)
-  canvas.addEventListener('dblclick', redirectDOMEvent)
+  // const canvas = EngineRenderer.instance.renderer.getContext().canvas
+  document.body.addEventListener('click', redirectDOMEvent)
+  document.body.addEventListener('contextmenu', redirectDOMEvent)
+  document.body.addEventListener('dblclick', redirectDOMEvent)
 
   const execute = () => {
-    const input = getComponent(world.localClientEntity, InputComponent)
-    const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
-
-    for (const entity of xruiQuery.enter()) {
-      const layer = getComponent(entity, XRUIComponent).container
-      layer.interactionRays = xrui.interactionRays
-    }
-
-    for (const entity of xruiQuery.exit()) {
-      const layer = getComponent(entity, XRUIComponent, true).container
-      layer.destroy()
-    }
+    const input = getOptionalComponent(world.localClientEntity, InputComponent)
 
     const xrFrame = Engine.instance.xrFrame
-    const xrManager = EngineRenderer.instance.xrManager
 
-    if (xrFrame) {
-      const localXRInput = localXRInputQuery().length
+    /** Update the objects to use for intersection tests */
+    if (xrFrame && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
+      xrui.interactionRays = (
+        pointerQuery()
+          .filter((entity) => entity !== world.cameraEntity)
+          .map((entity) => getComponent(entity, XRPointerComponent).pointer) as (Object3D | Ray)[]
+      ).concat(world.pointerScreenRaycaster.ray) // todo, replace pointerScreenRaycaster with viewerInputSourceEntity
 
-      if (localXRInput && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
-        xrui.interactionRays = [...xrFrame.session.inputSources].map((source, idx) => xrManager.getController(idx))
+    if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
+      xrui.interactionRays = [world.pointerScreenRaycaster.ray]
 
-      if (!localXRInput && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
-        xrui.interactionRays = [world.pointerScreenRaycaster.ray]
+    const xruiEntities = visibleXruiQuery()
 
-      if (xrInputSourceComponent) {
-        for (const [idx, source] of xrFrame.session.inputSources.entries()) {
-          if (source.targetRayMode === 'tracked-pointer') {
-            const controller =
-              source.handedness === 'left'
-                ? xrInputSourceComponent.controllerLeft
-                : xrInputSourceComponent.controllerRight
-            const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
-            updateControllerRayInteraction(controller)
-            if (input?.data?.has(GrabInput))
-              updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(GrabInput)!)
-          }
+    /** do intersection tests */
+    for (const source of world.inputSources) {
+      const controllerEntity = xrInputSourcesMap.get(source)
+      if (!controllerEntity) continue
+      const controller = getComponent(controllerEntity, XRPointerComponent).pointer
 
-          if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-            const targetRayPose = Engine.instance.xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
-            if (input?.data?.has(BaseInput.PRIMARY))
-              updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.PRIMARY)!)
-          }
-        }
+      if (source.targetRayMode === 'tracked-pointer') {
+        const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
+        updateControllerRayInteraction(controller, xruiEntities)
+        if (input?.data?.has(GrabInput)) updateClickEventsForController(controller, input.data.get(GrabInput)!)
       }
+
+      if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze')
+        if (input?.data?.has(BaseInput.PRIMARY))
+          updateClickEventsForController(controller, input.data.get(BaseInput.PRIMARY)!)
     }
+
+    /** only update visible XRUI */
 
     for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
-      xrui.container.update()
+      xrui.update()
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.currentWorld.camera.projectionMatrix)
@@ -173,12 +163,11 @@ export default async function XRUISystem(world: World) {
   }
 
   const cleanup = async () => {
-    canvas.removeEventListener('click', redirectDOMEvent)
-    canvas.removeEventListener('contextmenu', redirectDOMEvent)
-    canvas.removeEventListener('dblclick', redirectDOMEvent)
-    removeQuery(world, xruiQuery)
+    document.body.removeEventListener('click', redirectDOMEvent)
+    document.body.removeEventListener('contextmenu', redirectDOMEvent)
+    document.body.removeEventListener('dblclick', redirectDOMEvent)
     removeQuery(world, visibleXruiQuery)
-    removeQuery(world, localXRInputQuery)
+    removeQuery(world, pointerQuery)
   }
 
   return { execute, cleanup }

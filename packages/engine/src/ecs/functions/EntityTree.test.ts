@@ -1,11 +1,14 @@
 import assert from 'assert'
 import { MathUtils } from 'three'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+
 import { createEngine } from '../../initializeEngine'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
-import { EntityTreeNode } from '../functions/EntityTree'
-import { createEntity } from './EntityFunctions'
+import { createEntity } from '../functions/EntityFunctions'
+import { EntityTreeNode } from './EntityTree'
 import {
   addEntityNodeChild,
   addToEntityTreeMaps,
@@ -41,7 +44,7 @@ describe('EntityTree', () => {
       const node = createEntityNode(createEntity())
       addToEntityTreeMaps(node)
       assert(world.entityTree.entityNodeMap.get(node.entity))
-      assert(world.entityTree.uuidNodeMap.get(node.uuid))
+      assert(UUIDComponent.entitiesByUUID[node.uuid].value)
     })
   })
 
@@ -51,7 +54,7 @@ describe('EntityTree', () => {
       addEntityNodeChild(node, root)
       removeFromEntityTreeMaps(node)
       assert(!world.entityTree.entityNodeMap.get(node.entity))
-      assert(!world.entityTree.uuidNodeMap.get(node.uuid))
+      assert(!UUIDComponent.entitiesByUUID[node.uuid].value)
     })
   })
 
@@ -59,9 +62,7 @@ describe('EntityTree', () => {
     it('will initialize entity tree', () => {
       initializeEntityTree()
       assert(world.entityTree.entityNodeMap)
-      assert(world.entityTree.uuidNodeMap)
       assert.equal(world.entityTree.entityNodeMap.size, 1)
-      assert.equal(world.entityTree.uuidNodeMap.size, 1)
     })
   })
 
@@ -111,7 +112,6 @@ describe('EntityTree', () => {
 
       assert(world.entityTree.rootNode.entity)
       assert.equal(world.entityTree.entityNodeMap.size, 1)
-      assert.equal(world.entityTree.uuidNodeMap.size, 1)
     })
   })
 
@@ -124,7 +124,7 @@ describe('EntityTree', () => {
       assert(node_0.uuid)
 
       const entity1 = createEntity()
-      const uuid = MathUtils.generateUUID()
+      const uuid = MathUtils.generateUUID() as EntityUUID
       const node_1 = createEntityNode(entity1, uuid)
       assert.equal(node_1.type, 'EntityNode')
       assert.equal(node_1.entity, entity1)
@@ -143,7 +143,6 @@ describe('EntityTree', () => {
       assert(node_0.children?.includes(node_1.entity))
       assert.equal(node_1.parentEntity, node_0.entity)
       assert(world.entityTree.entityNodeMap.has(node_1.entity))
-      assert(world.entityTree.uuidNodeMap.has(node_1.uuid))
 
       addEntityNodeChild(node_2, node_0, 0)
       assert.equal(node_0.children?.indexOf(node_2.entity), 0)
@@ -168,7 +167,6 @@ describe('EntityTree', () => {
 
       assert(!node_0.children?.includes(node_1.entity))
       assert(!world.entityTree.entityNodeMap.has(node_1.entity))
-      assert(!world.entityTree.uuidNodeMap.has(node_1.uuid))
 
       assert.doesNotThrow(() => {
         removeEntityNodeChild(node_2, node_1)

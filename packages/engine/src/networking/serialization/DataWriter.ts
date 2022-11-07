@@ -4,13 +4,15 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../avatar/components/AvatarIKComponents'
+import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHandsInputComponent, XRInputSourceComponent } from '../../xr/XRComponents'
+import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -91,7 +93,7 @@ export const writeCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, e
 
     // Since avatar velocity values are too small and precison is lost when quantized
     let offset_mult = 1
-    if (getComponent(entity, AvatarComponent)) offset_mult = 100
+    if (hasComponent(entity, AvatarComponent)) offset_mult = 100
 
     x *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
     y *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
@@ -219,12 +221,15 @@ export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, 
 }
 
 export const writePosition = writeVector3(TransformComponent.position)
-export const writeLinearVelocity = writeVector3(VelocityComponent.linear)
-export const writeAngularVelocity = writeVector3(VelocityComponent.angular)
 export const writeRotation = writeCompressedRotation(TransformComponent.rotation)
 
+export const writeBodyPosition = writeVector3(RigidBodyComponent.position)
+export const writeBodyRotation = writeCompressedRotation(RigidBodyComponent.rotation)
+export const writeBodyLinearVelocity = writeVector3(RigidBodyComponent.linearVelocity)
+export const writeBodyAngularVelocity = writeVector3(RigidBodyComponent.angularVelocity)
+
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, TransformComponent)) return
+  if (!hasComponent(entity, TransformComponent) || hasComponent(entity, RigidBodyComponent)) return
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)
@@ -237,77 +242,74 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writeVelocity = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, VelocityComponent)) return
+export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
+  if (!hasComponent(entity, RigidBodyComponent)) return
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyPosition(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyRotation(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writeXRContainerPosition = writeVector3(XRInputSourceComponent.container.position)
-export const writeXRContainerRotation = writeCompressedRotation(XRInputSourceComponent.container.quaternion)
+export const writeXRHeadPosition = writeVector3(AvatarHeadIKComponent.target.position)
+export const writeXRHeadRotation = writeCompressedRotation(AvatarHeadIKComponent.target.quaternion)
 
-export const writeXRHeadPosition = writeVector3(XRInputSourceComponent.head.position)
-export const writeXRHeadRotation = writeCompressedRotation(XRInputSourceComponent.head.quaternion)
+export const writeXRControllerLeftPosition = writeVector3(AvatarLeftHandIKComponent.target.position)
+export const writeXRControllerLeftRotation = writeCompressedRotation(AvatarLeftHandIKComponent.target.quaternion)
 
-export const writeXRControllerLeftPosition = writeVector3(XRInputSourceComponent.controllerLeftParent.position)
-export const writeXRControllerLeftRotation = writeCompressedRotation(
-  XRInputSourceComponent.controllerLeftParent.quaternion
-)
+export const writeXRControllerRightPosition = writeVector3(AvatarRightHandIKComponent.target.position)
+export const writeXRControllerRightRotation = writeCompressedRotation(AvatarRightHandIKComponent.target.quaternion)
 
-export const writeXRControllerGripLeftPosition = writeVector3(XRInputSourceComponent.controllerGripLeftParent.position)
-export const writeXRControllerGripLeftRotation = writeCompressedRotation(
-  XRInputSourceComponent.controllerGripLeftParent.quaternion
-)
-
-export const writeXRControllerRightPosition = writeVector3(XRInputSourceComponent.controllerRightParent.position)
-export const writeXRControllerRightRotation = writeCompressedRotation(
-  XRInputSourceComponent.controllerRightParent.quaternion
-)
-
-export const writeXRControllerGripRightPosition = writeVector3(
-  XRInputSourceComponent.controllerGripRightParent.position
-)
-export const writeXRControllerGripRightRotation = writeCompressedRotation(
-  XRInputSourceComponent.controllerGripRightParent.quaternion
-)
-
-export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, XRInputSourceComponent)) return
+export const writeXRHead = (v: ViewCursor, entity: Entity) => {
+  if (!hasComponent(entity, AvatarHeadIKComponent)) return
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeXRContainerPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRContainerRotation(v, entity) ? 1 << b++ : b++ && 0
-
   changeMask |= writeXRHeadPosition(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRHeadRotation(v, entity) ? 1 << b++ : b++ && 0
-
-  changeMask |= writeXRControllerLeftPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRControllerLeftRotation(v, entity) ? 1 << b++ : b++ && 0
-
-  changeMask |= writeXRControllerGripLeftPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRControllerGripLeftRotation(v, entity) ? 1 << b++ : b++ && 0
-
-  changeMask |= writeXRControllerRightPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRControllerRightRotation(v, entity) ? 1 << b++ : b++ && 0
-
-  changeMask |= writeXRControllerGripRightPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRControllerGripRightRotation(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
+export const writeXRLeftHand = (v: ViewCursor, entity: Entity) => {
+  if (!hasComponent(entity, AvatarLeftHandIKComponent)) return
+
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint16(v)
+  let changeMask = 0
+  let b = 0
+
+  changeMask |= writeXRControllerLeftPosition(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRControllerLeftRotation(v, entity) ? 1 << b++ : b++ && 0
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
+export const writeXRRightHand = (v: ViewCursor, entity: Entity) => {
+  if (!hasComponent(entity, AvatarRightHandIKComponent)) return
+
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint16(v)
+  let changeMask = 0
+  let b = 0
+
+  changeMask |= writeXRControllerRightPosition(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRControllerRightRotation(v, entity) ? 1 << b++ : b++ && 0
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
+/**@deprecated */
 export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness, bone: string[]) => {
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
@@ -324,6 +326,7 @@ export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness,
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
+/**@deprecated */
 export const writeXRHandBones = (v: ViewCursor, entity: Entity, hand: Group) => {
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
@@ -347,6 +350,7 @@ export const writeXRHandBones = (v: ViewCursor, entity: Entity, hand: Group) => 
   return (changeMask > 0 && writeChangeMask(changeMask) && writeHandedness(handednessBitValue)) || rewind()
 }
 
+/**@deprecated */
 export const writeXRHands = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, XRHandsInputComponent)) return
 
@@ -373,9 +377,11 @@ export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity)
   let b = 0
 
   changeMask |= writeTransform(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeVelocity(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRInputs(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRHands(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeRigidBody(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRHead(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRLeftHand(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeXRRightHand(v, entity) ? 1 << b++ : b++ && 0
+  // changeMask |= writeXRHands(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeNetworkId(networkId) && writeChangeMask(changeMask)) || rewind()
 }

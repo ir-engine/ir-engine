@@ -1,6 +1,6 @@
 import { Not } from 'bitecs'
 import { Consumer } from 'mediasoup-client/lib/Consumer'
-import { Group, Vector2, Vector3 } from 'three'
+import { Group, Matrix4, Vector2, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -22,6 +22,7 @@ import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGro
 import { getInteractionGroups } from '@xrengine/engine/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -36,6 +37,8 @@ const logger = multiLogger.child({ component: 'client-core:systems' })
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 export const AvatarUITransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
+const rotMat = new Matrix4()
+
 export const renderAvatarContextMenu = (world: World, userId: UserId, contextMenuEntity: Entity) => {
   const userEntity = world.getUserAvatarEntity(userId)
   if (!userEntity) return
@@ -47,12 +50,14 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
   const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
   const { avatarHeight } = getComponent(userEntity, AvatarComponent)
 
-  contextMenuXRUI.container.scale.setScalar(Math.max(1, cameraPosition.distanceTo(userTransform.position) / 3))
-  contextMenuXRUI.container.position.copy(userTransform.position)
-  contextMenuXRUI.container.position.y += avatarHeight - 0.3
-  contextMenuXRUI.container.position.x += 0.1
-  contextMenuXRUI.container.position.z += contextMenuXRUI.container.position.z > cameraPosition.z ? -0.4 : 0.4
-  contextMenuXRUI.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+  const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+
+  contextMenuXRUI.scale.setScalar(Math.max(1, cameraPosition.distanceTo(userTransform.position) / 3))
+  contextMenuXRUI.position.copy(userTransform.position)
+  contextMenuXRUI.position.y += avatarHeight - 0.3
+  contextMenuXRUI.position.x += 0.1
+  contextMenuXRUI.position.z += contextMenuXRUI.position.z > cameraPosition.z ? -0.4 : 0.4
+  contextMenuXRUI.quaternion.copy(cameraTransform.rotation)
 }
 
 export default async function AvatarUISystem(world: World) {
@@ -73,9 +78,12 @@ export default async function AvatarUISystem(world: World) {
   const handleAvatarClick = (action: ReturnType<typeof EngineActions.buttonClicked>) => {
     /** clickaway */
     if (AvatarContextMenuUI.state.id.value !== '' && !action.clicked && action.button === BaseInput.PRIMARY) {
-      const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent).container
+      const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent)
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
-      if (!hit) AvatarContextMenuUI.state.id.set('')
+      if (!hit) {
+        AvatarContextMenuUI.state.id.set('')
+        setVisibleComponent(AvatarContextMenuUI.entity, false)
+      }
     }
 
     /** only handle avatar click if right clicking and when lifting button */
@@ -108,6 +116,7 @@ export default async function AvatarUISystem(world: World) {
       if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
         AvatarContextMenuUI.state.id.set(userId)
+        setVisibleComponent(AvatarContextMenuUI.entity, true)
         return
       }
     }
@@ -142,12 +151,14 @@ export default async function AvatarUISystem(world: World) {
       AvatarUI.set(userEntity, ui)
     }
 
+    const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+
     for (const userEntity of userQuery()) {
       const ui = AvatarUI.get(userEntity)!
       const transition = AvatarUITransitions.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
-      const xrui = getComponent(ui.entity, XRUIComponent)
+      const xruiTransform = getComponent(ui.entity, TransformComponent)
 
       const videoPreviewMesh = ui.state.videoPreviewMesh.value
       _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
@@ -164,9 +175,9 @@ export default async function AvatarUISystem(world: World) {
         springAlpha = easeOutElastic(alpha)
       })
 
-      xrui.container.scale.setScalar(1.3 * Math.max(1, dist / 6) * Math.max(springAlpha, 0.001))
-      xrui.container.position.copy(_vector3)
-      xrui.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+      xruiTransform.scale.setScalar(1.3 * Math.max(1, dist / 6) * Math.max(springAlpha, 0.001))
+      xruiTransform.position.copy(_vector3)
+      xruiTransform.rotation.copy(cameraTransform.rotation)
 
       if (world.mediaNetwork)
         if (immersiveMedia && videoPreviewTimer === 0) {

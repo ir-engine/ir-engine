@@ -1,5 +1,4 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { Not } from 'bitecs'
 import {
   AdditiveBlending,
   Box3,
@@ -19,6 +18,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import {
   addComponent,
+  ComponentType,
   defineQuery,
   getComponent,
   hasComponent,
@@ -28,7 +28,6 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { Physics, RaycastArgs } from '../physics/classes/Physics'
-import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
@@ -37,7 +36,6 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
-import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
@@ -106,13 +104,14 @@ export default async function AvatarLoadingSystem(world: World) {
     for (const entity of effectQuery.enter()) {
       const effectComponent = getComponent(entity, AvatarEffectComponent)
       const sourceTransform = getComponent(effectComponent.sourceEntity, TransformComponent)
-      const transform = setTransformComponent(
+      setTransformComponent(
         entity,
         sourceTransform.position.clone(),
         sourceTransform.rotation.clone(),
         sourceTransform.scale.clone()
       )
-      addComponent(entity, VisibleComponent, true)
+      const transform = getComponent(entity, TransformComponent)
+      setComponent(entity, VisibleComponent, true)
       /**
        * cast ray to move this downward to be on the ground
        */

@@ -2,8 +2,7 @@ import assert from 'assert'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
-import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
+import { applyIncomingActions, clearOutgoingActions, getState } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
@@ -106,8 +105,8 @@ describe('NetworkPeerFunctions', () => {
       Engine.instance.store.defaultDispatchDelay = 0
       NetworkPeerFunctions.destroyPeer(network, userId, world)
 
-      ActionFunctions.clearOutgoingActions(network.topic)
-      ActionFunctions.applyIncomingActions()
+      clearOutgoingActions(network.topic)
+      applyIncomingActions()
       world.execute(0)
 
       assert(!network.peers.get(userId))

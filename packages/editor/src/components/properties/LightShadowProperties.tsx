@@ -64,7 +64,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   }
 
   const lightComponent = getComponent(props.node.entity, props.comp)
-  const csmEnabled = EngineRenderer.instance.isCSMEnabled && props.comp === DirectionalLightComponent
+  const csmEnabled = EngineRenderer.instance.csm && props.comp === DirectionalLightComponent
 
   return (
     <Fragment>

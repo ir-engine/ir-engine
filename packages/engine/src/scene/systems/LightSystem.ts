@@ -75,16 +75,14 @@ export default async function LightSystem(world: World) {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
     defaultData: SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeHemisphereLight,
-    serialize: serializeHemisphereLight,
-    shouldDeserialize: shouldDeserializeHemisphereLight
+    serialize: serializeHemisphereLight
   })
 
   world.sceneComponentRegistry.set(AmbientLightComponent.name, SCENE_COMPONENT_AMBIENT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
     defaultData: SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeAmbientLight,
-    serialize: serializeAmbientLight,
-    shouldDeserialize: shouldDeserializeAmbientLight
+    serialize: serializeAmbientLight
   })
 
   world.sceneComponentRegistry.set(PointLightComponent.name, SCENE_COMPONENT_POINT_LIGHT)
@@ -149,11 +147,6 @@ export default async function LightSystem(world: World) {
 
     for (const entity of ambientLightQuery.enter()) updateAmbientLight(entity)
     for (const entity of directionalLightQuery.enter()) updateDirectionalLight(entity)
-    for (const entity of directionalLightQuery.exit())
-      EngineRenderer.instance.directionalLightEntities.splice(
-        EngineRenderer.instance.directionalLightEntities.indexOf(entity),
-        1
-      )
     for (const entity of hemisphereLightQuery.enter()) updateHemisphereLight(entity)
     for (const entity of pointLightQuery.enter()) updatePointLight(entity)
     for (const entity of spotLightQuery.enter()) updateSpotLight(entity)

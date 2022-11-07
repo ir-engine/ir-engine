@@ -29,7 +29,8 @@ const serializeAndSend = (world: World, serialize: ReturnType<typeof createDataW
 
     if (data.byteLength > 0) {
       // side effect - network IO
-      world.worldNetwork.sendData(data)
+      // delay until end of frame
+      Promise.resolve().then(() => world.worldNetwork.sendData(data))
     }
   }
 }

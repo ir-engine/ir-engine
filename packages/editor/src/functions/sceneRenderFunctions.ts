@@ -8,23 +8,19 @@ import { addComponent, getComponent, removeComponent } from '@xrengine/engine/sr
 import { entityExists, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import {
-  accessEngineRendererState,
-  EngineRendererAction,
-  restoreEngineRendererData
-} from '@xrengine/engine/src/renderer/EngineRendererState'
+import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
-import { restoreEditorHelperData } from '../services/EditorHelperState'
 import { EditorAction } from '../services/EditorServices'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
@@ -58,22 +54,28 @@ export const SceneState: SceneStateType = {
 export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
   SceneState.isInitialized = false
 
-  if (!Engine.instance.currentWorld.scene) Engine.instance.currentWorld.scene = new Scene()
+  const world = Engine.instance.currentWorld
+
+  if (!world.scene) world.scene = new Scene()
 
   // getting scene data
   await updateSceneFromJSON(sceneData)
   await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
 
-  const camera = Engine.instance.currentWorld.camera
+  const camera = world.camera
+  const localTransform = getComponent(world.cameraEntity, LocalTransformComponent)
   camera.position.set(0, 5, 10)
   camera.lookAt(new Vector3())
+  localTransform.position.copy(camera.position)
+  localTransform.rotation.copy(camera.quaternion)
+  world.dirtyTransforms.add(world.cameraEntity)
 
-  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
-  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
-  Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Gizmos)
+  world.camera.layers.enable(ObjectLayers.Scene)
+  world.camera.layers.enable(ObjectLayers.NodeHelper)
+  world.camera.layers.enable(ObjectLayers.Gizmos)
 
-  removeComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
-  addComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent, {
+  removeComponent(world.cameraEntity, EditorCameraComponent)
+  addComponent(world.cameraEntity, EditorCameraComponent, {
     center: new Vector3(),
     zoomDelta: 0,
     isOrbiting: false,
@@ -89,9 +91,9 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   SceneState.editorEntity = createEditorEntity()
 
   // Require when changing scene
-  if (!Engine.instance.currentWorld.scene.children.includes(InfiniteGridHelper.instance)) {
+  if (!world.scene.children.includes(InfiniteGridHelper.instance)) {
     InfiniteGridHelper.instance = new InfiniteGridHelper()
-    Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
+    world.scene.add(InfiniteGridHelper.instance)
   }
 
   SceneState.isInitialized = true
@@ -113,8 +115,6 @@ export async function initializeRenderer(): Promise<void> {
     dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
 
     accessEngineRendererState().automatic.set(false)
-    await restoreEditorHelperData()
-    await restoreEngineRendererData()
     dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: EngineRenderer.instance.maxQualityLevel }))
   } catch (error) {
     console.error(error)
@@ -227,9 +227,6 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 }*/
 
 export function disposeScene() {
-  EngineRenderer.instance.activeCSMLightEntity = null
-  EngineRenderer.instance.directionalLightEntities = []
-
   if (entityExists(SceneState.gizmoEntity)) removeEntity(SceneState.gizmoEntity, true)
   if (entityExists(SceneState.editorEntity)) removeEntity(SceneState.editorEntity, true)
 
@@ -256,7 +253,6 @@ export function disposeScene() {
     }
     emptyEntityTree(eTree)
     eTree.entityNodeMap.clear()
-    eTree.uuidNodeMap.clear()
     Engine.instance.currentWorld.scene.clear()
   }
 

@@ -2,14 +2,17 @@ import React from 'react'
 
 import { TouchGamepad } from '@xrengine/client-core/src/common/components/TouchGamepad'
 import { UserMenu } from '@xrengine/client-core/src/user/components/UserMenu'
+import { iOS } from '@xrengine/engine/src/common/functions/isMobile'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
+import { ARPlacement } from '../ARPlacement'
 import { Fullscreen } from '../Fullscreen'
 import { InstanceChatWrapper } from '../InstanceChat'
 import { MediaIconsBox } from '../MediaIconsBox'
 import { Shelves } from '../Shelves'
 import { UserMediaWindows } from '../UserMediaWindows'
+import { XRLoading } from '../XRLoading'
 import styles from './index.module.scss'
 
 export const LocationIcons = () => {
@@ -24,9 +27,11 @@ export const LocationIcons = () => {
           <InstanceChatWrapper />
         </div>
         <Shelves />
+        <ARPlacement />
+        <XRLoading />
         <MediaIconsBox />
         <TouchGamepad />
-        <Fullscreen />
+        {!iOS && <Fullscreen />}
       </div>
     </>
   )

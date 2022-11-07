@@ -22,7 +22,6 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 
 const t = i18next.t
 interface SceneProps {
@@ -77,12 +76,9 @@ export const addAnimationLogic = (
       currentState: null!,
       stateChanged: null!
     },
-    rig: {} as BoneStructure,
-    bindRig: {} as BoneStructure,
     rootYRatio: 1,
     locomotion: new Vector3()
   })
-  addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
   async function AvatarSelectRenderSystem(world: World) {
     return {

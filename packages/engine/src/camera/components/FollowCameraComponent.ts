@@ -1,4 +1,4 @@
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastPropsType } from '../../scene/components/CameraPropertiesComponent'
 import { CameraMode } from '../types/CameraMode'
@@ -34,14 +34,14 @@ export type FollowCameraComponentType = {
 }
 
 export const FollowCameraDefaultValues: FollowCameraComponentType = {
-  targetEntity: 0 as Entity,
+  targetEntity: UndefinedEntity,
   mode: CameraMode.ThirdPerson,
   distance: 5,
   zoomLevel: 5,
   zoomVelocity: { value: 0 },
   minDistance: 2,
   maxDistance: 7,
-  theta: Math.PI,
+  theta: 180,
   phi: 0,
   minPhi: -70,
   maxPhi: 85,

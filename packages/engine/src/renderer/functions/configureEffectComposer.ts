@@ -1,20 +1,14 @@
 import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 
-import { isClient } from '../../common/functions/isClient'
-import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
-import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
-import { EffectMap, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
+import { EffectMap, EffectPropsSchema, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
 import { accessEngineRendererState } from '../EngineRendererState'
 import { EngineRenderer } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
   if (!EngineRenderer.instance) return
-  if (isHMD) return
-  if (!isClient) return
 
   if (!EngineRenderer.instance.renderPass) {
     // we always want to have at least the render pass enabled
@@ -31,10 +25,10 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
     return
   }
 
-  const comps = getAllComponentsOfType(PostprocessingComponent)
+  const postprocessing = Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true }).postprocessing
+  if (!postprocessing.enabled) return
 
-  if (!comps.length) return
-  const postProcessing = comps[0]
+  const postProcessingEffects = postprocessing.effects as EffectPropsSchema
 
   const effects: any[] = []
   const effectKeys = EffectMap.keys()
@@ -54,7 +48,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
   })
 
   for (let key of effectKeys) {
-    const effect = postProcessing.options[key]
+    const effect = postProcessingEffects[key]
 
     if (!effect || !effect.isActive) continue
     const effectClass = EffectMap.get(key)?.EffectClass
@@ -73,11 +67,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.OutlineEffect) {
-      let outlineEffect = effect as OutlineEffectProps
-      if (Engine.instance.isEditor) {
-        outlineEffect = { ...outlineEffect, hiddenEdgeColor: 0x22090a }
-      }
-      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, outlineEffect)
+      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, effect)
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else {

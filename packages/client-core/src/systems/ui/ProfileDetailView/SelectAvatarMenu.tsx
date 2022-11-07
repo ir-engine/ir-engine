@@ -1,4 +1,4 @@
-import { createState } from '@hookstate/core'
+import { createState, useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -9,11 +9,12 @@ import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
+import { getState } from '@xrengine/hyperflux'
 
 import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { AvatarService } from '../../../user/services/AvatarService'
+import { AvatarService, AvatarState } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss'
 
@@ -28,15 +29,15 @@ function createSelectAvatarMenuState() {
 const SelectAvatarMenu = () => {
   const { t } = useTranslation()
 
-  const MAX_AVATARS_PER_PAGE = window.innerWidth >= 1024 ? 9 : 12
+  const MAX_AVATARS_PER_PAGE = window.innerWidth <= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
-  const avatarList = authState.avatarList.value
+  const avatarState = useHookstate(getState(AvatarState))
 
   const [page, setPage] = useState(0)
-  const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
+  const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.total.value))
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
 
   useEffect(() => {
@@ -44,11 +45,11 @@ const SelectAvatarMenu = () => {
   }, [])
 
   useEffect(() => {
-    if (page * imgPerPage >= authState.avatarList.value.length) {
+    if (page * imgPerPage >= avatarState.total.value) {
       if (page === 0) return
       setPage(page - 1)
     }
-  }, [authState.avatarList.value])
+  }, [avatarState.total])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
@@ -57,7 +58,9 @@ const SelectAvatarMenu = () => {
   }
 
   const loadNextAvatars = () => {
-    if ((page + 1) * imgPerPage >= avatarList.length) return
+    if ((page + 1) * imgPerPage >= avatarState.total.value) return
+    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
+      AvatarService.fetchAvatarList(false, 'increment')
     setPage(page + 1)
   }
 
@@ -93,10 +96,10 @@ const SelectAvatarMenu = () => {
   const renderAvatarList = () => {
     const avatarElementList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
-    const endIndex = Math.min(startIndex + imgPerPage, avatarList.length)
+    const endIndex = Math.min(startIndex + imgPerPage, avatarState.avatarList.value.length)
     let index = 0
     for (let i = startIndex; i < endIndex; i++, index++) {
-      const avatar = avatarList[i]!
+      const avatar = avatarState.avatarList.get({ noproxy: true })[i]!
 
       avatarElementList.push(
         <div
@@ -175,7 +178,7 @@ const SelectAvatarMenu = () => {
           <XRIconButton
             xr-layer="true"
             onClick={loadNextAvatars}
-            disabled={(page + 1) * imgPerPage >= avatarList.length}
+            disabled={(page + 1) * imgPerPage >= avatarState.total.value}
             content={<ArrowForwardIos className="size" />}
           />
         </div>

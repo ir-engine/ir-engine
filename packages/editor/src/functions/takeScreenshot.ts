@@ -1,13 +1,13 @@
 import { PerspectiveCamera } from 'three'
 
-import { CameraComponent } from '@xrengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { accessEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -41,11 +41,12 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
 
   if (!scenePreviewCamera) {
     const entity = createEntity()
-    scenePreviewCamera = addComponent(entity, ScenePreviewCameraComponent, null).camera
+    addComponent(entity, ScenePreviewCameraComponent, null)
+    scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    setTransformComponent(entity, position, rotation)
     addObjectToGroup(entity, scenePreviewCamera)
-    scenePreviewCamera.position.copy(position)
-    scenePreviewCamera.quaternion.copy(rotation)
+    addEntityNodeChild(createEntityNode(entity), Engine.instance.currentWorld.entityTree.rootNode)
     scenePreviewCamera.updateMatrixWorld(true)
   }
 
@@ -58,7 +59,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   // Rendering the scene to the new canvas with given size
-  if (accessEngineRendererState().usePostProcessing.value) {
+  if (Engine.instance.currentWorld.sceneMetadata.postprocessing.enabled.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.render()
     configureEffectComposer(false, Engine.instance.currentWorld.camera)

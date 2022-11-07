@@ -1,13 +1,15 @@
 import React, { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Mesh, Object3D, Texture } from 'three'
+import { Mesh, Object3D, Scene, Texture } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
   getComponent,
+  getComponentState,
   getOrAddComponent,
-  hasComponent
+  hasComponent,
+  useComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
@@ -71,14 +73,14 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
     const surfaces: any[] = traverseScene(
       (eNode) => {
         return {
-          label: getComponent(eNode.entity, NameComponent)?.name ?? '',
+          label: getComponent(eNode.entity, NameComponent) ?? '',
           value: eNode.uuid
         }
       },
       (eNode) => {
         if (eNode === node) return false
         if (hasComponent(eNode.entity, ModelComponent)) {
-          const obj3d = getComponent(eNode.entity, ModelComponent).scene.value
+          const obj3d = getComponentState(eNode.entity, ModelComponent).scene.value as Scene | undefined
           if (!obj3d) return false
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')
@@ -94,7 +96,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
   const obj3ds = traverseScene(
     (node) => {
       return {
-        label: getComponent(node.entity, NameComponent)?.name,
+        label: getComponent(node.entity, NameComponent),
         value: node.uuid
       }
     },
@@ -128,10 +130,9 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const onChangeMode = (mode) => {
     if (scatter.mode === mode) return
-    const scene = getComponent(entity, ModelComponent).scene
-    const obj3d = scene.value
-    if (!obj3d) return
-    const uData = JSON.parse(JSON.stringify(obj3d.userData))
+    const scene = getComponentState(entity, ModelComponent).scene! as any
+    if (!scene.value) return
+    const uData = JSON.parse(JSON.stringify(scene.userData.value))
     uData[scatter.mode] = scatter.sourceProperties
     let srcProperties
     if (uData[mode] !== undefined) {
@@ -146,7 +147,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
           break
       }
     }
-    scene.merge({ userData: uData })
+    scene.userData.set(uData)
     updateProperty(InstancingComponent, 'sourceProperties')(srcProperties)
     updateProperty(InstancingComponent, 'mode')(mode)
   }
@@ -170,7 +171,6 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         />
         <InputGroup name="Target Surface" label={t('editor:properties:instancing.lbl-surface')}>
           <SelectInput
-            error={t('editor:properties.instancing.error-surface')}
             placeholder={t('editor:properties.instancing.placeholder-surface')}
             value={scatter.surface}
             onChange={updateProperty(InstancingComponent, 'surface')}

@@ -4,20 +4,21 @@ import { Color, DirectionalLight, Scene, Vector2 } from 'three'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../../components/DirectionalLightComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializeDirectionalLight, updateDirectionalLight } from './DirectionalLightFunctions'
 
 describe('DirectionalLightFunctions', () => {
   describe('deserializeDirectionalLight', async () => {
     it('with CSM', () => {
       createEngine()
-      EngineRenderer.instance.isCSMEnabled = true
-      EngineRenderer.instance.directionalLightEntities = []
-
+      EngineRenderer.instance.csm = null!
       const entity = createEntity()
+      const node = createEntityNode(entity)
+      const world = Engine.instance.currentWorld
+      addEntityNodeChild(node, world.entityTree.rootNode)
 
       const color = new Color('green')
       const sceneComponentData = {
@@ -34,8 +35,7 @@ describe('DirectionalLightFunctions', () => {
       deserializeDirectionalLight(entity, sceneComponentData)
       updateDirectionalLight(entity)
 
-      const activeCSMLightEntity = EngineRenderer.instance.directionalLightEntities[0]
-      const light = getComponent(activeCSMLightEntity, DirectionalLightComponent).light
+      const light = getComponent(entity, DirectionalLightComponent).light
 
       assert(light)
       assert(light.color instanceof Color)
@@ -45,15 +45,17 @@ describe('DirectionalLightFunctions', () => {
       assert.deepEqual(light.shadow.bias, 0.1)
       assert.deepEqual(light.shadow.radius, 10)
       assert.deepEqual(light.shadow.camera.far, 123)
-      assert.deepEqual(light.castShadow, false)
+      assert.deepEqual(light.castShadow, true)
     })
 
     it('without CSM', () => {
       createEngine()
       const world = Engine.instance.currentWorld
-      EngineRenderer.instance.isCSMEnabled = false
+      EngineRenderer.instance.csm = null!
 
       const entity = createEntity()
+      const node = createEntityNode(entity)
+      addEntityNodeChild(node, world.entityTree.rootNode)
 
       const color = new Color('green')
       const sceneComponentData = {

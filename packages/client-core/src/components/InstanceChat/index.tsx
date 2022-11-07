@@ -2,7 +2,10 @@ import { useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect, useRef, useState, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  useLocationInstanceConnectionState,
+  useWorldInstance
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import multiLogger from '@xrengine/common/src/logger'
@@ -41,16 +44,13 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   /**
    * Provisioning logic
    */
-
-  const locationInstanceConnectionState = useLocationInstanceConnectionState()
-  const currentInstanceConnection =
-    locationInstanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId]
+  const currentInstanceConnection = useWorldInstance()
 
   useEffect(() => {
     if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
       ChatService.getInstanceChannel()
     }
-  }, [currentInstanceConnection?.connected?.value])
+  }, [currentInstanceConnection?.connected])
 
   /**
    * Message display logic
@@ -257,7 +257,7 @@ export const InstanceChat = ({
         messageRef.current.scrollTop = messageRef.current.scrollHeight
         clearInterval(messageRefCurrentRenderedInterval)
       }
-    }, 5000)
+    }, 500)
   }, [chatState.messageCreated])
 
   const hideOtherMenus = () => {
@@ -276,7 +276,7 @@ export const InstanceChat = ({
           setMessageContainerVisible(true)
           clearInterval(messageRefCurrentRenderedInterval)
         }
-      }, 5000)
+      }, 500)
     }
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
@@ -451,13 +451,13 @@ export const InstanceChatWrapper = () => {
   return (
     <>
       {engineState.connectedWorld.value ? (
-        <div className={bottomShelfStyle}>
+        <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>
       ) : (
         <div className={styles.modalConnecting}>
           <div className={styles.modalConnectingTitle}>
-            <p>{t('common:loader.connecting')}</p>
+            <p>{t('common:loader.connectingToWorld')}</p>
           </div>
         </div>
       )}

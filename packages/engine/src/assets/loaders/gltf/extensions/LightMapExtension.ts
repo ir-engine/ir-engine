@@ -1,7 +1,8 @@
 // https://github.com/mozilla/hubs/blob/27eb7f3d9eba3b938f1ca47ed5b161547b6fb3f2/src/components/gltf-model-plus.js
 import { Material, MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, Texture } from 'three'
 
-import { GLTFParser } from '../GLTFLoader'
+import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
+import { ImporterExtension } from './ImporterExtension'
 
 export type MOZ_lightmap = {
   index: number
@@ -12,13 +13,8 @@ export type MOZ_lightmap = {
   }
 }
 
-export class HubsLightMapExtension {
+export class HubsLightMapExtension extends ImporterExtension implements GLTFLoaderPlugin {
   name = 'MOZ_lightmap'
-
-  parser: GLTFParser
-  constructor(parser) {
-    this.parser = parser
-  }
 
   // @TODO: Ideally we should use extendMaterialParams hook.
   loadMaterial(materialIndex) {
@@ -45,6 +41,7 @@ export class HubsLightMapExtension {
       if (transform !== undefined) {
         lightMap.wrapS = RepeatWrapping
         lightMap.wrapT = RepeatWrapping
+        lightMap.rotation = transform.rotation ?? 0
         lightMap.offset.x = transform.offset[0]
         lightMap.offset.y = transform.offset[1]
         lightMap.repeat.x = transform.scale[0]

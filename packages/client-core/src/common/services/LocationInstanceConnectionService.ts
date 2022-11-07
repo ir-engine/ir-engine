@@ -1,6 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@hookstate/core'
-import { useEffect } from 'react'
+import { none, State } from '@hookstate/core'
+import React, { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -21,6 +21,7 @@ type InstanceState = {
   port: string
   locationId: string | null
   sceneId: string | null
+  roomCode: string
   provisioned: boolean
   connected: boolean
   readyToConnect: boolean
@@ -28,18 +29,28 @@ type InstanceState = {
 }
 
 //State
-const LocationInstanceState = defineState({
+export const LocationInstanceState = defineState({
   name: 'LocationInstanceState',
   initial: () => ({
     instances: {} as { [id: string]: InstanceState }
   })
 })
 
+export function useWorldInstance() {
+  const [state, setState] = React.useState(null as null | State<InstanceState>)
+  const worldInstanceState = useState(getState(LocationInstanceState).instances)
+  const worldHostId = useState(Engine.instance.currentWorld.hostIds.world)
+  useEffect(() => {
+    setState(worldHostId.value ? worldInstanceState[worldHostId.value] : null)
+  }, [worldInstanceState, worldHostId])
+  return state
+}
+
 export const LocationInstanceConnectionServiceReceptor = (action) => {
   const s = getState(LocationInstanceState)
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.currentWorld._worldHostId = action.instanceId
+      Engine.instance.currentWorld.hostIds.world.set(action.instanceId)
       Engine.instance.currentWorld.networks.set(
         action.instanceId,
         new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
@@ -50,6 +61,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
           port: action.port,
           locationId: action.locationId,
           sceneId: action.sceneId,
+          roomCode: action.roomCode,
           provisioned: true,
           readyToConnect: true,
           connected: false,
@@ -75,7 +87,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       Engine.instance.currentWorld.worldNetwork.hostId = action.newInstanceId as UserId
       Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.worldNetwork)
       Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
-      Engine.instance.currentWorld._worldHostId = action.newInstanceId as UserId
+      Engine.instance.currentWorld.hostIds.world.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })
@@ -87,7 +99,13 @@ export const useLocationInstanceConnectionState = () => useState(accessLocationI
 
 //Service
 export const LocationInstanceConnectionService = {
-  provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
+  provisionServer: async (
+    locationId?: string,
+    instanceId?: string,
+    sceneId?: string,
+    roomCode?: string,
+    createPrivateRoom?: boolean
+  ) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
     const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
@@ -103,10 +121,12 @@ export const LocationInstanceConnectionService = {
     }
     const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
-        locationId: locationId,
-        instanceId: instanceId,
-        sceneId: sceneId,
-        token: token
+        locationId,
+        instanceId,
+        sceneId,
+        roomCode,
+        token,
+        createPrivateRoom
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
@@ -115,6 +135,7 @@ export const LocationInstanceConnectionService = {
           instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
           locationId: locationId,
           sceneId: sceneId
         })
@@ -123,15 +144,101 @@ export const LocationInstanceConnectionService = {
       dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId ?? '' }))
     }
   },
+  provisionExistingServer: async (locationId: string, instanceId: string, sceneId: string) => {
+    logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
+    const token = accessAuthState().authUser.accessToken.value
+    const instance = (await API.instance.client.service('instance').find({
+      query: {
+        id: instanceId,
+        ended: false
+      }
+    })) as Paginated<Instance>
+    if (instance.total === 0) {
+      const parsed = new URL(window.location.href)
+      const query = parsed.searchParams
+      query.delete('instanceId')
+      parsed.search = query.toString()
+      if (typeof history.pushState !== 'undefined') {
+        window.history.replaceState({}, '', parsed.toString())
+      }
+      return
+    }
+    const provisionResult = await API.instance.client.service('instance-provision').find({
+      query: {
+        locationId,
+        instanceId,
+        sceneId,
+        token
+      }
+    })
+    if (provisionResult.ipAddress && provisionResult.port) {
+      dispatchAction(
+        LocationInstanceConnectionAction.serverProvisioned({
+          instanceId: provisionResult.id as UserId,
+          ipAddress: provisionResult.ipAddress,
+          port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
+          locationId: locationId,
+          sceneId: sceneId
+        })
+      )
+    } else {
+      console.warn('Failed to connect to expected existing instance')
+    }
+  },
+  provisionExistingServerByRoomCode: async (locationId: string, roomCode: string, sceneId: string) => {
+    logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
+    const token = accessAuthState().authUser.accessToken.value
+    const instance = (await API.instance.client.service('instance').find({
+      query: {
+        roomCode,
+        ended: false
+      }
+    })) as Paginated<Instance>
+    if (instance.total === 0) {
+      const parsed = new URL(window.location.href)
+      const query = parsed.searchParams
+      query.delete('roomCode')
+      parsed.search = query.toString()
+      if (typeof history.pushState !== 'undefined') {
+        window.history.replaceState({}, '', parsed.toString())
+      }
+      return
+    }
+    const provisionResult = await API.instance.client.service('instance-provision').find({
+      query: {
+        locationId,
+        roomCode,
+        instanceId: instance.data[0].id,
+        sceneId,
+        token
+      }
+    })
+    if (provisionResult.ipAddress && provisionResult.port) {
+      dispatchAction(
+        LocationInstanceConnectionAction.serverProvisioned({
+          instanceId: provisionResult.id as UserId,
+          ipAddress: provisionResult.ipAddress,
+          port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
+          locationId: locationId,
+          sceneId: sceneId
+        })
+      )
+    } else {
+      console.warn('Failed to connect to expected existing instance')
+    }
+  },
   connectToServer: async (instanceId: string) => {
     dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
-    const transport = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
-    logger.info({ socket: !!transport.socket, transport }, 'Connect To World Server')
-    if (transport.socket) {
-      leaveNetwork(transport, false)
+    const network = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
+    logger.info({ socket: !!network.socket, transport: network }, 'Connect To World Server')
+    if (network.socket) {
+      leaveNetwork(network, false)
     }
-    const { ipAddress, port, locationId } = accessLocationInstanceConnectionState().instances.value[instanceId]
-    await transport.initialize({ port, ipAddress, locationId })
+    const { ipAddress, port, locationId, roomCode } =
+      accessLocationInstanceConnectionState().instances.value[instanceId]
+    await network.initialize({ port, ipAddress, locationId, roomCode })
   },
   useAPIListeners: () => {
     useEffect(() => {
@@ -142,6 +249,7 @@ export const LocationInstanceConnectionService = {
               instanceId: params.instanceId,
               ipAddress: params.ipAddress,
               port: params.port,
+              roomCode: params.roomCode,
               locationId: params.locationId,
               sceneId: params.sceneId
             })
@@ -165,6 +273,7 @@ export class LocationInstanceConnectionAction {
     instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
+    roomCode: matches.string,
     locationId: matches.any as Validator<unknown, string | null>,
     sceneId: matches.any as Validator<unknown, string | null>
   })

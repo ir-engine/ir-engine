@@ -30,6 +30,7 @@ const Client = () => {
   const [icon512px, setIcon512px] = useState(clientSetting?.icon512px)
   const [favicon16px, setFavicon16px] = useState(clientSetting?.favicon16px)
   const [favicon32px, setFavicon32px] = useState(clientSetting?.favicon32px)
+  const [key8thWall, setKey8thWall] = useState(clientSetting?.key8thWall)
   const [siteDescription, setSiteDescription] = useState(clientSetting?.siteDescription)
 
   useEffect(() => {
@@ -52,6 +53,7 @@ const Client = () => {
       setFavicon16px(clientSetting?.favicon16px)
       setFavicon32px(clientSetting?.favicon32px)
       setSiteDescription(clientSetting?.siteDescription)
+      setKey8thWall(clientSetting?.key8thWall)
     }
   }, [clientSettingState?.updateNeeded?.value])
 
@@ -97,7 +99,8 @@ const Client = () => {
         appBackground: appBackground,
         appSocialLinks: JSON.stringify(appSocialLinks),
         themeSettings: JSON.stringify(clientSetting?.themeSettings),
-        themeModes: JSON.stringify(clientSetting?.themeModes)
+        themeModes: JSON.stringify(clientSetting?.themeModes),
+        key8thWall: key8thWall
       },
       id
     )
@@ -116,6 +119,7 @@ const Client = () => {
     setFavicon16px(clientSetting?.favicon16px)
     setFavicon32px(clientSetting?.favicon32px)
     setSiteDescription(clientSetting?.siteDescription)
+    setKey8thWall(clientSetting?.key8thWall)
   }
 
   return (
@@ -244,6 +248,13 @@ const Client = () => {
             label={t('admin:components.setting.releaseName')}
             value={clientSetting?.releaseName || ''}
             disabled
+          />
+
+          <InputText
+            name="key8thWall"
+            label={t('admin:components.setting.key8thWall')}
+            value={key8thWall || ''}
+            onChange={(e) => setKey8thWall(e.target.value)}
           />
         </Grid>
       </Grid>

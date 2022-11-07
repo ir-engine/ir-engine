@@ -1,6 +1,6 @@
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 
 /**
  * A method which get link

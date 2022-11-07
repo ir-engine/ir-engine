@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -25,6 +26,7 @@ import {
   validate
 } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { AvatarService } from '../../../user/services/AvatarService'
+import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
 import styleString from './index.scss'
 
 const logger = multiLogger.child({ component: 'client-core:ReadyPlayerMenu' })
@@ -82,9 +84,12 @@ const ReadyPlayerMenu = () => {
   const handleMessageEvent = async (event, entity) => {
     const url = event.data
 
+    const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
+
     if (url && url.toString().toLowerCase().startsWith('http')) {
       setShowLoading(true)
       setAvatarUrl(url)
+      setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
       try {
         const assetType = AssetLoader.getAssetType(url)
         if (assetType) {
@@ -133,7 +138,7 @@ const ReadyPlayerMenu = () => {
     const newContext = canvas.getContext('2d')
     newContext?.drawImage(renderer.domElement, 0, 0)
 
-    var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
+    const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
       await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
@@ -169,12 +174,7 @@ const ReadyPlayerMenu = () => {
             </div>
           </section>
         )}
-        {!avatarUrl && (
-          <iframe
-            style={{ width: '100%', height: '100%' }}
-            src={`${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`}
-          />
-        )}
+        {!avatarUrl && <iframe style={{ width: '100%', height: '100%' }} src={config.client.readyPlayerMeUrl} />}
         <div
           id="stage"
           className="stage"

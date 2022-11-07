@@ -14,9 +14,10 @@ import {
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -61,6 +62,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
   const selfUser = useAuthState().user
   const controlScheme = avatarInputState.controlScheme.value
+  const preferredHand = avatarInputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const firstRender = useRef(true)
@@ -69,6 +71,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
+  const handOptions = ['left', 'right']
   // const [open, setOpen] = useState(false)
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
@@ -77,13 +80,16 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.user_setting.value
 
+  const world = Engine.instance.currentWorld
+  // const avatar = useComponent(world.localClientEntity, AvatarComponent)
+
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
 
-  const showWorldSettings = Engine.instance.currentWorld.localClientEntity || Engine.instance.isEditor
+  const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
 
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && !hasAdminAccess) {
@@ -121,23 +127,21 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     )
   }
 
-  const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
-  }
+  // const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
+  // }
 
-  useEffect(() => {
-    const world = Engine.instance.currentWorld
-    const entity = world.localClientEntity
-    const avatar = getComponent(entity, AvatarComponent)
-    if (!avatar) return
-    if (showAvatar) {
-      if (avatar.modelContainer.visible) return
-      avatar.modelContainer.visible = showAvatar
-    } else {
-      if (!avatar.modelContainer.visible) return
-      avatar.modelContainer.visible = showAvatar
-    }
-  }, [showAvatar])
+  // useEffect(() => {
+  //   if (!avatar) return
+
+  //   if (showAvatar) {
+  //     if (avatar.modelContainer.visible) return
+  //     avatar.modelContainer.visible = showAvatar
+  //   } else {
+  //     if (!avatar.modelContainer.visible) return
+  //     avatar.modelContainer.visible = showAvatar
+  //   }
+  // }, [showAvatar, avatar])
 
   useLayoutEffect(() => {
     if (firstRender.current) {
@@ -153,6 +157,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
     dispatchAction(AvatarInputSettingsAction.setControlScheme({ scheme: event.target.value as any }))
+  }
+
+  const handleChangePreferredHand = (event: SelectChangeEvent) => {
+    dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: event.target.value as any }))
   }
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -264,6 +272,26 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                           MenuProps={{ classes: { paper: styles.paper } }}
                         >
                           {controlSchemes.map((el) => (
+                            <MenuItem value={el} key={el} classes={{ root: styles.menuItem }}>
+                              {el}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </div>
+                    <div className={styles.selectSize}>
+                      <FormControl fullWidth>
+                        <InputLabel>{t('user:usermenu.setting.lbl-preferred-hand')}</InputLabel>
+                        <Select
+                          value={preferredHand}
+                          onChange={handleChangePreferredHand}
+                          size="small"
+                          classes={{
+                            select: styles.select
+                          }}
+                          MenuProps={{ classes: { paper: styles.paper } }}
+                        >
+                          {handOptions.map((el) => (
                             <MenuItem value={el} key={el} classes={{ root: styles.menuItem }}>
                               {el}
                             </MenuItem>
@@ -599,6 +627,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               <div className={styles.row}>
                 <FormControlLabel
                   className={styles.checkboxBlock}
+                  disabled={!Engine.instance.currentWorld.sceneJson?.metadata?.postprocessing}
                   control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
                   label={t('user:usermenu.setting.lbl-pp') as string}
                   onChange={(_, value) => {

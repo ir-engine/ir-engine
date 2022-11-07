@@ -2,15 +2,17 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe } from 'mocha'
 import { createSandbox, SinonSandbox } from 'sinon'
 
+import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
+import { addEntityNodeChild, EntityTreeNode } from '../../../ecs/functions/EntityTree'
 import { createEntityNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
-import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '../../../initializeEngine'
+import { createEngine, setupEngineActionSystems } from '../../../initializeEngine'
 
 describe('ParticleEmitterFunctions', async () => {
   let entity: Entity
@@ -27,6 +29,9 @@ describe('ParticleEmitterFunctions', async () => {
   beforeEach(async () => {
     sandbox = createSandbox()
     createEngine()
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
     setupEngineActionSystems()
     initEntity()
     Engine.instance.engineTimer.start()

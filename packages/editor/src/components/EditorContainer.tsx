@@ -5,10 +5,9 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
-import Debug from '@xrengine/client-core/src/components/Debug'
+import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -35,7 +34,8 @@ import { ControlText } from './controlText/ControlText'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
-import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
+import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
+import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
@@ -142,7 +142,7 @@ const EditorContainer = () => {
   const [editorReady, setEditorReady] = useState(false)
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
-  const history = useHistory()
+  const route = useRouter()
   const dockPanelRef = useRef<DockLayout>(null)
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
@@ -190,7 +190,7 @@ const EditorContainer = () => {
   const reRouteToLoadScene = async (newSceneName: string) => {
     if (sceneName.value === newSceneName) return
     if (!projectName.value || !newSceneName) return
-    history.push(`/editor/${projectName.value}/${newSceneName}`)
+    route(`/editor/${projectName.value}/${newSceneName}`)
   }
 
   const loadScene = async (sceneName: string) => {
@@ -261,7 +261,7 @@ const EditorContainer = () => {
   }
 
   const onCloseProject = () => {
-    history.push('/editor')
+    route('/editor')
   }
 
   const onSaveAs = async () => {
@@ -279,7 +279,7 @@ const EditorContainer = () => {
         const blob = await takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
-            <SaveNewProjectDialog
+            <SaveNewSceneDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
               initialName={Engine.instance.currentWorld.scene.name}
               onConfirm={resolve}
@@ -389,6 +389,16 @@ const EditorContainer = () => {
       }
       return
     }
+
+    const result: { generateThumbnails: boolean } = (await new Promise((resolve) => {
+      setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+    })) as any
+
+    if (!result) {
+      setDialogComponent(null)
+      return
+    }
+
     const abortController = new AbortController()
 
     setDialogComponent(
@@ -405,12 +415,16 @@ const EditorContainer = () => {
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
 
-    const blob = await takeScreenshot(512, 320)
-
     try {
       if (projectName.value) {
-        await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
-        await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
+        if (result.generateThumbnails) {
+          const blob = await takeScreenshot(512, 320)
+
+          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
+          await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
+        } else {
+          await saveScene(projectName.value, sceneName.value, null, abortController.signal)
+        }
       }
 
       dispatchAction(EditorAction.sceneModified({ modified: false }))
@@ -580,10 +594,13 @@ const EditorContainer = () => {
               tabs: [
                 {
                   id: 'hierarchyPanel',
-                  title: (
-                    <HierarchyPanelTitle setSearchElement={setSearchElement} setSearchHierarchy={setSearchHierarchy} />
-                  ),
-                  content: <HierarchyPanelContainer />
+                  title: <HierarchyPanelTitle />,
+                  content: (
+                    <HierarchyPanelContainer
+                      setSearchElement={setSearchElement}
+                      setSearchHierarchy={setSearchHierarchy}
+                    />
+                  )
                 },
                 {
                   id: 'materialLibraryPanel',

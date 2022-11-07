@@ -8,7 +8,7 @@ import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNea
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
-import { accessUserState } from '../../user/services/UserService'
+import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
 //State
 export const MediaState = defineState({
@@ -90,14 +90,14 @@ export const MediaStreamService = {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
         const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-        dispatchAction(MediaStreamAction.setConsumersAction({ consumers: mediaNetwork.consumers }))
+        if (mediaNetwork) dispatchAction(MediaStreamAction.setConsumersAction({ consumers: mediaNetwork.consumers }))
         updateConsumerTimeout = null
       }, 1000)
     }
   },
   updateNearbyLayerUsers: () => {
     const mediaState = getState(MediaState)
-    const UserState = accessUserState()
+    const UserState = accessNetworkUserState()
 
     const nonPartyUserIds = UserState.layerUsers
       .filter((user) => user.partyId.value == null)

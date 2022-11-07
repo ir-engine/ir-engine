@@ -7,10 +7,9 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { clearOutgoingActions, getState } from '@xrengine/hyperflux'
-import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
-import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, addOutgoingTopicIfNecessary, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
-import multiLogger from '@xrengine/server-core/src/logger'
+import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
 import { setupSubdomain } from './NetworkFunctions'
 import { startWebRTC } from './WebRTCFunctions'
@@ -38,7 +37,7 @@ export class SocketWebRTCServerNetwork extends Network {
   constructor(hostId: UserId, topic: Topic, app: Application) {
     super(hostId, topic)
     this.app = app
-    ActionFunctions.addOutgoingTopicIfNecessary(topic)
+    addOutgoingTopicIfNecessary(topic)
   }
 
   public updatePeers = () => {

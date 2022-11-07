@@ -3,15 +3,15 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
+import { isDev } from '@xrengine/common/src/config'
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
-import logger from '../../logger'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import logger from '../../ServerLogger'
 import { cleanString } from '../../util/cleanString'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
@@ -39,7 +39,7 @@ export const getSceneData = async (
     const sceneData: SceneData = {
       name: sceneName,
       project: projectName,
-      thumbnailUrl: thumbnailUrl + `?${Date.now()}`,
+      thumbnailUrl: thumbnailUrl,
       scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), cacheDomain)
     }
     return sceneData
@@ -219,7 +219,9 @@ export class Scene implements ServiceMethods<any> {
     await storageProvider.putObject({
       Key: newSceneJsonPath,
       Body: Buffer.from(
-        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain))
+        JSON.stringify(
+          cleanSceneDataCacheURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson), storageProvider.cacheDomain)
+        )
       ),
       ContentType: 'application/json'
     })
@@ -250,7 +252,11 @@ export class Scene implements ServiceMethods<any> {
 
       fs.writeFileSync(
         path.resolve(newSceneJsonPathLocal),
-        JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain), null, 2)
+        JSON.stringify(
+          cleanSceneDataCacheURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson), storageProvider.cacheDomain),
+          null,
+          2
+        )
       )
 
       if (thumbnailBuffer) {

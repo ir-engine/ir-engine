@@ -1,8 +1,10 @@
 import assert from 'assert'
 import { Color, PointLight } from 'three'
 
+import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { PointLightComponent } from '../../components/PointLightComponent'
 import { deserializePointLight, updatePointLight } from './PointLightFunctions'
@@ -12,6 +14,10 @@ describe('PointLightFunctions', () => {
     createEngine()
 
     const entity = createEntity()
+    const node = createEntityNode(entity)
+    const world = Engine.instance.currentWorld
+    addEntityNodeChild(node, world.entityTree.rootNode)
+
     const color = new Color('pink')
     const sceneComponentData = {
       color: color.clone(),

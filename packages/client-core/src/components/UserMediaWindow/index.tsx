@@ -21,7 +21,7 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -49,7 +49,7 @@ import IconButton from '@mui/material/IconButton'
 import Slider from '@mui/material/Slider'
 import Tooltip from '@mui/material/Tooltip'
 
-import { useMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
+import { useMediaInstance, useMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
@@ -75,7 +75,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [harkListener, setHarkListener] = useState(null)
   const [soundIndicatorOn, setSoundIndicatorOn] = useState(false)
   const [videoDisplayReady, setVideoDisplayReady] = useState<boolean>(false)
-  const userState = useUserState()
+  const userState = useNetworkUserState()
   const videoRef = useRef<any>()
   const audioRef = useRef<any>()
   const audioStreamPausedRef = useRef(audioStreamPaused)
@@ -108,14 +108,13 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const isCamAudioEnabled = isScreen ? mediastream.isScreenAudioEnabled : mediastream.isCamAudioEnabled
   const consumers = mediastream.consumers
 
-  const channelConnectionState = useMediaInstanceConnectionState()
-  const mediaHostID = Engine.instance.currentWorld.mediaNetwork?.hostId
-  const currentChannelInstanceConnection = mediaHostID && channelConnectionState.instances[mediaHostID].ornull
+  const currentChannelInstanceConnection = useMediaInstance()
 
   const mediaSettingState = useHookstate(getState(MediaSettingsState))
+  const sceneMetadata = Engine.instance.currentWorld.sceneMetadata.mediaSettings
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaSettingState.useImmersiveMedia.value)
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && !sceneMetadata.immersiveMedia.value)
 
   const setVideoStream = (value) => {
     if (value?.track) setVideoTrackId(value.track.id)
@@ -267,7 +266,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }, [userHasInteracted.value])
 
   useEffect(() => {
-    if (!currentChannelInstanceConnection) return
+    if (!currentChannelInstanceConnection?.value) return
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     const socket = mediaNetwork.socket
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
@@ -645,7 +644,10 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
           [styles.pip]: isPiP && !isScreen,
           [styles.screenpip]: isPiP && isScreen
         })}
-        style={{ display: isSelfUser || rendered ? 'auto' : 'none' }}
+        style={{
+          pointerEvents: 'auto',
+          display: isSelfUser || rendered ? 'auto' : 'none'
+        }}
         onClick={() => {
           if (isScreen && isPiP) togglePiP()
         }}

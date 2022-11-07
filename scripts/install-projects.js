@@ -5,7 +5,7 @@ import Sequelize from 'sequelize';
 import path from "path";
 import fs from "fs";
 import appRootPath from 'app-root-path'
-import logger from '../packages/server-core/src/logger'
+import logger from '@xrengine/server-core/src/ServerLogger'
 
 dotenv.config();
 const db = {
@@ -48,13 +48,14 @@ async function installAllProjects() {
       }
     });
 
-    
+
     const projects = await Projects.findAll()
     logger.info('found projects', projects)
     await Promise.all(projects.map((project) => download(project.name)))
     process.exit(0)
   } catch (e) {
     logger.fatal(e)
+    process.exit(1)
   }
 
 }

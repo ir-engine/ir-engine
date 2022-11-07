@@ -8,6 +8,14 @@ import { Application } from '../../../declarations'
 
 export type InstanceDataType = InstanceInterface
 
+const roomCodeCharacters = '123456789'
+
+const generateRoomCode = () => {
+  let code = ''
+  for (let i = 0; i < 6; i++) code += roomCodeCharacters.charAt(Math.floor(Math.random() * roomCodeCharacters.length))
+  return code
+}
+
 /**
  * A class for Intance service
  */
@@ -73,5 +81,28 @@ export class Instance<T = InstanceDataType> extends Service<T> {
     } else {
       return super.find(params)
     }
+  }
+
+  /**
+   * A method which creates an instance
+   *
+   * @param data of new instance
+   * @param params of query
+   * @returns instance object
+   */
+  async create(data: any, params?: Params): Promise<T | T[]> {
+    let existingInstances = ''
+
+    do {
+      data.roomCode = generateRoomCode()
+      existingInstances = await this.app.service('instance').Model.count({
+        where: {
+          roomCode: data.roomCode,
+          ended: false
+        }
+      })
+    } while (existingInstances === '0')
+
+    return super.create(data)
   }
 }

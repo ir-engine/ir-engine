@@ -5,6 +5,7 @@ import {
   Group,
   Mesh,
   MeshBasicMaterial,
+  MeshLambertMaterial,
   MeshStandardMaterial,
   Object3D,
   PlaneGeometry,
@@ -27,7 +28,6 @@ import {
   removeComponent,
   setComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
@@ -63,7 +63,7 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
   if (!component.mesh) {
     const radius = 1000
 
-    const mesh = (component.mesh = new Mesh(new PlaneGeometry(radius, radius), new MeshBasicMaterial()))
+    const mesh = (component.mesh = new Mesh(new PlaneGeometry(radius, radius), new MeshLambertMaterial()))
     mesh.geometry.rotateX(-Math.PI / 2)
     mesh.name = 'GroundPlaneMesh'
     // mesh.position.y = -0.05
@@ -87,30 +87,12 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
 
   const mesh = component.mesh!
   mesh.material.color.set(component.color)
-
-  if (component.generateNavmesh === component.isNavmeshGenerated) return
-
-  if (isClient && !Engine.instance.isEditor) {
-    if (component.generateNavmesh) {
-      if (!navigationRaycastTarget) navigationRaycastTarget = new Group()
-
-      navigationRaycastTarget.scale.setScalar(getComponent(entity, TransformComponent).scale.x)
-      Engine.instance.currentWorld.scene.add(navigationRaycastTarget)
-      addComponent(entity, NavMeshComponent, { navTarget: navigationRaycastTarget })
-    } else {
-      Engine.instance.currentWorld.scene.remove(navigationRaycastTarget)
-      removeComponent(entity, NavMeshComponent)
-    }
-  }
-
-  component.isNavmeshGenerated === component.generateNavmesh
 }
 
 export const serializeGroundPlane: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, GroundPlaneComponent)
   return {
-    color: component.color.getHex(),
-    generateNavmesh: component.generateNavmesh
+    color: component.color.getHex()
   }
 }
 
@@ -120,7 +102,6 @@ export const shouldDeserializeGroundPlane: ComponentShouldDeserializeFunction = 
 
 const parseGroundPlaneProperties = (props): GroundPlaneComponentType => {
   return {
-    color: new Color(props.color ?? SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES.color),
-    generateNavmesh: props.generateNavmesh ?? SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES.generateNavmesh
+    color: new Color(props.color ?? SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES.color)
   }
 }

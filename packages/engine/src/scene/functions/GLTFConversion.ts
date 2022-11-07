@@ -1,10 +1,12 @@
 import { Color, MathUtils, Object3D } from 'three'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getState } from '@xrengine/hyperflux'
 
 import { AssetComponentType } from '../components/AssetComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -27,11 +29,12 @@ export const nodeToEntityJson = (node: any): EntityJson => {
 export const gltfToSceneJson = (gltf: any): SceneJson => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
-  const rootUuid = MathUtils.generateUUID()
+  const rootUuid = MathUtils.generateUUID() as EntityUUID
   const result: SceneJson = {
     entities: {},
     root: rootUuid,
-    version: 2.0
+    version: 2.0,
+    metadata: Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true })
   }
   result.entities[rootUuid] = nodeToEntityJson(rootGL)
   const lookupNode = (idx) => gltf.nodes[idx]
@@ -183,17 +186,15 @@ const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) =
 }
 
 export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = Engine.instance.currentWorld) => {
-  const nameCmp = getComponent(obj3d.entity, NameComponent)
-  if (nameCmp?.name) {
-    obj3d.name = nameCmp.name
-  }
+  const name = getComponent(obj3d.entity, NameComponent)
+  if (name) obj3d.name = name
 
   const { entity } = obj3d
 
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
+    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
     if (sceneComponentID) {
       const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister) {

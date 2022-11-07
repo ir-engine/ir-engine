@@ -36,8 +36,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         z-index: 2;
         padding: 2px;
         text-align: center;
-        text-shadow: 1px 1px 6px ${colors.background.value};
-        -webkit-text-stroke: 0.25px #${col.getHexString()}aa;
+        text-shadow: 1px 1px 1px ${colors.background.value};
         -webkit-font-smoothing: antialiased;
       }
 

@@ -108,9 +108,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const nameComponent = getComponent(entity, NameComponent)
   const sceneName = accessEditorState().sceneName.value!
   const projectName = accessEditorState().projectName.value!
-  const filename = isSceneEntity
-    ? `${sceneName}.envmap.png`
-    : `${sceneName}-${nameComponent.name.replace(' ', '-')}.png`
+  const filename = isSceneEntity ? `${sceneName}.envmap.png` : `${sceneName}-${nameComponent.replace(' ', '-')}.png`
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
 
@@ -119,7 +117,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   return url
 }
 
-const resolution = 2048
+const resolution = 1024
 
 /**
  * Generates and uploads a cubemap at a specific position in the world.

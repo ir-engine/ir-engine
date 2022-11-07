@@ -1,6 +1,7 @@
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -13,6 +14,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -29,7 +31,7 @@ import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/av
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
@@ -81,9 +83,14 @@ export const loadAvatarForUser = async (
     }
   }
 
-  setComponent(entity, AvatarPendingComponent, true)
+  setComponent(entity, AvatarPendingComponent, { url: avatarURL })
   const parent = await loadAvatarModelAsset(avatarURL)
-  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
+
+  /** hack a cancellable promise - check if the url we start with is the one we end up with */
+  if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
+    return
+
+  removeComponent(entity, AvatarPendingComponent)
 
   setupAvatarForUser(entity, parent)
 
@@ -125,8 +132,6 @@ export const setupAvatarModel = (entity: Entity) =>
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
 
-  const animationComponent = getComponent(entity, AvatarAnimationComponent)
-  animationComponent.rig = avatarBoneMatching(model)
   const groupComponent = getComponent(entity, GroupComponent)
 
   if (assetType == AssetType.FBX) {
@@ -146,9 +151,9 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
-  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const { rig } = avatarAnimationComponent
+  removeComponent(entity, AvatarRigComponent)
+  const rig = avatarBoneMatching(model)
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
 
@@ -162,14 +167,14 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
+  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
-  avatarAnimationComponent.bindRig = avatarBoneMatching(SkeletonUtils.clone(rootBone))
+  setComponent(entity, AvatarRigComponent, { rig, bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)) })
 
-  const targetHips = avatarAnimationComponent.rig.Hips
   const sourceHips = sourceSkeleton.bones[0]
-  avatarAnimationComponent.rootYRatio = targetHips.position.y / sourceHips.position.y
+  avatarAnimationComponent.rootYRatio = rig.Hips.position.y / sourceHips.position.y
 
   return model
 }
@@ -177,7 +182,7 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const controllerComponent = getComponent(entity, AvatarControllerComponent)
+  const controllerComponent = getOptionalComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
   // Mixer has some issues when binding with the target skeleton
@@ -274,9 +279,9 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
-  const animationComponent = getComponent(entity, AvatarAnimationComponent)
-  if (!animationComponent) return false
-  const bone = animationComponent.rig[boneName]
+  const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
+  if (!avatarRigComponent) return false
+  const bone = avatarRigComponent.rig[boneName]
   if (!bone) return false
   const el = bone.matrixWorld.elements
   position.set(el[12], el[13], el[14])

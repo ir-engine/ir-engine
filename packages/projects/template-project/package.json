@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "description": "",
   "main": "",
-  "scripts": {
-    "test": "mocha --config .mocharc.js"
+  "etherealEngine": {
+    "version": "1.0.0-rc6"
   },
+  "scripts": {},
   "peerDependencies": {},
   "dependencies": {},
   "devDependencies": {
-    "mocha": "9.2.2",
     "trace-unhandled": "2.0.1"
   },
   "license": "ISC"

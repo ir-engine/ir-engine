@@ -9,7 +9,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
@@ -19,7 +19,6 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { shouldPrefabDeserialize } from '../../functions/shouldDeserialize'
 import { useSelectionState } from '../../services/SelectionServices'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
@@ -36,14 +35,12 @@ const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
 
   Engine.instance.currentWorld.scenePrefabRegistry.forEach((_, prefabType: string) => {
-    if (shouldPrefabDeserialize(prefabType)) {
-      arr.push({
-        prefabType,
-        type: ItemTypes.Prefab,
-        Icon: prefabIcons[prefabType] || null,
-        label: prefabType
-      })
-    }
+    arr.push({
+      prefabType,
+      type: ItemTypes.Prefab,
+      Icon: prefabIcons[prefabType] || null,
+      label: prefabType
+    })
   })
 
   return arr
@@ -55,6 +52,7 @@ export const addPrefabElement = (
   before?: EntityTreeNode
 ): EntityTreeNode | undefined => {
   const node = createEntityNode(createEntity())
+  node.parentEntity = Engine.instance.currentWorld.sceneEntity
 
   executeCommandWithHistory({
     type: EditorCommands.ADD_OBJECTS,

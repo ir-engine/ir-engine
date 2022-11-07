@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/hyperflux",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc6",
   "main": "index.ts",
   "description": "State Management for XREngine",
   "repository": {
@@ -14,14 +14,15 @@
   },
   "dependencies": {
     "@hookstate/core": "4.0.0-rc21",
-    "@hookstate/subscribable": "4.0.0-rc21",
-    "react-reconciler": "^0.27.0"
+    "react-nil": "1.2.0",
+    "react-reconciler": "^0.29.0"
+  },
+  "devDependencies": {
+    "@types/react-reconciler": "^0.28.0",
+    "cross-env": "^7.0.3"
   },
   "scripts": {
     "test": "cross-env TEST=true mocha --config .mocharc.js",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
-  },
-  "devDependencies": {
-    "cross-env": "^7.0.3"
   }
 }

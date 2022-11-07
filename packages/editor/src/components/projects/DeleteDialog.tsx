@@ -1,6 +1,6 @@
 import React, { MouseEventHandler } from 'react'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
+import { isDev } from '@xrengine/common/src/config'
 
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import Fade from '@mui/material/Fade'

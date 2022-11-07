@@ -1,5 +1,5 @@
-import { Downgraded, none } from '@hookstate/core'
-import { useEffect } from 'react'
+import { Downgraded, none, State } from '@hookstate/core'
+import React, { useEffect } from 'react'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -24,6 +24,7 @@ type InstanceState = {
   port: string
   channelType: ChannelType
   channelId: string
+  roomCode: string
   videoEnabled: boolean
   provisioned: boolean
   connected: boolean
@@ -32,7 +33,7 @@ type InstanceState = {
 }
 
 //State
-const MediaInstanceState = defineState({
+export const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
     instances: {} as { [id: string]: InstanceState },
@@ -40,11 +41,21 @@ const MediaInstanceState = defineState({
   })
 })
 
+export function useMediaInstance() {
+  const [state, setState] = React.useState(null as null | State<InstanceState>)
+  const mediaInstanceState = useState(getState(MediaInstanceState).instances)
+  const mediaHostId = useState(Engine.instance.currentWorld.hostIds.media)
+  useEffect(() => {
+    setState(mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null)
+  }, [mediaInstanceState, mediaHostId])
+  return state
+}
+
 export const MediaInstanceConnectionServiceReceptor = (action) => {
   const s = getState(MediaInstanceState)
   matches(action)
     .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.currentWorld._mediaHostId = action.instanceId
+      Engine.instance.currentWorld.hostIds.media.set(action.instanceId)
       Engine.instance.currentWorld.networks.set(
         action.instanceId,
         new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media)
@@ -54,6 +65,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
         port: action.port,
         channelType: action.channelType!,
         channelId: action.channelId!,
+        roomCode: action.roomCode,
         videoEnabled: false,
         provisioned: true,
         readyToConnect: true,
@@ -88,7 +100,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       Engine.instance.currentWorld.mediaNetwork.hostId = action.newInstanceId as UserId
       Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.mediaNetwork)
       Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
-      Engine.instance.currentWorld._mediaHostId = action.newInstanceId as UserId
+      Engine.instance.currentWorld.hostIds.media.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })
@@ -100,13 +112,14 @@ export const useMediaInstanceConnectionState = () => useState(accessMediaInstanc
 
 //Service
 export const MediaInstanceConnectionService = {
-  provisionServer: async (channelId?: string, isWorldConnection = false) => {
+  provisionServer: async (channelId?: string, createPrivateRoom = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const token = accessAuthState().authUser.accessToken.value
     const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
-        channelId: channelId,
-        token: token
+        channelId,
+        token,
+        createPrivateRoom
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
@@ -116,6 +129,7 @@ export const MediaInstanceConnectionService = {
           instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          roomCode: provisionResult.roomCode,
           channelId: channelId ? channelId : '',
           channelType: accessChatState().channels.channels.value.find((channel) => channel.id === channelId)!
             .channelType
@@ -168,6 +182,7 @@ export const MediaInstanceConnectionService = {
               instanceId: params.instanceId,
               ipAddress: params.ipAddress,
               port: params.port,
+              roomCode: params.roomCode,
               channelId: params.channelId,
               channelType: params.channelType
             })
@@ -189,6 +204,7 @@ export class MediaInstanceConnectionAction {
     instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
+    roomCode: matches.string,
     channelType: matches.string as Validator<unknown, ChannelType>,
     channelId: matches.string
   })

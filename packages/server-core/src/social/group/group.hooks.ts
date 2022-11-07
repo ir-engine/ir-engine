@@ -6,7 +6,7 @@ import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-p
 import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
 
 import authenticate from '../../hooks/authenticate'
-import logger from '../../logger'
+import logger from '../../ServerLogger'
 
 export default {
   before: {

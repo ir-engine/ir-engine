@@ -1,13 +1,42 @@
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
-import { Entity } from '../../../ecs/classes/Entity'
-import { MaterialComponentType } from '../components/MaterialComponent'
+import { Mesh, Object3D } from 'three'
 
-export const deserializeMaterial: ComponentDeserializeFunction = (entity: Entity, data: MaterialComponentType) => {}
+import multiLogger from '@xrengine/common/src/logger'
 
-export const updateMaterial: ComponentUpdateFunction = (entity: Entity) => {}
+import { Engine } from '../../../ecs/classes/Engine'
+import iterateObject3D from '../../../scene/util/iterateObject3D'
+import { MaterialLibrary } from '../MaterialLibrary'
 
-export const serializeMaterial: ComponentSerializeFunction = (entity: Entity) => {}
+export function dedupMaterials() {
+  const materialTable = [...MaterialLibrary.materials.entries()]
+  materialTable.map(([uuid, materialComponent], i) => {
+    for (let j = 0; j < i; j++) {
+      const [uuid2, materialComponent2] = materialTable[j]
+      if (
+        materialComponent.prototype === materialComponent2.prototype &&
+        Object.entries(materialComponent.parameters).every(([k, v]) => {
+          const v2 = materialComponent2.parameters[k]
+          if (!([null, undefined] as any[]).includes(v) && typeof v2?.equals === 'function') {
+            return v2.equals(v)
+          }
+          return v2 === v
+        })
+      ) {
+        multiLogger.info('found duplicate material')
+        //change every instance of material1 to material2
+        Engine.instance.currentWorld.scene.traverse((mesh: Mesh) => {
+          if (!mesh?.isMesh) return
+          const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+          materials.map((material, i) => {
+            if (!Array.isArray(mesh.material)) {
+              mesh.material = material === materialComponent.material ? materialComponent2.material : material
+            } else {
+              mesh.material = mesh.material.map((material) =>
+                material === materialComponent.material ? materialComponent2.material : material
+              )
+            }
+          })
+        })
+      }
+    }
+  })
+}

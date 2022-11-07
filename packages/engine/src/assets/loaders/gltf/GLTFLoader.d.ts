@@ -15,6 +15,7 @@ import {
   SkinnedMesh,
   Texture
 } from 'three'
+import { Entity } from '../../../ecs/classes/Entity'
 
 import { DRACOLoader } from './DRACOLoader'
 import { KTX2Loader } from './KTX2Loader'
@@ -75,6 +76,7 @@ export class GLTFParser {
   options: {
     path?: string
     url?: string
+    entity?: Entity
   }
   associations: Map<Object3D | Material | Texture, GLTFReference>
 
