@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Vector2, Vector3 } from 'three'
+import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Scene, Vector2, Vector3 } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
@@ -32,6 +32,8 @@ declare module 'three/src/core/Object3D' {
     matrixWorldAutoUpdate: boolean
   }
 }
+
+Scene.DefaultMatrixAutoUpdate = false
 
 /**
  * Since we have complete control over matrix updates, we know that at any given point

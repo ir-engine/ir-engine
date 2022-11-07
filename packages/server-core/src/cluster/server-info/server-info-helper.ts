@@ -1,5 +1,8 @@
 import * as k8s from '@kubernetes/client-node'
+import { Op } from 'sequelize'
 
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { ServerContainerInfo, ServerInfoInterface, ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
 
 import { Application } from '../../../declarations'
@@ -44,6 +47,8 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
         app,
         `${config.server.releaseName}-instanceserver-`
       )
+
+      await populateInstanceServerType(app, instancePods.pods)
       serverInfo.push(instancePods)
 
       const analyticsPods = await getPodsData(
@@ -67,6 +72,22 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
   return serverInfo
 }
 
+export const removePod = async (app: Application, podName: string): Promise<ServerPodInfo | undefined> => {
+  try {
+    logger.info(`Attempting to remove k8s pod ${podName}`)
+
+    if (app.k8DefaultClient) {
+      const podsResponse = await app.k8DefaultClient.deleteNamespacedPod(podName, 'default')
+      const pod = getServerPodInfo(podsResponse.body)
+
+      return pod
+    }
+  } catch (e) {
+    logger.error(e)
+    return e
+  }
+}
+
 const getPodsData = async (labelSelector: string, id: string, label: string, app: Application, nameFilter?: string) => {
   let pods: ServerPodInfo[] = []
 
@@ -85,7 +106,7 @@ const getPodsData = async (labelSelector: string, id: string, label: string, app
       items = items.filter((item) => item.metadata?.name?.startsWith(nameFilter))
     }
 
-    pods = getServerPodInfo(items)
+    pods = getServerPodsInfo(items)
   } catch (err) {
     logger.error('Failed to get pods info.', err)
   }
@@ -112,7 +133,7 @@ const getGameserversData = async (labelSelector: string, id: string, label: stri
       undefined,
       labelSelector
     )
-    gameservers = getServerPodInfo((gameserversResponse.body as any).items)
+    gameservers = getServerPodsInfo((gameserversResponse.body as any).items)
   } catch (err) {
     logger.error('Failed to get pods info.', err)
   }
@@ -124,15 +145,19 @@ const getGameserversData = async (labelSelector: string, id: string, label: stri
   }
 }
 
-const getServerPodInfo = (items: k8s.V1Pod[]) => {
+const getServerPodsInfo = (items: k8s.V1Pod[]) => {
   return items.map((item) => {
-    return {
-      name: item.metadata?.name,
-      status: item.status?.phase,
-      age: item.status?.startTime,
-      containers: getServerContainerInfo(item.status?.containerStatuses!)
-    } as ServerPodInfo
+    return getServerPodInfo(item)
   })
+}
+
+const getServerPodInfo = (item: k8s.V1Pod) => {
+  return {
+    name: item.metadata?.name,
+    status: item.status?.phase,
+    age: item.status?.startTime,
+    containers: getServerContainerInfo(item.status?.containerStatuses!)
+  } as ServerPodInfo
 }
 
 const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {
@@ -151,4 +176,59 @@ const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {
       restarts: item.restartCount
     } as ServerContainerInfo
   })
+}
+
+const populateInstanceServerType = async (app: Application, items: ServerPodInfo[]) => {
+  if (items.length === 0) {
+    return
+  }
+
+  const instances = (await app.service('instance').Model.findAll({
+    where: {
+      ended: false
+    },
+    include: [
+      {
+        model: app.service('location').Model,
+        required: false
+      }
+    ]
+  })) as Instance[]
+
+  if (instances.length === 0) {
+    return
+  }
+
+  const channelInstances = instances.filter((item) => item.channelId)
+  let channels: Channel[] = []
+
+  if (channelInstances) {
+    channels = (await app.service('channel').Model.findAll({
+      where: {
+        instanceId: {
+          [Op.in]: channelInstances.map((item) => item.channelId)
+        }
+      }
+    })) as Channel[]
+  }
+
+  for (const item of items) {
+    const instanceExists = instances.find((instance) => instance.podName === item.name)
+
+    item.instanceId = instanceExists ? instanceExists.id : ''
+    item.currentUsers = instanceExists ? instanceExists.currentUsers : 0
+
+    if (instanceExists && instanceExists.locationId) {
+      item.type = `World (${instanceExists.location.name})`
+      item.locationSlug = instanceExists.location.slugifiedName
+    } else if (instanceExists && instanceExists.channelId) {
+      item.type = 'Media'
+      const channelExists = channels.find((channel) => channel.instanceId === instanceExists.id)
+      if (channelExists && channelExists.channelType) {
+        item.type = `Media (${channelExists.channelType})`
+      }
+    } else {
+      item.type = 'Unassigned'
+    }
+  }
 }

@@ -27,7 +27,7 @@ import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Entity } from '../../ecs/classes/Entity'
-import { Object3DWithEntity } from '../components/Object3DComponent'
+import { OceanComponent } from '../components/OceanComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexUniforms = `uniform float time;
@@ -344,10 +344,10 @@ export class Ocean extends Mesh<PlaneGeometry, MeshPhongMaterial> {
         texture.wrapS = RepeatWrapping
         texture.wrapT = RepeatWrapping
         this._distortionTexture = texture
-        removeError(this.entity, 'distortionMapError')
+        removeError(this.entity, OceanComponent, 'DISTORTION_MAP_ERROR')
       })
       .catch((error) => {
-        addError(this.entity, 'distortionMapError', error.message)
+        addError(this.entity, OceanComponent, 'DISTORTION_MAP_ERROR', error.message)
       })
   }
 
@@ -364,10 +364,10 @@ export class Ocean extends Mesh<PlaneGeometry, MeshPhongMaterial> {
         texture.mapping = EquirectangularReflectionMapping
         texture.encoding = sRGBEncoding
         this._material.envMap = texture
-        removeError(this.entity, 'envMapError')
+        removeError(this.entity, OceanComponent, 'ENVIRONMENT_MAP_ERROR')
       })
       .catch((error) => {
-        addError(this.entity, 'envMapError', error.message)
+        addError(this.entity, OceanComponent, 'ENVIRONMENT_MAP_ERROR', error.message)
       })
   }
 
@@ -383,10 +383,10 @@ export class Ocean extends Mesh<PlaneGeometry, MeshPhongMaterial> {
         texture.wrapS = RepeatWrapping
         texture.wrapT = RepeatWrapping
         this._material.normalMap = texture
-        removeError(this.entity, 'normalMapError')
+        removeError(this.entity, OceanComponent, 'NORMAL_MAP_ERROR')
       })
       .catch((error) => {
-        addError(this.entity, 'normalMapError', error.message)
+        addError(this.entity, OceanComponent, 'NORMAL_MAP_ERROR', error.message)
       })
   }
 

@@ -10,14 +10,14 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
 import { serializeObject3DArray } from '../functions/debug'
 import { filterParentEntities } from '../functions/filterParentEntities'
 import { EditorAction } from '../services/EditorServices'
-import { SelectionAction } from '../services/SelectionServices'
+import { accessSelectionState, SelectionAction, SelectionState } from '../services/SelectionServices'
 
 export type RemoveObjectCommandUndoParams = {
   parents: (EntityTreeNode | string)[]
@@ -103,6 +103,26 @@ function emitEventAfter(command: RemoveObjectCommandParams) {
 }
 
 function removeObject(command: RemoveObjectCommandParams) {
+  if (command.updateSelection) {
+    // TEMPORARY - this is to stop a crash
+    getState(SelectionState).set({
+      selectedEntities: [],
+      selectedParentEntities: [],
+      beforeSelectionChangeCounter: 1,
+      selectionCounter: 1,
+      objectChangeCounter: 1,
+      sceneGraphChangeCounter: 1,
+      affectedObjects: [],
+      propertyName: '',
+      transformPropertyChanged: false
+    })
+    //
+    executeCommand({
+      type: EditorCommands.REMOVE_FROM_SELECTION,
+      affectedNodes: command.affectedNodes,
+      preventEvents: command.preventEvents
+    })
+  }
   const removedParentNodes = getEntityNodeArrayFromEntities(
     filterParentEntities(
       command.affectedNodes.map((node: EntityTreeNode | string): Entity | string => {
@@ -121,17 +141,9 @@ function removeObject(command: RemoveObjectCommandParams) {
       obj?.removeFromParent()
     } else {
       if (!node.parentEntity) continue
-      traverseEntityNode(node, (node) => removeEntity(node.entity))
+      traverseEntityNode(node, (node) => removeEntity(node.entity, true))
       removeEntityNodeFromParent(node)
     }
-  }
-
-  if (command.updateSelection) {
-    executeCommand({
-      type: EditorCommands.REMOVE_FROM_SELECTION,
-      affectedNodes: command.affectedNodes,
-      preventEvents: command.preventEvents
-    })
   }
 }
 

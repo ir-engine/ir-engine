@@ -17,6 +17,7 @@ import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import {
   PortalEffects,
   setAvatarToLocationTeleportingState
@@ -24,6 +25,7 @@ import {
 import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
+import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
@@ -55,13 +57,11 @@ export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEnginePro
 export const useLocationSpawnAvatar = () => {
   const engineState = useEngineState()
   const authState = useAuthState()
-  const didSpawn = useHookstate(false)
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
   useHookEffect(() => {
     if (
-      didSpawn.value ||
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
@@ -72,22 +72,29 @@ export const useLocationSpawnAvatar = () => {
 
     // the avatar should only be spawned once, after user auth and scene load
 
-    const user = authState.user.value
-    const avatarDetails = user.avatar
+    const user = authState.user
+    const avatarDetails = user.avatar.value
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
       ? getSpawnPoint(spawnPoint, Engine.instance.userId)
       : getRandomSpawnPoint(Engine.instance.userId)
 
-    spawnLocalAvatarInWorld({
-      avatarSpawnPose,
-      avatarDetail: {
-        avatarURL: avatarDetails.modelResource?.url!,
-        thumbnailURL: avatarDetails.thumbnailResource?.url!
-      },
-      name: user.name
-    })
+    if (avatarDetails.modelResource?.url)
+      spawnLocalAvatarInWorld({
+        avatarSpawnPose,
+        avatarDetail: {
+          avatarURL: avatarDetails.modelResource?.url!,
+          thumbnailURL: avatarDetails.thumbnailResource?.url!
+        },
+        name: user.name.value
+      })
+    else {
+      NotificationService.dispatchNotify(
+        'Your avatar is missing its model. Please change your avatar from the user menu.',
+        { variant: 'error' }
+      )
+    }
   }, [engineState.sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
 }
 
@@ -106,7 +113,10 @@ export const usePortalTeleport = () => {
       if (!activePortal) return
 
       const currentLocation = locationState.locationName.value.split('/')[1]
-      if (currentLocation === activePortal.location || world.entityTree.uuidNodeMap.get(activePortal.linkedPortalId)) {
+      if (
+        currentLocation === activePortal.location ||
+        UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
+      ) {
         teleportAvatar(
           world.localClientEntity,
           activePortal.remoteSpawnPosition

@@ -62,7 +62,13 @@ export default (app: Application): void => {
               }
               if (columnKeys.indexOf(value.fieldName) >= 0 && !value.primaryKey) {
                 try {
-                  if (!value.references) await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
+                  if (!value.references) {
+                    if (value.unique)
+                      try {
+                        await sequelize.getQueryInterface().removeIndex(model, value.fieldName)
+                      } catch (err) {}
+                    await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
+                  }
                 } catch (err) {
                   logger.error(err)
                 }

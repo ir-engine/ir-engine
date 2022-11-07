@@ -228,7 +228,6 @@
     "ts-matches",
     "uuid",
     "web-worker",
-    "yuka",
     "yup",
     "@etherealjs/web-layer/three",
     "@mui/base/AutocompleteUnstyled",

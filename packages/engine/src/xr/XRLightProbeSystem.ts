@@ -17,12 +17,13 @@ export default async function XRLightProbeSystem(world: World) {
   xrLight.directionalLight.shadow.camera.far = 2000
   xrLight.directionalLight.castShadow = true
 
-  getState(XRState).lightEstimator.set(xrLight)
-  const estimatingLight = getState(XRState).isEstimatingLight
+  const xrState = getState(XRState)
+  xrState.lightEstimator.set(xrLight)
 
   let previousEnvironment = Engine.instance.currentWorld.scene.environment
 
   xrLight.addEventListener('estimationstart', () => {
+    if (xrState.sessionMode.value !== 'immersive-ar') return
     // Swap the default light out for the estimated one one we start getting some estimated values.
     Engine.instance.currentWorld.origin.add(xrLight)
 
@@ -32,17 +33,18 @@ export default async function XRLightProbeSystem(world: World) {
       Engine.instance.currentWorld.scene.environment = xrLight.environment
     }
 
-    estimatingLight.set(true)
+    xrState.isEstimatingLight.set(true)
   })
 
   xrLight.addEventListener('estimationend', () => {
+    if (xrState.sessionMode.value !== 'immersive-ar') return
     xrLight.removeFromParent()
     Engine.instance.currentWorld.scene.environment = previousEnvironment
-    estimatingLight.set(true)
+    xrState.isEstimatingLight.set(false)
   })
 
   const execute = () => {
-    if (EngineRenderer.instance.csm && estimatingLight.value) {
+    if (EngineRenderer.instance.csm && xrState.isEstimatingLight.value) {
       // maybe use -1 * pos
       xrLight.directionalLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
     }

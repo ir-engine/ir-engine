@@ -2,7 +2,7 @@ import { Matrix4 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { isEntityNode } from '../../ecs/functions/EntityTree'
 import { useWorld } from '../../ecs/functions/SystemHooks'
@@ -20,10 +20,10 @@ export const reparentObject3D = (
 
   if (!_node || !_parent || !_node.parentEntity) return
 
-  const obj3d = getComponent(_node.entity, Object3DComponent)?.value
+  const obj3d = getOptionalComponent(_node.entity, Object3DComponent)?.value
   if (!obj3d) return
   const parentObj3d =
-    _parent.parentEntity && getComponent(_parent.entity, Object3DComponent)
+    _parent.parentEntity && hasComponent(_parent.entity, Object3DComponent)
       ? getComponent(_parent.entity, Object3DComponent).value
       : Engine.instance.currentWorld.scene
 

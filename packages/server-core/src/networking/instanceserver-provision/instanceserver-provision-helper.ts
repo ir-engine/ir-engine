@@ -27,7 +27,7 @@ export const patchInstanceserverLocation =
       }
 
       const patchServer = async () => {
-        const freeInstance = await getFreeInstanceserver(app, 0, locationId, null!)
+        const freeInstance = await getFreeInstanceserver({ app, iteration: 0, locationId })
         await app.service('instanceserver-load').patch({
           id: freeInstance.id,
           ipAddress: freeInstance.ipAddress,

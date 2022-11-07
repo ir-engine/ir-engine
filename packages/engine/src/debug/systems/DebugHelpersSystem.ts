@@ -36,9 +36,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { createGraphHelper } from '../../navigation/GraphHelper'
-import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { EngineRendererAction, EngineRendererState } from '../../renderer/EngineRendererState'
 import EditorDirectionalLightHelper from '../../scene/classes/EditorDirectionalLightHelper'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
@@ -57,7 +54,6 @@ import { SpotLightComponent } from '../../scene/components/SpotLightComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { PositionalAudioHelper } from '../PositionalAudioHelper'
 
 const vector3 = new Vector3()
@@ -87,7 +83,6 @@ export default async function DebugHelpersSystem(world: World) {
     skeletonHelpers: new Map(),
     ikExtents: new Map(),
     box: new Map<Entity, Box3Helper>(),
-    navmesh: new Map(),
     navpath: new Map(),
     positionalAudioHelper: new Map()
   }
@@ -108,7 +103,6 @@ export default async function DebugHelpersSystem(world: World) {
 
   const boundingBoxQuery = defineQuery([TransformComponent, BoundingBoxComponent])
   const avatarAnimationQuery = defineQuery([AvatarRigComponent])
-  const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
@@ -447,8 +441,18 @@ export default async function DebugHelpersSystem(world: World) {
 
     for (const entity of boundingBoxQuery.exit()) {
       const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
-      boxHelper.removeFromParent()
-      helpersByEntity.box.delete(entity)
+      if (boxHelper) {
+        boxHelper.removeFromParent()
+        helpersByEntity.box.delete(entity)
+      }
+    }
+
+    for (const entity of boundingBoxQuery()) {
+      if (!debugEnabled && helpersByEntity.box.has(entity)) {
+        const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
+        boxHelper.removeFromParent()
+        helpersByEntity.box.delete(entity)
+      }
     }
 
     for (const entity of boundingBoxQuery.enter()) {
@@ -460,34 +464,6 @@ export default async function DebugHelpersSystem(world: World) {
       helper.visible = debugEnabled
     }
 
-    // ===== NAVMESH Helper ===== //
-    for (const entity of navmeshQuery.enter()) {
-      console.log('add navmesh helper!')
-      const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
-      const convexHelper = createConvexRegionHelper(navMesh)
-      const graphHelper = createGraphHelper(navMesh!.graph, 0.2)
-      const helper = new Group()
-      helper.add(convexHelper)
-      helper.add(graphHelper)
-      console.log('navhelper', helper)
-      Engine.instance.currentWorld.scene.add(helper)
-      helpersByEntity.navmesh.set(entity, helper)
-    }
-
-    for (const entity of navmeshQuery.exit()) {
-      const helper = helpersByEntity.navmesh.get(entity) as Object3D
-      Engine.instance.currentWorld.scene.remove(helper)
-      helpersByEntity.navmesh.delete(entity)
-    }
-
-    if (debugEnabled)
-      for (const entity of navmeshQuery()) {
-        // update
-        const helper = helpersByEntity.navmesh.get(entity) as Object3D
-        const transform = getComponent(entity, TransformComponent)
-        helper.position.copy(transform.position)
-        // helper.quaternion.copy(transform.rotation)
-      }
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
 
@@ -536,7 +512,6 @@ export default async function DebugHelpersSystem(world: World) {
     removeQuery(world, scenePreviewCameraSelectQuery)
     removeQuery(world, boundingBoxQuery)
     removeQuery(world, avatarAnimationQuery)
-    removeQuery(world, navmeshQuery)
     removeQuery(world, audioHelper)
 
     removeActionQueue(debugActionQueue)

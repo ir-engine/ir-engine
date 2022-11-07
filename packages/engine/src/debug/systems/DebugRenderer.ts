@@ -19,12 +19,14 @@ type RaycastDebugs = {
 export default async function DebugRenderer(world: World) {
   let enabled = false
 
-  const debugLines = [] as Line<BufferGeometry, LineBasicMaterial>[]
+  const debugLines = new Set<Line<BufferGeometry, LineBasicMaterial>>()
   const debugLineLifetime = 1000 // 1 second
 
   const lineMaterial = new LineBasicMaterial({ vertexColors: true })
   const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
   _lineSegments.frustumCulled = false
+  _lineSegments.matrixAutoUpdate = false
+  _lineSegments.matrixWorldAutoUpdate = false
   setObjectLayers(_lineSegments, ObjectLayers.PhysicsHelper)
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
@@ -59,7 +61,7 @@ export default async function DebugRenderer(world: World) {
         )
         line.position.copy(raycastQuery.origin)
         Engine.instance.currentWorld.scene.add(line)
-        debugLines.push(line)
+        debugLines.add(line)
         line.userData.originTime = Date.now()
       }
     } else {
@@ -68,6 +70,7 @@ export default async function DebugRenderer(world: World) {
         line.material.dispose()
         line.geometry.dispose()
       }
+      debugLines.clear()
     }
 
     for (const line of debugLines) {
@@ -75,6 +78,7 @@ export default async function DebugRenderer(world: World) {
         Engine.instance.currentWorld.scene.remove(line)
         line.material.dispose()
         line.geometry.dispose()
+        debugLines.delete(line)
       }
     }
 

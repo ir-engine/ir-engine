@@ -45,7 +45,7 @@ const rotation = new Quaternion()
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const { t } = useTranslation()
-  const portalName = getComponent(props.node.entity, NameComponent).name
+  const portalName = getComponent(props.node.entity, NameComponent)
   const transformComponent = getComponent(props.node.entity, TransformComponent)
 
   useEffect(() => {
@@ -109,10 +109,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           options={portals}
           value={portalComponent.linkedPortalId}
           onChange={updateProperty(PortalComponent, 'linkedPortalId')}
-          filterOption={(option: PortalFilterOption, searchString: string) => {
-            return option.label.includes(searchString || '')
-          }}
-          getOptionLabel={(data) => data.name}
         />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>

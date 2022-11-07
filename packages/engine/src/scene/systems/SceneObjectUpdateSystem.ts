@@ -39,11 +39,7 @@ import {
   SCENE_COMPONENT_ENVMAP_BAKE,
   SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '../components/EnvMapBakeComponent'
-import {
-  EnvmapComponent,
-  SCENE_COMPONENT_ENVMAP,
-  SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
-} from '../components/EnvmapComponent'
+import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '../components/EnvmapComponent'
 import {
   GroundPlaneComponent,
   SCENE_COMPONENT_GROUND_PLANE,
@@ -78,11 +74,7 @@ import {
   SCENE_COMPONENT_SHADOW_DEFAULT_VALUES,
   ShadowComponent
 } from '../components/ShadowComponent'
-import {
-  SCENE_COMPONENT_SKYBOX,
-  SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
-  SkyboxComponent
-} from '../components/SkyboxComponent'
+import { SCENE_COMPONENT_SKYBOX, SkyboxComponent } from '../components/SkyboxComponent'
 import {
   SCENE_COMPONENT_SPAWN_POINT,
   SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA,
@@ -113,17 +105,12 @@ import {
   updateGroundPlane
 } from '../functions/loaders/GroundPlaneFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
-import { deserializeImage, enterImage, serializeImage } from '../functions/loaders/ImageFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
-import { deserializeModel, serializeModel } from '../functions/loaders/ModelFunctions'
+import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePortal, serializePortal, updatePortal } from '../functions/loaders/PortalFunctions'
-import {
-  enterScenePreviewCamera,
-  serializeScenePreviewCamera,
-  shouldDeserializeScenePreviewCamera
-} from '../functions/loaders/ScenePreviewCameraFunctions'
+import { enterScenePreviewCamera, serializeScenePreviewCamera } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
   deserializeSkybox,
@@ -201,7 +188,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ScenePreviewCameraComponent.name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
-    shouldDeserialize: shouldDeserializeScenePreviewCamera,
     serialize: serializeScenePreviewCamera
   })
 
@@ -263,15 +249,14 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.skybox, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_SKYBOX, props: SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_SKYBOX, props: {} }
   ])
 
   world.sceneComponentRegistry.set(SkyboxComponent.name, SCENE_COMPONENT_SKYBOX)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
-    defaultData: SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
+    defaultData: {},
     deserialize: deserializeSkybox,
-    serialize: serializeSkybox,
-    shouldDeserialize: shouldDeserializeSkybox
+    serialize: serializeSkybox
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
@@ -294,15 +279,14 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.model, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: {} },
-    { name: SCENE_COMPONENT_ENVMAP, props: SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_ENVMAP, props: {} },
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
   ])
 
   world.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
     defaultData: {},
-    deserialize: deserializeModel,
-    serialize: serializeModel
+    deserialize: deserializeModel
   })
 
   world.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)
@@ -335,8 +319,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
     defaultData: SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES,
     deserialize: deserializeGround,
-    serialize: serializeGroundPlane,
-    shouldDeserialize: shouldDeserializeGroundPlane
+    serialize: serializeGroundPlane
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.image, [
@@ -349,9 +332,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ImageComponent.name, SCENE_COMPONENT_IMAGE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {
-    defaultData: {},
-    deserialize: deserializeImage,
-    serialize: serializeImage
+    defaultData: {}
   })
 
   world.sceneComponentRegistry.set(LoopAnimationComponent.name, SCENE_COMPONENT_LOOP_ANIMATION)
@@ -417,7 +398,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   })
 
   const cameraQuery = defineQuery([CameraComponent])
-  const obj3dQuery = defineQuery([GroupComponent])
   const shadowQuery = defineQuery([GroupComponent, ShadowComponent])
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
@@ -436,9 +416,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   const execute = () => {
-    for (const entity of obj3dQuery())
-      for (const obj of getComponent(entity, GroupComponent)) obj.visible = hasComponent(entity, VisibleComponent)
-
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ShadowComponent) && hasComponent(entity, GroupComponent)) updateShadow(entity)
@@ -455,7 +432,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     }
 
     for (const entity of cameraQuery.enter()) addObjectToGroup(entity, getComponent(entity, CameraComponent).camera)
-    for (const entity of imageQuery.enter()) enterImage(entity)
     for (const entity of shadowQuery.enter()) updateShadow(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
@@ -593,7 +569,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
 
     removeQuery(world, cameraQuery)
-    removeQuery(world, obj3dQuery)
     removeQuery(world, shadowQuery)
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)

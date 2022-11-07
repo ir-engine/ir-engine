@@ -21,7 +21,7 @@ type SelectionServiceStateType = {
   transformPropertyChanged: boolean
 }
 
-const SelectionState = defineState({
+export const SelectionState = defineState({
   name: 'SelectionState',
   initial: () =>
     ({
@@ -61,6 +61,9 @@ export const EditorSelectionServiceReceptor = (action) => {
     .when(SelectionAction.changedSceneGraph.matches, (action) => {
       return s.merge({ sceneGraphChangeCounter: s.sceneGraphChangeCounter.value + 1 })
     })
+    .when(SelectionAction.forceUpdate.matches, (action) => {
+      return s.merge({ objectChangeCounter: s.objectChangeCounter.value + 1 })
+    })
 }
 
 export const accessSelectionState = () => getState(SelectionState)
@@ -89,5 +92,9 @@ export class SelectionAction {
   static updateSelection = defineAction({
     type: 'xre.editor.Selection.SELECTION_CHANGED',
     selectedEntities: matches.array as Validator<unknown, (Entity | string)[]>
+  })
+
+  static forceUpdate = defineAction({
+    type: 'xre.editor.Selection.FORCE_UPDATE'
   })
 }

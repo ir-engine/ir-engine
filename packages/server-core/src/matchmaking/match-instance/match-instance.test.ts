@@ -29,7 +29,7 @@ describe.skip('matchmaking match-instance service', () => {
   const commonLocationSettings = {
     locationType: 'public',
     videoEnabled: false,
-    instanceMediaChatEnabled: false
+    audioEnabled: false
   }
 
   let location

@@ -10,6 +10,7 @@ export type ComponentShouldDeserializeFunction = () => boolean
 export type ComponentPrepareForGLTFExportFunction = (object: Object3D) => void
 
 export type SceneLoaderType = {
+  /** @deprecated - use defineComponent API instead */
   defaultData?: any
   /**
    * An override function to specify custom transformations from ECS to JSON
@@ -23,5 +24,4 @@ export type SceneLoaderType = {
    * - not setting defaultData will result in this component being treated as a tag component
    */
   deserialize?: ComponentDeserializeFunction
-  shouldDeserialize?: ComponentShouldDeserializeFunction
 }

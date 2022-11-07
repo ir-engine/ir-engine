@@ -1,21 +1,21 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
-import { Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
-import { DEG2RAD } from 'three/src/math/MathUtils'
+import { Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { Component, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRState } from '../../xr/XRState'
-import { XRUIComponentType } from '../components/XRUIComponent'
-import { XRUI } from './createXRUI'
 
+const _size = new Vector2()
 const _vec = new Vector3()
 const _pos = new Vector3()
 const _quat = new Quaternion()
 const _forward = new Vector3(0, 0, -1)
+
+export type ContentFitType = 'cover' | 'contain' | 'vertical' | 'horizontal'
 
 // yes, multiple by the same direction twice, as the local coordinate changes with each rotation
 const _handRotation = new Quaternion()
@@ -29,7 +29,7 @@ export const ObjectFitFunctions = {
     contentHeight: number,
     containerWidth: number,
     containerHeight: number,
-    fit: 'cover' | 'contain' | 'vertical' | 'horizontal' = 'contain'
+    fit: ContentFitType = 'contain'
   ) => {
     const ratioContent = contentWidth / contentHeight
     const ratioContainer = containerWidth / containerHeight
@@ -53,11 +53,8 @@ export const ObjectFitFunctions = {
     return scale
   },
 
-  computeContentFitScaleForCamera: (
+  computeFrustumSizeAtDistance: (
     distance: number,
-    contentWidth: number,
-    contentHeight: number,
-    fit: 'cover' | 'contain' | 'vertical' | 'horizontal' = 'contain',
     camera = Engine.instance.currentWorld.camera as PerspectiveCamera
   ) => {
     // const vFOV = camera.fov * DEG2RAD
@@ -66,9 +63,20 @@ export const ObjectFitFunctions = {
     const topRadians = _vec.set(0, 1, -1).applyMatrix4(inverseProjection).angleTo(_forward)
     const bottomRadians = _vec.set(0, -1, -1).applyMatrix4(inverseProjection).angleTo(_forward)
     const vFOV = topRadians + bottomRadians
-    const targetHeight = Math.tan(vFOV / 2) * Math.abs(distance) * 2
-    const targetWidth = targetHeight * camera.aspect
-    return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, targetWidth, targetHeight, fit)
+    const height = Math.tan(vFOV / 2) * Math.abs(distance) * 2
+    const width = height * camera.aspect
+    return _size.set(width, height)
+  },
+
+  computeContentFitScaleForCamera: (
+    distance: number,
+    contentWidth: number,
+    contentHeight: number,
+    fit: ContentFitType = 'contain',
+    camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+  ) => {
+    const size = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
+    return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, size.width, size.height, fit)
   },
 
   attachObjectInFrontOfCamera: (obj: Object3D, scale: number, distance: number) => {

@@ -6,7 +6,13 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { createAvatar } from '../../avatar/functions/createAvatar'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentType,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -34,11 +40,12 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const player = createEntity(world)
     const item = createEntity(world)
 
-    const networkObject = addComponent(player, NetworkObjectComponent, {
+    addComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userId,
       authorityUserId: Engine.instance.userId,
       networkId: 0 as NetworkId
     })
+    const networkObject = getComponent(player, NetworkObjectComponent)
 
     createAvatar(
       WorldNetworkAction.spawnAvatar({
@@ -49,13 +56,15 @@ describe.skip('EquippableSystem Integration Tests', () => {
       })
     )
 
-    const equippedComponent = addComponent(item, EquippedComponent, {
+    addComponent(item, EquippedComponent, {
       equipperEntity: player,
       attachmentPoint: EquippableAttachmentPoint.HEAD
     })
+    const equippedComponent = getComponent(player, EquippedComponent)
     addComponent(player, EquipperComponent, { equippedEntity: item })
 
-    const equippableTransform = setTransformComponent(item)
+    setTransformComponent(item)
+    const equippableTransform = getComponent(item, TransformComponent)
     const attachmentPoint = equippedComponent.attachmentPoint
     const target = getHandTarget(item, getParity(attachmentPoint))!
     const position = target.getWorldPosition(new Vector3())

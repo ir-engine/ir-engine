@@ -10,7 +10,6 @@ import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import InteractiveSystem from './interaction/systems/InteractiveSystem'
 import MediaControlSystem from './interaction/systems/MediaControlSystem'
 import MountPointSystem from './interaction/systems/MountPointSystem'
-import AutopilotSystem from './navigation/systems/AutopilotSystem'
 import HighlightSystem from './renderer/HighlightSystem'
 import HyperspacePortalSystem from './scene/systems/HyperspacePortalSystem'
 import ParticleSystem from './scene/systems/ParticleSystem'
@@ -18,11 +17,6 @@ import PortalSystem from './scene/systems/PortalSystem'
 
 export default function () {
   return [
-    {
-      uuid: 'xre.engine.AutopilotSystem',
-      type: SystemUpdateType.UPDATE,
-      systemLoader: () => Promise.resolve({ default: AutopilotSystem })
-    },
     {
       uuid: 'xre.engine.PortalSystem',
       type: SystemUpdateType.UPDATE,
@@ -37,6 +31,11 @@ export default function () {
       uuid: 'xre.engine.AvatarTeleportSystem',
       type: SystemUpdateType.FIXED,
       systemLoader: () => Promise.resolve({ default: AvatarTeleportSystem })
+    },
+    {
+      uuid: 'xre.engine.AnimationSystem',
+      type: SystemUpdateType.UPDATE,
+      systemLoader: () => Promise.resolve({ default: AnimationSystem })
     },
     {
       uuid: 'xre.engine.AvatarControllerSystem',
@@ -72,11 +71,6 @@ export default function () {
       uuid: 'xre.engine.AvatarLoadingSystem',
       type: SystemUpdateType.PRE_RENDER,
       systemLoader: () => Promise.resolve({ default: AvatarLoadingSystem })
-    },
-    {
-      uuid: 'xre.engine.AnimationSystem',
-      type: SystemUpdateType.PRE_RENDER,
-      systemLoader: () => Promise.resolve({ default: AnimationSystem })
     },
     {
       uuid: 'xre.engine.ParticleSystem',

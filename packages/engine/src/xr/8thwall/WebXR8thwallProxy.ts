@@ -30,7 +30,7 @@ export const XREPipeline = (world: World) => {
         facing: camera.quaternion
       })
     },
-    onUpdate: (props: onUpdate) => {
+    onSet: (props: onUpdate) => {
       const { processCpuResult } = props
       // console.log(processCpuResult)
       if (processCpuResult.reality) {

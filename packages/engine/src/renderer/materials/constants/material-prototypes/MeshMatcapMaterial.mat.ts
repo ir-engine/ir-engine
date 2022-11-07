@@ -2,20 +2,16 @@ import { Color, MeshMatcapMaterial as Matcap } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
+import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, ColorArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
-  alphaMap: TextureArg,
-  alphaTest: NormalizedFloatArg,
-  bumpMap: TextureArg,
-  bumpScale: { ...NormalizedFloatArg, default: 0.025 },
-  color: { ...ColorArg, default: new Color(1, 1, 1) },
+  ...BasicArgs,
+  ...BumpMapArgs,
   fog: BoolArg,
-  map: TextureArg,
   matcap: TextureArg,
-  normalMap: TextureArg,
-  transparent: BoolArg,
-  opacity: { ...NormalizedFloatArg, default: 1 }
+  ...NormalMapArgs,
+  ...DisplacementMapArgs
 }
 
 export const MeshMatcapMaterial: MaterialPrototypeComponentType = {

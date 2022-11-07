@@ -1,4 +1,4 @@
-import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
+import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'

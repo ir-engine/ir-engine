@@ -9,6 +9,8 @@ import {
   PCFShadowMap,
   PCFSoftShadowMap,
   ReinhardToneMapping,
+  ShadowMapType,
+  ToneMapping,
   VSMShadowMap
 } from 'three'
 
@@ -117,7 +119,7 @@ export const RenderSettingsEditor = () => {
         <SelectInput
           options={ToneMappingOptions}
           value={settings.toneMapping}
-          onChange={(val) => sceneMetadata.toneMapping.set(val)}
+          onChange={(val: ToneMapping) => sceneMetadata.toneMapping.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -141,7 +143,7 @@ export const RenderSettingsEditor = () => {
         <SelectInput
           options={ShadowTypeOptions}
           value={settings.shadowMapType ?? -1}
-          onChange={(val) => sceneMetadata.shadowMapType.set(val)}
+          onChange={(val: ShadowMapType) => sceneMetadata.shadowMapType.set(val)}
         />
       </InputGroup>
     </PropertyGroup>

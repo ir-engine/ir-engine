@@ -49,7 +49,7 @@ import IconButton from '@mui/material/IconButton'
 import Slider from '@mui/material/Slider'
 import Tooltip from '@mui/material/Tooltip'
 
-import { useMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
+import { useMediaInstance, useMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
@@ -108,9 +108,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const isCamAudioEnabled = isScreen ? mediastream.isScreenAudioEnabled : mediastream.isCamAudioEnabled
   const consumers = mediastream.consumers
 
-  const channelConnectionState = useMediaInstanceConnectionState()
-  const mediaHostID = Engine.instance.currentWorld.mediaNetwork?.hostId
-  const currentChannelInstanceConnection = mediaHostID && channelConnectionState.instances[mediaHostID].ornull
+  const currentChannelInstanceConnection = useMediaInstance()
 
   const mediaSettingState = useHookstate(getState(MediaSettingsState))
   const sceneMetadata = Engine.instance.currentWorld.sceneMetadata.mediaSettings
@@ -268,7 +266,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }, [userHasInteracted.value])
 
   useEffect(() => {
-    if (!currentChannelInstanceConnection) return
+    if (!currentChannelInstanceConnection?.value) return
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     const socket = mediaNetwork.socket
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)

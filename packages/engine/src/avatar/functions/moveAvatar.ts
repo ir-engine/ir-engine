@@ -11,6 +11,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
+  ComponentType,
   getComponent,
   hasComponent,
   removeComponent,
@@ -19,7 +20,6 @@ import {
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -68,7 +68,7 @@ const avatarStepRaycast = {
  * @param entity
  */
 export const updateAvatarControllerOnGround = (entity: Entity) => {
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
 
   /**
    * Use physics contacts to detemine if avatar is grounded
@@ -134,7 +134,7 @@ export const avatarApplyRotation = (entity: Entity) => {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       rotateBodyTowardsCameraDirection(entity)
     } else {
-      rotateBodyTowardsVector(entity, getComponent(entity, VelocityComponent).linear)
+      rotateBodyTowardsVector(entity, getComponent(entity, RigidBodyComponent).linearVelocity)
     }
   }
 }
@@ -143,7 +143,7 @@ export const avatarApplyRotation = (entity: Entity) => {
  * Avatar movement via velocity spring and collider velocity
  */
 export const avatarApplyVelocity = (entity, forwardOrientation) => {
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
   const isInVR = getControlMode() === 'attached'

@@ -11,6 +11,7 @@ import { World } from '../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeQuery,
@@ -79,7 +80,7 @@ export default async function AvatarControllerSystem(world: World) {
 
     for (const entity of controllerQuery()) {
       const controller = getComponent(entity, AvatarControllerComponent)
-      const followCamera = getComponent(controller.cameraEntity, FollowCameraComponent)
+      const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
       if (followCamera) {
         // todo calculate head size and use that as the bound
         if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
@@ -89,10 +90,10 @@ export default async function AvatarControllerSystem(world: World) {
 
     const controlledEntity = Engine.instance.currentWorld.localClientEntity
 
-    const controller = getComponent(controlledEntity, AvatarControllerComponent)
     if (hasComponent(controlledEntity, AvatarControllerComponent)) {
+      const controller = getComponent(controlledEntity, AvatarControllerComponent)
       updateAvatarControllerOnGround(controlledEntity)
-      if (controller?.movementEnabled) {
+      if (controller.movementEnabled) {
         moveAvatarWithVelocity(controlledEntity)
       }
 

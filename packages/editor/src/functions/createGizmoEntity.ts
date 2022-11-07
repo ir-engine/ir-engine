@@ -9,7 +9,7 @@ import { setTransformComponent } from '@xrengine/engine/src/transform/components
 
 export const createGizmoEntity = (gizmo: TransformGizmo): Entity => {
   const entity = createEntity()
-  addComponent(entity, NameComponent, { name: 'Transform Gizmo' })
+  addComponent(entity, NameComponent, 'Transform Gizmo')
   addComponent(entity, TransformGizmoComponent, { gizmo })
   setTransformComponent(entity)
   addObjectToGroup(entity, gizmo)

@@ -6,25 +6,14 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
 import { SCENE_COMPONENT_VIDEO, VideoComponent } from '../../scene/components/VideoComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { SCENE_COMPONENT_VOLUMETRIC, VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { deserializeMedia, serializeMedia } from '../../scene/functions/loaders/MediaFunctions'
-import {
-  deserializePositionalAudio,
-  serializePositionalAudio
-} from '../../scene/functions/loaders/PositionalAudioFunctions'
-import { deserializeVideo, enterVideo, serializeVideo } from '../../scene/functions/loaders/VideoFunctions'
-import {
-  deserializeVolumetric,
-  enterVolumetric,
-  serializeVolumetric,
-  updateVolumetric
-} from '../../scene/functions/loaders/VolumetricFunctions'
+import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { defaultSpatialComponents } from '../../scene/systems/SceneObjectUpdateSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -98,7 +87,7 @@ export default async function MediaSystem(world: World) {
     const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
     function handleAutoplay() {
       for (const entity of mediaQuery()) {
-        const media = getComponent(entity, MediaComponent)
+        const media = getComponentState(entity, MediaComponent)
         if (media.playing.value) return
         if (media.paused.value && media.autoplay.value) media.paused.set(false)
         // safari requires play() to be called in the DOM handle function
@@ -133,30 +122,22 @@ export default async function MediaSystem(world: World) {
 
   world.sceneComponentRegistry.set(PositionalAudioComponent.name, SCENE_COMPONENT_POSITIONAL_AUDIO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSITIONAL_AUDIO, {
-    defaultData: {},
-    deserialize: deserializePositionalAudio,
-    serialize: serializePositionalAudio
+    defaultData: {}
   })
 
   world.sceneComponentRegistry.set(VideoComponent.name, SCENE_COMPONENT_VIDEO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
-    defaultData: {},
-    deserialize: deserializeVideo,
-    serialize: serializeVideo
+    defaultData: {}
   })
 
   world.sceneComponentRegistry.set(MediaComponent.name, SCENE_COMPONENT_MEDIA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
-    defaultData: {},
-    deserialize: deserializeMedia,
-    serialize: serializeMedia
+    defaultData: {}
   })
 
   world.sceneComponentRegistry.set(VolumetricComponent.name, SCENE_COMPONENT_VOLUMETRIC)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
-    defaultData: {},
-    deserialize: deserializeVolumetric,
-    serialize: serializeVolumetric
+    defaultData: {}
   })
 
   const audioState = getState(AudioState)
@@ -199,8 +180,8 @@ export default async function MediaSystem(world: World) {
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
   const mediaQuery = defineQuery([MediaComponent])
-  const videoQuery = defineQuery([MediaElementComponent, VideoComponent])
-  const volumetricQuery = defineQuery([MediaElementComponent, VolumetricComponent])
+  const videoQuery = defineQuery([VideoComponent])
+  const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
 
   Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
 
@@ -215,12 +196,11 @@ export default async function MediaSystem(world: World) {
     }
 
     for (const entity of mediaQuery.enter()) {
-      const media = getComponent(entity, MediaComponent)
+      const media = getComponentState(entity, MediaComponent)
       setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
       setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }
 
-    for (const entity of videoQuery.enter()) enterVideo(entity)
     for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
   }

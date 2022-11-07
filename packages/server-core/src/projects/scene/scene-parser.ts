@@ -1,13 +1,13 @@
 import config from '@xrengine/common/src/config'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 
 export const sceneRelativePathIdentifier = '__$project$__'
 export const sceneCorsPathIdentifier = '__$cors-proxy$__'
 
-export const parseSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => {
+export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
       sceneData[key] = parseSceneDataCacheURLs(val, cacheDomain)
@@ -23,7 +23,7 @@ export const parseSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => 
   return sceneData
 }
 
-export const cleanSceneDataCacheURLs = (sceneData: any, cacheDomain: string) => {
+export const cleanSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
       sceneData[key] = cleanSceneDataCacheURLs(val, cacheDomain)

@@ -3,6 +3,7 @@ import en from 'javascript-time-ago/locale/en'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import config from '@xrengine/common/src/config'
 import { ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
 import multiLogger from '@xrengine/common/src/logger'
 
@@ -11,6 +12,7 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 
+import ConfirmDialog from '../../common/ConfirmDialog'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
@@ -30,8 +32,10 @@ interface Props {
 
 const ServerTable = ({ selectedCard }: Props) => {
   const { t } = useTranslation()
-  const [autoRefresh, setAutoRefresh] = useState('0')
+  const [openConfirm, setOpenConfirm] = useState(false)
+  const [autoRefresh, setAutoRefresh] = useState('60')
   const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
+  const [selectedPod, setSelectedPod] = useState<ServerPodInfo | null>(null)
   const serverInfo = useServerInfoState()
 
   useEffect(() => {
@@ -54,8 +58,26 @@ const ServerTable = ({ selectedCard }: Props) => {
       el,
       name: el.name,
       status: el.status,
+      type: el.type || '',
+      currentUsers: el.currentUsers?.toString() || '',
       age: timeAgo.format(new Date(el.age)),
       restarts: el.containers.map((item) => item.restarts).join(', '),
+      instanceId: el.instanceId ? (
+        <a
+          href="#"
+          className={styles.actionStyle}
+          onClick={() =>
+            window.open(
+              `${window.location.protocol}//${window.location.host}/location/${el.locationSlug}?instanceId=${el.instanceId}`,
+              '_blank'
+            )
+          }
+        >
+          <span className={styles.spanDange}>{el.instanceId}</span>
+        </a>
+      ) : (
+        <span />
+      ),
       containers: (
         <>
           {el.containers.map((item) => (
@@ -76,14 +98,25 @@ const ServerTable = ({ selectedCard }: Props) => {
         </>
       ),
       action: (
-        <a href="#" className={styles.actionStyle} style={{ float: 'right' }} onClick={() => {}}>
-          <span
-            className={styles.spanDange}
+        <div style={{ float: 'right' }}>
+          <a
+            href="#"
+            className={styles.actionStyle}
             onClick={() => ServerLogsService.fetchServerLogs(el.name, el.containers[el.containers.length - 1].name)}
           >
-            {t('admin:components.server.logs')}
-          </span>
-        </a>
+            <span className={styles.spanWhite}>{t('admin:components.server.logs')}</span>
+          </a>
+          <a
+            href="#"
+            className={styles.actionStyle}
+            onClick={() => {
+              setSelectedPod(el)
+              setOpenConfirm(true)
+            }}
+          >
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
+          </a>
+        </div>
       )
     }
   }
@@ -97,6 +130,15 @@ const ServerTable = ({ selectedCard }: Props) => {
     const { value } = e.target
 
     setAutoRefresh(value)
+  }
+
+  const handleRemovePod = async () => {
+    if (!selectedPod) {
+      return
+    }
+
+    await ServerInfoService.removePod(selectedPod.name)
+    setOpenConfirm(false)
   }
 
   const autoRefreshMenu: InputMenuItem[] = [
@@ -114,7 +156,7 @@ const ServerTable = ({ selectedCard }: Props) => {
     },
     {
       value: '60',
-      label: `60 ${t('admin:components.server.seconds')}`
+      label: `1 ${t('admin:components.server.minute')}`
     },
     {
       value: '300',
@@ -129,9 +171,12 @@ const ServerTable = ({ selectedCard }: Props) => {
   const serverInfoDataColumns: ServerColumn[] = [
     { id: 'name', label: t('admin:components.server.name'), minWidth: 65 },
     { id: 'status', label: t('admin:components.server.status'), minWidth: 65 },
+    { id: 'type', label: t('admin:components.server.type'), minWidth: 65 },
+    { id: 'currentUsers', label: t('admin:components.server.users'), minWidth: 65 },
     { id: 'restarts', label: t('admin:components.server.restarts'), minWidth: 65 },
     { id: 'containers', label: t('admin:components.server.containers'), minWidth: 65 },
     { id: 'age', label: t('admin:components.server.age'), minWidth: 65 },
+    { id: 'instanceId', label: t('admin:components.server.instance'), minWidth: 65 },
     {
       id: 'action',
       label: (
@@ -170,16 +215,25 @@ const ServerTable = ({ selectedCard }: Props) => {
     })
 
   return (
-    <TableComponent
-      allowSort={false}
-      rows={rows}
-      column={serverInfoDataColumns}
-      page={0}
-      count={rows.length}
-      rowsPerPage={rows.length}
-      handlePageChange={() => {}}
-      handleRowsPerPageChange={() => {}}
-    />
+    <>
+      <TableComponent
+        allowSort={false}
+        rows={rows}
+        column={serverInfoDataColumns}
+        page={0}
+        count={rows.length}
+        rowsPerPage={rows.length}
+        handlePageChange={() => {}}
+        handleRowsPerPageChange={() => {}}
+      />
+
+      <ConfirmDialog
+        open={openConfirm}
+        description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.name}'?`}
+        onClose={() => setOpenConfirm(false)}
+        onSubmit={handleRemovePod}
+      />
+    </>
   )
 }
 

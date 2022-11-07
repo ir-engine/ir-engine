@@ -1,6 +1,8 @@
 import assert from 'assert'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { quaternionEqualsEpsilon } from '../../tests/util/MathTestUtils'
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -22,6 +24,7 @@ describe('AvatarControllerSystem', async () => {
     createEngine()
     await Physics.load()
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.userId = 'userId' as UserId
   })
 
   it('check rotateBodyTowardsVector', async () => {
