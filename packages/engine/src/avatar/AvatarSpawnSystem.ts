@@ -10,7 +10,7 @@ import { getEntityTreeNodeByUUID } from '../ecs/functions/EntityTree'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { createAvatar } from './functions/createAvatar'
+import { createAvatar, takeControlOfAvatar } from './functions/createAvatar'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -61,9 +61,11 @@ const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
 export default async function AvatarSpawnSystem(world: World) {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
+  const takeControlOfAvatarQueue = createActionQueue(WorldNetworkAction.takeControlOfAvatar.matches)
 
   const execute = () => {
     for (const action of avatarSpawnQueue()) createAvatar(action)
+    for (const action of takeControlOfAvatarQueue()) takeControlOfAvatar(action)
 
     // Keep a list of spawn points so we can send our user to one
     for (const entity of spawnPointQuery.enter(world)) {

@@ -1,8 +1,11 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, Quaternion, Vector3 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -48,27 +51,20 @@ export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.matches._TYPE): Entity => {
   const world = Engine.instance.currentWorld
   const userId = spawnAction.$from
-  const existingAvatar = world.getUserAvatarEntity(spawnAction.$from)
+  const existingAvatarEntity = world.getUserAvatarEntity(spawnAction.$from)
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
-  // already spawned on another device
-  if (existingAvatar) {
+  // already spawned into the world on another device or tab
+  if (existingAvatarEntity) {
     const didSpawnEarlierThanThisClient = NetworkPeerFunctions.getCachedActionsForUser(userId).find(
       (action) =>
         WorldNetworkAction.spawnAvatar.matches.test(action) &&
         action !== spawnAction &&
         action.$time > spawnAction.$time
     )
-    console.log({ didSpawnEarlierThanThisClient })
     if (didSpawnEarlierThanThisClient) {
-      hasComponent(existingAvatar, FollowCameraComponent) && removeComponent(existingAvatar, FollowCameraComponent)
-      hasComponent(existingAvatar, AvatarControllerComponent) &&
-        removeComponent(existingAvatar, AvatarControllerComponent)
-      hasComponent(existingAvatar, LocalAvatarTagComponent) && removeComponent(existingAvatar, LocalAvatarTagComponent)
-      hasComponent(existingAvatar, LocalInputTagComponent) && removeComponent(existingAvatar, LocalInputTagComponent)
-      hasComponent(existingAvatar, NetworkObjectOwnedTag) && removeComponent(existingAvatar, NetworkObjectOwnedTag)
-      hasComponent(existingAvatar, NetworkObjectAuthorityTag) &&
-        removeComponent(existingAvatar, NetworkObjectAuthorityTag)
+      relinquishControlOfAvatar(existingAvatarEntity)
+      dispatchAction(EngineActions.avatarAlreadyInWorld({}))
     }
     return UndefinedEntity
   }
@@ -202,4 +198,23 @@ export const createAvatarController = (entity: Entity) => {
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
 
   addComponent(entity, CollisionComponent, new Map())
+}
+
+export const takeControlOfAvatar = (action: typeof WorldNetworkAction.takeControlOfAvatar.matches._TYPE) => {
+  const world = Engine.instance.currentWorld
+  const entity = world.getUserAvatarEntity(action.$from)!
+  setComponent(entity, LocalAvatarTagComponent, true)
+  setComponent(entity, LocalInputTagComponent, true)
+  setComponent(entity, NetworkObjectOwnedTag, true)
+  setComponent(entity, NetworkObjectAuthorityTag, true)
+  createAvatarController(entity)
+}
+
+export const relinquishControlOfAvatar = (entity: Entity) => {
+  hasComponent(entity, FollowCameraComponent) && removeComponent(entity, FollowCameraComponent)
+  hasComponent(entity, AvatarControllerComponent) && removeComponent(entity, AvatarControllerComponent)
+  hasComponent(entity, LocalAvatarTagComponent) && removeComponent(entity, LocalAvatarTagComponent)
+  hasComponent(entity, LocalInputTagComponent) && removeComponent(entity, LocalInputTagComponent)
+  hasComponent(entity, NetworkObjectOwnedTag) && removeComponent(entity, NetworkObjectOwnedTag)
+  hasComponent(entity, NetworkObjectAuthorityTag) && removeComponent(entity, NetworkObjectAuthorityTag)
 }
