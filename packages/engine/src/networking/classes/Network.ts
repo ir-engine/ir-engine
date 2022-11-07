@@ -78,6 +78,12 @@ export class Network {
   /** Map of user client IDs to numerical user index */
   userIDToUserIndex = new Map<UserId, number>()
 
+  /** Map of numerical peer index to peer IDs */
+  peerIndexToPeerID = new Map<number, PeerID>()
+
+  /** Map of peer IDs to numerical peer index */
+  peerIDToPeerIndex = new Map<PeerID, number>()
+
   /**
    * The index to increment when a new user joins
    * NOTE: Must only be updated by the host
@@ -85,10 +91,21 @@ export class Network {
   userIndexCount = 0
 
   /**
+   * The index to increment when a new peer connects
+   * NOTE: Must only be updated by the host
+   */
+  peerIndexCount = 0
+
+  /**
    * The UserId of the host
    * - will either be a user's UserId, or an instance server's InstanceId
    */
   hostId: UserId
+
+  /**
+   * The PeerID of the current user's instance
+   */
+  peerID: PeerID
 
   /**
    * The network is ready for sending messages and data

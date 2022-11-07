@@ -45,7 +45,7 @@ const receiveSpawnObject = (
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
     addComponent(entity, NetworkObjectOwnedTag, true)
-    addComponent(entity, NetworkObjectAuthorityTag, true)
+    addComponent(entity, NetworkObjectAuthorityTag)
   }
 
   const position = new Vector3()

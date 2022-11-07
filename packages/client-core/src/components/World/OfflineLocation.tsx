@@ -25,7 +25,15 @@ export const OfflineLocation = () => {
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       const index = 1
-      NetworkPeerFunctions.createPeer(world.worldNetwork, userId, index, authState.user.name.value, world)
+      NetworkPeerFunctions.createPeer(
+        world.worldNetwork,
+        userId,
+        index,
+        userId,
+        index,
+        authState.user.name.value,
+        world
+      )
 
       receiveJoinWorld({
         highResTimeOrigin: performance.timeOrigin,

@@ -18,20 +18,24 @@ import { WorldNetworkAction } from './WorldNetworkAction'
 function createPeer(
   network: Network,
   peerID: PeerID,
+  peerIndex: number,
   userID: UserId,
-  index: number,
+  userIndex: number,
   name: string,
   world = Engine.instance.currentWorld
 ) {
-  console.log('[Network]: Create Peer', network.topic, peerID, index, name)
+  console.log('[Network]: Create Peer', network.topic, peerID, peerIndex, userID, userIndex, name)
 
-  network.userIDToUserIndex.set(userID, index)
-  network.userIndexToUserID.set(index, userID)
+  network.userIDToUserIndex.set(userID, userIndex)
+  network.userIndexToUserID.set(userIndex, userID)
+  network.peerIDToPeerIndex.set(peerID, peerIndex)
+  network.peerIndexToPeerID.set(peerIndex, peerID)
 
   network.peers.set(peerID, {
-    peerID: peerID,
+    peerID,
+    peerIndex,
     userId: userID,
-    index: index
+    userIndex
   })
 
   const worldState = getState(WorldState)
@@ -47,9 +51,14 @@ function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.c
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
 
   network.peers.delete(peerID)
-  const index = network.userIDToUserIndex.get(userID)!
+
+  const userIndex = network.userIDToUserIndex.get(userID)!
   network.userIDToUserIndex.delete(userID)
-  network.userIndexToUserID.delete(index)
+  network.userIndexToUserID.delete(userIndex)
+
+  const peerIndex = network.peerIDToPeerIndex.get(peerID)!
+  network.peerIDToPeerIndex.delete(peerID)
+  network.peerIndexToPeerID.delete(peerIndex)
 
   /**
    * if no other connections exist for this user, and this action is occurring on the world network,

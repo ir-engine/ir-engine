@@ -34,7 +34,7 @@ describe('NetworkPeerFunctions', () => {
 
       assert(network.peers.get(userId))
       assert.equal(network.peers.get(userId)?.userId, userId)
-      assert.equal(network.peers.get(userId)?.index, userIndex)
+      assert.equal(network.peers.get(userId)?.userIndex, userIndex)
       assert.equal(worldState.userNames[userId]?.value, userName)
       assert.equal(network.userIndexToUserID.get(userIndex), userId)
       assert.equal(network.userIDToUserIndex.get(userId), userIndex)
@@ -54,12 +54,12 @@ describe('NetworkPeerFunctions', () => {
 
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
       assert.equal(network.peers.get(userId)?.userId, userId)
-      assert.equal(network.peers.get(userId)?.index, userIndex)
+      assert.equal(network.peers.get(userId)?.userIndex, userIndex)
       assert.equal(worldState.userNames[userId].value, userName)
 
       NetworkPeerFunctions.createPeer(network, userId, userIndex2, userName2, world)
       assert.equal(network.peers.get(userId)?.userId, userId)
-      assert.equal(network.peers.get(userId)?.index, userIndex2)
+      assert.equal(network.peers.get(userId)?.userIndex, userIndex2)
       assert.equal(worldState.userNames[userId].value, userName2)
     })
   })

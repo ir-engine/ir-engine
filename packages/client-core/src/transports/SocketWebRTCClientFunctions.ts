@@ -12,7 +12,7 @@ import config from '@xrengine/common/src/config'
 import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
+import { PeerID, PeersUpdateType } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
@@ -74,13 +74,6 @@ function actionDataHandler(message) {
   }
 }
 
-type PeersUpdateType = Array<{
-  peerId: PeerID
-  userId: UserId
-  index: number
-  name: string
-}>
-
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const isWorldConnection = network.topic === NetworkTopics.world
   logger.info('Connecting to instance type: %o', { topic: network.topic, hostId: network.hostId })
@@ -111,12 +104,12 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     return logger.error(new Error('Unable to connect with credentials'))
   }
 
-  function peerUpdateHandler(peers: PeersUpdateType) {
+  function peerUpdateHandler(peers: Array<PeersUpdateType>) {
     for (const peer of peers) {
-      NetworkPeerFunctions.createPeer(network, peer.peerId, peer.userId, peer.index, peer.name)
+      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
     }
     for (const [peerId, peer] of network.peers) {
-      if (!peers.find((p) => p.peerId === peerId)) NetworkPeerFunctions.destroyPeer(network, peerId)
+      if (!peers.find((p) => p.peerID === peerId)) NetworkPeerFunctions.destroyPeer(network, peerId)
     }
     logger.info('Updated peers %o', { topic: network.topic, peers })
   }

@@ -59,8 +59,9 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
         action !== spawnAction &&
         action.$time > spawnAction.$time
     )
+    console.log({ didSpawnEarlierThanThisClient })
     if (didSpawnEarlierThanThisClient) {
-      // hasComponent(existingAvatar, FollowCameraComponent) && removeComponent(existingAvatar, FollowCameraComponent)
+      hasComponent(existingAvatar, FollowCameraComponent) && removeComponent(existingAvatar, FollowCameraComponent)
       hasComponent(existingAvatar, AvatarControllerComponent) &&
         removeComponent(existingAvatar, AvatarControllerComponent)
       hasComponent(existingAvatar, LocalAvatarTagComponent) && removeComponent(existingAvatar, LocalAvatarTagComponent)

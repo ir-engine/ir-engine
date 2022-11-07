@@ -35,7 +35,7 @@ describe.skip('Equippables Integration Tests', () => {
     world.worldNetwork.hostId = hostUserId
     const hostIndex = 0
 
-    world.worldNetwork.peers.set(hostUserId, { userId: hostUserId, index: hostIndex })
+    world.worldNetwork.peers.set(hostUserId, { userId: hostUserId, userIndex: hostIndex })
 
     const userId = 'user id' as UserId
     const userName = 'user name'

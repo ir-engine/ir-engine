@@ -1,6 +1,7 @@
 import { Consumer, DataProducer, Producer, Router, Transport, WebRtcTransport, Worker } from 'mediasoup/node/lib/types'
 
 import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
+import { PeersUpdateType } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -45,11 +46,12 @@ export class SocketWebRTCServerNetwork extends Network {
     const peers = Array.from(this.peers.values()).map((peer) => {
       return {
         peerID: peer.peerID,
-        userId: peer.userId,
-        index: peer.index,
+        peerIndex: peer.peerIndex,
+        userID: peer.userId,
+        userIndex: peer.userIndex,
         name: userNames[peer.userId].value
       }
-    })
+    }) as Array<PeersUpdateType>
     if (peers.length)
       for (const [socketID, socket] of this.app.io.of('/').sockets)
         socket.emit(MessageTypes.UpdatePeers.toString(), peers)

@@ -2,6 +2,7 @@ import { TypedArray } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -293,27 +294,30 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   // if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
 }
 
-export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserId: UserId) => {
+export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserID: UserId) => {
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, world, fromUserId)
+      readEntity(v, world, fromUserID)
     }
   }
 }
 
 export const readMetadata = (v: ViewCursor, world: World) => {
   const userIndex = readUint32(v)
+  const peerIndex = readUint32(v)
   const fixedTick = readUint32(v)
   // if (userIndex === world.peerIDToUserIndex.get(world.worldNetwork.hostId)! && !world.worldNetwork.isHosting) world.fixedTick = fixedTick
-  return userIndex
+  return { userIndex, peerIndex }
 }
 
 export const createDataReader = () => {
   return (world: World, network: Network, packet: ArrayBuffer) => {
     const view = createViewCursor(packet)
-    const userIndex = readMetadata(view, world)
-    const fromUserId = network.userIndexToUserID.get(userIndex)
-    if (fromUserId) readEntities(view, world, packet.byteLength, fromUserId)
+    const { userIndex, peerIndex } = readMetadata(view, world)
+    const fromUserID = network.userIndexToUserID.get(userIndex)
+    const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
+    const isLoopback = fromPeerID && fromPeerID === network.peerID
+    if (fromUserID && !isLoopback) readEntities(view, world, packet.byteLength, fromUserID)
   }
 }

@@ -20,10 +20,9 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 const serializeAndSend = (world: World, serialize: ReturnType<typeof createDataWriter>) => {
   const ents = Engine.instance.isEditor ? networkTransformsQuery(world) : authoritativeNetworkTransformsQuery(world)
   if (ents.length > 0) {
-    const userId = Engine.instance.currentWorld.worldNetwork?.isHosting
-      ? Engine.instance.currentWorld.worldNetwork.hostId
-      : Engine.instance.userId
-    const data = serialize(world, world.worldNetwork, userId, ents)
+    const userID = Engine.instance.userId
+    const peerID = Engine.instance.currentWorld.worldNetwork.peerID
+    const data = serialize(world, world.worldNetwork, userID, peerID, ents)
 
     // todo: insert historian logic here
 

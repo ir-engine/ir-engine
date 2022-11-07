@@ -267,7 +267,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   NetworkPeerFunctions.createPeer(
     network,
-    'self' as PeerID,
+    'server' as PeerID,
+    network.peerIndexCount++,
     hostId,
     network.userIndexCount++,
     'server-' + hostId,

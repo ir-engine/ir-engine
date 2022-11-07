@@ -233,13 +233,15 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
   // Create a new client object
   // and add to the dictionary
   const existingUser = Array.from(network.peers.values()).find((client) => client.userId === userId)
-  const userIndex = existingUser ? existingUser.index : network.userIndexCount++
+  const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
+  const peerIndex = network.peerIndexCount++
 
   network.peers.set(peerID, {
     userId,
-    index: userIndex,
+    userIndex: userIndex,
     socket: socket,
-    peerID: peerID,
+    peerIndex,
+    peerID,
     lastSeenTs: Date.now(),
     joinTs: Date.now(),
     media: {},
@@ -280,7 +282,7 @@ export async function handleJoinWorld(
   network: SocketWebRTCServerNetwork,
   socket: Socket,
   data: JoinWorldRequestData,
-  callback: Function,
+  callback: (props: JoinWorldProps) => unknown,
   userId: UserId,
   user: UserInterface
 ) {
@@ -290,9 +292,13 @@ export async function handleJoinWorld(
 
   const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId)
 
+  const peerID = socket.id as PeerID
+
   network.updatePeers()
 
   callback({
+    peerIndex: network.peerIDToPeerIndex.get(peerID)!,
+    peerID,
     routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
     highResTimeOrigin: performance.timeOrigin,
     worldStartTime: world.startTime,

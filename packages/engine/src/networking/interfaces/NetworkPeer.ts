@@ -6,12 +6,13 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 export interface NetworkPeer {
   userId: UserId
-  index: number
+  userIndex: number
   spectating?: boolean
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
   // The following properties are only present on the server
   socket?: SocketIO.Socket
-  peerID?: PeerID
+  peerIndex: number
+  peerID: PeerID
   lastSeenTs?: any
   joinTs?: any
   media?: {}
