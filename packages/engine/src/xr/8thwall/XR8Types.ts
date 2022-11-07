@@ -6,6 +6,7 @@ export type XR8Type = {
   GlTextureRenderer
   XrController
   XrPermissions
+  VpsCoachingOverlay
   Threejs: {
     xrScene: () => { renderer: WebGLRenderer; scene: Scene; camera: PerspectiveCamera }
     pipelineModule: () => any

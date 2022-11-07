@@ -2,7 +2,7 @@
   "loading": "Loading Project",
   "loadingError": "Error loading project",
   "loadingErrorMsg": "There was an error when loading the project.",
-  "selectSceneMsg": "Select Scene to start playing with the engine",
+  "selectSceneMsg": "Select a Scene in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
   "generateScreenshot": "Generating Project Screenshot",
@@ -607,6 +607,10 @@
       "lbl-forNearDistance": "Fog Near Distance",
       "lbl-fogFarDistance": "Fog Far Distance",
       "lbl-fogDensity": "Fog Density"
+    },
+    "xr": {
+      "name": "XR Settings",
+      "lbl-vpsWaypointName": "VPS Waypoint Name"
     },
     "mountPoint": {
       "name": "Mount point",
