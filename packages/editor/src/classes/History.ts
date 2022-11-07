@@ -17,6 +17,7 @@ import EditorCommands, {
   CommandParamsOmitAffectedNodes,
   CommandParamsType
 } from '../constants/EditorCommands'
+import { EditorHistoryAction } from '../services/EditorHistory'
 import { accessEditorState } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
@@ -144,14 +145,20 @@ export function setPropertyOnSelectionEntities<C extends Component<any, any>>(
   const editorState = accessEditorState()
   const selectionState = accessSelectionState()
 
-  ;(command as ModifyPropertyCommandParams<C>).affectedNodes = editorState.lockPropertiesPanel.value
+  const affectedNodes = editorState.lockPropertiesPanel.value
     ? [
         Engine.instance.currentWorld.entityTree.entityNodeMap.get(
           UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value
         )!
       ]
     : getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
-  executeModifyPropertyCommand(command as ModifyPropertyCommandParams<C>, withHistory)
+  // executeModifyPropertyCommand(command as ModifyPropertyCommandParams<C>, withHistory)
+  ;(command as ModifyPropertyCommandParams<C>).affectedNodes = affectedNodes
+
+  dispatchAction(EditorHistoryAction.modifyProperty({
+    properties: [command.properties],
+    entities: 
+  }))
 }
 
 /**

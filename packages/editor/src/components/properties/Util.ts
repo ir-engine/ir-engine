@@ -3,8 +3,10 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { Component, ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { setPropertyOnSelectionEntities } from '../../classes/History'
+import { EditorHistoryAction } from '../../services/EditorHistory'
 
 export type EditorPropType = {
   node: EntityTreeNode

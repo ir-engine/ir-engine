@@ -16,7 +16,6 @@ type SelectionServiceStateType = {
   selectionCounter: number
   objectChangeCounter: number
   sceneGraphChangeCounter: number
-  affectedObjects: EntityTreeNode[]
   propertyName: string
   transformPropertyChanged: boolean
 }
@@ -31,7 +30,6 @@ export const SelectionState = defineState({
       selectionCounter: 1,
       objectChangeCounter: 1,
       sceneGraphChangeCounter: 1,
-      affectedObjects: [],
       propertyName: '',
       transformPropertyChanged: false
     } as SelectionServiceStateType)
@@ -53,7 +51,6 @@ export const EditorSelectionServiceReceptor = (action) => {
     .when(SelectionAction.changedObject.matches, (action) => {
       return s.merge({
         objectChangeCounter: s.objectChangeCounter.value + 1,
-        affectedObjects: action.objects.filter((object) => typeof object !== 'string') as EntityTreeNode[],
         propertyName: action.propertyName,
         transformPropertyChanged: transformProps.includes(action.propertyName)
       })

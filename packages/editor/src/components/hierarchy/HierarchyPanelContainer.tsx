@@ -21,7 +21,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
-import { executeCommandWithHistory, executeModifyPropertyCommand, executeModifyPropertyCommand } from '../../classes/History'
+import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
@@ -224,14 +224,14 @@ export default function HierarchyPanel({
   /* Expand & Collapse Functions */
 
   const onObjectChanged = useCallback(
-    (_, propertyName) => {
+    (propertyName) => {
       if (propertyName === 'name' || !propertyName) updateNodeHierarchy()
     },
     [collapsedNodes]
   )
 
   useEffect(() => {
-    onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    onObjectChanged(selectionState.propertyName.value)
   }, [selectionState.objectChangeCounter])
 
   /* Event handlers */

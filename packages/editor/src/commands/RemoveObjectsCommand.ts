@@ -112,7 +112,6 @@ function removeObject(command: RemoveObjectCommandParams) {
       selectionCounter: 1,
       objectChangeCounter: 1,
       sceneGraphChangeCounter: 1,
-      affectedObjects: [],
       propertyName: '',
       transformPropertyChanged: false
     })
