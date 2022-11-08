@@ -1,7 +1,8 @@
+import { useEffect } from 'react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import config from '@xrengine/common/src/config'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState, startReactor } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
@@ -11,10 +12,7 @@ import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
-import { VPSComponent } from '../../scene/components/VPSComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHitTestComponent } from '../XRComponents'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
 import { XRAction, XRState } from '../XRState'
 import { XREPipeline } from './WebXR8thwallProxy'
@@ -98,11 +96,11 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
   return new Promise<HTMLCanvasElement>((resolve, reject) => {
     const vpsWayspotName = world.sceneMetadata.xr.vpsWayspotName.value
 
-    //if (vpsWayspotName) {
+    // if (vpsWayspotName) {
     //  XR8.VpsCoachingOverlay.config({
     //    wayspotName: vpsWayspotName
     //  })
-    //}
+    // }
 
     XR8.addCameraPipelineModules([
       XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
@@ -113,7 +111,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
         // imageTargets: true,
         enableVps: !!vpsWayspotName
       }),
-      //XR8.VpsCoachingOverlay.pipelineModule(),
+      // XR8.VpsCoachingOverlay.pipelineModule(),
       XRExtras.RuntimeError.pipelineModule()
     ])
 
@@ -253,12 +251,8 @@ const skyboxQuery = defineQuery([SkyboxComponent])
 export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
   const xrState = getState(XRState)
-  const vpsWayspotName = world.sceneMetadata.xr.vpsWayspotName.value
 
-  const using8thWall =
-    (isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))) || vpsWayspotName
-
-  const vpsComponent = defineQuery([VPSComponent])
+  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
 
   let cameraCanvas: HTMLCanvasElement | null = null
 
@@ -391,24 +385,28 @@ export default async function XR8System(world: World) {
       .then((supported) => xrState.supportedSessionModes['immersive-ar'].set(supported))
   }
 
-  if (using8thWall) overrideXRSessionFunctions()
-
-  let lastSeenBackground = world.scene.background
-
-  const execute = () => {
+  const vpsReactor = startReactor(function XR8VPSReactor() {
     /**
      * Scenes that specify that they have VPS should override using webxr to use 8thwall.
      * - this will not cover the problem of going through a portal to a scene that has VPS,
      *     or exiting one that does to one that does not. This requires exiting the immersive
      *     session, changing the overrides, and entering the session again
      */
-    if (!using8thWall) {
+    useEffect(() => {
       /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
-      const usingVPS = vpsComponent().length
-      if (usingVPS) overrideXRSessionFunctions()
-      else revertXRSessionFunctions()
-    }
+      if (world.sceneMetadata.xr.vpsWayspotName || using8thWall) {
+        overrideXRSessionFunctions()
+      } else {
+        revertXRSessionFunctions()
+      }
+    }, [world.sceneMetadata.xr.vpsWayspotName])
 
+    return null
+  })
+
+  let lastSeenBackground = world.scene.background
+
+  const execute = () => {
     if (!XR8) return
 
     /**
@@ -442,6 +440,7 @@ export default async function XR8System(world: World) {
     }
     if (cameraCanvas) cameraCanvas.remove()
     revertXRSessionFunctions()
+    vpsReactor.stop()
   }
 
   return {
