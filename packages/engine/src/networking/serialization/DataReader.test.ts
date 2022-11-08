@@ -13,7 +13,14 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createTh
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentType, getAllComponents, getComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentType,
+  getAllComponents,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -518,7 +525,7 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.position.z[entity], posZ)
   })
 
-  it('should not readEntity if reading back own data', () => {
+  it('should remove NetworkObjectAuthorityTag readEntity if reading back own data from different peer', () => {
     const view = createViewCursor()
     const entity = createEntity()
     const networkId = 5678 as NetworkId
@@ -532,20 +539,24 @@ describe('DataReader', () => {
     network.userIndexToUserID = new Map([[userIndex, userId]])
     network.userIDToUserIndex = new Map([[userId, userIndex]])
 
-    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+    const [a, b, c] = [0.167, 0.167, 0.167]
+    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+
+    const [posX, posY, posZ] = [1.5, 2.5, 3.5]
+    const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
     setTransformComponent(entity)
     const transform = getComponent(entity, TransformComponent)
-    transform.position.set(x, y, z)
-    transform.rotation.set(x, y, z, w)
+    transform.position.set(posX, posY, posZ)
+    transform.rotation.set(rotX, rotY, rotZ, rotW)
 
-    addComponent(entity, NetworkObjectComponent, {
+    setComponent(entity, NetworkObjectComponent, {
       networkId,
       authorityUserId: userId,
       ownerId: userId
     })
 
-    addComponent(entity, NetworkObjectAuthorityTag, true)
+    setComponent(entity, NetworkObjectAuthorityTag)
 
     writeEntity(view, networkId, entity)
 
@@ -558,14 +569,16 @@ describe('DataReader', () => {
     // read entity will populate data stored in 'view'
     readEntity(view, Engine.instance.currentWorld, userId)
 
-    // should no repopulate as we own this entity
-    strictEqual(TransformComponent.position.x[entity], 0)
-    strictEqual(TransformComponent.position.y[entity], 0)
-    strictEqual(TransformComponent.position.z[entity], 0)
-    strictEqual(TransformComponent.rotation.x[entity], 0)
-    strictEqual(TransformComponent.rotation.y[entity], 0)
-    strictEqual(TransformComponent.rotation.z[entity], 0)
-    strictEqual(TransformComponent.rotation.w[entity], 0)
+    assert(!hasComponent(entity, NetworkObjectAuthorityTag))
+
+    // should repopulate data as we are no longer in control of it
+    strictEqual(TransformComponent.position.x[entity], posX)
+    strictEqual(TransformComponent.position.y[entity], posY)
+    strictEqual(TransformComponent.position.z[entity], posZ)
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
 
     // should update the view cursor accordingly
     strictEqual(view.cursor, 36)
@@ -730,8 +743,9 @@ describe('DataReader', () => {
 
     const readView = createViewCursor(packet)
 
-    const _tick = readUint32(readView)
     const _userIndex = readUint32(readView)
+    const _peerIndex = readUint32(readView)
+    const _tick = readUint32(readView)
 
     const count = readUint32(readView)
     strictEqual(count, entities.length)
@@ -868,7 +882,7 @@ describe('DataReader', () => {
 
     const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
 
-    strictEqual(packet.byteLength, 372)
+    strictEqual(packet.byteLength, 376)
   })
 
   it('should createDataReader and detect changes', () => {
@@ -921,12 +935,13 @@ describe('DataReader', () => {
 
     packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
 
-    strictEqual(packet.byteLength, 43)
+    strictEqual(packet.byteLength, 47)
 
     readView = createViewCursor(packet)
 
-    const _tick = readUint32(readView)
     const _userIndex = readUint32(readView)
+    const _peerIndex = readUint32(readView)
+    const _tick = readUint32(readView)
 
     const count = readUint32(readView)
     strictEqual(count, 1) // only one entity changed

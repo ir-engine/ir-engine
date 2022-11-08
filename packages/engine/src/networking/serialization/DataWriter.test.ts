@@ -527,7 +527,7 @@ describe('DataWriter', () => {
     const packet = write(world, network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =
-      3 * Uint32Array.BYTES_PER_ELEMENT +
+      4 * Uint32Array.BYTES_PER_ELEMENT +
       n *
         (1 * Uint32Array.BYTES_PER_ELEMENT +
           4 * Uint8Array.BYTES_PER_ELEMENT +
@@ -538,8 +538,9 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(packet)
 
-    const tick = readUint32(readView)
     const userIndex = readUint32(readView)
+    const peerIndex = readUint32(readView)
+    const tick = readUint32(readView)
 
     const count = readUint32(readView)
     strictEqual(count, entities.length)
