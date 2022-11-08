@@ -38,6 +38,7 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
+      network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host', world)
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
@@ -50,7 +51,8 @@ describe('WorldNetworkActionReceptors', () => {
           $from: world.worldNetwork.hostId, // from  host
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
-          $topic: NetworkTopics.world
+          $topic: NetworkTopics.world,
+          $peer: network.peerID
         }),
         world
       )
@@ -79,6 +81,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
+      network.peerID = peerID2
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host', world)
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
@@ -91,7 +94,8 @@ describe('WorldNetworkActionReceptors', () => {
         WorldNetworkAction.spawnObject({
           $from: userId, // from  user
           prefab: objPrefab, // generic prefab
-          networkId: objNetId
+          networkId: objNetId,
+          $peer: network.peerID
         })
       )
 
@@ -120,6 +124,7 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
+      network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world', world)
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
@@ -137,6 +142,7 @@ describe('WorldNetworkActionReceptors', () => {
           $from: userId2, // from other user
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
+          $peer: peerID3,
           $topic: NetworkTopics.world
         }),
         world
@@ -152,7 +158,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectOwnedEntities.length, 0)
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID2)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID3)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
 
@@ -163,10 +169,14 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
+      network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name', world)
 
-      const action = WorldNetworkAction.spawnAvatar({ networkId: 42 as NetworkId })
+      const action = WorldNetworkAction.spawnAvatar({
+        networkId: 42 as NetworkId,
+        $peer: peerID
+      })
       WorldNetworkActionReceptor.receiveSpawnObject(action)
       spawnAvatarReceptor(action)
 

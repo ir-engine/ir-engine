@@ -1,6 +1,7 @@
 import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
+import { PeerID, SelfPeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -39,16 +40,21 @@ const receiveSpawnObject = (
 
   const entity = createEntity()
 
-  addComponent(entity, NetworkObjectComponent, {
+  setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: action.$peer,
+    authorityPeerID: action.$peer ?? world.worldNetwork?.peerID ?? SelfPeerID,
     networkId: action.networkId
   })
 
+  const isAuthoritativePeer = !action.$peer || action.$peer === world.worldNetwork?.peerID
+
+  if (isAuthoritativePeer) {
+    setComponent(entity, NetworkObjectAuthorityTag)
+  }
+
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    addComponent(entity, NetworkObjectOwnedTag)
-    addComponent(entity, NetworkObjectAuthorityTag)
+    setComponent(entity, NetworkObjectOwnedTag)
   }
 
   const position = new Vector3()
@@ -75,7 +81,7 @@ const receiveRegisterSceneObject = (
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: action.$peer,
+    authorityPeerID: action.$peer ?? world.worldNetwork?.peerID ?? SelfPeerID,
     networkId: action.networkId
   })
 

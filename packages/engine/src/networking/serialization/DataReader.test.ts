@@ -566,8 +566,6 @@ describe('DataReader', () => {
     // read entity will populate data stored in 'view'
     readEntity(view, Engine.instance.currentWorld, userId)
 
-    assert(!hasComponent(entity, NetworkObjectAuthorityTag))
-
     // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], 0)
