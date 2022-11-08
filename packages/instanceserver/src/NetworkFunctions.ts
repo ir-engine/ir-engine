@@ -220,7 +220,7 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   return true
 }
 
-export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socketID: SocketId | PeerID) {
+export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, socketID: SocketId | PeerID) {
   const client = Array.from(network.peers.values()).find((c) => c.peerID === socketID)
   return client?.userId
 }
@@ -392,7 +392,7 @@ export async function handleHeartbeat(network: SocketWebRTCServerNetwork, socket
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, socket: Socket): Promise<any> {
-  const userId = getUserIdFromSocketId(network, socket.id) as UserId
+  const userId = getUserIdFromPeerID(network, socket.id) as UserId
   const peerID = socket.id as PeerID
   const disconnectedClient = network.peers.get(peerID)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not foudn`)
@@ -437,7 +437,7 @@ export async function handleLeaveWorld(
 ): Promise<any> {
   const peerID = socket.id as PeerID
   for (const [, transport] of Object.entries(network.mediasoupTransports))
-    if ((transport as any).appData.peerId === peerID) closeTransport(network, transport)
+    if (transport.appData.peerID === peerID) closeTransport(network, transport)
   if (network.peers.has(peerID)) {
     NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
     network.updatePeers()

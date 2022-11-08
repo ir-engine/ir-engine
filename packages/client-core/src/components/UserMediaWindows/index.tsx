@@ -43,15 +43,17 @@ export const UserMediaWindows = () => {
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
         {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-          <UserMediaWindow peerId={'screen_me'} key={'screen_me'} />
+          <UserMediaWindow mediaID={'screen_me'} key={'screen_me'} />
         )}
-        <UserMediaWindow peerId={'cam_me'} key={'cam_me'} />
+        <UserMediaWindow mediaID={'cam_me'} key={'cam_me'} />
         {displayedUsers.map((user) => (
           <Fragment key={user.id}>
-            <UserMediaWindow peerId={user.id} key={user.id} />
-            {screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id) && (
-              <UserMediaWindow peerId={'screen_' + user.id} key={'screen_' + user.id} />
-            )}
+            <UserMediaWindow mediaID={user.id} key={user.id} />
+            {screenShareConsumers.find(
+              (consumer) =>
+                consumer.appData.peerID ===
+                Array.from(network.peers.values()).find((peer) => peer.userId === user.id)?.peerID
+            ) && <UserMediaWindow mediaID={'screen_' + user.id} key={'screen_' + user.id} />}
           </Fragment>
         ))}
       </div>

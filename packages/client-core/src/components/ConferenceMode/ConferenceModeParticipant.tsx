@@ -23,10 +23,10 @@ import { useUserMediaWindowHook } from '../UserMediaWindow'
 import styles from './index.module.scss'
 
 interface Props {
-  peerId?: string | 'cam_me' | 'screen_me'
+  mediaID?: string | 'cam_me' | 'screen_me'
 }
 
-const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
+const ConferenceModeParticipant = ({ mediaID }: Props): JSX.Element => {
   const {
     user,
     volume,
@@ -51,16 +51,16 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
     toggleVideo,
     adjustVolume,
     toggleGlobalMute
-  } = useUserMediaWindowHook({ peerId })
+  } = useUserMediaWindowHook({ mediaID })
 
   return (
     <div
       tabIndex={0}
-      id={peerId + '_container'}
+      id={mediaID + '_container'}
       className={classNames({
         [styles['party-chat-user']]: true,
         [styles.pip]: true,
-        [styles['self-user']]: peerId === 'cam_me',
+        [styles['self-user']]: mediaID === 'cam_me',
         [styles['no-video']]: videoStream == null,
         [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused)
       })}
@@ -79,9 +79,9 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
             draggable={false}
           />
         )}
-        <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
+        <video key={mediaID + '_cam'} ref={videoRef} draggable={false} />
       </div>
-      <audio key={peerId + '_audio'} ref={audioRef} />
+      <audio key={mediaID + '_audio'} ref={audioRef} />
       <div className={styles['user-controls']}>
         <div className={styles['username']}>{username}</div>
         <div className={styles['controls']}>
@@ -93,7 +93,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
                 </IconButton>
               </Tooltip>
             ) : null}
-            {enableGlobalMute && peerId !== 'cam_me' && peerId !== 'screen_me' && audioStream && (
+            {enableGlobalMute && mediaID !== 'cam_me' && mediaID !== 'screen_me' && audioStream && (
               <Tooltip
                 title={
                   !audioProducerGlobalMute
@@ -113,7 +113,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
                     ? t('user:person.muteMe')
                     : isSelfUser && audioStream?.paused === true
                     ? t('user:person.unmuteMe')
-                    : peerId !== 'cam_me' && peerId !== 'screen_me' && audioStream?.paused === false
+                    : mediaID !== 'cam_me' && mediaID !== 'screen_me' && audioStream?.paused === false
                     ? t('user:person.muteThisPerson')
                     : t('user:person.unmuteThisPerson')) as string
                 }

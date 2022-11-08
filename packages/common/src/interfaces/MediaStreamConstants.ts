@@ -3,10 +3,11 @@ import { PeerID } from './PeerID'
 
 export type MediaStreamAppData = {
   mediaTag: MediaTagType
-  peerId: PeerID
+  peerID: PeerID
   direction: TransportDirection
   channelType: ChannelType
   channelId: string
+  clientDirection?: 'recv' | 'send'
 }
 
 export type MediaTagType = 'cam-video' | 'cam-audio' | 'screen-video' | 'screen-audio'

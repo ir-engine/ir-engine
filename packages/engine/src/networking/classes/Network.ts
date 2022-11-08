@@ -58,7 +58,7 @@ export class Network {
   dataConsumers = new Map<string, any>()
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
+  incomingMessageQueueUnreliableIDs: RingBuffer<PeerID> = new RingBuffer<PeerID>(100)
 
   /** Buffer holding all incoming Messages. */
   incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)

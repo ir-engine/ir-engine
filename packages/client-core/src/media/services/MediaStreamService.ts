@@ -7,6 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { ConsumerExtension } from '../../../../instanceserver/src/SocketWebRTCServerNetwork'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
@@ -21,7 +22,7 @@ export const MediaState = defineState({
     isFaceTrackingEnabled: false,
     enableBydefault: true,
     nearbyLayerUsers: [] as UserId[],
-    consumers: [] as mediasoup.types.Consumer[]
+    consumers: [] as ConsumerExtension[]
   })
 })
 

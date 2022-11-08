@@ -45,8 +45,8 @@ const ConferenceMode = (): JSX.Element => {
 
   for (let user of displayedUsers) {
     totalScreens += 1
-
-    if (screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id)) {
+    const peerID = Array.from(network.peers.values()).find((peer) => peer.userId === user.id)?.peerID
+    if (screenShareConsumers.find((consumer) => consumer.appData.peerID === peerID)) {
       totalScreens += 1
     }
   }
@@ -61,15 +61,17 @@ const ConferenceMode = (): JSX.Element => {
       })}
     >
       {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-        <ConferenceModeParticipant peerId={'screen_me'} key={'screen_me'} />
+        <ConferenceModeParticipant mediaID={'screen_me'} key={'screen_me'} />
       )}
-      <ConferenceModeParticipant peerId={'cam_me'} key={'cam_me'} />
+      <ConferenceModeParticipant mediaID={'cam_me'} key={'cam_me'} />
       {displayedUsers.map((user) => (
         <>
-          <ConferenceModeParticipant peerId={user.id} key={user.id} />
-          {screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id) && (
-            <ConferenceModeParticipant peerId={'screen_' + user.id} key={'screen_' + user.id} />
-          )}
+          <ConferenceModeParticipant mediaID={user.id} key={user.id} />
+          {screenShareConsumers.find(
+            (consumer) =>
+              Array.from(network.peers.values()).find((peer) => peer.userId === user.id)?.peerID ===
+              consumer.appData.peerID
+          ) && <ConferenceModeParticipant mediaID={'screen_' + user.id} key={'screen_' + user.id} />}
         </>
       ))}
     </div>

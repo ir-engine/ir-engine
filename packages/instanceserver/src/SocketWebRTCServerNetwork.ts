@@ -17,7 +17,9 @@ import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
 
-export type WebRTCTransportExtension = WebRtcTransport & { appData: MediaStreamAppData }
+export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & { appData: MediaStreamAppData }
+export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
+export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
 export class SocketWebRTCServerNetwork extends Network {
   workers: Worker[] = []
@@ -32,8 +34,8 @@ export class SocketWebRTCServerNetwork extends Network {
   mediasoupTransports: WebRTCTransportExtension[] = []
   transportsConnectPending: Promise<void>[] = []
 
-  producers = [] as Producer[]
-  consumers = [] as Consumer[]
+  producers = [] as ProducerExtension[]
+  consumers = [] as ConsumerExtension[]
 
   constructor(hostId: UserId, topic: Topic, app: Application) {
     super(hostId, topic)

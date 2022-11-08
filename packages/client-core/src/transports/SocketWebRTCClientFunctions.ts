@@ -1,5 +1,4 @@
 import {
-  Consumer,
   DtlsParameters,
   MediaKind,
   Transport as MediaSoupTransport,
@@ -11,7 +10,7 @@ import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import config from '@xrengine/common/src/config'
 import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
-import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
+import { MediaStreamAppData, MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID, PeersUpdateType } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -45,14 +44,10 @@ import {
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
 import { accessAuthState } from '../user/services/AuthService'
-import { SocketWebRTCClientNetwork } from './SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from './SocketWebRTCClientNetwork'
 import { updateNearbyAvatars } from './UpdateNearbyUsersSystem'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
-
-class ExtendedConsumer extends Consumer {
-  producerPaused?: boolean
-}
 
 export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -240,7 +235,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
 
     const consumerMatch = network.consumers?.find(
-      (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
+      (c) => c?.appData?.peerID === peerId && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
     )
     if (
       producerId != null &&
@@ -425,7 +420,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
           kind,
           rtpParameters,
           appData
-        }: { kind: MediaKind; rtpParameters: RtpParameters; appData: Record<string, unknown> },
+        }: { kind: MediaKind; rtpParameters: RtpParameters; appData: MediaStreamAppData },
         callback: (arg0: { id: string }) => void,
         errback: (error: Error) => void
       ) => {
@@ -791,7 +786,7 @@ export function resetProducer(): void {
   }
 }
 
-export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerId: PeerID, mediaTag: string) {
+export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: string) {
   const socket = network.socket
   if (!socket?.connected) return
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -802,7 +797,7 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
   const consumerParameters = await network.request(MessageTypes.WebRTCReceiveTrack.toString(), {
     mediaTag,
-    mediaPeerId: peerId,
+    mediaPeerId: peerID,
     rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
     channelType: channelType,
     channelId: channelId
@@ -811,17 +806,17 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   // Only continue if we have a valid id
   if (consumerParameters?.id == null) return
 
-  const consumer: ExtendedConsumer = await network.recvTransport.consume({
+  const consumer = (await network.recvTransport.consume({
     ...consumerParameters,
-    appData: { peerId, mediaTag, channelType },
+    appData: { peerID, mediaTag, channelType },
     paused: true
-  })
+  })) as unknown as ConsumerExtension
 
   consumer.producerPaused = consumerParameters.producerPaused
 
   // if we do already have a consumer, we shouldn't have called this method
   const existingConsumer = network.consumers?.find(
-    (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag
+    (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag
   )
   if (existingConsumer == null) {
     network.consumers.push(consumer)
@@ -839,12 +834,12 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   dispatchAction(MediaStreams.actions.triggerUpdateConsumers({}))
 }
 
-export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, peerId: any, mediaTag: any) {
-  const consumer = network.consumers.find((c) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag)
+export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: any) {
+  const consumer = network.consumers.find((c) => c.appData.peerID === peerID && c.appData.mediaTag === mediaTag)
   await closeConsumer(network, consumer)
 }
 
-export async function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ExtendedConsumer) {
+export async function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   await network.request(MessageTypes.WebRTCPauseConsumer.toString(), {
     consumerId: consumer.id
   })
@@ -855,7 +850,7 @@ export async function pauseConsumer(network: SocketWebRTCClientNetwork, consumer
     })
 }
 
-export async function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ExtendedConsumer) {
+export async function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   await network.request(MessageTypes.WebRTCResumeConsumer.toString(), {
     consumerId: consumer.id
   })

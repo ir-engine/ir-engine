@@ -183,7 +183,8 @@ export default async function AvatarUISystem(world: World) {
         if (immersiveMedia && videoPreviewTimer === 0) {
           const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
           const consumer = world.mediaNetwork!.consumers.find(
-            (consumer) => consumer._appData.peerId === ownerId && consumer._appData.mediaTag === 'cam-video'
+            (consumer) =>
+              consumer.appData.peerID === world.mediaNetwork.peerID && consumer.appData.mediaTag === 'cam-video'
           ) as Consumer
           const paused = consumer && (consumer as any).producerPaused
           if (videoPreviewMesh.material.map) {

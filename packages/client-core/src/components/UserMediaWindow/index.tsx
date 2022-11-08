@@ -22,6 +22,7 @@ import {
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -55,10 +56,10 @@ import Draggable from './Draggable'
 import styles from './index.module.scss'
 
 interface Props {
-  peerId?: string | 'cam_me' | 'screen_me'
+  mediaID?: string | 'cam_me' | 'screen_me'
 }
 
-export const useUserMediaWindowHook = ({ peerId }) => {
+export const useUserMediaWindowHook = ({ mediaID }: Props) => {
   const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
@@ -98,10 +99,12 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
-  const isSelf = peerId === 'cam_me' || peerId === 'screen_me'
+  const isSelf = mediaID === 'cam_me' || mediaID === 'screen_me'
   const volume = isSelf ? audioState.microphoneGain.value : _volume
-  const isScreen = Boolean(peerId && peerId.startsWith('screen_'))
-  const userId = isScreen ? peerId!.replace('screen_', '') : peerId
+  const isScreen = Boolean(mediaID && mediaID.startsWith('screen_'))
+  const peerID = (isScreen ? mediaID!.replace('screen_', '') : mediaID) as PeerID
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork
+  const userId = mediaNetwork ? mediaNetwork?.peers!.get(peerID)?.userId : ''
   const user = userState.layerUsers.find((user) => user.id.value === userId)?.attach(Downgraded).value
 
   const isCamVideoEnabled = isScreen ? mediastream.isScreenVideoEnabled : mediastream.isCamVideoEnabled
@@ -159,13 +162,13 @@ export const useUserMediaWindowHook = ({ peerId }) => {
       const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       const videoConsumer = network.consumers?.find(
         (c) =>
-          c.appData.peerId === userId &&
+          c.appData.peerID === peerID &&
           c.producerId === producerId &&
           c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
       )
       const audioConsumer = network.consumers?.find(
         (c) =>
-          c.appData.peerId === userId &&
+          c.appData.peerID === peerID &&
           c.producerId === producerId &&
           c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
       )
@@ -190,10 +193,10 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     } else {
       const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       const videoConsumer = network.consumers?.find(
-        (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
       )
       const audioConsumer = network.consumers?.find(
-        (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
       )
       if (videoConsumer) {
         ;(videoConsumer as any).producerPaused = false
@@ -220,28 +223,28 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }
 
   useEffect(() => {
-    if (peerId === 'cam_me') {
+    if (mediaID === 'cam_me') {
       setVideoStream(MediaStreams.instance.camVideoProducer)
       setVideoStreamPaused(MediaStreams.instance.videoPaused)
-    } else if (peerId === 'screen_me') setVideoStream(MediaStreams.instance.screenVideoProducer)
+    } else if (mediaID === 'screen_me') setVideoStream(MediaStreams.instance.screenVideoProducer)
   }, [isCamVideoEnabled.value])
 
   useEffect(() => {
-    if (peerId === 'cam_me') {
+    if (mediaID === 'cam_me') {
       setAudioStream(MediaStreams.instance.camAudioProducer)
       setAudioStreamPaused(MediaStreams.instance.audioPaused)
-    } else if (peerId === 'screen_me') setAudioStream(MediaStreams.instance.screenAudioProducer)
+    } else if (mediaID === 'screen_me') setAudioStream(MediaStreams.instance.screenAudioProducer)
   }, [isCamAudioEnabled.value])
 
   useEffect(() => {
-    if (peerId !== 'cam_me' && peerId !== 'screen_me') {
+    if (mediaID !== 'cam_me' && mediaID !== 'screen_me') {
       const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       if (network) {
         const videoConsumer = network.consumers?.find(
-          (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+          (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
         )
         const audioConsumer = network.consumers?.find(
-          (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+          (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
         )
         if (videoConsumer) {
           setVideoProducerPaused((videoConsumer as any).producerPaused)
@@ -258,7 +261,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }, [consumers.value])
 
   useEffect(() => {
-    if (userHasInteracted.value && peerId !== 'cam_me' && peerId !== 'screen_me') {
+    if (userHasInteracted.value && mediaID !== 'cam_me' && mediaID !== 'screen_me') {
       videoRef.current?.play()
       audioRef.current?.play()
       if (harkListener) (harkListener as any).resume()
@@ -293,10 +296,10 @@ export const useUserMediaWindowHook = ({ peerId }) => {
 
   useEffect(() => {
     if (audioRef.current != null) {
-      audioRef.current.id = `${peerId}_audio`
+      audioRef.current.id = `${mediaID}_audio`
       audioRef.current.autoplay = true
       audioRef.current.setAttribute('playsinline', 'true')
-      if (peerId === 'cam_me' || peerId === 'screen_me') {
+      if (mediaID === 'cam_me' || mediaID === 'screen_me') {
         audioRef.current.muted = true
       } else {
         audioRef.current.volume = volume
@@ -326,13 +329,13 @@ export const useUserMediaWindowHook = ({ peerId }) => {
 
   useEffect(() => {
     if (videoRef.current != null) {
-      videoRef.current.id = `${peerId}_video`
+      videoRef.current.id = `${mediaID}_video`
       videoRef.current.autoplay = true
       videoRef.current.muted = true
       videoRef.current.setAttribute('playsinline', 'true')
       if (videoStream != null) {
         setVideoDisplayReady(false)
-        if (peerId === 'cam_me' || peerId === 'screen_me') setVideoProducerPaused(false)
+        if (mediaID === 'cam_me' || mediaID === 'screen_me') setVideoProducerPaused(false)
         const originalTrackEnabledInterval = setInterval(() => {
           if (videoStream.track.enabled) {
             clearInterval(originalTrackEnabledInterval)
@@ -358,13 +361,13 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }, [videoTrackId])
 
   useEffect(() => {
-    if (peerId === 'cam_me' || peerId === 'screen_me') {
+    if (mediaID === 'cam_me' || mediaID === 'screen_me') {
       setAudioStreamPaused(MediaStreams.instance.audioPaused)
     }
   }, [MediaStreams.instance.audioPaused])
 
   useEffect(() => {
-    if (peerId === 'cam_me' || peerId === 'screen_me') {
+    if (mediaID === 'cam_me' || mediaID === 'screen_me') {
       setVideoStreamPaused(MediaStreams.instance.videoPaused)
       if (videoRef.current != null) {
         if (MediaStreams.instance.videoPaused) {
@@ -377,7 +380,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
 
   useEffect(() => {
     if (
-      !(peerId === 'cam_me' || peerId === 'screen_me') &&
+      !(mediaID === 'cam_me' || mediaID === 'screen_me') &&
       !videoProducerPaused &&
       videoStream != null &&
       videoRef.current != null
@@ -399,7 +402,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
 
   useEffect(() => {
     if (
-      !(peerId === 'cam_me' || peerId === 'screen_me') &&
+      !(mediaID === 'cam_me' || mediaID === 'screen_me') &&
       !audioProducerPaused &&
       audioStream != null &&
       audioRef.current != null
@@ -430,7 +433,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const toggleVideo = async (e) => {
     e.stopPropagation()
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (peerId === 'cam_me') {
+    if (mediaID === 'cam_me') {
       if (await configureMediaTransports(mediaNetwork, ['video'])) {
         if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
         else {
@@ -440,7 +443,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
         }
         MediaStreamService.updateCamVideoState()
       }
-    } else if (peerId === 'screen_me') {
+    } else if (mediaID === 'screen_me') {
       const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
       if (videoPaused) await stopScreenshare(mediaNetwork)
       // else await resumeProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
@@ -463,7 +466,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const toggleAudio = async (e) => {
     e.stopPropagation()
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (peerId === 'cam_me') {
+    if (mediaID === 'cam_me') {
       if (await configureMediaTransports(mediaNetwork, ['audio'])) {
         if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
         else {
@@ -473,7 +476,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
         }
         MediaStreamService.updateCamAudioState()
       }
-    } else if (peerId === 'screen_me') {
+    } else if (mediaID === 'screen_me') {
       const audioPaused = MediaStreams.instance.toggleScreenShareAudioPaused()
       if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.screenAudioProducer)
       else await resumeProducer(mediaNetwork, MediaStreams.instance.screenAudioProducer)
@@ -513,15 +516,15 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }
 
   const getUsername = () => {
-    if (peerId === 'cam_me') return t('user:person.you')
-    if (peerId === 'screen_me') return t('user:person.yourScreen')
-    if (peerId?.startsWith('screen_')) return user?.name + "'s Screen"
+    if (mediaID === 'cam_me') return t('user:person.you')
+    if (mediaID === 'screen_me') return t('user:person.yourScreen')
+    if (mediaID?.startsWith('screen_')) return user?.name + "'s Screen"
     return user?.name
   }
 
   const togglePiP = () => setPiP(!isPiP)
 
-  const isSelfUser = peerId === 'cam_me' || peerId === 'screen_me'
+  const isSelfUser = mediaID === 'cam_me' || mediaID === 'screen_me'
   const username = getUsername()
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
@@ -597,7 +600,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }
 }
 
-const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
+const UserMediaWindow = ({ mediaID: mediaID }: Props): JSX.Element => {
   const {
     user,
     isPiP,
@@ -627,18 +630,18 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
     adjustVolume,
     toggleGlobalMute,
     rendered
-  } = useUserMediaWindowHook({ peerId })
+  } = useUserMediaWindowHook({ mediaID })
 
   return (
     <Draggable isPiP={isPiP}>
       <div
         tabIndex={0}
-        id={peerId + '_container'}
+        id={mediaID + '_container'}
         className={classNames({
           [styles['resizeable-screen']]: isScreen && !isPiP,
           [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
           [styles['party-chat-user']]: true,
-          [styles['self-user']]: peerId === 'cam_me',
+          [styles['self-user']]: mediaID === 'cam_me',
           [styles['no-video']]: videoStream == null,
           [styles['video-paused']]: (videoStream && (videoProducerPaused || videoStreamPaused)) || !videoDisplayReady,
           [styles.pip]: isPiP && !isScreen,
@@ -671,9 +674,9 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
               draggable={false}
             />
           )}
-          <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
+          <video key={mediaID + '_cam'} ref={videoRef} draggable={false} />
         </div>
-        <audio key={peerId + '_audio'} ref={audioRef} />
+        <audio key={mediaID + '_audio'} ref={audioRef} />
         <div className={styles['user-controls']}>
           <div className={styles['username']}>{username}</div>
           <div className={styles['controls']}>
@@ -693,7 +696,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                   </IconButton>
                 </Tooltip>
               ) : null}
-              {enableGlobalMute && peerId !== 'cam_me' && peerId !== 'screen_me' && audioStream && (
+              {enableGlobalMute && mediaID !== 'cam_me' && mediaID !== 'screen_me' && audioStream && (
                 <Tooltip
                   title={
                     !audioProducerGlobalMute
@@ -721,7 +724,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                       ? t('user:person.muteMe')
                       : isSelfUser && audioStream?.paused === true
                       ? t('user:person.unmuteMe')
-                      : peerId !== 'cam_me' && peerId !== 'screen_me' && audioStream?.paused === false
+                      : mediaID !== 'cam_me' && mediaID !== 'screen_me' && audioStream?.paused === false
                       ? t('user:person.muteThisPerson')
                       : t('user:person.unmuteThisPerson')) as string
                   }

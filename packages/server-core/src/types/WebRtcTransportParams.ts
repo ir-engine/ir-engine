@@ -1,4 +1,5 @@
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 
 // Types borrowed from Mediasoup
 
@@ -16,7 +17,7 @@ type SctpCapabilities = {
   numStreams: NumSctpStreams
 }
 export type WebRtcTransportParams = {
-  peerId?: string
+  peerId?: PeerID
   direction: 'recv' | 'send'
   sctpCapabilities: SctpCapabilities
   channelType: ChannelType
