@@ -122,11 +122,6 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static takeControlOfAvatar = defineAction({
-    type: 'xre.world.TAKE_CONTROL_OF_AVATAR',
-    $topic: NetworkTopics.world
-  })
-
   static requestAuthorityOverObject = defineAction({
     type: 'xre.world.REQUEST_AUTHORITY_OVER_OBJECT',
     ownerId: matchesUserId,

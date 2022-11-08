@@ -46,6 +46,7 @@ export type ActionOptions = {
 
   /**
    * The id of the sender's socket
+   * Will be undefined if dispatched locally or not in a network
    */
   $peer?: PeerID
 

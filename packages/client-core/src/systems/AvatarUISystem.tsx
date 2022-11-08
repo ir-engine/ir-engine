@@ -15,7 +15,7 @@ import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { Physics, RaycastArgs } from '@xrengine/engine/src/physics/classes/Physics'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'

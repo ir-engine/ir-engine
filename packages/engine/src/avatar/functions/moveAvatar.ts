@@ -18,6 +18,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
+import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -142,7 +143,7 @@ export const avatarApplyRotation = (entity: Entity) => {
 /**
  * Avatar movement via velocity spring and collider velocity
  */
-export const avatarApplyVelocity = (entity, forwardOrientation) => {
+export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaternion) => {
   const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
@@ -177,7 +178,9 @@ export const avatarApplyVelocity = (entity, forwardOrientation) => {
     }
   }
 
-  rigidBody.body.setLinvel(currentVelocity, true)
+  if (hasComponent(entity, NetworkObjectAuthorityTag)) {
+    rigidBody.body.setLinvel(currentVelocity, true)
+  }
 }
 
 export const avatarStepOverObstacles = (entity: Entity, forwardOrientation: Quaternion) => {

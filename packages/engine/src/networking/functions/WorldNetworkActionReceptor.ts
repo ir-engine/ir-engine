@@ -21,9 +21,11 @@ import {
   setTransformComponent,
   TransformComponent
 } from '../../transform/components/TransformComponent'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag
+} from '../components/NetworkObjectComponent'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 const receiveSpawnObject = (
@@ -44,7 +46,7 @@ const receiveSpawnObject = (
 
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    addComponent(entity, NetworkObjectOwnedTag, true)
+    addComponent(entity, NetworkObjectOwnedTag)
     addComponent(entity, NetworkObjectAuthorityTag)
   }
 

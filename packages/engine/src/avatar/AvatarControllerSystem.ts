@@ -21,6 +21,7 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
+import { NetworkObjectAuthorityTag } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { NameComponent } from '../scene/components/NameComponent'
@@ -96,6 +97,16 @@ export default async function AvatarControllerSystem(world: World) {
       const controller = getComponent(controlledEntity, AvatarControllerComponent)
       updateAvatarControllerOnGround(controlledEntity)
       if (controller.movementEnabled) {
+        /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
+         *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
+         *    if detecting input on the other user
+         */
+        if (
+          !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
+          controller.localMovementDirection.lengthSq() > 0.1
+        ) {
+          setComponent(controlledEntity, NetworkObjectAuthorityTag)
+        }
         moveAvatarWithVelocity(controlledEntity)
       }
 

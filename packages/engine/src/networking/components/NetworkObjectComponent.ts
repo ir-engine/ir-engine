@@ -49,3 +49,13 @@ export const NetworkObjectComponent = defineComponent({
     }
   }
 })
+
+/**
+ * Authority is device-specific.
+ * Ownership is user-specific.
+ * An object is owned by one user, having multiple representations across devices as entities, of which only one is the authority.
+ * Authority can be transferred to other devices, including those operated by different users.
+ */
+export const NetworkObjectAuthorityTag = defineComponent({ name: 'NetworkObjectComponent' })
+
+export const NetworkObjectOwnedTag = defineComponent({ name: 'NetworkObjectComponent' })

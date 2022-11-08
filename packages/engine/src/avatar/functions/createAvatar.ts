@@ -18,8 +18,7 @@ import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
@@ -63,8 +62,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
         action.$time > spawnAction.$time
     )
     if (didSpawnEarlierThanThisClient) {
-      relinquishControlOfAvatar(existingAvatarEntity)
-      dispatchAction(EngineActions.avatarAlreadyInWorld({}))
+      hasComponent(entity, NetworkObjectAuthorityTag) && removeComponent(entity, NetworkObjectAuthorityTag)
     }
     return UndefinedEntity
   }
@@ -198,23 +196,4 @@ export const createAvatarController = (entity: Entity) => {
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
 
   addComponent(entity, CollisionComponent, new Map())
-}
-
-export const takeControlOfAvatar = (action: typeof WorldNetworkAction.takeControlOfAvatar.matches._TYPE) => {
-  const world = Engine.instance.currentWorld
-  const entity = world.getUserAvatarEntity(action.$from)!
-  setComponent(entity, LocalAvatarTagComponent, true)
-  setComponent(entity, LocalInputTagComponent, true)
-  setComponent(entity, NetworkObjectOwnedTag, true)
-  setComponent(entity, NetworkObjectAuthorityTag, true)
-  createAvatarController(entity)
-}
-
-export const relinquishControlOfAvatar = (entity: Entity) => {
-  hasComponent(entity, FollowCameraComponent) && removeComponent(entity, FollowCameraComponent)
-  hasComponent(entity, AvatarControllerComponent) && removeComponent(entity, AvatarControllerComponent)
-  hasComponent(entity, LocalAvatarTagComponent) && removeComponent(entity, LocalAvatarTagComponent)
-  hasComponent(entity, LocalInputTagComponent) && removeComponent(entity, LocalInputTagComponent)
-  hasComponent(entity, NetworkObjectOwnedTag) && removeComponent(entity, NetworkObjectOwnedTag)
-  hasComponent(entity, NetworkObjectAuthorityTag) && removeComponent(entity, NetworkObjectAuthorityTag)
 }
