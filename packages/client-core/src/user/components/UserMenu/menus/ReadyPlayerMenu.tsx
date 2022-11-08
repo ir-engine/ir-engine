@@ -170,7 +170,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
       {loading !== LoadingState.None && (
         <LoadingView
-          sx={{ position: 'absolute' }}
+          sx={{ position: 'absolute', background: 'inherit' }}
           variant="body2"
           title={
             loading === LoadingState.Downloading
@@ -203,7 +203,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
           width: THUMBNAIL_WIDTH + 'px',
           height: THUMBNAIL_HEIGHT + 'px',
           margin: 'auto',
-          display: avatarUrl && loading !== LoadingState.Uploading ? 'block' : 'none',
+          display: avatarUrl ? 'block' : 'none',
           boxShadow: avatarPreviewLoaded ? '0 0 10px var(--buttonOutlined)' : 'none',
           borderRadius: '8px'
         }}
