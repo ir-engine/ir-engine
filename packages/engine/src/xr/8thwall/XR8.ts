@@ -22,6 +22,7 @@ import { XR8Type } from './XR8Types'
 type XR8Assets = {
   xr8Script: HTMLScriptElement
   xrExtrasScript: HTMLScriptElement
+  xrCoachingOverlayScript: HTMLScriptElement
 }
 
 function loadScript(url): Promise<HTMLScriptElement> {
@@ -39,7 +40,7 @@ function loadScript(url): Promise<HTMLScriptElement> {
  * @returns
  */
 const initialize8thwall = async (): Promise<XR8Assets> => {
-  const [xr8Script, xrExtrasScript] = await Promise.all([
+  const [xr8Script, xrExtrasScript, xrCoachingOverlayScript] = await Promise.all([
     loadScript(`https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`),
     loadScript(`https://cdn.8thwall.com/web/xrextras/xrextras.js`),
     loadScript(`https://cdn.8thwall.com/web/coaching-overlay/coaching-overlay.js`)
@@ -65,7 +66,8 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
 
   return {
     xr8Script,
-    xrExtrasScript
+    xrExtrasScript,
+    xrCoachingOverlayScript
   }
 }
 
@@ -437,6 +439,7 @@ export default async function XR8System(world: World) {
     if (_8thwallScripts) {
       _8thwallScripts.xr8Script.remove()
       _8thwallScripts.xrExtrasScript.remove()
+      _8thwallScripts.xrCoachingOverlayScript.remove()
     }
     if (cameraCanvas) cameraCanvas.remove()
     revertXRSessionFunctions()
