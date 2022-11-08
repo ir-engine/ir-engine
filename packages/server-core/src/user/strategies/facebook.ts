@@ -30,7 +30,8 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       ...baseData,
       email: profile.email,
       type: 'facebook',
-      userId
+      userId,
+      accountIdentifier: profile.name
     }
   }
 

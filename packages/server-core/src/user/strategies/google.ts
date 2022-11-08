@@ -30,7 +30,8 @@ export class Googlestrategy extends CustomOAuthStrategy {
       ...baseData,
       email: profile.email,
       type: 'google',
-      userId
+      userId,
+      accountIdentifier: profile.email
     }
   }
 

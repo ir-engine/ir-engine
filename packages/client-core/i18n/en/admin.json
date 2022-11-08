@@ -369,6 +369,7 @@
       "avatarRequired": "Avatar is required",
       "scopeTypeRequired": "Scope type is required",
       "hideGuests": "Hide guests",
+      "id": "Id",
       "name": "Name",
       "avatar": "Avatar",
       "grantScope": "Grant Scope",
@@ -378,7 +379,17 @@
       "confirmUserDelete": "Do you want to delete user",
       "isGuest": "Is guest",
       "selectAllScopes": "Select All Scopes",
-      "clearAllScopes": "Clear All Scopes"
+      "clearAllScopes": "Clear All Scopes",
+      "userSearch": "user by id, name or account identifier",
+      "linkedAccounts": "Linked Accounts",
+      "discord": "Discord",
+      "facebook": "Facebook",
+      "google": "Google",
+      "github": "Github",
+      "linkedIn": "LinkedIn",
+      "twitter": "Twitter",
+      "sms": "SMS",
+      "email": "Email"
     },
     "server": {
       "loading": "Fetching Server Info",
