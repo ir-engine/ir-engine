@@ -15,6 +15,7 @@ import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
 import { XRAction, XRState } from '../XRState'
+import { VPSPipeline } from './VPSPipeline'
 import { XREPipeline } from './WebXR8thwallProxy'
 import { XR8CameraModule } from './XR8CameraModule'
 import { XR8Type } from './XR8Types'
@@ -98,11 +99,9 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
   return new Promise<HTMLCanvasElement>((resolve, reject) => {
     const vpsWayspotName = world.sceneMetadata.xr.vpsWayspotName.value
 
-    // if (vpsWayspotName) {
-    //  XR8.VpsCoachingOverlay.config({
-    //    wayspotName: vpsWayspotName
-    //  })
-    // }
+    XR8.XrController.configure({
+      enableVps: !!vpsWayspotName
+    })
 
     XR8.addCameraPipelineModules([
       XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
@@ -110,8 +109,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
       XR8.XrController.pipelineModule({
         // enableLighting: true
         // enableWorldPoints: true,
-        // imageTargets: true,
-        enableVps: !!vpsWayspotName
+        // imageTargets: true
       }),
       // XR8.VpsCoachingOverlay.pipelineModule(),
       XRExtras.RuntimeError.pipelineModule()
@@ -136,14 +134,21 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
       requiredPermissions: () => [
         requiredPermissions.CAMERA,
         requiredPermissions.DEVICE_MOTION,
-        requiredPermissions.DEVICE_ORIENTATION
-        // requiredPermissions.DEVICE_GPS,
+        requiredPermissions.DEVICE_ORIENTATION,
+        requiredPermissions.DEVICE_GPS
         // requiredPermissions.MICROPHONE
       ]
     })
 
     XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
     XR8.addCameraPipelineModule(XREPipeline(world))
+    XR8.addCameraPipelineModule(VPSPipeline(world))
+
+    // if (vpsWayspotName) {
+    //   XR8.VpsCoachingOverlay.configure({
+    //     wayspotName: vpsWayspotName
+    //   })
+    // }
 
     XR8.run({ canvas: cameraCanvas })
   })

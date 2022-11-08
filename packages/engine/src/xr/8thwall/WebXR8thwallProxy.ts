@@ -38,6 +38,7 @@ export const XREPipeline = (world: World) => {
       }
     },
     onVideoSizeChange: () => {},
-    requiredPermission: () => {}
+    requiredPermission: () => {},
+    listeners: []
   }
 }

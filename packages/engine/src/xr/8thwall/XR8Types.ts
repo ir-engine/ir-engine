@@ -7,6 +7,20 @@ export type XR8Type = {
   XrController
   XrPermissions
   VpsCoachingOverlay
+  Vps: {
+    makeWayspotWatcher: (args: {
+      onVisible: () => void
+      onHidden: () => void
+      pollGps: boolean
+      lat: number
+      lng: number
+    }) => {
+      dispose: () => void
+      pollGps: (start: boolean) => void
+      setLatLng: (lat: number, lng: number) => void
+    }
+    projectWayspots: () => Promise<Array<any>>
+  }
   Threejs: {
     xrScene: () => { renderer: WebGLRenderer; scene: Scene; camera: PerspectiveCamera }
     pipelineModule: () => any
