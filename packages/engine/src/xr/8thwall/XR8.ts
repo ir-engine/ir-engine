@@ -25,28 +25,26 @@ type XR8Assets = {
   xr8Script: HTMLScriptElement
   xrExtrasScript: HTMLScriptElement
 }
+
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script')
+    script.async = true
+    script.addEventListener('load', () => resolve(script))
+    script.addEventListener('error', () => reject())
+    document.head.appendChild(script)
+    script.src = url
+  })
+}
 /**
  * Initializes the scripts that loads 8thwall
  * @returns
  */
 const initialize8thwall = async (): Promise<XR8Assets> => {
   const [xr8Script, xrExtrasScript] = await Promise.all([
-    new Promise<HTMLScriptElement>((resolve, reject) => {
-      const _8thwallScript = document.createElement('script')
-      _8thwallScript.async = true
-      _8thwallScript.addEventListener('load', () => resolve(_8thwallScript))
-      _8thwallScript.addEventListener('error', () => reject())
-      document.head.appendChild(_8thwallScript)
-      _8thwallScript.src = `https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`
-    }),
-    new Promise<HTMLScriptElement>((resolve, reject) => {
-      const _xrExtrasScript = document.createElement('script')
-      _xrExtrasScript.async = true
-      _xrExtrasScript.addEventListener('load', () => resolve(_xrExtrasScript))
-      _xrExtrasScript.addEventListener('error', () => reject())
-      document.head.appendChild(_xrExtrasScript)
-      _xrExtrasScript.src = `https://cdn.8thwall.com/web/xrextras/xrextras.js`
-    })
+    loadScript(`https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`),
+    loadScript(`https://cdn.8thwall.com/web/xrextras/xrextras.js`),
+    loadScript(`https://cdn.8thwall.com/web/coaching-overlay/coaching-overlay.js`)
   ])
 
   /** the global XR8 object will not exist immediately, so wait for it */
