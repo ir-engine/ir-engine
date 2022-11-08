@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
+import EmailIcon from '@mui/icons-material/Email'
+import GitHubIcon from '@mui/icons-material/GitHub'
+import PhoneIcon from '@mui/icons-material/Phone'
 import Box from '@mui/material/Box'
+import Tooltip from '@mui/material/Tooltip'
 
+import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
+import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
+import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
+import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
+import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
@@ -60,16 +70,80 @@ const UserTable = ({ className, search }: UserProps) => {
     el: UserInterface,
     name: string,
     avatarId: string | JSX.Element,
+    identityProviders: IdentityProvider[],
     isGuest: string,
     location: string | JSX.Element,
     inviteCode: string | JSX.Element,
     instanceId: string | JSX.Element
   ): UserData => {
+    const discordIp = identityProviders.find((ip) => ip.type === 'discord')
+    const googleIp = identityProviders.find((ip) => ip.type === 'google')
+    const facebookIp = identityProviders.find((ip) => ip.type === 'facebook')
+    const twitterIp = identityProviders.find((ip) => ip.type === 'twitter')
+    const linkedinIp = identityProviders.find((ip) => ip.type === 'linkedin')
+    const githubIp = identityProviders.find((ip) => ip.type === 'github')
+    const emailIp = identityProviders.find((ip) => ip.type === 'email')
+    const smsIp = identityProviders.find((ip) => ip.type === 'sms')
+
     return {
       id,
       el,
       name,
       avatarId,
+      accountIdentifier: (
+        <Box sx={{ display: 'flex', gap: 1.5 }}>
+          {discordIp && (
+            <Tooltip title={discordIp.accountIdentifier!} arrow>
+              <span>
+                <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
+              </span>
+            </Tooltip>
+          )}
+          {googleIp && (
+            <Tooltip title={googleIp.accountIdentifier!} arrow>
+              <span>
+                <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
+              </span>
+            </Tooltip>
+          )}
+          {facebookIp && (
+            <Tooltip title={facebookIp.accountIdentifier!} arrow>
+              <span>
+                <FacebookIcon width="20px" height="20px" viewBox="0 0 40 40" />
+              </span>
+            </Tooltip>
+          )}
+          {twitterIp && (
+            <Tooltip title={twitterIp.accountIdentifier!} arrow>
+              <span>
+                <TwitterIcon width="20px" height="20px" viewBox="0 0 40 40" />
+              </span>
+            </Tooltip>
+          )}
+          {linkedinIp && (
+            <Tooltip title={linkedinIp.accountIdentifier!} arrow>
+              <span>
+                <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
+              </span>
+            </Tooltip>
+          )}
+          {githubIp && (
+            <Tooltip title={githubIp.accountIdentifier!} arrow>
+              <GitHubIcon width="20px" height="20px" />
+            </Tooltip>
+          )}
+          {emailIp && (
+            <Tooltip title={emailIp.accountIdentifier!} arrow>
+              <EmailIcon width="20px" height="20px" />
+            </Tooltip>
+          )}
+          {smsIp && (
+            <Tooltip title={smsIp.accountIdentifier!} arrow>
+              <PhoneIcon width="20px" height="20px" />
+            </Tooltip>
+          )}
+        </Box>
+      ),
       isGuest,
       location,
       inviteCode,
@@ -106,10 +180,11 @@ const UserTable = ({ className, search }: UserProps) => {
 
   const rows = adminUsers.map((el) => {
     return createData(
-      el.id || '',
+      el.id,
       el,
       el.name,
       el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
+      el.identity_providers || [],
       el.isGuest.toString(),
       el.instance && el.instance.location ? (
         el.instance.location.name

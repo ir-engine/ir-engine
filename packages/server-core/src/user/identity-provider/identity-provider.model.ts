@@ -16,6 +16,7 @@ export default (app: Application) => {
         primaryKey: true
       },
       token: { type: DataTypes.STRING, unique: true },
+      accountIdentifier: { type: DataTypes.STRING },
       password: { type: DataTypes.STRING },
       isVerified: { type: DataTypes.BOOLEAN },
       verifyToken: { type: DataTypes.STRING },
