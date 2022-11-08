@@ -283,7 +283,7 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const changeMask = readUint8(v)
 
   let entity = world.getNetworkObject(fromUserId, netId)
-  if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) removeComponent(entity, NetworkObjectAuthorityTag) //entity = UndefinedEntity
+  if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
 
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, world.dirtyTransforms)

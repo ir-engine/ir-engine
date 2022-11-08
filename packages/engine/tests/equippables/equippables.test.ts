@@ -69,7 +69,7 @@ describe.skip('Equippables Integration Tests', () => {
     // initially the object is owned by server
     addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: world.worldNetwork.hostId,
-      authorityUserId: world.worldNetwork.hostId,
+      authorityPeerID: world.worldNetwork.hostId,
       networkId: 0 as NetworkId
     })
 

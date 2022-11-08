@@ -21,7 +21,7 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
-import { NetworkObjectAuthorityTag } from '../networking/components/NetworkObjectComponent'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { NameComponent } from '../scene/components/NameComponent'
@@ -103,8 +103,17 @@ export default async function AvatarControllerSystem(world: World) {
          */
         if (
           !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
+          world.worldNetwork &&
           controller.localMovementDirection.lengthSq() > 0.1
         ) {
+          const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
+          dispatchAction(
+            WorldNetworkAction.transferAuthorityOfObject({
+              ownerId: networkObject.ownerId,
+              networkId: networkObject.networkId,
+              newAuthority: world.worldNetwork?.peerID
+            })
+          )
           setComponent(controlledEntity, NetworkObjectAuthorityTag)
         }
         moveAvatarWithVelocity(controlledEntity)

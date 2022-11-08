@@ -9,6 +9,7 @@ import {
   addComponent,
   ComponentType,
   getComponent,
+  getComponentState,
   hasComponent,
   removeComponent,
   setComponent
@@ -40,7 +41,7 @@ const receiveSpawnObject = (
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityUserId: action.$from,
+    authorityPeerID: action.$peer,
     networkId: action.networkId
   })
 
@@ -74,7 +75,7 @@ const receiveRegisterSceneObject = (
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityUserId: action.$from,
+    authorityPeerID: action.$peer,
     networkId: action.networkId
   })
 
@@ -148,13 +149,13 @@ const receiveTransferAuthorityOfObject = (
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
     )
 
-  getComponent(entity, NetworkObjectComponent).authorityUserId = action.newAuthority
+  getComponentState(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 
-  if (Engine.instance.userId === action.newAuthority) {
+  if (world?.worldNetwork.peerID === action.newAuthority) {
     if (hasComponent(entity, NetworkObjectAuthorityTag))
       return console.warn(`Warning - User ${Engine.instance.userId} already has authority over entity ${entity}.`)
 
-    addComponent(entity, NetworkObjectAuthorityTag, true)
+    setComponent(entity, NetworkObjectAuthorityTag)
   } else {
     if (hasComponent(entity, NetworkObjectAuthorityTag)) removeComponent(entity, NetworkObjectAuthorityTag)
   }

@@ -47,11 +47,10 @@ export const avatarRadius = 0.25
 export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
-export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.matches._TYPE): Entity => {
+export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawnAvatar.matches._TYPE) => {
   const world = Engine.instance.currentWorld
   const userId = spawnAction.$from
   const existingAvatarEntity = world.getUserAvatarEntity(spawnAction.$from)
-  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
   // already spawned into the world on another device or tab
   if (existingAvatarEntity) {
@@ -62,11 +61,13 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
         action.$time > spawnAction.$time
     )
     if (didSpawnEarlierThanThisClient) {
-      hasComponent(entity, NetworkObjectAuthorityTag) && removeComponent(entity, NetworkObjectAuthorityTag)
+      hasComponent(existingAvatarEntity, NetworkObjectAuthorityTag) &&
+        removeComponent(existingAvatarEntity, NetworkObjectAuthorityTag)
     }
-    return UndefinedEntity
+    return
   }
 
+  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
   const transform = getComponent(entity, TransformComponent)
 
   // The visuals group is centered for easy actor tilting
@@ -131,8 +132,6 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   }
 
   addComponent(entity, ShadowComponent, { receive: true, cast: true })
-
-  return entity
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

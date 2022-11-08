@@ -34,7 +34,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarTeleportComponent } from '../components/AvatarTeleportComponent'
 import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
-import { avatarRadius } from './createAvatar'
+import { avatarRadius } from './spawnAvatarReceptor'
 
 const _vec = new Vector3()
 const _vec2 = new Vector3()

@@ -339,6 +339,7 @@ describe('DataWriter', () => {
     const entity = createEntity()
     const networkId = 999 as NetworkId
     const userId = '0' as UserId
+    const peerID = 'peer id' as PeerID
     const userIndex = 0
 
     // construct values for a valid quaternion
@@ -357,7 +358,7 @@ describe('DataWriter', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
-      authorityUserId: userId,
+      authorityPeerID: peerID,
       ownerId: userId
     })
 
@@ -419,7 +420,7 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
@@ -432,7 +433,7 @@ describe('DataWriter', () => {
 
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
     })
@@ -505,7 +506,7 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
@@ -518,7 +519,7 @@ describe('DataWriter', () => {
 
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
     })

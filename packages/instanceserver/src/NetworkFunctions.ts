@@ -308,26 +308,6 @@ export async function handleJoinWorld(
   if (data.inviteCode && !network.app.isChannelInstance) await getUserSpawnFromInvite(network, user, data.inviteCode!)
 }
 
-export function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, peerId: PeerID) {
-  // If we are already logged in, kick the other socket
-  const client = network.peers.get(peerId)
-  if (client) {
-    if (client.peerID === socket.id) {
-      logger.info('Client already logged in, disallowing new connection')
-      return true
-    }
-
-    // kick old client instead of new one
-    logger.info('Client already exists, kicking the old client and disconnecting')
-    client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
-    client.socket?.disconnect()
-    handleDisconnect(network, client.socket!)
-
-    // return true anyway, new client will send another connect to world request which will pass
-    return true
-  }
-}
-
 const getUserSpawnFromInvite = async (
   network: SocketWebRTCServerNetwork,
   user: UserInterface,
@@ -415,10 +395,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   const userId = getUserIdFromSocketId(network, socket.id) as UserId
   const peerID = socket.id as PeerID
   const disconnectedClient = network.peers.get(peerID)
-  if (!disconnectedClient)
-    return logger.warn(
-      'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake.'
-    )
+  if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not foudn`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
@@ -442,7 +419,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
 
     NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
     network.updatePeers()
-    logger.info('Disconnecting clients for user ' + userId)
+    logger.info(`Disconnecting user ${userId} on socket ${peerID}`)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
     if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close()

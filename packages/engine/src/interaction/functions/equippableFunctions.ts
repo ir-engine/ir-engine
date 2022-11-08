@@ -18,7 +18,7 @@ export const equipEntity = (
 ): void => {
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
     const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
-    if (networkComponent.authorityUserId === Engine.instance.userId) {
+    if (networkComponent.authorityPeerID === Engine.instance.currentWorld?.worldNetwork.peerID) {
       dispatchAction(
         WorldNetworkAction.setEquippedObject({
           object: {
@@ -34,8 +34,8 @@ export const equipEntity = (
         WorldNetworkAction.requestAuthorityOverObject({
           networkId: networkComponent.networkId,
           ownerId: networkComponent.ownerId,
-          newAuthority: Engine.instance.userId,
-          $to: networkComponent.authorityUserId
+          newAuthority: Engine.instance.currentWorld?.worldNetwork.peerID,
+          $to: Engine.instance.currentWorld?.worldNetwork.peers.get(networkComponent.authorityPeerID)?.userId
         })
       )
     }
@@ -48,7 +48,7 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   removeComponent(equipperEntity, EquipperComponent)
   const networkComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
   const networkOwnerComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectOwnedTag)
-  if (networkComponent.authorityUserId === Engine.instance.userId) {
+  if (networkComponent.authorityPeerID === Engine.instance.currentWorld?.worldNetwork.peerID) {
     dispatchAction(
       WorldNetworkAction.setEquippedObject({
         object: {
@@ -64,7 +64,7 @@ export const unequipEntity = (equipperEntity: Entity): void => {
       WorldNetworkAction.transferAuthorityOfObject({
         networkId: networkComponent.networkId,
         ownerId: networkComponent.ownerId,
-        newAuthority: networkComponent.authorityUserId
+        newAuthority: networkComponent.authorityPeerID
       })
     )
   }

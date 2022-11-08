@@ -20,7 +20,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
-import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
 import {
   AudioNodeGroup,
@@ -104,7 +104,7 @@ export default async function PositionalAudioSystem(world: World) {
   const setMediaStreamVolumeActionQueue = createActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
 
   /** Weak map entry is automatically GC'd when network object is removed */
-  const avatarAudioStreams: WeakMap<NetworkObjectComponentType, MediaStream> = new WeakMap()
+  const avatarAudioStreams: WeakMap<ComponentType<typeof NetworkObjectComponent>, MediaStream> = new WeakMap()
 
   const positionalAudioPannerReactor = startQueryReactor(
     [PositionalAudioComponent, TransformComponent],

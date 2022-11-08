@@ -481,7 +481,7 @@ describe('DataReader', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
-      authorityUserId: userId,
+      authorityPeerID: userId,
       ownerId: userId
     })
 
@@ -525,11 +525,12 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.position.z[entity], posZ)
   })
 
-  it('should remove NetworkObjectAuthorityTag readEntity if reading back own data from different peer', () => {
+  it('should not readEntity if reading back own data', () => {
     const view = createViewCursor()
     const entity = createEntity()
     const networkId = 5678 as NetworkId
-    const userId = 'user Id' as UserId
+    const userId = 'user id' as UserId
+    const peerID = 'peer id' as PeerID
     Engine.instance.userId = userId
     const userIndex = 0
 
@@ -539,20 +540,16 @@ describe('DataReader', () => {
     network.userIndexToUserID = new Map([[userIndex, userId]])
     network.userIDToUserIndex = new Map([[userId, userIndex]])
 
-    const [a, b, c] = [0.167, 0.167, 0.167]
-    let d = Math.sqrt(1 - (a * a + b * b + c * c))
-
-    const [posX, posY, posZ] = [1.5, 2.5, 3.5]
-    const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
     setTransformComponent(entity)
     const transform = getComponent(entity, TransformComponent)
-    transform.position.set(posX, posY, posZ)
-    transform.rotation.set(rotX, rotY, rotZ, rotW)
+    transform.position.set(x, y, z)
+    transform.rotation.set(x, y, z, w)
 
     setComponent(entity, NetworkObjectComponent, {
       networkId,
-      authorityUserId: userId,
+      authorityPeerID: peerID,
       ownerId: userId
     })
 
@@ -571,14 +568,14 @@ describe('DataReader', () => {
 
     assert(!hasComponent(entity, NetworkObjectAuthorityTag))
 
-    // should repopulate data as we are no longer in control of it
-    strictEqual(TransformComponent.position.x[entity], posX)
-    strictEqual(TransformComponent.position.y[entity], posY)
-    strictEqual(TransformComponent.position.z[entity], posZ)
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    // should no repopulate as we own this entity
+    strictEqual(TransformComponent.position.x[entity], 0)
+    strictEqual(TransformComponent.position.y[entity], 0)
+    strictEqual(TransformComponent.position.z[entity], 0)
+    strictEqual(TransformComponent.rotation.x[entity], 0)
+    strictEqual(TransformComponent.rotation.y[entity], 0)
+    strictEqual(TransformComponent.rotation.z[entity], 0)
+    strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
     strictEqual(view.cursor, 36)
@@ -636,7 +633,7 @@ describe('DataReader', () => {
     const network = Engine.instance.currentWorld.worldNetwork
 
     const userId = 'userId' as UserId
-    const peerId = 'peerId' as PeerID
+    const peerID = 'peerId' as PeerID
     const n = 50
     const entities: Entity[] = Array(n)
       .fill(0)
@@ -660,13 +657,13 @@ describe('DataReader', () => {
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: peerID,
         ownerId: userId
       })
       network.userIndexToUserID.set(userIndex, userId)
       network.userIDToUserIndex.set(userId, userIndex)
-      network.peerIndexToPeerID.set(peerIndex, peerId)
-      network.peerIDToPeerIndex.set(peerId, peerIndex)
+      network.peerIndexToPeerID.set(peerIndex, peerID)
+      network.peerIDToPeerIndex.set(peerID, peerIndex)
     })
 
     writeEntities(writeView, entities)
@@ -734,7 +731,7 @@ describe('DataReader', () => {
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: peerID,
         ownerId: userId
       })
     })
@@ -822,7 +819,7 @@ describe('DataReader', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
       setTransformComponent(entity)
       const transform = getComponent(entity, TransformComponent)
@@ -830,7 +827,7 @@ describe('DataReader', () => {
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
       network.userIndexToUserID.set(userIndex, userId)
@@ -864,7 +861,7 @@ describe('DataReader', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
 
       setTransformComponent(entity)
@@ -873,7 +870,7 @@ describe('DataReader', () => {
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
       network.userIndexToUserID.set(userIndex, userId)
@@ -902,7 +899,7 @@ describe('DataReader', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
       setTransformComponent(entity)
       const transform = getComponent(entity, TransformComponent)
@@ -910,7 +907,7 @@ describe('DataReader', () => {
       transform.rotation.set(x, y, z, w)
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
       network.userIndexToUserID.set(userIndex, userId)
