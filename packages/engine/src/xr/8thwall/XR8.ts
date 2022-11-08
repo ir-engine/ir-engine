@@ -26,7 +26,7 @@ type XR8Assets = {
   xrExtrasScript: HTMLScriptElement
 }
 
-function loadScript(url) {
+function loadScript(url): Promise<HTMLScriptElement> {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script')
     script.async = true
