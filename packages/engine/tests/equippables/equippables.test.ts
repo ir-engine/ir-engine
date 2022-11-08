@@ -3,6 +3,7 @@ import assert from 'assert'
 import { Matrix4, Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { applyIncomingActions, clearOutgoingActions } from '@xrengine/hyperflux'
 
@@ -31,11 +32,16 @@ describe.skip('Equippables Integration Tests', () => {
   it('Can equip and unequip', async () => {
     const world = Engine.instance.currentWorld
 
-    const hostUserId = 'world' as UserId
+    const hostUserId = 'world' as UserId & PeerID
     world.worldNetwork.hostId = hostUserId
     const hostIndex = 0
 
-    world.worldNetwork.peers.set(hostUserId, { userId: hostUserId, userIndex: hostIndex })
+    world.worldNetwork.peers.set(hostUserId, {
+      peerID: hostUserId,
+      peerIndex: hostIndex,
+      userId: hostUserId,
+      userIndex: hostIndex
+    })
 
     const userId = 'user id' as UserId
     const userName = 'user name'

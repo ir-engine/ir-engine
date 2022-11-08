@@ -3,6 +3,7 @@ import { TypedArray } from 'bitecs'
 import { Group, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
@@ -448,7 +449,7 @@ describe('DataReader', () => {
     const view = createViewCursor()
     const entity = createEntity()
     const networkId = 5678 as NetworkId
-    const userId = '0' as UserId
+    const userId = '0' as UserId & PeerID
     const userIndex = 0
 
     NetworkObjectComponent.networkId[entity] = networkId
@@ -456,6 +457,8 @@ describe('DataReader', () => {
     const network = Engine.instance.currentWorld.worldNetwork
     network.userIndexToUserID = new Map([[userIndex, userId]])
     network.userIDToUserIndex = new Map([[userId, userIndex]])
+    network.peerIndexToPeerID = new Map([[userIndex, userId]])
+    network.peerIDToPeerIndex = new Map([[userId, userIndex]])
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -618,10 +621,9 @@ describe('DataReader', () => {
     const writeView = createViewCursor()
 
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserID = new Map()
-    network.userIDToUserIndex = new Map()
 
     const userId = 'userId' as UserId
+    const peerId = 'peerId' as PeerID
     const n = 50
     const entities: Entity[] = Array(n)
       .fill(0)
@@ -637,6 +639,7 @@ describe('DataReader', () => {
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
       const userIndex = entity
+      const peerIndex = entity
 
       setTransformComponent(entity)
       const transform = getComponent(entity, TransformComponent)
@@ -649,6 +652,8 @@ describe('DataReader', () => {
       })
       network.userIndexToUserID.set(userIndex, userId)
       network.userIDToUserIndex.set(userId, userIndex)
+      network.peerIndexToPeerID.set(peerIndex, peerId)
+      network.peerIDToPeerIndex.set(peerId, peerIndex)
     })
 
     writeEntities(writeView, entities)
@@ -688,11 +693,9 @@ describe('DataReader', () => {
     const write = createDataWriter()
     const network = Engine.instance.currentWorld.worldNetwork
 
-    network.userIndexToUserID = new Map()
-    network.userIDToUserIndex = new Map()
-
     Engine.instance.userId = 'userId' as UserId
     const userId = Engine.instance.userId
+    const peerID = 'peerID' as PeerID
     const userIndex = 0
     network.userIndexToUserID.set(userIndex, userId)
     network.userIDToUserIndex.set(userId, userIndex)
@@ -723,7 +726,7 @@ describe('DataReader', () => {
       })
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
+    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
 
     const readView = createViewCursor(packet)
 
@@ -791,9 +794,8 @@ describe('DataReader', () => {
   it('should createDataReader and return empty packet if no changes were made on a fixedTick not divisible by 60', () => {
     const write = createDataWriter()
 
+    const peerID = 'peerId' as PeerID
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserID = new Map()
-    network.userIDToUserIndex = new Map()
     const engineState = getState(EngineState)
     engineState.fixedTick.set(1)
 
@@ -821,7 +823,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
+    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -835,11 +837,9 @@ describe('DataReader', () => {
   it('should createDataReader and return populated packet if no changes were made but on a fixedTick divisible by 60', () => {
     const write = createDataWriter()
     const network = Engine.instance.currentWorld.worldNetwork
-
-    network.userIndexToUserID = new Map()
-    network.userIDToUserIndex = new Map()
     const engineState = getState(EngineState)
     engineState.fixedTick.set(60)
+    const peerID = 'peerID' as PeerID
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -866,7 +866,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
+    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 372)
   })
@@ -875,10 +875,9 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const network = Engine.instance.currentWorld.worldNetwork
-    network.userIndexToUserID = new Map()
-    network.userIDToUserIndex = new Map()
     const engineState = getState(EngineState)
     engineState.fixedTick.set(1)
+    const peerID = 'peerID' as PeerID
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -904,7 +903,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    let packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
+    let packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -920,7 +919,7 @@ describe('DataReader', () => {
     TransformComponent.position.y[entity] = 1
     TransformComponent.position.z[entity] = 1
 
-    packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, entities)
+    packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 43)
 

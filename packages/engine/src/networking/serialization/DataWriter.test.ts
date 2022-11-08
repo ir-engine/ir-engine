@@ -2,6 +2,7 @@ import { strictEqual } from 'assert'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
@@ -486,6 +487,7 @@ describe('DataWriter', () => {
 
   it('should createDataWriter', () => {
     const world = Engine.instance.currentWorld
+    const peerID = 'peerID' as PeerID
 
     const write = createDataWriter()
 
@@ -522,7 +524,7 @@ describe('DataWriter', () => {
     })
 
     const network = Engine.instance.currentWorld.worldNetwork
-    const packet = write(world, network, Engine.instance.userId, entities)
+    const packet = write(world, network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =
       3 * Uint32Array.BYTES_PER_ELEMENT +

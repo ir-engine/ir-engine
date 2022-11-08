@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { applyIncomingActions, clearOutgoingActions, getState } from '@xrengine/hyperflux'
 
@@ -22,13 +23,13 @@ describe('NetworkPeerFunctions', () => {
   describe('addPeers', () => {
     it('should add peer', () => {
       const world = Engine.instance.currentWorld
-      const userId = 'user id' as UserId
-      Engine.instance.userId = 'another user id' as UserId
+      const userId = 'user id' as UserId & PeerID
+      Engine.instance.userId = 'another user id' as UserId & PeerID
       const userName = 'user name'
       const userIndex = 1
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
+      NetworkPeerFunctions.createPeer(network, userId, userIndex, userId, userIndex, userName, world)
 
       const worldState = getState(WorldState)
 
@@ -42,8 +43,8 @@ describe('NetworkPeerFunctions', () => {
 
     it('should udpate peer if it already exists', () => {
       const world = Engine.instance.currentWorld
-      const userId = 'user id' as UserId
-      Engine.instance.userId = 'another user id' as UserId
+      const userId = 'user id' as UserId & PeerID
+      Engine.instance.userId = 'another user id' as UserId & PeerID
       const userName = 'user name'
       const userName2 = 'user name 2'
       const userIndex = 1
@@ -52,12 +53,12 @@ describe('NetworkPeerFunctions', () => {
 
       const worldState = getState(WorldState)
 
-      NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
+      NetworkPeerFunctions.createPeer(network, userId, userIndex, userId, userIndex, userName, world)
       assert.equal(network.peers.get(userId)?.userId, userId)
       assert.equal(network.peers.get(userId)?.userIndex, userIndex)
       assert.equal(worldState.userNames[userId].value, userName)
 
-      NetworkPeerFunctions.createPeer(network, userId, userIndex2, userName2, world)
+      NetworkPeerFunctions.createPeer(network, userId, userIndex2, userId, userIndex2, userName2, world)
       assert.equal(network.peers.get(userId)?.userId, userId)
       assert.equal(network.peers.get(userId)?.userIndex, userIndex2)
       assert.equal(worldState.userNames[userId].value, userName2)
@@ -67,13 +68,13 @@ describe('NetworkPeerFunctions', () => {
   describe('removePeer', () => {
     it('should remove peer', () => {
       const world = Engine.instance.currentWorld
-      const userId = 'user id' as UserId
-      Engine.instance.userId = 'another user id' as UserId
+      const userId = 'user id' as UserId & PeerID
+      Engine.instance.userId = 'another user id' as UserId & PeerID
       const userName = 'user name'
       const userIndex = 1
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
+      NetworkPeerFunctions.createPeer(network, userId, userIndex, userId, userIndex, userName, world)
       NetworkPeerFunctions.destroyPeer(network, userId, world)
 
       assert(!network.peers.get(userId))
@@ -85,13 +86,13 @@ describe('NetworkPeerFunctions', () => {
 
     it('should remove peer and owned network objects', () => {
       const world = Engine.instance.currentWorld
-      const userId = 'user id' as UserId
-      Engine.instance.userId = 'another user id' as UserId
+      const userId = 'user id' as UserId & PeerID
+      Engine.instance.userId = 'another user id' as UserId & PeerID
       const userName = 'user name'
       const userIndex = 1
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
+      NetworkPeerFunctions.createPeer(network, userId, userIndex, userId, userIndex, userName, world)
       const networkId = 2 as NetworkId
 
       const entity = createEntity()

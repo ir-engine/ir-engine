@@ -2,6 +2,7 @@ import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
@@ -29,15 +30,15 @@ describe('WorldNetworkActionReceptors', () => {
 
   describe('spawnObject', () => {
     it('should spawn object owned by host', () => {
-      const hostUserId = 'world' as UserId
-      const userId = 'user id' as UserId
+      const hostUserId = 'world' as UserId & PeerID
+      const userId = 'user id' as UserId & PeerID
 
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, hostUserId, 0, 'host', world)
-      NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, hostUserId, 0, hostUserId, 0, 'host', world)
+      NetworkPeerFunctions.createPeer(network, userId, 1, userId, 1, 'user name', world)
 
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
@@ -67,16 +68,16 @@ describe('WorldNetworkActionReceptors', () => {
     })
 
     it('should spawn object owned by user', () => {
-      const userId = 'user id' as UserId
-      const hostId = 'host' as UserId
+      const userId = 'user id' as UserId & PeerID
+      const hostId = 'host' as UserId & PeerID
 
       Engine.instance.userId = userId
 
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, hostId, 0, 'host', world)
-      NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, hostId, 0, hostId, 0, 'host', world)
+      NetworkPeerFunctions.createPeer(network, userId, 1, userId, 1, 'user name', world)
 
       const objParams = 123
       const objNetId = 3 as NetworkId
@@ -105,17 +106,17 @@ describe('WorldNetworkActionReceptors', () => {
     })
 
     it('should spawn avatar owned by other', async () => {
-      const hostUserId = 'world' as UserId
-      const userId = 'user id' as UserId
-      const userId2 = 'second user id' as UserId
+      const hostUserId = 'world' as UserId & PeerID
+      const userId = 'user id' as UserId & PeerID
+      const userId2 = 'second user id' as UserId & PeerID
 
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, hostUserId, 0, 'world', world)
-      NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
-      NetworkPeerFunctions.createPeer(network, userId2, 2, 'second user name', world)
+      NetworkPeerFunctions.createPeer(network, hostUserId, 0, hostUserId, 0, 'world', world)
+      NetworkPeerFunctions.createPeer(network, userId, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, userId2, 2, userId2, 2, 'second user name', world)
 
       const objParams = {
         position: new Vector3(),
@@ -149,13 +150,13 @@ describe('WorldNetworkActionReceptors', () => {
     })
 
     it('should spawn avatar owned by user', async () => {
-      const userId = 'user id' as UserId
+      const userId = 'user id' as UserId & PeerID
 
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, userId, 1, userId, 1, 'user name', world)
 
       const action = WorldNetworkAction.spawnAvatar({ networkId: 42 as NetworkId })
       WorldNetworkActionReceptor.receiveSpawnObject(action)

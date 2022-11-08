@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
@@ -15,22 +16,24 @@ export const OfflineLocation = () => {
   const authState = useAuthState()
 
   /** OFFLINE */
-  useHookEffect(() => {
+  useEffect(() => {
     if (engineState.sceneLoaded.value) {
       const world = Engine.instance.currentWorld
       const userId = Engine.instance.userId
+      const userIndex = 1
+      const peerID = 'peerID' as PeerID
+      const peerIndex = 1
 
       world.hostIds.world.set(userId)
       world.networks.set(userId, new Network(userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
-      const index = 1
       NetworkPeerFunctions.createPeer(
         world.worldNetwork,
+        peerID,
+        peerIndex,
         userId,
-        index,
-        userId,
-        index,
+        userIndex,
         authState.user.name.value,
         world
       )
@@ -38,7 +41,10 @@ export const OfflineLocation = () => {
       receiveJoinWorld({
         highResTimeOrigin: performance.timeOrigin,
         worldStartTime: performance.now(),
-        cachedActions: []
+        cachedActions: [],
+        peerIndex,
+        peerID,
+        routerRtpCapabilities: undefined
       })
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
