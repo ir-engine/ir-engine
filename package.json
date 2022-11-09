@@ -86,7 +86,8 @@
     "validate": "npm run lint && lerna run validate",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
-    "bump-project-versions": "cross-env ts-node --swc scripts/bump-project-versions.js"
+    "bump-project-versions": "cross-env ts-node --swc scripts/bump-project-versions.js",
+    "update-site-manifest": "cross-env ts-node --swc scripts/update-site-manifest.ts"
   },
   "types": "lib/",
   "pre-commit": [
