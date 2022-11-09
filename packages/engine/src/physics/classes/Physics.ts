@@ -385,6 +385,7 @@ function castShape(world: World, shapecastQuery: ShapecastArgs) {
     shapecastQuery.direction,
     collider.shape,
     maxToi,
+    true,
     groups
   )
   if (hitWithNormal != null) {
