@@ -4,18 +4,27 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import config from '@xrengine/common/src/config'
 import { dispatchAction, getState, startReactor } from '@xrengine/hyperflux'
 
+import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  removeComponent,
+  removeQuery,
+  useQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
+import { VPSWaypointComponent } from '../VPSComponents'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
 import { XRAction, XRState } from '../XRState'
-import { VPSPipeline } from './VPSPipeline'
+import { addTestMeshes, VPSPipeline } from './VPSPipeline'
 import { XREPipeline } from './WebXR8thwallProxy'
 import { XR8CameraModule } from './XR8CameraModule'
 import { XR8Type } from './XR8Types'
@@ -97,23 +106,30 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
 
   const requiredPermissions = XR8.XrPermissions.permissions()
   return new Promise<HTMLCanvasElement>((resolve, reject) => {
-    const vpsWayspotName = world.sceneMetadata.xr.vpsWayspotName.value
+    const enableVps = !!vpsQuery().length
 
     XR8.XrController.configure({
-      enableVps: !!vpsWayspotName
+      // enableLighting: true
+      // enableWorldPoints: true,
+      // imageTargets: true,
+      enableVps
     })
 
     XR8.addCameraPipelineModules([
       XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
       XR8.Threejs.pipelineModule(),
-      XR8.XrController.pipelineModule({
-        // enableLighting: true
-        // enableWorldPoints: true,
-        // imageTargets: true
-      }),
+      XR8.XrController.pipelineModule(),
       // XR8.VpsCoachingOverlay.pipelineModule(),
       XRExtras.RuntimeError.pipelineModule()
     ])
+
+    const permissions = [
+      requiredPermissions.CAMERA,
+      requiredPermissions.DEVICE_MOTION,
+      requiredPermissions.DEVICE_ORIENTATION
+      // requiredPermissions.MICROPHONE
+    ]
+    if (enableVps) permissions.push(requiredPermissions.DEVICE_GPS)
 
     XR8.addCameraPipelineModule({
       name: 'XRE_camera_persmissions',
@@ -131,13 +147,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
           reject(`[XR8] Failed to get camera feed with reason ${reason}`)
         }
       },
-      requiredPermissions: () => [
-        requiredPermissions.CAMERA,
-        requiredPermissions.DEVICE_MOTION,
-        requiredPermissions.DEVICE_ORIENTATION,
-        requiredPermissions.DEVICE_GPS
-        // requiredPermissions.MICROPHONE
-      ]
+      requiredPermissions: () => permissions
     })
 
     XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
@@ -254,6 +264,7 @@ class XRFrameProxy {
 }
 
 const skyboxQuery = defineQuery([SkyboxComponent])
+const vpsQuery = defineQuery([VPSWaypointComponent])
 
 export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
@@ -392,21 +403,23 @@ export default async function XR8System(world: World) {
       .then((supported) => xrState.supportedSessionModes['immersive-ar'].set(supported))
   }
 
+  /**
+   * Scenes that specify that they have VPS should override using webxr to use 8thwall.
+   * - this will not cover the problem of going through a portal to a scene that has VPS,
+   *     or exiting one that does to one that does not. This requires exiting the immersive
+   *     session, changing the overrides, and entering the session again
+   */
   const vpsReactor = startReactor(function XR8VPSReactor() {
-    /**
-     * Scenes that specify that they have VPS should override using webxr to use 8thwall.
-     * - this will not cover the problem of going through a portal to a scene that has VPS,
-     *     or exiting one that does to one that does not. This requires exiting the immersive
-     *     session, changing the overrides, and entering the session again
-     */
+    const hasWaypoint = useQuery(vpsQuery).length
+
     useEffect(() => {
       /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
-      if (world.sceneMetadata.xr.vpsWayspotName || using8thWall) {
+      if (hasWaypoint || using8thWall) {
         overrideXRSessionFunctions()
       } else {
         revertXRSessionFunctions()
       }
-    }, [world.sceneMetadata.xr.vpsWayspotName])
+    }, [hasWaypoint])
 
     return null
   })
@@ -449,6 +462,7 @@ export default async function XR8System(world: World) {
     if (cameraCanvas) cameraCanvas.remove()
     revertXRSessionFunctions()
     vpsReactor.stop()
+    removeQuery(world, vpsQuery)
   }
 
   return {

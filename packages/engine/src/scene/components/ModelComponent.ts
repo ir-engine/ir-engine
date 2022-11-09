@@ -22,7 +22,7 @@ import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { MediaComponent } from './MediaComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
@@ -73,10 +73,11 @@ function ModelReactor({ root }: EntityReactorProps) {
   if (!hasComponent(entity, ModelComponent)) throw root.stop()
 
   const modelComponent = useComponent(entity, ModelComponent)
+  const groupComponent = useOptionalComponent(entity, GroupComponent)
+  const model = modelComponent.value
 
   // update src
   useEffect(() => {
-    const model = modelComponent.value
     if (model.src === model.scene?.userData?.src) return
 
     const loadModel = async () => {
@@ -114,17 +115,10 @@ function ModelReactor({ root }: EntityReactorProps) {
         }
 
         if (!entityExists(Engine.instance.currentWorld, entity)) return
-
+        console.log('MODEL COMPONENT LOAD', entity, scene)
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
         modelComponent.scene.set(scene)
-        addObjectToGroup(entity, scene)
-        setBoundingBoxComponent(entity)
-        parseGLTFModel(entity)
-
-        if (model.generateBVH) {
-          scene.traverse(generateMeshBVH)
-        }
       } catch (err) {
         console.error(err)
         addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
@@ -138,8 +132,15 @@ function ModelReactor({ root }: EntityReactorProps) {
   useEffect(() => {
     const scene = modelComponent.scene.value
     if (!scene) return
+    if (groupComponent?.value.find((group: any) => group === scene)) return
 
     addObjectToGroup(entity, scene)
+    parseGLTFModel(entity)
+
+    if (model.generateBVH) {
+      scene.traverse(generateMeshBVH)
+    }
+    setBoundingBoxComponent(entity)
     enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
     removeComponent(entity, SceneAssetPendingTagComponent)
 

@@ -2,6 +2,7 @@ import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperf
 
 import XR8 from './8thwall/XR8'
 import { World } from './../ecs/classes/World'
+import VPSSystem from './VPSSystem'
 import XRAnchorSystem from './XRAnchorSystem'
 import XRCameraSystem from './XRCameraSystem'
 import XRControllerSystem from './XRControllerSystem'
@@ -55,6 +56,7 @@ export default async function XRSystem(world: World) {
     cleanup,
     subsystems: [
       () => Promise.resolve({ default: XR8 }),
+      () => Promise.resolve({ default: VPSSystem }),
       () => Promise.resolve({ default: XRAnchorSystem }),
       () => Promise.resolve({ default: XRCameraSystem }),
       () => Promise.resolve({ default: XRControllerSystem }),

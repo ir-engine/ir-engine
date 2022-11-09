@@ -27,6 +27,7 @@ import { XRState } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
+import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import FogSystem from './FogSystem'
@@ -59,35 +60,35 @@ export default async function SceneObjectSystem(world: World) {
 
   const xrState = getState(XRState)
 
-  const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
-    const entity = props.root.entity
+  // const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
+  //   const entity = props.root.entity
 
-    const is8thWallActive = useHookstate(xrState.is8thWallActive)
+  //   const is8thWallActive = useHookstate(xrState.is8thWallActive)
 
-    useEffect(() => {
-      /** ensure that hmd has no heavy materials */
-      if (isHMD || is8thWallActive.value) {
-        // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
-        for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
-          object.traverse((obj: Mesh<any, any>) => {
-            if (obj.material)
-              if (ExpensiveMaterials.has(obj.material.constructor)) {
-                const prevMaterial = obj.material
-                const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-                prevMaterial.dispose()
-                obj.material = new MeshBasicMaterial().copy(prevMaterial)
-                obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
-                obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
+  //   useEffect(() => {
+  //     /** ensure that hmd has no heavy materials */
+  //     if (isHMD || is8thWallActive.value) {
+  //       // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
+  //       for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
+  //         object.traverse((obj: Mesh<any, any>) => {
+  //           if (obj.material)
+  //             if (ExpensiveMaterials.has(obj.material.constructor)) {
+  //               const prevMaterial = obj.material
+  //               const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+  //               prevMaterial.dispose()
+  //               obj.material = new MeshBasicMaterial().copy(prevMaterial)
+  //               obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
+  //               obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
-                // todo: find out why leaving the envMap makes basic & lambert materials transparent here
-                obj.material.envMap = null
-              }
-          })
-      }
-    }, [is8thWallActive])
+  //               // todo: find out why leaving the envMap makes basic & lambert materials transparent here
+  //               obj.material.envMap = null
+  //             }
+  //         })
+  //     }
+  //   }, [is8thWallActive])
 
-    return null
-  })
+  //   return null
+  // })
 
   const addedToGroup = (obj) => {
     const material = obj.material
@@ -107,6 +108,7 @@ export default async function SceneObjectSystem(world: World) {
 
     const groupComponent = useOptionalComponent(entity, GroupComponent)
     const visibleComponent = useOptionalComponent(entity, VisibleComponent)
+    const shadowComponent = useOptionalComponent(entity, ShadowComponent)
     const _groups = useHookstate([] as Object3DWithEntity[])
 
     useEffect(() => {
@@ -148,6 +150,16 @@ export default async function SceneObjectSystem(world: World) {
     useEffect(() => {
       if (groupComponent?.value) for (const obj of groupComponent.value) obj.visible = !!visibleComponent?.value
     }, [visibleComponent, groupComponent])
+
+    useEffect(() => {
+      if (groupComponent?.value) {
+        if (shadowComponent?.value)
+          for (const obj of groupComponent.value) {
+            obj.castShadow = shadowComponent.cast.value
+            obj.receiveShadow = shadowComponent.receive.value
+          }
+      }
+    }, [shadowComponent, groupComponent])
 
     return null
   })

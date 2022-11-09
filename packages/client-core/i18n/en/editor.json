@@ -145,6 +145,11 @@
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
     },
+    "vps-waypoint": {
+      "name": "VPS Waypoint",
+      "description": "Assign a VPS Waypoint",
+      "lbl-name": "Waypoint Name"
+    },
     "media": {
       "name": "Media",
       "description": "Audio and video playback",
