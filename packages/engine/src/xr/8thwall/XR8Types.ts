@@ -4,7 +4,30 @@ export type XR8Type = {
   addCameraPipelineModules
   addCameraPipelineModule
   GlTextureRenderer
-  XrController
+  XrController: {
+    configure: (args: {
+      disableWorldTracking?: boolean
+      enableLighting?: boolean
+      enableWorldPoints?: boolean
+      enableVps?: boolean
+      imageTargets?: Array<any>
+      leftHandedAxes?: boolean
+      mirroredDisplay?: boolean
+      scale?: 'responsive' | 'absolute'
+    }) => void
+    pipelineModule: () => CameraPipelineModule
+    hitTest: (
+      x: number,
+      y: number,
+      includedTypes: Array<'FEATURE_POINT' | 'ESTIMATED_SURFACE' | 'DETECTED_SURFACE'>
+    ) => Array<{
+      type: 'FEATURE_POINT' | 'ESTIMATED_SURFACE' | 'DETECTED_SURFACE' | 'UNSPECIFIED'
+      position: Vec3
+      rotation: Quat
+      distance: number
+    }>
+    updateCameraProjectionMatrix: (args: { origin: Vec3; facing: Quat }) => void
+  }
   XrPermissions
   VpsCoachingOverlay
   Vps: {
@@ -23,7 +46,7 @@ export type XR8Type = {
   }
   Threejs: {
     xrScene: () => { renderer: WebGLRenderer; scene: Scene; camera: PerspectiveCamera }
-    pipelineModule: () => any
+    pipelineModule: () => CameraPipelineModule
   }
   stop: () => void
   run: (props: { canvas: HTMLCanvasElement }) => void

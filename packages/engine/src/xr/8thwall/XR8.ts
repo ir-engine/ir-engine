@@ -112,6 +112,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
       // enableLighting: true
       // enableWorldPoints: true,
       // imageTargets: true,
+      scale: 'absolute',
       enableVps
     })
 
@@ -229,7 +230,7 @@ class XRSessionProxy extends EventDispatcher {
 class XRFrameProxy {
   getHitTestResults(source: XRHitTestSource) {
     const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position, rotation))
+    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position as Vector3, rotation as Quaternion))
   }
 
   get session() {
