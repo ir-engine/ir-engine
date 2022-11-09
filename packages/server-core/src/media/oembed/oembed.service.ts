@@ -23,6 +23,8 @@ export default (app: Application): void => {
       if (!queryURL) return new BadRequest('Must provide a valid URL for OEmbed')
       const url = new URL(queryURL)
       const isLocation = /^\/location\//.test(url.pathname)
+      const isAdminPanel = /^\/admin/.test(url.pathname)
+      const isEditor = /^\/editor/.test(url.pathname)
       const serverSettingsResult = (await app.service('server-setting').find()) as Paginated<ServerSetting>
       const clientSettingsResult = (await app.service('client-setting').find()) as Paginated<ClientSetting>
       if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {
@@ -32,8 +34,9 @@ export default (app: Application): void => {
           return new BadRequest('OEmbed request was for a different domain')
         const returned = {
           version: '1.0',
-          type: isLocation ? 'photo' : 'link',
+          type: 'link',
           title: `${clientSettings.title} - ${clientSettings.url.replace(/https:\/\//, '')}`,
+          description: clientSettings.appDescription,
           provider_name: `${clientSettings.title}`,
           provider_url: `${clientSettings.url}`,
           thumbnail_url:
@@ -54,10 +57,44 @@ export default (app: Application): void => {
           if (locationResult.total === 0) throw new BadRequest('Invalid location name')
           const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
           const storageProvider = getStorageProvider()
+          returned.title = `${locationResult.data[0].name} - ${clientSettings.title}`
+          returned.description = `Join others in VR at ${locationResult.data[0].name}, directly from the web browser`
+          returned.type = 'photo'
           returned.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
           returned.height = 320
           returned.width = 512
+        } else if (isAdminPanel) {
+          returned.title = `Admin Dashboard - ${clientSettings.title}`
+          returned.description = `Manage all aspects of your deployment. ${clientSettings.appDescription}`
+        } else if (isEditor) {
+          returned.title = `Editor - ${clientSettings.title}`
+          returned.description = `No need to download extra software. Create, publish, and edit your world directly in the web browser.`
+
+          let subPath = url.pathname.replace(/\/editor\//, '')
+          if (subPath.startsWith('editor')) {
+            subPath = url.pathname.replace(/\/editor/, '')
+          }
+
+          if (subPath.includes('/')) {
+            const locationResult = (await app.service('location').find({
+              query: {
+                sceneId: subPath
+              }
+            })) as Paginated<Location>
+            if (locationResult.total > 0) {
+              const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
+              const storageProvider = getStorageProvider()
+              returned.title = `${locationResult.data[0].name} Editor - ${clientSettings.title}`
+              returned.type = 'photo'
+              returned.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+              returned.height = 320
+              returned.width = 512
+            }
+          } else if (subPath.length > 0) {
+            returned.title = `${subPath} Editor - ${clientSettings.title}`
+          }
         }
+
         return returned
       }
     }
