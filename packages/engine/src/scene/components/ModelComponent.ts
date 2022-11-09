@@ -131,8 +131,7 @@ function ModelReactor({ root }: EntityReactorProps) {
   // update scene
   useEffect(() => {
     const scene = modelComponent.scene.value
-    if (!scene) return
-    if (groupComponent?.value.find((group: any) => group === scene)) return
+    if (!scene || !groupComponent?.value || groupComponent.value.find((group: any) => group === scene)) return
 
     addObjectToGroup(entity, scene)
     parseGLTFModel(entity)
