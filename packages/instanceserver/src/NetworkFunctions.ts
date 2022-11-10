@@ -245,7 +245,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     peerID,
     lastSeenTs: Date.now(),
     joinTs: Date.now(),
-    media: {},
+    media: {} as any,
     consumerLayers: {},
     stats: {},
     dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer

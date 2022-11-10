@@ -1,5 +1,6 @@
 import type SocketIO from 'socket.io'
 
+import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -15,7 +16,7 @@ export interface NetworkPeer {
   peerID: PeerID
   lastSeenTs?: any
   joinTs?: any
-  media?: {}
+  media?: Record<MediaTagType, any>
   consumerLayers?: {}
   stats?: {}
   instanceSendTransport?: any

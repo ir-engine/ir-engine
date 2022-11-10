@@ -14,7 +14,7 @@ import {
 import os from 'os'
 import { Socket } from 'socket.io'
 
-import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
+import { MediaStreamAppData, MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -217,7 +217,7 @@ export async function closeProducer(network: SocketWebRTCServerNetwork, producer
   const appData = producer.appData as MediaStreamAppData
 
   if (network.peers.has(appData.peerID)) {
-    delete network.peers.get(appData.peerID)!.media![producer.appData.mediaTag as any]
+    delete network.peers.get(appData.peerID)!.media![producer.appData.mediaTag]
   }
 }
 
@@ -240,7 +240,7 @@ export async function closeProducerAndAllPipeProducers(
     )
 
     // remove this track's info from our roomState...mediaTag bookkeeping
-    delete network.peers.get(producer.appData.peerID)?.media![producer.appData.mediaTag as any]
+    delete network.peers.get(producer.appData.peerID)?.media![producer.appData.mediaTag]
   }
 }
 
@@ -555,7 +555,7 @@ export async function handleWebRtcCloseProducer(network: SocketWebRTCServerNetwo
   const producer = network.producers.find((p) => p.id === producerId)!
   try {
     const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-      return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
+      return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
     })!
     if (hostClient && hostClient[1]) hostClient[1].socket!.emit(MessageTypes.WebRTCCloseProducer.toString(), producerId)
     await closeProducerAndAllPipeProducers(network, producer)
@@ -653,7 +653,7 @@ export async function handleWebRtcSendTrack(
 
 type HandleWebRtcReceiveTrackData = {
   mediaPeerId: PeerID
-  mediaTag
+  mediaTag: MediaTagType
   rtpCapabilities: any
   channelType: string
   channelId: string
