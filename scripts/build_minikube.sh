@@ -37,11 +37,11 @@ else
   MYSQL_DATABASE=$MYSQL_DATABASE
 fi
 
-if [ -z "$VITE_CLIENT_HOST" ]
+if [ -z "$VITE_APP_HOST" ]
 then
-  VITE_CLIENT_HOST=local.etherealengine.com
+  VITE_APP_HOST=local.etherealengine.com
 else
-  VITE_CLIENT_HOST=$VITE_CLIENT_HOST
+  VITE_APP_HOST=$VITE_APP_HOST
 fi
 
 if [ -z "$VITE_SERVER_HOST" ]
@@ -109,7 +109,7 @@ DOCKER_BUILDKIT=1 docker build -t xrengine \
   --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
   --build-arg MYSQL_USER=$MYSQL_USER \
   --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
-  --build-arg VITE_CLIENT_HOST=$VITE_CLIENT_HOST \
+  --build-arg VITE_APP_HOST=$VITE_APP_HOST \
   --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
   --build-arg VITE_FILE_SERVER=$VITE_FILE_SERVER \
   --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \

@@ -169,27 +169,6 @@ export const AdminUserService = {
     const result = (await API.instance.client.service('user').remove(id)) as UserInterface
     dispatchAction(AdminUserActions.userAdminRemoved({ data: result }))
   },
-  searchUserAction: async (data: any) => {
-    try {
-      const userState = accessUserState()
-      const skip = userState.skip.value
-      const limit = userState.limit.value
-      const userResult = (await API.instance.client.service('user').find({
-        query: {
-          $sort: {
-            name: 1
-          },
-          $skip: skip || 0,
-          $limit: limit,
-          action: 'search',
-          data
-        }
-      })) as Paginated<UserInterface>
-      dispatchAction(AdminUserActions.searchedUser({ userResult }))
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  },
   setSkipGuests: async (skipGuests: boolean) => {
     dispatchAction(AdminUserActions.setSkipGuests({ skipGuests }))
   },

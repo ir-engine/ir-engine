@@ -97,17 +97,6 @@ describe('user service', () => {
     assert.ok(item, 'user items is found')
   })
 
-  // it('should find users by action search', async () => {
-  //   const item = await app.service('user').find({
-  //     query: {
-  //       action: 'search',
-  //       data: 'Test'
-  //     },
-  //   })
-
-  //   assert.ok(item, 'user items is found')
-  // })
-
   it('should find users by action invite-code-lookup', async () => {
     const item = await app.service('user').find({
       query: {

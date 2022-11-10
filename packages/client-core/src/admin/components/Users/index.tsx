@@ -48,7 +48,7 @@ const Users = () => {
     <div>
       <Grid container spacing={1} className={styles.mb10px}>
         <Grid item sm={8} xs={12}>
-          <Search text="user" handleChange={handleChange} />
+          <Search text={t('admin:components.user.userSearch')} handleChange={handleChange} />
         </Grid>
         <Grid item sm={4} xs={8}>
           <Box sx={{ display: 'flex' }}>
