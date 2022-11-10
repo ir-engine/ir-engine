@@ -25,48 +25,19 @@ import {
   WayspotUpdatedEvent
 } from './XR8Types'
 
-export const addTestMeshes = (world: World) => {
-  const geometry = new IcosahedronGeometry(0.05, 2)
-  const material = new MeshStandardMaterial({ color: 0xffffff })
-
-  const mesh = new InstancedMesh(geometry, material, 1000)
-  mesh.receiveShadow = true
-  mesh.castShadow = true
-  mesh.frustumCulled = false
-  const amount = 10
-  const gap = 1
-  const color = new Color('white')
-
-  let i = 0
-  const offset = (amount - 1) / 2
-
-  const matrix = new Matrix4()
-
-  for (let x = 0; x < amount; x++) {
-    for (let y = 0; y < amount; y++) {
-      for (let z = 0; z < amount; z++) {
-        matrix.setPosition(offset - x * gap, offset - y * gap, offset - z * gap)
-        mesh.setMatrixAt(i, matrix)
-        mesh.setColorAt(i, color)
-        i++
-      }
-    }
-  }
-
-  world.scene.add(mesh)
-}
-
 export const VPSPipeline = (world: World) => {
   const vec3 = new Vector3()
   const quat = new Quaternion()
 
-  addTestMeshes(world)
-
   const vpsWaypointQuery = defineQuery([VPSWaypointComponent])
 
+  /**
+   * @todo
+   * Refactor to use meshes for occlusion & shadow
+   */
   const meshes = new Map<string, Mesh>()
   const onMeshUpdate = (args) => {
-    // console.log(args)
+    console.log(args)
     if (!args.detail) return
     const { id, position, rotation } = args.detail
     const mesh = meshes.get(id)
@@ -96,7 +67,7 @@ export const VPSPipeline = (world: World) => {
   }
 
   const onMeshLost = (args) => {
-    // console.log(args)
+    console.log(args)
     if (!args.detail) return
     const { id } = args.detail
     const mesh = meshes.get(id)

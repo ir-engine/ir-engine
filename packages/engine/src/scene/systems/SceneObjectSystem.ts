@@ -1,6 +1,6 @@
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
+import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
 
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -21,7 +21,6 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
-import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
@@ -58,37 +57,33 @@ export default async function SceneObjectSystem(world: World) {
   const groupQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  const xrState = getState(XRState)
+  const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
+    const entity = props.root.entity
 
-  // const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
-  //   const entity = props.root.entity
+    useEffect(() => {
+      /** ensure that hmd has no heavy materials */
+      if (isHMD) {
+        // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
+        for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
+          object.traverse((obj: Mesh<any, any>) => {
+            if (obj.material)
+              if (ExpensiveMaterials.has(obj.material.constructor)) {
+                const prevMaterial = obj.material
+                const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+                prevMaterial.dispose()
+                obj.material = new MeshBasicMaterial().copy(prevMaterial)
+                obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
+                obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
-  //   const is8thWallActive = useHookstate(xrState.is8thWallActive)
+                // todo: find out why leaving the envMap makes basic & lambert materials transparent here
+                obj.material.envMap = null
+              }
+          })
+      }
+    }, [])
 
-  //   useEffect(() => {
-  //     /** ensure that hmd has no heavy materials */
-  //     if (isHMD || is8thWallActive.value) {
-  //       // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
-  //       for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
-  //         object.traverse((obj: Mesh<any, any>) => {
-  //           if (obj.material)
-  //             if (ExpensiveMaterials.has(obj.material.constructor)) {
-  //               const prevMaterial = obj.material
-  //               const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-  //               prevMaterial.dispose()
-  //               obj.material = new MeshBasicMaterial().copy(prevMaterial)
-  //               obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
-  //               obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
-
-  //               // todo: find out why leaving the envMap makes basic & lambert materials transparent here
-  //               obj.material.envMap = null
-  //             }
-  //         })
-  //     }
-  //   }, [is8thWallActive])
-
-  //   return null
-  // })
+    return null
+  })
 
   const addedToGroup = (obj) => {
     const material = obj.material
