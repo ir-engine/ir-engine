@@ -273,9 +273,23 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     if (!currentChannelInstanceConnection?.value) return
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     const socket = mediaNetwork.socket
+    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
+    if (typeof socket?.on === 'function')
+      socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
+    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
+    if (typeof socket?.on === 'function')
+      socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
 
     return () => {
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
       if (typeof socket?.on === 'function')
         socket?.off(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
     }
