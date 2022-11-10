@@ -631,7 +631,7 @@ describe('DataReader', () => {
     const network = Engine.instance.currentWorld.worldNetwork
 
     const userId = 'userId' as UserId
-    const peerID = 'peerId' as PeerID
+    const peerID = 'peerID' as PeerID
     const n = 50
     const entities: Entity[] = Array(n)
       .fill(0)
@@ -803,7 +803,7 @@ describe('DataReader', () => {
   it('should createDataReader and return empty packet if no changes were made on a fixedTick not divisible by 60', () => {
     const write = createDataWriter()
 
-    const peerID = 'peerId' as PeerID
+    const peerID = 'peerID' as PeerID
     const network = Engine.instance.currentWorld.worldNetwork
     const engineState = getState(EngineState)
     engineState.fixedTick.set(1)

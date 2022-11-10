@@ -17,7 +17,7 @@ type SctpCapabilities = {
   numStreams: NumSctpStreams
 }
 export type WebRtcTransportParams = {
-  peerId?: PeerID
+  peerID?: PeerID
   direction: 'recv' | 'send'
   sctpCapabilities: SctpCapabilities
   channelType: ChannelType

@@ -159,7 +159,7 @@ export const handleConsumeDataEvent =
       try {
         const dataConsumer = await newTransport.consumeData({
           dataProducerId: outgoingDataProducer.id,
-          appData: { peerId: peerID, transportId: newTransport.id }
+          appData: { peerID, transportId: newTransport.id }
         })
 
         dataConsumer.on('dataproducerclose', () => {
@@ -260,7 +260,7 @@ export async function closeConsumer(network: SocketWebRTCServerNetwork, consumer
 
 export async function createWebRtcTransport(
   network: SocketWebRTCServerNetwork,
-  { peerId, direction, sctpCapabilities, channelType, channelId }: WebRtcTransportParams
+  { peerID, direction, sctpCapabilities, channelType, channelId }: WebRtcTransportParams
 ): Promise<WebRtcTransport> {
   const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
   const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
@@ -298,7 +298,7 @@ export async function createWebRtcTransport(
     enableSctp: true,
     numSctpStreams: sctpCapabilities.numStreams,
     initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
-    appData: { peerId, channelType, channelId, clientDirection: direction }
+    appData: { peerID, channelType, channelId, clientDirection: direction }
   })
 }
 
@@ -310,7 +310,7 @@ export async function createInternalDataConsumer(
   try {
     const consumer = await network.outgoingDataTransport.consumeData({
       dataProducerId: dataProducer.id,
-      appData: { peerId: peerID, transportId: network.outgoingDataTransport.id },
+      appData: { peerID, transportId: network.outgoingDataTransport.id },
       maxPacketLifeTime: dataProducer.sctpStreamParameters!.maxPacketLifeTime,
       maxRetransmits: dataProducer.sctpStreamParameters!.maxRetransmits,
       ordered: false
@@ -349,7 +349,7 @@ export async function handleWebRtcTransportCreate(
     )
     await Promise.all(existingTransports.map((t) => closeTransport(network, t)))
     const newTransport: WebRtcTransport = await createWebRtcTransport(network, {
-      peerId: peerID,
+      peerID: peerID,
       direction,
       sctpCapabilities,
       channelType,
@@ -590,7 +590,7 @@ export async function handleWebRtcSendTrack(
   }
 
   try {
-    const newProducerAppData = { ...appData, peerId: peerID, transportId } as MediaStreamAppData
+    const newProducerAppData = { ...appData, peerID, transportId } as MediaStreamAppData
     const existingProducer = await network.producers.find((producer) => producer.appData === newProducerAppData)
     if (existingProducer) await closeProducer(network, existingProducer)
     const producer = (await transport.produce({
@@ -667,6 +667,7 @@ export async function handleWebRtcReceiveTrack(
 ): Promise<any> {
   const peerID = socket.id as PeerID
   const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data
+  console.log(data, network.producers)
   const producer = network.producers.find(
     (p) =>
       p.appData.mediaTag === mediaTag &&
@@ -687,8 +688,9 @@ export async function handleWebRtcReceiveTrack(
   )!
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
   const router = network.routers[`${channelType}:${channelId}`].find(
-    (router) => router.id === (transport as any)?.internal.routerId
+    (router) => router.id === transport?.internal.routerId
   )
+  console.log(producer, router)
   if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer}`
     logger.error(`recv-track: ${peerID} ${msg}`)

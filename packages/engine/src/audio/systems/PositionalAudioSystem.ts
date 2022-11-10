@@ -156,10 +156,8 @@ export default async function PositionalAudioSystem(world: World) {
     const networkedAvatarAudioEntities = networkedAvatarAudioQuery()
     for (const entity of networkedAvatarAudioEntities) {
       const networkObject = getComponent(entity, NetworkObjectComponent)
-      const peerId = networkObject.ownerId
-      const consumer = network?.consumers.find(
-        (c: any) => c.appData.peerID === peerId && c.appData.mediaTag === 'cam-audio'
-      )
+      const peerID = networkObject.ownerId
+      const consumer = network?.consumers.find((c) => c.appData.peerID === peerID && c.appData.mediaTag === 'cam-audio')
 
       // avatar still exists but audio stream does not
       if (!consumer) {
@@ -180,7 +178,7 @@ export default async function PositionalAudioSystem(world: World) {
       }
 
       // get existing stream - need to wait for UserWindowMedia to populate
-      const existingAudioObject = document.getElementById(`${peerId}_audio`)! as HTMLAudioElement
+      const existingAudioObject = document.getElementById(`${peerID}_audio`)! as HTMLAudioElement
       if (!existingAudioObject) continue
 
       // mute existing stream

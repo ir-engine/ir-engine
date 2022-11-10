@@ -104,8 +104,8 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     for (const peer of peers) {
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
     }
-    for (const [peerId, peer] of network.peers) {
-      if (!peers.find((p) => p.peerID === peerId)) NetworkPeerFunctions.destroyPeer(network, peerId)
+    for (const [peerID, peer] of network.peers) {
+      if (!peers.find((p) => p.peerID === peerID)) NetworkPeerFunctions.destroyPeer(network, peerID)
     }
     logger.info('Updated peers %o', { topic: network.topic, peers })
   }
@@ -225,7 +225,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   }
 
   async function webRTCCreateProducerHandler(
-    peerId: PeerID,
+    peerID: PeerID,
     mediaTag,
     producerId,
     channelType: ChannelType,
@@ -236,7 +236,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
 
     const consumerMatch = network.consumers?.find(
-      (c) => c?.appData?.peerID === peerId && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
+      (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
     )
     if (
       producerId != null &&
@@ -249,7 +249,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
           currentChannelInstanceConnection.channelId.value === channelId)
     ) {
       // that we don't already have consumers for...
-      await subscribeToTrack(network as SocketWebRTCClientNetwork, peerId, mediaTag)
+      await subscribeToTrack(network as SocketWebRTCClientNetwork, peerID, mediaTag)
     }
   }
 

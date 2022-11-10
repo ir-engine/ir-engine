@@ -1,4 +1,13 @@
-import { Consumer, DataProducer, Producer, Router, Transport, WebRtcTransport, Worker } from 'mediasoup/node/lib/types'
+import {
+  Consumer,
+  DataProducer,
+  Producer,
+  Router,
+  Transport,
+  TransportInternal,
+  WebRtcTransport,
+  Worker
+} from 'mediasoup/node/lib/types'
 
 import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { PeersUpdateType } from '@xrengine/common/src/interfaces/PeerID'
@@ -17,7 +26,10 @@ import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
 
-export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & { appData: MediaStreamAppData }
+export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & {
+  appData: MediaStreamAppData
+  internal: TransportInternal
+}
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
 export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
