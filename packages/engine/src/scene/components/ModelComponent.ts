@@ -96,26 +96,24 @@ function ModelReactor({ root }: EntityReactorProps) {
         const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)
         let scene: Scene
-        switch (/\.[\d\s\w]+$/.exec(model.src)?.[0]) {
+        const fileExtension = /\.[\d\s\w]+$/.exec(model.src)?.[0]
+        switch (fileExtension) {
           case '.glb':
           case '.gltf':
-            const gltf = (await AssetLoader.loadAsync(model.src, {
-              ignoreDisposeGeometry: model.generateBVH,
-              uuid
-            })) as GLTF
-            scene = gltf.scene as Scene
-            break
           case '.fbx':
           case '.usdz':
-            scene = (await AssetLoader.loadAsync(model.src, { ignoreDisposeGeometry: model.generateBVH, uuid })).scene
+            scene = (
+              await AssetLoader.loadAsync(model.src, {
+                ignoreDisposeGeometry: model.generateBVH,
+                uuid
+              })
+            ).scene as Scene
             break
           default:
-            scene = new Object3D() as Scene
-            break
+            throw new Error(`Model type '${fileExtension}' not supported`)
         }
 
         if (!entityExists(Engine.instance.currentWorld, entity)) return
-        console.log('MODEL COMPONENT LOAD', entity, scene)
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
         modelComponent.scene.set(scene)
@@ -131,8 +129,7 @@ function ModelReactor({ root }: EntityReactorProps) {
   // update scene
   useEffect(() => {
     const scene = modelComponent.scene.value
-    if (!scene) return
-    if (groupComponent?.value.find((group: any) => group === scene)) return
+    if (!scene || !groupComponent?.value || groupComponent.value.find((group: any) => group === scene)) return
 
     addObjectToGroup(entity, scene)
     parseGLTFModel(entity)
