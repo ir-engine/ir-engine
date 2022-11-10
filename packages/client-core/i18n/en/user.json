@@ -345,7 +345,7 @@
     "selectThumbnail": "Select Thumbnail...",
     "rotate": "Rotate",
     "pan": "Pan",
-    "noBone": "Obejct does not contain any bones or skin",
+    "noBone": "Object does not contain any bones or skin",
     "outOfBound": "Object is out of bound.",
     "emptyObj": "Object is empty.",
     "maxTriangleError": "Object contains greater than {{allowedTriangles}} faces.",
@@ -374,7 +374,11 @@
     "avatarUrl": "Avatar url",
     "upload-success-msg": "Avatar Uploaded Successfully.",
     "remove-success-msg": "Avatar Uploaded Successfully.",
-    "warning-msg": "Avatar resource is empty, have you synced avatars to your static file storage?"
+    "warning-msg": "Avatar resource is empty, have you synced avatars to your static file storage?",
+    "loadingRPM": "Loading Ready Player Me",
+    "downloading": "Downloading Avatar",
+    "loadingPreview": "Loading Avatar Preview",
+    "uploading": "Uploading Avatar"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",
