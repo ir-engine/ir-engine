@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Scene, Vector2, Vector3 } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
+import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
 //@ts-ignore
@@ -57,4 +58,4 @@ Object3D.prototype.getWorldDirection = function (target) {
   return target.set(e[8], e[9], e[10]).normalize()
 }
 
-globalThis.THREE = THREE
+globalThis.THREE = { ...THREE, GLTFLoader } as any
