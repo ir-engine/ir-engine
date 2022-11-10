@@ -30,7 +30,8 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
       ...baseData,
       email: profile.email,
       type: 'linkedin',
-      userId
+      userId,
+      accountIdentifier: `${profile.localizedFirstName} ${profile.localizedLastName}`
     }
   }
 

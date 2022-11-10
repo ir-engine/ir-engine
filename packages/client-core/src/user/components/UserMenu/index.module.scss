@@ -1650,14 +1650,6 @@
 }
 
 .ReadyPlayerPanel {
-  @include panel-popup-container-styling;
-
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
-  background-color: var(--popupBackground);
-  padding: 0;
-
   .avatarHeaderBlock {
     margin: 20px 0;
     display: flex;
@@ -2082,7 +2074,7 @@
   display: flex;
   flex-direction: column;
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 20px;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);

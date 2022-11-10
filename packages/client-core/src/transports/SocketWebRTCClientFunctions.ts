@@ -25,6 +25,7 @@ import {
   SCREEN_SHARE_SIMULCAST_ENCODINGS
 } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { MediaNetworkAction } from '@xrengine/engine/src/networking/functions/MediaNetworkAction'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import {
@@ -315,8 +316,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     network.consumers.forEach((consumer) => closeConsumer(network, consumer))
     network.socket.off(MessageTypes.WebRTCCreateProducer.toString(), webRTCCreateProducerHandler)
     dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected({}))
-    network.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), webRTCPauseConsumerHandler)
-    network.socket.off(MessageTypes.WebRTCResumeConsumer.toString(), webRTCResumeConsumerHandler)
     network.socket.off(MessageTypes.WebRTCCloseConsumer.toString(), webRTCCloseConsumerHandler)
     removeActionReceptor(consumerHandler)
   }
@@ -324,8 +323,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   network.socket.on('disconnect', disconnectHandler)
   network.socket.on(MessageTypes.WebRTCCreateProducer.toString(), webRTCCreateProducerHandler)
   network.socket.io.on('reconnect', reconnectHandler)
-  network.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), webRTCPauseConsumerHandler)
-  network.socket.on(MessageTypes.WebRTCResumeConsumer.toString(), webRTCResumeConsumerHandler)
   network.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), webRTCCloseConsumerHandler)
 
   addActionReceptor(consumerHandler)
@@ -840,66 +837,33 @@ export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, p
 }
 
 export async function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
-  await network.request(MessageTypes.WebRTCPauseConsumer.toString(), {
-    consumerId: consumer.id
-  })
-  if (consumer && typeof consumer.pause === 'function')
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'pause'
-    })
+  dispatchAction(MediaNetworkAction.pauseConsumer({ consumerId: consumer.id, pause: true }))
 }
 
 export async function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
-  await network.request(MessageTypes.WebRTCResumeConsumer.toString(), {
-    consumerId: consumer.id
-  })
-  if (consumer && typeof consumer.resume === 'function')
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'resume'
-    })
+  dispatchAction(MediaNetworkAction.pauseConsumer({ consumerId: consumer.id, pause: false }))
 }
 
 export async function pauseProducer(
   network: SocketWebRTCClientNetwork,
   producer: { appData: MediaTagType; id: any; pause: () => any }
 ) {
-  await network.request(MessageTypes.WebRTCPauseProducer.toString(), {
-    producerId: producer.id
-  })
-  if (producer && typeof producer.pause === 'function')
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'pause'
-    })
+  dispatchAction(MediaNetworkAction.pauseProducer({ producerId: producer.id, pause: true }))
 }
 
 export async function resumeProducer(
   network: SocketWebRTCClientNetwork,
   producer: { appData: MediaTagType; id: any; resume: () => any }
 ) {
-  await network.request(MessageTypes.WebRTCResumeProducer.toString(), {
-    producerId: producer.id
-  })
-  if (producer && typeof producer.resume === 'function')
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'resume'
-    })
+  dispatchAction(MediaNetworkAction.pauseProducer({ producerId: producer.id, pause: false }))
 }
 
 export async function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
-  await network.request(MessageTypes.WebRTCPauseProducer.toString(), {
-    producerId: producer.id,
-    globalMute: true
-  })
+  dispatchAction(MediaNetworkAction.pauseProducer({ producerId: producer.id, pause: true, globalMute: true }))
 }
 
 export async function globalUnmuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
-  await network.request(MessageTypes.WebRTCResumeProducer.toString(), {
-    producerId: producer.id
-  })
+  dispatchAction(MediaNetworkAction.pauseProducer({ producerId: producer.id, pause: false }))
 }
 
 export async function closeConsumer(network: SocketWebRTCClientNetwork, consumer: any) {

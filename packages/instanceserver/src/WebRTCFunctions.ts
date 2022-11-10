@@ -19,6 +19,8 @@ import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { MediaNetworkAction } from '@xrengine/engine/src/networking/functions/MediaNetworkAction'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
 import multiLogger from '@xrengine/server-core/src/ServerLogger'
@@ -121,22 +123,21 @@ export const sendCurrentProducers = async (
           !client.media ||
           !client.peerID
         )
-      )
-        Object.entries(client.media).map(([subName, subValue]) => {
-          if (
-            (subValue as any).channelType === channelType &&
-            (subValue as any).channelId === channelId &&
-            !(subValue as any).paused
-          )
-            selfClient.socket!.emit(
-              MessageTypes.WebRTCCreateProducer.toString(),
-              peerID,
-              subName,
-              (subValue as any).producerId,
-              channelType,
-              channelId
-            )
-        })
+      ) {
+        const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(selfUserId)
+        if (cachedActions.find((action) => MediaNetworkAction.pauseProducer.matches.test(action) && !action.pause))
+          Object.entries(client.media).map(([subName, subValue]) => {
+            if ((subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
+              selfClient.socket!.emit(
+                MessageTypes.WebRTCCreateProducer.toString(),
+                peerID,
+                subName,
+                (subValue as any).producerId,
+                channelType,
+                channelId
+              )
+          })
+      }
     }
   }
 }
@@ -750,42 +751,6 @@ export async function handleWebRtcReceiveTrack(
   }
 }
 
-export async function handleWebRtcPauseConsumer(
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback
-): Promise<any> {
-  const { consumerId } = data
-  const consumer = network.consumers.find((c) => c.id === consumerId)
-  if (consumer) {
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'pause'
-    })
-    socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id)
-  }
-  callback({ paused: true })
-}
-
-export async function handleWebRtcResumeConsumer(
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback
-): Promise<any> {
-  const { consumerId } = data
-  const consumer = network.consumers.find((c) => c.id === consumerId)
-  if (consumer) {
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'resume'
-    })
-    socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id)
-  }
-  callback({ resumed: true })
-}
-
 export async function handleWebRtcCloseConsumer(
   network: SocketWebRTCServerNetwork,
   socket: Socket,
@@ -811,69 +776,6 @@ export async function handleWebRtcConsumerSetLayers(
   logger.info('consumer-set-layers: %o, %o', spatialLayer, consumer.appData)
   await consumer.setPreferredLayers({ spatialLayer })
   callback({ layersSet: true })
-}
-
-export async function handleWebRtcResumeProducer(
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback
-): Promise<any> {
-  const peerID = socket.id as PeerID
-  const { producerId } = data
-  const producer = network.producers.find((p) => p.id === producerId)
-  logger.info('resume-producer: %o', producer?.appData)
-  if (producer) {
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'resume'
-    })
-    // await producer.resume();
-    if (peerID && network.peers.has(peerID)) {
-      network.peers.get(peerID)!.media![producer.appData.mediaTag as any].paused = false
-      network.peers.get(peerID)!.media![producer.appData.mediaTag as any].globalMute = false
-      // const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-      //   return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
-      // })!
-      // if (hostClient && hostClient[1])
-      //   hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
-    }
-    for (const [, client] of network.peers) {
-      if (client && client.socket) client.socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
-    }
-  }
-  callback({ resumed: true })
-}
-
-export async function handleWebRtcPauseProducer(
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback
-): Promise<any> {
-  const peerID = socket.id as PeerID
-  const { producerId, globalMute } = data
-  const producer = network.producers.find((p) => p.id === producerId)
-  if (producer) {
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'pause'
-    })
-    if (peerID && network.peers.has(peerID) && network.peers.get(peerID)!.media![producer.appData.mediaTag as any]) {
-      network.peers.get(peerID)!.media![producer.appData.mediaTag as any].paused = true
-      network.peers.get(peerID)!.media![producer.appData.mediaTag as any].globalMute = globalMute || false
-      // const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-      //   return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
-      // })!
-      // if (hostClient && hostClient[1])
-      //   hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
-    }
-    for (const [, client] of network.peers) {
-      if (client && client.socket)
-        client.socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, globalMute || false)
-    }
-  }
-  callback({ paused: true })
 }
 
 export async function handleWebRtcRequestCurrentProducers(

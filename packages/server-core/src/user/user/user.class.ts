@@ -105,7 +105,24 @@ export class User extends Service<UserInterface> {
 
       const searchedUser = await this.app.service('user').Model.findAll({
         where: {
-          name: {
+          [Op.or]: [
+            {
+              id: {
+                [Op.like]: `%${search}%`
+              }
+            },
+            {
+              name: {
+                [Op.like]: `%${search}%`
+              }
+            }
+          ]
+        },
+        raw: true
+      })
+      const searchedIdentityProviders = await this.app.service('identity-provider').Model.findAll({
+        where: {
+          accountIdentifier: {
             [Op.like]: `%${search}%`
           }
         },
@@ -113,8 +130,11 @@ export class User extends Service<UserInterface> {
       })
 
       if (search) {
+        const userIds = searchedUser.map((user) => user.id)
+        const ipUserIds = searchedIdentityProviders.map((ip) => ip.userId)
+
         params.query.id = {
-          $in: searchedUser.map((user) => user.id)
+          $in: [...userIds, ...ipUserIds]
         }
       }
 
@@ -134,22 +154,6 @@ export class User extends Service<UserInterface> {
       }
 
       delete params?.query?.$sort
-      return super.find(params)
-    } else if (action === 'search') {
-      const searchUser = params.query.data
-      delete params.query.action
-      const searchedUser = await this.app.service('user').Model.findAll({
-        where: {
-          name: {
-            [Op.like]: `%${searchUser}%`
-          }
-        },
-        raw: true,
-        nest: true
-      })
-      params.query.id = {
-        $in: searchedUser.map((user) => user.id)
-      }
       return super.find(params)
     } else if (action === 'invite-code-lookup') {
       delete params.query.action

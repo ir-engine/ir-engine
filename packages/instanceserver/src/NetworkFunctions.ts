@@ -15,6 +15,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldProps, JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { AvatarProps, WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'

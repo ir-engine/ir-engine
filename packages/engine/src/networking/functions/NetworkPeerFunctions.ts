@@ -117,7 +117,7 @@ function getCachedActionsForUser(toUserId: UserId) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
   for (const action of Engine.instance.store.actions.cached) {
-    // if (action.$from === toUserId) continue
+    if (action.$from === toUserId) continue
     if (action.$to === 'all' || action.$to === toUserId) cachedActions.push({ ...action, $stack: undefined! })
   }
 
