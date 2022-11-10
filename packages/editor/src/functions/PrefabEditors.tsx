@@ -36,6 +36,7 @@ import { WaterComponent } from '@xrengine/engine/src/scene/components/WaterCompo
 import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { VPSWayspotComponent } from '@xrengine/engine/src/xr/VPSComponents'
 
 import ChairIcon from '@mui/icons-material/Chair'
 
@@ -72,6 +73,7 @@ import TransformPropertyGroup from '../components/properties/TransformPropertyGr
 import { EditorComponentType } from '../components/properties/Util'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
+import VPSWayspotNodeEditor from '../components/properties/VPSWayspotNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 
 export const EntityNodeEditor = new Map<Component, EditorComponentType>()
@@ -108,6 +110,7 @@ EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
+EntityNodeEditor.set(VPSWayspotComponent, VPSWayspotNodeEditor)
 
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
