@@ -14,7 +14,7 @@ import { camera, renderer, scene } from './AssetPreviewPanels/ModelPreviewPanel'
 import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
 import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
-import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
+import { VideoPreviewPanel } from './AssetPreviewPanels/VideoPreviewPanel'
 
 const AssetHeading = (styled as any).div`
   text-align: center;
@@ -99,11 +99,12 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
 
       case 'video/mp4':
       case 'mp4':
-        const vedioPreviewPanel = {
-          PreviewSource: VedioPreviewPanel,
+      case 'm3u8':
+        const videoPreviewPanel = {
+          PreviewSource: VideoPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
-        usePreviewPanel(vedioPreviewPanel)
+        usePreviewPanel(videoPreviewPanel)
         break
       case 'audio/mpeg':
       case 'mpeg':
