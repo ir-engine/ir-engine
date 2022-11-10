@@ -157,7 +157,13 @@ export default async function PositionalAudioSystem(world: World) {
     for (const entity of networkedAvatarAudioEntities) {
       const networkObject = getComponent(entity, NetworkObjectComponent)
       const peerID = networkObject.ownerId
-      const consumer = network?.consumers.find((c) => c.appData.peerID === peerID && c.appData.mediaTag === 'cam-audio')
+      const consumer = network?.consumers.find(
+        (c) =>
+          c.appData.mediaTag === 'cam-audio' &&
+          Array.from(network.peers.values()).find(
+            (peer) => c.appData.peerID === peer.peerID && peer.userId === networkObject.ownerId
+          )
+      )
 
       // avatar still exists but audio stream does not
       if (!consumer) {

@@ -39,15 +39,15 @@ export const filterCamConsumerPairs = (network: SocketWebRTCClientNetwork, consu
   const filteredConsumers = [] as ConsumerExtension[]
 
   // filter out pairs of cam video & cam audio
-  consumers.map((consumer) => {
-    const isUnique = !consumers.find(
+  consumers.forEach((consumer) => {
+    const isUnique = !filteredConsumers.find(
       (u) =>
         consumer.appData.peerID === u.appData.peerID &&
         ((consumer.appData.mediaTag === 'cam-video' && u.appData.mediaTag === 'cam-audio') ||
           (consumer.appData.mediaTag === 'cam-audio' && u.appData.mediaTag === 'cam-video'))
     )
     if (isUnique && displayedUsers.includes(network.peers.get(consumer.appData.peerID)?.userId!))
-      consumers.push(consumer)
+      filteredConsumers.push(consumer)
   })
 
   return filteredConsumers
@@ -57,7 +57,7 @@ export const UserMediaWindows = () => {
   const mediaState = useMediaStreamState()
   const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
 
-  const consumers = filterCamConsumerPairs(network, mediaState.consumers.value)
+  const consumers = filterCamConsumerPairs(network, mediaState.consumers.get({ noproxy: true }))
 
   const { topShelfStyle } = useShelfStyles()
 

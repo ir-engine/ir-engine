@@ -15,7 +15,6 @@ export default async function MediaStreamSystem(world: World) {
 
     for (const action of pauseConsumerQueue()) {
       const consumer = getConsumer(action.consumerId)
-      console.log(action, consumer)
       if (consumer && !consumer?.closed && !consumer?._closed) {
         action.pause ? consumer.pause() : consumer.resume()
       }
@@ -23,7 +22,6 @@ export default async function MediaStreamSystem(world: World) {
 
     for (const action of pauseProducerQueue()) {
       const producer = getProducer(action.producerId)
-      console.log(action, producer)
       if (producer && !producer?.closed && !producer?._closed) {
         action.pause ? producer.pause() : producer.resume()
       }

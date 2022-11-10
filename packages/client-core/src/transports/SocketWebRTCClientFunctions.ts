@@ -226,7 +226,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
 
   async function webRTCCreateProducerHandler(
     peerID: PeerID,
-    mediaTag,
+    mediaTag: MediaTagType,
     producerId,
     channelType: ChannelType,
     channelId
@@ -783,7 +783,7 @@ export function resetProducer(): void {
   }
 }
 
-export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: string) {
+export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: MediaTagType) {
   const socket = network.socket
   if (!socket?.connected) return
   const channelConnectionState = accessMediaInstanceConnectionState()
