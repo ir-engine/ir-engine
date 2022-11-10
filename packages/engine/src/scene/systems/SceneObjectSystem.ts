@@ -1,6 +1,6 @@
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
+import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
 
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -21,12 +21,12 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
-import MeshPhysicalMaterial from '../../renderer/materials/constants/material-prototypes/MeshPhysicalMaterial.mat'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
+import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import FogSystem from './FogSystem'
@@ -57,16 +57,12 @@ export default async function SceneObjectSystem(world: World) {
   const groupQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  const xrState = getState(XRState)
-
   const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
     const entity = props.root.entity
 
-    const is8thWallActive = useHookstate(xrState.is8thWallActive)
-
     useEffect(() => {
       /** ensure that hmd has no heavy materials */
-      if (isHMD || is8thWallActive.value) {
+      if (isHMD) {
         // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
         for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
           object.traverse((obj: Mesh<any, any>) => {
@@ -84,7 +80,7 @@ export default async function SceneObjectSystem(world: World) {
               }
           })
       }
-    }, [is8thWallActive])
+    }, [])
 
     return null
   })
@@ -107,6 +103,7 @@ export default async function SceneObjectSystem(world: World) {
 
     const groupComponent = useOptionalComponent(entity, GroupComponent)
     const visibleComponent = useOptionalComponent(entity, VisibleComponent)
+    const shadowComponent = useOptionalComponent(entity, ShadowComponent)
     const _groups = useHookstate([] as Object3DWithEntity[])
 
     useEffect(() => {
@@ -148,6 +145,16 @@ export default async function SceneObjectSystem(world: World) {
     useEffect(() => {
       if (groupComponent?.value) for (const obj of groupComponent.value) obj.visible = !!visibleComponent?.value
     }, [visibleComponent, groupComponent])
+
+    useEffect(() => {
+      if (groupComponent?.value) {
+        if (shadowComponent?.value)
+          for (const obj of groupComponent.value) {
+            obj.castShadow = shadowComponent.cast.value
+            obj.receiveShadow = shadowComponent.receive.value
+          }
+      }
+    }, [shadowComponent, groupComponent])
 
     return null
   })
