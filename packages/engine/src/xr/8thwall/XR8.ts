@@ -24,9 +24,7 @@ import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { VPSWayspotComponent } from '../VPSComponents'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
 import { XRAction, XRState } from '../XRState'
-import { VPSPipeline } from './VPSPipeline'
-import { XREPipeline } from './WebXR8thwallProxy'
-import { XR8CameraModule } from './XR8CameraModule'
+import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
 
 type XR8Assets = {
@@ -73,6 +71,7 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
 
   XR8 = globalThis.XR8
   XRExtras = globalThis.XRExtras
+  VpsCoachingOverlay = globalThis.VpsCoachingOverlay
 
   return {
     xr8Script,
@@ -83,6 +82,7 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
 
 export let XR8: XR8Type
 export let XRExtras
+export let VpsCoachingOverlay
 
 const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null, world: World) => {
   if (existingCanvas) {
@@ -116,11 +116,17 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
       enableVps
     })
 
+    // if (enableVps) {
+    //   VpsCoachingOverlay.configure({
+    //     textColor: '#ffffff'
+    //   })
+    // }
+
     XR8.addCameraPipelineModules([
       XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
       XR8.Threejs.pipelineModule(),
       XR8.XrController.pipelineModule(),
-      // XR8.VpsCoachingOverlay.pipelineModule(),
+      // VpsCoachingOverlay.pipelineModule(),
       XRExtras.RuntimeError.pipelineModule()
     ])
 
@@ -151,13 +157,11 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
       requiredPermissions: () => permissions
     })
 
-    XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
-    XR8.addCameraPipelineModule(XREPipeline(world))
-    XR8.addCameraPipelineModule(VPSPipeline(world))
+    XR8.addCameraPipelineModule(XR8Pipeline(world, cameraCanvas))
 
-    // if (vpsWayspotName) {
-    //   XR8.VpsCoachingOverlay.configure({
-    //     wayspotName: vpsWayspotName
+    // if (enableVps) {
+    //   VpsCoachingOverlay.configure({
+    //     // wayspotName: vpsWayspotName // todo - support multiple wayspots, for now just use the nearest one
     //   })
     // }
 

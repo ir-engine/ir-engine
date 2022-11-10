@@ -29,7 +29,6 @@ export type XR8Type = {
     updateCameraProjectionMatrix: (args: { origin: Vec3; facing: Quat }) => void
   }
   XrPermissions
-  VpsCoachingOverlay
   Vps: {
     makeWayspotWatcher: (args: {
       onVisible: () => void
@@ -78,13 +77,14 @@ export type CameraPipelineModuleListeners =
   | { event: 'handcontroller.handlost'; process: (event: Event) => void }
 
 export type CameraPipelineModule = {
+  name: string
   onAppResourcesLoaded?: () => void
-  onAttach?: () => void
+  onAttach?: (args: { canvas; orientation: number }) => void
   onBeforeRun?: () => void
   onCameraStatusChange?: () => void
   onCanvasSizeChange?: () => void
   onDetach?: () => void
-  onDeviceOrientationChange?: () => void
+  onDeviceOrientationChange?: (args: { orientation: number }) => void
   onException?: () => void
   onPaused?: () => void
   onProcessCpu?: () => void
@@ -93,6 +93,7 @@ export type CameraPipelineModule = {
   onRender?: () => void
   onResume?: () => void
   onStart?: () => void
+  onUpdate?: (props: onUpdate) => void
   onVideoSizeChange?: () => void
   requiredPermission?: () => void
   listeners?: Array<CameraPipelineModuleListeners>
