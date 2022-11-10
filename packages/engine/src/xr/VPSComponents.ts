@@ -3,7 +3,7 @@ import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Shadow
 
 import { getState, State, useHookstate } from '@xrengine/hyperflux'
 
-import { defineComponent, hasComponent, useComponent } from '../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, useComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../ecs/functions/EntityFunctions'
 import { GroupComponent, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
@@ -12,8 +12,8 @@ import { XRState } from './XRState'
 const shadowMat = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a })
 const occlusionMat = new MeshLambertMaterial({ colorWrite: false })
 
-export const VPSWaypointComponent = defineComponent({
-  name: 'VPSWaypointComponent',
+export const VPSWayspotComponent = defineComponent({
+  name: 'VPSWayspotComponent',
 
   onInit: (entity) => {
     return {
@@ -42,9 +42,9 @@ export const VPSWaypointComponent = defineComponent({
   reactor: VPSReactor
 })
 
-export const SCENE_COMPONENT_VPS_WAYPOINT = 'vps-waypoint'
+export const SCENE_COMPONENT_VPS_WAYSPOT = 'vps-wayspot'
 
-const vpsMeshWaypointFound = (
+const vpsMeshWayspotFound = (
   group: (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[],
   wireframe: boolean,
   meshes: State<Mesh[]>
@@ -55,13 +55,6 @@ const vpsMeshWaypointFound = (
         if (!obj.userData.XR8_VPS) {
           obj.userData.XR8_VPS = {}
 
-          if (wireframe) {
-            obj.userData.XR8_VPS.wireframe = obj.material.wireframe
-            obj.material.wireframe = true
-          } else {
-            obj.material.visible = false
-          }
-
           const shadowMesh = new Mesh().copy(obj, true)
           shadowMesh.material = shadowMat
           obj.parent!.add(shadowMesh)
@@ -70,6 +63,13 @@ const vpsMeshWaypointFound = (
           occlusionMesh.material = occlusionMat
           obj.parent!.add(occlusionMesh)
 
+          if (wireframe) {
+            obj.userData.XR8_VPS.wireframe = obj.material.wireframe
+            obj.material.wireframe = true
+          } else {
+            obj.visible = false
+          }
+
           meshes.merge([shadowMesh, occlusionMesh])
         }
       }
@@ -77,15 +77,18 @@ const vpsMeshWaypointFound = (
   }
 }
 
-const vpsMeshWaypointLost = (
+const vpsMeshWayspotLost = (
   group: (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[],
   meshes: State<Mesh[]>
 ) => {
   for (const object of group) {
     object.traverse((obj: Mesh<BufferGeometry, MeshStandardMaterial>) => {
       if (obj.material && obj.userData?.XR8_VPS) {
-        obj.material.wireframe = obj.userData.XR8_VPS.wireframe
-        obj.material.visible = true
+        if (obj.userData.XR8_VPS.wireframe) {
+          obj.material.wireframe = obj.userData.XR8_VPS.wireframe
+        } else {
+          obj.visible = true
+        }
         delete obj.userData.XR8_VPS
       }
     })
@@ -97,25 +100,25 @@ const vpsMeshWaypointLost = (
 
 function VPSReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, VPSWaypointComponent) || !hasComponent(entity, GroupComponent)) throw root.stop()
+  if (!hasComponent(entity, VPSWayspotComponent)) throw root.stop()
 
   const meshes = useHookstate([] as Mesh[])
 
-  const vpsWaypoint = useComponent(entity, VPSWaypointComponent)
-  const groupComponent = useComponent(entity, GroupComponent)
+  const vpsWayspot = useComponent(entity, VPSWayspotComponent)
+  const groupComponent = useOptionalComponent(entity, GroupComponent)
   const xrState = useHookstate(getState(XRState))
 
-  const group = groupComponent.value as (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[]
+  const group = groupComponent?.value as (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[] | undefined
 
   useEffect(() => {
-    const active = vpsWaypoint.active.value && xrState.sessionActive.value
-    // setVisibleComponent(entity, active)
+    if (!group) return
+    const active = vpsWayspot.active.value && xrState.sessionActive.value
     if (active) {
-      vpsMeshWaypointFound(group, vpsWaypoint.wireframe.value, meshes)
+      vpsMeshWayspotFound(group, vpsWayspot.wireframe.value, meshes)
     } else {
-      vpsMeshWaypointLost(group, meshes)
+      vpsMeshWayspotLost(group, meshes)
     }
-  }, [vpsWaypoint.active, groupComponent])
+  }, [vpsWayspot.active, groupComponent, xrState.sessionActive])
 
   return null
 }

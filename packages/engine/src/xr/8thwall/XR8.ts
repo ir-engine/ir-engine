@@ -21,7 +21,7 @@ import {
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
-import { VPSWaypointComponent } from '../VPSComponents'
+import { VPSWayspotComponent } from '../VPSComponents'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
 import { XRAction, XRState } from '../XRState'
 import { VPSPipeline } from './VPSPipeline'
@@ -265,7 +265,7 @@ class XRFrameProxy {
 }
 
 const skyboxQuery = defineQuery([SkyboxComponent])
-const vpsQuery = defineQuery([VPSWaypointComponent])
+const vpsQuery = defineQuery([VPSWayspotComponent])
 
 export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
@@ -411,16 +411,16 @@ export default async function XR8System(world: World) {
    *     session, changing the overrides, and entering the session again
    */
   const vpsReactor = startReactor(function XR8VPSReactor() {
-    const hasWaypoint = useQuery(vpsQuery).length
+    const hasWayspot = useQuery(vpsQuery).length
 
     useEffect(() => {
       /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
-      if (hasWaypoint || using8thWall) {
+      if (hasWayspot || using8thWall) {
         overrideXRSessionFunctions()
       } else {
         revertXRSessionFunctions()
       }
-    }, [hasWaypoint])
+    }, [hasWayspot])
 
     return null
   })

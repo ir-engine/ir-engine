@@ -145,10 +145,10 @@
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
     },
-    "vps-waypoint": {
-      "name": "VPS Waypoint",
-      "description": "Assign a VPS Waypoint",
-      "lbl-name": "Waypoint Name"
+    "vps-wayspot": {
+      "name": "VPS Wayspot",
+      "description": "Assign a VPS Wayspot",
+      "lbl-name": "Wayspot Name"
     },
     "media": {
       "name": "Media",
@@ -614,8 +614,7 @@
       "lbl-fogDensity": "Fog Density"
     },
     "xr": {
-      "name": "XR Settings",
-      "lbl-vpsWaypointName": "VPS Waypoint Name"
+      "name": "XR Settings"
     },
     "mountPoint": {
       "name": "Mount point",

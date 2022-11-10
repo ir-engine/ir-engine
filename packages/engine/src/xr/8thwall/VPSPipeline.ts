@@ -14,7 +14,7 @@ import {
 
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponentState } from '../../ecs/functions/ComponentFunctions'
-import { VPSWaypointComponent } from '../VPSComponents'
+import { VPSWayspotComponent } from '../VPSComponents'
 import { updateWorldOrigin } from '../XRAnchorSystem'
 import { XR8 } from './XR8'
 import {
@@ -29,52 +29,48 @@ export const VPSPipeline = (world: World) => {
   const vec3 = new Vector3()
   const quat = new Quaternion()
 
-  const vpsWaypointQuery = defineQuery([VPSWaypointComponent])
+  const vpsWayspotQuery = defineQuery([VPSWayspotComponent])
 
-  /**
-   * @todo
-   * Refactor to use meshes for occlusion & shadow
-   */
-  const meshes = new Map<string, Mesh>()
-  const onMeshUpdate = (args) => {
-    console.log(args)
-    if (!args.detail) return
-    const { id, position, rotation } = args.detail
-    const mesh = meshes.get(id)
-    if (!mesh) return
-    if (position) mesh.position.copy(position)
-    if (rotation) mesh.quaternion.copy(rotation)
-  }
+  // const meshes = new Map<string, Mesh>()
+  // const onMeshUpdate = (args) => {
+  //   console.log(args)
+  //   if (!args.detail) return
+  //   const { id, position, rotation } = args.detail
+  //   const mesh = meshes.get(id)
+  //   if (!mesh) return
+  //   if (position) mesh.position.copy(position)
+  //   if (rotation) mesh.quaternion.copy(rotation)
+  // }
 
-  const onMeshFound = (args) => {
-    console.log(args)
-    if (!args.detail) return
-    const { id, geometry } = args.detail
-    const scene = world.scene
+  // const onMeshFound = (args) => {
+  //   console.log(args)
+  //   if (!args.detail) return
+  //   const { id, geometry } = args.detail
+  //   const scene = world.scene
 
-    const material = new MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.7 })
-    const geom = new BufferGeometry()
-    geom.setIndex(new BufferAttribute(geometry.index.array, 1))
-    geom.setAttribute('position', new BufferAttribute(geometry.attributes[0].array, 3))
-    geom.setAttribute('color', new BufferAttribute(geometry.attributes[1].array, 3))
-    const mesh = new Mesh(geom, material)
-    mesh.name = 'vps-mesh'
-    scene.add(mesh)
+  //   const material = new MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.7 })
+  //   const geom = new BufferGeometry()
+  //   geom.setIndex(new BufferAttribute(geometry.index.array, 1))
+  //   geom.setAttribute('position', new BufferAttribute(geometry.attributes[0].array, 3))
+  //   geom.setAttribute('color', new BufferAttribute(geometry.attributes[1].array, 3))
+  //   const mesh = new Mesh(geom, material)
+  //   mesh.name = 'vps-mesh'
+  //   scene.add(mesh)
 
-    meshes.set(id, mesh)
+  //   meshes.set(id, mesh)
 
-    onMeshUpdate(args)
-  }
+  //   onMeshUpdate(args)
+  // }
 
-  const onMeshLost = (args) => {
-    console.log(args)
-    if (!args.detail) return
-    const { id } = args.detail
-    const mesh = meshes.get(id)
-    if (!mesh) return
-    mesh.removeFromParent()
-    meshes.delete(id)
-  }
+  // const onMeshLost = (args) => {
+  //   console.log(args)
+  //   if (!args.detail) return
+  //   const { id } = args.detail
+  //   const mesh = meshes.get(id)
+  //   if (!mesh) return
+  //   mesh.removeFromParent()
+  //   meshes.delete(id)
+  // }
 
   const onWayspotScanning = (event: WayspotScanningEvent) => {
     console.log(event)
@@ -84,10 +80,10 @@ export const VPSPipeline = (world: World) => {
     console.log(event)
     const { name } = event.detail
 
-    const waypoints = vpsWaypointQuery()
-    for (const entity of waypoints) {
-      const waypoint = getComponentState(entity, VPSWaypointComponent)
-      if (waypoint.name.value === name) waypoint.active.set(true)
+    const wayspots = vpsWayspotQuery()
+    for (const entity of wayspots) {
+      const wayspot = getComponentState(entity, VPSWayspotComponent)
+      if (wayspot.name.value === name) wayspot.active.set(true)
     }
 
     onWayspotUpdated(event as any)
@@ -102,10 +98,10 @@ export const VPSPipeline = (world: World) => {
   const onWayspotLost = (event: WayspotLostEvent) => {
     console.log(event)
     const { name } = event.detail
-    const waypoints = vpsWaypointQuery()
-    for (const entity of waypoints) {
-      const waypoint = getComponentState(entity, VPSWaypointComponent)
-      if (waypoint.name.value === name) waypoint.active.set(false)
+    const wayspots = vpsWayspotQuery()
+    for (const entity of wayspots) {
+      const wwayspot = getComponentState(entity, VPSWayspotComponent)
+      if (wwayspot.name.value === name) wwayspot.active.set(false)
     }
   }
 
