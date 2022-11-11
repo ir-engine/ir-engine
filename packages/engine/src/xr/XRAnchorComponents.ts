@@ -2,20 +2,30 @@ import { useEffect } from 'react'
 import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, ShadowMaterial } from 'three'
 import matches from 'ts-matches'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { defineAction, getState, State, useHookstate } from '@xrengine/hyperflux'
 
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
+import { Engine } from '../ecs/classes/Engine'
+import {
+  defineComponent,
+  getComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../ecs/functions/EntityFunctions'
 import { GroupComponent, Object3DWithEntity } from '../scene/components/GroupComponent'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
+import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
 /**
- * A VPSWayspotComponent specifies that an entity represents an
+ * A PersistentAnchorComponent specifies that an entity represents an
  *   AR location that can be resolved by a Visual Positioning System
  */
-export const VPSWayspotComponent = defineComponent({
-  name: 'VPSWayspotComponent',
+export const PersistentAnchorComponent = defineComponent({
+  name: 'PersistentAnchorComponent',
 
   /**
    * Set default initialization values
@@ -24,11 +34,11 @@ export const VPSWayspotComponent = defineComponent({
    */
   onInit: (entity) => {
     return {
-      /** an identifiable name for this wayspot */
+      /** an identifiable name for this anchor */
       name: '',
       /** whether to show this object as a wireframe upon tracking - useful for debugging */
       wireframe: false,
-      /** internal - whether this wayspot is currently being tracked */
+      /** internal - whether this anchor is currently being tracked */
       active: false
     }
   },
@@ -62,10 +72,10 @@ export const VPSWayspotComponent = defineComponent({
       component.wireframe.set(json.wireframe)
   },
 
-  reactor: VPSReactor
+  reactor: PersistentAnchorReactor
 })
 
-export const SCENE_COMPONENT_VPS_WAYSPOT = 'vps-wayspot'
+export const SCENE_COMPONENT_PERSISTENT_ANCHOR = 'persistent-anchor'
 
 const vpsMeshes = new Map<string, { wireframe?: boolean }>()
 
@@ -73,7 +83,7 @@ const shadowMat = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a })
 const occlusionMat = new MeshLambertMaterial({ colorWrite: false })
 
 /** adds occlusion and shadow materials, and hides the mesh (or sets it to wireframe) */
-const vpsMeshWayspotFound = (
+const anchorMeshFound = (
   group: (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[],
   wireframe: boolean,
   meshes: State<Mesh[]>
@@ -108,7 +118,7 @@ const vpsMeshWayspotFound = (
 }
 
 /** removes the occlusion and shadow materials, and resets the mesh */
-const vpsMeshWayspotLost = (
+const anchorMeshLost = (
   group: (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[],
   meshes: State<Mesh[]>
 ) => {
@@ -122,6 +132,7 @@ const vpsMeshWayspotLost = (
           obj.visible = true
         }
         delete obj.userData.XR8_VPS
+        vpsMeshes.delete(obj.uuid)
       }
     })
   }
@@ -132,16 +143,18 @@ const vpsMeshWayspotLost = (
 }
 
 /**
- * VPSWayspotComponent entity state reactor - reacts to the conditions upon which a mesh should be
+ * PersistentAnchorComponent entity state reactor - reacts to the conditions upon which a mesh should be
  * @param
  * @returns
  */
-function VPSReactor({ root }: EntityReactorProps) {
+function PersistentAnchorReactor({ root }: EntityReactorProps) {
   const entity = root.entity
+  const world = Engine.instance.currentWorld
 
+  const originalParentEntityUUID = useHookstate('' as EntityUUID)
   const meshes = useHookstate([] as Mesh[])
 
-  const vpsWayspot = useOptionalComponent(entity, VPSWayspotComponent)
+  const anchor = useOptionalComponent(entity, PersistentAnchorComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const xrState = useHookstate(getState(XRState))
 
@@ -149,36 +162,53 @@ function VPSReactor({ root }: EntityReactorProps) {
 
   useEffect(() => {
     if (!group) return
-    const active = !!vpsWayspot?.active?.value && xrState.sessionActive.value
+    const active = anchor?.value && xrState.sessionMode.value === 'immersive-ar'
     if (active) {
-      vpsMeshWayspotFound(group, vpsWayspot?.wireframe.value, meshes)
-    } else {
-      vpsMeshWayspotLost(group, meshes)
-    }
-  }, [vpsWayspot?.active, groupComponent?.length, xrState.sessionActive])
+      /** remove from scene and add to world origins */
+      const originalParent = getComponent(
+        getComponent(entity, LocalTransformComponent).parentEntity ?? world.sceneEntity,
+        UUIDComponent
+      )
+      originalParentEntityUUID.set(originalParent)
+      const localTransform = getComponent(entity, LocalTransformComponent)
+      localTransform.parentEntity = world.originEntity
+      Engine.instance.currentWorld.dirtyTransforms.add(entity)
 
-  if (!hasComponent(entity, VPSWayspotComponent)) throw root.stop()
+      const wireframe = anchor.wireframe.value
+      anchorMeshFound(group, wireframe, meshes)
+    } else {
+      /** add back to the scene */
+      const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value].value
+      const localTransform = getComponent(entity, LocalTransformComponent)
+      localTransform.parentEntity = originalParent
+      Engine.instance.currentWorld.dirtyTransforms.add(entity)
+
+      anchorMeshLost(group, meshes)
+    }
+  }, [anchor?.active, groupComponent?.length, xrState.sessionActive])
+
+  if (!hasComponent(entity, PersistentAnchorComponent)) throw root.stop()
 
   return null
 }
 
-export class VPSActions {
-  static wayspotFound = defineAction({
-    type: 'xre.vps.wayspotFound' as const,
+export class PersistentAnchorActions {
+  static anchorFound = defineAction({
+    type: 'xre.anchor.anchorFound' as const,
     name: matches.string,
     position: matchesVector3,
     rotation: matchesQuaternion
   })
 
-  static wayspotUpdated = defineAction({
-    type: 'xre.vps.wayspotUpdated' as const,
+  static anchorUpdated = defineAction({
+    type: 'xre.anchor.anchorUpdated' as const,
     name: matches.string,
     position: matchesVector3,
     rotation: matchesQuaternion
   })
 
-  static wayspotLost = defineAction({
-    type: 'xre.vps.wayspotLost' as const,
+  static anchorLost = defineAction({
+    type: 'xre.anchor.anchorLost' as const,
     name: matches.string
   })
 }
