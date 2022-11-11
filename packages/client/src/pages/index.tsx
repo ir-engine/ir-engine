@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { Trans, useTranslation } from 'react-i18next'
+import MetaTags from 'react-meta-tags'
 import { Redirect } from 'react-router-dom'
 
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
@@ -40,12 +40,12 @@ export const HomePage = (): any => {
             }
           `}
         </style>
-        <Helmet>
+        <MetaTags>
           <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap"
             rel="stylesheet"
           />
-        </Helmet>
+        </MetaTags>
         <div className="main-background">
           <div className="img-container">
             {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}

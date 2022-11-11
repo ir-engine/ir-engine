@@ -1,7 +1,6 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useState } from 'react'
-import { Helmet, HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 
 import {
@@ -24,6 +23,8 @@ import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles
 import RouterComp from '../route/public'
 
 import './styles.scss'
+
+import MetaTags from 'react-meta-tags'
 
 import {
   AdminCoilSettingService,
@@ -187,7 +188,7 @@ const App = (): any => {
 
   return (
     <>
-      <Helmet defer={false} meta={[{ name: 'description', content: oEmbed?.value?.description }]}>
+      <MetaTags>
         {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
         {oEmbed.value && pathname === location.pathname ? (
           <>
@@ -200,11 +201,7 @@ const App = (): any => {
             <meta property="og:description" content={oEmbed.value.description} />
             <meta
               property="og:image"
-              content={
-                oEmbed.value.url
-                  ? oEmbed.value.url
-                  : `${oEmbed.value.provider_url?.replace('https://', '')}/static/etherealengine.png`
-              }
+              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
             />
 
             <meta name="twitter:card" content="summary_large_image" />
@@ -213,11 +210,7 @@ const App = (): any => {
             <meta name="twitter:description" content={oEmbed.value.description} />
             <meta
               property="twitter:image"
-              content={
-                oEmbed.value.url
-                  ? oEmbed.value.url
-                  : `${oEmbed.value.provider_url?.replace('https://', '')}/static/etherealengine.png`
-              }
+              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
             />
             <meta name="twitter:url" content={oEmbed.value.query_url} />
           </>
@@ -236,7 +229,7 @@ const App = (): any => {
         <meta name="theme-color" content={clientThemeSettings?.[currentTheme]?.mainBackground || '#FFFFFF'} />
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
-      </Helmet>
+      </MetaTags>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <SnackbarProvider
@@ -264,11 +257,9 @@ const App = (): any => {
 
 const AppPage = () => {
   return (
-    <HelmetProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </HelmetProvider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   )
 }
 
