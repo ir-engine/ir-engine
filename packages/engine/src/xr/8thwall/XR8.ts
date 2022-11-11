@@ -21,7 +21,7 @@ import {
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
-import { VPSWayspotComponent } from '../VPSComponents'
+import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
 import { XRAction, XRState } from '../XRState'
 import { XR8Pipeline } from './XR8Pipeline'
@@ -30,7 +30,7 @@ import { XR8Type } from './XR8Types'
 type XR8Assets = {
   xr8Script: HTMLScriptElement
   xrExtrasScript: HTMLScriptElement
-  xrCoachingOverlayScript: HTMLScriptElement
+  // xrCoachingOverlayScript: HTMLScriptElement
 }
 
 function loadScript(url): Promise<HTMLScriptElement> {
@@ -48,10 +48,10 @@ function loadScript(url): Promise<HTMLScriptElement> {
  * @returns
  */
 const initialize8thwall = async (): Promise<XR8Assets> => {
-  const [xr8Script, xrExtrasScript, xrCoachingOverlayScript] = await Promise.all([
+  const [xr8Script, xrExtrasScript /*, xrCoachingOverlayScript*/] = await Promise.all([
     loadScript(`https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`),
-    loadScript(`https://cdn.8thwall.com/web/xrextras/xrextras.js`),
-    loadScript(`https://cdn.8thwall.com/web/coaching-overlay/coaching-overlay.js`)
+    loadScript(`https://cdn.8thwall.com/web/xrextras/xrextras.js`)
+    // loadScript(`https://cdn.8thwall.com/web/coaching-overlay/coaching-overlay.js`)
   ])
 
   /** the global XR8 object will not exist immediately, so wait for it */
@@ -71,18 +71,18 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
 
   XR8 = globalThis.XR8
   XRExtras = globalThis.XRExtras
-  VpsCoachingOverlay = globalThis.VpsCoachingOverlay
+  // VpsCoachingOverlay = globalThis.VpsCoachingOverlay
 
   return {
     xr8Script,
-    xrExtrasScript,
-    xrCoachingOverlayScript
+    xrExtrasScript
+    // xrCoachingOverlayScript
   }
 }
 
 export let XR8: XR8Type
 export let XRExtras
-export let VpsCoachingOverlay
+// export let VpsCoachingOverlay
 
 const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null, world: World) => {
   if (existingCanvas) {
@@ -161,7 +161,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
 
     // if (enableVps) {
     //   VpsCoachingOverlay.configure({
-    //     // wayspotName: vpsWayspotName // todo - support multiple wayspots, for now just use the nearest one
+    //     // persistentanchorName: vpsPersistentAnchorName // todo - support multiple persistentanchors, for now just use the nearest one
     //   })
     // }
 
@@ -210,6 +210,10 @@ class XRHitTestResultProxy {
   createAnchor = undefined
 }
 
+class XRReferenceSpace {}
+
+class XRHitTestSource {}
+
 class XRSessionProxy extends EventDispatcher {
   readonly inputSources: XRInputSource[]
 
@@ -218,12 +222,12 @@ class XRSessionProxy extends EventDispatcher {
     this.inputSources = inputSources
   }
   async requestReferenceSpace(type: 'local' | 'viewer') {
-    const space = {}
-    return space as XRReferenceSpace
+    const space = new XRReferenceSpace()
+    return space
   }
 
   async requestHitTestSource(args: { space: XRReferenceSpace }) {
-    const source = {}
+    const source = new XRHitTestSource()
     return source as XRHitTestSource
   }
 }
@@ -269,7 +273,7 @@ class XRFrameProxy {
 }
 
 const skyboxQuery = defineQuery([SkyboxComponent])
-const vpsQuery = defineQuery([VPSWayspotComponent])
+const vpsQuery = defineQuery([PersistentAnchorComponent])
 
 export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
@@ -415,16 +419,16 @@ export default async function XR8System(world: World) {
    *     session, changing the overrides, and entering the session again
    */
   const vpsReactor = startReactor(function XR8VPSReactor() {
-    const hasWayspot = useQuery(vpsQuery).length
+    const hasPersistentAnchor = useQuery(vpsQuery).length
 
     useEffect(() => {
       /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
-      if (hasWayspot || using8thWall) {
+      if (hasPersistentAnchor || using8thWall) {
         overrideXRSessionFunctions()
       } else {
         revertXRSessionFunctions()
       }
-    }, [hasWayspot])
+    }, [hasPersistentAnchor])
 
     return null
   })
@@ -462,7 +466,7 @@ export default async function XR8System(world: World) {
     if (_8thwallScripts) {
       _8thwallScripts.xr8Script.remove()
       _8thwallScripts.xrExtrasScript.remove()
-      _8thwallScripts.xrCoachingOverlayScript.remove()
+      // _8thwallScripts.xrCoachingOverlayScript.remove()
     }
     if (cameraCanvas) cameraCanvas.remove()
     revertXRSessionFunctions()

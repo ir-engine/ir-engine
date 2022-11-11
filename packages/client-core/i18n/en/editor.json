@@ -145,10 +145,10 @@
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
     },
-    "vps-wayspot": {
-      "name": "VPS Wayspot",
-      "description": "Assign a VPS Wayspot",
-      "lbl-name": "Wayspot Name"
+    "persistent-anchor": {
+      "name": "Persistent Anchor",
+      "description": "Anchors this entity to a real life reference",
+      "lbl-name": "Anchor Name"
     },
     "media": {
       "name": "Media",
