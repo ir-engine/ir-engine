@@ -283,11 +283,12 @@ body {
 }
 
 .lander {
-  min-height: 100vh;
-  background-image: linear-gradient(150deg, #00022e, #dbdbdb 100%);
+  height: 100%;
   background-image: linear-gradient(150deg, #00022e, #ff007d4a);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
   * {
     font-family: Inter;
@@ -427,11 +428,11 @@ body {
   .main-section {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     padding: 5px;
     max-width: 1024px;
     margin: auto;
+    width: 100%;
+    overflow-y: auto;
 
     .desc {
       font-size: 30px;
@@ -470,4 +471,17 @@ vite-error-overlay {
 
 .prompt-box-8w {
   pointer-events: auto;
+}
+
+
+#root {
+  height: 100%;
+
+  .fullscreen {
+    height: 100%;
+  }
+
+  #engine-container {
+    height: 100%;
+  }
 }
