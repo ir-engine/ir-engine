@@ -16,6 +16,7 @@ bash ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAM
 npm run check-db-exists
 npm run install-projects
 npm run prepare-database
+npm run update-site-manifest
 cd packages/client && npm run buildenv
 if [ -n "$TWA_LINK" ]
 then

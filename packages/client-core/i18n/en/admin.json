@@ -324,7 +324,11 @@
       "theme": "Theme",
       "editor": "Editor",
       "admin": "Admin",
-      "key8thWall": "8th Wall Key"
+      "key8thWall": "8th Wall Key",
+      "shortTitle": "PWA Short Title",
+      "startPath": "PWA Start Path",
+      "shortTitleTooltip": "The displayed title of a PWA-installed copy of this app if 'title' is too long; recommended max 12 characters",
+      "startPathTooltip": "The path that a PWA-installed copy of this app will direct to"
     },
     "avatar": {
       "source": "Source",
