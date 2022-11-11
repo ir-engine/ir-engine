@@ -83,7 +83,6 @@ export const HomePage = (): any => {
                     top: 0px;
                     left: 0px;
                     width: 100%;
-                    min-width: 420px;
                     transform: none;
                     pointer-events: auto;
                 }

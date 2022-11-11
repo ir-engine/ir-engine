@@ -521,6 +521,8 @@
   max-height: calc(100vh - 150px);
   touch-action: auto;
   overflow-y: auto;
+  max-width: 95%;
+  margin: auto;
 
   * {
     touch-action: auto;
