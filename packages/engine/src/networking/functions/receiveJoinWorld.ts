@@ -1,7 +1,7 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -17,10 +17,12 @@ export type JoinWorldRequestData = {
 }
 
 export type JoinWorldProps = {
+  peerIndex: number
+  peerID: PeerID
   highResTimeOrigin: number
+  routerRtpCapabilities: any
   worldStartTime: number
   cachedActions: Required<Action>[]
-  spectateUserId?: UserId | 'none'
 }
 
 export type SpawnInWorldProps = {
@@ -41,7 +43,7 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) return
-  const { highResTimeOrigin, worldStartTime, cachedActions } = props
+  const { highResTimeOrigin, worldStartTime, cachedActions, peerID } = props
   console.log('RECEIVED JOIN WORLD RESPONSE', highResTimeOrigin, worldStartTime, cachedActions)
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
@@ -52,6 +54,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   }
 
   dispatchAction(EngineActions.joinedWorld({}))
+
+  Engine.instance.currentWorld.worldNetwork.peerID = peerID
 
   Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
     ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history

@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import React from 'react'
 
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 
 import {
   Mic,
@@ -23,10 +24,11 @@ import { useUserMediaWindowHook } from '../UserMediaWindow'
 import styles from './index.module.scss'
 
 interface Props {
-  peerId?: string | 'cam_me' | 'screen_me'
+  peerID: PeerID
+  type: 'cam' | 'screen'
 }
 
-const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
+const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
   const {
     user,
     volume,
@@ -35,7 +37,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
     selfUser,
     audioRef,
     videoRef,
-    isSelfUser,
+    isSelf,
     videoStream,
     audioStream,
     enableGlobalMute,
@@ -51,16 +53,16 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
     toggleVideo,
     adjustVolume,
     toggleGlobalMute
-  } = useUserMediaWindowHook({ peerId })
+  } = useUserMediaWindowHook({ peerID, type })
 
   return (
     <div
       tabIndex={0}
-      id={peerId + '_container'}
+      id={peerID + '_container'}
       className={classNames({
         [styles['party-chat-user']]: true,
         [styles.pip]: true,
-        [styles['self-user']]: peerId === 'cam_me',
+        [styles['self-user']]: isSelf,
         [styles['no-video']]: videoStream == null,
         [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused)
       })}
@@ -73,15 +75,15 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
       >
         {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
           <img
-            src={getAvatarURLForUser(userAvatarDetails, isSelfUser ? selfUser?.id : user?.id)}
+            src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : user?.id)}
             alt=""
             crossOrigin="anonymous"
             draggable={false}
           />
         )}
-        <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
+        <video key={peerID + '_cam'} ref={videoRef} draggable={false} />
       </div>
-      <audio key={peerId + '_audio'} ref={audioRef} />
+      <audio key={peerID + '_audio'} ref={audioRef} />
       <div className={styles['user-controls']}>
         <div className={styles['username']}>{username}</div>
         <div className={styles['controls']}>
@@ -93,7 +95,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
                 </IconButton>
               </Tooltip>
             ) : null}
-            {enableGlobalMute && peerId !== 'cam_me' && peerId !== 'screen_me' && audioStream && (
+            {enableGlobalMute && !isSelf && audioStream && (
               <Tooltip
                 title={
                   !audioProducerGlobalMute
@@ -109,27 +111,17 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
             {audioStream && !audioProducerPaused ? (
               <Tooltip
                 title={
-                  (isSelfUser && audioStream?.paused === false
+                  (isSelf && audioStream?.paused === false
                     ? t('user:person.muteMe')
-                    : isSelfUser && audioStream?.paused === true
+                    : isSelf && audioStream?.paused === true
                     ? t('user:person.unmuteMe')
-                    : peerId !== 'cam_me' && peerId !== 'screen_me' && audioStream?.paused === false
+                    : !isSelf && audioStream?.paused === false
                     ? t('user:person.muteThisPerson')
                     : t('user:person.unmuteThisPerson')) as string
                 }
               >
                 <IconButton size="small" className={styles['icon-button']} onClick={toggleAudio}>
-                  {isSelfUser ? (
-                    audioStreamPaused ? (
-                      <MicOff />
-                    ) : (
-                      <Mic />
-                    )
-                  ) : audioStreamPaused ? (
-                    <VolumeOff />
-                  ) : (
-                    <VolumeUp />
-                  )}
+                  {isSelf ? audioStreamPaused ? <MicOff /> : <Mic /> : audioStreamPaused ? <VolumeOff /> : <VolumeUp />}
                 </IconButton>
               </Tooltip>
             ) : null}
