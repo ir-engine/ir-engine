@@ -18,6 +18,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
+import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -33,7 +34,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarTeleportComponent } from '../components/AvatarTeleportComponent'
 import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
-import { avatarRadius } from './createAvatar'
+import { avatarRadius } from './spawnAvatarReceptor'
 
 const _vec = new Vector3()
 const _vec2 = new Vector3()
@@ -142,7 +143,7 @@ export const avatarApplyRotation = (entity: Entity) => {
 /**
  * Avatar movement via velocity spring and collider velocity
  */
-export const avatarApplyVelocity = (entity, forwardOrientation) => {
+export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaternion) => {
   const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
@@ -177,7 +178,9 @@ export const avatarApplyVelocity = (entity, forwardOrientation) => {
     }
   }
 
-  rigidBody.body.setLinvel(currentVelocity, true)
+  if (hasComponent(entity, NetworkObjectAuthorityTag)) {
+    rigidBody.body.setLinvel(currentVelocity, true)
+  }
 }
 
 export const avatarStepOverObstacles = (entity: Entity, forwardOrientation: Quaternion) => {

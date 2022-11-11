@@ -1,3 +1,4 @@
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -57,7 +58,7 @@ export class Network {
   dataConsumers = new Map<string, any>()
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
+  incomingMessageQueueUnreliableIDs: RingBuffer<PeerID> = new RingBuffer<PeerID>(100)
 
   /** Buffer holding all incoming Messages. */
   incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
@@ -66,16 +67,22 @@ export class Network {
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
   /** Connected peers */
-  peers = new Map() as Map<UserId, NetworkPeer>
+  peers = new Map() as Map<PeerID, NetworkPeer>
 
   /** Publish to connected peers that peer information has changed */
   updatePeers() {}
 
   /** Map of numerical user index to user client IDs */
-  userIndexToUserId = new Map<number, UserId>()
+  userIndexToUserID = new Map<number, UserId>()
 
   /** Map of user client IDs to numerical user index */
-  userIdToUserIndex = new Map<UserId, number>()
+  userIDToUserIndex = new Map<UserId, number>()
+
+  /** Map of numerical peer index to peer IDs */
+  peerIndexToPeerID = new Map<number, PeerID>()
+
+  /** Map of peer IDs to numerical peer index */
+  peerIDToPeerIndex = new Map<PeerID, number>()
 
   /**
    * The index to increment when a new user joins
@@ -84,10 +91,21 @@ export class Network {
   userIndexCount = 0
 
   /**
+   * The index to increment when a new peer connects
+   * NOTE: Must only be updated by the host
+   */
+  peerIndexCount = 0
+
+  /**
    * The UserId of the host
    * - will either be a user's UserId, or an instance server's InstanceId
    */
   hostId: UserId
+
+  /**
+   * The PeerID of the current user's instance
+   */
+  peerID: PeerID
 
   /**
    * The network is ready for sending messages and data

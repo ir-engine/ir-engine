@@ -13,8 +13,8 @@ import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetw
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { createAvatar } from './createAvatar'
 import { moveAvatarWithVelocity } from './moveAvatar'
+import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 // @todo this test is exhibiting odd behaviour
 describe('moveAvatar function tests', () => {
@@ -38,7 +38,8 @@ describe('moveAvatar function tests', () => {
 
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
 
-    const entity = createAvatar(spawnAvatar)
+    spawnAvatarReceptor(spawnAvatar)
+    const entity = world.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -70,7 +71,8 @@ describe('moveAvatar function tests', () => {
 
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
 
-    const entity = createAvatar(spawnAvatar)
+    spawnAvatarReceptor(spawnAvatar)
+    const entity = world.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -104,7 +106,8 @@ describe('moveAvatar function tests', () => {
 
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
 
-    const entity = createAvatar(spawnAvatar)
+    spawnAvatarReceptor(spawnAvatar)
+    const entity = world.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -135,7 +138,8 @@ describe('moveAvatar function tests', () => {
 
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
 
-    const entity = createAvatar(spawnAvatar)
+    spawnAvatarReceptor(spawnAvatar)
+    const entity = world.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 

@@ -1,12 +1,25 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, Quaternion, Vector3 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineActions } from '../../ecs/classes/EngineState'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
@@ -34,11 +47,27 @@ export const avatarRadius = 0.25
 export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
-export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.matches._TYPE): Entity => {
+export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawnAvatar.matches._TYPE) => {
   const world = Engine.instance.currentWorld
   const userId = spawnAction.$from
-  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
+  const existingAvatarEntity = world.getUserAvatarEntity(spawnAction.$from)
 
+  // already spawned into the world on another device or tab
+  if (existingAvatarEntity) {
+    const didSpawnEarlierThanThisClient = NetworkPeerFunctions.getCachedActionsForUser(userId).find(
+      (action) =>
+        WorldNetworkAction.spawnAvatar.matches.test(action) &&
+        action !== spawnAction &&
+        action.$time > spawnAction.$time
+    )
+    if (didSpawnEarlierThanThisClient) {
+      hasComponent(existingAvatarEntity, NetworkObjectAuthorityTag) &&
+        removeComponent(existingAvatarEntity, NetworkObjectAuthorityTag)
+    }
+    return
+  }
+
+  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
   const transform = getComponent(entity, TransformComponent)
 
   // The visuals group is centered for easy actor tilting
@@ -103,8 +132,6 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   }
 
   addComponent(entity, ShadowComponent, { receive: true, cast: true })
-
-  return entity
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

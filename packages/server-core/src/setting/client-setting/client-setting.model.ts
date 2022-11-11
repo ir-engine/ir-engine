@@ -6,7 +6,7 @@ import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ClientSetting = sequelizeClient.define<Model<ClientSettingInterface>>(
+  return sequelizeClient.define<Model<ClientSettingInterface>>(
     'clientSetting',
     {
       id: {
@@ -23,9 +23,17 @@ export default (app: Application) => {
         type: DataTypes.STRING,
         allowNull: true
       },
+      shortTitle: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       url: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      startPath: {
+        type: DataTypes.STRING,
+        allowNull: false
       },
       releaseName: {
         type: DataTypes.STRING,
@@ -92,6 +100,4 @@ export default (app: Application) => {
       }
     }
   )
-
-  return ClientSetting
 }

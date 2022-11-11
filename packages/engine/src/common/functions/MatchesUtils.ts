@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from 'three'
 import { matches, Validator } from 'ts-matches'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Entity } from '../../ecs/classes/Entity'
@@ -32,6 +33,7 @@ const matchesQuatShape = matches.some(
 const matchesVector3 = matches.guard((v): v is Vector3 => matchesVec3Shape.test(v))
 const matchesQuaternion = matches.guard((v): v is Quaternion => matchesQuatShape.test(v))
 const matchesUserId = matches.string as Validator<unknown, UserId>
+const matchesPeerID = matches.string as Validator<unknown, PeerID>
 const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
 const matchesEntity = matches.number as Validator<unknown, Entity>
 
@@ -47,6 +49,7 @@ const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () 
 
 export {
   matchesUserId,
+  matchesPeerID,
   matchesNetworkId,
   matchesEntity,
   matchesVector3,

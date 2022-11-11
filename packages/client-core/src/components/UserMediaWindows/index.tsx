@@ -5,21 +5,24 @@ import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/commo
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
+import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import UserMediaWindow from '../UserMediaWindow'
 import styles from './index.module.scss'
 
-export const UserMediaWindows = () => {
+export const filterWindows = (network: SocketWebRTCClientNetwork, consumers: ConsumerExtension[]) => {
   const mediaState = useMediaStreamState()
   const nearbyLayerUsers = mediaState.nearbyLayerUsers
   const selfUserId = useState(accessAuthState().user.id)
   const userState = useNetworkUserState()
   const channelConnectionState = useMediaInstanceConnectionState()
-  const network = Engine.instance.currentWorld.mediaNetwork
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
-  const displayedUsers =
+
+  const displayedUsers = (
     network?.hostId && currentChannelInstanceConnection
       ? currentChannelInstanceConnection.channelType?.value === 'party'
         ? userState.channelLayerUsers?.value.filter((user) => {
@@ -33,9 +36,37 @@ export const UserMediaWindows = () => {
         ? userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
         : []
       : []
+  ).map((user) => user.id)
 
-  const consumers = mediaState.consumers.value
-  const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
+  const windows = [] as Array<{ peerID: PeerID; mediaTag?: MediaTagType }>
+
+  // filter out pairs of cam video & cam audio
+  consumers.forEach((consumer) => {
+    const isUnique = !windows.find(
+      (u) =>
+        consumer.appData.peerID === u.peerID &&
+        ((consumer.appData.mediaTag === 'cam-video' && u.mediaTag === 'cam-audio') ||
+          (consumer.appData.mediaTag === 'cam-audio' && u.mediaTag === 'cam-video'))
+    )
+    if (isUnique && displayedUsers.includes(network.peers.get(consumer.appData.peerID)?.userId!))
+      windows.push({ peerID: consumer.appData.peerID, mediaTag: consumer.appData.mediaTag })
+  })
+
+  // include a peer for each user without any consumers
+  if (network)
+    displayedUsers.forEach((userId) => {
+      const peerID = Array.from(network.peers.values()).find((peer) => peer.userId === userId)?.peerID
+      if (peerID && !windows.find((window) => window.peerID === peerID)) windows.push({ peerID })
+    })
+
+  return windows
+}
+
+export const UserMediaWindows = () => {
+  const mediaState = useMediaStreamState()
+  const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+
+  const consumers = filterWindows(network, mediaState.consumers.get({ noproxy: true }))
 
   const { topShelfStyle } = useShelfStyles()
 
@@ -43,17 +74,13 @@ export const UserMediaWindows = () => {
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
         {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-          <UserMediaWindow peerId={'screen_me'} key={'screen_me'} />
+          <UserMediaWindow type={'screen'} peerID={network?.peerID} key={'screen_' + network?.peerID} />
         )}
-        <UserMediaWindow peerId={'cam_me'} key={'cam_me'} />
-        {displayedUsers.map((user) => (
-          <Fragment key={user.id}>
-            <UserMediaWindow peerId={user.id} key={user.id} />
-            {screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id) && (
-              <UserMediaWindow peerId={'screen_' + user.id} key={'screen_' + user.id} />
-            )}
-          </Fragment>
-        ))}
+        <UserMediaWindow type={'cam'} peerID={network?.peerID} key={'cam_' + network?.peerID} />
+        {consumers.map(({ peerID, mediaTag }) => {
+          const type = mediaTag === 'screen-video' ? 'screen' : 'cam'
+          return <UserMediaWindow type={type} peerID={peerID} key={type + '_' + peerID} />
+        })}
       </div>
     </div>
   )

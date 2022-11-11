@@ -5,6 +5,7 @@ import { ParityValue } from '../../common/enums/ParityValue'
 import {
   matches,
   matchesNetworkId,
+  matchesPeerID,
   matchesQuaternion,
   matchesUserId,
   matchesVector3,
@@ -126,7 +127,7 @@ export class WorldNetworkAction {
     type: 'xre.world.REQUEST_AUTHORITY_OVER_OBJECT',
     ownerId: matchesUserId,
     networkId: matchesNetworkId,
-    newAuthority: matchesUserId,
+    newAuthority: matchesPeerID,
     $topic: NetworkTopics.world
   })
 
@@ -134,7 +135,7 @@ export class WorldNetworkAction {
     type: 'xre.world.TRANSFER_AUTHORITY_OF_OBJECT',
     ownerId: matchesUserId,
     networkId: matchesNetworkId,
-    newAuthority: matchesUserId,
+    newAuthority: matchesPeerID,
     $topic: NetworkTopics.world
   })
 

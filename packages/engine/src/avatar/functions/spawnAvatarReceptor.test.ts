@@ -18,9 +18,9 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
-import { createAvatar } from './createAvatar'
+import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
-describe('createAvatar', () => {
+describe('spawnAvatarReceptor', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
@@ -38,7 +38,7 @@ describe('createAvatar', () => {
       rotation: new Quaternion()
     })
     WorldNetworkActionReceptor.receiveSpawnObject(action)
-    createAvatar(action)
+    spawnAvatarReceptor(action)
 
     const entity = world.getUserAvatarEntity(Engine.instance.userId)
 

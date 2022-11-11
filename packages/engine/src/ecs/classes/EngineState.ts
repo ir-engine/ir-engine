@@ -133,6 +133,10 @@ export class EngineActions {
     user: matches.string.optional()
   })
 
+  static avatarAlreadyInWorld = defineAction({
+    type: 'xre.world.AVATAR_ALREADY_IN_WORLD'
+  })
+
   static interactedWithObject = defineAction({
     type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity.optional(),
