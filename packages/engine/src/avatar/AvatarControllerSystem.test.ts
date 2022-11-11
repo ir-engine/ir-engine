@@ -17,7 +17,7 @@ import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { rotateBodyTowardsVector } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { createAvatar } from './functions/createAvatar'
+import { spawnAvatarReceptor } from './functions/spawnAvatarReceptor'
 
 describe('AvatarControllerSystem', async () => {
   beforeEach(async () => {
@@ -32,7 +32,8 @@ describe('AvatarControllerSystem', async () => {
 
     const spawnAvatarAction = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatarAction)
-    const avatarEntity = createAvatar(spawnAvatarAction)
+    spawnAvatarReceptor(spawnAvatarAction)
+    const avatarEntity = world.getUserAvatarEntity(Engine.instance.userId)
     const ridigbody = getComponent(avatarEntity, RigidBodyComponent)
 
     const testRotation = new Quaternion().copy(ridigbody.body.rotation() as Quaternion)

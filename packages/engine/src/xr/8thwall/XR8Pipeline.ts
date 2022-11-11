@@ -3,7 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { World } from '../../ecs/classes/World'
-import { VPSActions } from '../VPSComponents'
+import { PersistentAnchorActions } from '../XRAnchorComponents'
 import { XR8 } from './XR8'
 import {
   CameraPipelineModule,
@@ -44,17 +44,21 @@ export const XR8Pipeline = (world: World, cameraCanvas: HTMLCanvasElement): Came
 
   const onWayspotFound = (event: WayspotFoundEvent) => {
     const { name, position, rotation } = event.detail
-    dispatchAction(VPSActions.wayspotFound({ name, position: position as Vector3, rotation: rotation as Quaternion }))
+    dispatchAction(
+      PersistentAnchorActions.anchorFound({ name, position: position as Vector3, rotation: rotation as Quaternion })
+    )
   }
 
   const onWayspotUpdated = (event: WayspotUpdatedEvent) => {
     const { name, position, rotation } = event.detail
-    dispatchAction(VPSActions.wayspotUpdated({ name, position: position as Vector3, rotation: rotation as Quaternion }))
+    dispatchAction(
+      PersistentAnchorActions.anchorUpdated({ name, position: position as Vector3, rotation: rotation as Quaternion })
+    )
   }
 
   const onWayspotLost = (event: WayspotLostEvent) => {
     const { name } = event.detail
-    dispatchAction(VPSActions.wayspotLost({ name }))
+    dispatchAction(PersistentAnchorActions.anchorLost({ name }))
   }
 
   return {

@@ -2,6 +2,7 @@ import { strictEqual } from 'assert'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
@@ -338,6 +339,7 @@ describe('DataWriter', () => {
     const entity = createEntity()
     const networkId = 999 as NetworkId
     const userId = '0' as UserId
+    const peerID = 'peer id' as PeerID
     const userIndex = 0
 
     // construct values for a valid quaternion
@@ -356,7 +358,7 @@ describe('DataWriter', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
-      authorityUserId: userId,
+      authorityPeerID: peerID,
       ownerId: userId
     })
 
@@ -418,7 +420,7 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
@@ -431,7 +433,7 @@ describe('DataWriter', () => {
 
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
     })
@@ -486,6 +488,7 @@ describe('DataWriter', () => {
 
   it('should createDataWriter', () => {
     const world = Engine.instance.currentWorld
+    const peerID = 'peerID' as PeerID
 
     const write = createDataWriter()
 
@@ -503,7 +506,7 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
@@ -516,16 +519,16 @@ describe('DataWriter', () => {
 
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
     })
 
     const network = Engine.instance.currentWorld.worldNetwork
-    const packet = write(world, network, Engine.instance.userId, entities)
+    const packet = write(world, network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =
-      3 * Uint32Array.BYTES_PER_ELEMENT +
+      4 * Uint32Array.BYTES_PER_ELEMENT +
       n *
         (1 * Uint32Array.BYTES_PER_ELEMENT +
           4 * Uint8Array.BYTES_PER_ELEMENT +
@@ -536,8 +539,9 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(packet)
 
-    const tick = readUint32(readView)
     const userIndex = readUint32(readView)
+    const peerIndex = readUint32(readView)
+    const tick = readUint32(readView)
 
     const count = readUint32(readView)
     strictEqual(count, entities.length)

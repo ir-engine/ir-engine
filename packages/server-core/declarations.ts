@@ -27,7 +27,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   agonesSDK: any
   sync: any
   io: any //SocketIO.Server
-  transport: SocketWebRTCServerNetwork
+  network: SocketWebRTCServerNetwork
   seed: () => Application // function
   serverMode: ServerTypeMode
 

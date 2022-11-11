@@ -32,15 +32,21 @@ export interface UserInterface {
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType
   avatarUrl?: string
+  /** @deprecated */
   instanceId?: string
+  /** @deprecated */
   instance?: InstanceInterface
+  /** @deprecated */
   channelInstanceId?: string
+  /** @deprecated */
   channelInstance?: InstanceInterface
+  /** @deprecated */
   partyId?: string
+  /** @deprecated */
+  party?: Party
   locationBans?: LocationBan[]
   user_setting?: UserSetting
   inviteCode?: string
-  party?: Party
   scopes?: UserScope[]
   apiKey: UserApiKey
   static_resources?: StaticResourceInterface

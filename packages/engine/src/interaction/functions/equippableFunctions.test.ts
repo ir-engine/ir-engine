@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
@@ -28,7 +29,7 @@ describe.skip('equippableFunctions', () => {
 
     addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'world' as UserId,
-      authorityUserId: 'world' as UserId,
+      authorityPeerID: 'world' as PeerID,
       networkId: 0 as NetworkId
     })
 
@@ -42,7 +43,7 @@ describe.skip('equippableFunctions', () => {
     const entity2: Entity = createEntity()
     addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'world' as UserId,
-      authorityUserId: 'world' as UserId,
+      authorityPeerID: 'world' as PeerID,
       networkId: 0 as NetworkId
     })
 
