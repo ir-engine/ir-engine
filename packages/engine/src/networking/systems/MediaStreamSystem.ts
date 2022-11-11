@@ -1,37 +1,33 @@
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
-
 import { World } from '../../ecs/classes/World'
-import { MediaNetworkAction } from '../functions/MediaNetworkAction'
 
 export default async function MediaStreamSystem(world: World) {
-  const getConsumer = (consumerId: string) => world.mediaNetwork.consumers.find((c) => c.id === consumerId)
-  const getProducer = (producerId: string) => world.mediaNetwork.producers.find((c) => c.id === producerId)
-
-  const pauseConsumerQueue = createActionQueue(MediaNetworkAction.pauseConsumer.matches)
-  const pauseProducerQueue = createActionQueue(MediaNetworkAction.pauseProducer.matches)
+  let executeInProgress = false
 
   const execute = () => {
-    if (!world.mediaNetwork) return
+    const network = world.mediaNetwork
+    if (!network) return
 
-    for (const action of pauseConsumerQueue()) {
-      const consumer = getConsumer(action.consumerId)
-      if (consumer && !consumer?.closed && !consumer?._closed) {
-        action.pause ? consumer.pause() : consumer.resume()
-      }
-    }
-
-    for (const action of pauseProducerQueue()) {
-      const producer = getProducer(action.producerId)
-      if (producer && !producer?.closed && !producer?._closed) {
-        action.pause ? producer.pause() : producer.resume()
+    if (network?.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
+      executeInProgress = true
+      const buffer = network.mediasoupOperationQueue.pop() as any
+      if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
+        try {
+          if (buffer.action === 'resume') buffer.object.resume()
+          else if (buffer.action === 'pause') buffer.object.pause()
+          executeInProgress = false
+        } catch (err) {
+          executeInProgress = false
+          console.log('Pause or resume error')
+          console.log(err)
+          console.log(buffer.object)
+        }
+      } else {
+        executeInProgress = false
       }
     }
   }
 
-  const cleanup = async () => {
-    removeActionQueue(pauseConsumerQueue)
-    removeActionQueue(pauseProducerQueue)
-  }
+  const cleanup = async () => {}
 
   return { execute, cleanup }
 }

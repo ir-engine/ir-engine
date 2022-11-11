@@ -10,7 +10,6 @@ import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTra
 
 import {
   authorizeUserToJoinServer,
-  disconnectClientIfConnected,
   handleConnectingPeer,
   handleDisconnect,
   handleHeartbeat,
@@ -24,9 +23,13 @@ import {
   handleWebRtcCloseProducer,
   handleWebRtcConsumerSetLayers,
   handleWebRtcInitializeRouter,
+  handleWebRtcPauseConsumer,
+  handleWebRtcPauseProducer,
   handleWebRtcProduceData,
   handleWebRtcReceiveTrack,
   handleWebRtcRequestCurrentProducers,
+  handleWebRtcResumeConsumer,
+  handleWebRtcResumeProducer,
   handleWebRtcSendTrack,
   handleWebRtcTransportClose,
   handleWebRtcTransportConnect,
@@ -112,8 +115,6 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
          * @todo Check if the user is banned
          */
 
-        disconnectClientIfConnected(network, socket, userId)
-
         await handleConnectingPeer(network, socket, user)
       } catch (e) {
         authTask.status = 'fail'
@@ -164,12 +165,28 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
         handleWebRtcReceiveTrack(network, socket, data, callback)
       )
 
+      socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) =>
+        handleWebRtcPauseConsumer(network, socket, data, callback)
+      )
+
+      socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) =>
+        handleWebRtcResumeConsumer(network, socket, data, callback)
+      )
+
       socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) =>
         handleWebRtcCloseConsumer(network, socket, data, callback)
       )
 
       socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) =>
         handleWebRtcConsumerSetLayers(network, socket, data, callback)
+      )
+
+      socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) =>
+        handleWebRtcResumeProducer(network, socket, data, callback)
+      )
+
+      socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
+        handleWebRtcPauseProducer(network, socket, data, callback)
       )
 
       socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>

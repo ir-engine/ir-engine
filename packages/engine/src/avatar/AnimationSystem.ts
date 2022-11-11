@@ -30,7 +30,9 @@ export function animationActionReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
   world = Engine.instance.currentWorld
 ) {
-  if (Engine.instance.userId === action.$from) return // Only run on other clients
+  // Only run on other peers
+  if (!world.worldNetwork || !action.$peer || world.worldNetwork.peerID === action.$peer) return
+
   const avatarEntity = world.getUserAvatarEntity(action.$from)
 
   const networkObject = getComponent(avatarEntity, NetworkObjectComponent)

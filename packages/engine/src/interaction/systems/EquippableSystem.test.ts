@@ -2,9 +2,10 @@ import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
-import { createAvatar } from '../../avatar/functions/createAvatar'
+import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
@@ -42,12 +43,12 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     addComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userId,
-      authorityUserId: Engine.instance.userId,
+      authorityPeerID: 'peer id' as PeerID,
       networkId: 0 as NetworkId
     })
     const networkObject = getComponent(player, NetworkObjectComponent)
 
-    createAvatar(
+    spawnAvatarReceptor(
       WorldNetworkAction.spawnAvatar({
         $from: Engine.instance.userId,
         networkId: networkObject.networkId,
