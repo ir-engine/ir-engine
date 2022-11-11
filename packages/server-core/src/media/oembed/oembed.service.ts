@@ -44,7 +44,8 @@ export default (app: Application): void => {
               ? `${clientSettings.url}${clientSettings.favicon32px}`
               : clientSettings.favicon32px,
           thumbnail_width: 32,
-          thumbnail_height: 32
+          thumbnail_height: 32,
+          query_url: queryURL
         } as any
 
         if (isLocation) {

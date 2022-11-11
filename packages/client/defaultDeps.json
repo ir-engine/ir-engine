@@ -208,7 +208,7 @@
     "react-dom",
     "react-full-screen",
     "react-ga4",
-    "react-helmet",
+    "react-helmet-async",
     "react-hot-keys",
     "react-i18next",
     "react-json-tree",

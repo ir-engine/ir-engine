@@ -8,6 +8,7 @@ export interface OEmbed {
   thumbnail_url: string
   thumbnail_width: number
   thumbnail_height: number
+  query_url: string
   url?: string
   height?: number
   width?: number
