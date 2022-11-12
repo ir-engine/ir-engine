@@ -1,3 +1,4 @@
+import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
@@ -75,7 +76,8 @@ export default defineConfig(async () => {
 
   const returned = {
     optimizeDeps: {
-      exclude: ['@xrfoundation/volumetric']
+      exclude: ['@xrfoundation/volumetric'],
+      include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background']
     },
     plugins: [
       PkgConfig(),
@@ -98,6 +100,9 @@ export default defineConfig(async () => {
         filter: /\.(js|mjs|json|css)$/i,
         algorithm: 'brotliCompress',
         deleteOriginFile: true
+      }),
+      viteCommonjs({
+        include: ['use-sync-external-store']
       })
     ],
     server: {
