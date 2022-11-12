@@ -53,7 +53,7 @@ export default (app: Application): void => {
 
         for (const projectName of uniqueProjects) {
           const projectConfig = await getProjectConfig(projectName)
-          if (projectConfig.onEvent) {
+          if (projectConfig?.onEvent) {
             const oEmbedResponse: OEmbed | null = await onProjectEvent(
               app,
               projectName,
