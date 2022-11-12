@@ -210,8 +210,7 @@ export class World {
       height: 0.05
     },
     xr: {
-      dollhouse: 'auto' as boolean | 'auto',
-      vpsWayspotName: ''
+      dollhouse: 'auto' as boolean | 'auto'
     }
   })
 

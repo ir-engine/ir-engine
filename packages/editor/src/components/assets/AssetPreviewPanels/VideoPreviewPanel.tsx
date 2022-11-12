@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const VedioPreview = styled.video`
+const VideoPreview = styled.video`
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -13,12 +13,12 @@ const VedioPreview = styled.video`
  * @returns
  */
 
-export const VedioPreviewPanel = (props) => {
+export const VideoPreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
 
   return (
-    <VedioPreview src={url} controls={true}>
+    <VideoPreview src={url} controls={true}>
       Your Browser doesn't support Video
-    </VedioPreview>
+    </VideoPreview>
   )
 }

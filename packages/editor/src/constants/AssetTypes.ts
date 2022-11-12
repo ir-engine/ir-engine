@@ -23,7 +23,7 @@ export const ItemTypes = {
     'model/usdz'
   ],
   Scripts: ['tsx', AssetType.TS, 'jsx', 'js', AssetType.Script],
-  Videos: [AssetType.MP4, 'm3u8', 'video/mp4', AssetType.MKV],
+  Videos: [AssetType.MP4, AssetType.M3U8, 'video/mp4', AssetType.MKV],
   Volumetrics: ['drcs', 'uvol'],
   Text: [AssetType.PlainText, 'txt'],
   ECS: [AssetType.XRE, 'scene.json'],

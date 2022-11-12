@@ -30,7 +30,7 @@
   },
   "version": "1.0.0-rc6",
   "dependencies": {
-    "@dimforge/rapier3d-compat": "^0.0.0-bc4601d-20221031",
+    "@dimforge/rapier3d-compat": "0.10.0",
     "@etherealjs/web-layer": "^3.5.5",
     "@pixiv/three-vrm": "^1.0.0-beta.8",
     "@tweenjs/tween.js": "^18.6.4",
@@ -56,7 +56,7 @@
     "sharp": "^0.30.7",
     "simplex-noise": "^3.0.0",
     "socket.io": "4.5.2",
-    "three": "0.144.0",
+    "three": "0.146.0",
     "three-mesh-bvh": "^0.5.0",
     "three-nebula": "^10.0.3",
     "ts-matches": "^5.1.0-1",

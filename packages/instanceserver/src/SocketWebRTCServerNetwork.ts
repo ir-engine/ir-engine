@@ -1,6 +1,16 @@
-import { Consumer, DataProducer, Producer, Router, Transport, WebRtcTransport, Worker } from 'mediasoup/node/lib/types'
+import {
+  Consumer,
+  DataProducer,
+  Producer,
+  Router,
+  Transport,
+  TransportInternal,
+  WebRtcTransport,
+  Worker
+} from 'mediasoup/node/lib/types'
 
 import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
+import { PeersUpdateType } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -16,7 +26,12 @@ import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
 
-export type WebRTCTransportExtension = WebRtcTransport & { appData: MediaStreamAppData }
+export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & {
+  appData: MediaStreamAppData
+  internal: TransportInternal
+}
+export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
+export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
 export class SocketWebRTCServerNetwork extends Network {
   workers: Worker[] = []
@@ -31,8 +46,8 @@ export class SocketWebRTCServerNetwork extends Network {
   mediasoupTransports: WebRTCTransportExtension[] = []
   transportsConnectPending: Promise<void>[] = []
 
-  producers = [] as Producer[]
-  consumers = [] as Consumer[]
+  producers = [] as ProducerExtension[]
+  consumers = [] as ConsumerExtension[]
 
   constructor(hostId: UserId, topic: Topic, app: Application) {
     super(hostId, topic)
@@ -44,11 +59,13 @@ export class SocketWebRTCServerNetwork extends Network {
     const userNames = getState(WorldState).userNames
     const peers = Array.from(this.peers.values()).map((peer) => {
       return {
-        userId: peer.userId,
-        index: peer.index,
+        peerID: peer.peerID,
+        peerIndex: peer.peerIndex,
+        userID: peer.userId,
+        userIndex: peer.userIndex,
         name: userNames[peer.userId].value
       }
-    })
+    }) as Array<PeersUpdateType>
     if (peers.length)
       for (const [socketID, socket] of this.app.io.of('/').sockets)
         socket.emit(MessageTypes.UpdatePeers.toString(), peers)
@@ -60,8 +77,6 @@ export class SocketWebRTCServerNetwork extends Network {
     const actions = [...Engine.instance.store.actions.outgoing[this.topic].queue]
     if (!actions.length) return
 
-    const userIdMap = {} as { [socketId: string]: UserId }
-    for (const [id, client] of this.peers) userIdMap[client.socketId!] = id
     const outgoing = Engine.instance.store.actions.outgoing
 
     for (const [socketID, socket] of this.app.io.of('/').sockets) {
@@ -73,7 +88,7 @@ export class SocketWebRTCServerNetwork extends Network {
           outgoing[this.topic].queue.splice(idx, 1)
         }
         if (!action.$to) continue
-        const toUserId = userIdMap[socketID]
+        const toUserId = this.peers.get(socketID)?.userId
         if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
           arr.push(action)
         }

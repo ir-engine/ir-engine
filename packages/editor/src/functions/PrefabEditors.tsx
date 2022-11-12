@@ -36,6 +36,7 @@ import { WaterComponent } from '@xrengine/engine/src/scene/components/WaterCompo
 import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { PersistentAnchorComponent } from '@xrengine/engine/src/xr/XRAnchorComponents'
 
 import ChairIcon from '@mui/icons-material/Chair'
 
@@ -58,6 +59,7 @@ import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
+import PersistentAnchorNodeEditor from '../components/properties/PersistentAnchorNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
@@ -108,6 +110,7 @@ EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
+EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
 
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,

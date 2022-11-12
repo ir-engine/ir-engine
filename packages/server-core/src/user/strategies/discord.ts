@@ -30,7 +30,8 @@ export class DiscordStrategy extends CustomOAuthStrategy {
       ...baseData,
       email: profile.email,
       type: 'discord',
-      userId
+      userId,
+      accountIdentifier: `${profile.username}#${profile.discriminator}`
     }
   }
 

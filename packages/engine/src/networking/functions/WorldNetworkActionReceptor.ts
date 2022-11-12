@@ -1,6 +1,7 @@
 import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
+import { PeerID, SelfPeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -9,6 +10,7 @@ import {
   addComponent,
   ComponentType,
   getComponent,
+  getComponentState,
   hasComponent,
   removeComponent,
   setComponent
@@ -21,27 +23,38 @@ import {
   setTransformComponent,
   TransformComponent
 } from '../../transform/components/TransformComponent'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag
+} from '../components/NetworkObjectComponent'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
+  const existingAvatar =
+    WorldNetworkAction.spawnAvatar.matches.test(action) && !!world.getUserAvatarEntity(action.$from)
+  if (existingAvatar) return
+
   const entity = createEntity()
 
-  addComponent(entity, NetworkObjectComponent, {
+  setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityUserId: action.$from,
+    authorityPeerID: action.$peer ?? world.worldNetwork?.peerID ?? SelfPeerID,
     networkId: action.networkId
   })
 
+  const isAuthoritativePeer = !action.$peer || action.$peer === world.worldNetwork?.peerID
+
+  if (isAuthoritativePeer) {
+    setComponent(entity, NetworkObjectAuthorityTag)
+  }
+
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    addComponent(entity, NetworkObjectOwnedTag, true)
-    addComponent(entity, NetworkObjectAuthorityTag, true)
+    setComponent(entity, NetworkObjectOwnedTag)
   }
 
   const position = new Vector3()
@@ -68,7 +81,7 @@ const receiveRegisterSceneObject = (
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityUserId: action.$from,
+    authorityPeerID: action.$peer ?? world.worldNetwork?.peerID ?? SelfPeerID,
     networkId: action.networkId
   })
 
@@ -142,13 +155,13 @@ const receiveTransferAuthorityOfObject = (
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
     )
 
-  getComponent(entity, NetworkObjectComponent).authorityUserId = action.newAuthority
+  getComponentState(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 
-  if (Engine.instance.userId === action.newAuthority) {
+  if (world?.worldNetwork.peerID === action.newAuthority) {
     if (hasComponent(entity, NetworkObjectAuthorityTag))
       return console.warn(`Warning - User ${Engine.instance.userId} already has authority over entity ${entity}.`)
 
-    addComponent(entity, NetworkObjectAuthorityTag, true)
+    setComponent(entity, NetworkObjectAuthorityTag)
   } else {
     if (hasComponent(entity, NetworkObjectAuthorityTag)) removeComponent(entity, NetworkObjectAuthorityTag)
   }
