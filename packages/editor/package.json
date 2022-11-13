@@ -38,7 +38,7 @@
     "@xrengine/engine": "^1.0.0-rc6",
     "@xrengine/hyperflux": "^1.0.0-rc6",
     "axios": "0.26.1",
-    "ee-behave-flow": "git://github.com/dinomut1/ee-behave-flow.git#029340c42cc98a1c00a1804f8dd745f75631c00e",
+    "ee-behave-flow": "git://github.com/dinomut1/ee-behave-flow.git#6c4644be8ddb3b7aa330b70913c0920a354bfbbe",
     "classnames": "2.3.1",
     "cross-env": "7.0.3",
     "crypto-js": "^4.1.1",

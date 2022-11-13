@@ -74,15 +74,16 @@ export default function ParameterInput({
                 case 'vec3':
                   return (
                     <Fragment>
-                      {(values[k] as number[]).map((arrayVal, idx) => {
-                        return (
-                          <NumericInput
-                            key={`${compKey}-${idx}`}
-                            value={arrayVal}
-                            onChange={setArgsArrayProp(k, idx)}
-                          />
-                        )
-                      })}
+                      {typeof values[k].map === 'function' &&
+                        (values[k] as number[]).map((arrayVal, idx) => {
+                          return (
+                            <NumericInput
+                              key={`${compKey}-${idx}`}
+                              value={arrayVal}
+                              onChange={setArgsArrayProp(k, idx)}
+                            />
+                          )
+                        })}
                     </Fragment>
                   )
                 case 'select':
