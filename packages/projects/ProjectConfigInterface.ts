@@ -1,3 +1,4 @@
+import { OEmbed } from '@xrengine/common/src/interfaces/OEmbed'
 import type { World } from '@xrengine/engine/src/ecs/classes/World'
 import type { Application } from '@xrengine/server-core/declarations'
 
@@ -59,6 +60,7 @@ export interface ProjectConfigInterface {
 }
 
 type InstallFunctionType = (app: Application) => Promise<any>
+type OEmbedFunctionType = (app: Application, url: URL, currentOEmbed: OEmbed) => Promise<OEmbed | null>
 
 /**
  *
@@ -68,6 +70,12 @@ export interface ProjectEventHooks {
   onLoad?: InstallFunctionType
   onUpdate?: InstallFunctionType
   onUninstall?: InstallFunctionType
+  /**
+   * get oEmbed for active routes that match URL
+   * return that project's onOEmbedRequest()
+   * if null, return default
+   */
+  onOEmbedRequest?: OEmbedFunctionType
 }
 
 export interface ProjectSettingSchema {
