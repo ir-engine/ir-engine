@@ -50,6 +50,7 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction, SelectionState } from '../services/SelectionServices'
+import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
 import { getSpaceMatrix } from './getSpaceMatrix'
@@ -61,6 +62,8 @@ import makeUniqueName from './makeUniqueName'
  * @param component
  */
 const addOrRemoveComponentToSelection = <C extends Component<any, any>>(component: C, add: boolean) => {
+  cancelGrabOrPlacement()
+
   const entities = getState(SelectionState).selectedEntities.value
 
   for (let i = 0; i < entities.length; i++) {
@@ -92,6 +95,8 @@ const modifyProperty = <C extends Component<any, any>>(
   component: C,
   properties: Partial<SerializedComponentType<C>>
 ) => {
+  cancelGrabOrPlacement()
+
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node === 'string') continue
@@ -123,6 +128,8 @@ const addObject = (
   sceneData: SceneJson[],
   updateSelection = true
 ) => {
+  cancelGrabOrPlacement()
+
   const rootObjects = getDetachedObjectsRoots(nodes)
   const world = Engine.instance.currentWorld
 
@@ -185,7 +192,9 @@ const addObject = (
 }
 
 const duplicateObject = (nodes: (EntityTreeNode | string)[]) => {
-  const roots = getDetachedObjectsRoots(nodes)
+  cancelGrabOrPlacement()
+
+  const roots = getDetachedObjectsRoots(nodes.filter((o) => typeof o !== 'string'))
   const duplicatedObjects = roots.map((object) =>
     typeof object === 'string' ? obj3dFromUuid(object).clone().uuid : cloneEntityNode(object)
   )
@@ -408,6 +417,8 @@ const reparentObject = (
   befores: (string | EntityTreeNode)[] = [],
   updateSelection = true
 ) => {
+  cancelGrabOrPlacement()
+
   for (let i = 0; i < nodes.length; i++) {
     const parent = parents[i] ?? parents[0]
     if (!parent) continue
@@ -448,6 +459,8 @@ const groupObjects = (
   befores: (string | EntityTreeNode)[] = [],
   updateSelection = true
 ) => {
+  cancelGrabOrPlacement()
+
   const groupNode = createEntityNode(createEntity())
   EditorControlFunctions.addObject([groupNode], parents!, befores!, [ScenePrefabs.group], [], false)
 
@@ -464,6 +477,8 @@ const groupObjects = (
  * @returns
  */
 const removeObject = (nodes: (EntityTreeNode | string)[], updateSelection = true) => {
+  cancelGrabOrPlacement()
+
   if (updateSelection) {
     // TEMPORARY - this is to stop a crash
     getState(SelectionState).set({

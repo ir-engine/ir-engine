@@ -55,6 +55,7 @@ interface Vector3InputProp {
   value: any
   hideLabels?: boolean
   onChange: Function
+  onRelease?: Function
 }
 
 export const Vector3Input = ({
@@ -65,6 +66,7 @@ export const Vector3Input = ({
   value,
   hideLabels,
   onChange,
+  onRelease,
   ...rest
 }: Vector3InputProp) => {
   const id = uniqueId++
@@ -122,7 +124,7 @@ export const Vector3Input = ({
         onChange={onChangeX}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} axis="x">
+            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerLeave={onRelease} axis="x">
               X
             </Vector3Scrubber>
           )
@@ -134,7 +136,7 @@ export const Vector3Input = ({
         onChange={onChangeY}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} axis="y">
+            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerLeave={onRelease} axis="y">
               Y
             </Vector3Scrubber>
           )
@@ -146,7 +148,7 @@ export const Vector3Input = ({
         onChange={onChangeZ}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vz} onChange={onChangeZ} axis="z">
+            <Vector3Scrubber {...rest} tag="div" value={vz} onChange={onChangeZ} onPointerLeave={onRelease} axis="z">
               Z
             </Vector3Scrubber>
           )

@@ -12,7 +12,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { SpaceBar } from '@mui/icons-material'
 import { Divider } from '@mui/material'
@@ -20,6 +20,8 @@ import { Divider } from '@mui/material'
 import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorHistoryAction } from '../../services/EditorHistory'
+import { EditorAction } from '../../services/EditorServices'
 import { accessSelectionState } from '../../services/SelectionServices'
 import GeometryEditor from '../geometry/GeometryEditor'
 import BooleanInput from '../inputs/BooleanInput'
@@ -188,6 +190,10 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     EditorControlFunctions.positionObject([obj3d.uuid], [nuPosition])
                     //obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
                   }}
+                  onRelease={() => {
+                    dispatchAction(EditorAction.sceneModified({ modified: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+                  }}
                 />
               </InputGroup>
               <InputGroup name="Rotation" label="Rotation">
@@ -202,6 +208,10 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     EditorControlFunctions.rotateObject([obj3d.uuid], [actualEuler])
                     //obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))
                   }}
+                  onRelease={() => {
+                    dispatchAction(EditorAction.sceneModified({ modified: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+                  }}
                 />
               </InputGroup>
               <InputGroup name="Scale" label="Scale">
@@ -213,6 +223,10 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     })
                     EditorControlFunctions.scaleObject([obj3d.uuid], [nuScale], TransformSpace.Local, true)
                     //obj3d.scale.copy(nuScale)
+                  }}
+                  onRelease={() => {
+                    dispatchAction(EditorAction.sceneModified({ modified: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
                   }}
                 />
               </InputGroup>
