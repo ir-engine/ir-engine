@@ -15,6 +15,7 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
 import { serializeObject3DArray } from '../functions/debug'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { filterParentEntities } from '../functions/filterParentEntities'
 import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction, SelectionState } from '../services/SelectionServices'
@@ -88,11 +89,7 @@ function undo(command: RemoveObjectCommandParams) {
     sceneData: command.undo.components,
     updateSelection: false
   })
-
-  executeCommand({
-    type: EditorCommands.REPLACE_SELECTION,
-    affectedNodes: command.affectedNodes
-  })
+  EditorControlFunctions.replaceSelection(command.affectedNodes)
 }
 
 function emitEventAfter(command: RemoveObjectCommandParams) {
@@ -108,18 +105,11 @@ function removeObject(command: RemoveObjectCommandParams) {
     getState(SelectionState).set({
       selectedEntities: [],
       selectedParentEntities: [],
-      beforeSelectionChangeCounter: 1,
       selectionCounter: 1,
       objectChangeCounter: 1,
       sceneGraphChangeCounter: 1,
       propertyName: '',
       transformPropertyChanged: false
-    })
-    //
-    executeCommand({
-      type: EditorCommands.REMOVE_FROM_SELECTION,
-      affectedNodes: command.affectedNodes,
-      preventEvents: command.preventEvents
     })
   }
   const removedParentNodes = getEntityNodeArrayFromEntities(

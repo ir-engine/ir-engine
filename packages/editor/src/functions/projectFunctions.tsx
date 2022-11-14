@@ -16,6 +16,7 @@ import { copy, paste } from '../functions/copyPaste'
 import { EditorErrorAction } from '../services/EditorErrorServices'
 import { accessEditorState, EditorAction, TaskStatus } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
+import { EditorControlFunctions } from './EditorControlFunctions'
 import { disposeScene, initializeScene } from './sceneRenderFunctions'
 
 /**
@@ -52,7 +53,8 @@ export async function runPreprojectLoadTasks(): Promise<void> {
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectData: SceneData) {
-  executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
+  EditorControlFunctions.replaceSelection([])
+
   clearHistory()
 
   disposeProject()

@@ -10,6 +10,7 @@ import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ParentCommands } from '../constants/EditorCommands'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
@@ -79,11 +80,7 @@ function execute(command: GroupCommandParams) {
   })
 
   if (command.updateSelection) {
-    executeCommand({
-      type: EditorCommands.REPLACE_SELECTION,
-      affectedNodes: [command.groupNode],
-      preventEvents: true
-    })
+    EditorControlFunctions.replaceSelection([command.groupNode])
   }
 
   emitEventAfter(command)
@@ -117,11 +114,7 @@ function undo(command: GroupCommandParams) {
     skipSerialization: true,
     updateSelection: false
   })
-
-  executeCommand({
-    type: EditorCommands.REPLACE_SELECTION,
-    affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
-  })
+  EditorControlFunctions.replaceSelection(getEntityNodeArrayFromEntities(command.undo.selection))
 
   emitEventAfter(command)
 }
@@ -130,7 +123,6 @@ function emitEventBefore(command: GroupCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  dispatchAction(SelectionAction.changedBeforeSelection({}))
 }
 
 function emitEventAfter(command: GroupCommandParams) {

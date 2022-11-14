@@ -3,13 +3,19 @@ import { Object3D } from 'three'
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { defineAction, defineState, getState } from '@xrengine/hyperflux'
-import { createActionQueue, removeActionQueue, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import {
+  createActionQueue,
+  dispatchAction,
+  removeActionQueue,
+  Topic
+} from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { SelectionState } from './SelectionServices'
 
@@ -35,7 +41,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
   const undoQueue = createActionQueue(EditorHistoryAction.undo.matches)
   const redoQueue = createActionQueue(EditorHistoryAction.redo.matches)
   const appendSnapshotQueue = createActionQueue(EditorHistoryAction.append.matches)
-  const createSnapshotQueue = createActionQueue(EditorHistoryAction.create.matches)
+  const modifyQueue = createActionQueue(EditorHistoryAction.create.matches)
 
   const execute = () => {
     for (const action of undoQueue()) {
@@ -45,17 +51,25 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     }
 
     for (const action of appendSnapshotQueue()) {
-      state.history.merge([
-        {
-          selectedEntities: action.selectedEntities,
-          json: action.json
-        }
-      ])
+      if (action.$from !== Engine.instance.userId) {
+        const json = action.json
+        /**
+         * deserialize
+         */
+
+        // state.history.merge([
+        //   {
+        //     selectedEntities: [],
+        //     json: action.json
+        //   }
+        // ])
+      }
     }
 
-    if (createSnapshotQueue().length) {
-      const selectedEntities = selectedEntitiesState.selectedEntities.get({ noproxy: true })
-      const json = serializeWorld(world.entityTree.rootNode)
+    /** Local only - serialize world then push to CRDT */
+    for (const action of modifyQueue()) {
+      const selectedEntities = action.selectedEntities ?? selectedEntitiesState.selectedEntities.get({ noproxy: true })
+      const json = action.modify ? serializeWorld(world.entityTree.rootNode) : undefined
       state.history.merge([{ selectedEntities, json }])
     }
   }
@@ -64,7 +78,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     removeActionQueue(undoQueue)
     removeActionQueue(redoQueue)
     removeActionQueue(appendSnapshotQueue)
-    removeActionQueue(createSnapshotQueue)
+    removeActionQueue(modifyQueue)
   }
 
   return { execute, cleanup }
@@ -89,13 +103,14 @@ export class EditorHistoryAction {
 
   static append = defineAction({
     type: 'xre.editor.EditorHistory.APPEND_SNAPSHOT' as const,
-    json: matches.object as Validator<unknown, SceneJson>,
-    selectedEntities: matches.array as Validator<unknown, Array<Entity | string>>
+    json: matches.object as Validator<unknown, SceneJson>
     // $topic: EditorTopic,
     // $cache: true
   })
 
   static create = defineAction({
-    type: 'xre.editor.EditorHistory.CREATE_SNAPSHOT' as const
+    type: 'xre.editor.EditorHistory.CREATE_SNAPSHOT' as const,
+    selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>,
+    modify: matches.boolean.optional()
   })
 }

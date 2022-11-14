@@ -2,18 +2,19 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
-  SCENE_COMPONENT_DYNAMIC_LOAD,
-  SceneDynamicLoadTagComponent
-} from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  useOptionalComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
-import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
@@ -30,17 +31,10 @@ import { EditorComponentType, updateProperty } from './Util'
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
+  useOptionalComponent(props.node.entity, SceneDynamicLoadTagComponent)
+
   const onChangeDynamicLoad = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.TAG_COMPONENT,
-      operations: [
-        {
-          component: SceneDynamicLoadTagComponent,
-          sceneComponentName: SCENE_COMPONENT_DYNAMIC_LOAD,
-          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-        }
-      ]
-    })
+    EditorControlFunctions.addOrRemoveComponentToSelection(SceneDynamicLoadTagComponent, value)
   }
 
   //function to handle the position properties

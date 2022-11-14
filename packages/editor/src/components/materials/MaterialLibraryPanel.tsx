@@ -22,6 +22,7 @@ import { Divider, Grid, Stack } from '@mui/material'
 import { executeCommandWithHistory } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { useEditorState } from '../../services/EditorServices'
 import { useSelectionState } from '../../services/SelectionServices'
 import { HeirarchyTreeCollapsedNodeType } from '../hierarchy/HeirarchyTreeWalker'
@@ -78,10 +79,7 @@ export default function MaterialLibraryPanel() {
 
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
     if (!editorState.lockPropertiesPanel.get()) {
-      executeCommandWithHistory({
-        type: EditorCommands.REPLACE_SELECTION,
-        affectedNodes: [entryId(node.entry, node.type)]
-      })
+      EditorControlFunctions.replaceSelection([entryId(node.entry, node.type)])
     }
   }, [])
 

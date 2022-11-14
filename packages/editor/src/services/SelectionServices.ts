@@ -2,17 +2,22 @@ import { useState } from '@hookstate/core'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { hasComponent, removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { defineAction, defineState, getState } from '@xrengine/hyperflux'
+import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
+import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 
 const transformProps = ['position', 'rotation', 'scale', 'matrix']
 
 type SelectionServiceStateType = {
   selectedEntities: (Entity | string)[]
   selectedParentEntities: (Entity | string)[]
-  beforeSelectionChangeCounter: number
   selectionCounter: number
   objectChangeCounter: number
   sceneGraphChangeCounter: number
@@ -26,7 +31,6 @@ export const SelectionState = defineState({
     ({
       selectedEntities: [],
       selectedParentEntities: [],
-      beforeSelectionChangeCounter: 1,
       selectionCounter: 1,
       objectChangeCounter: 1,
       sceneGraphChangeCounter: 1,
@@ -35,32 +39,51 @@ export const SelectionState = defineState({
     } as SelectionServiceStateType)
 })
 
-export const EditorSelectionServiceReceptor = (action) => {
+export default function EditorSelectionReceptor(world: World): SystemDefintion {
   const s = getState(SelectionState)
-  matches(action)
-    .when(SelectionAction.changedBeforeSelection.matches, (action) => {
-      return s.merge({ beforeSelectionChangeCounter: s.beforeSelectionChangeCounter.value + 1 })
-    })
-    .when(SelectionAction.updateSelection.matches, (action) => {
-      return s.merge({
+
+  const updateSelectionQueue = createActionQueue(SelectionAction.updateSelection.matches)
+  const changedObjectQueue = createActionQueue(SelectionAction.changedObject.matches)
+  const changedSceneGraphQueue = createActionQueue(SelectionAction.changedSceneGraph.matches)
+  const forceUpdateQueue = createActionQueue(SelectionAction.forceUpdate.matches)
+
+  const execute = () => {
+    for (const action of updateSelectionQueue()) {
+      cancelGrabOrPlacement()
+      /** update SelectTagComponent to only newly selected entities */
+      for (const entity of action.selectedEntities.concat(...s.selectedEntities.value)) {
+        if (typeof entity === 'number') {
+          const add = action.selectedEntities.includes(entity)
+          if (add && !hasComponent(entity, SelectTagComponent)) setComponent(entity, SelectTagComponent)
+          if (!add && hasComponent(entity, SelectTagComponent)) removeComponent(entity, SelectTagComponent)
+        }
+      }
+      s.merge({
         selectionCounter: s.selectionCounter.value + 1,
         selectedEntities: action.selectedEntities,
         selectedParentEntities: filterParentEntities(action.selectedEntities)
       })
-    })
-    .when(SelectionAction.changedObject.matches, (action) => {
-      return s.merge({
+      updateOutlinePassSelection()
+    }
+    for (const action of changedObjectQueue())
+      s.merge({
         objectChangeCounter: s.objectChangeCounter.value + 1,
         propertyName: action.propertyName,
         transformPropertyChanged: transformProps.includes(action.propertyName)
       })
-    })
-    .when(SelectionAction.changedSceneGraph.matches, (action) => {
-      return s.merge({ sceneGraphChangeCounter: s.sceneGraphChangeCounter.value + 1 })
-    })
-    .when(SelectionAction.forceUpdate.matches, (action) => {
-      return s.merge({ objectChangeCounter: s.objectChangeCounter.value + 1 })
-    })
+    for (const action of changedSceneGraphQueue())
+      s.merge({ sceneGraphChangeCounter: s.sceneGraphChangeCounter.value + 1 })
+    for (const action of forceUpdateQueue()) s.merge({ objectChangeCounter: s.objectChangeCounter.value + 1 })
+  }
+
+  const cleanup = async () => {
+    removeActionQueue(updateSelectionQueue)
+    removeActionQueue(changedObjectQueue)
+    removeActionQueue(changedSceneGraphQueue)
+    removeActionQueue(forceUpdateQueue)
+  }
+
+  return { execute, cleanup }
 }
 
 export const accessSelectionState = () => getState(SelectionState)
@@ -72,10 +95,6 @@ export const SelectionService = {}
 
 //Action
 export class SelectionAction {
-  static changedBeforeSelection = defineAction({
-    type: 'xre.editor.Selection.BEFORE_SELECTION_CHANGED'
-  })
-
   static changedObject = defineAction({
     type: 'xre.editor.Selection.OBJECT_CHANGED',
     objects: matches.array as Validator<unknown, (EntityTreeNode | string)[]>,

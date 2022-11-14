@@ -11,6 +11,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
@@ -93,7 +94,7 @@ function execute(command: DuplicateObjectCommandParams) {
   })
 
   if (command.updateSelection) {
-    executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: command.duplicatedObjects })
+    EditorControlFunctions.replaceSelection(command.duplicatedObjects)
   }
 
   emitEventAfter(command)
@@ -108,11 +109,7 @@ function undo(command: DuplicateObjectCommandParams) {
     skipSerialization: true,
     updateSelection: false
   })
-
-  executeCommand({
-    type: EditorCommands.REPLACE_SELECTION,
-    affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
-  })
+  EditorControlFunctions.replaceSelection(getEntityNodeArrayFromEntities(command.undo.selection))
 }
 
 function emitEventAfter(command: DuplicateObjectCommandParams) {

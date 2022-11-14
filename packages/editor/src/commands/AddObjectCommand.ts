@@ -19,6 +19,7 @@ import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3D } from '../functions/debug'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
@@ -73,17 +74,13 @@ function undo(command: AddObjectCommandParams) {
     updateSelection: false
   })
 
-  executeCommand({
-    type: EditorCommands.REPLACE_SELECTION,
-    affectedNodes: getEntityNodeArrayFromEntities(command.undo.selection)
-  })
+  EditorControlFunctions.replaceSelection([])
 }
 
 function emitEventBefore(command: AddObjectCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  dispatchAction(SelectionAction.changedBeforeSelection({}))
 }
 
 function emitEventAfter(command: AddObjectCommandParams) {
@@ -149,11 +146,7 @@ function addObject(command: AddObjectCommandParams) {
   }
 
   if (command.updateSelection) {
-    executeCommand({
-      type: EditorCommands.REPLACE_SELECTION,
-      affectedNodes: command.affectedNodes,
-      preventEvents: true
-    })
+    EditorControlFunctions.replaceSelection(command.affectedNodes)
   }
 }
 

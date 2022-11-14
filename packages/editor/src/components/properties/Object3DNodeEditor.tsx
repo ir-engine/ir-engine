@@ -18,6 +18,7 @@ import { Divider } from '@mui/material'
 
 import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { accessSelectionState } from '../../services/SelectionServices'
 import GeometryEditor from '../geometry/GeometryEditor'
 import BooleanInput from '../inputs/BooleanInput'
@@ -147,14 +148,15 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
     while (walker) {
       if (walker.entity && nodeMap.has(walker.entity)) {
-        executeCommandWithHistory({
-          type: EditorCommands.REPLACE_SELECTION,
-          affectedNodes: [nodeMap.get(walker.entity)!],
-          updateSelection: true,
-          undo: {
-            selection: [obj3d.uuid]
-          }
-        })
+        EditorControlFunctions.replaceSelection([nodeMap.get(walker.entity)!])
+        // executeCommandWithHistory({
+        //   type: EditorCommands.REPLACE_SELECTION,
+        //   affectedNodes: [nodeMap.get(walker.entity)!],
+        //   updateSelection: true,
+        //   undo: {
+        //     selection: [obj3d.uuid]
+        //   }
+        // })
         break
       }
       walker = walker.parent as Object3DWithEntity

@@ -31,23 +31,7 @@ export const updateProperty = <C extends Component, K extends keyof SerializedCo
   nodes?: EntityTreeNode[]
 ) => {
   return (value: SerializedComponentType<C>[K]) => {
-    const editorState = getState(EditorState)
-    const selectionState = getState(SelectionState)
-
-    const affectedNodes =
-      nodes ?? editorState.lockPropertiesPanel.value
-        ? [
-            Engine.instance.currentWorld.entityTree.entityNodeMap.get(
-              UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value
-            )!
-          ]
-        : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityTreeNode[])
-
-    EditorControlFunctions.modifyProperty(affectedNodes, component, {
-      [propName]: value
-    } as any) /** @todo - figure out why this typing doesnt work*/
-
-    dispatchAction(EditorHistoryAction.create({}))
+    updateProperties(component, { [propName]: value } as any, nodes)
   }
 }
 
@@ -70,7 +54,7 @@ export const updateProperties = <C extends Component>(
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 
-  dispatchAction(EditorHistoryAction.create({}))
+  dispatchAction(EditorHistoryAction.create({ modify: true }))
 }
 
 export function traverseScene<T>(

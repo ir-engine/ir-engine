@@ -63,6 +63,7 @@ import {
 import EditorCommands from '../constants/EditorCommands'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { SceneState } from '../functions/sceneRenderFunctions'
@@ -74,7 +75,7 @@ import {
 } from '../functions/transformFunctions'
 import { accessEditorHelperState } from '../services/EditorHelperState'
 import EditorHistoryReceptor from '../services/EditorHistory'
-import { accessSelectionState } from '../services/SelectionServices'
+import EditorSelectionReceptor, { accessSelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -480,13 +481,14 @@ export default async function EditorControlSystem(world: World) {
             const result = getIntersectingNodeOnScreen(raycaster, selectEndPosition)
             if (result) {
               if (result.node) {
-                executeCommandWithHistory({
-                  type: shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
-                  affectedNodes: [result.node]
-                })
+                if (shift) {
+                  EditorControlFunctions.toggleSelection([result.node])
+                } else {
+                  EditorControlFunctions.replaceSelection([result.node])
+                }
               }
             } else if (!shift) {
-              executeCommandWithHistory({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
+              EditorControlFunctions.replaceSelection([])
             }
           }
           SceneState.transformGizmo.deselectAxis()
@@ -510,14 +512,14 @@ export default async function EditorControlSystem(world: World) {
       } else if (getInput(EditorActionSet.grab)) {
         if (transformMode === TransformMode.Grab || transformMode === TransformMode.Placement) {
           cancelGrabOrPlacement()
-          executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
+          EditorControlFunctions.replaceSelection([])
         }
         if (selectedEntities.length > 0) {
           setTransformMode(TransformMode.Grab)
         }
       } else if (getInput(EditorActionSet.cancel)) {
         cancelGrabOrPlacement()
-        executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
+        EditorControlFunctions.replaceSelection([])
       } else if (getInput(EditorActionSet.focusSelection)) {
         cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
         cameraComponent.refocus = true
@@ -577,5 +579,12 @@ export default async function EditorControlSystem(world: World) {
     removeQuery(world, editorControlQuery)
   }
 
-  return { execute, cleanup, subsystems: [() => Promise.resolve({ default: EditorHistoryReceptor })] }
+  return {
+    execute,
+    cleanup,
+    subsystems: [
+      () => Promise.resolve({ default: EditorHistoryReceptor }),
+      () => Promise.resolve({ default: EditorSelectionReceptor })
+    ]
+  }
 }

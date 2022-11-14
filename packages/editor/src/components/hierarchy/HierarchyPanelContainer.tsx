@@ -25,6 +25,7 @@ import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
@@ -239,16 +240,10 @@ export default function HierarchyPanel({
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 1) {
       if (e.shiftKey) {
-        executeCommandWithHistory({
-          type: EditorCommands.TOGGLE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-        })
+        EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
         setSelectedNode(null)
       } else if (!node.selected) {
-        executeCommandWithHistory({
-          type: EditorCommands.REPLACE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-        })
+        EditorControlFunctions.replaceSelection([node.entityNode ?? node.obj3d!.uuid])
         setSelectedNode(node)
       }
     }
@@ -302,10 +297,7 @@ export default function HierarchyPanel({
           if (!nextNode) return
 
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [nextNode.entityNode ?? nextNode.obj3d!.uuid]
-            })
+            EditorControlFunctions.addToSelection([nextNode.entityNode ?? nextNode.obj3d!.uuid])
           }
 
           const nextNodeEl = document.getElementById(getNodeElId(nextNode))
@@ -319,10 +311,7 @@ export default function HierarchyPanel({
           if (!prevNode) return
 
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [prevNode.entityNode ?? prevNode.obj3d!.uuid]
-            })
+            EditorControlFunctions.addToSelection([prevNode.entityNode ?? prevNode.obj3d!.uuid])
           }
 
           const prevNodeEl = document.getElementById(getNodeElId(prevNode))
@@ -347,16 +336,10 @@ export default function HierarchyPanel({
 
         case 'Enter':
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.TOGGLE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-            })
+            EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
             setSelectedNode(null)
           } else {
-            executeCommandWithHistory({
-              type: EditorCommands.REPLACE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-            })
+            EditorControlFunctions.replaceSelection([node.entityNode ?? node.obj3d!.uuid])
             setSelectedNode(node)
           }
           break
