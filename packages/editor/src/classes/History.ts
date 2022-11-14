@@ -3,22 +3,16 @@
  * Developed as part of a project at University of Applied Sciences and Arts Northwestern Switzerland (www.fhnw.ch)
  */
 import multiLogger from '@xrengine/common/src/logger'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
-import EditorCommands, {
+import {
   CommandFuncs,
   CommandFuncType,
   CommandParamsOmitAffectedNodes,
   CommandParamsType
 } from '../constants/EditorCommands'
-import { EditorHistoryAction } from '../services/EditorHistory'
-import { accessEditorState } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 const logger = multiLogger.child({ component: 'editor:History' })

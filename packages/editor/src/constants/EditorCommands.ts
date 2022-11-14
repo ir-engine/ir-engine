@@ -7,7 +7,6 @@ import { GroupCommand, GroupCommandParams } from '../commands/GroupCommand'
 import { ModifyMaterialCommand, ModifyMaterialCommandParams } from '../commands/ModifyMaterialCommand'
 import { ModifyObj3DCommandParams } from '../commands/ModifyObject3DCommand'
 import { ModifyObj3DCommand } from '../commands/ModifyObject3DCommand'
-import { ModifyPropertyCommand, ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
 import { PositionCommand, PositionCommandParams } from '../commands/PositionCommand'
 import { RemoveFromSelectionCommand, RemoveFromSelectionCommandParams } from '../commands/RemoveFromSelectionCommand'
 import { RemoveObjectCommand, RemoveObjectCommandParams } from '../commands/RemoveObjectsCommand'
@@ -125,7 +124,6 @@ export const CommandFuncs: {
   [EditorCommands.ROTATION]: RotationCommand,
   [EditorCommands.ROTATE_AROUND]: RotateAroundCommand,
   [EditorCommands.SCALE]: ScaleCommand,
-  [EditorCommands.MODIFY_PROPERTY]: ModifyPropertyCommand,
   [EditorCommands.TAG_COMPONENT]: TagComponentCommand,
   [EditorCommands.MODIFY_OBJECT3D]: ModifyObj3DCommand,
   [EditorCommands.MODIFY_MATERIAL]: ModifyMaterialCommand
@@ -135,7 +133,6 @@ export type CommandParamsType =
   | AddObjectCommandParams
   | RemoveObjectCommandParams
   | DuplicateObjectCommandParams
-  | ModifyPropertyCommandParams<any>
   | ReparentCommandParams
   | GroupCommandParams
   | PositionCommandParams
@@ -154,7 +151,6 @@ export type CommandParamsOmitAffectedNodes =
   | Omit<AddObjectCommandParams, 'affectedNodes'>
   | Omit<RemoveObjectCommandParams, 'affectedNodes'>
   | Omit<DuplicateObjectCommandParams, 'affectedNodes'>
-  | Omit<ModifyPropertyCommandParams<any>, 'affectedNodes'>
   | Omit<ReparentCommandParams, 'affectedNodes'>
   | Omit<GroupCommandParams, 'affectedNodes'>
   | Omit<PositionCommandParams, 'affectedNodes'>
