@@ -116,52 +116,6 @@ export function executeCommandWithHistoryOnSelection(command: CommandParamsOmitA
 }
 
 /**
- * Modifies the property for the nodes passed in command
- * @param command Nodes which properties are going to be updated
- * @param withHistory Whether to record this command to history or not
- */
-export function executeModifyPropertyCommand<C extends Component<any, any>>(
-  command: Omit<ModifyPropertyCommandParams<C>, 'type'>,
-  withHistory = true
-) {
-  ;(command as ModifyPropertyCommandParams<C>).type = EditorCommands.MODIFY_PROPERTY
-
-  if (withHistory) {
-    executeCommandWithHistory(command as ModifyPropertyCommandParams<C>)
-  } else {
-    executeCommand(command as ModifyPropertyCommandParams<C>)
-  }
-}
-
-/**
- * Sets property on selected entities
- * @param params Params for command
- * @param withHistory Whether to record this command to history or not
- */
-export function setPropertyOnSelectionEntities<C extends Component<any, any>>(
-  command: Omit<ModifyPropertyCommandParams<C>, 'type' | 'affectedNodes'>,
-  withHistory = true
-) {
-  const editorState = accessEditorState()
-  const selectionState = accessSelectionState()
-
-  const affectedNodes = editorState.lockPropertiesPanel.value
-    ? [
-        Engine.instance.currentWorld.entityTree.entityNodeMap.get(
-          UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value
-        )!
-      ]
-    : getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
-  // executeModifyPropertyCommand(command as ModifyPropertyCommandParams<C>, withHistory)
-  ;(command as ModifyPropertyCommandParams<C>).affectedNodes = affectedNodes
-
-  dispatchAction(EditorHistoryAction.modifyProperty({
-    properties: [command.properties],
-    entities: 
-  }))
-}
-
-/**
  * Reverts the history to the probided checkpoint
  * @param checkpointId Id of the checkpoint
  */

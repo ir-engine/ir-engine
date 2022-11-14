@@ -73,6 +73,7 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { accessEditorHelperState } from '../services/EditorHelperState'
+import EditorHistoryReceptor from '../services/EditorHistory'
 import { accessSelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
@@ -576,5 +577,5 @@ export default async function EditorControlSystem(world: World) {
     removeQuery(world, editorControlQuery)
   }
 
-  return { execute, cleanup }
+  return { execute, cleanup, subsystems: [() => Promise.resolve({ default: EditorHistoryReceptor })] }
 }

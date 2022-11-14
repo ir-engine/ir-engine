@@ -32,6 +32,7 @@ import { accessSelectionState, useSelectionState } from '../../services/Selectio
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
+import { updateProperties } from '../properties/Util'
 import { AppContext } from '../Search/context'
 import Search from '../Search/Search'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
@@ -416,12 +417,7 @@ export default function HierarchyPanel({
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
-      executeModifyPropertyCommand({
-        affectedNodes: [node.entityNode ?? node.obj3d],
-        component: NameComponent,
-        properties: [name]
-      })
-
+      if (!node.obj3d) updateProperties(NameComponent, name, [node.entityNode])
       const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
       if (obj3d) obj3d.name = name
     }

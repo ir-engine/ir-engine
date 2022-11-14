@@ -53,7 +53,10 @@ export const FogSettingsEditor = () => {
       {settings.type !== FogType.Disabled && (
         <>
           <InputGroup name="Fog Color" label={t('editor:properties.fog.lbl-fogColor')}>
-            <ColorInput value={new Color(settings.color)} onChange={(val) => sceneMetadata.color.set(val)} />
+            <ColorInput
+              value={new Color(settings.color)}
+              onSelect={(val: Color) => sceneMetadata.color.set('#' + val.getHexString())}
+            />
           </InputGroup>
           {settings.type === FogType.Linear ? (
             <>
