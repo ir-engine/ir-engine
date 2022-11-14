@@ -1,33 +1,14 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 
-import { AddObjectCommand, AddObjectCommandParams } from '../commands/AddObjectCommand'
-import { DuplicateObjectCommand, DuplicateObjectCommandParams } from '../commands/DuplicateObjectCommand'
-import { GroupCommand, GroupCommandParams } from '../commands/GroupCommand'
 import { ModifyMaterialCommand, ModifyMaterialCommandParams } from '../commands/ModifyMaterialCommand'
 import { ModifyObj3DCommandParams } from '../commands/ModifyObject3DCommand'
 import { ModifyObj3DCommand } from '../commands/ModifyObject3DCommand'
-import { PositionCommand, PositionCommandParams } from '../commands/PositionCommand'
-import { RemoveObjectCommand, RemoveObjectCommandParams } from '../commands/RemoveObjectsCommand'
-import { ReparentCommand, ReparentCommandParams } from '../commands/ReparentCommand'
-import { RotateAroundCommand, RotateAroundCommandParams } from '../commands/RotateAroundCommand'
-import { RotationCommand, RotationCommandParams } from '../commands/RotationCommand'
-import { ScaleCommand, ScaleCommandParams } from '../commands/ScaleCommand'
-
-export enum ObjectCommands {
-  ADD_OBJECTS = 'ADD_OBJECTS',
-  REMOVE_OBJECTS = 'REMOVE_OBJECTS',
-  DUPLICATE_OBJECTS = 'DUPLICATE_OBJECTS'
-}
 
 export enum ParentCommands {
-  REPARENT = 'REPARENT',
   GROUP = 'GROUP'
 }
 
 export enum TransformCommands {
-  POSITION = 'POSITION',
-  ROTATION = 'ROTATION',
-  SCALE = 'SCALE',
   ROTATE_AROUND = 'ROTATE_AROUND'
 }
 
@@ -37,13 +18,12 @@ export enum MiscCommands {
 }
 
 export const EditorCommands = {
-  ...ObjectCommands,
   ...ParentCommands,
   ...TransformCommands,
   ...MiscCommands
 }
 
-export type EditorCommandsType = ObjectCommands | ParentCommands | TransformCommands | MiscCommands
+export type EditorCommandsType = ParentCommands | TransformCommands | MiscCommands
 
 export default EditorCommands
 
@@ -96,41 +76,12 @@ export type CommandFuncType = {
 export const CommandFuncs: {
   [key: string]: CommandFuncType
 } = {
-  [EditorCommands.ADD_OBJECTS]: AddObjectCommand,
-  [EditorCommands.DUPLICATE_OBJECTS]: DuplicateObjectCommand,
-  [EditorCommands.REMOVE_OBJECTS]: RemoveObjectCommand,
-  [EditorCommands.REPARENT]: ReparentCommand,
-  [EditorCommands.GROUP]: GroupCommand,
-  [EditorCommands.POSITION]: PositionCommand,
-  [EditorCommands.ROTATION]: RotationCommand,
-  [EditorCommands.ROTATE_AROUND]: RotateAroundCommand,
-  [EditorCommands.SCALE]: ScaleCommand,
   [EditorCommands.MODIFY_OBJECT3D]: ModifyObj3DCommand,
   [EditorCommands.MODIFY_MATERIAL]: ModifyMaterialCommand
 }
 
-export type CommandParamsType =
-  | AddObjectCommandParams
-  | RemoveObjectCommandParams
-  | DuplicateObjectCommandParams
-  | ReparentCommandParams
-  | GroupCommandParams
-  | PositionCommandParams
-  | RotationCommandParams
-  | ScaleCommandParams
-  | RotateAroundCommandParams
-  | ModifyObj3DCommandParams
-  | ModifyMaterialCommandParams
+export type CommandParamsType = ModifyObj3DCommandParams | ModifyMaterialCommandParams
 
 export type CommandParamsOmitAffectedNodes =
-  | Omit<AddObjectCommandParams, 'affectedNodes'>
-  | Omit<RemoveObjectCommandParams, 'affectedNodes'>
-  | Omit<DuplicateObjectCommandParams, 'affectedNodes'>
-  | Omit<ReparentCommandParams, 'affectedNodes'>
-  | Omit<GroupCommandParams, 'affectedNodes'>
-  | Omit<PositionCommandParams, 'affectedNodes'>
-  | Omit<RotationCommandParams, 'affectedNodes'>
-  | Omit<ScaleCommandParams, 'affectedNodes'>
-  | Omit<RotateAroundCommandParams, 'affectedNodes'>
   | Omit<ModifyObj3DCommandParams, 'affectedNodes'>
   | Omit<ModifyMaterialCommandParams, 'affectedNodes'>

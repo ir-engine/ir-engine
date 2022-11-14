@@ -11,6 +11,7 @@ import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunc
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { SpaceBar } from '@mui/icons-material'
@@ -149,14 +150,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     while (walker) {
       if (walker.entity && nodeMap.has(walker.entity)) {
         EditorControlFunctions.replaceSelection([nodeMap.get(walker.entity)!])
-        // executeCommandWithHistory({
-        //   type: EditorCommands.REPLACE_SELECTION,
-        //   affectedNodes: [nodeMap.get(walker.entity)!],
-        //   updateSelection: true,
-        //   undo: {
-        //     selection: [obj3d.uuid]
-        //   }
-        // })
         break
       }
       walker = walker.parent as Object3DWithEntity
@@ -192,11 +185,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     editState.merge({
                       position: nuPosition.clone()
                     })
-                    executeCommandWithHistory({
-                      affectedNodes: [obj3d.uuid],
-                      type: TransformCommands.POSITION,
-                      positions: [nuPosition]
-                    })
+                    EditorControlFunctions.positionObject([obj3d.uuid], [nuPosition])
                     //obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
                   }}
                 />
@@ -209,11 +198,8 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                       rotation: nuEulers.clone()
                     })
                     const actualEuler = new Euler(...nuEulers.clone().multiplyScalar(Deg2Rad).toArray())
-                    executeCommandWithHistory({
-                      affectedNodes: [obj3d.uuid],
-                      type: TransformCommands.ROTATION,
-                      rotations: [actualEuler]
-                    })
+
+                    EditorControlFunctions.rotateObject([obj3d.uuid], [actualEuler])
                     //obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))
                   }}
                 />
@@ -225,12 +211,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     editState.merge({
                       scale: nuScale.clone()
                     })
-                    executeCommandWithHistory({
-                      affectedNodes: [obj3d.uuid],
-                      type: TransformCommands.SCALE,
-                      scales: [nuScale],
-                      overrideScale: true
-                    })
+                    EditorControlFunctions.scaleObject([obj3d.uuid], [nuScale], TransformSpace.Local, true)
                     //obj3d.scale.copy(nuScale)
                   }}
                 />

@@ -359,7 +359,7 @@ export default function HierarchyPanel({
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.REMOVE_OBJECTS, affectedNodes: objs })
+    EditorControlFunctions.removeObject(objs)
   }, [])
 
   const onDuplicateNode = useCallback((node: HeirarchyTreeNodeType) => {
@@ -368,7 +368,7 @@ export default function HierarchyPanel({
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.DUPLICATE_OBJECTS, affectedNodes: objs })
+    EditorControlFunctions.duplicateObject(objs)
   }, [])
 
   const onGroupNodes = useCallback((node: HeirarchyTreeNodeType) => {
@@ -377,7 +377,8 @@ export default function HierarchyPanel({
     const objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.GROUP, affectedNodes: objs })
+
+    EditorControlFunctions.groupObjects(objs, [], [])
   }, [])
   /* Event handlers */
 
@@ -438,11 +439,7 @@ export default function HierarchyPanel({
         return
       }
 
-      executeCommandWithHistory({
-        type: EditorCommands.REPARENT,
-        affectedNodes: [item.value],
-        parents: [Engine.instance.currentWorld.entityTree.rootNode]
-      })
+      EditorControlFunctions.reparentObject([item.value], [Engine.instance.currentWorld.entityTree.rootNode])
     },
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false

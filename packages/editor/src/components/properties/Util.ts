@@ -54,7 +54,7 @@ export const updateProperties = <C extends Component>(
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 
-  dispatchAction(EditorHistoryAction.create({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
 }
 
 export function traverseScene<T>(

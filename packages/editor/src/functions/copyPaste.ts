@@ -7,6 +7,7 @@ import EditorCommands from '../constants/EditorCommands'
 import { EditorErrorAction } from '../services/EditorErrorServices'
 import { accessSelectionState } from '../services/SelectionServices'
 import { addMediaNode } from './addMediaNode'
+import { EditorControlFunctions } from './EditorControlFunctions'
 import isInputSelected from './isInputSelected'
 
 export function copy(event) {
@@ -37,7 +38,7 @@ export function paste(event) {
       .filter((entity) => entity) as EntityTreeNode[]
 
     if (nodes) {
-      executeCommandWithHistory({ type: EditorCommands.DUPLICATE_OBJECTS, affectedNodes: nodes })
+      EditorControlFunctions.duplicateObject(nodes)
     }
   } else if ((data = event.clipboardData.getData('text')) !== '') {
     try {

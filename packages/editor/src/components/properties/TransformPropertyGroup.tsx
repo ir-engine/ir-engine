@@ -1,3 +1,4 @@
+import { command } from 'cli'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler } from 'three'
@@ -8,13 +9,17 @@ import {
   hasComponent,
   useOptionalComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { getState } from '@xrengine/hyperflux'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { accessSelectionState, SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
@@ -39,27 +44,20 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //function to handle the position properties
   const onChangePosition = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.POSITION,
-      positions: [value]
-    })
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    EditorControlFunctions.positionObject(nodes, [value])
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value: Euler) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.ROTATION,
-      rotations: [value]
-    })
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    EditorControlFunctions.rotateObject(nodes, [value])
   }
 
   //function to handle changes in scale properties
   const onChangeScale = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.SCALE,
-      scales: [value],
-      overrideScale: true
-    })
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.Local, true)
   }
 
   //rendering editor view for Transform properties

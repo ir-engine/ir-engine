@@ -40,8 +40,8 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
 
   const undoQueue = createActionQueue(EditorHistoryAction.undo.matches)
   const redoQueue = createActionQueue(EditorHistoryAction.redo.matches)
-  const appendSnapshotQueue = createActionQueue(EditorHistoryAction.append.matches)
-  const modifyQueue = createActionQueue(EditorHistoryAction.create.matches)
+  const appendSnapshotQueue = createActionQueue(EditorHistoryAction.appendSnapshot.matches)
+  const modifyQueue = createActionQueue(EditorHistoryAction.createSnapshot.matches)
 
   const execute = () => {
     for (const action of undoQueue()) {
@@ -101,14 +101,14 @@ export class EditorHistoryAction {
     // $cache: true
   })
 
-  static append = defineAction({
+  static appendSnapshot = defineAction({
     type: 'xre.editor.EditorHistory.APPEND_SNAPSHOT' as const,
     json: matches.object as Validator<unknown, SceneJson>
     // $topic: EditorTopic,
     // $cache: true
   })
 
-  static create = defineAction({
+  static createSnapshot = defineAction({
     type: 'xre.editor.EditorHistory.CREATE_SNAPSHOT' as const,
     selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>,
     modify: matches.boolean.optional()

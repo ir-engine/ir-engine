@@ -14,6 +14,7 @@ import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpda
 import { executeCommandWithHistory } from '../classes/History'
 import { updateProperties } from '../components/properties/Util'
 import EditorCommands from '../constants/EditorCommands'
+import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
  * Adds media node from passed url. Type of the media will be detected automatically
@@ -55,13 +56,7 @@ export async function addMediaNode(
   }
 
   if (prefabType) {
-    executeCommandWithHistory({
-      type: EditorCommands.ADD_OBJECTS,
-      affectedNodes: [node],
-      prefabTypes: [prefabType],
-      parents: parent ? [parent] : undefined,
-      befores: before ? [before] : undefined
-    })
+    EditorControlFunctions.addObject([node], parent ? [parent] : [], before ? [before] : [], [prefabType], [], true)
 
     updateFunc()
   }

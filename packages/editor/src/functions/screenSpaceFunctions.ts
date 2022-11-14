@@ -8,6 +8,7 @@ import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstant
 import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { accessEditorHelperState } from '../services/EditorHelperState'
+import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
 /**
@@ -82,10 +83,6 @@ export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()
 export function reparentToSceneAtCursorPosition(objects, mousePos) {
   const newPosition = new Vector3()
   getCursorSpawnPosition(mousePos, newPosition)
-  executeCommand({
-    type: EditorCommands.REPARENT,
-    affectedNodes: objects,
-    parents: [Engine.instance.currentWorld.entityTree.rootNode],
-    positions: [newPosition]
-  })
+  EditorControlFunctions.reparentObject(objects, [Engine.instance.currentWorld.entityTree.rootNode])
+  EditorControlFunctions.positionObject(objects, [newPosition])
 }

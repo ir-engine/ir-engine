@@ -13,6 +13,7 @@ import {
   Vector3
 } from 'three'
 
+import { V_010 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -49,6 +50,7 @@ import {
   TransformComponent,
   TransformComponentType
 } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { getState } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
@@ -75,7 +77,7 @@ import {
 } from '../functions/transformFunctions'
 import { accessEditorHelperState } from '../services/EditorHelperState'
 import EditorHistoryReceptor from '../services/EditorHistory'
-import EditorSelectionReceptor, { accessSelectionState } from '../services/SelectionServices'
+import EditorSelectionReceptor, { accessSelectionState, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -343,12 +345,8 @@ export default async function EditorControlSystem(world: World) {
             )
           }
 
-          executeCommandWithHistoryOnSelection({
-            type: EditorCommands.POSITION,
-            positions: [translationVector],
-            space: transformSpace,
-            addToPosition: true
-          })
+          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+          EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
 
           if (isGrabbing && transformMode === TransformMode.Grab) {
             EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
@@ -372,12 +370,8 @@ export default async function EditorControlSystem(world: World) {
           const relativeRotationAngle = rotationAngle - prevRotationAngle
           prevRotationAngle = rotationAngle
 
-          executeCommandWithHistoryOnSelection({
-            type: EditorCommands.ROTATE_AROUND,
-            pivot: gizmoObj.position,
-            axis: planeNormal,
-            angle: relativeRotationAngle
-          })
+          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+          EditorControlFunctions.rotateAround(nodes, planeNormal, relativeRotationAngle, gizmoObj.position)
 
           const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
           if (selectStartAndNoGrabbing) {
@@ -453,11 +447,8 @@ export default async function EditorControlSystem(world: World) {
           scaleVector.copy(curScale).divide(prevScale)
           prevScale.copy(curScale)
 
-          executeCommandWithHistoryOnSelection({
-            type: EditorCommands.SCALE,
-            scales: [scaleVector],
-            space: transformSpace
-          })
+          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+          EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
         }
       }
 
@@ -471,7 +462,7 @@ export default async function EditorControlSystem(world: World) {
           setTransformMode(shift || boost ? TransformMode.Placement : editorHelperState.transformModeOnCancel.value)
         } else if (transformMode === TransformMode.Placement) {
           if (shift || boost) {
-            executeCommandWithHistoryOnSelection({ type: EditorCommands.DUPLICATE_OBJECTS })
+            EditorControlFunctions.duplicateObject([])
           } else {
             setTransformMode(editorHelperState.transformModeOnCancel.value)
           }
@@ -496,19 +487,21 @@ export default async function EditorControlSystem(world: World) {
         }
       }
       if (getInput(EditorActionSet.rotateLeft)) {
-        executeCommandWithHistoryOnSelection({
-          type: EditorCommands.ROTATE_AROUND,
-          pivot: SceneState.transformGizmo.position,
-          axis: new Vector3(0, 1, 0),
-          angle: editorHelperState.rotationSnap.value * MathUtils.DEG2RAD
-        })
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        EditorControlFunctions.rotateAround(
+          nodes,
+          V_010,
+          editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+          SceneState.transformGizmo.position
+        )
       } else if (getInput(EditorActionSet.rotateRight)) {
-        executeCommandWithHistoryOnSelection({
-          type: EditorCommands.ROTATE_AROUND,
-          pivot: SceneState.transformGizmo.position,
-          axis: new Vector3(0, 1, 0),
-          angle: -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD
-        })
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        EditorControlFunctions.rotateAround(
+          nodes,
+          V_010,
+          -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+          SceneState.transformGizmo.position
+        )
       } else if (getInput(EditorActionSet.grab)) {
         if (transformMode === TransformMode.Grab || transformMode === TransformMode.Placement) {
           cancelGrabOrPlacement()
@@ -544,7 +537,9 @@ export default async function EditorControlSystem(world: World) {
       } else if (getInput(EditorActionSet.redo)) {
         redoCommand()
       } else if (getInput(EditorActionSet.deleteSelected)) {
-        executeCommandWithHistoryOnSelection({ type: EditorCommands.REMOVE_OBJECTS })
+        EditorControlFunctions.removeObject(
+          getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        )
       }
 
       if (editorHelperState.isFlyModeEnabled.value) continue
@@ -583,8 +578,8 @@ export default async function EditorControlSystem(world: World) {
     execute,
     cleanup,
     subsystems: [
-      () => Promise.resolve({ default: EditorHistoryReceptor }),
-      () => Promise.resolve({ default: EditorSelectionReceptor })
+      () => Promise.resolve({ default: EditorSelectionReceptor }),
+      () => Promise.resolve({ default: EditorHistoryReceptor })
     ]
   }
 }
