@@ -146,6 +146,7 @@ export class EngineActions {
   /**
    * Dispatched whenever an otherwise unchanging scene object has it's properties changed,
    *   such as making changes from the editor.
+   * @deprecated
    **/
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.Engine.SCENE_OBJECT_UPDATE' as const,

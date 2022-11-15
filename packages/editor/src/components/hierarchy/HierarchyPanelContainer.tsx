@@ -21,10 +21,9 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
-import { executeCommandWithHistory, setPropertyOnEntityNode } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
@@ -32,6 +31,7 @@ import { accessSelectionState, useSelectionState } from '../../services/Selectio
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
+import { updateProperties } from '../properties/Util'
 import { AppContext } from '../Search/context'
 import Search from '../Search/Search'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
@@ -224,30 +224,24 @@ export default function HierarchyPanel({
   /* Expand & Collapse Functions */
 
   const onObjectChanged = useCallback(
-    (_, propertyName) => {
+    (propertyName) => {
       if (propertyName === 'name' || !propertyName) updateNodeHierarchy()
     },
     [collapsedNodes]
   )
 
   useEffect(() => {
-    onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    onObjectChanged(selectionState.propertyName.value)
   }, [selectionState.objectChangeCounter])
 
   /* Event handlers */
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 1) {
       if (e.shiftKey) {
-        executeCommandWithHistory({
-          type: EditorCommands.TOGGLE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-        })
+        EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
         setSelectedNode(null)
       } else if (!node.selected) {
-        executeCommandWithHistory({
-          type: EditorCommands.REPLACE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-        })
+        EditorControlFunctions.replaceSelection([node.entityNode ?? node.obj3d!.uuid])
         setSelectedNode(node)
       }
     }
@@ -301,10 +295,7 @@ export default function HierarchyPanel({
           if (!nextNode) return
 
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [nextNode.entityNode ?? nextNode.obj3d!.uuid]
-            })
+            EditorControlFunctions.addToSelection([nextNode.entityNode ?? nextNode.obj3d!.uuid])
           }
 
           const nextNodeEl = document.getElementById(getNodeElId(nextNode))
@@ -318,10 +309,7 @@ export default function HierarchyPanel({
           if (!prevNode) return
 
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [prevNode.entityNode ?? prevNode.obj3d!.uuid]
-            })
+            EditorControlFunctions.addToSelection([prevNode.entityNode ?? prevNode.obj3d!.uuid])
           }
 
           const prevNodeEl = document.getElementById(getNodeElId(prevNode))
@@ -346,16 +334,10 @@ export default function HierarchyPanel({
 
         case 'Enter':
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.TOGGLE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-            })
+            EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
             setSelectedNode(null)
           } else {
-            executeCommandWithHistory({
-              type: EditorCommands.REPLACE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-            })
+            EditorControlFunctions.replaceSelection([node.entityNode ?? node.obj3d!.uuid])
             setSelectedNode(node)
           }
           break
@@ -375,7 +357,7 @@ export default function HierarchyPanel({
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.REMOVE_OBJECTS, affectedNodes: objs })
+    EditorControlFunctions.removeObject(objs)
   }, [])
 
   const onDuplicateNode = useCallback((node: HeirarchyTreeNodeType) => {
@@ -384,7 +366,7 @@ export default function HierarchyPanel({
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.DUPLICATE_OBJECTS, affectedNodes: objs })
+    EditorControlFunctions.duplicateObject(objs)
   }, [])
 
   const onGroupNodes = useCallback((node: HeirarchyTreeNodeType) => {
@@ -393,7 +375,8 @@ export default function HierarchyPanel({
     const objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.GROUP, affectedNodes: objs })
+
+    EditorControlFunctions.groupObjects(objs, [], [])
   }, [])
   /* Event handlers */
 
@@ -416,12 +399,7 @@ export default function HierarchyPanel({
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
-      setPropertyOnEntityNode({
-        affectedNodes: [node.entityNode ?? node.obj3d],
-        component: NameComponent,
-        properties: [name]
-      })
-
+      if (!node.obj3d) updateProperties(NameComponent, name, [node.entityNode])
       const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
       if (obj3d) obj3d.name = name
     }
@@ -459,11 +437,7 @@ export default function HierarchyPanel({
         return
       }
 
-      executeCommandWithHistory({
-        type: EditorCommands.REPARENT,
-        affectedNodes: [item.value],
-        parents: [Engine.instance.currentWorld.entityTree.rootNode]
-      })
+      EditorControlFunctions.reparentObject([item.value], [Engine.instance.currentWorld.entityTree.rootNode])
     },
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false

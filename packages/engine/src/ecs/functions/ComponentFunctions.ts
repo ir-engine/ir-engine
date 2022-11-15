@@ -206,6 +206,24 @@ export const setComponent = <C extends Component>(
 }
 
 /**
+ * Like setComponent, but will set hookstate to allow forced reactive re-renders for this component.
+ * This is useful for components that have SoA data that needs to have changes reacted to.
+ * @param entity
+ * @param Component
+ * @param args
+ * @param world
+ */
+export const setComponentReactively = <C extends Component>(
+  entity: Entity,
+  Component: C,
+  args: SetComponentType<C> | undefined = undefined,
+  world = Engine.instance.currentWorld
+) => {
+  setComponent(entity, Component, args, world)
+  Component.mapState[entity].set(Component.map[entity])
+}
+
+/**
  * Experimental API
  */
 export const updateComponent = <C extends Component>(
@@ -214,23 +232,30 @@ export const updateComponent = <C extends Component>(
   props: Partial<SerializedComponentType<C>>,
   world = Engine.instance.currentWorld
 ) => {
+  if (typeof props === 'undefined') return
+
   const comp = getComponentState(entity, Component, world)
   if (!comp) {
     throw new Error('[updateComponent]: component does not exist')
   }
 
   startTransition(() => {
-    for (const propertyName of Object.keys(props as any)) {
-      const value = props[propertyName]
-      const { result, finalProp } = getNestedObject(comp, propertyName)
-      if (
-        typeof value !== 'undefined' &&
-        typeof result[finalProp] === 'object' &&
-        typeof result[finalProp].set === 'function'
-      ) {
-        result[finalProp].set(value)
-      } else {
-        result[finalProp] = value
+    if (typeof props !== 'object') {
+      // component has top level value (eg NameComponent)
+      comp.set(props)
+    } else {
+      for (const propertyName of Object.keys(props as any)) {
+        const value = props[propertyName]
+        const { result, finalProp } = getNestedObject(comp, propertyName)
+        if (
+          typeof value !== 'undefined' &&
+          typeof result[finalProp] === 'object' &&
+          typeof result[finalProp].set === 'function'
+        ) {
+          result[finalProp].set(value)
+        } else {
+          result[finalProp] = value
+        }
       }
     }
     const root = Component.reactorRoots.get(entity)

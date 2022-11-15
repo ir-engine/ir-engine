@@ -4,7 +4,12 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  createMappedComponent,
+  hasComponent,
+  setComponent,
+  setComponentReactively
+} from '../../ecs/functions/ComponentFunctions'
 
 export type TransformComponentType = {
   position: Vector3
@@ -53,7 +58,7 @@ export function setTransformComponent(
   scale = new Vector3(1, 1, 1)
 ) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
-  return setComponent(entity, TransformComponent, {
+  return setComponentReactively(entity, TransformComponent, {
     position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, position),
     rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, rotation),
     scale: proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, scale),
@@ -81,7 +86,7 @@ export function setLocalTransformComponent(
   if (entity === parentEntity) throw new Error('Tried to parent entity to self - this is not allowed')
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
-  return setComponent(entity, LocalTransformComponent, {
+  return setComponentReactively(entity, LocalTransformComponent, {
     parentEntity,
     // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
     position: proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms, position.clone()),

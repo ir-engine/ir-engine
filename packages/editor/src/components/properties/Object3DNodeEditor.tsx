@@ -11,13 +11,15 @@ import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunc
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { dispatchAction, useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { SpaceBar } from '@mui/icons-material'
 import { Divider } from '@mui/material'
 
-import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
-import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorHistoryAction } from '../../services/EditorHistory'
+import { EditorAction } from '../../services/EditorServices'
 import { accessSelectionState } from '../../services/SelectionServices'
 import GeometryEditor from '../geometry/GeometryEditor'
 import BooleanInput from '../inputs/BooleanInput'
@@ -147,14 +149,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
     while (walker) {
       if (walker.entity && nodeMap.has(walker.entity)) {
-        executeCommandWithHistory({
-          type: EditorCommands.REPLACE_SELECTION,
-          affectedNodes: [nodeMap.get(walker.entity)!],
-          updateSelection: true,
-          undo: {
-            selection: [obj3d.uuid]
-          }
-        })
+        EditorControlFunctions.replaceSelection([nodeMap.get(walker.entity)!])
         break
       }
       walker = walker.parent as Object3DWithEntity
@@ -190,12 +185,12 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     editState.merge({
                       position: nuPosition.clone()
                     })
-                    executeCommandWithHistory({
-                      affectedNodes: [obj3d.uuid],
-                      type: TransformCommands.POSITION,
-                      positions: [nuPosition]
-                    })
+                    EditorControlFunctions.positionObject([obj3d.uuid], [nuPosition])
                     //obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
+                  }}
+                  onRelease={() => {
+                    dispatchAction(EditorAction.sceneModified({ modified: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
                   }}
                 />
               </InputGroup>
@@ -207,12 +202,13 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                       rotation: nuEulers.clone()
                     })
                     const actualEuler = new Euler(...nuEulers.clone().multiplyScalar(Deg2Rad).toArray())
-                    executeCommandWithHistory({
-                      affectedNodes: [obj3d.uuid],
-                      type: TransformCommands.ROTATION,
-                      rotations: [actualEuler]
-                    })
+
+                    EditorControlFunctions.rotateObject([obj3d.uuid], [actualEuler])
                     //obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))
+                  }}
+                  onRelease={() => {
+                    dispatchAction(EditorAction.sceneModified({ modified: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
                   }}
                 />
               </InputGroup>
@@ -223,13 +219,12 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     editState.merge({
                       scale: nuScale.clone()
                     })
-                    executeCommandWithHistory({
-                      affectedNodes: [obj3d.uuid],
-                      type: TransformCommands.SCALE,
-                      scales: [nuScale],
-                      overrideScale: true
-                    })
+                    EditorControlFunctions.scaleObject([obj3d.uuid], [nuScale], TransformSpace.Local, true)
                     //obj3d.scale.copy(nuScale)
+                  }}
+                  onRelease={() => {
+                    dispatchAction(EditorAction.sceneModified({ modified: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
                   }}
                 />
               </InputGroup>
@@ -323,12 +318,11 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         <ReactJson
           style={{ height: '100%', overflow: 'auto' }}
           onEdit={(edit) => {
-            executeCommandWithHistory({
-              type: EditorCommands.MODIFY_OBJECT3D,
-              affectedNodes: selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
-              properties: [{ userData: edit.updated_src }]
-            })
-            //obj3d.userData = edit.updated_src
+            EditorControlFunctions.modifyObject3d(
+              selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
+              [{ userData: edit.updated_src }]
+            )
+            obj3d.userData = edit.updated_src
           }}
           onAdd={(add) => {
             obj3d.userData = add.updated_src
