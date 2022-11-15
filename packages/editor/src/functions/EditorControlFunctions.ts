@@ -1,5 +1,5 @@
 import { command } from 'cli'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Material, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -29,6 +29,8 @@ import {
   reparentEntityNode,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '@xrengine/engine/src/scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
@@ -111,6 +113,69 @@ const modifyProperty = <C extends Component<any, any>>(
   dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+}
+
+const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => {
+  const scene = Engine.instance.currentWorld.scene
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+    if (typeof node !== 'string') return
+    const obj3d = scene.getObjectByProperty('uuid', node)!
+    const props = properties[i] ?? properties[0]
+    Object.keys(props).map((k) => {
+      const value = props[k]
+      if (typeof value?.copy === 'function') {
+        if (!obj3d[k]) obj3d[k] = new value.constructor()
+        obj3d[k].copy(value)
+      } else if (typeof value !== 'undefined' && typeof obj3d[k] === 'object' && typeof obj3d[k].set === 'function') {
+        obj3d[k].set(value)
+      } else {
+        obj3d[k] = value
+      }
+    })
+  }
+  /**
+   * @todo
+   * figure out how to use history here
+   */
+}
+
+function _getMaterial(node: string, materialId: string) {
+  let material: Material | undefined
+  if (MaterialLibrary.materials.has(node)) {
+    material = materialFromId(node).material
+  } else {
+    const mesh = obj3dFromUuid(node) as Mesh
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+    material = materials.find((material) => material.uuid === materialId)
+  }
+  if (typeof material === 'undefined' || !material.isMaterial) throw new Error('Material is missing from host mesh')
+  return material
+}
+
+const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: string]: any }[]) => {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+    if (typeof node !== 'string') return
+    const material = _getMaterial(node, materialId)
+    const props = properties[i] ?? properties[0]
+    Object.entries(props).map(([k, v]) => {
+      if (!material) throw new Error('Updating properties on undefined material')
+      if (typeof v?.copy === 'function') {
+        if (!material[k]) material[k] = new v.constructor()
+        material[k].copy(v)
+      } else if (typeof v !== 'undefined' && typeof material[k] === 'object' && typeof material[k].set === 'function') {
+        material[k].set(v)
+      } else {
+        material[k] = v
+      }
+    })
+    material.needsUpdate = true
+  }
+  /**
+   * @todo
+   * figure out how to use history here
+   */
 }
 
 /**
@@ -581,6 +646,8 @@ const addToSelection = (nodes: (EntityTreeNode | string)[]) => {
 export const EditorControlFunctions = {
   addOrRemoveComponent,
   modifyProperty,
+  modifyObject3d,
+  modifyMaterial,
   addObject,
   duplicateObject,
   positionObject,

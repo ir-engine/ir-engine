@@ -318,12 +318,11 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         <ReactJson
           style={{ height: '100%', overflow: 'auto' }}
           onEdit={(edit) => {
-            // executeCommandWithHistory({
-            //   type: EditorCommands.MODIFY_OBJECT3D,
-            //   affectedNodes: selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
-            //   properties: [{ userData: edit.updated_src }]
-            // })
-            //obj3d.userData = edit.updated_src
+            EditorControlFunctions.modifyObject3d(
+              selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
+              [{ userData: edit.updated_src }]
+            )
+            obj3d.userData = edit.updated_src
           }}
           onAdd={(add) => {
             obj3d.userData = add.updated_src
