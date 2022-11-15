@@ -14,8 +14,10 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
@@ -37,11 +39,8 @@ import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import {
-  addAnimationLogic,
-  initialize3D,
-  onWindowResize
-} from '../../../user/components/UserMenu/menus/helperFunctions'
+import { useRender3DPanelSystem } from '../../../user/components/Panel3D/createRender3DPanelSystem'
+import { resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'
 import ConfirmDialog from '../../common/ConfirmDialog'
@@ -51,11 +50,6 @@ import InputText from '../../common/InputText'
 import LoadingView from '../../common/LoadingView'
 import { AdminAvatarActions, AdminAvatarService, useAdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
-
-let camera: PerspectiveCamera
-let scene: Scene
-let renderer: WebGLRenderer = null!
-let entity: Entity = null!
 
 const Input = styled('input')({
   display: 'none'
@@ -97,11 +91,14 @@ const defaultState = {
 
 const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => {
   const { t } = useTranslation()
-  const containerRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({ ...defaultState })
   const [avatarLoading, setAvatarLoading] = useState(false)
   const [showConfirm, setShowConfirm] = useState(ConfirmState.None)
+
+  const renderPanel = useRender3DPanelSystem(panelRef)
+  const { entity, camera, scene, renderer } = renderPanel.state
 
   const { user } = useAuthState().value
   const { thumbnail } = useAdminAvatarState().value
@@ -115,32 +112,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   } else if (state.source === 'url' && state.thumbnailUrl) {
     thumbnailSrc = state.thumbnailUrl
   }
-
-  useEffect(() => {
-    const world = useWorld()
-    entity = createEntity()
-
-    addAnimationLogic(entity, world, containerRef)
-
-    const init = initialize3D()
-    scene = init.scene
-    camera = init.camera
-    renderer = init.renderer
-
-    const controls = getOrbitControls(camera, renderer.domElement)
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.5, 0)
-    controls.update()
-
-    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-
-    return () => {
-      removeEntity(entity)
-      entity = null!
-      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-    }
-  }, [])
 
   useEffect(() => {
     const initSelected = async () => {
@@ -183,8 +154,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   }
 
   const updateAvatar = async () => {
-    scene.children = scene.children.filter((c) => c.name !== 'avatar')
-
     let url = ''
     if (state.source === 'url' && state.avatarUrl) {
       const validEndsWith = AVATAR_FILE_ALLOWED_EXTENSIONS.split(',').some((suffix) => {
@@ -202,10 +171,17 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
     if (url) {
       setAvatarLoading(true)
-      const avatar = await loadAvatarForPreview(entity, url)
+      resetAnimationLogic(entity.value)
+      const avatar = await loadAvatarForPreview(entity.value, url)
+      const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
+      if (avatarRigComponent) {
+        avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
+        camera.value.position.y += 0.2
+        camera.value.position.z = 0.6
+      }
       setAvatarLoading(false)
       avatar.name = 'avatar'
-      scene.add(avatar)
+      scene.value.add(avatar)
     }
   }
 
@@ -371,7 +347,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     canvas.height = THUMBNAIL_HEIGHT
 
     const newContext = canvas.getContext('2d')
-    newContext?.drawImage(renderer.domElement, 0, 0)
+    newContext?.drawImage(renderer.value.domElement, 0, 0)
 
     const blob = await getCanvasBlob(canvas)
     if (isFile) {
@@ -392,7 +368,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   }
 
   return (
-    <Container ref={containerRef} maxWidth="sm" className={styles.mt10}>
+    <Container maxWidth="sm" className={styles.mt10}>
       <DialogTitle className={styles.textAlign}>
         {mode === AvatarDrawerMode.Create && t('user:avatar.createAvatar')}
         {mode === AvatarDrawerMode.ViewEdit &&
@@ -464,7 +440,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         className={styles.preview}
         style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px', position: 'relative' }}
       >
-        <div id="stage" style={{ width: '100%', height: '100%' }} />
+        <div ref={panelRef} id="stage" style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }} />
 
         {avatarLoading && (
           <LoadingView
