@@ -486,19 +486,21 @@ export default function HierarchyPanel({
     <>
       <div className={styles.panelContainer}>
         <div className={styles.dockableTabButtons}>
-          <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
           {editorState.advancedMode.value && (
-            <>
+            <div style={{ flex: 1 }}>
               {t('editor:hierarchy.lbl-explode')}
               <Checkbox
-                style={{ padding: '0px' }}
+                className={styles.checkbox}
+                classes={{ checked: styles.checkboxChecked }}
                 value={editorState.showObject3DInHierarchy.value}
+                sx={{ marginLeft: '5px' }}
                 onChange={(e, value) =>
                   dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
                 }
               />
-            </>
+            </div>
           )}
+          <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
         {Engine.instance.currentWorld.scene && (
           <div style={{ height: '100%' }}>
