@@ -113,7 +113,9 @@
       "descreaseGridSize": "Decrease Grid Size",
       "stopPreview": "Stop Previewing Scene",
       "playPreview": "Preview Scene"
-    }
+    },
+    "users": "Users",
+    "user": "User"
   },
   "properties": {
     "title": "Properties",

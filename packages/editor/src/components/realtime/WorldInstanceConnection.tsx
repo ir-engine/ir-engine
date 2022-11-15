@@ -38,7 +38,9 @@ export const WorldInstanceConnection = () => {
   ].concat(
     activeInstanceState.activeInstances.value.map((instance) => {
       return {
-        label: instance.id,
+        label: `${instance.id} (${instance.currentUsers} ${
+          instance.currentUsers === 1 ? t('editor:toolbar.user') : t('editor:toolbar.users')
+        })`,
         value: instance.id
       }
     })
