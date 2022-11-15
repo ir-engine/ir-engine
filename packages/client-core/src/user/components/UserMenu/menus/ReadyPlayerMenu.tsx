@@ -6,19 +6,19 @@ import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { ArrowBack, Check } from '@mui/icons-material'
 
 import LoadingView from '../../../../admin/common/LoadingView'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
+import { resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
 import { Views } from '../util'
-import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
 interface Props {
   changeActiveMenu: Function
@@ -45,31 +45,17 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   const [loading, setLoading] = useState(LoadingState.LoadingRPM)
   const [error, setError] = useState('')
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  const renderPanel = useRender3DPanelSystem(panelRef)
+  const { entity, camera, scene, renderer } = renderPanel.state
 
   useEffect(() => {
-    const world = useWorld()
-    const entity = createEntity()
-    addAnimationLogic(entity, world, panelRef)
-    const init = initialize3D()
-    scene = init.scene
-    camera = init.camera
-    renderer = init.renderer
-    const controls = getOrbitControls(camera, renderer.domElement)
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.25, 0)
-    controls.update()
-
-    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-    window.addEventListener('message', (event) => handleMessageEvent(event, entity))
-
+    window.addEventListener('message', handleMessageEvent)
     return () => {
-      window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
-      window.removeEventListener('message', (event) => handleMessageEvent(event, entity))
+      window.removeEventListener('message', handleMessageEvent)
     }
   }, [avatarUrl])
 
-  const handleMessageEvent = async (event, entity) => {
+  const handleMessageEvent = async (event) => {
     const url = event.data
 
     const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
@@ -94,12 +80,21 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
           setLoading(LoadingState.LoadingPreview)
 
-          const obj = await loadAvatarForPreview(entity, url)
+          resetAnimationLogic(entity.value)
+          const obj = await loadAvatarForPreview(entity.value, url)
           obj.name = 'avatar'
-          scene.add(obj)
+          scene.value.add(obj)
 
-          const error = validate(obj)
+          const error = validate(obj, renderer.value, scene.value, camera.value)
           setError(error)
+          renderPanel.resize()
+
+          const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
+          if (avatarRigComponent) {
+            avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
+            camera.value.position.y += 0.2
+            camera.value.position.z = 0.6
+          }
         }
       } catch (error) {
         console.error(error)
@@ -122,10 +117,11 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     setLoading(LoadingState.Uploading)
 
     const canvas = document.createElement('canvas')
-    ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
+    canvas.width = THUMBNAIL_WIDTH
+    canvas.height = THUMBNAIL_HEIGHT
 
     const newContext = canvas.getContext('2d')
-    newContext?.drawImage(renderer.domElement, 0, 0)
+    newContext?.drawImage(renderer.value.domElement, 0, 0)
 
     const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
@@ -149,7 +145,6 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
   return (
     <div
-      ref={panelRef}
       className={`${styles.menuPanel} ${styles.ReadyPlayerPanel}`}
       style={{ width: avatarPreviewLoaded ? '400px' : '600px', padding: avatarPreviewLoaded ? '15px' : '0' }}
     >
@@ -197,6 +192,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
       )}
 
       <div
+        ref={panelRef}
         id="stage"
         className={styles.stage}
         style={{

@@ -29,7 +29,6 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
  */
 export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }) {
   const { t } = useTranslation()
-  const panelRef = useRef(null)
   const [scenes, setScenes] = useState<SceneData[]>([])
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
@@ -133,7 +132,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
 
   return (
     <>
-      <div ref={panelRef} id="file-browser-panel" className={styles.panelContainer}>
+      <div id="file-browser-panel" className={styles.panelContainer}>
         <div className={styles.btnContainer}>
           <Button onClick={onCreateScene} className={styles.newBtn}>
             {t(`editor:newScene`)}
