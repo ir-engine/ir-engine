@@ -5,6 +5,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getComponentState,
   getOptionalComponent,
   hasComponent
 } from '../../../ecs/functions/ComponentFunctions'
