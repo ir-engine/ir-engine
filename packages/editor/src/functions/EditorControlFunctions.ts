@@ -61,13 +61,11 @@ import makeUniqueName from './makeUniqueName'
  * @param nodes
  * @param component
  */
-const addOrRemoveComponentToSelection = <C extends Component<any, any>>(component: C, add: boolean) => {
+const addOrRemoveComponent = <C extends Component<any, any>>(nodes: EntityTreeNode[], component: C, add: boolean) => {
   cancelGrabOrPlacement()
 
-  const entities = getState(SelectionState).selectedEntities.value
-
-  for (let i = 0; i < entities.length; i++) {
-    const entity = entities[i]
+  for (let i = 0; i < nodes.length; i++) {
+    const entity = nodes[i].entity
     if (typeof entity === 'string') continue
     if (add) setComponent(entity, component)
     else removeComponent(entity, component)
@@ -76,7 +74,7 @@ const addOrRemoveComponentToSelection = <C extends Component<any, any>>(componen
   /** @todo remove when all scene components migrated to reactor pattern */
   dispatchAction(
     EngineActions.sceneObjectUpdate({
-      entities: entities as Entity[]
+      entities: nodes.map((n) => n.entity)
     })
   )
   dispatchAction(EditorAction.sceneModified({ modified: true }))
@@ -581,7 +579,7 @@ const addToSelection = (nodes: (EntityTreeNode | string)[]) => {
 }
 
 export const EditorControlFunctions = {
-  addOrRemoveComponentToSelection,
+  addOrRemoveComponent,
   modifyProperty,
   addObject,
   duplicateObject,

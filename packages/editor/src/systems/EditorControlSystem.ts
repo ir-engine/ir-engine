@@ -50,19 +50,10 @@ import {
   TransformComponent,
   TransformComponentType
 } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
-import {
-  EditorHistory,
-  executeCommand,
-  executeCommandWithHistory,
-  executeCommandWithHistoryOnSelection,
-  redoCommand,
-  undoCommand
-} from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -76,7 +67,7 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { accessEditorHelperState } from '../services/EditorHelperState'
-import EditorHistoryReceptor from '../services/EditorHistory'
+import EditorHistoryReceptor, { EditorHistoryAction } from '../services/EditorHistory'
 import EditorSelectionReceptor, { accessSelectionState, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
@@ -348,9 +339,9 @@ export default async function EditorControlSystem(world: World) {
           const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
           EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
 
-          if (isGrabbing && transformMode === TransformMode.Grab) {
-            EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
-          }
+          // if (isGrabbing && transformMode === TransformMode.Grab) {
+          //   EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
+          // }
         } else if (transformMode === TransformMode.Rotate) {
           if (selectStartAndNoGrabbing) {
             initRotationDrag.subVectors(planeIntersection, dragOffset).sub(gizmoObj.position)
@@ -533,9 +524,9 @@ export default async function EditorControlSystem(world: World) {
       } else if (getInput(EditorActionSet.decrementGridHeight)) {
         InfiniteGridHelper.instance.decrementGridHeight()
       } else if (getInput(EditorActionSet.undo)) {
-        undoCommand()
+        dispatchAction(EditorHistoryAction.undo({ count: 1 }))
       } else if (getInput(EditorActionSet.redo)) {
-        redoCommand()
+        dispatchAction(EditorHistoryAction.redo({ count: 1 }))
       } else if (getInput(EditorActionSet.deleteSelected)) {
         EditorControlFunctions.removeObject(
           getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)

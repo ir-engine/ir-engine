@@ -1,44 +1,31 @@
-import node from 'postcss/lib/node'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
-import { Euler } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   ComponentMap,
-  getComponent,
-  getOptionalComponent,
   hasComponent,
   setComponent,
   useOptionalComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
-import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import AddIcon from '@mui/icons-material/Add'
 
-import { executeCommandWithHistoryOnSelection } from '../../classes/History'
-import EditorCommands from '../../constants/EditorCommands'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useEditorState } from '../../services/EditorServices'
-import { SelectionAction } from '../../services/SelectionServices'
+import { SelectionAction, SelectionState } from '../../services/SelectionServices'
 import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
-import Vector3Input from '../inputs/Vector3Input'
 import NameInputGroup from './NameInputGroup'
-import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType } from './Util'
 
 /**
  * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
@@ -76,11 +63,17 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   useOptionalComponent(props.node.entity, PreventBakeTagComponent)
 
   const onChangeVisible = (value) => {
-    EditorControlFunctions.addOrRemoveComponentToSelection(VisibleComponent, value)
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+      (n) => typeof n !== 'string'
+    ) as EntityTreeNode[]
+    EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
   const onChangeBakeStatic = (value) => {
-    EditorControlFunctions.addOrRemoveComponentToSelection(PreventBakeTagComponent, value)
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+      (n) => typeof n === 'object'
+    ) as EntityTreeNode[]
+    EditorControlFunctions.addOrRemoveComponent(nodes, PreventBakeTagComponent, value)
   }
 
   const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry.entries())

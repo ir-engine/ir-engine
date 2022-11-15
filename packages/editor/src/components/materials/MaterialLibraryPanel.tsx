@@ -19,8 +19,6 @@ import { createActionQueue, removeActionQueue, useHookEffect, useHookstate, useS
 
 import { Divider, Grid, Stack } from '@mui/material'
 
-import { executeCommandWithHistory } from '../../classes/History'
-import EditorCommands from '../../constants/EditorCommands'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { useEditorState } from '../../services/EditorServices'

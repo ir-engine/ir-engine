@@ -1,12 +1,9 @@
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
-import { executeCommand } from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
 import { accessEditorHelperState } from '../services/EditorHelperState'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'

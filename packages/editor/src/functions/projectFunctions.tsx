@@ -3,21 +3,19 @@ import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import ErrorIcon from '../classes/ErrorIcon'
-import { clearHistory, executeCommand } from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
 import { removeInputEvents } from '../controls/InputEvents'
 import { disposePlayModeControls } from '../controls/PlayModeControls'
 import { copy, paste } from '../functions/copyPaste'
 import { EditorErrorAction } from '../services/EditorErrorServices'
+import { EditorHistoryAction } from '../services/EditorHistory'
 import { accessEditorState, EditorAction, TaskStatus } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
-import { disposeScene, initializeScene } from './sceneRenderFunctions'
+import { initializeScene } from './sceneRenderFunctions'
 
 /**
  * Gets a list of projects installed
@@ -55,7 +53,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
 export async function loadProjectScene(projectData: SceneData) {
   EditorControlFunctions.replaceSelection([])
 
-  clearHistory()
+  dispatchAction(EditorHistoryAction.clearHistory({}))
 
   disposeProject()
 

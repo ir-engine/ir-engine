@@ -21,9 +21,7 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
-import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'

@@ -14,9 +14,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
-import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes } from '../../constants/AssetTypes'
-import EditorCommands from '../../constants/EditorCommands'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'

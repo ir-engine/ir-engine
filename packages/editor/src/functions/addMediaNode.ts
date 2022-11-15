@@ -11,9 +11,7 @@ import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaCompo
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 
-import { executeCommandWithHistory } from '../classes/History'
 import { updateProperties } from '../components/properties/Util'
-import EditorCommands from '../constants/EditorCommands'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**

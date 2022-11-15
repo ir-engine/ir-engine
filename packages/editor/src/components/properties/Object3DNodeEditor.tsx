@@ -17,8 +17,6 @@ import { dispatchAction, useHookEffect, useHookstate } from '@xrengine/hyperflux
 import { SpaceBar } from '@mui/icons-material'
 import { Divider } from '@mui/material'
 
-import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
-import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
 import { EditorAction } from '../../services/EditorServices'
@@ -320,11 +318,11 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         <ReactJson
           style={{ height: '100%', overflow: 'auto' }}
           onEdit={(edit) => {
-            executeCommandWithHistory({
-              type: EditorCommands.MODIFY_OBJECT3D,
-              affectedNodes: selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
-              properties: [{ userData: edit.updated_src }]
-            })
+            // executeCommandWithHistory({
+            //   type: EditorCommands.MODIFY_OBJECT3D,
+            //   affectedNodes: selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
+            //   properties: [{ userData: edit.updated_src }]
+            // })
             //obj3d.userData = edit.updated_src
           }}
           onAdd={(add) => {

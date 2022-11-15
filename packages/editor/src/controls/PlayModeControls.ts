@@ -3,8 +3,6 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { executeCommandWithHistory } from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
 import { addInputActionMapping, removeInputActionMapping } from '../functions/parseInputActionMapping'
 import { EditorHelperAction } from '../services/EditorHelperState'
 import { ActionSets, EditorMapping, FlyMapping } from './input-mappings'
