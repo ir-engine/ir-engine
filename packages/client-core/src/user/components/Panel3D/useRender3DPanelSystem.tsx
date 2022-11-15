@@ -1,22 +1,10 @@
-import { useHookstate } from '@hookstate/core'
-import { useEffect, useState } from 'react'
-import {
-  DirectionalLight,
-  HemisphereLight,
-  PerspectiveCamera,
-  Scene,
-  sRGBEncoding,
-  Vector2,
-  WebGLRenderer
-} from 'three'
+import { useEffect } from 'react'
+import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, sRGBEncoding, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@xrengine/common/src/utils/useHookstateFromFactory'
-import { updateAnimationGraph } from '@xrengine/engine/src/avatar/animation/AnimationGraph'
-import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
@@ -24,7 +12,6 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 const initialize3D = () => {
-  console.log('initialize 3d')
   const camera = new PerspectiveCamera(60, 1, 0.25, 20)
   camera.position.set(0, 1.75, 0.5)
 
@@ -71,10 +58,8 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
   const state = useHookstateFromFactory(initialize3D)
 
   const resize = () => {
-    console.log('onWindowResize', panel.current, state.camera.value)
     if (!panel.current || !state.camera.value) return
     const bounds = panel.current.getBoundingClientRect()!
-    console.log(panel.current, bounds)
     state.camera.value.aspect = bounds.width / bounds.height
     state.camera.value.updateProjectionMatrix()
     state.renderer.value.setSize(bounds.width, bounds.height)
@@ -108,7 +93,6 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     ])
 
     return () => {
-      console.log('unmount')
       removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
     }
