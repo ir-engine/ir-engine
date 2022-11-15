@@ -13,7 +13,8 @@ import {
   removeComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
+import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
+import { BehaveGraphComponent, GraphDomainID, SCENE_COMPONENT_BEHAVE_GRAPH } from '../components/BehaveGraphComponent'
 import { RuntimeGraphComponent } from '../components/RuntimeGraphComponent'
 
 export type BehaveGraphDomainType = {
@@ -43,6 +44,12 @@ export const BehaveGraphActions = {
 }
 
 export default async function BehaveGraphSystem(world: World) {
+  world.sceneComponentRegistry.set(BehaveGraphComponent.name, SCENE_COMPONENT_BEHAVE_GRAPH)
+  world.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [{ name: SCENE_COMPONENT_BEHAVE_GRAPH, props: {} }])
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_BEHAVE_GRAPH, {
+    defaultData: {}
+  })
+
   const graphQuery = defineQuery([BehaveGraphComponent])
   const runtimeQuery = defineQuery([RuntimeGraphComponent])
 
@@ -70,11 +77,14 @@ export default async function BehaveGraphSystem(world: World) {
     }
   }
 
-  function cleanup() {
+  async function cleanup() {
     removeQuery(world, graphQuery)
     removeQuery(world, runtimeQuery)
     removeActionQueue(executeQueue)
     removeActionQueue(stopQueue)
+
+    world.sceneComponentRegistry.delete(BehaveGraphComponent.name)
+    world.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)
   }
 
   return { execute, cleanup }

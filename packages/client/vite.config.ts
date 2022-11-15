@@ -77,7 +77,10 @@ export default defineConfig(async () => {
   const returned = {
     optimizeDeps: {
       exclude: ['@xrfoundation/volumetric'],
-      include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background']
+      include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
+      esbuildOptions: {
+        target: 'es2020'
+      }
     },
     plugins: [
       PkgConfig(),

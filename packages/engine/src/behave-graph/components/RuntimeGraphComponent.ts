@@ -23,7 +23,7 @@ export const RuntimeGraphComponent = defineComponent({
     const ticker = new ManualLifecycleEventEmitter()
     registerCoreProfile(registry, logger, ticker)
     const systemState = getState(BehaveGraphSystemState)
-    systemState.domains[graphComponent.domain].value.register(registry, logger, ticker)
+    systemState.domains[graphComponent.domain]?.value.register(registry, logger, ticker)
     const graph = readGraphFromJSON(graphComponent.graph, registry)
     const engine = new Engine(graph)
 
