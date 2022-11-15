@@ -187,8 +187,8 @@ const addObject = (
   nodes: (EntityTreeNode | string)[],
   parents: (string | EntityTreeNode)[],
   befores: (string | EntityTreeNode)[],
-  prefabTypes: string[],
-  sceneData: SceneJson[],
+  prefabTypes: string[] = [],
+  sceneData: SceneJson[] = [],
   updateSelection = true
 ) => {
   cancelGrabOrPlacement()
@@ -199,9 +199,9 @@ const addObject = (
   for (let i = 0; i < rootObjects.length; i++) {
     const object = rootObjects[i]
     if (typeof object !== 'string') {
-      if (prefabTypes?.length) {
+      if (prefabTypes.length) {
         createNewEditorNode(object, prefabTypes[i] ?? prefabTypes[0])
-      } else if (sceneData?.length) {
+      } else if (sceneData.length) {
         const data = sceneData[i] ?? sceneData[0]
 
         traverseEntityNode(object, (node) => {
