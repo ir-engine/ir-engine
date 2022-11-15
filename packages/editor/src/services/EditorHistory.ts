@@ -1,6 +1,7 @@
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
@@ -39,7 +40,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
 
   const applyCurrentSnapshot = () => {
     const snapshot = state.history[state.index.value].get(NO_PROXY)
-    console.log(state.index.value, snapshot)
+    console.log('Applying snapshot', state.index.value, snapshot)
     if (snapshot.data) updateSceneFromJSON(snapshot.data)
     if (snapshot.selectedEntities)
       dispatchAction(SelectionAction.updateSelection({ selectedEntities: snapshot.selectedEntities }))
@@ -54,20 +55,20 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
   const execute = () => {
     for (const action of undoQueue()) {
       if (state.index.value <= 0) continue
-      state.index.set(state.index.value - action.count)
+      state.index.set(Math.max(state.index.value - action.count, 0))
       applyCurrentSnapshot()
     }
 
     for (const action of redoQueue()) {
       if (state.index.value >= state.history.value.length - 1) continue
-      state.index.set(state.index.value + action.count)
+      state.index.set(Math.min(state.index.value + action.count, state.history.value.length - 1))
       applyCurrentSnapshot()
     }
 
     for (const action of clearHistoryQueue()) {
       state.merge({
         index: 0,
-        history: []
+        history: [{ data: { scene: serializeWorld(world.entityTree.rootNode) } as any as SceneData }]
       })
     }
 
@@ -91,12 +92,12 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     for (const action of modifyQueue()) {
       if (action.modify) {
         const data = { scene: serializeWorld(world.entityTree.rootNode) } as any as SceneData
-        state.history.merge([{ data }])
+        state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { data }])
         state.index.set(state.index.value + 1)
       } else if (state.includeSelection.value) {
         const selectedEntities =
           action.selectedEntities ?? selectedEntitiesState.selectedEntities.get({ noproxy: true })
-        state.history.merge([{ selectedEntities }])
+        state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { selectedEntities }])
         state.index.set(state.index.value + 1)
       }
     }

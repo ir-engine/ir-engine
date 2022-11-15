@@ -187,7 +187,8 @@ export default async function EditorControlSystem(world: World) {
       if (!gizmoObj) continue
 
       if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
-        removeComponent(SceneState.gizmoEntity, VisibleComponent)
+        if (hasComponent(SceneState.gizmoEntity, VisibleComponent))
+          removeComponent(SceneState.gizmoEntity, VisibleComponent)
       } else {
         const lastSelection = selectedEntities[selectedEntities.length - 1]
         const isUuid = typeof lastSelection === 'string'
@@ -242,8 +243,8 @@ export default async function EditorControlSystem(world: World) {
           if ((transformModeChanged || transformSpaceChanged) && transformMode === TransformMode.Scale) {
             gizmoObj.setLocalScaleHandlesVisible(transformSpace !== TransformSpace.World)
           }
-
-          setComponent(SceneState.gizmoEntity, VisibleComponent, true)
+          if (!hasComponent(SceneState.gizmoEntity, VisibleComponent))
+            setComponent(SceneState.gizmoEntity, VisibleComponent)
         }
       }
 

@@ -1,3 +1,4 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Vector3 } from 'three'
@@ -52,7 +53,7 @@ interface Vector3InputProp {
   smallStep?: number
   mediumStep?: number
   largeStep?: number
-  value: any
+  value: Vector3
   hideLabels?: boolean
   onChange: Function
   onRelease?: Function
@@ -70,8 +71,8 @@ export const Vector3Input = ({
   ...rest
 }: Vector3InputProp) => {
   const id = uniqueId++
-  const newValue = new Vector3()
   const [uniformEnabled, setUniformEnabled] = useState(uniformScaling)
+  const newValue = useHookstate(new Vector3())
 
   const onToggleUniform = () => {
     setUniformEnabled(!uniformEnabled)
@@ -79,19 +80,19 @@ export const Vector3Input = ({
 
   const processChange = (field, fieldValue) => {
     if (uniformEnabled) {
-      newValue.set(fieldValue, fieldValue, fieldValue)
+      newValue.set(new Vector3(fieldValue, fieldValue, fieldValue))
     } else {
       const x = value ? value.x : 0
       const y = value ? value.y : 0
       const z = value ? value.z : 0
 
-      newValue.x = field === 'x' ? fieldValue : x
-      newValue.y = field === 'y' ? fieldValue : y
-      newValue.z = field === 'z' ? fieldValue : z
+      newValue.set(
+        new Vector3(field === 'x' ? fieldValue : x, field === 'y' ? fieldValue : y, field === 'z' ? fieldValue : z)
+      )
     }
 
     if (typeof onChange === 'function') {
-      onChange(newValue)
+      onChange(newValue.value)
     }
   }
 
@@ -124,7 +125,7 @@ export const Vector3Input = ({
         onChange={onChangeX}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerLeave={onRelease} axis="x">
+            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x">
               X
             </Vector3Scrubber>
           )
@@ -136,7 +137,7 @@ export const Vector3Input = ({
         onChange={onChangeY}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerLeave={onRelease} axis="y">
+            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y">
               Y
             </Vector3Scrubber>
           )
@@ -148,7 +149,7 @@ export const Vector3Input = ({
         onChange={onChangeZ}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vz} onChange={onChangeZ} onPointerLeave={onRelease} axis="z">
+            <Vector3Scrubber {...rest} tag="div" value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z">
               Z
             </Vector3Scrubber>
           )

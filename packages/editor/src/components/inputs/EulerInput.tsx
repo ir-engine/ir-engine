@@ -47,7 +47,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={vx}
             onChange={(x) => onChange(x, vy, vz)}
             axis="x"
-            onPointerLeave={props.onRelease}
+            onPointerUp={props.onRelease}
           >
             X
           </Vector3Scrubber>
@@ -63,7 +63,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={vy}
             onChange={(y) => onChange(vx, y, vz)}
             axis="y"
-            onPointerLeave={props.onRelease}
+            onPointerUp={props.onRelease}
           >
             Y
           </Vector3Scrubber>
@@ -79,7 +79,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={vz}
             onChange={(z) => onChange(vx, vy, z)}
             axis="z"
-            onPointerLeave={props.onRelease}
+            onPointerUp={props.onRelease}
           >
             Z
           </Vector3Scrubber>

@@ -6,6 +6,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  useComponent,
   useOptionalComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
@@ -36,6 +37,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   useOptionalComponent(props.node.entity, SceneDynamicLoadTagComponent)
+  const transformComponent = useComponent(props.node.entity, TransformComponent)
+  const localTransformComponent = useOptionalComponent(props.node.entity, LocalTransformComponent)
 
   const onRelease = () => {
     dispatchAction(EditorAction.sceneModified({ modified: true }))
@@ -68,9 +71,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   //rendering editor view for Transform properties
-  const transform =
-    getOptionalComponent(props.node.entity, LocalTransformComponent) ??
-    getComponent(props.node.entity, TransformComponent)
+  const transform = localTransformComponent ?? transformComponent!
 
   return (
     <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
@@ -92,7 +93,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
         <Vector3Input
-          value={transform.position}
+          value={transform.position.value}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
@@ -101,7 +102,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput quaternion={transform.rotation} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
+        <EulerInput quaternion={transform.rotation.value} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input
@@ -109,7 +110,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          value={transform.scale}
+          value={transform.scale.value}
           onChange={onChangeScale}
           onRelease={onRelease}
         />

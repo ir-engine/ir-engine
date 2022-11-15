@@ -53,8 +53,6 @@ export async function runPreprojectLoadTasks(): Promise<void> {
 export async function loadProjectScene(projectData: SceneData) {
   EditorControlFunctions.replaceSelection([])
 
-  dispatchAction(EditorHistoryAction.clearHistory({}))
-
   disposeProject()
 
   await runPreprojectLoadTasks()

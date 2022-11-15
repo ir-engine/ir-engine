@@ -51,7 +51,7 @@ const VisibleInputGroup = styled(InputGroup)`
 `
 
 /**
- * TransformPropertyGroup component is used to render editor view to customize properties.
+ * CoreNodeEditor component is used to render editor view to customize properties.
  *
  * @type {class component}
  */
