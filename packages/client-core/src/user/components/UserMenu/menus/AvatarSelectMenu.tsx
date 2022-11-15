@@ -30,8 +30,8 @@ import Tabs from '@mui/material/Tabs'
 
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AvatarService } from '../../../services/AvatarService'
-import { useRender3DPanelSystem } from '../../Panel3D/createRender3DPanelSystem'
 import { resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 

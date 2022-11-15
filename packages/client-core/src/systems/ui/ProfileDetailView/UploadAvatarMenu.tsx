@@ -24,8 +24,8 @@ import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 
 import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
 
-import { useRender3DPanelSystem } from '../../../user/components/Panel3D/createRender3DPanelSystem'
 import { validate } from '../../../user/components/Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { AvatarService } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
