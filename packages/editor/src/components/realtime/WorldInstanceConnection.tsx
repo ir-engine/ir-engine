@@ -32,14 +32,14 @@ export const WorldInstanceConnection = () => {
   const activeInstanceState = useEditorActiveInstanceState()
   const activeInstances = [
     {
-      label: 'None',
+      label: t('editor:toolbar.instance.none'),
       value: 'None'
     }
   ].concat(
     activeInstanceState.activeInstances.value.map((instance) => {
       return {
         label: `${instance.id} (${instance.currentUsers} ${
-          instance.currentUsers === 1 ? t('editor:toolbar.user') : t('editor:toolbar.users')
+          instance.currentUsers === 1 ? t('editor:toolbar.instance.user') : t('editor:toolbar.instance.users')
         })`,
         value: instance.id
       }
