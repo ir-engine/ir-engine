@@ -1,0 +1,39 @@
+import BehaveFlow from 'ee-behave-flow/src/App'
+import React from 'react'
+import AutoSizer from 'react-virtualized-auto-sizer'
+
+import { BehaveGraphComponent } from '@xrengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { UndefinedEntity } from '@xrengine/engine/src/ecs/classes/Entity'
+import {
+  getComponent,
+  getComponentState,
+  hasComponent,
+  useOptionalComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
+import { useSelectionState } from '../../services/SelectionServices'
+import hierarchyStyles from '../hierarchy/styles.module.scss'
+
+export default function GraphPanel() {
+  const selectionState = useSelectionState()
+  const entity = selectionState.selectedEntities[0]?.value
+  const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
+  const graphState = useOptionalComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
+  return (
+    <>
+      <div className={hierarchyStyles.panelContainer}>
+        <div className={hierarchyStyles.panelSection}>
+          <AutoSizer>
+            {({ width, height }) => (
+              <div style={{ width, height }}>
+                {validEntity && (
+                  <BehaveFlow graphJSON={graphState?.graph.value ?? {}} onChangeGraph={graphState?.graph.set} />
+                )}
+              </div>
+            )}
+          </AutoSizer>
+        </div>
+      </div>
+    </>
+  )
+}

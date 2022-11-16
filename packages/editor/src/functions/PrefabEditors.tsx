@@ -141,5 +141,6 @@ export const prefabIcons = {
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
   [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
-  [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
+  [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent,
+  [ScenePrefabs.behaveGraph]: ChairIcon
 }
