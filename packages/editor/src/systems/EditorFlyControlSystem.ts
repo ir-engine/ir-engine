@@ -14,7 +14,7 @@ import {
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
-import { ActionSets, EditorActionSet, FlyMapping } from '../controls/input-mappings'
+import { ActionSets, EditorActionSet } from '../controls/input-mappings'
 import { addInputActionMapping, getInput, removeInputActionMapping } from '../functions/parseInputActionMapping'
 import { SceneState } from '../functions/sceneRenderFunctions'
 import { EditorHelperAction } from '../services/EditorHelperState'
@@ -29,7 +29,6 @@ export default async function FlyControlSystem(world: World) {
     if (getInput(EditorActionSet.disableFlyMode)) {
       const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
 
-      removeInputActionMapping(ActionSets.FLY)
       const distance = camera.position.distanceTo(cameraComponent.center)
       cameraComponent.center.addVectors(
         camera.position,
@@ -42,8 +41,6 @@ export default async function FlyControlSystem(world: World) {
     }
 
     if (getInput(EditorActionSet.flying)) {
-      addInputActionMapping(ActionSets.FLY, FlyMapping)
-
       setComponent(SceneState.editorEntity, FlyControlComponent, {
         boostSpeed: 4,
         moveSpeed: 4,

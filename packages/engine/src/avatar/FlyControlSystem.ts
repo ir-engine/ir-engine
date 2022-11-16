@@ -5,15 +5,15 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { V_010 } from '../common/constants/MathConstants'
-import { InputComponent } from '../input/components/InputComponent'
 import { MouseInput } from '../input/enums/InputEnums'
+import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import { FlyControlComponent } from './components/FlyControlComponent'
 
 const EPSILON = 10e-5
 const IDENTITY = new Matrix4().identity()
 
 export default async function FlyControlSystem(world: World) {
-  const flyControlQuery = defineQuery([FlyControlComponent, InputComponent])
+  const flyControlQuery = defineQuery([FlyControlComponent])
   const direction = new Vector3()
   const parentInverse = new Matrix4()
   const tempVec3 = new Vector3()
@@ -83,6 +83,10 @@ export default async function FlyControlSystem(world: World) {
       if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)
 
       camera.position.y += upwardMovement * world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
+
+      const localTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+      localTransform.position.copy(camera.position)
+      localTransform.rotation.copy(camera.quaternion)
     }
   }
 

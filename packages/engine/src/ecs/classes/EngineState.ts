@@ -133,6 +133,10 @@ export class EngineActions {
     user: matches.string.optional()
   })
 
+  static exitSpectate = defineAction({
+    type: 'xre.engine.Engine.EXIT_SPECTATE' as const
+  })
+
   static avatarAlreadyInWorld = defineAction({
     type: 'xre.world.AVATAR_ALREADY_IN_WORLD'
   })

@@ -7,7 +7,7 @@ import { executeCommandWithHistory } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { addInputActionMapping, removeInputActionMapping } from '../functions/parseInputActionMapping'
 import { EditorHelperAction } from '../services/EditorHelperState'
-import { ActionSets, EditorMapping, FlyMapping } from './input-mappings'
+import { ActionSets, EditorMapping } from './input-mappings'
 
 export function enterPlayMode(): void {
   executeCommandWithHistory({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
@@ -40,7 +40,6 @@ function onClickCanvas(): void {
 function onPointerLockChange(): void {
   if (document.pointerLockElement === EngineRenderer.instance.renderer.domElement) {
     dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: true }))
-    addInputActionMapping(ActionSets.FLY, FlyMapping)
 
     removeInputActionMapping(ActionSets.EDITOR)
   } else {
