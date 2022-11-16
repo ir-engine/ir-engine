@@ -528,6 +528,31 @@
     touch-action: auto;
   }
 
+  .titleBlock {
+    margin: 10px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    h2 {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+  }
+
+  .iconBlock {
+    @include icon-block-styling;
+
+    display: inline-block;
+    cursor: pointer;
+    color: var(--textColor);
+    background: transparent;
+  }
+
   .profilePanel {
     display: flex;
     flex-direction: column;
@@ -1210,6 +1235,11 @@
   // }
 
   @media screen and (max-width: 500px) {
+    .titleBlock {
+      width: 100% !important;
+      margin-top: 30px;
+    }
+
     .headerBlock {
       width: 100% !important;
     }
@@ -1237,116 +1267,104 @@
 .avatarPanel {
   @include panel-popup-container-styling;
 
-  & > .avatarContainer {
-    margin-top: 40px;
-  }
-
   & > .controlContainer {
     margin-bottom: 10px;
   }
 
-  .avatarContainer {
-    display: flex;
-    align-items: flex-start;
-    margin: auto;
-    flex-wrap: wrap;
-    height: auto;
+  .avatarPreviewWrapper {
+    width: 90px;
+    height: 90px;
+    cursor: pointer;
+    margin: 5px;
+    flex-grow: 0;
+    background: white;
+    box-shadow: 0 2px 18px 0 #11111159;
+    position: relative;
+    overflow: visible;
 
-    .avatarPreviewWrapper {
-      width: 90px;
-      height: 90px;
-      cursor: pointer;
-      margin: 5px;
-      flex-grow: 0;
-      background: white;
-      box-shadow: 0 2px 18px 0 #11111159;
-      position: relative;
-      overflow: visible;
+    .avatarPreview {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+    }
 
-      .avatarPreview {
-        width: 100%;
-        height: 100%;
-        border-radius: 10px;
-      }
+    &.activeAvatar {
+      @include active-avatar;
+    }
 
-      &.activeAvatar {
-        @include active-avatar;
-      }
+    &.selectedAvatar {
+      @include selected-avatar;
+    }
 
-      &.selectedAvatar {
-        @include selected-avatar;
-      }
+    .deleteBlock {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      bottom: -5px;
+      right: -5px;
+      border: none;
+      border-radius: 50%;
+      background: var(--purpleButtonColor);
+      box-shadow: 2px 2px 10px gray;
+      color: var(--textColor);
+      transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-      .deleteBlock {
-        position: absolute;
-        width: 30px;
-        height: 30px;
+      &:not(:disabled):hover,
+      &:not(:disabled):focus {
+        width: 35px;
+        height: 35px;
         bottom: -5px;
         right: -5px;
-        border: none;
-        border-radius: 50%;
-        background: var(--purpleButtonColor);
-        box-shadow: 2px 2px 10px gray;
-        color: var(--textColor);
-        transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      }
 
-        &:not(:disabled):hover,
-        &:not(:disabled):focus {
-          width: 35px;
-          height: 35px;
-          bottom: -5px;
-          right: -5px;
+      svg {
+        font-size: 18px;
+      }
+
+      &:disabled {
+        background: grey;
+        cursor: default;
+      }
+    }
+
+    .confirmationBlock {
+      position: absolute;
+      bottom: 8px;
+      width: 125%;
+      background: #fff;
+      border-radius: 5px;
+      color: grey;
+      text-align: center;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 2px 2px 10px gray;
+
+      p {
+        margin: 5px;
+        font-size: 13px;
+      }
+
+      button {
+        background: transparent;
+        color: #e81515;
+        border: none;
+        padding: 5px;
+        width: 50%;
+
+        &:last-child {
+          color: var(--purpleButtonColor);
         }
 
         svg {
-          font-size: 18px;
-        }
-
-        &:disabled {
-          background: grey;
-          cursor: default;
+          font-size: 20px;
         }
       }
 
-      .confirmationBlock {
-        position: absolute;
-        bottom: 8px;
-        width: 125%;
-        background: #fff;
-        border-radius: 5px;
-        color: grey;
-        text-align: center;
-        left: 50%;
-        transform: translateX(-50%);
-        box-shadow: 2px 2px 10px gray;
-
-        p {
-          margin: 5px;
-          font-size: 13px;
-        }
-
-        button {
-          background: transparent;
-          color: #e81515;
-          border: none;
-          padding: 5px;
-          width: 50%;
-
-          &:last-child {
-            color: var(--purpleButtonColor);
-          }
-
-          svg {
-            font-size: 20px;
-          }
-        }
-
-        @media (min-width: 769px) {
-          width: 80%;
-        }
+      @media (min-width: 769px) {
+        width: 80%;
       }
     }
   }
@@ -1374,16 +1392,9 @@
   @media screen and (min-width: 768px) {
     width: 330px;
 
-    & > .avatarContainer {
-      margin-top: 25px;
-      width: 280px;
-    }
-
-    .avatarContainer {
-      .avatarPreviewWrapper {
-        width: 130px;
-        height: 130px;
-      }
+    .avatarPreviewWrapper {
+      width: 130px;
+      height: 130px;
     }
 
     .controlContainer {
@@ -1651,7 +1662,7 @@
   }
 }
 
-.ReadyPlayerPanel {
+.readyPlayerPanel {
   .avatarHeaderBlock {
     margin: 20px 0;
     display: flex;
@@ -2071,58 +2082,47 @@
   }
 }
 
-.avatarSelectContainer {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  border-radius: 20px;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  color: black;
-  height: 500px;
+.avatarSelectPanel {
+  height: 53%;
   overflow: hidden;
-  max-width: 550px;
-  z-index: 1400;
-  background: rgb(255 255 255 / 50%);
-  box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
-  backdrop-filter: blur(4.9px);
-  -webkit-backdrop-filter: blur(4.9px);
 
-  .avatarHeaderBlock {
-    margin: 20px 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  .avatarContainer {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 5px 0;
+  }
 
-    .iconBlock {
-      @include icon-block-styling;
+  .gradientBtn {
+    height: 35px;
+    font-size: 14px;
+    max-width: 100%;
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    color: var(--textColor);
+    margin: 0 0 20px;
+    border: none;
 
-      display: inline-block;
-      cursor: pointer;
-      color: var(--textColor);
-      background: transparent;
+    &:hover {
+      opacity: 0.8;
     }
 
-    h2 {
-      font-size: 18px;
-      color: var(--textColor);
-      font-weight: bold;
-      display: inline-block;
-      vertical-align: middle;
-      margin-left: 10px;
+    &:disabled {
+      opacity: 0.7 !important;
     }
+  }
+
+  @media screen and (min-width: 768px) {
+    width: 700px;
   }
 }
 
 .paperAvatar {
-  height: 130px;
-  width: 160px;
   border: none;
   position: relative;
   cursor: pointer;
   transition: all 0.2s;
+  height: 100%;
+  aspect-ratio: 1;
 
   &:hover {
     background: rgb(81 81 255 / 45%);
@@ -2131,12 +2131,6 @@
   @media (max-width: 400px) {
     margin-right: 5px;
   }
-}
-
-.avatarContainer {
-  height: 90%;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .menuContainer {
@@ -2169,35 +2163,6 @@
   cursor: pointer;
 }
 
-.btnBack {
-  border: none;
-  border-radius: 50%;
-  height: 30px;
-  width: 30px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.btnPerson {
-  background-color: rgb(255 255 255 / 70%);
-  color: #808080;
-
-  &:hover {
-    background: rgb(255 255 255 / 100%);
-  }
-}
-
-.btnCheck {
-  background-color: #a5f2b2;
-  color: #fff;
-  margin: 0 10px;
-
-  &:hover {
-    background-color: #1e9932 !important;
-  }
-}
-
 .btnArrow {
   background-color: #6e6ef7;
   color: #fff;
@@ -2208,27 +2173,8 @@
   }
 }
 
-.btnCancel {
-  color: #fff;
-  background-color: #fca7a8;
-
-  &:hover {
-    background-color: #e76a6c !important;
-  }
-}
-
-.avatar {
-  height: 80%;
-  width: 80%;
-  position: absolute;
-  left: 50%;
-  top: 26px;
-  transform: translateX(-50%);
-  cursor: pointer;
-}
-
 .size {
-  height: 15px;
+  height: 25px;
 }
 
 .selectedAvatar {
@@ -2632,4 +2578,11 @@
   color: var(--textColor);
   border-color: var(--textColor);
   margin-right: 10px;
+}
+
+.preview {
+  color: var(--textColor);
+  border: 1px solid var(--buttonOutlined);
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--buttonOutlined);
 }

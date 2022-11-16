@@ -145,7 +145,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
   return (
     <div
-      className={`${styles.menuPanel} ${styles.ReadyPlayerPanel}`}
+      className={`${styles.menuPanel} ${styles.readyPlayerPanel}`}
       style={{ width: avatarPreviewLoaded ? '400px' : '600px', padding: avatarPreviewLoaded ? '15px' : '0' }}
     >
       {avatarPreviewLoaded && (
