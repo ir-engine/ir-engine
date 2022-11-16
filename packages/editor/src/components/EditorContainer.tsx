@@ -39,6 +39,8 @@ import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
+import GraphPanel from './graph/GraphPanel'
+import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
 import { DialogContext } from './hooks/useDialog'
@@ -606,6 +608,11 @@ const EditorContainer = () => {
                   id: 'materialLibraryPanel',
                   title: <MaterialLibraryPanelTitle />,
                   content: <MaterialLibraryPanel />
+                },
+                {
+                  id: 'graphPanel',
+                  title: <GraphPanelTitle />,
+                  content: <GraphPanel />
                 }
               ]
             },
