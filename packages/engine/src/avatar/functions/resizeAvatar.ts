@@ -6,7 +6,7 @@ import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/C
 import { Physics } from '../../physics/classes/Physics'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { createAvatarCollider } from './createAvatar'
+import { createAvatarCollider } from './spawnAvatarReceptor'
 
 export const resizeAvatar = (entity: Entity, height: number, center: Vector3) => {
   const avatar = getComponent(entity, AvatarComponent) as ComponentType<typeof AvatarComponent>

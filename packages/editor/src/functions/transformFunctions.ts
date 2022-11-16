@@ -14,7 +14,6 @@ import {
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { EditorHistory } from '../classes/History'
 import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
 import { accessSelectionState } from '../services/SelectionServices'
 import { SceneState } from './sceneRenderFunctions'
@@ -46,7 +45,7 @@ export const setTransformMode = (mode: TransformModeType): void => {
     dispatchAction(EditorHelperAction.changeTransformModeOnCancel({ mode }))
   }
 
-  EditorHistory.grabCheckPoint = undefined
+  // EditorHistory.grabCheckPoint = undefined
   SceneState.transformGizmo.setTransformMode(mode)
   dispatchAction(EditorHelperAction.changedTransformMode({ mode }))
 }

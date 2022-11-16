@@ -10,7 +10,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
@@ -109,12 +109,6 @@ export default async function PhysicsSystem(world: World) {
   const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
   const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
   const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
-  const networkedAvatarBodyQuery = defineQuery([
-    RigidBodyComponent,
-    NetworkObjectComponent,
-    Not(NetworkObjectOwnedTag),
-    AvatarComponent
-  ])
   const collisionQuery = defineQuery([CollisionComponent])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
@@ -177,7 +171,6 @@ export default async function PhysicsSystem(world: World) {
     removeQuery(world, colliderQuery)
     removeQuery(world, groupColliderQuery)
     removeQuery(world, allRigidBodyQuery)
-    removeQuery(world, networkedAvatarBodyQuery)
     removeQuery(world, collisionQuery)
 
     removeActionQueue(teleportObjectQueue)

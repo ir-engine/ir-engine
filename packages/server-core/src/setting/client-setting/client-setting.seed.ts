@@ -6,6 +6,8 @@ export const clientSeed = {
     {
       logo: process.env.APP_LOGO,
       title: process.env.APP_TITLE,
+      shortTitle: process.env.APP_TITLE,
+      startPath: '/',
       releaseName: process.env.RELEASE_NAME || 'local',
       siteDescription: process.env.SITE_DESC,
       url:

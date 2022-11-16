@@ -398,7 +398,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   })
 
   const cameraQuery = defineQuery([CameraComponent])
-  const shadowQuery = defineQuery([GroupComponent, ShadowComponent])
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
@@ -418,7 +417,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const execute = () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, ShadowComponent) && hasComponent(entity, GroupComponent)) updateShadow(entity)
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, GroupComponent)) updateEnvMap(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
         if (hasComponent(entity, PortalComponent)) updatePortal(entity)
@@ -432,7 +430,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     }
 
     for (const entity of cameraQuery.enter()) addObjectToGroup(entity, getComponent(entity, CameraComponent).camera)
-    for (const entity of shadowQuery.enter()) updateShadow(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
@@ -569,7 +566,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
 
     removeQuery(world, cameraQuery)
-    removeQuery(world, shadowQuery)
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)
     removeQuery(world, sceneEnvmapQuery)

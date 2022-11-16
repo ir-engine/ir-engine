@@ -441,8 +441,10 @@ export default async function DebugHelpersSystem(world: World) {
 
     for (const entity of boundingBoxQuery.exit()) {
       const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
-      boxHelper.removeFromParent()
-      helpersByEntity.box.delete(entity)
+      if (boxHelper) {
+        boxHelper.removeFromParent()
+        helpersByEntity.box.delete(entity)
+      }
     }
 
     for (const entity of boundingBoxQuery()) {

@@ -37,6 +37,7 @@ import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
+  useHookstate(getState(EngineState).frameTime).value
   const engineRendererState = useEngineRendererState()
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()

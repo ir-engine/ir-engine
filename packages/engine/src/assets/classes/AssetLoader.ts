@@ -203,6 +203,7 @@ const getAssetType = (assetFileName: string): AssetType => {
   else if (/\.(?:m4a)$/.test(assetFileName)) return AssetType.M4A
   else if (/\.(?:mp4)$/.test(assetFileName)) return AssetType.MP4
   else if (/\.(?:mkv)$/.test(assetFileName)) return AssetType.MKV
+  else if (/\.(?:m3u8)$/.test(assetFileName)) return AssetType.M3U8
   return null!
 }
 
@@ -220,7 +221,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     return AssetClass.Model
   } else if (/\.png|jpg|jpeg|tga|ktx2$/.test(assetFileName)) {
     return AssetClass.Image
-  } else if (/\.mp4|avi|webm|mov$/.test(assetFileName)) {
+  } else if (/\.mp4|avi|webm|mov|m3u8$/.test(assetFileName)) {
     return AssetClass.Video
   } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
     return AssetClass.Audio
@@ -293,6 +294,7 @@ export const getLoader = (assetType: AssetType) => {
       return audioLoader()
     case AssetType.MP4:
     case AssetType.MKV:
+    case AssetType.M3U8:
       return videoLoader()
     default:
       return fileLoader()

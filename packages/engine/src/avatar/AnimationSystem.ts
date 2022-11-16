@@ -4,7 +4,7 @@ import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
@@ -30,7 +30,9 @@ export function animationActionReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
   world = Engine.instance.currentWorld
 ) {
-  if (Engine.instance.userId === action.$from) return // Only run on other clients
+  // Only run on other peers
+  if (!world.worldNetwork || !action.$peer || world.worldNetwork.peerID === action.$peer) return
+
   const avatarEntity = world.getUserAvatarEntity(action.$from)
 
   const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
@@ -49,7 +51,7 @@ export default async function AnimationSystem(world: World) {
     AnimationComponent,
     AvatarAnimationComponent,
     AvatarRigComponent,
-    RigidBodyComponent
+    VisibleComponent
   ])
   const avatarAnimationQuery = defineQuery([
     AnimationComponent,
@@ -105,18 +107,22 @@ export default async function AnimationSystem(world: World) {
     for (const entity of movingAvatarAnimationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-      const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+      const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
       const deltaTime = delta * animationComponent.animationSpeed
 
-      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
-      avatarAnimationComponent.locomotion.x = 0
-      avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
-      // lerp animated forward animation to smoothly animate to a stop
-      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-        avatarAnimationComponent.locomotion.z || 0,
-        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-        10 * deltaTime
-      )
+      if (rigidbodyComponent) {
+        // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
+        avatarAnimationComponent.locomotion.x = 0
+        avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
+        // lerp animated forward animation to smoothly animate to a stop
+        avatarAnimationComponent.locomotion.z = MathUtils.lerp(
+          avatarAnimationComponent.locomotion.z || 0,
+          _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+          10 * deltaTime
+        )
+      } else {
+        avatarAnimationComponent.locomotion.setScalar(0)
+      }
 
       updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
     }

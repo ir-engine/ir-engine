@@ -11,6 +11,7 @@ export const CommonKnownContentTypes = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
   pdf: 'application/pdf',
+  m3u8: 'application/vnd.apple.mpegurl',
   mp4: 'video/mp4',
   mp3: 'audio/mpeg',
   tsx: 'application/octet-stream',

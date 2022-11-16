@@ -1,7 +1,6 @@
 import React, { useImperativeHandle, useState } from 'react'
 import styled from 'styled-components'
 
-import { onWindowResize } from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
@@ -10,11 +9,10 @@ import { useHookstate } from '@xrengine/hyperflux'
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { JsonPreviewPanel } from './AssetPreviewPanels/JsonPreviewPanel'
-import { camera, renderer, scene } from './AssetPreviewPanels/ModelPreviewPanel'
 import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
 import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
-import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
+import { VideoPreviewPanel } from './AssetPreviewPanels/VideoPreviewPanel'
 
 const AssetHeading = (styled as any).div`
   text-align: center;
@@ -38,17 +36,13 @@ export type AssetSelectionChangePropsType = {
  */
 
 export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref) => {
-  useImperativeHandle(ref, () => ({ onLayoutChanged, onSelectionChanged }))
+  useImperativeHandle(ref, () => ({ onSelectionChanged }))
   const [previewPanel, usePreviewPanel] = useState({
     PreviewSource: null as any,
     resourceProps: { resourceUrl: '', name: '' }
   })
 
   const thumbnail = useHookstate('')
-
-  const onLayoutChanged = () => {
-    if (renderer) onWindowResize({ camera, renderer, scene })
-  }
 
   const onSelectionChanged = async (props: AssetSelectionChangePropsType) => {
     thumbnail.value && URL.revokeObjectURL(thumbnail.value)
@@ -99,11 +93,12 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
 
       case 'video/mp4':
       case 'mp4':
-        const vedioPreviewPanel = {
-          PreviewSource: VedioPreviewPanel,
+      case 'm3u8':
+        const videoPreviewPanel = {
+          PreviewSource: VideoPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
-        usePreviewPanel(vedioPreviewPanel)
+        usePreviewPanel(videoPreviewPanel)
         break
       case 'audio/mpeg':
       case 'mpeg':
@@ -143,7 +138,6 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
   return (
     <>
       {!hideHeading && <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>}
-
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>
   )

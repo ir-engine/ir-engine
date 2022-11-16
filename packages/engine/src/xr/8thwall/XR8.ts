@@ -1,52 +1,57 @@
+import { useEffect } from 'react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import config from '@xrengine/common/src/config'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState, startReactor } from '@xrengine/hyperflux'
 
+import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  removeComponent,
+  removeQuery,
+  useQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
-import { VPSComponent } from '../../scene/components/VPSComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHitTestComponent } from '../XRComponents'
+import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
 import { XRAction, XRState } from '../XRState'
-import { XREPipeline } from './WebXR8thwallProxy'
-import { XR8CameraModule } from './XR8CameraModule'
+import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
 
 type XR8Assets = {
   xr8Script: HTMLScriptElement
   xrExtrasScript: HTMLScriptElement
+  // xrCoachingOverlayScript: HTMLScriptElement
+}
+
+function loadScript(url): Promise<HTMLScriptElement> {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script')
+    script.async = true
+    script.addEventListener('load', () => resolve(script))
+    script.addEventListener('error', () => reject())
+    document.head.appendChild(script)
+    script.src = url
+  })
 }
 /**
  * Initializes the scripts that loads 8thwall
  * @returns
  */
 const initialize8thwall = async (): Promise<XR8Assets> => {
-  const [xr8Script, xrExtrasScript] = await Promise.all([
-    new Promise<HTMLScriptElement>((resolve, reject) => {
-      const _8thwallScript = document.createElement('script')
-      _8thwallScript.async = true
-      _8thwallScript.addEventListener('load', () => resolve(_8thwallScript))
-      _8thwallScript.addEventListener('error', () => reject())
-      document.head.appendChild(_8thwallScript)
-      _8thwallScript.src = `https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`
-    }),
-    new Promise<HTMLScriptElement>((resolve, reject) => {
-      const _xrExtrasScript = document.createElement('script')
-      _xrExtrasScript.async = true
-      _xrExtrasScript.addEventListener('load', () => resolve(_xrExtrasScript))
-      _xrExtrasScript.addEventListener('error', () => reject())
-      document.head.appendChild(_xrExtrasScript)
-      _xrExtrasScript.src = `https://cdn.8thwall.com/web/xrextras/xrextras.js`
-    })
+  const [xr8Script, xrExtrasScript /*, xrCoachingOverlayScript*/] = await Promise.all([
+    loadScript(`https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`),
+    loadScript(`https://cdn.8thwall.com/web/xrextras/xrextras.js`)
+    // loadScript(`https://cdn.8thwall.com/web/coaching-overlay/coaching-overlay.js`)
   ])
 
   /** the global XR8 object will not exist immediately, so wait for it */
@@ -66,15 +71,18 @@ const initialize8thwall = async (): Promise<XR8Assets> => {
 
   XR8 = globalThis.XR8
   XRExtras = globalThis.XRExtras
+  // VpsCoachingOverlay = globalThis.VpsCoachingOverlay
 
   return {
     xr8Script,
     xrExtrasScript
+    // xrCoachingOverlayScript
   }
 }
 
 export let XR8: XR8Type
 export let XRExtras
+// export let VpsCoachingOverlay
 
 const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null, world: World) => {
   if (existingCanvas) {
@@ -98,17 +106,37 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
 
   const requiredPermissions = XR8.XrPermissions.permissions()
   return new Promise<HTMLCanvasElement>((resolve, reject) => {
+    const enableVps = !!vpsQuery().length
+
+    XR8.XrController.configure({
+      // enableLighting: true
+      // enableWorldPoints: true,
+      // imageTargets: true,
+      scale: 'absolute',
+      enableVps
+    })
+
+    // if (enableVps) {
+    //   VpsCoachingOverlay.configure({
+    //     textColor: '#ffffff'
+    //   })
+    // }
+
     XR8.addCameraPipelineModules([
       XR8.GlTextureRenderer.pipelineModule() /** draw the camera feed */,
       XR8.Threejs.pipelineModule(),
-      XR8.XrController.pipelineModule({
-        // enableLighting: true
-        // enableWorldPoints: true,
-        // imageTargets: true,
-        // enableVps: true
-      }),
+      XR8.XrController.pipelineModule(),
+      // VpsCoachingOverlay.pipelineModule(),
       XRExtras.RuntimeError.pipelineModule()
     ])
+
+    const permissions = [
+      requiredPermissions.CAMERA,
+      requiredPermissions.DEVICE_MOTION,
+      requiredPermissions.DEVICE_ORIENTATION
+      // requiredPermissions.MICROPHONE
+    ]
+    if (enableVps) permissions.push(requiredPermissions.DEVICE_GPS)
 
     XR8.addCameraPipelineModule({
       name: 'XRE_camera_persmissions',
@@ -126,17 +154,16 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
           reject(`[XR8] Failed to get camera feed with reason ${reason}`)
         }
       },
-      requiredPermissions: () => [
-        requiredPermissions.CAMERA,
-        requiredPermissions.DEVICE_MOTION,
-        requiredPermissions.DEVICE_ORIENTATION
-        // requiredPermissions.DEVICE_GPS,
-        // requiredPermissions.MICROPHONE
-      ]
+      requiredPermissions: () => permissions
     })
 
-    XR8.addCameraPipelineModule(XR8CameraModule(cameraCanvas))
-    XR8.addCameraPipelineModule(XREPipeline(world))
+    XR8.addCameraPipelineModule(XR8Pipeline(world, cameraCanvas))
+
+    // if (enableVps) {
+    //   VpsCoachingOverlay.configure({
+    //     // persistentanchorName: vpsPersistentAnchorName // todo - support multiple persistentanchors, for now just use the nearest one
+    //   })
+    // }
 
     XR8.run({ canvas: cameraCanvas })
   })
@@ -183,6 +210,10 @@ class XRHitTestResultProxy {
   createAnchor = undefined
 }
 
+class XRReferenceSpace {}
+
+class XRHitTestSource {}
+
 class XRSessionProxy extends EventDispatcher {
   readonly inputSources: XRInputSource[]
 
@@ -191,12 +222,12 @@ class XRSessionProxy extends EventDispatcher {
     this.inputSources = inputSources
   }
   async requestReferenceSpace(type: 'local' | 'viewer') {
-    const space = {}
-    return space as XRReferenceSpace
+    const space = new XRReferenceSpace()
+    return space
   }
 
   async requestHitTestSource(args: { space: XRReferenceSpace }) {
-    const source = {}
+    const source = new XRHitTestSource()
     return source as XRHitTestSource
   }
 }
@@ -207,7 +238,7 @@ class XRSessionProxy extends EventDispatcher {
 class XRFrameProxy {
   getHitTestResults(source: XRHitTestSource) {
     const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position, rotation))
+    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position as Vector3, rotation as Quaternion))
   }
 
   get session() {
@@ -242,14 +273,13 @@ class XRFrameProxy {
 }
 
 const skyboxQuery = defineQuery([SkyboxComponent])
+const vpsQuery = defineQuery([PersistentAnchorComponent])
 
 export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
   const xrState = getState(XRState)
 
   const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
-
-  const vpsComponent = defineQuery([VPSComponent])
 
   let cameraCanvas: HTMLCanvasElement | null = null
 
@@ -382,24 +412,30 @@ export default async function XR8System(world: World) {
       .then((supported) => xrState.supportedSessionModes['immersive-ar'].set(supported))
   }
 
-  if (using8thWall) overrideXRSessionFunctions()
+  /**
+   * Scenes that specify that they have VPS should override using webxr to use 8thwall.
+   * - this will not cover the problem of going through a portal to a scene that has VPS,
+   *     or exiting one that does to one that does not. This requires exiting the immersive
+   *     session, changing the overrides, and entering the session again
+   */
+  const vpsReactor = startReactor(function XR8VPSReactor() {
+    const hasPersistentAnchor = useQuery(vpsQuery).length
+
+    useEffect(() => {
+      /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
+      if (hasPersistentAnchor || using8thWall) {
+        overrideXRSessionFunctions()
+      } else {
+        revertXRSessionFunctions()
+      }
+    }, [hasPersistentAnchor])
+
+    return null
+  })
 
   let lastSeenBackground = world.scene.background
 
   const execute = () => {
-    /**
-     * Scenes that specify that they have VPS should override using webxr to use 8thwall.
-     * - this will not cover the problem of going through a portal to a scene that has VPS,
-     *     or exiting one that does to one that does not. This requires exiting the immersive
-     *     session, changing the overrides, and entering the session again
-     */
-    if (!using8thWall) {
-      /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
-      const usingVPS = vpsComponent().length
-      if (usingVPS) overrideXRSessionFunctions()
-      else revertXRSessionFunctions()
-    }
-
     if (!XR8) return
 
     /**
@@ -430,9 +466,12 @@ export default async function XR8System(world: World) {
     if (_8thwallScripts) {
       _8thwallScripts.xr8Script.remove()
       _8thwallScripts.xrExtrasScript.remove()
+      // _8thwallScripts.xrCoachingOverlayScript.remove()
     }
     if (cameraCanvas) cameraCanvas.remove()
     revertXRSessionFunctions()
+    vpsReactor.stop()
+    removeQuery(world, vpsQuery)
   }
 
   return {

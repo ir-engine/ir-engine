@@ -1,7 +1,7 @@
 // array containing audio file type
 export const AudioFileTypes = ['.mp3', '.mpeg', 'audio/mpeg', '.ogg']
 //array containing video file type
-export const VideoFileTypes = ['.mp4', 'video/mp4']
+export const VideoFileTypes = ['.mp4', 'video/mp4', '.m3u8', 'application/vnd.apple.mpegurl']
 //array containing image files types
 export const ImageFileTypes = [
   '.png',

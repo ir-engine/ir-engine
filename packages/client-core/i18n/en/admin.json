@@ -324,7 +324,11 @@
       "theme": "Theme",
       "editor": "Editor",
       "admin": "Admin",
-      "key8thWall": "8th Wall Key"
+      "key8thWall": "8th Wall Key",
+      "shortTitle": "PWA Short Title",
+      "startPath": "PWA Start Path",
+      "shortTitleTooltip": "The displayed title of a PWA-installed copy of this app if 'title' is too long; recommended max 12 characters",
+      "startPathTooltip": "The path that a PWA-installed copy of this app will direct to"
     },
     "avatar": {
       "source": "Source",
@@ -336,6 +340,8 @@
       "thumbnailUrl": "Thumbnail URL",
       "selectAvatar": "Select Avatar",
       "selectThumbnail": "Select Thumbnail",
+      "saveThumbnail": "Generate Thumbnail",
+      "saveThumbnailTooltip": "Generate thumbnail from avatar preview",
       "nameCantEmpty": "Name can't be empty",
       "avatarUrlCantEmpty": "Avatar url can't be empty",
       "thumbnailUrlCantEmpty": "Thumbnail url can't be empty",
@@ -353,7 +359,8 @@
       "loading": "Loading",
       "confirmAvatarDelete": "Do you want to delete avatar",
       "confirmMultiDelete": "Do you want to delete all of the selected avatars?",
-      "deleteSelected": "Delete selected avatars"
+      "deleteSelected": "Delete selected avatars",
+      "confirmThumbnailReplace": "Do you want to replace previously selected avatar thumbnail with current avatar preview?"
     },
     "dialog": {
       "noAccess": "No access",
@@ -369,6 +376,7 @@
       "avatarRequired": "Avatar is required",
       "scopeTypeRequired": "Scope type is required",
       "hideGuests": "Hide guests",
+      "id": "Id",
       "name": "Name",
       "avatar": "Avatar",
       "grantScope": "Grant Scope",
@@ -378,7 +386,17 @@
       "confirmUserDelete": "Do you want to delete user",
       "isGuest": "Is guest",
       "selectAllScopes": "Select All Scopes",
-      "clearAllScopes": "Clear All Scopes"
+      "clearAllScopes": "Clear All Scopes",
+      "userSearch": "user by id, name or account identifier",
+      "linkedAccounts": "Linked Accounts",
+      "discord": "Discord",
+      "facebook": "Facebook",
+      "google": "Google",
+      "github": "Github",
+      "linkedIn": "LinkedIn",
+      "twitter": "Twitter",
+      "sms": "SMS",
+      "email": "Email"
     },
     "server": {
       "loading": "Fetching Server Info",

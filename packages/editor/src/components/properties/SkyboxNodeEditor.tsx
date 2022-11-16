@@ -15,7 +15,6 @@ import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
 
 import CloudIcon from '@mui/icons-material/Cloud'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import FolderInput from '../inputs/FolderInput'
@@ -25,7 +24,7 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -67,20 +66,14 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
 
   const onChangeEquirectangularPathOption = (equirectangularPath) => {
     if (equirectangularPath !== skyboxComponent.equirectangularPath.value) {
-      setPropertyOnSelectionEntities({
-        component: SkyboxComponent,
-        properties: [{ equirectangularPath }]
-      })
+      updateProperties(SkyboxComponent, { equirectangularPath })
     }
   }
 
   const onChangeCubemapPathOption = (path) => {
     const directory = path[path.length - 1] === '/' ? path.substring(0, path.length - 1) : path
     if (directory !== skyboxComponent.cubemapPath.value) {
-      setPropertyOnSelectionEntities({
-        component: SkyboxComponent,
-        properties: [{ cubemapPath: directory }]
-      })
+      updateProperties(SkyboxComponent, { cubemapPath: directory })
     }
   }
 

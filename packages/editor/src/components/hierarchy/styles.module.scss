@@ -105,7 +105,10 @@
 }
 
 .dockableTabButtons {
+  display: flex;
   height: min-content;
+  align-items: center;
+  justify-content: end;
 }
 
 .nodeDropTraget {
@@ -147,4 +150,13 @@
   height: 1px;
   width: 95%;
   background-color: var(--inputBackground);
+}
+
+.checkbox {
+  padding: 0;
+  color: var(--textColor);
+}
+
+.checkboxChecked {
+  color: var(--iconButtonColor) !important;
 }

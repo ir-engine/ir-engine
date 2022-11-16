@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import SketchPicker from 'react-color/lib/Sketch'
 import styled from 'styled-components'
 import { Color } from 'three'
@@ -6,6 +6,15 @@ import { Color } from 'three'
 import Popover from '@mui/material/Popover'
 
 import Input from './Input'
+
+function toHex(str) {
+  const arr1 = [] as any[]
+  for (var n = 0, l = str.length; n < l; n++) {
+    var hex = Number(str.charCodeAt(n)).toString(16)
+    arr1.push(hex)
+  }
+  return arr1.join('')
+}
 
 /**
  * ColorInputContainer used to provide styles for ColorInputContainer div.
@@ -64,8 +73,9 @@ const ColorInputPopover = (styled as any).div`
 `
 
 interface ColorInputProp {
-  value: any
+  value: Color
   onChange: Function
+  onSelect?: Function
   disabled?: boolean
   isValueAsInteger?: boolean
 }
@@ -80,10 +90,11 @@ interface ColorInputProp {
  * @constructor
  */
 
-export function ColorInput({ value, onChange, disabled, isValueAsInteger = false, ...rest }: ColorInputProp) {
+export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: ColorInputProp) {
   const onChangePicker = useCallback(
     ({ hex }) => {
-      onChange(isValueAsInteger ? new Color(hex).getHex() : new Color(hex))
+      value.set(hex)
+      if (onSelect) onSelect(new Color(hex))
     },
     [onChange]
   )
@@ -95,13 +106,14 @@ export function ColorInput({ value, onChange, disabled, isValueAsInteger = false
   }
 
   const handlePopoverClose = () => {
+    onChange(value)
     setAnchorEl(null)
   }
 
   const open = Boolean(anchorEl)
 
   //initializing hexColor by getting hexString
-  const hexColor = '#' + (isValueAsInteger ? value.toString(16) : value.getHexString())
+  const hexColor = '#' + value.getHexString()
 
   //creating view for ColorInput
   return (

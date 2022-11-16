@@ -22,7 +22,7 @@ import {
   removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
