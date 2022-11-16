@@ -15,6 +15,7 @@ const euler = new Euler()
 type EulerInputProps = {
   quaternion: Quaternion
   onChange?: (euler: Euler) => any
+  onRelease?: () => void
   unit?: string
 }
 
@@ -41,7 +42,13 @@ export const EulerInput = (props: EulerInputProps) => {
         onChange={(x) => onChange(x, vy, vz)}
         unit={props.unit}
         prefix={
-          <Vector3Scrubber tag="div" value={vx} onChange={(x) => onChange(x, vy, vz)} axis="x">
+          <Vector3Scrubber
+            tag="div"
+            value={vx}
+            onChange={(x) => onChange(x, vy, vz)}
+            axis="x"
+            onPointerUp={props.onRelease}
+          >
             X
           </Vector3Scrubber>
         }
@@ -51,7 +58,13 @@ export const EulerInput = (props: EulerInputProps) => {
         onChange={(y) => onChange(vx, y, vz)}
         unit={props.unit}
         prefix={
-          <Vector3Scrubber tag="div" value={vy} onChange={(y) => onChange(vx, y, vz)} axis="y">
+          <Vector3Scrubber
+            tag="div"
+            value={vy}
+            onChange={(y) => onChange(vx, y, vz)}
+            axis="y"
+            onPointerUp={props.onRelease}
+          >
             Y
           </Vector3Scrubber>
         }
@@ -61,7 +74,13 @@ export const EulerInput = (props: EulerInputProps) => {
         onChange={(z) => onChange(vx, vy, z)}
         unit={props.unit}
         prefix={
-          <Vector3Scrubber tag="div" value={vz} onChange={(z) => onChange(vx, vy, z)} axis="z">
+          <Vector3Scrubber
+            tag="div"
+            value={vz}
+            onChange={(z) => onChange(vx, vy, z)}
+            axis="z"
+            onPointerUp={props.onRelease}
+          >
             Z
           </Vector3Scrubber>
         }

@@ -83,7 +83,6 @@ export const UserMenu = (props: Props): any => {
 
   const { bottomShelfStyle } = useShelfStyles()
   const Panel = UserMenuPanels.get(currentActiveMenu?.view)!
-  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
 
   return (
     <ActiveMenuContext.Provider value={[currentActiveMenu, setCurrentActiveMenu]}>

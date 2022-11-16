@@ -11,8 +11,8 @@ import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaCompo
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 
-import { executeCommandWithHistory, setPropertyOnEntityNode } from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
+import { updateProperties } from '../components/properties/Util'
+import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
  * Adds media node from passed url. Type of the media will be detected automatically
@@ -35,80 +35,26 @@ export async function addMediaNode(
 
   if (contentType.startsWith('asset/')) {
     prefabType = ScenePrefabs.asset
-    updateFunc = () =>
-      setPropertyOnEntityNode(
-        {
-          affectedNodes: [node],
-          component: AssetComponent,
-          properties: [{ path: url }]
-        },
-        false
-      )
+    updateFunc = () => updateProperties(AssetComponent, { path: url }, [node])
   } else if (contentType.startsWith('model/')) {
     prefabType = ScenePrefabs.model
-    updateFunc = () =>
-      setPropertyOnEntityNode(
-        {
-          affectedNodes: [node],
-          component: ModelComponent,
-          properties: [{ src: url }]
-        },
-        false
-      )
+    updateFunc = () => updateProperties(ModelComponent, { src: url }, [node])
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     prefabType = MediaPrefabs.video
-    updateFunc = () =>
-      setPropertyOnEntityNode(
-        {
-          affectedNodes: [node],
-          component: MediaComponent,
-          properties: [{ paths: [url] }]
-        },
-        false
-      )
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
   } else if (contentType.startsWith('image/')) {
     prefabType = ScenePrefabs.image
-    updateFunc = () =>
-      setPropertyOnEntityNode(
-        {
-          affectedNodes: [node],
-          component: ImageComponent,
-          properties: [{ source: url }]
-        },
-        false
-      )
+    updateFunc = () => updateProperties(ImageComponent, { source: url }, [node])
   } else if (contentType.startsWith('audio/')) {
     prefabType = MediaPrefabs.audio
-    updateFunc = () =>
-      setPropertyOnEntityNode(
-        {
-          affectedNodes: [node],
-          component: MediaComponent,
-          properties: [{ paths: [url] }]
-        },
-        false
-      )
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
   } else if (url.includes('.uvol')) {
     prefabType = MediaPrefabs.volumetric
-    updateFunc = () =>
-      setPropertyOnEntityNode(
-        {
-          affectedNodes: [node],
-          component: MediaComponent,
-          properties: [{ paths: [url] }]
-        },
-        false
-      )
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
   }
 
   if (prefabType) {
-    executeCommandWithHistory({
-      type: EditorCommands.ADD_OBJECTS,
-      affectedNodes: [node],
-      prefabTypes: [prefabType],
-      parents: parent ? [parent] : undefined,
-      befores: before ? [before] : undefined
-    })
+    EditorControlFunctions.addObject([node], parent ? [parent] : [], before ? [before] : [], [prefabType], [], true)
 
     updateFunc()
   }

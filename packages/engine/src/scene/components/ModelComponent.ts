@@ -93,6 +93,7 @@ function ModelReactor({ root }: EntityReactorProps) {
             }
           }
         }
+        if (!model.src) return
         const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)
         let scene: Scene

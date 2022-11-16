@@ -7,10 +7,9 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
-import { executeModifyPropertyCommand } from '../../classes/History'
 import { PropertiesPanelButton } from '../inputs/Button'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, updateProperties } from './Util'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
@@ -22,11 +21,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
 
   const onSetFromViewport = () => {
     const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
-    executeModifyPropertyCommand({
-      affectedNodes: [props.node],
-      component: TransformComponent,
-      properties: [{ position: position.clone(), rotation: rotation.clone() }]
-    })
+    updateProperties(TransformComponent, { position: position.clone(), rotation: rotation.clone() }, [props.node])
   }
 
   return (

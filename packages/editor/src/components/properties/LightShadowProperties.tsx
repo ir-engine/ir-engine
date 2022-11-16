@@ -7,13 +7,12 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
-import { updateProperty } from './Util'
+import { updateProperties, updateProperty } from './Util'
 
 /**
  *  Array containing options for shadow resolution
@@ -57,10 +56,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
 
   const changeShadowMapResolution = (resolution) => {
-    setPropertyOnSelectionEntities({
-      component: props.comp,
-      properties: [{ shadowMapResolution: new Vector2(resolution, resolution) }]
-    })
+    updateProperties(props.comp, { shadowMapResolution: new Vector2(resolution, resolution) })
   }
 
   const lightComponent = getComponent(props.node.entity, props.comp)
