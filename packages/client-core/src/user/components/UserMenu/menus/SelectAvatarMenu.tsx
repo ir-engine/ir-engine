@@ -187,52 +187,47 @@ const SelectAvatarMenu = (props: Props) => {
         <h2>{t('user:avatar.titleSelectAvatar')}</h2>
       </div>
 
-      <Grid sx={{ height: '100%' }} spacing={2} container>
-        <Grid item md={3}>
-          <Box sx={{ marginTop: '38px' }}>
-            <Button
-              className={styles.gradientBtn}
-              startIcon={<Check />}
-              title={t('user:avatar.confirm')}
-              disabled={!selectedAvatar}
-              onClick={confirmAvatar}
-              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            >
-              {t('user:avatar.confirm')}
-            </Button>
-
-            <Button
-              className={styles.gradientBtn}
-              startIcon={<Close />}
-              title={t('user:avatar.cancel')}
-              disabled={!selectedAvatar}
-              onClick={() => {
-                setSelectedAvatar(null)
-              }}
-              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            >
-              {t('user:avatar.cancel')}
-            </Button>
-
-            <Button
-              className={styles.gradientBtn}
-              startIcon={<PersonAdd />}
-              title={t('user:avatar.upload')}
-              onClick={openAvatarSelectMenu}
-              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            >
-              {t('user:avatar.upload')}
-            </Button>
-          </Box>
-        </Grid>
-        <Grid item md={6}>
-          <Box
-            className={styles.preview}
-            style={{ width: '100%', aspectRatio: 1, position: 'relative', marginTop: '38px' }}
+      <Grid sx={{ height: '100%' }} spacing={2} container className={styles.contentContainer}>
+        <Grid item md={3} className={styles.buttonsContainer}>
+          <Button
+            className={styles.gradientBtn}
+            startIcon={<PersonAdd />}
+            title={t('user:avatar.upload')}
+            onClick={openAvatarSelectMenu}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
+            {t('user:avatar.upload')}
+          </Button>
+
+          <Button
+            className={`${styles.gradientBtn} ${styles.cancelBtn}`}
+            startIcon={<Close />}
+            title={t('user:avatar.cancel')}
+            disabled={!selectedAvatar}
+            onClick={() => {
+              setSelectedAvatar(null)
+            }}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
+            {t('user:avatar.cancel')}
+          </Button>
+
+          <Button
+            className={styles.gradientBtn}
+            startIcon={<Check />}
+            title={t('user:avatar.confirm')}
+            disabled={!selectedAvatar}
+            onClick={confirmAvatar}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
+            {t('user:avatar.confirm')}
+          </Button>
+        </Grid>
+        <Grid item md={6} className={styles.previewContainer}>
+          <Box className={styles.preview}>
             <div ref={panelRef} id="stage" style={{ width: '100%', aspectRatio: 1 }} />
 
             {avatarLoading && (
@@ -296,11 +291,11 @@ const SelectAvatarMenu = (props: Props) => {
             </Tooltip>
           </Box>
         </Grid>
-        <Grid item md={3} sx={{ display: 'flex', flexDirection: 'column', height: '90%', alignItems: 'center' }}>
+        <Grid item md={3} className={styles.avatarContainer}>
           <button type="button" className={`${styles.btn} ${styles.btnArrow} ${page === 0 ? styles.disabled : ''}`}>
             <KeyboardArrowUp className={styles.size} onClick={loadPreviousAvatars} />
           </button>
-          <Grid container spacing={1} className={styles.avatarContainer}>
+          <Grid container spacing={1} className={styles.avatarList}>
             {renderAvatarList()}
           </Grid>
           <button

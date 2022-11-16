@@ -2087,16 +2087,34 @@
   overflow: hidden;
 
   .avatarContainer {
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+    align-items: center;
+  }
+
+  .avatarList {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     margin: 5px 0;
   }
 
+  .buttonsContainer {
+    margin-top: 38px;
+  }
+
+  .preview {
+    width: 100%;
+    aspect-ratio: 1;
+    position: relative;
+    margin-top: 38px;
+  }
+
   .gradientBtn {
     height: 35px;
     font-size: 14px;
-    max-width: 100%;
+    width: 100% !important;
     background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
     color: var(--textColor);
     margin: 0 0 20px;
@@ -2111,8 +2129,40 @@
     }
   }
 
+  @media (max-width: 899px) {
+    .avatarSelectPanel {
+      height: 60%;
+    }
+
+    .previewContainer,
+    .cancelBtn {
+      display: none;
+    }
+
+    .contentContainer {
+      flex-wrap: wrap-reverse;
+    }
+
+    .avatarContainer {
+      height: 80%;
+    }
+
+    .buttonsContainer {
+      margin-top: 0;
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+  }
+
   @media screen and (min-width: 768px) {
     width: 700px;
+  }
+
+  @media screen and (max-width: 500px) {
+    .titleBlock {
+      margin-top: 0;
+    }
   }
 }
 
