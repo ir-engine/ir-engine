@@ -7,6 +7,7 @@ import {
   addComponent,
   defineQuery,
   getComponent,
+  hasComponent,
   removeComponent,
   removeQuery,
   setComponent
@@ -26,7 +27,7 @@ export default async function FlyControlSystem(world: World) {
   const execute = () => {
     const camera = Engine.instance.currentWorld.camera
 
-    if (getInput(EditorActionSet.disableFlyMode)) {
+    if (getInput(EditorActionSet.disableFlyMode) && hasComponent(SceneState.editorEntity, FlyControlComponent)) {
       const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
 
       const distance = camera.position.distanceTo(cameraComponent.center)
@@ -40,7 +41,7 @@ export default async function FlyControlSystem(world: World) {
       dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
     }
 
-    if (getInput(EditorActionSet.flying)) {
+    if (getInput(EditorActionSet.flying) && !hasComponent(SceneState.editorEntity, FlyControlComponent)) {
       setComponent(SceneState.editorEntity, FlyControlComponent, {
         boostSpeed: 4,
         moveSpeed: 4,

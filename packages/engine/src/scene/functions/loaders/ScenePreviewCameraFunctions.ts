@@ -8,7 +8,6 @@ import { ScenePreviewCameraComponent } from '../../components/ScenePreviewCamera
 
 export const enterScenePreviewCamera = (entity: Entity) => {
   addObjectToGroup(entity, getComponent(entity, ScenePreviewCameraComponent).camera)
-  if (Engine.instance.isEditor) return
   const transform = getComponent(entity, TransformComponent)
   const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, LocalTransformComponent)
   cameraTransform.position.copy(transform.position)
