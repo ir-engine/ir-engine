@@ -143,46 +143,6 @@ export type ActionState = {
   [key in ActionKey]: any
 }
 
-export const FlyMapping: InputActionMapping = {
-  keyboard: {
-    pressed: {
-      w: { key: FlyActionSet.moveForward, preventReset: true, defaultValue: 0 },
-      a: { key: FlyActionSet.moveLeft, preventReset: true, defaultValue: 0 },
-      s: { key: FlyActionSet.moveBackward, preventReset: true, defaultValue: 0 },
-      d: { key: FlyActionSet.moveRight, preventReset: true, defaultValue: 0 },
-      r: { key: FlyActionSet.moveDown, preventReset: true, defaultValue: 0 },
-      t: { key: FlyActionSet.moveUp, preventReset: true, defaultValue: 0 },
-      shift: { key: FlyActionSet.boost, preventReset: true, defaultValue: 0 }
-    }
-  },
-  mouse: {
-    move: {
-      normalizedMovementX: { key: FlyActionSet.lookX, defaultValue: 0 },
-      normalizedMovementY: { key: FlyActionSet.lookY, defaultValue: 0 }
-    }
-  },
-  computed: [
-    {
-      transform: () => getInput(FlyActionSet.moveRight) - getInput(FlyActionSet.moveLeft),
-      action: FlyActionSet.moveX,
-      preventReset: true,
-      defaultValue: 0
-    },
-    {
-      transform: () => getInput(FlyActionSet.moveUp) - getInput(FlyActionSet.moveDown),
-      action: FlyActionSet.moveY,
-      preventReset: true,
-      defaultValue: 0
-    },
-    {
-      transform: () => getInput(FlyActionSet.moveBackward) - getInput(FlyActionSet.moveForward),
-      action: FlyActionSet.moveZ,
-      preventReset: true,
-      defaultValue: 0
-    }
-  ]
-}
-
 export const EditorMapping: InputActionMapping = {
   mouse: {
     dblclick: {

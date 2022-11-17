@@ -43,14 +43,15 @@ export const updateProperties = <C extends Component>(
   const editorState = getState(EditorState)
   const selectionState = getState(SelectionState)
 
-  const affectedNodes =
-    nodes ?? editorState.lockPropertiesPanel.value
-      ? [
-          Engine.instance.currentWorld.entityTree.entityNodeMap.get(
-            UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value
-          )!
-        ]
-      : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityTreeNode[])
+  const affectedNodes = nodes
+    ? nodes
+    : editorState.lockPropertiesPanel.value
+    ? [
+        Engine.instance.currentWorld.entityTree.entityNodeMap.get(
+          UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value
+        )!
+      ]
+    : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityTreeNode[])
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 

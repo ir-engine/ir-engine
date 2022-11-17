@@ -1,3 +1,4 @@
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { MathUtils as _Math, Euler, Quaternion } from 'three'
 
@@ -5,7 +6,7 @@ import NumericInput from './NumericInput'
 import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
 
 const { RAD2DEG, DEG2RAD } = _Math
-const euler = new Euler()
+const _euler = new Euler()
 
 /**
  * Type aliase created EulerInputProps.
@@ -25,14 +26,21 @@ type EulerInputProps = {
  * @type {Object}
  */
 export const EulerInput = (props: EulerInputProps) => {
-  const onChange = (x: number, y: number, z: number) =>
-    props.onChange?.(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
-  euler.setFromQuaternion(props.quaternion)
+  const newValue = useHookstate(new Euler())
+  _euler.setFromQuaternion(props.quaternion)
+
+  const onChange = (x: number, y: number, z: number) => {
+    const e = new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD)
+    newValue.set(e)
+    if (typeof props.onChange === 'function') {
+      props.onChange(newValue.value)
+    }
+  }
 
   // creating view for component
-  const vx = euler ? Math.round((euler.x || 0) * RAD2DEG) : 0
-  const vy = euler ? Math.round((euler.y || 0) * RAD2DEG) : 0
-  const vz = euler ? Math.round((euler.z || 0) * RAD2DEG) : 0
+  const vx = props.quaternion ? Math.round((_euler.x || 0) * RAD2DEG) : 0
+  const vy = props.quaternion ? Math.round((_euler.y || 0) * RAD2DEG) : 0
+  const vz = props.quaternion ? Math.round((_euler.z || 0) * RAD2DEG) : 0
 
   return (
     <Vector3InputContainer>
@@ -40,6 +48,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={vx}
         onChange={(x) => onChange(x, vy, vz)}
+        onCommit={() => props.onRelease && props.onRelease()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -56,6 +65,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={vy}
         onChange={(y) => onChange(vx, y, vz)}
+        onCommit={() => props.onRelease && props.onRelease()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -72,6 +82,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={vz}
         onChange={(z) => onChange(vx, vy, z)}
+        onCommit={() => props.onRelease && props.onRelease()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber

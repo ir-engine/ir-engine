@@ -16,7 +16,7 @@ export const ScenePreviewCameraComponent = defineComponent({
   },
 
   toJSON: () => {
-    return null! as any
+    return {} as any
   }
 })
 

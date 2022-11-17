@@ -128,7 +128,7 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
-  const handleExitSpectatorClick = () => dispatchAction(EngineActions.spectateUser({}))
+  const handleExitSpectatorClick = () => dispatchAction(EngineActions.exitSpectate({}))
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff

@@ -39,6 +39,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   useOptionalComponent(props.node.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.node.entity, TransformComponent)
   const localTransformComponent = useOptionalComponent(props.node.entity, LocalTransformComponent)
+  console.log(transformComponent, localTransformComponent)
 
   const onRelease = () => {
     dispatchAction(EditorAction.sceneModified({ modified: true }))
