@@ -72,8 +72,6 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
     rigidBody.previousRotation.copy(rotation)
     rigidBody.position.copy(position)
     rigidBody.rotation.copy(rotation)
-    rigidBody.previousLinearVelocity.copy(V_000)
-    rigidBody.previousAngularVelocity.copy(V_000)
     rigidBody.linearVelocity.copy(V_000)
     rigidBody.angularVelocity.copy(V_000)
   }
