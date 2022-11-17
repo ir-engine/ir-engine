@@ -29,7 +29,7 @@ import Typography from '@mui/material/Typography'
 
 import LoadingView from '../../../../admin/common/LoadingView'
 import { useAuthState } from '../../../services/AuthService'
-import { AvatarService, AvatarState } from '../../../services/AvatarService'
+import { AVATAR_PAGE_LIMIT, AvatarService, AvatarState } from '../../../services/AvatarService'
 import { resetAnimationLogic } from '../../Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
@@ -42,17 +42,12 @@ interface Props {
 const SelectAvatarMenu = (props: Props) => {
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
-
-  const MAX_AVATARS_PER_PAGE = window.innerWidth <= 1024 ? 9 : 12
-  const MIN_AVATARS_PER_PAGE = 6
-  const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
   const avatarState = useHookstate(getState(AvatarState))
   const avatarList = avatarState.avatarList.value
 
   const [page, setPage] = useState(0)
-  const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.limit.value))
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarInterface | null>()
   const [avatarLoading, setAvatarLoading] = useState(false)
 
@@ -66,13 +61,6 @@ const SelectAvatarMenu = (props: Props) => {
   useEffect(() => {
     AvatarService.fetchAvatarList()
   }, [])
-
-  useEffect(() => {
-    if (page * imgPerPage >= avatarState.total.value) {
-      if (page === 0) return
-      setPage(page - 1)
-    }
-  }, [avatarState.total])
 
   const loadAvatarPreview = async () => {
     const oldAvatar = scene.value.children.find((item) => item.name === 'avatar')
@@ -105,15 +93,16 @@ const SelectAvatarMenu = (props: Props) => {
 
   const loadNextAvatars = (e) => {
     e.preventDefault()
-    if ((page + 1) * imgPerPage >= avatarState.total.value) return
-    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
-      AvatarService.fetchAvatarList(false, 'increment')
+
     setPage(page + 1)
+    AvatarService.fetchAvatarList('increment')
   }
+
   const loadPreviousAvatars = (e) => {
     e.preventDefault()
-    if (page === 0) return
+
     setPage(page - 1)
+    AvatarService.fetchAvatarList('decrement')
   }
 
   const confirmAvatar = () => {
@@ -140,46 +129,6 @@ const SelectAvatarMenu = (props: Props) => {
   const openProfileMenu = (e) => {
     e.preventDefault()
     props.changeActiveMenu(Views.Profile)
-  }
-
-  const renderAvatarList = () => {
-    const avatarElementList = [] as JSX.Element[]
-    const startIndex = page * imgPerPage
-    const endIndex = Math.min(startIndex + imgPerPage, avatarList.length)
-    let index = 0
-    for (let i = startIndex; i < endIndex; i++, index++) {
-      const avatar = avatarList[i]!
-
-      avatarElementList.push(
-        <Grid key={avatar.id} md={12} item>
-          <Paper
-            title={avatar.name}
-            onClick={() => selectAvatar(avatar)}
-            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            style={{ pointerEvents: avatar.name == avatarId ? 'none' : 'auto' }}
-            className={`${styles.paperAvatar} ${avatar.name == selectedAvatar?.name ? styles.selectedAvatar : ''}
-              ${avatar.name == avatarId ? styles.activeAvatar : ''}`}
-            sx={{
-              boxShadow: 'none',
-              backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1')
-            }}
-          >
-            <img
-              className={styles.avatar}
-              src={avatar.thumbnailResource?.url || ''}
-              alt={avatar.name}
-              crossOrigin="anonymous"
-            />
-            <Typography variant="body2" className={styles.avatarName}>
-              {avatar.name}
-            </Typography>
-          </Paper>
-        </Grid>
-      )
-    }
-
-    return avatarElementList
   }
 
   return (
@@ -296,16 +245,42 @@ const SelectAvatarMenu = (props: Props) => {
           </Box>
         </Grid>
         <Grid item md={3} className={styles.avatarContainer}>
-          <button type="button" className={`${styles.btn} ${styles.btnArrow} ${page === 0 ? styles.disabled : ''}`}>
+          <button type="button" className={`${styles.btn} ${styles.btnArrow} ${styles.disabled}`}>
             <KeyboardArrowUp className={styles.size} onClick={loadPreviousAvatars} />
           </button>
           <Grid container spacing={1} className={styles.avatarList}>
-            {renderAvatarList()}
+            {avatarList.map((avatar) => (
+              <Grid key={avatar.id} md={12} item>
+                <Paper
+                  title={avatar.name}
+                  onClick={() => selectAvatar(avatar)}
+                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  style={{ pointerEvents: avatar.name == avatarId ? 'none' : 'auto' }}
+                  className={`${styles.paperAvatar} ${avatar.name == selectedAvatar?.name ? styles.selectedAvatar : ''}
+              ${avatar.name == avatarId ? styles.activeAvatar : ''}`}
+                  sx={{
+                    boxShadow: 'none',
+                    backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1')
+                  }}
+                >
+                  <img
+                    className={styles.avatar}
+                    src={avatar.thumbnailResource?.url || ''}
+                    alt={avatar.name}
+                    crossOrigin="anonymous"
+                  />
+                  <Typography variant="body2" className={styles.avatarName}>
+                    {avatar.name}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
           </Grid>
           <button
             type="button"
             className={`${styles.btn} ${styles.btnArrow} ${
-              (page + 1) * imgPerPage >= avatarState.total.value ? styles.disabled : ''
+              (page + 1) * AVATAR_PAGE_LIMIT >= avatarState.total.value ? styles.disabled : ''
             }`}
             onClick={loadNextAvatars}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}

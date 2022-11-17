@@ -101,8 +101,7 @@ const AvatarMenu = (props: Props) => {
   const loadNextAvatars = (e) => {
     e.preventDefault()
     if ((page + 1) * imgPerPage >= avatarState.total.value) return
-    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
-      AvatarService.fetchAvatarList(false, 'increment')
+    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length) AvatarService.fetchAvatarList('increment')
     setPage(page + 1)
   }
   const loadPreviousAvatars = (e) => {
