@@ -2167,12 +2167,24 @@
 }
 
 .paperAvatar {
-  border: none;
+  border: 3px solid var(--iconButtonSelectedBackground);
   position: relative;
+  display: flex;
   cursor: pointer;
   transition: all 0.2s;
-  height: 100%;
   aspect-ratio: 1;
+
+  .avatarName {
+    bottom: -3px;
+    padding-top: 3px;
+    width: 100%;
+    opacity: 0.75;
+    position: absolute;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--textColor);
+    background: var(--iconButtonSelectedBackground);
+  }
 
   &:hover {
     background: rgb(81 81 255 / 45%);

@@ -153,6 +153,7 @@ const SelectAvatarMenu = (props: Props) => {
       avatarElementList.push(
         <Grid key={avatar.id} md={12} item>
           <Paper
+            title={avatar.name}
             onClick={() => selectAvatar(avatar)}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -170,6 +171,9 @@ const SelectAvatarMenu = (props: Props) => {
               alt={avatar.name}
               crossOrigin="anonymous"
             />
+            <Typography variant="body2" className={styles.avatarName}>
+              {avatar.name}
+            </Typography>
           </Paper>
         </Grid>
       )
