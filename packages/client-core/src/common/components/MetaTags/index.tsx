@@ -1,5 +1,6 @@
-import React, { Component, createContext, ReactNode } from 'react'
-import ReactDOM from 'react-dom'
+import React, { Component, createContext, ReactNode, useEffect, useState } from 'react'
+// import ReactDOM from 'react-dom'
+import { createRoot, Root } from 'react-dom/client'
 
 import {
   appendChild,
@@ -21,6 +22,69 @@ type MetaContextType = {
 
 const MetaContext = createContext<MetaContextType>({})
 
+type AppWithCallbackProps = {
+  children: ReactNode
+  element: HTMLDivElement
+  lastChildStr: string
+  onLastChildStr: (lastChildStr: string) => void
+}
+
+const AppWithCallback = ({ children, element, lastChildStr, onLastChildStr }: AppWithCallbackProps) => {
+  useEffect(() => {
+    const childStr = element.innerHTML
+
+    //if html is not changed return
+    if (lastChildStr === childStr) {
+      return
+    }
+
+    onLastChildStr(childStr)
+
+    const tempHead = element.querySelector('.react-head-temp')
+
+    // .react-head-temp might not exist when triggered from async action
+    if (tempHead === null) {
+      return
+    }
+
+    let childNodes = Array.prototype.slice.call(tempHead.children)
+
+    const head = document.head
+    const headHtml = head.innerHTML
+
+    //filter children remove if children has not been changed
+    childNodes = childNodes.filter((child) => {
+      return headHtml.indexOf(child.outerHTML) === -1
+    })
+
+    //create clone of childNodes
+    childNodes = childNodes.map((child) => child.cloneNode(true))
+
+    //remove duplicate title and meta from head
+    childNodes.forEach((child) => {
+      const tag = child.tagName.toLowerCase()
+      if (tag === 'title') {
+        const title = getDuplicateTitle()
+        if (title) removeChild(head, title)
+      } else if (child.id) {
+        // if the element has id defined remove the existing element with that id
+        const elm = getDuplicateElementById(child)
+        if (elm) removeChild(head, elm)
+      } else if (tag === 'meta') {
+        const meta = getDuplicateMeta(child)
+        if (meta) removeChild(head, meta)
+      } else if (tag === 'link' && child.rel === 'canonical') {
+        const link = getDuplicateCanonical()
+        if (link) removeChild(head, link)
+      }
+    })
+
+    appendChild(document.head, childNodes)
+  }, [])
+
+  return <>{children}</>
+}
+
 type Props = {
   children?: ReactNode | undefined
 }
@@ -29,10 +93,12 @@ type Props = {
 class MetaTags extends Component<Props> {
   static contextType = MetaContext
   temporaryElement: HTMLDivElement
+  temporaryRoot: Root
   lastChildStr: string
 
   componentDidMount() {
     this.temporaryElement = document.createElement('div')
+    this.temporaryRoot = createRoot(this.temporaryElement)
     this.handleChildrens()
   }
   componentDidUpdate(oldProps) {
@@ -41,8 +107,8 @@ class MetaTags extends Component<Props> {
     }
   }
   componentWillUnmount() {
-    if (this.temporaryElement) {
-      ReactDOM.unmountComponentAtNode(this.temporaryElement)
+    if (this.temporaryRoot) {
+      this.temporaryRoot.unmount()
     }
   }
   extractChildren() {
@@ -65,57 +131,15 @@ class MetaTags extends Component<Props> {
 
     const headComponent = <div className="react-head-temp">{children}</div>
 
-    ReactDOM.render(headComponent, this.temporaryElement, () => {
-      const childStr = this.temporaryElement.innerHTML
-
-      //if html is not changed return
-      if (this.lastChildStr === childStr) {
-        return
-      }
-
-      this.lastChildStr = childStr
-
-      const tempHead = this.temporaryElement.querySelector('.react-head-temp')
-
-      // .react-head-temp might not exist when triggered from async action
-      if (tempHead === null) {
-        return
-      }
-
-      let childNodes = Array.prototype.slice.call(tempHead.children)
-
-      const head = document.head
-      const headHtml = head.innerHTML
-
-      //filter children remove if children has not been changed
-      childNodes = childNodes.filter((child) => {
-        return headHtml.indexOf(child.outerHTML) === -1
-      })
-
-      //create clone of childNodes
-      childNodes = childNodes.map((child) => child.cloneNode(true))
-
-      //remove duplicate title and meta from head
-      childNodes.forEach((child) => {
-        const tag = child.tagName.toLowerCase()
-        if (tag === 'title') {
-          const title = getDuplicateTitle()
-          if (title) removeChild(head, title)
-        } else if (child.id) {
-          // if the element has id defined remove the existing element with that id
-          const elm = getDuplicateElementById(child)
-          if (elm) removeChild(head, elm)
-        } else if (tag === 'meta') {
-          const meta = getDuplicateMeta(child)
-          if (meta) removeChild(head, meta)
-        } else if (tag === 'link' && child.rel === 'canonical') {
-          const link = getDuplicateCanonical()
-          if (link) removeChild(head, link)
-        }
-      })
-
-      appendChild(document.head, childNodes)
-    })
+    this.temporaryRoot.render(
+      <AppWithCallback
+        element={this.temporaryElement}
+        lastChildStr={this.lastChildStr}
+        onLastChildStr={(lastChildStr) => (this.lastChildStr = lastChildStr)}
+      >
+        {headComponent}
+      </AppWithCallback>
+    )
   }
   render() {
     this.extractChildren()
