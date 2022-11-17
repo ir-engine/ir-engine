@@ -245,7 +245,11 @@ const SelectAvatarMenu = (props: Props) => {
           </Box>
         </Grid>
         <Grid item md={3} className={styles.avatarContainer}>
-          <button type="button" className={`${styles.btn} ${styles.btnArrow} ${styles.disabled}`}>
+          <button
+            type="button"
+            style={{ visibility: 'hidden' }}
+            className={`${styles.btn} ${styles.btnArrow} ${styles.disabled}`}
+          >
             <KeyboardArrowUp className={styles.size} onClick={loadPreviousAvatars} />
           </button>
           <Grid container spacing={1} className={styles.avatarList}>
@@ -279,6 +283,7 @@ const SelectAvatarMenu = (props: Props) => {
           </Grid>
           <button
             type="button"
+            style={{ visibility: 'hidden' }}
             className={`${styles.btn} ${styles.btnArrow} ${
               (page + 1) * AVATAR_PAGE_LIMIT >= avatarState.total.value ? styles.disabled : ''
             }`}
