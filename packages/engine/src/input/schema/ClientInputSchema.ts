@@ -383,8 +383,6 @@ export const handleMouseMovement = (event: MouseEvent): void => {
     window.innerHeight
   )
   const mousePosition: [number, number] = [normalizedPosition.x, normalizedPosition.y]
-  const lastMousePosition =
-    Engine.instance.currentWorld.inputState.get(MouseInput.MousePosition)?.value! ?? mousePosition
 
   Engine.instance.currentWorld.inputState.set(MouseInput.MousePosition, {
     type: InputType.TWODIM,
@@ -394,7 +392,7 @@ export const handleMouseMovement = (event: MouseEvent): void => {
       : LifecycleValue.Started
   })
 
-  const mouseMovement = [mousePosition[0] - lastMousePosition[0], mousePosition[1] - lastMousePosition[1]]
+  const mouseMovement = [event.movementX / window.innerWidth, -event.movementY / window.innerHeight]
 
   Engine.instance.currentWorld.inputState.set(MouseInput.MouseMovement, {
     type: InputType.TWODIM,

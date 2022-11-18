@@ -2,4 +2,4 @@ import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/Compon
 
 export type EditorControlComponentType = {}
 
-export const EditorControlComponent = createMappedComponent<EditorControlComponentType>('FlyControlComponent')
+export const EditorControlComponent = createMappedComponent<EditorControlComponentType>('EditorControlComponent')
