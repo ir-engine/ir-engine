@@ -55,8 +55,13 @@ export default async function BehaveGraphSystem(world: World) {
 
   const executeQueue = createActionQueue(BehaveGraphActions.execute.matches)
   const stopQueue = createActionQueue(BehaveGraphActions.stop.matches)
-
   function execute() {
+    for (const entity of runtimeQuery.enter()) {
+      const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
+      runtimeComponent.ticker.startEvent.emit()
+      runtimeComponent.engine.executeAllSync()
+    }
+
     for (const entity of runtimeQuery()) {
       const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
       runtimeComponent.ticker.tickEvent.emit()

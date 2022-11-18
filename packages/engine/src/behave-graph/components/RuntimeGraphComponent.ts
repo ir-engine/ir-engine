@@ -26,7 +26,6 @@ export const RuntimeGraphComponent = defineComponent({
     systemState.domains[graphComponent.domain]?.value.register(registry, logger, ticker)
     const graph = readGraphFromJSON(graphComponent.graph, registry)
     const engine = new Engine(graph)
-
     return { engine, ticker }
   },
 
