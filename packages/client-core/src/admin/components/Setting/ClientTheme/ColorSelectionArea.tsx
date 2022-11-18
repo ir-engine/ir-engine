@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { ThemeOptions } from '@xrengine/common/src/interfaces/ClientSetting'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
-import { Divider, Grid } from '@mui/material'
+import { Button, Divider, Grid, InputBase } from '@mui/material'
 
 import InputRadio from '../../../common/InputRadio'
 import { InputMenuItem } from '../../../common/InputSelect'
@@ -17,10 +18,22 @@ interface ColorSelectionAreaProps {
   theme: ThemeOptions
   onChangeMode: Function
   onChangeColor: Function
+  onChangeThemes: Function
 }
 
-const ColorSelectionArea = ({ mode, colorModes, theme, onChangeMode, onChangeColor }: ColorSelectionAreaProps) => {
+const ColorSelectionArea = ({
+  mode,
+  colorModes,
+  theme,
+  onChangeMode,
+  onChangeColor,
+  onChangeThemes
+}: ColorSelectionAreaProps) => {
   const { t } = useTranslation()
+
+  const [creatingNewTheme, setCreatingNewTheme] = useState(false)
+  const [newThemeName, setNewThemeName] = useState('')
+  const inputRef = useRef()
 
   const colorModesMenu: InputMenuItem[] = colorModes.map((el) => {
     return {
@@ -29,17 +42,77 @@ const ColorSelectionArea = ({ mode, colorModes, theme, onChangeMode, onChangeCol
     }
   })
 
+  const createNewTheme = () => {
+    setCreatingNewTheme(true)
+  }
+
+  const confirmNewTheme = () => {
+    onChangeThemes({ add: newThemeName })
+    setCreatingNewTheme(false)
+    setNewThemeName('')
+  }
+
+  const onChangeNewTheme = (ev) => {
+    setNewThemeName(ev.target.value)
+  }
+
+  const deleteNewTheme = (val) => {
+    onChangeThemes({ remove: val })
+  }
+
+  const ThemeDelete = ({ el }) => {
+    return Object.keys(defaultThemeSettings).includes(el.value) ? (
+      <></>
+    ) : (
+      <Button variant="contained" className="gradientButton" onClick={() => deleteNewTheme(el.value)}>
+        {'X'}
+      </Button>
+    )
+  }
+
   return (
     <Grid container>
-      <Grid item sm={12} md={12} marginTop="25px">
-        <InputRadio
-          name="mode"
-          label={t('admin:components.setting.theme')}
-          value={mode}
-          options={colorModesMenu}
-          onChange={(e) => onChangeMode(e)}
-        />
-      </Grid>
+      <div
+        style={{
+          flexDirection: 'row',
+          display: 'flex'
+        }}
+      >
+        <Grid item sm={12} md={12} marginTop="25px">
+          <InputRadio
+            name="mode"
+            label={t('admin:components.setting.theme')}
+            value={mode}
+            options={colorModesMenu}
+            onChange={(e) => onChangeMode(e)}
+            Component={ThemeDelete}
+          />
+        </Grid>
+        <div
+          style={{
+            height: 'fit-content',
+            margin: 'auto',
+            flexDirection: 'row',
+            display: 'flex'
+          }}
+        >
+          {creatingNewTheme && (
+            <InputBase
+              ref={inputRef}
+              onChange={onChangeNewTheme}
+              className="input"
+              placeholder={t('admin:components.setting.placeholderText')}
+            />
+          )}
+          <Button
+            variant="contained"
+            className="gradientButton"
+            onClick={creatingNewTheme ? confirmNewTheme : createNewTheme}
+          >
+            {creatingNewTheme ? 'Add' : 'New +'}
+          </Button>
+        </div>
+      </div>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
       <Grid item sm={12} md={12} className={styles.colorGridContainer}>
         <label>Main Background:</label>
