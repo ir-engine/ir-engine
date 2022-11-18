@@ -66,13 +66,15 @@ export const HomePage = (): any => {
                 <span>{clientSetting.appDescription}</span>
               </Trans>
             )}
-            <Button
-              className={styles.gradientButton + ' ' + styles.forceVaporwave}
-              autoFocus
-              onClick={() => (window.location.href = 'https://etherealengine.com/explore')}
-            >
-              {t('common:exploreRedirect')}
-            </Button>
+            {clientSetting.homepageLinkButtonEnabled && (
+              <Button
+                className={styles.gradientButton + ' ' + styles.forceVaporwave}
+                autoFocus
+                onClick={() => (window.location.href = clientSetting.homepageLinkButtonRedirect)}
+              >
+                {clientSetting.homepageLinkButtonText}
+              </Button>
+            )}
           </div>
           <div className="form-container">
             <style>

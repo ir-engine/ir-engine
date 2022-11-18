@@ -19,6 +19,9 @@ export interface ClientSetting {
   themeSettings: ThemeSetting
   themeModes: ThemeMode
   key8thWall: string
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
 }
 
 interface SocialLink {
@@ -94,4 +97,7 @@ export interface PatchClientSetting {
   themeSettings: string
   themeModes: string
   key8thWall: string
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
 }
