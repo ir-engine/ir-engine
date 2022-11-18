@@ -4,6 +4,7 @@ import AnimationSystem from './avatar/AnimationSystem'
 import AvatarControllerSystem from './avatar/AvatarControllerSystem'
 import AvatarLoadingSystem from './avatar/AvatarLoadingSystem'
 import AvatarTeleportSystem from './avatar/AvatarTeleportSystem'
+import FlyControlSystem from './avatar/FlyControlSystem'
 import DebugHelpersSystem from './debug/systems/DebugHelpersSystem'
 import DebugRenderer from './debug/systems/DebugRenderer'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
@@ -26,6 +27,11 @@ export default function () {
       uuid: 'xre.engine.HyperspacePortalSystem',
       type: SystemUpdateType.UPDATE,
       systemLoader: () => Promise.resolve({ default: HyperspacePortalSystem })
+    },
+    {
+      uuid: 'xre.engine.FlyControlSystem',
+      type: SystemUpdateType.UPDATE_LATE,
+      systemLoader: () => Promise.resolve({ default: FlyControlSystem })
     },
     {
       uuid: 'xre.engine.AvatarTeleportSystem',

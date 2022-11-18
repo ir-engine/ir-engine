@@ -17,7 +17,7 @@ import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorCameraSystem from '../systems/EditorCameraSystem'
 import EditorControlSystem from '../systems/EditorControlSystem'
-import FlyControlSystem from '../systems/FlyControlSystem'
+import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
 import GizmoSystem from '../systems/GizmoSystem'
 import InputSystem from '../systems/InputSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
@@ -41,8 +41,8 @@ const systems = [
     args: { enabled: true }
   },
   {
-    uuid: 'core.editor.FlyControlSystem',
-    systemLoader: () => Promise.resolve({ default: FlyControlSystem }),
+    uuid: 'core.editor.EditorFlyControlSystem',
+    systemLoader: () => Promise.resolve({ default: EditorFlyControlSystem }),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
