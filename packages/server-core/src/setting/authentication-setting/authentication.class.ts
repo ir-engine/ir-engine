@@ -6,6 +6,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
@@ -92,6 +93,42 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
     data.oauth = JSON.stringify(newOAuth)
     data.callback = JSON.stringify(data.callback)
 
-    return super.patch(id, data, params)
+    const patchResult = await super.patch(id, data, params)
+
+    if (this.app.k8AppsClient) {
+      try {
+        logger.info('Attempting to refresh API pods')
+        const refreshApiPodResponse = await this.app.k8AppsClient.patchNamespacedDeployment(
+          `${config.server.releaseName}-xrengine-api`,
+          'default',
+          {
+            spec: {
+              template: {
+                metadata: {
+                  annotations: {
+                    'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
+                  }
+                }
+              }
+            }
+          },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          {
+            headers: {
+              'Content-Type': 'application/strategic-merge-patch+json'
+            }
+          }
+        )
+        logger.info(refreshApiPodResponse, 'updateBuilderTagResponse')
+      } catch (e) {
+        logger.error(e)
+        return e
+      }
+    }
+
+    return patchResult
   }
 }

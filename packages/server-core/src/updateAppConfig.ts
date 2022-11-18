@@ -18,49 +18,6 @@ const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
-//TODO: Environment variables that can be refreshed at runtime
-export const refreshAppConfig = async (): Promise<void> => {
-  const sequelizeClient = new Sequelize({
-    ...(db as any),
-    define: {
-      freezeTableName: true
-    },
-    logging: false
-  }) as any
-  await sequelizeClient.sync()
-
-  const promises: any[] = []
-
-  const serverSetting = sequelizeClient.define('serverSetting', {
-    gaTrackingId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    gitPem: {
-      type: DataTypes.STRING(2048),
-      allowNull: true
-    }
-  })
-
-  const serverSettingPromise = serverSetting
-    .findAll()
-    .then(([dbServer]) => {
-      const dbServerConfig = dbServer && {
-        gaTrackingId: dbServer.gaTrackingId,
-        gitPem: dbServer.gitPem
-      }
-      appConfig.server = {
-        ...appConfig.server,
-        ...dbServerConfig
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
-    })
-  promises.push(serverSettingPromise)
-  await Promise.all(promises)
-}
-
 export const updateAppConfig = async (): Promise<void> => {
   if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
   const sequelizeClient = new Sequelize({

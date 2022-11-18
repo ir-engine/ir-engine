@@ -1,4 +1,5 @@
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
 import { ProjectSetting } from './project-setting.class'
 import hooks from './project-setting.hooks'
 
@@ -18,4 +19,8 @@ export default (app: Application): void => {
   app.use('project-setting', event)
   const service = app.service('project-setting')
   service.hooks(hooks)
+
+  service.on('patched', () => {
+    updateAppConfig()
+  })
 }
