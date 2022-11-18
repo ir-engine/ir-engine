@@ -80,7 +80,7 @@ const AppWithCallback = ({ children, element, lastChildStr, onLastChildStr }: Ap
     })
 
     appendChild(document.head, childNodes)
-  }, [])
+  })
 
   return <>{children}</>
 }
