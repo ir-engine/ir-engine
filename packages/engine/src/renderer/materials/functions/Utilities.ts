@@ -142,7 +142,7 @@ export function removeMaterialSource(src: MaterialSource): boolean {
 }
 
 export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
-  const prototype = prototypeFromId(material.type)
+  const prototype = prototypeFromId(material.constructor.name)
 
   addMaterialSource(src)
   getSourceMaterials(src)!.push(material.uuid)
