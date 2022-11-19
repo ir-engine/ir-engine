@@ -33,10 +33,6 @@ const ColorSelectionArea = ({
 }: ColorSelectionAreaProps) => {
   const { t } = useTranslation()
 
-  const [creatingNewTheme, setCreatingNewTheme] = useState(false)
-  const [newThemeName, setNewThemeName] = useState('')
-  const inputRef = useRef()
-
   const colorModesMenu: InputMenuItem[] = colorModes.map((el) => {
     return {
       label: capitalizeFirstLetter(el),
@@ -48,16 +44,6 @@ const ColorSelectionArea = ({
     onChangeThemes({ add: 'New Theme' })
   }
 
-  const confirmNewTheme = () => {
-    onChangeThemes({ add: newThemeName })
-    setCreatingNewTheme(false)
-    setNewThemeName('')
-  }
-
-  const onChangeNewTheme = (ev) => {
-    setNewThemeName(ev.target.value)
-  }
-
   const onChangeExistingTheme = (oldName, newName) => {
     onChangeThemes({ add: newName, remove: oldName })
   }
@@ -65,18 +51,6 @@ const ColorSelectionArea = ({
   const deleteNewTheme = (val) => {
     onChangeThemes({ remove: val })
   }
-
-  const ThemeDelete = ({ el }) => {
-    return Object.keys(defaultThemeSettings).includes(el.value) ? (
-      <></>
-    ) : (
-      <Button variant="contained" className="gradientButton" onClick={() => deleteNewTheme(el.value)}>
-        {'X'}
-      </Button>
-    )
-  }
-
-  console.log(selectedMode, colorModesMenu)
 
   return (
     <Grid container>
