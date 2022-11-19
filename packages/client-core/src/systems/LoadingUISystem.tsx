@@ -15,7 +15,7 @@ import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectL
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
 import { SceneActions } from '../world/services/SceneService'
@@ -45,6 +45,7 @@ export default async function LoadingUISystem(world: World) {
 
   const currentSceneChangedQueue = createActionQueue(SceneActions.currentSceneChanged.matches)
   const avatarModelChangedQueue = createActionQueue(EngineActions.avatarModelChanged.matches)
+  const spectateUserQueue = createActionQueue(EngineActions.spectateUser.matches)
 
   const appLoadingState = getState(AppLoadingState)
   const engineState = getState(EngineState)
@@ -73,9 +74,14 @@ export default async function LoadingUISystem(world: World) {
       }
     }
 
+    for (const action of spectateUserQueue()) {
+      if (appLoadingState.state.value === AppLoadingStates.SUCCESS && engineState.sceneLoaded.value)
+        transition.setState('OUT')
+    }
+
     for (const action of avatarModelChangedQueue()) {
       if (
-        action.entity === world.localClientEntity &&
+        (action.entity === world.localClientEntity || engineState.spectating.value) &&
         appLoadingState.state.value === AppLoadingStates.SUCCESS &&
         engineState.sceneLoaded.value
       )
@@ -118,6 +124,9 @@ export default async function LoadingUISystem(world: World) {
   }
 
   const cleanup = async () => {
+    removeActionQueue(currentSceneChangedQueue)
+    removeActionQueue(avatarModelChangedQueue)
+    removeActionQueue(spectateUserQueue)
     removeEntity(ui.entity)
     mesh.removeFromParent()
     reactor.stop()

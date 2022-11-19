@@ -115,7 +115,7 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
   const parent = await loadAvatarModelAsset(avatarURL)
   if (!parent) return
   setupAvatarModel(entity)(parent)
-  animateModel(entity)
+  // animateModel(entity)
   return parent
 }
 

@@ -214,23 +214,30 @@ export const updateComponent = <C extends Component>(
   props: Partial<SerializedComponentType<C>>,
   world = Engine.instance.currentWorld
 ) => {
+  if (typeof props === 'undefined') return
+
   const comp = getComponentState(entity, Component, world)
   if (!comp) {
     throw new Error('[updateComponent]: component does not exist')
   }
 
   startTransition(() => {
-    for (const propertyName of Object.keys(props as any)) {
-      const value = props[propertyName]
-      const { result, finalProp } = getNestedObject(comp, propertyName)
-      if (
-        typeof value !== 'undefined' &&
-        typeof result[finalProp] === 'object' &&
-        typeof result[finalProp].set === 'function'
-      ) {
-        result[finalProp].set(value)
-      } else {
-        result[finalProp] = value
+    if (typeof props !== 'object') {
+      // component has top level value (eg NameComponent)
+      comp.set(props)
+    } else {
+      for (const propertyName of Object.keys(props as any)) {
+        const value = props[propertyName]
+        const { result, finalProp } = getNestedObject(comp, propertyName)
+        if (
+          typeof value !== 'undefined' &&
+          typeof result[finalProp] === 'object' &&
+          typeof result[finalProp].set === 'function'
+        ) {
+          result[finalProp].set(value)
+        } else {
+          result[finalProp] = value
+        }
       }
     }
     const root = Component.reactorRoots.get(entity)

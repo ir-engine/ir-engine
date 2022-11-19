@@ -1,5 +1,5 @@
 import { createState } from '@hookstate/core'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
@@ -14,23 +14,18 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 
 import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
 
-import {
-  addAnimationLogic,
-  initialize3D,
-  onWindowResize,
-  validate
-} from '../../../user/components/UserMenu/menus/helperFunctions'
+import { validate } from '../../../user/components/Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { AvatarService } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
@@ -66,18 +61,26 @@ export const UploadAvatarMenu = () => {
   const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<any>(null)
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  const renderPanel = useRender3DPanelSystem(panelRef)
+  const { entity, camera, scene, renderer } = renderPanel.state
 
   const loadAvatarByURL = async (objectURL) => {
     try {
-      const obj = await loadAvatarForPreview(entity, objectURL)
+      const obj = await loadAvatarForPreview(entity.value, objectURL)
       if (!obj) {
         setAvatarModel(null!)
         setError('Failed to load')
         return
       }
-      scene.add(obj)
-      const error = validate(obj)
+      scene.value.add(obj)
+      const error = validate(obj, renderer.value, scene.value, camera.value)
       setError(error)
+      const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
+      if (avatarRigComponent) {
+        avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
+        camera.value.position.y += 0.2
+        camera.value.position.z = 0.6
+      }
       if (error === '') {
         setAvatarModel(obj)
         obj.name = 'avatar'
@@ -120,31 +123,6 @@ export const UploadAvatarMenu = () => {
 
   const { t } = useTranslation()
 
-  useEffect(() => {
-    if (document.getElementById('stage')) {
-      const world = useWorld()
-      entity = createEntity()
-      addAnimationLogic(entity, world, panelRef)
-      const init = initialize3D()
-      scene = init.scene
-      camera = init.camera
-      renderer = init.renderer
-      const controls = getOrbitControls(camera, renderer.domElement)
-
-      controls.minDistance = 0.1
-      controls.maxDistance = 10
-      controls.target.set(0, 1.5, 0)
-      controls.update()
-      window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-
-      return () => {
-        removeEntity(entity)
-        entity = null!
-        window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-      }
-    }
-  }, [document.getElementById('stage')])
-
   const handleAvatarChange = (e) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
       setError(
@@ -156,7 +134,6 @@ export const UploadAvatarMenu = () => {
       return
     }
 
-    scene.children = scene.children.filter((c) => c.name !== 'avatar')
     const file = e.target.files[0]
     const reader = new FileReader()
     reader.onload = (fileData) => {
@@ -194,9 +171,10 @@ export const UploadAvatarMenu = () => {
     if (thumbnailBlob == null) {
       await new Promise((resolve) => {
         const canvas = document.createElement('canvas')
-        ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
+        canvas.width = THUMBNAIL_WIDTH
+        canvas.height = THUMBNAIL_HEIGHT
         const newContext = canvas.getContext('2d')
-        newContext?.drawImage(renderer.domElement, 0, 0)
+        newContext?.drawImage(renderer.value.domElement, 0, 0)
         canvas.toBlob(async (blob) => {
           const uploadResponse = await AvatarService.uploadAvatarModel(avatarBlob, blob!, avatarName, false).then(
             resolve
@@ -243,7 +221,7 @@ export const UploadAvatarMenu = () => {
   return (
     <>
       <style>{styleString}</style>
-      <div ref={panelRef} className="avatarUploadPanel">
+      <div className="avatarUploadPanel">
         <div className="avatarHeaderBlock">
           <XRIconButton
             size="large"
@@ -264,6 +242,7 @@ export const UploadAvatarMenu = () => {
 
         <div className="stageContainer">
           <div
+            ref={panelRef}
             id="stage"
             className="stage"
             style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }}

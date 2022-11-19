@@ -3,17 +3,13 @@ import { Matrix3, Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
 
-import { EditorCameraComponent } from '../classes/EditorCameraComponent'
-import { FlyControlComponent } from '../classes/FlyControlComponent'
-import { ActionSets, EditorActionSet, FlyActionSet, FlyMapping } from '../controls/input-mappings'
-import { addInputActionMapping, getInput, removeInputActionMapping } from '../functions/parseInputActionMapping'
-import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
+import { V_010 } from '../common/constants/MathConstants'
+import { MouseInput } from '../input/enums/InputEnums'
+import { LocalTransformComponent } from '../transform/components/TransformComponent'
+import { FlyControlComponent } from './components/FlyControlComponent'
 
 const EPSILON = 10e-5
-const UP = new Vector3(0, 1, 0)
 const IDENTITY = new Matrix4().identity()
 
 export default async function FlyControlSystem(world: World) {
@@ -26,33 +22,13 @@ export default async function FlyControlSystem(world: World) {
   const worldQuat = new Quaternion()
   const worldScale = new Vector3(1, 1, 1)
   const candidateWorldQuat = new Quaternion()
-  const normalMatrix = new Matrix3()
-  const editorHelperState = accessEditorHelperState()
 
   const execute = () => {
-    for (let entity of flyControlQuery()) {
+    for (const entity of flyControlQuery()) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
       const camera = Engine.instance.currentWorld.camera
 
-      if (getInput(EditorActionSet.disableFlyMode)) {
-        const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
-
-        removeInputActionMapping(ActionSets.FLY)
-        const distance = camera.position.distanceTo(cameraComponent.center)
-        cameraComponent.center.addVectors(
-          camera.position,
-          tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
-        )
-
-        dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
-      }
-
-      if (getInput(EditorActionSet.flying)) {
-        addInputActionMapping(ActionSets.FLY, FlyMapping)
-        dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: true }))
-      }
-
-      if (!editorHelperState.isFlyModeEnabled.value) return
+      const mouseMovement = world.inputState.get(MouseInput.MouseClickDownMovement)?.value ?? [0, 0]
 
       camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
 
@@ -60,7 +36,7 @@ export default async function FlyControlSystem(world: World) {
       candidateWorldQuat.multiplyQuaternions(
         quat.setFromAxisAngle(
           tempVec3.set(1, 0, 0).applyQuaternion(worldQuat),
-          getInput(FlyActionSet.lookY) * flyControlComponent.lookSensitivity
+          mouseMovement[1] * flyControlComponent.lookSensitivity
         ),
         worldQuat
       )
@@ -84,7 +60,7 @@ export default async function FlyControlSystem(world: World) {
       camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
       // rotate about the world y axis
       candidateWorldQuat.multiplyQuaternions(
-        quat.setFromAxisAngle(UP, getInput(FlyActionSet.lookX) * flyControlComponent.lookSensitivity),
+        quat.setFromAxisAngle(V_010, -mouseMovement[0] * flyControlComponent.lookSensitivity),
         worldQuat
       )
 
@@ -92,15 +68,25 @@ export default async function FlyControlSystem(world: World) {
       camera.matrix.multiplyMatrices(parentInverse, camera.matrixWorld)
       camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
 
+      const lateralMovement =
+        (world.inputState.get('KeyD')?.value[0] ?? 0) - (world.inputState.get('KeyA')?.value[0] ?? 0)
+      const forwardMovement =
+        (world.inputState.get('KeyS')?.value[0] ?? 0) - (world.inputState.get('KeyW')?.value[0] ?? 0)
+      const upwardMovement =
+        (world.inputState.get('KeyQ')?.value[0] ?? 0) - (world.inputState.get('KeyE')?.value[0] ?? 0)
+
       // translate
-      direction.set(getInput(FlyActionSet.moveX), 0, getInput(FlyActionSet.moveZ))
-      const boostSpeed = getInput(FlyActionSet.boost) ? flyControlComponent.boostSpeed : 1
+      direction.set(lateralMovement, 0, forwardMovement)
+      const boostSpeed = world.inputState.has('ShiftLeft') ? flyControlComponent.boostSpeed : 1
       const speed = world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
       if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)
 
-      camera.position.y +=
-        getInput(FlyActionSet.moveY) * world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
+      camera.position.y += upwardMovement * world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
+
+      const localTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+      localTransform.position.copy(camera.position)
+      localTransform.rotation.copy(camera.quaternion)
     }
   }
 

@@ -194,7 +194,7 @@ export class World {
       coneOuterGain: 0
     },
     renderSettings: {
-      LODs: DEFAULT_LOD_DISTANCES,
+      LODs: { ...DEFAULT_LOD_DISTANCES },
       csm: true,
       toneMapping: LinearToneMapping as ToneMapping,
       toneMappingExposure: 0.8,

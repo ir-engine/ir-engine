@@ -1,10 +1,19 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { Component, ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import {
+  Component,
+  ComponentType,
+  SerializedComponentType
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorHistoryAction } from '../../services/EditorHistory'
+import { EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 
 export type EditorPropType = {
   node: EntityTreeNode
@@ -16,17 +25,37 @@ export type EditorComponentType = React.FC<EditorPropType> & {
   iconComponent?: any
 }
 
-export const updateProperty = <C extends Component, K extends keyof ComponentType<C>>(
+export const updateProperty = <C extends Component, K extends keyof SerializedComponentType<C>>(
   component: C,
   propName: K,
-  ...args: any
+  nodes?: EntityTreeNode[]
 ) => {
-  return (value: ComponentType<C>[K]) => {
-    setPropertyOnSelectionEntities({
-      component,
-      properties: [{ [propName]: value, ...args }]
-    })
+  return (value: SerializedComponentType<C>[K]) => {
+    updateProperties(component, { [propName]: value } as any, nodes)
   }
+}
+
+export const updateProperties = <C extends Component>(
+  component: C,
+  properties: Partial<SerializedComponentType<C>>,
+  nodes?: EntityTreeNode[]
+) => {
+  const editorState = getState(EditorState)
+  const selectionState = getState(SelectionState)
+
+  const affectedNodes = nodes
+    ? nodes
+    : editorState.lockPropertiesPanel.value
+    ? [
+        Engine.instance.currentWorld.entityTree.entityNodeMap.get(
+          UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value
+        )!
+      ]
+    : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityTreeNode[])
+
+  EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
+
+  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
 }
 
 export function traverseScene<T>(

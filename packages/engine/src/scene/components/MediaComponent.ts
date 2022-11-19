@@ -126,6 +126,8 @@ export const MediaComponent = defineComponent({
       controls: component.controls.value,
       autoplay: component.autoplay.value,
       paths: component.paths.value,
+      volume: component.volume.value,
+      synchronize: component.synchronize.value,
       playMode: component.playMode.value,
       isMusic: component.isMusic.value
     }
