@@ -6,6 +6,7 @@ import _ from 'lodash'
 import path from 'path'
 import Sequelize, { Op } from 'sequelize'
 
+import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
 import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
 import { ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectTagInterface } from '@xrengine/common/src/interfaces/ProjectTagInterface'
@@ -578,7 +579,7 @@ export const getTags = async (
   }
 }
 
-export const findBuilderTags = async () => {
+export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   const builderRepo = process.env.BUILDER_REPOSITORY || ''
   const publicECRExec = publicECRRegex.exec(builderRepo)
   const privateECRExec = privateECRRegex.exec(builderRepo)
@@ -600,7 +601,7 @@ export const findBuilderTags = async () => {
       )
       .sort((a, b) => b.imagePushedAt!.getTime() - a!.imagePushedAt!.getTime())
       .map((imageDetails) => {
-        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))
+        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
         const tagSplit = tag ? tag.split('_') : ''
         return {
           tag,
@@ -627,7 +628,7 @@ export const findBuilderTags = async () => {
       )
       .sort((a, b) => b.imagePushedAt!.getTime() - a.imagePushedAt!.getTime())
       .map((imageDetails) => {
-        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))
+        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
         const tagSplit = tag ? tag.split('_') : ''
         return {
           tag,
@@ -640,18 +641,22 @@ export const findBuilderTags = async () => {
     const repoSplit = builderRepo.split('/')
     const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
     const repo = repoSplit.length === 1 ? repoSplit[0] : repoSplit[1]
-    const result = await axios.get(
-      `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
-    )
-    return result.data.results.map((imageDetails) => {
-      const tag = imageDetails.name
-      const tagSplit = tag.split('_')
-      return {
-        tag,
-        commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
-        engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
-        pushedAt: new Date(imageDetails.tag_last_pushed).toJSON()
-      }
-    })
+    try {
+      const result = await axios.get(
+        `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
+      )
+      return result.data.results.map((imageDetails) => {
+        const tag = imageDetails.name
+        const tagSplit = tag.split('_')
+        return {
+          tag,
+          commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
+          engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
+          pushedAt: new Date(imageDetails.tag_last_pushed).toJSON()
+        }
+      })
+    } catch (e) {
+      return []
+    }
   }
 }
