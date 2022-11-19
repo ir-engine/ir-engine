@@ -14,7 +14,6 @@ import {
   removeComponent
 } from './ComponentFunctions'
 import { createEntity } from './EntityFunctions'
-import { useWorld } from './SystemHooks'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
@@ -59,7 +58,7 @@ describe('ComponentFunctions', async () => {
       const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
-      assert.ok(bitECS.hasComponent(useWorld(), TestComponent, entity))
+      assert.ok(bitECS.hasComponent(Engine.instance.currentWorld, TestComponent, entity))
     })
 
     it('should add component with AoS values', () => {
