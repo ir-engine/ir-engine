@@ -86,9 +86,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     modelContainer
   })
 
-  addComponent(entity, NameComponent, {
-    name: ('avatar_' + userId) as string
-  })
+  addComponent(entity, NameComponent, 'avatar_' + userId)
 
   addComponent(entity, VisibleComponent, true)
 
