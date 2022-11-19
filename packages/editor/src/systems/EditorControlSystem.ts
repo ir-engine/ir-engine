@@ -32,7 +32,6 @@ import { BoundingBoxComponent } from '@xrengine/engine/src/interaction/component
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'

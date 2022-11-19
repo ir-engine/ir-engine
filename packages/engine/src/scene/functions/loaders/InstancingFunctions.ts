@@ -62,7 +62,6 @@ import {
   ScatterState,
   VertexProperties
 } from '../../components/InstancingComponent'
-import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
@@ -770,7 +769,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
               stageMeshBuffers(obj3d.position, obj3d.quaternion, obj3d.scale)
             }
           },
-          (node) => node !== root && hasComponent(node.entity, Object3DComponent),
+          (node) => node !== root && hasComponent(node.entity, GroupComponent),
           world.entityTree
         )
         if ((props as GrassProperties).isGrassProperties) stageGrassAttributes()
