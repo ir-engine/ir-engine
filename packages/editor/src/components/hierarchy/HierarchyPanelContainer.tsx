@@ -13,7 +13,7 @@ import { getEntityNodeArrayFromEntities, traverseEntityNode } from '@xrengine/en
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
@@ -175,7 +175,7 @@ export default function HierarchyPanel({
   )
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
-  useHookEffect(updateNodeHierarchy, [
+  useEffect(updateNodeHierarchy, [
     showObject3DInHierarchy,
     selectionState.selectedEntities,
     selectionState.sceneGraphChangeCounter

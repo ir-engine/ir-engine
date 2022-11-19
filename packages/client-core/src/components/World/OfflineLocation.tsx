@@ -7,7 +7,7 @@ import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { addOutgoingTopicIfNecessary, useHookEffect, useState } from '@xrengine/hyperflux'
+import { addOutgoingTopicIfNecessary, useState } from '@xrengine/hyperflux'
 
 import InstanceServerWarnings from './InstanceServerWarnings'
 

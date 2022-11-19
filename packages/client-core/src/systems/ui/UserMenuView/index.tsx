@@ -8,7 +8,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { getState, useHookEffect } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { FriendService, useFriendState } from '../../../social/services/FriendService'
 import { InviteService } from '../../../social/services/InviteService'
@@ -80,7 +80,7 @@ const AvatarContextMenu = () => {
     console.log('Mute pressed')
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (detailState.id.value !== '') {
       const tappedUser = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
       setCurrentActiveMenu({ view: Views.AvatarContext, params: { user: tappedUser?.value } })
