@@ -9,7 +9,6 @@ import { isHMD } from '../../../common/functions/isMobile'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   PointLightComponent,
   PointLightComponentType,

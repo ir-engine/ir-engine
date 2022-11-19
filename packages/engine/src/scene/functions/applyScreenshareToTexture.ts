@@ -13,7 +13,7 @@ import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../components/Object3DComponent'
+import { GroupComponent } from '../components/GroupComponent'
 import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import { fitTexture } from './fitTexture'
 
@@ -70,12 +70,13 @@ export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
     ;(video as any).appliedTexture = true
     if (!video.videoWidth || !video.videoHeight) return
     for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
-      const obj3d = getComponent(entity, Object3DComponent)?.value
-      obj3d?.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
-        if (obj.material) {
-          applyVideoToTexture(video, obj)
-        }
-      })
+      const group = getComponent(entity, GroupComponent)
+      for (const obj3d of group)
+        obj3d.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
+          if (obj.material) {
+            applyVideoToTexture(video, obj)
+          }
+        })
     }
   }
   if (!video.readyState) {

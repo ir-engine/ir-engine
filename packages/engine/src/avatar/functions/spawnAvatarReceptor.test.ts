@@ -11,8 +11,8 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -47,7 +47,7 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarComponent))
     assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
-    assert(hasComponent(entity, Object3DComponent))
+    assert(hasComponent(entity, GroupComponent))
     assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, LocalInputTagComponent))

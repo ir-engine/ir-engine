@@ -5,7 +5,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 import { accessSelectionState } from '../services/SelectionServices'
@@ -36,14 +36,14 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
     if (!parentNode) continue //skip obj3ds that are not children of EntityNodes
     if (!obj.entity && parentNode && !selected.has(parentNode.entity)) {
       ;[result.node] = getEntityNodeArrayFromEntities([parentNode.entity])
-      result.obj3d = getComponent(parentNode.entity, Object3DComponent).value as Object3DWithEntity
+      result.obj3d = getComponent(parentNode.entity, GroupComponent)[0] as Object3DWithEntity
       return result
     }
 
     if (obj && (obj as Object3D) !== Engine.instance.currentWorld.scene) {
       result.obj3d = obj
       result.node = obj.entity ? Engine.instance.currentWorld.entityTree.entityNodeMap.get(obj.entity) : obj.uuid
-      //if(result.node && hasComponent(result.node.entity, Object3DComponent))
+      //if(result.node && hasComponent(result.node.entity, GroupComponent))
       //result.obj3d = result.object
       //result.node = result.object.uuid
       return result
