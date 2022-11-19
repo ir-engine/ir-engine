@@ -5,15 +5,17 @@ import { defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThem
 import { ThemeOptions } from '@xrengine/common/src/interfaces/ClientSetting'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
-import { Button, Divider, Grid, InputBase } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { Box, Button, Divider, Grid, IconButton, InputBase, Radio } from '@mui/material'
 
-import InputRadio from '../../../common/InputRadio'
 import { InputMenuItem } from '../../../common/InputSelect'
+import InputText from '../../../common/InputText'
 import SketchColorPicker from '../../../common/SketchColorPicker'
 import styles from '../../../styles/settings.module.scss'
 
 interface ColorSelectionAreaProps {
-  mode: string
+  selectedMode: string
   colorModes: string[]
   theme: ThemeOptions
   onChangeMode: Function
@@ -22,7 +24,7 @@ interface ColorSelectionAreaProps {
 }
 
 const ColorSelectionArea = ({
-  mode,
+  selectedMode,
   colorModes,
   theme,
   onChangeMode,
@@ -43,7 +45,7 @@ const ColorSelectionArea = ({
   })
 
   const createNewTheme = () => {
-    setCreatingNewTheme(true)
+    onChangeThemes({ add: 'New Theme' })
   }
 
   const confirmNewTheme = () => {
@@ -54,6 +56,10 @@ const ColorSelectionArea = ({
 
   const onChangeNewTheme = (ev) => {
     setNewThemeName(ev.target.value)
+  }
+
+  const onChangeExistingTheme = (oldName, newName) => {
+    onChangeThemes({ add: newName, remove: oldName })
   }
 
   const deleteNewTheme = (val) => {
@@ -70,48 +76,42 @@ const ColorSelectionArea = ({
     )
   }
 
+  console.log(selectedMode, colorModesMenu)
+
   return (
     <Grid container>
       <div
         style={{
-          flexDirection: 'row',
+          marginTop: '16px',
+          flexDirection: 'column',
           display: 'flex'
         }}
       >
-        <Grid item sm={12} md={12} marginTop="25px">
-          <InputRadio
-            name="mode"
-            label={t('admin:components.setting.theme')}
-            value={mode}
-            options={colorModesMenu}
-            onChange={(e) => onChangeMode(e)}
-            Component={ThemeDelete}
-          />
-        </Grid>
-        <div
-          style={{
-            height: 'fit-content',
-            margin: 'auto',
-            flexDirection: 'row',
-            display: 'flex'
-          }}
-        >
-          {creatingNewTheme && (
-            <InputBase
-              ref={inputRef}
-              onChange={onChangeNewTheme}
-              className="input"
-              placeholder={t('admin:components.setting.placeholderText')}
+        {colorModesMenu.map((mode, index) => (
+          <Box key={index} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 1 }}>
+            <Radio checked={selectedMode === mode.value} onClick={() => onChangeMode(mode.value)} />
+            <InputText
+              sx={{ flexGrow: 1 }}
+              name="socialIcon"
+              disabled={Object.keys(defaultThemeSettings).includes(mode.value)}
+              label={t('admin:components.setting.icon')}
+              value={mode.value}
+              onChange={(e) => onChangeExistingTheme(mode.value, e.target.value)}
             />
-          )}
-          <Button
-            variant="contained"
-            className="gradientButton"
-            onClick={creatingNewTheme ? confirmNewTheme : createNewTheme}
-          >
-            {creatingNewTheme ? 'Add' : 'New +'}
-          </Button>
-        </div>
+            {!Object.keys(defaultThemeSettings).includes(mode.value) && (
+              <IconButton
+                title={t('admin:components.common.delete')}
+                className={styles.iconButton}
+                onClick={() => deleteNewTheme(mode.value)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
+          </Box>
+        ))}
+        <Button variant="contained" onClick={createNewTheme}>
+          <AddIcon /> {t('admin:components.setting.addSocialLink')}
+        </Button>
       </div>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
       <Grid item sm={12} md={12} className={styles.colorGridContainer}>
