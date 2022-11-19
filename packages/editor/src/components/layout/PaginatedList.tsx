@@ -1,7 +1,7 @@
-import React, { JSXElementConstructor } from 'react'
+import React, { JSXElementConstructor, useEffect } from 'react'
 
 import { any } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import { Grid, Stack } from '@mui/material'
 
@@ -28,7 +28,7 @@ export default function PaginatedList({
   }
 
   const pageView = useHookstate(getPageIndices())
-  useHookEffect(() => {
+  useEffect(() => {
     pageView.set(getPageIndices())
   }, [currentPage])
   return (

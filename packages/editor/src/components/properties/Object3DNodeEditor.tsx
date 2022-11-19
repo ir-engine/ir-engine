@@ -12,7 +12,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, useHookEffect, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
 
 import { SpaceBar } from '@mui/icons-material'
 import { Divider } from '@mui/material'
@@ -132,7 +132,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     unknown
   >(initEditState())
 
-  useHookEffect(() => {
+  useEffect(() => {
     materialIds.set(getMaterialIds())
     currentMaterialId.set(
       materialIds.value.length > currentMaterialId.value && currentMaterialId.value > -1
