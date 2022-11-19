@@ -21,9 +21,9 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onAddNode = () => {
-    const group = getComponent(props.node.entity, GroupComponent)[0]
+    const obj3d = getComponent(props.node.entity, GroupComponent)[0]
     const newSplineObject = obj3d.userData.helper.addPoint()
-    for (const obj3d of group) obj3d.add(newSplineObject)
+    obj3d.add(newSplineObject)
   }
 
   return (
