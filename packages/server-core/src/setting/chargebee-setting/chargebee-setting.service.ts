@@ -1,4 +1,5 @@
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
 import { ChargebeeSetting } from './chargebee-setting.class'
 import hooks from './chargebee-setting.hooks'
 import createModel from './chargebee-setting.model'
@@ -20,4 +21,8 @@ export default (app: Application): void => {
   app.use('chargebee-setting', event)
   const service = app.service('chargebee-setting')
   service.hooks(hooks)
+
+  service.on('patched', () => {
+    updateAppConfig()
+  })
 }
