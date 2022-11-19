@@ -20,7 +20,7 @@ describe.skip('Portal', () => {
   //   await initializeEngine(engineTestSetup)
   // })
   // it('Can load scene', async () => {
-  //   const world = useWorld()
+  //   const world = Engine.instance.currentWorld
   //   await updateSceneFromJSON(sceneData)
   //   assert.equal(world.entityQuery().length, 10)
   //   // TODO: test scene actor removal directly
@@ -30,13 +30,13 @@ describe.skip('Portal', () => {
   //   // unload
   //   await unloadScene()
   //   // test
-  //   const world = useWorld()
+  //   const world = Engine.instance.currentWorld
   //   assert.equal(world.entityQuery().length, 1) // world entity
   //   assert.equal(world.physics.bodies.size, 0)
   // })
   // it('Can load new scene', async () => {
   //   await updateSceneFromJSON(sceneData)
-  //   const world = useWorld()
+  //   const world = Engine.instance.currentWorld
   //   assert.equal(world.entityQuery().length, 10)
   //   assert.equal(world.physics.bodies.size, 1)
   // })

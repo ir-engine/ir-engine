@@ -5,14 +5,13 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { isEntityNode } from '../../ecs/functions/EntityTree'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { Object3DComponent } from '../components/Object3DComponent'
 
 export const reparentObject3D = (
   node: Entity | EntityTreeNode,
   parent: Entity | EntityTreeNode,
   before?: Entity | EntityTreeNode,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree
 ): void => {
   const _node = isEntityNode(node) ? node : tree.entityNodeMap.get(node)
   const _parent = isEntityNode(parent) ? parent : tree.entityNodeMap.get(parent)

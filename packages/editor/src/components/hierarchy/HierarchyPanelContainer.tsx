@@ -10,7 +10,6 @@ import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities, traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -444,7 +443,7 @@ export default function HierarchyPanel({
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = useWorld()
+        const world = Engine.instance.currentWorld
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, world.entityTree.rootNode))
           : isAncestor(item.value, world.entityTree.rootNode))
