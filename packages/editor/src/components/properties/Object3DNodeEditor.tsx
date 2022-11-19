@@ -10,7 +10,7 @@ import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, useHookEffect, useHookstate } from '@xrengine/hyperflux'
 

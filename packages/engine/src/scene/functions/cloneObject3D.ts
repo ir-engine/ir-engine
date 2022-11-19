@@ -3,8 +3,8 @@ import { AnimationClip, Bone, KeyframeTrack, Mesh, Object3D, PropertyBinding, Sk
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Object3DWithEntity } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 
 // Modified version of Don McCurdy's AnimationUtils.clone
 // https://github.com/mrdoob/three.js/pull/14494

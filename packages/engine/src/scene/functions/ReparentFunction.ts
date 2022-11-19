@@ -6,7 +6,7 @@ import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/func
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { isEntityNode } from '../../ecs/functions/EntityTree'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { Object3DComponent } from '../components/Object3DComponent'
+import { GroupComponent } from '../components/GroupComponent'
 
 export const reparentObject3D = (
   node: Entity | EntityTreeNode,
@@ -20,11 +20,12 @@ export const reparentObject3D = (
 
   if (!_node || !_parent || !_node.parentEntity) return
 
-  const obj3d = getOptionalComponent(_node.entity, Object3DComponent)?.value
-  if (!obj3d) return
+  const group = getOptionalComponent(_node.entity, GroupComponent)
+  if (!group) return
+  const obj3d = group[0]
   const parentObj3d =
-    _parent.parentEntity && hasComponent(_parent.entity, Object3DComponent)
-      ? getComponent(_parent.entity, Object3DComponent).value
+    _parent.parentEntity && hasComponent(_parent.entity, GroupComponent)
+      ? getComponent(_parent.entity, GroupComponent)[0]
       : Engine.instance.currentWorld.scene
 
   if (obj3d.parent && obj3d.parent !== parentObj3d) {
@@ -38,7 +39,7 @@ export const reparentObject3D = (
   obj3d.removeFromParent()
 
   if (_before) {
-    const beforeObj3d = getComponent(_before.entity, Object3DComponent)?.value
+    const beforeObj3d = getComponent(_before.entity, GroupComponent)[0]
     if (beforeObj3d) {
       const newObjectIndex = parentObj3d.children.indexOf(beforeObj3d)
       parentObj3d.children.splice(newObjectIndex, 0, obj3d)
