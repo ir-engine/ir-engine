@@ -23,7 +23,6 @@ import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilit
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { setCallback } from '../../components/CallbackComponent'
-import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import {
   ParticleEmitterComponent,
   ParticleEmitterComponentType,

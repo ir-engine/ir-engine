@@ -40,7 +40,7 @@ describe('ScenePreviewCameraFunctions', () => {
   //     Engine.instance.currentWorld.camera.updateMatrixWorld()
 
   //     const parent = new Object3D()
-  //     parent.add(getComponent(entity, Object3DComponent)?.value)
+  //     parent.add(getComponent(entity, GroupComponent)[0])
 
   //     parent.position.set(11, 12, 13)
   //     parent.rotation.set(14, 15, 16)

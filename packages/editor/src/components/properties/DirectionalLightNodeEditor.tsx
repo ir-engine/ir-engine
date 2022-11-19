@@ -5,7 +5,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import BoltIcon from '@mui/icons-material/Bolt'
 

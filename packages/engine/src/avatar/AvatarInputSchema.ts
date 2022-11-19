@@ -49,7 +49,7 @@ import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
+import { GroupComponent } from '../scene/components/GroupComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/XRComponents'
 import { getControlMode } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -307,11 +307,12 @@ const morphNameByInput = {
 }
 
 const setAvatarExpression: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const object = getComponent(entity, Object3DComponent)
+  const group = getComponent(entity, GroupComponent)
   let body
-  object.value.traverse((obj: SkinnedMesh) => {
-    if (!body && obj.morphTargetDictionary) body = obj
-  })
+  for (const obj of group)
+    obj.traverse((obj: SkinnedMesh) => {
+      if (!body && obj.morphTargetDictionary) body = obj
+    })
 
   if (!body?.isMesh || !body?.morphTargetDictionary) {
     console.warn('[Avatar Emotions]: This avatar does not support expressive visemes.')
