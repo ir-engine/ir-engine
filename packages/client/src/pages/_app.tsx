@@ -8,6 +8,7 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
+import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
 import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@xrengine/client-core/src/components/InviteToast'
@@ -23,8 +24,6 @@ import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles
 import RouterComp from '../route/public'
 
 import './styles.scss'
-
-import MetaTags from 'react-meta-tags'
 
 import {
   AdminCoilSettingService,
