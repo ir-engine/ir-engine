@@ -229,7 +229,7 @@ const addGripInputSource = (inputSource: XRInputSource, gripSpace: XRSpace) => {
   setComponent(gripEntity, InputSourceComponent, { inputSource })
   const world = Engine.instance.currentWorld
   setLocalTransformComponent(gripEntity, world.originEntity)
-  setComponent(gripEntity, NameComponent, { name: `XR Grip${inputSource.handedness}` })
+  setComponent(gripEntity, NameComponent, `XR Grip${inputSource.handedness}`)
   // initializeControllerModel(gripEntity)
   const gripAxisHelper = new AxesHelper(1)
   setObjectLayers(gripAxisHelper, ObjectLayers.PhysicsHelper)
