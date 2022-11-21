@@ -3,9 +3,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { addInputActionMapping, removeInputActionMapping } from '../functions/parseInputActionMapping'
 import { EditorHelperAction } from '../services/EditorHelperState'
-import { ActionSets, EditorMapping } from './input-mappings'
 
 export function enterPlayMode(): void {
   // executeCommandWithHistory({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
@@ -19,10 +17,7 @@ export function enterPlayMode(): void {
 export function leavePlayMode(): void {
   Engine.instance.currentWorld.camera.layers.enableAll()
 
-  addInputActionMapping(ActionSets.EDITOR, EditorMapping)
-
   dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
-  removeInputActionMapping(ActionSets.FLY)
 
   EngineRenderer.instance.renderer.domElement.removeEventListener('click', onClickCanvas)
   document.removeEventListener('pointerlockchange', onPointerLockChange)
@@ -38,13 +33,8 @@ function onClickCanvas(): void {
 function onPointerLockChange(): void {
   if (document.pointerLockElement === EngineRenderer.instance.renderer.domElement) {
     dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: true }))
-
-    removeInputActionMapping(ActionSets.EDITOR)
   } else {
-    addInputActionMapping(ActionSets.EDITOR, EditorMapping)
-
     dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
-    removeInputActionMapping(ActionSets.FLY)
   }
 }
 
