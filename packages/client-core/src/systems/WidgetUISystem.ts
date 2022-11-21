@@ -56,7 +56,7 @@ export default async function WidgetSystem(world: World) {
   const widgetMenuUI = createWidgetButtonsView()
   removeComponent(widgetMenuUI.entity, VisibleComponent)
 
-  addComponent(widgetMenuUI.entity, NameComponent, { name: 'widget_menu' })
+  addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
 
   const widgetState = getState(WidgetAppState)
 

@@ -23,7 +23,6 @@ import {
   SCENE_COMPONENT_HEMISPHERE_LIGHT,
   SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
 } from '../components/HemisphereLightComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import {
   PointLightComponent,
   SCENE_COMPONENT_POINT_LIGHT,

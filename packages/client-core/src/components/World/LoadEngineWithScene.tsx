@@ -1,5 +1,5 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -22,7 +22,8 @@ import {
   PortalEffects,
   setAvatarToLocationTeleportingState
 } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { addActionReceptor, dispatchAction, getState, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { addActionReceptor, dispatchAction, getState, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -39,7 +40,7 @@ type LoadEngineProps = {
 }
 
 export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEngineProps) => {
-  useHookEffect(() => {
+  useEffect(() => {
     initClient(injectedSystems).then(() => {
       setClientReady(true)
     })
@@ -54,13 +55,21 @@ export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEnginePro
   }, [])
 }
 
-export const useLocationSpawnAvatar = () => {
+export const useLocationSpawnAvatar = (spectateIfNoVR = false) => {
   const engineState = useEngineState()
   const authState = useAuthState()
 
+  const vrSupported = useHookstate(getState(XRState)).supportedSessionModes['immersive-vr'].value
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
-  useHookEffect(() => {
+  useEffect(() => {
+    if (spectateIfNoVR && !vrSupported) {
+      if (!engineState.sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
+      dispatchAction(EngineActions.spectateUser({}))
+      dispatchAction(EngineActions.joinedWorld({}))
+      return
+    }
+
     if (
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
@@ -71,7 +80,6 @@ export const useLocationSpawnAvatar = () => {
       return
 
     // the avatar should only be spawned once, after user auth and scene load
-
     const user = authState.user
     const avatarDetails = user.avatar.value
     const spawnPoint = getSearchParamFromURL('spawnPoint')
@@ -104,7 +112,7 @@ export const usePortalTeleport = () => {
   const locationState = useLocationState()
   const authState = useAuthState()
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
       const world = Engine.instance.currentWorld
@@ -166,7 +174,7 @@ export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
   /**
    * load the scene whenever it changes
    */
-  useHookEffect(() => {
+  useEffect(() => {
     // loadScene() deserializes the scene data, and deserializers sometimes mutate/update that data for backwards compatability.
     // Since hookstate throws errors when mutating proxied values, we have to pass down the unproxied value here
     const sceneData = sceneState.currentScene.get({ noproxy: true })
@@ -177,7 +185,7 @@ export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
     }
   }, [clientReady, sceneState.currentScene])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (engineState.sceneLoaded.value && loadingState.state.value !== AppLoadingStates.SUCCESS)
       dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
   }, [engineState.sceneLoaded, engineState.loadingProgress])

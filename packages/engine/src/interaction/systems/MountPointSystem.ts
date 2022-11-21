@@ -30,7 +30,6 @@ import {
   SCENE_COMPONENT_MOUNT_POINT,
   SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
 } from '../../scene/components/MountPointComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'

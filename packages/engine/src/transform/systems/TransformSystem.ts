@@ -28,7 +28,6 @@ import {
 } from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -45,8 +44,8 @@ const localTransformQuery = defineQuery([LocalTransformComponent])
 const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
-const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
-const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
+const staticBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent])
+const dynamicBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
 
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
@@ -259,7 +258,7 @@ export default async function TransformSystem(world: World) {
         if (
           hasComponent(entity, BoundingBoxComponent) &&
           hasComponent(entity, TransformComponent) &&
-          hasComponent(entity, Object3DComponent)
+          hasComponent(entity, GroupComponent)
         )
           updateBoundingBox(entity)
       }

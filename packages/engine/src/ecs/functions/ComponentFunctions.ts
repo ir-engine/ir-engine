@@ -214,24 +214,6 @@ export const setComponent = <C extends Component>(
 }
 
 /**
- * Like setComponent, but will set hookstate to allow forced reactive re-renders for this component.
- * This is useful for components that have SoA data that needs to have changes reacted to.
- * @param entity
- * @param Component
- * @param args
- * @param world
- */
-export const setComponentReactively = <C extends Component>(
-  entity: Entity,
-  Component: C,
-  args: SetComponentType<C> | undefined = undefined,
-  world = Engine.instance.currentWorld
-) => {
-  setComponent(entity, Component, args, world)
-  Component.mapState[entity].set(Component.map[entity])
-}
-
-/**
  * Experimental API
  */
 export const updateComponent = <C extends Component>(

@@ -1,7 +1,7 @@
 import React from 'react'
-import MetaTags from 'react-meta-tags'
 
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
 import RoomMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/RoomMenu'
 
 export const RoomPage = (): any => {

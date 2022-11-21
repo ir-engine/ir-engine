@@ -23,7 +23,6 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
 import { MediaElementComponent } from '../../components/MediaComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 

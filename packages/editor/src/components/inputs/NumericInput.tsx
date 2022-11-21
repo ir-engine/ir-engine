@@ -156,8 +156,15 @@ const NumericInput = ({
   }
 
   const handleKeyPress = (event) => {
-    let direction = 0
+    if (event.key === 'Escape') {
+      handleBlur()
+    }
 
+    if (event.key === 'Enter') {
+      handleBlur()
+    }
+
+    let direction = 0
     if (event.key === 'ArrowUp') {
       direction = 1
     } else if (event.key === 'ArrowDown') {

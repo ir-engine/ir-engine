@@ -46,7 +46,6 @@
     "esbuild-plugin-sass": "1.0.1",
     "i18next": "21.6.16",
     "lodash": "4.17.21",
-    "mousetrap": "^1.6.5",
     "oauth-1.0a": "^2.2.6",
     "potpack": "^2.0.0",
     "rc-dock": "3.2.10",

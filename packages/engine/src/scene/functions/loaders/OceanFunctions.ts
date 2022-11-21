@@ -11,7 +11,6 @@ import { addComponent, getComponent, setComponent } from '../../../ecs/functions
 import { Ocean } from '../../classes/Ocean'
 import { setCallback } from '../../components/CallbackComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   OceanComponent,
   OceanComponentType,
