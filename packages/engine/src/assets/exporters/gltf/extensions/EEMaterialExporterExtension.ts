@@ -48,7 +48,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     materialDef.extensions[this.name] = {
       uuid: material.uuid,
       name: material.name,
-      prototype: MaterialLibrary.materials.get(material.uuid)?.prototype ?? material.type,
+      prototype: MaterialLibrary.materials.get(material.uuid)?.prototype ?? material.constructor.name,
       args: { ...result }
     }
     this.writer.extensionsUsed[this.name] = true

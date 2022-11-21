@@ -131,6 +131,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
             onChange={(protoId) => {
               const nuMat = changeMaterialPrototype(material, protoId)
               materialComponent.set(materialFromId(nuMat!.uuid))
+              prototypeComponent.set(prototypeFromId(materialComponent.prototype.value))
             }}
           />
         </InputGroup>

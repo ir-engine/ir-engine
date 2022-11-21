@@ -74,7 +74,7 @@ export default function ParameterInput({
                 case 'vec3':
                   return (
                     <Fragment>
-                      {typeof values[k].map === 'function' &&
+                      {typeof values[k]?.map === 'function' &&
                         (values[k] as number[]).map((arrayVal, idx) => {
                           return (
                             <NumericInput
