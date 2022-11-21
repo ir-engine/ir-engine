@@ -36,7 +36,8 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
         ...el,
         appSocialLinks: appSocialLinks,
         themeSettings: themeSettings,
-        themeModes: themeModes
+        themeModes: themeModes,
+        homepageLinkButtonEnabled: el.homepageLinkButtonEnabled === 1
       }
     })
 
@@ -62,7 +63,8 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
       ...clientSettings,
       appSocialLinks: appSocialLinks,
       themeSettings: themeSettings,
-      themeModes: themeModes
+      themeModes: themeModes,
+      homepageLinkButtonEnabled: clientSettings.homepageLinkButtonEnabled === 1
     }
   }
 
