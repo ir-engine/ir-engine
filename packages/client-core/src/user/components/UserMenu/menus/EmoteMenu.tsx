@@ -10,6 +10,7 @@ import Button from '@mui/material/Button'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import styles from '../index.module.scss'
+import { Views } from '../util'
 
 const MAX_EMOTE_PER_PAGE = 6
 const MIN_EMOTE_PER_PAGE = 5
@@ -111,7 +112,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
 
   const closeMenu = (e) => {
     e.preventDefault()
-    changeActiveMenu(null)
+    changeActiveMenu(Views.Closed)
   }
 
   const calculateOtherValues = (): void => {
@@ -125,7 +126,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
     const entity = Engine.instance.currentWorld.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
-    changeActiveMenu(null)
+    changeActiveMenu(Views.Closed)
   }
 
   const renderEmoteList = () => {

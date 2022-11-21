@@ -2,7 +2,14 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { dispatchAction, getState, NO_PROXY, useHookstate } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  dispatchAction,
+  getState,
+  NO_PROXY,
+  removeActionReceptor,
+  useHookstate
+} from '@xrengine/hyperflux'
 
 import GroupsIcon from '@mui/icons-material/Groups'
 import PersonIcon from '@mui/icons-material/Person'
@@ -20,7 +27,7 @@ import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import SelectAvatarMenu from './menus/SelectAvatar'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
-import { PopupMenuActions, PopupMenuState } from './PopupMenuService'
+import { PopupMenuActions, PopupMenuServiceReceptor, PopupMenuState } from './PopupMenuService'
 import { Views } from './util'
 
 export interface UserMenuProps {
@@ -44,8 +51,9 @@ export const UserMenu = (): any => {
   const popupMenuState = useHookstate(getState(PopupMenuState))
   const Panel = popupMenuState.openMenu.value ? popupMenuState.menus.get(NO_PROXY)[popupMenuState.openMenu.value] : null
   const hotbarItems = popupMenuState.hotbar
+  console.log(hotbarItems, popupMenuState.openMenu.value)
 
-  const setCurrentActiveMenu = (args) => {
+  const setCurrentActiveMenu = (args: { id: string; params?: any }) => {
     dispatchAction(PopupMenuActions.showPopupMenu(args))
   }
 
@@ -67,6 +75,11 @@ export const UserMenu = (): any => {
       [Views.Share]: GroupsIcon,
       [Views.Emote]: EmoteIcon
     })
+
+    addActionReceptor(PopupMenuServiceReceptor)
+    return () => {
+      removeActionReceptor(PopupMenuServiceReceptor)
+    }
   }, [])
 
   const { bottomShelfStyle } = useShelfStyles()
@@ -83,6 +96,7 @@ export const UserMenu = (): any => {
             {Object.keys(hotbarItems.value).map((id, index) => {
               const IconNode = hotbarItems.get(NO_PROXY)[id]
               if (!IconNode) return null
+              console.log(id)
               return (
                 <span
                   key={index}
