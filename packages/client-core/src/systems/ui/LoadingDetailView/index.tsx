@@ -12,7 +12,6 @@ import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { getState, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppLoadingStates, useLoadingState } from '../../../common/services/AppLoadingService'
 import { useSceneState } from '../../../world/services/SceneService'

@@ -12,8 +12,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { ModelComponent } from '../../components/ModelComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 
 class AnimationManager {
   static instance = {

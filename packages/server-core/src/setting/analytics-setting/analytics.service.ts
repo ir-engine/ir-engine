@@ -1,4 +1,5 @@
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
 import { Analytics } from './analytics.class'
 import hooks from './analytics.hooks'
 import createModel from './analytics.model'
@@ -20,4 +21,8 @@ export default (app: Application): void => {
   app.use('analytics-setting', event)
   const service = app.service('analytics-setting')
   service.hooks(hooks)
+
+  service.on('patched', () => {
+    updateAppConfig()
+  })
 }

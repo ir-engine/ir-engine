@@ -1,4 +1,5 @@
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
 import { EmailSetting } from './email-setting.class'
 import hooks from './email-setting.hooks'
 import createModel from './email-setting.model'
@@ -22,4 +23,8 @@ export default (app: Application): void => {
   const service = app.service('email-setting')
 
   service.hooks(hooks)
+
+  service.on('patched', () => {
+    updateAppConfig()
+  })
 }

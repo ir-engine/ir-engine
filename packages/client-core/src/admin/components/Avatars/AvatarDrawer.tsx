@@ -19,7 +19,6 @@ import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avat
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { dispatchAction } from '@xrengine/hyperflux'
 

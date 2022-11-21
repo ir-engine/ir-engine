@@ -108,9 +108,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     const node = createEntityNode(e, mesh.uuid as EntityUUID)
     addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
-    addComponent(e, NameComponent, {
-      name: mesh.userData['xrengine.entity'] ?? mesh.uuid
-    })
+    addComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name

@@ -1,10 +1,9 @@
 import classNames from 'classnames'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { useHookEffect } from '@xrengine/hyperflux'
 
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import Button from '@mui/material/Button'
@@ -105,7 +104,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     setProjectsToUpdate(newProjects)
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     const invalidProjects =
       Object.keys(projectUpdateStatus.value)
         .map((projectName) => projectUpdateStatus[projectName]?.submitDisabled.value)
