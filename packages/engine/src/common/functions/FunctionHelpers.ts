@@ -1,19 +1,18 @@
 // Modified version taken from underscore.js
 // Returns a function, that, when invoked, will only be triggered at most once
 // during a given window of time. Normally, the throttled function will run
-// as much as it can, without ever going more than once per `wait` duration;
+// as much as it can, without ever going more than once perlot `wait` duration;
 // but if you'd like to disable the execution on the leading edge, pass
 // `{leading: false}`. To disable execution on the trailing edge, ditto.
-export function throttle(func, wait: number, options?) {
-  let timeout, context, args, result
+export function throttle<T>(func: T, wait: number, options: { leading?: boolean; trailing?: boolean } = {}) {
+  let timeout, context, _args, result
   let previous = 0
-  if (!options) options = {}
 
   const later = function () {
     previous = options.leading === false ? 0 : Date.now()
     timeout = null
-    result = func.apply(context, args)
-    if (!timeout) context = args = null
+    result = (func as any).apply(context, _args)
+    if (!timeout) context = _args = null
   }
 
   const throttled = function () {
@@ -21,15 +20,15 @@ export function throttle(func, wait: number, options?) {
     if (!previous && options.leading === false) previous = _now
     const remaining = wait - (_now - previous)
     context = this
-    args = arguments
+    _args = arguments
     if (remaining <= 0 || remaining > wait) {
       if (timeout) {
         clearTimeout(timeout)
         timeout = null
       }
       previous = _now
-      result = func.apply(context, args)
-      if (!timeout) context = args = null
+      result = (func as any).apply(context, _args)
+      if (!timeout) context = _args = null
     } else if (!timeout && options.trailing !== false) {
       timeout = setTimeout(later, remaining)
     }
@@ -39,8 +38,8 @@ export function throttle(func, wait: number, options?) {
   ;(throttled as any).cancel = function () {
     clearTimeout(timeout)
     previous = 0
-    timeout = context = args = null
+    timeout = context = _args = null
   }
 
-  return throttled
+  return throttled as T
 }

@@ -7,7 +7,6 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import ErrorIcon from '../classes/ErrorIcon'
-import { removeInputEvents } from '../controls/InputEvents'
 import { disposePlayModeControls } from '../controls/PlayModeControls'
 import { copy, paste } from '../functions/copyPaste'
 import { EditorErrorAction } from '../services/EditorErrorServices'
@@ -76,7 +75,6 @@ export async function loadProjectScene(projectData: SceneData) {
  * Disposes project data
  */
 export function disposeProject() {
-  removeInputEvents()
   disposePlayModeControls()
   dispatchAction(EditorAction.projectLoaded({ loaded: false }))
 

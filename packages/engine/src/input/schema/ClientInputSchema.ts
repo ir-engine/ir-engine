@@ -424,6 +424,9 @@ export const handleMouseMovement = (event: MouseEvent): void => {
   }
 }
 
+let lastLeftClickDown = 0
+let lastRightClickDown = 0
+
 /**
  * Called when a mouse button is pressed
  *
@@ -438,15 +441,31 @@ export const handleMouseButton = (event: MouseEvent): void => {
   mousePosition[1] = (event.clientY / window.innerHeight) * -2 + 1
 
   let button = MouseInput.LeftButton
-  switch (event.button) {
-    case 1:
-      button = MouseInput.MiddleButton
-    case 2:
-      button = MouseInput.RightButton
-  }
+  if (event.button === 1) button = MouseInput.MiddleButton
+  else if (event.button === 2) button = MouseInput.RightButton
 
   // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
   if (mousedown) {
+    const now = Date.now()
+    if (button === MouseInput.LeftButton) {
+      if (now - lastLeftClickDown < 500 && now - lastLeftClickDown > 50)
+        Engine.instance.currentWorld.inputState.set(MouseInput.LeftButtonDoubleClick, {
+          type: InputType.BUTTON,
+          value: [BinaryValue.ON],
+          lifecycleState: LifecycleValue.Started
+        })
+      lastLeftClickDown = now
+    }
+
+    if (button === MouseInput.RightButton) {
+      if (now - lastRightClickDown < 500 && now - lastRightClickDown > 50)
+        Engine.instance.currentWorld.inputState.set(MouseInput.RightButtonDoubleClick, {
+          type: InputType.BUTTON,
+          value: [BinaryValue.ON],
+          lifecycleState: LifecycleValue.Started
+        })
+      lastRightClickDown = now
+    }
     // Set type to BUTTON and value to up or down
     Engine.instance.currentWorld.inputState.set(button, {
       type: InputType.BUTTON,
@@ -483,6 +502,18 @@ export const handleMouseButton = (event: MouseEvent): void => {
       value: [0, 0],
       lifecycleState: LifecycleValue.Ended
     })
+    if (Engine.instance.currentWorld.inputState.has(MouseInput.LeftButtonDoubleClick))
+      Engine.instance.currentWorld.inputState.set(MouseInput.LeftButtonDoubleClick, {
+        type: InputType.BUTTON,
+        value: [BinaryValue.OFF],
+        lifecycleState: LifecycleValue.Ended
+      })
+    if (Engine.instance.currentWorld.inputState.has(MouseInput.RightButtonDoubleClick))
+      Engine.instance.currentWorld.inputState.set(MouseInput.RightButtonDoubleClick, {
+        type: InputType.BUTTON,
+        value: [BinaryValue.OFF],
+        lifecycleState: LifecycleValue.Ended
+      })
   }
 }
 
