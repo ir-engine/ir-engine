@@ -74,7 +74,7 @@ const selectAvatarMenu = (props: Props) => {
         selectedAvatar?.modelResource?.url || '',
         selectedAvatar?.thumbnailResource?.url || ''
       )
-      props.changeActiveMenu(null)
+      props.changeActiveMenu(Views.Closed)
     }
     setSelectedAvatar('')
   }

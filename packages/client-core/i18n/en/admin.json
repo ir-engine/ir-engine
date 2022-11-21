@@ -328,7 +328,11 @@
       "shortTitle": "PWA Short Title",
       "startPath": "PWA Start Path",
       "shortTitleTooltip": "The displayed title of a PWA-installed copy of this app if 'title' is too long; recommended max 12 characters",
-      "startPathTooltip": "The path that a PWA-installed copy of this app will direct to"
+      "startPathTooltip": "The path that a PWA-installed copy of this app will direct to",
+      "authSettingsRefreshNotification": "Updating authentication settings requires restarting the API pods. This should be complete within a few minutes. Changes you just made may not be reflected until then.",
+      "homepageLinkButtonEnabled": "Show link button on homepage",
+      "homepageLinkButtonRedirect": "URL of homepage link button",
+      "homepageLinkButtonText": "Text of homepage link button"
     },
     "avatar": {
       "source": "Source",

@@ -16,7 +16,7 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldProps, JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { AvatarProps, WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
@@ -352,15 +352,15 @@ const getUserSpawnFromInvite = async (
         const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
         /** @todo find nearest valid spawn position, rather than 2 in front */
-        const inviterUserObject3d = getComponent(inviterUserAvatarEntity, Object3DComponent)
+        const inviterUserObject3d = getComponent(inviterUserAvatarEntity, GroupComponent)[0]
         // Translate infront of the inviter
-        inviterUserObject3d.value.translateZ(2)
+        inviterUserObject3d.translateZ(2)
 
-        const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.value.position, false)
+        const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
           const spawnPoseComponent = getComponent(selfAvatarEntity, SpawnPoseComponent)
-          spawnPoseComponent?.position.copy(inviterUserObject3d.value.position)
+          spawnPoseComponent?.position.copy(inviterUserObject3d.position)
           spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
         }

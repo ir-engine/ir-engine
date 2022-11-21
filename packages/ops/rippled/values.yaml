@@ -47,7 +47,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: ripple.theoverlay.io
+    - host: ripple.etherealengine.com
       paths:
         - path: /
           pathType: ImplementationSpecific

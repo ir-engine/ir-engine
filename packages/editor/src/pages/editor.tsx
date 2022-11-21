@@ -19,10 +19,8 @@ import EditorCameraSystem from '../systems/EditorCameraSystem'
 import EditorControlSystem from '../systems/EditorControlSystem'
 import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
 import GizmoSystem from '../systems/GizmoSystem'
-import InputSystem from '../systems/InputSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
 import RenderSystem from '../systems/RenderSystem'
-import ResetInputSystem from '../systems/ResetInputSystem'
 import { EditorPage } from './EditorPage'
 import { ProjectPage } from './ProjectPage'
 import { SignInPage } from './SignInPage'
@@ -32,12 +30,6 @@ const systems = [
     uuid: 'core.editor.RenderSystem',
     systemLoader: () => Promise.resolve({ default: RenderSystem }),
     type: SystemUpdateType.POST_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.InputSystem',
-    systemLoader: () => Promise.resolve({ default: InputSystem }),
-    type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
   {
@@ -55,12 +47,6 @@ const systems = [
   {
     uuid: 'core.editor.EditorCameraSystem',
     systemLoader: () => Promise.resolve({ default: EditorCameraSystem }),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.ResetInputSystem',
-    systemLoader: () => Promise.resolve({ default: ResetInputSystem }),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },

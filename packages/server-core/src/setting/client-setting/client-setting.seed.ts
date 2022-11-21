@@ -29,7 +29,10 @@ export const clientSeed = {
       ]),
       themeSettings: JSON.stringify(defaultThemeSettings),
       themeModes: JSON.stringify(defaultThemeModes),
-      key8thWall: process.env.VITE_8TH_WALL
+      key8thWall: process.env.VITE_8TH_WALL,
+      homepageLinkButtonEnabled: false,
+      homepageLinkButtonRedirect: '',
+      homepageLinkButtonText: ''
     }
   ]
 }

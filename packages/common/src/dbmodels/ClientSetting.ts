@@ -19,4 +19,7 @@ export interface ClientSettingInterface {
   themeSettings: string
   themeModes: string
   key8thWall: string
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
 }

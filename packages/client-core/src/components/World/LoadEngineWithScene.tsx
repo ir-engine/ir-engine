@@ -22,6 +22,7 @@ import {
   PortalEffects,
   setAvatarToLocationTeleportingState
 } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { addActionReceptor, dispatchAction, getState, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
@@ -54,13 +55,21 @@ export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEnginePro
   }, [])
 }
 
-export const useLocationSpawnAvatar = () => {
+export const useLocationSpawnAvatar = (spectateIfNoVR = false) => {
   const engineState = useEngineState()
   const authState = useAuthState()
 
+  const vrSupported = useHookstate(getState(XRState)).supportedSessionModes['immersive-vr'].value
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
   useEffect(() => {
+    if (spectateIfNoVR && !vrSupported) {
+      if (!engineState.sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
+      dispatchAction(EngineActions.spectateUser({}))
+      dispatchAction(EngineActions.joinedWorld({}))
+      return
+    }
+
     if (
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
@@ -71,7 +80,6 @@ export const useLocationSpawnAvatar = () => {
       return
 
     // the avatar should only be spawned once, after user auth and scene load
-
     const user = authState.user
     const avatarDetails = user.avatar.value
     const spawnPoint = getSearchParamFromURL('spawnPoint')
@@ -96,20 +104,6 @@ export const useLocationSpawnAvatar = () => {
       )
     }
   }, [engineState.sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
-}
-
-export const useSpawnSpectator = () => {
-  const engineState = useEngineState()
-  const authState = useAuthState()
-
-  console.log(engineState.sceneLoaded.value, authState.user.value, authState.user?.avatar?.value)
-
-  useEffect(() => {
-    if (!engineState.sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
-
-    dispatchAction(EngineActions.spectateUser({}))
-    dispatchAction(EngineActions.joinedWorld({}))
-  }, [engineState.sceneLoaded, authState.user, authState.user?.avatar])
 }
 
 export const usePortalTeleport = () => {
