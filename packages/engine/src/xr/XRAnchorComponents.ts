@@ -172,7 +172,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       originalParentEntityUUID.set(originalParent)
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = world.originEntity
-      Engine.instance.currentWorld.dirtyTransforms.add(entity)
+      Engine.instance.currentWorld.dirtyTransforms[entity] = true
 
       const wireframe = anchor.wireframe.value
       anchorMeshFound(group, wireframe, meshes)
@@ -181,7 +181,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value].value
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = originalParent
-      Engine.instance.currentWorld.dirtyTransforms.add(entity)
+      Engine.instance.currentWorld.dirtyTransforms[entity] = true
 
       anchorMeshLost(group, meshes)
     }

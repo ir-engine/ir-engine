@@ -15,7 +15,8 @@ const SCHEMA = {
   position: Vector3Schema,
   rotation: QuaternionSchema,
   linearVelocity: Vector3Schema,
-  angularVelocity: Vector3Schema
+  angularVelocity: Vector3Schema,
+  scale: Vector3Schema
 }
 
 export const RigidBodyComponent = defineComponent({
@@ -30,7 +31,8 @@ export const RigidBodyComponent = defineComponent({
       position: proxifyVector3(this.position, entity),
       rotation: proxifyQuaternion(this.rotation, entity),
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
-      angularVelocity: proxifyVector3(this.angularVelocity, entity)
+      angularVelocity: proxifyVector3(this.angularVelocity, entity),
+      scale: proxifyVector3(this.scale, entity)
     }
   },
 

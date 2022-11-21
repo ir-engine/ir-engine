@@ -65,7 +65,7 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
 
   // apply the initial transform if there is one
   if (hasComponent(entity, TransformComponent)) {
-    const { position, rotation } = getComponent(entity, TransformComponent)
+    const { position, rotation, scale } = getComponent(entity, TransformComponent)
     rigidBody.body.setTranslation(position, true)
     rigidBody.body.setRotation(rotation, true)
     rigidBody.previousPosition.copy(position)
@@ -74,6 +74,7 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
     rigidBody.rotation.copy(rotation)
     rigidBody.linearVelocity.copy(V_000)
     rigidBody.angularVelocity.copy(V_000)
+    rigidBody.scale.copy(scale)
   }
 
   // set entity in userdata for fast look up when required.
