@@ -1,4 +1,5 @@
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
 import { RedisSetting } from './redis-setting.class'
 import hooks from './redis-setting.hooks'
 import createModel from './redis-setting.model'
@@ -20,4 +21,8 @@ export default (app: Application): void => {
   app.use('redis-setting', event)
   const service = app.service('redis-setting')
   service.hooks(hooks)
+
+  service.on('patched', () => {
+    updateAppConfig()
+  })
 }

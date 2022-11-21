@@ -4,7 +4,7 @@ import mime from 'mime-types'
 import path from 'path'
 
 export const getContentType = (url: string): string => {
-  return mime.lookup(url) || 'application/octet-stream'
+  return /\.ts$/.exec(url) ? 'application/octet-stream' : mime.lookup(url) || 'application/octet-stream'
 }
 
 export type DirectorySnapshot = {

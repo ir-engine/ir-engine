@@ -12,12 +12,11 @@ import {
   materialToDefaultArgs
 } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
 
-import { executeCommandWithHistory } from '../../classes/History'
-import EditorCommands from '../../constants/EditorCommands'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { accessSelectionState } from '../../services/SelectionServices'
 import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
@@ -90,7 +89,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     thumbnails.value.clear()
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     loadingData.set(true)
     clearThumbs()
       .then(() => {
@@ -188,22 +187,25 @@ export default function MaterialEditor({ material }: { ['material']: Material })
             prop = val
           }
           const properties = [Object.fromEntries([[k, prop]])]
-          executeCommandWithHistory({
-            type: EditorCommands.MODIFY_MATERIAL,
-            affectedNodes: selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
-            materialId: material.uuid,
+          EditorControlFunctions.modifyMaterial(
+            selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
+            material.uuid,
             properties
-          })
+          )
         }}
         defaults={loadingData.get() ? {} : matData.defaults.value}
       />
       {
         <Button
           onClick={async () => {
-            bakeToVertices(material as MeshStandardMaterial, [
-              { field: 'map', attribName: 'uv' },
-              { field: 'lightMap', attribName: 'uv2' }
-            ])
+            bakeToVertices(
+              material as MeshStandardMaterial,
+              ['color'],
+              [
+                { field: 'map', attribName: 'uv' },
+                { field: 'lightMap', attribName: 'uv2' }
+              ]
+            )
           }}
         >
           Bake Light Map to Vertex Colors

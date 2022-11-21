@@ -1,4 +1,7 @@
+import { getState } from '@xrengine/hyperflux'
+
 import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -12,5 +15,5 @@ export const deserializeModel: ComponentDeserializeFunction = (
   /**
    * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
    */
-  setComponent(entity, SceneAssetPendingTagComponent, true)
+  if (!getState(EngineState).sceneLoaded.value) setComponent(entity, SceneAssetPendingTagComponent, true)
 }

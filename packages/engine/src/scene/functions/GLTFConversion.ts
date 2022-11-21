@@ -9,8 +9,8 @@ import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functio
 import { getState } from '@xrengine/hyperflux'
 
 import { AssetComponentType } from '../components/AssetComponent'
+import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
-import { Object3DWithEntity } from '../components/Object3DComponent'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}

@@ -2,6 +2,8 @@ export interface ClientSetting {
   id: string
   logo: string
   title: string
+  shortTitle: string
+  startPath: string
   url: string
   releaseName?: string
   siteDescription: string
@@ -77,6 +79,8 @@ export interface ThemeOptions {
 export interface PatchClientSetting {
   logo: string
   title: string
+  shortTitle: string
+  startPath: string
   icon192px: string
   icon512px: string
   favicon16px: string

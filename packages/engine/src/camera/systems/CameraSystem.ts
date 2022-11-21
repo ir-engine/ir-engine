@@ -7,6 +7,7 @@ import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -22,7 +23,7 @@ import {
   removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -262,19 +263,28 @@ export default async function CameraSystem(world: World) {
   const spectatorQuery = defineQuery([SpectatorComponent])
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
+  const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
 
   const execute = () => {
     for (const action of cameraSpawnActions()) cameraSpawnReceptor(action, world)
 
     for (const action of spectateUserActions()) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
-      if (action.user) {
-        setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
-      } else {
-        removeComponent(cameraEntity, SpectatorComponent)
-        deleteSearchParams('spectate')
-        dispatchAction(EngineActions.leaveWorld({}))
-      }
+      if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
+      else
+        setComponent(cameraEntity, FlyControlComponent, {
+          boostSpeed: 4,
+          moveSpeed: 4,
+          lookSensitivity: 5,
+          maxXRotation: MathUtils.degToRad(80)
+        })
+    }
+
+    for (const action of exitSpectateActions()) {
+      const cameraEntity = Engine.instance.currentWorld.cameraEntity
+      removeComponent(cameraEntity, SpectatorComponent)
+      deleteSearchParams('spectate')
+      dispatchAction(EngineActions.leaveWorld({}))
     }
 
     for (const cameraEntity of followCameraQuery.enter()) {

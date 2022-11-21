@@ -133,6 +133,14 @@ export class EngineActions {
     user: matches.string.optional()
   })
 
+  static exitSpectate = defineAction({
+    type: 'xre.engine.Engine.EXIT_SPECTATE' as const
+  })
+
+  static avatarAlreadyInWorld = defineAction({
+    type: 'xre.world.AVATAR_ALREADY_IN_WORLD'
+  })
+
   static interactedWithObject = defineAction({
     type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity.optional(),
@@ -142,6 +150,7 @@ export class EngineActions {
   /**
    * Dispatched whenever an otherwise unchanging scene object has it's properties changed,
    *   such as making changes from the editor.
+   * @deprecated
    **/
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.Engine.SCENE_OBJECT_UPDATE' as const,

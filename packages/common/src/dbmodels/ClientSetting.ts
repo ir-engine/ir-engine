@@ -2,6 +2,8 @@ export interface ClientSettingInterface {
   id: string
   logo: string
   title: string
+  shortTitle: string
+  startPath: string
   url: string
   releaseName: string
   siteDescription: string

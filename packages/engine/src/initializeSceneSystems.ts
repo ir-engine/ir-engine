@@ -47,9 +47,6 @@ export const initializeSceneSystems = async () => {
   )
   if (isClient) {
     systemsToLoad.push(...(await import('./initializeSceneClientSystems')).default())
-
-    // todo: figure out the race condition that is stopping us from moving this to SceneObjectSystem
-    initializeKTX2Loader(Engine.instance.gltfLoader)
   }
 
   await initSystems(world, systemsToLoad)

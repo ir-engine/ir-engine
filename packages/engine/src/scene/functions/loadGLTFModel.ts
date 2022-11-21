@@ -23,10 +23,9 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
 
-export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
+export const parseECSData = (entity: Entity, data: [string, any][]): void => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
-  const data = Object.entries(obj3d.userData)
 
   for (const [key, value] of data) {
     const parts = key.split('.')
@@ -43,7 +42,6 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
           if (value === 'false') val = false
           _toLoad[parts[1]][parts[2]] = val
         }
-        delete obj3d.userData[key]
       }
     }
   }
@@ -82,6 +80,10 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
   }
 }
 
+export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
+  parseECSData(entity, Object.entries(obj3d.userData))
+}
+
 export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
   const scene = object3d ?? getComponent(entity, ModelComponent).scene
   const meshesToProcess: Mesh[] = []
@@ -106,9 +108,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     const node = createEntityNode(e, mesh.uuid as EntityUUID)
     addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
-    addComponent(e, NameComponent, {
-      name: mesh.userData['xrengine.entity'] ?? mesh.uuid
-    })
+    addComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
@@ -118,6 +118,8 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     addObjectToGroup(e, mesh)
     addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
     createObjectEntityFromGLTF(e, mesh)
+
+    mesh.visible = false
   }
 }
 

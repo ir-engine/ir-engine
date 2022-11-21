@@ -1,11 +1,11 @@
-import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Params, Query, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import path from 'path'
 
 import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
 import { Application } from '@xrengine/server-core/declarations'
 
-import { getModelResources, transformModel } from './model-transform.helpers'
+import { transformModel } from './model-transform.helpers'
 
 interface CreateParams {
   path: string
@@ -26,6 +26,10 @@ export class ModelTransform implements ServiceMethods<any> {
     this.rootPath = path.join(appRootPath.path, 'packages/projects/projects/')
   }
 
+  patch(id: NullableId, data: Partial<any>, params?: Params<Query> | undefined): Promise<any> {
+    return Promise.resolve({})
+  }
+
   processPath(inPath: string): string {
     const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_\\\/]+).glb$/.exec(inPath)
     if (!pathData) throw Error('could not extract path data')
@@ -44,19 +48,6 @@ export class ModelTransform implements ServiceMethods<any> {
 
   async update(id: Id, params?: Params): Promise<any> {
     return {}
-  }
-
-  async patch(id: Id, findParams: GetParams, params?: Params): Promise<any> {
-    try {
-      const src: string = id as string
-      const commonPath = this.processPath(src)
-      const inPath = `${commonPath}.glb`
-      const resources = await getModelResources(this.app, { src: inPath, filter: findParams.filter ?? '' })
-      return resources
-    } catch (e) {
-      console.error('error getting model resources')
-      console.error(e)
-    }
   }
 
   async remove(id: Id, params?: Params): Promise<any> {

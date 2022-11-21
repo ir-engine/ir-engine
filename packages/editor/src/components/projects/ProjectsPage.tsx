@@ -420,6 +420,10 @@ const ProjectsPage = () => {
         #menu-tagData {
           z-index: 1500;
         }
+        #engine-container {
+          display: flex;
+          flex-direction: column;
+        }
         `}
       </style>
       <div className={styles.projectPageContainer}>

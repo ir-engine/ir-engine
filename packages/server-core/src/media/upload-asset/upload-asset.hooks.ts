@@ -1,4 +1,5 @@
 import { disallow } from 'feathers-hooks-common'
+import { SYNC } from 'feathers-sync'
 
 import logRequest from '@xrengine/server-core/src/hooks/log-request'
 import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
@@ -22,7 +23,12 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [
+      (context) => {
+        context[SYNC] = false
+        return context
+      }
+    ],
     update: [],
     patch: [],
     remove: []

@@ -206,17 +206,22 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
   smoothedSceneScale.lerp(targetScaleVector, lerpAlpha)
 
-  /*
-  Set the world origin based on the scene anchor
-  */
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-  worldOriginTransform.matrix.compose(
+  updateWorldOrigin(
+    world,
     smoothedViewerHitResultPose.position,
     smoothedViewerHitResultPose.rotation,
-    _vecScale.setScalar(1)
+    smoothedSceneScale
   )
+}
+
+/*
+    Set the world origin
+  */
+export const updateWorldOrigin = (world: World, position: Vector3, rotation: Quaternion, scale?: Vector3) => {
+  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+  worldOriginTransform.matrix.compose(position, rotation, _vecScale.setScalar(1))
   worldOriginTransform.matrix.invert()
-  worldOriginTransform.matrix.scale(smoothedSceneScale)
+  if (scale) worldOriginTransform.matrix.scale(scale)
   worldOriginTransform.matrix.decompose(
     worldOriginTransform.position,
     worldOriginTransform.rotation,

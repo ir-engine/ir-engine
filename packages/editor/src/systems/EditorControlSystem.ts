@@ -13,6 +13,7 @@ import {
   Vector3
 } from 'three'
 
+import { V_010 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -31,7 +32,6 @@ import { BoundingBoxComponent } from '@xrengine/engine/src/interaction/component
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
@@ -49,20 +49,13 @@ import {
   TransformComponent,
   TransformComponentType
 } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
-import {
-  EditorHistory,
-  executeCommand,
-  executeCommandWithHistory,
-  executeCommandWithHistoryOnSelection,
-  redoCommand,
-  undoCommand
-} from '../classes/History'
-import EditorCommands from '../constants/EditorCommands'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { SceneState } from '../functions/sceneRenderFunctions'
@@ -73,7 +66,8 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { accessEditorHelperState } from '../services/EditorHelperState'
-import { accessSelectionState } from '../services/SelectionServices'
+import EditorHistoryReceptor, { EditorHistoryAction } from '../services/EditorHistory'
+import EditorSelectionReceptor, { accessSelectionState, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -192,7 +186,8 @@ export default async function EditorControlSystem(world: World) {
       if (!gizmoObj) continue
 
       if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
-        removeComponent(SceneState.gizmoEntity, VisibleComponent)
+        if (hasComponent(SceneState.gizmoEntity, VisibleComponent))
+          removeComponent(SceneState.gizmoEntity, VisibleComponent)
       } else {
         const lastSelection = selectedEntities[selectedEntities.length - 1]
         const isUuid = typeof lastSelection === 'string'
@@ -247,8 +242,8 @@ export default async function EditorControlSystem(world: World) {
           if ((transformModeChanged || transformSpaceChanged) && transformMode === TransformMode.Scale) {
             gizmoObj.setLocalScaleHandlesVisible(transformSpace !== TransformSpace.World)
           }
-
-          setComponent(SceneState.gizmoEntity, VisibleComponent, true)
+          if (!hasComponent(SceneState.gizmoEntity, VisibleComponent))
+            setComponent(SceneState.gizmoEntity, VisibleComponent)
         }
       }
 
@@ -341,16 +336,12 @@ export default async function EditorControlSystem(world: World) {
             )
           }
 
-          executeCommandWithHistoryOnSelection({
-            type: EditorCommands.POSITION,
-            positions: [translationVector],
-            space: transformSpace,
-            addToPosition: true
-          })
+          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+          EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
 
-          if (isGrabbing && transformMode === TransformMode.Grab) {
-            EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
-          }
+          // if (isGrabbing && transformMode === TransformMode.Grab) {
+          //   EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
+          // }
         } else if (transformMode === TransformMode.Rotate) {
           if (selectStartAndNoGrabbing) {
             initRotationDrag.subVectors(planeIntersection, dragOffset).sub(gizmoObj.position)
@@ -370,12 +361,8 @@ export default async function EditorControlSystem(world: World) {
           const relativeRotationAngle = rotationAngle - prevRotationAngle
           prevRotationAngle = rotationAngle
 
-          executeCommandWithHistoryOnSelection({
-            type: EditorCommands.ROTATE_AROUND,
-            pivot: gizmoObj.position,
-            axis: planeNormal,
-            angle: relativeRotationAngle
-          })
+          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+          EditorControlFunctions.rotateAround(nodes, planeNormal, relativeRotationAngle, gizmoObj.position)
 
           const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
           if (selectStartAndNoGrabbing) {
@@ -451,11 +438,8 @@ export default async function EditorControlSystem(world: World) {
           scaleVector.copy(curScale).divide(prevScale)
           prevScale.copy(curScale)
 
-          executeCommandWithHistoryOnSelection({
-            type: EditorCommands.SCALE,
-            scales: [scaleVector],
-            space: transformSpace
-          })
+          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+          EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
         }
       }
 
@@ -469,7 +453,7 @@ export default async function EditorControlSystem(world: World) {
           setTransformMode(shift || boost ? TransformMode.Placement : editorHelperState.transformModeOnCancel.value)
         } else if (transformMode === TransformMode.Placement) {
           if (shift || boost) {
-            executeCommandWithHistoryOnSelection({ type: EditorCommands.DUPLICATE_OBJECTS })
+            EditorControlFunctions.duplicateObject([])
           } else {
             setTransformMode(editorHelperState.transformModeOnCancel.value)
           }
@@ -479,13 +463,14 @@ export default async function EditorControlSystem(world: World) {
             const result = getIntersectingNodeOnScreen(raycaster, selectEndPosition)
             if (result) {
               if (result.node) {
-                executeCommandWithHistory({
-                  type: shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
-                  affectedNodes: [result.node]
-                })
+                if (shift) {
+                  EditorControlFunctions.toggleSelection([result.node])
+                } else {
+                  EditorControlFunctions.replaceSelection([result.node])
+                }
               }
             } else if (!shift) {
-              executeCommandWithHistory({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
+              EditorControlFunctions.replaceSelection([])
             }
           }
           SceneState.transformGizmo.deselectAxis()
@@ -493,30 +478,32 @@ export default async function EditorControlSystem(world: World) {
         }
       }
       if (getInput(EditorActionSet.rotateLeft)) {
-        executeCommandWithHistoryOnSelection({
-          type: EditorCommands.ROTATE_AROUND,
-          pivot: SceneState.transformGizmo.position,
-          axis: new Vector3(0, 1, 0),
-          angle: editorHelperState.rotationSnap.value * MathUtils.DEG2RAD
-        })
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        EditorControlFunctions.rotateAround(
+          nodes,
+          V_010,
+          editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+          SceneState.transformGizmo.position
+        )
       } else if (getInput(EditorActionSet.rotateRight)) {
-        executeCommandWithHistoryOnSelection({
-          type: EditorCommands.ROTATE_AROUND,
-          pivot: SceneState.transformGizmo.position,
-          axis: new Vector3(0, 1, 0),
-          angle: -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD
-        })
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        EditorControlFunctions.rotateAround(
+          nodes,
+          V_010,
+          -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+          SceneState.transformGizmo.position
+        )
       } else if (getInput(EditorActionSet.grab)) {
         if (transformMode === TransformMode.Grab || transformMode === TransformMode.Placement) {
           cancelGrabOrPlacement()
-          executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
+          EditorControlFunctions.replaceSelection([])
         }
         if (selectedEntities.length > 0) {
           setTransformMode(TransformMode.Grab)
         }
       } else if (getInput(EditorActionSet.cancel)) {
         cancelGrabOrPlacement()
-        executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
+        EditorControlFunctions.replaceSelection([])
       } else if (getInput(EditorActionSet.focusSelection)) {
         cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
         cameraComponent.refocus = true
@@ -537,11 +524,13 @@ export default async function EditorControlSystem(world: World) {
       } else if (getInput(EditorActionSet.decrementGridHeight)) {
         InfiniteGridHelper.instance.decrementGridHeight()
       } else if (getInput(EditorActionSet.undo)) {
-        undoCommand()
+        dispatchAction(EditorHistoryAction.undo({ count: 1 }))
       } else if (getInput(EditorActionSet.redo)) {
-        redoCommand()
+        dispatchAction(EditorHistoryAction.redo({ count: 1 }))
       } else if (getInput(EditorActionSet.deleteSelected)) {
-        executeCommandWithHistoryOnSelection({ type: EditorCommands.REMOVE_OBJECTS })
+        EditorControlFunctions.removeObject(
+          getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        )
       }
 
       if (editorHelperState.isFlyModeEnabled.value) continue
@@ -576,5 +565,12 @@ export default async function EditorControlSystem(world: World) {
     removeQuery(world, editorControlQuery)
   }
 
-  return { execute, cleanup }
+  return {
+    execute,
+    cleanup,
+    subsystems: [
+      () => Promise.resolve({ default: EditorSelectionReceptor }),
+      () => Promise.resolve({ default: EditorHistoryReceptor })
+    ]
+  }
 }

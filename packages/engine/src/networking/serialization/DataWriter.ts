@@ -1,6 +1,7 @@
 import { Group } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -400,16 +401,17 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
   else v.cursor = 0 // nothing written
 }
 
-export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, world: World) => {
-  writeUint32(v, network.userIdToUserIndex.get(userId)!)
+export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID, world: World) => {
+  writeUint32(v, network.userIDToUserIndex.get(userId)!)
+  writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
   writeUint32(v, world.fixedTick)
 }
 
 export const createDataWriter = (size: number = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
-  return (world: World, network: Network, userId: UserId, entities: Entity[]) => {
-    writeMetadata(view, network, userId, world)
+  return (world: World, network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
+    writeMetadata(view, network, userId, peerID, world)
     writeEntities(view, entities)
     return sliceViewCursor(view)
   }

@@ -4,8 +4,8 @@ import styled from 'styled-components'
 
 import { getComponent, getOptionalComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import { useSelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
@@ -37,10 +37,10 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    onObjectChange(selectionState.propertyName.value)
   }, [selectionState.objectChangeCounter])
 
-  const onObjectChange = (_: any, propertyName: string) => {
+  const onObjectChange = (propertyName: string) => {
     if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent))
   }
 
@@ -48,8 +48,8 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const updateName = () => {
     nodeName.set(name)
 
-    const obj3d = getOptionalComponent(props.node.entity, Object3DComponent)?.value
-    if (obj3d) obj3d.name = name
+    const group = getOptionalComponent(props.node.entity, GroupComponent)
+    if (group) for (const obj3d of group) obj3d.name = name
   }
 
   //function called when element get focused

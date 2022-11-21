@@ -244,3 +244,16 @@
 .iconButton {
   color: var(--iconButtonColor);
 }
+
+.tooltipRow {
+  display: flex;
+
+  & > :first-child {
+    flex-grow: 1;
+  }
+
+  & > :last-child {
+    margin-left: 6px;
+    margin-top: 6px;
+  }
+}

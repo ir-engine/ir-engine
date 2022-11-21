@@ -31,7 +31,7 @@ export const updateNearbyAvatars = () => {
   const nearbyUserIds = mediaState.nearbyLayerUsers.value
 
   network?.consumers.forEach((consumer) => {
-    if (!nearbyUserIds.includes(consumer._appData.peerId)) {
+    if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
       dispatchAction(MediaStreams.actions.closeConsumer({ consumer }))
     }
   })

@@ -1,4 +1,5 @@
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
 import { ClientSetting } from './client-setting.class'
 import hooks from './client-setting.hooks'
 import createModel from './client-setting.model'
@@ -21,4 +22,8 @@ export default (app: Application): void => {
 
   const service = app.service('client-setting')
   service.hooks(hooks)
+
+  service.on('patched', () => {
+    updateAppConfig()
+  })
 }

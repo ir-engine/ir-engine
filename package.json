@@ -37,7 +37,7 @@
   "npmClient": "npm",
   "scripts": {
     "build-client": "cd packages/client && npm run build",
-    "check": "npm run lint && npm run check-errors && npm run test && npm run test-e2e && npm run build-client",
+    "check": "npm run lint && npm run check-errors && npm run test && npm run build-client",
     "check-db-exists": "cross-env ts-node --swc scripts/check-db-exists.ts",
     "check-db-exists-only": "cross-env ts-node --swc scripts/check-db-exists-only.ts",
     "check-errors": "lerna run check-errors --parallel",
@@ -86,7 +86,8 @@
     "validate": "npm run lint && lerna run validate",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
-    "bump-project-versions": "cross-env ts-node --swc scripts/bump-project-versions.js"
+    "bump-project-versions": "cross-env ts-node --swc scripts/bump-project-versions.js",
+    "update-site-manifest": "cross-env ts-node --swc scripts/update-site-manifest.ts"
   },
   "types": "lib/",
   "pre-commit": [
@@ -139,7 +140,7 @@
     "postcss": "^8.4.16",
     "qrcode.react": "^3.1.0",
     "react-json-view": "^1.21.3",
-    "three": "0.144.0",
+    "three": "0.146.0",
     "ts-node": "10.8.2",
     "typescript": "4.8.3"
   }

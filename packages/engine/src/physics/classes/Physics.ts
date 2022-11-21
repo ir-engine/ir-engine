@@ -262,7 +262,7 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
 
   if (!Engine.instance.isEditor)
     for (const mesh of meshesToRemove) {
-      // mesh.removeFromParent()
+      mesh.removeFromParent()
       mesh.traverse((obj: Mesh<any, any>) =>
         cleanupAllMeshData(obj, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
       )
@@ -385,6 +385,7 @@ function castShape(world: World, shapecastQuery: ShapecastArgs) {
     shapecastQuery.direction,
     collider.shape,
     maxToi,
+    true,
     groups
   )
   if (hitWithNormal != null) {

@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet'
 import { Trans, useTranslation } from 'react-i18next'
 import { Redirect } from 'react-router-dom'
 
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import styles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
+import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
@@ -40,12 +40,12 @@ export const HomePage = (): any => {
             }
           `}
         </style>
-        <Helmet>
+        <MetaTags>
           <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap"
             rel="stylesheet"
           />
-        </Helmet>
+        </MetaTags>
         <div className="main-background">
           <div className="img-container">
             {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}
@@ -83,7 +83,6 @@ export const HomePage = (): any => {
                     top: 0px;
                     left: 0px;
                     width: 100%;
-                    min-width: 420px;
                     transform: none;
                     pointer-events: auto;
                 }

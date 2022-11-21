@@ -17,7 +17,6 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { Object3DComponent } from './Object3DComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
@@ -43,7 +42,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   const obj = object as Object3DWithEntity & Camera
   obj.entity = entity
 
-  setComponent(entity, Object3DComponent, { value: obj }) // backwards-compat
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
@@ -55,6 +53,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.quaternion.copy(transform.rotation)
   obj.scale.copy(transform.scale)
   obj.matrixAutoUpdate = false
+  obj.matrixWorldAutoUpdate = false
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrix
   obj.matrixWorldInverse = transform.matrixInverse
@@ -68,7 +67,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 }
 
 export function removeGroupComponent(entity: Entity) {
-  if (hasComponent(entity, Object3DComponent)) removeComponent(entity, Object3DComponent)
   if (hasComponent(entity, GroupComponent)) {
     for (const obj of getComponent(entity, GroupComponent)) obj.removeFromParent()
     removeComponent(entity, GroupComponent)
@@ -77,9 +75,6 @@ export function removeGroupComponent(entity: Entity) {
 
 export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   const obj = object as Object3DWithEntity & Camera
-
-  if (hasComponent(entity, Object3DComponent) && getComponent(entity, Object3DComponent).value === obj)
-    removeComponent(entity, Object3DComponent)
 
   if (hasComponent(entity, GroupComponent)) {
     const group = getComponent(entity, GroupComponent)

@@ -32,6 +32,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
+import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
@@ -108,9 +109,20 @@ export default function ModelTransformProperties({
   const transformHistory = useHookstate<string[]>([])
   const transformParms = useHookstate<ModelTransformParameters>({
     modelFormat: 'glb',
-    useMeshopt: false,
-    useMeshQuantization: true,
-    useDraco: true,
+    dedup: false,
+    prune: false,
+    dracoCompression: {
+      enabled: false,
+      options: {}
+    },
+    gltfPack: {
+      enabled: false,
+      options: {}
+    },
+    meshQuantization: {
+      enabled: false,
+      options: {}
+    },
     textureFormat: 'ktx2',
     maxTextureSize: 1024
   })
@@ -129,11 +141,13 @@ export default function ModelTransformProperties({
         ...(vertexBakeOptions.emissive.value ? [{ field: 'emissiveMap', attribName: 'uv' }] : []),
         ...(vertexBakeOptions.lightMap.value ? [{ field: 'lightMap', attribName: 'uv2' }] : [])
       ] as { field: keyof MeshStandardMaterial; attribName: string }[]
+      const colors: (keyof MeshStandardMaterial)[] = ['color']
       const src: MaterialSource = { type: SourceType.MODEL, path: modelState.src.value }
       await Promise.all(
         materialsFromSource(src)?.map((matComponent) =>
           bakeToVertices<MeshStandardMaterial>(
             matComponent.material as MeshStandardMaterial,
+            colors,
             attribs,
             modelState.scene.value,
             MeshBasicMaterial.prototypeId
@@ -167,9 +181,9 @@ export default function ModelTransformProperties({
   )
 
   const onChangeTransformParm = useCallback(
-    (k: keyof ModelTransformParameters) => {
+    (state: State<any>, k: keyof typeof state.value) => {
       return (val) => {
-        transformParms[k].set(val)
+        state[k].set(val)
       }
     },
     [transformParms]
@@ -246,29 +260,39 @@ export default function ModelTransformProperties({
             <InputGroup name="Model Format" label={t('editor:properties.model.transform.modelFormat')}>
               <SelectInput
                 value={transformParms.modelFormat.value}
-                onChange={onChangeTransformParm('modelFormat')}
+                onChange={onChangeTransformParm(transformParms, 'modelFormat')}
                 options={[
                   { label: 'glB', value: 'glb' },
                   { label: 'glTF', value: 'gltf' }
                 ]}
               />
             </InputGroup>
-            <InputGroup name="Use Meshopt" label={t('editor:properties.model.transform.useMeshopt')}>
-              <BooleanInput value={transformParms.useMeshopt.value} onChange={onChangeTransformParm('useMeshopt')} />
-            </InputGroup>
             <InputGroup name="Use Mesh Quantization" label={t('editor:properties.model.transform.useQuantization')}>
               <BooleanInput
-                value={transformParms.useMeshQuantization.value}
-                onChange={onChangeTransformParm('useMeshQuantization')}
+                value={transformParms.meshQuantization.enabled.value}
+                onChange={onChangeTransformParm(transformParms.meshQuantization, 'enabled')}
+              />
+              <ParameterInput
+                entity={`${modelState.src.value}-mesh-quantization`}
+                values={transformParms.meshQuantization.options.value}
+                onChange={onChangeTransformParm.bind({}, transformParms.meshQuantization.options)}
               />
             </InputGroup>
             <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
-              <BooleanInput value={transformParms.useDraco.value} onChange={onChangeTransformParm('useDraco')} />
+              <BooleanInput
+                value={transformParms.dracoCompression.enabled.value}
+                onChange={onChangeTransformParm(transformParms.dracoCompression, 'useDraco')}
+              />
+              <ParameterInput
+                entity={`${modelState.src.value}-draco-compression`}
+                values={transformParms.dracoCompression.options.value}
+                onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
+              />
             </InputGroup>
             <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
               <SelectInput
                 value={transformParms.textureFormat.value}
-                onChange={onChangeTransformParm('textureFormat')}
+                onChange={onChangeTransformParm(transformParms, 'textureFormat')}
                 options={[
                   { label: 'Default', value: 'default' },
                   { label: 'JPG', value: 'jpg' },
@@ -282,7 +306,7 @@ export default function ModelTransformProperties({
               name="Max Texture Size"
               label={t('editor:properties.model.transform.maxTextureSize')}
               value={transformParms.maxTextureSize.value}
-              onChange={onChangeTransformParm('maxTextureSize')}
+              onChange={onChangeTransformParm(transformParms, 'maxTextureSize')}
               max={4096}
               min={64}
             />
@@ -323,7 +347,7 @@ export default function ModelTransformProperties({
             />
           </InputGroup>
           <Button onClick={doVertexBake(modelState)}>Bake To Vertices</Button>
-          <Button onClick={onBakeSelected}>Bake Selected</Button>
+          <Button onClick={onBakeSelected}>Bake And Optimize</Button>
         </CollapsibleBlock>
       </TransformContainer>
     </CollapsibleBlock>

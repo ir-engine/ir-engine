@@ -44,6 +44,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
     dracoLoader.setDecoderPath(Engine.instance.publicPath + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)
     loader.setDRACOLoader(dracoLoader)
+    initializeKTX2Loader(loader)
   } else {
     const dracoLoader = new NodeDRACOLoader()
     /* @ts-ignore */

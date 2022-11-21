@@ -1,19 +1,21 @@
+import { useEffect } from 'react'
+
 import {
   LocationInstanceConnectionService,
-  useLocationInstanceConnectionState
+  useLocationInstanceConnectionState,
+  useWorldInstance
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useHookEffect } from '@xrengine/hyperflux'
+import { useHookstate } from '@xrengine/hyperflux'
 
 export const useEditorNetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
 
-  const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
-  const instanceConnectionState = useLocationInstanceConnectionState()
-  const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
+  const worldNetworkHostId = useHookstate(Engine.instance.currentWorld.hostIds.world).value!
+  const currentLocationInstanceConnection = useWorldInstance()
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (
       engineState.isEngineInitialized.value &&
       currentLocationInstanceConnection?.value &&

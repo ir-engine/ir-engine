@@ -7,6 +7,7 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -75,7 +76,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
-    const channelResult = await app.service('channel').create({
+    await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
     })
@@ -207,6 +208,8 @@ const initializeInstance = async (
         })
       }
     }
+    await app.agonesSDK.allocate()
+    if (!app.instance) app.instance = instance
     if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
     await assignExistingInstance(app, instance, channelId, locationId)
   }
@@ -225,20 +228,20 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
   const network = new SocketWebRTCServerNetwork(hostId, topic, app)
-  app.transport = network
+  app.network = network
   const initPromise = network.initialize()
 
   world.networks.set(hostId, network)
   const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
-    world._mediaHostId = hostId as UserId
+    world.hostIds.media.set(hostId as UserId)
     await initializeRealtimeSystems(true, false)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    world._worldHostId = hostId as UserId
+    world.hostIds.world.set(hostId as UserId)
 
     const [projectName, sceneName] = sceneId.split('/')
 
@@ -264,6 +267,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   NetworkPeerFunctions.createPeer(
     network,
+    'server' as PeerID,
+    network.peerIndexCount++,
     hostId,
     network.userIndexCount++,
     'server-' + hostId,
@@ -333,7 +338,7 @@ const createOrUpdateInstance = async (
 ) => {
   logger.info('Creating new instance server or updating current one.')
   logger.info(`agones state is ${status.state}`)
-  logger.info('app instance is %o, app.instance')
+  logger.info('app instance is %o', app.instance)
   logger.info(`instanceLocationId: ${app.instance?.locationId}, locationId: ${locationId}`)
 
   const isReady = status.state === 'Ready'
@@ -399,8 +404,10 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
-  const activeClients = app.transport.peers
-  const activeUsers = [...activeClients].filter(([id]) => id !== Engine.instance.userId && id !== userToIgnore.id)
+  const activeClients = app.network.peers
+  const activeUsers = [...activeClients].filter(
+    ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
+  )
   return activeUsers.length
 }
 
@@ -480,7 +487,7 @@ const handleUserDisconnect = async (
 
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (app.transport.peers.size <= 1) {
+  if (app.network.peers.size <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }

@@ -45,8 +45,8 @@ const ConferenceMode = (): JSX.Element => {
 
   for (let user of displayedUsers) {
     totalScreens += 1
-
-    if (screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id)) {
+    const peerID = Array.from(network.peers.values()).find((peer) => peer.userId === user.id)?.peerID
+    if (screenShareConsumers.find((consumer) => consumer.appData.peerID === peerID)) {
       totalScreens += 1
     }
   }
@@ -61,17 +61,14 @@ const ConferenceMode = (): JSX.Element => {
       })}
     >
       {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-        <ConferenceModeParticipant peerId={'screen_me'} key={'screen_me'} />
+        <ConferenceModeParticipant type={'screen'} peerID={network.peerID} key={'screen_' + network.peerID} />
       )}
-      <ConferenceModeParticipant peerId={'cam_me'} key={'cam_me'} />
-      {displayedUsers.map((user) => (
-        <>
-          <ConferenceModeParticipant peerId={user.id} key={user.id} />
-          {screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id) && (
-            <ConferenceModeParticipant peerId={'screen_' + user.id} key={'screen_' + user.id} />
-          )}
-        </>
-      ))}
+      <ConferenceModeParticipant type={'cam'} peerID={network.peerID} key={'cam_' + network.peerID} />
+      {consumers.map((consumer) => {
+        const peerID = consumer.appData.peerID
+        const type = consumer.appData.mediaTag === 'screen-video' ? 'screen' : 'cam'
+        return <ConferenceModeParticipant type={type} peerID={peerID} key={type + '_' + peerID} />
+      })}
     </div>
   )
 }

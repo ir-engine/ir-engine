@@ -1,18 +1,10 @@
 import * as bitECS from 'bitecs'
-import React, { useEffect } from 'react'
 
-import { createReactor, ReactorProps, ReactorRoot } from '@xrengine/hyperflux'
+import { ReactorRoot } from '@xrengine/hyperflux'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
-import {
-  Component,
-  defineComponent,
-  EntityRemovedComponent,
-  removeAllComponents,
-  setComponent,
-  useOptionalComponent
-} from './ComponentFunctions'
+import { EntityRemovedComponent, removeAllComponents, setComponent } from './ComponentFunctions'
 
 export const createEntity = (world = Engine.instance.currentWorld): Entity => {
   let entity = bitECS.addEntity(world)
@@ -41,32 +33,4 @@ export interface EntityReactorRoot extends ReactorRoot {
 
 export interface EntityReactorProps {
   root: EntityReactorRoot
-}
-
-export const defineEntityReactor = (def: { name: string; EntityReactor: React.FC<EntityReactorProps> }) => {
-  Object.defineProperty(def.EntityReactor, 'name', def.name)
-
-  return defineComponent({
-    name: def.name,
-
-    reactor: def.EntityReactor,
-
-    onInit: (entity) => {
-      const root = createReactor(() => {
-        return <def.EntityReactor root={root} />
-      }) as EntityReactorRoot
-      root.entity = entity
-      return root
-    },
-
-    toJSON: () => {},
-
-    onSet: (entity, component, json) => {
-      component.value.run()
-    },
-
-    onRemove: (entity, component) => {
-      component.value.stop()
-    }
-  })
 }

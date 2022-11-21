@@ -21,8 +21,10 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { NameComponent } from '../scene/components/NameComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
@@ -62,6 +64,7 @@ export default async function AvatarControllerSystem(world: World) {
       if (hasComponent(avatarEntity, AvatarComponent)) {
         const avatarComponent = getComponent(avatarEntity, AvatarComponent)
         targetEntity = createEntity()
+        setComponent(targetEntity, NameComponent, `Camera Target for: ${getComponent(avatarEntity, NameComponent)}`)
         setTransformComponent(targetEntity)
         setComputedTransformComponent(targetEntity, avatarEntity, () => {
           const avatarTransform = getComponent(avatarEntity, TransformComponent)
@@ -94,6 +97,25 @@ export default async function AvatarControllerSystem(world: World) {
       const controller = getComponent(controlledEntity, AvatarControllerComponent)
       updateAvatarControllerOnGround(controlledEntity)
       if (controller.movementEnabled) {
+        /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
+         *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
+         *    if detecting input on the other user
+         */
+        if (
+          !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
+          world.worldNetwork &&
+          controller.localMovementDirection.lengthSq() > 0.1
+        ) {
+          const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
+          dispatchAction(
+            WorldNetworkAction.transferAuthorityOfObject({
+              ownerId: networkObject.ownerId,
+              networkId: networkObject.networkId,
+              newAuthority: world.worldNetwork?.peerID
+            })
+          )
+          setComponent(controlledEntity, NetworkObjectAuthorityTag)
+        }
         moveAvatarWithVelocity(controlledEntity)
       }
 

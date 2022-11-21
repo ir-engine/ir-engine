@@ -170,10 +170,16 @@ export const onProjectEvent = async (
   app: Application,
   projectName: string,
   hookPath: string,
-  eventType: keyof ProjectEventHooks
+  eventType: keyof ProjectEventHooks,
+  ...args
 ) => {
   const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
-  if (typeof hooks[eventType] === 'function') await hooks[eventType](app)
+  if (typeof hooks[eventType] === 'function') {
+    if (args && args.length > 0) {
+      return await hooks[eventType](app, ...args)
+    }
+    return await hooks[eventType](app)
+  }
 }
 
 export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {

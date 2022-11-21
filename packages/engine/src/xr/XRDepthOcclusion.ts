@@ -18,7 +18,7 @@ import {
   hasComponent,
   removeQuery
 } from '../ecs/functions/ComponentFunctions'
-import { defineQueryReactorSystem } from '../ecs/functions/SystemFunctions'
+import { startQueryReactor } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
@@ -244,30 +244,25 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
   let depthSupported = false
 
-  const reactorSystem = defineQueryReactorSystem(
-    world,
-    'XRE_DepthOcclusionShaderSystem',
-    [GroupComponent, Not(SceneTagComponent), VisibleComponent],
-    function (props) {
-      const entity = props.root.entity
-      if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+  const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
+    const entity = props.root.entity
+    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
-      const depthDataTexture = useHookstate(xrState.depthDataTexture)
+    const depthDataTexture = useHookstate(xrState.depthDataTexture)
 
-      useEffect(() => {
-        for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
-          object.traverse((obj: Mesh<any, Material>) => {
-            if (obj.material) {
-              if (depthDataTexture && depthSupported)
-                XRDepthOcclusion.addDepthOBCPlugin(obj.material, depthDataTexture.value!)
-              else XRDepthOcclusion.removeDepthOBCPlugin(obj.material)
-            }
-          })
-      }, [depthDataTexture])
+    useEffect(() => {
+      for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
+        object.traverse((obj: Mesh<any, Material>) => {
+          if (obj.material) {
+            if (depthDataTexture && depthSupported)
+              XRDepthOcclusion.addDepthOBCPlugin(obj.material, depthDataTexture.value!)
+            else XRDepthOcclusion.removeDepthOBCPlugin(obj.material)
+          }
+        })
+    }, [depthDataTexture])
 
-      return null
-    }
-  )
+    return null
+  })
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
@@ -283,7 +278,6 @@ export default async function XRDepthOcclusionSystem(world: World) {
     }
     const xrFrame = Engine.instance.xrFrame as XRFrame & getDepthInformationType
     depthSupported = typeof xrFrame?.getDepthInformation === 'function'
-    reactorSystem.execute()
     if (!depthSupported) return
     XRDepthOcclusion.updateDepthMaterials(
       Engine.instance.xrFrame as any,
@@ -295,7 +289,6 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, groupQuery)
     removeActionQueue(xrSessionChangedQueue)
-    reactorSystem.cleanup()
   }
 
   return { execute, cleanup }

@@ -35,7 +35,7 @@ export function avatarDetailsReceptor(
 ) {
   const userAvatarDetails = getState(WorldState).userAvatarDetails
   userAvatarDetails[action.$from].set(action.avatarDetail)
-  if (isClient) {
+  if (isClient && action.avatarDetail.avatarURL) {
     const entity = world.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
   }
@@ -47,10 +47,15 @@ export function avatarDetailsReceptor(
  * @returns
  */
 export function setupHeadIK(entity: Entity) {
+  const target = new Object3D()
+
   setComponent(entity, AvatarHeadIKComponent, {
-    target: new Object3D(),
+    target,
     rotationClamp: 0.785398
   })
+
+  target.matrixAutoUpdate = false
+  target.matrixWorldAutoUpdate = false
 
   const headIK = getComponent(entity, AvatarHeadIKComponent)
   proxifyVector3(AvatarHeadIKComponent.target.position, entity, headIK.target.position)
@@ -73,8 +78,12 @@ export function setupLeftHandIK(entity: Entity) {
     rig.rig.LeftShoulder.attach(leftHint)
   }
 
+  const target = new Object3D()
+  target.matrixAutoUpdate = false
+  target.matrixWorldAutoUpdate = false
+
   setComponent(entity, AvatarLeftHandIKComponent, {
-    target: new Object3D(),
+    target,
     hint: leftHint,
     targetOffset: leftOffset,
     targetPosWeight: 1,
@@ -109,8 +118,12 @@ export function setupRightHandIK(entity: Entity) {
     rig.rig.RightShoulder.attach(rightHint)
   }
 
+  const target = new Object3D()
+  target.matrixAutoUpdate = false
+  target.matrixWorldAutoUpdate = false
+
   setComponent(entity, AvatarRightHandIKComponent, {
-    target: new Object3D(),
+    target,
     hint: rightHint,
     targetOffset: rightOffset,
     targetPosWeight: 1,

@@ -7,7 +7,7 @@ import { getState, useHookstate } from '@xrengine/hyperflux'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { defineQueryReactorSystem } from '../ecs/functions/SystemFunctions'
+import { startQueryReactor } from '../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -64,27 +64,24 @@ const removeShaderFromObject = (entity: Entity) => {
 export default async function XRScenePlacementShader(world: World) {
   const xrState = getState(XRState)
 
-  return defineQueryReactorSystem(
-    world,
-    'XRE_ScenePlacementShaderReactorComponent',
-    [GroupComponent, Not(SceneTagComponent), VisibleComponent],
-    function (props) {
-      const entity = props.root.entity
-      if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+  startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
+    const entity = props.root.entity
+    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
-      const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
-      const sessionActive = useHookstate(xrState.sessionActive)
+    const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
+    const sessionActive = useHookstate(xrState.sessionActive)
 
-      useEffect(() => {
-        const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value
-        if (useShader) {
-          addShaderToObject(entity)
-        } else {
-          removeShaderFromObject(entity)
-        }
-      }, [scenePlacementMode, sessionActive])
+    useEffect(() => {
+      const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value
+      if (useShader) {
+        addShaderToObject(entity)
+      } else {
+        removeShaderFromObject(entity)
+      }
+    }, [scenePlacementMode, sessionActive])
 
-      return null
-    }
-  )
+    return null
+  })
+
+  return { execute: () => {}, cleanup: async () => {} }
 }

@@ -126,6 +126,8 @@ export const MediaComponent = defineComponent({
       controls: component.controls.value,
       autoplay: component.autoplay.value,
       paths: component.paths.value,
+      volume: component.volume.value,
+      synchronize: component.synchronize.value,
       playMode: component.playMode.value,
       isMusic: component.isMusic.value
     }
@@ -344,7 +346,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   useEffect(
     function updateMixbus() {
-      if (!mediaElement) return
+      if (!mediaElement?.value) return
       const element = mediaElement.element.get({ noproxy: true })
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {

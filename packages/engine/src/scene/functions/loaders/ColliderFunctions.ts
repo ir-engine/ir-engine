@@ -84,7 +84,9 @@ export const updateCollider = (entity: Entity) => {
       shapeType: colliderComponent.shapeType,
       isTrigger: colliderComponent.isTrigger,
       collisionLayer: colliderComponent.collisionLayer,
-      collisionMask: colliderComponent.collisionMask
+      collisionMask: colliderComponent.collisionMask,
+      restitution: colliderComponent.restitution,
+      removeMesh: colliderComponent.removeMesh
     },
     new Vector3(),
     new Quaternion()
@@ -107,7 +109,8 @@ export const updateModelColliders = (entity: Entity) => {
     isTrigger: colliderComponent.isTrigger,
     removeMesh: colliderComponent.removeMesh,
     collisionLayer: colliderComponent.collisionLayer,
-    collisionMask: colliderComponent.collisionMask
+    collisionMask: colliderComponent.collisionMask,
+    restitution: colliderComponent.restitution
   })
 }
 
@@ -138,7 +141,8 @@ export const serializeCollider: ComponentSerializeFunction = (entity) => {
     isTrigger: collider.isTrigger,
     removeMesh: collider.removeMesh,
     collisionLayer: collider.collisionLayer,
-    collisionMask: collider.collisionMask
+    collisionMask: collider.collisionMask,
+    restitution: collider.restitution
   } as ColliderComponentType
   if (collider.isTrigger) {
     response.onEnter = collider.onEnter
@@ -155,7 +159,8 @@ export const parseColliderProperties = (props: Partial<ColliderComponentType>): 
     isTrigger: props.isTrigger ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.isTrigger,
     removeMesh: props.removeMesh ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.removeMesh,
     collisionLayer: props.collisionLayer ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.collisionLayer,
-    collisionMask: props.collisionMask ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.collisionMask
+    collisionMask: props.collisionMask ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.collisionMask,
+    restitution: props.restitution ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.restitution
   } as ColliderComponentType
   if (response.isTrigger) {
     response.onEnter = props.onEnter

@@ -67,7 +67,7 @@ export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>,
   world = Engine.instance.currentWorld
 ) {
-  if (action.newAuthority !== Engine.instance.userId) return
+  if (action.newAuthority !== world.worldNetwork?.peerID) return
   const equippableEntity = world.getNetworkObject(action.ownerId, action.networkId)!
   if (hasComponent(equippableEntity, EquippableComponent)) {
     dispatchAction(

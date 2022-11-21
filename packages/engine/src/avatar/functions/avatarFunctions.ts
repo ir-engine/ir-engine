@@ -1,6 +1,7 @@
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -76,6 +77,9 @@ export const loadAvatarForUser = async (
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect.value
 ) => {
+  if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
+    return
+
   if (loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) {
       getComponent(entity, AvatarControllerComponent).movementEnabled = false
@@ -111,7 +115,7 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
   const parent = await loadAvatarModelAsset(avatarURL)
   if (!parent) return
   setupAvatarModel(entity)(parent)
-  animateModel(entity)
+  // animateModel(entity)
   return parent
 }
 

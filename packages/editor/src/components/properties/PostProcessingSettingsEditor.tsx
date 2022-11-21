@@ -1,6 +1,7 @@
 import { BlendFunction } from 'postprocessing'
 import React, { ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Color } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
@@ -203,9 +204,8 @@ export const PostProcessingSettingsEditor = () => {
       case PropertyTypes.Color:
         renderVal = (
           <ColorInput
-            value={getPropertyValue(propertyPath).value}
-            onChange={(value) => getPropertyValue(propertyPath).set(value)}
-            isValueAsInteger={true}
+            value={new Color(getPropertyValue(propertyPath).value)}
+            onSelect={(value) => getPropertyValue(propertyPath).set('#' + value)}
           />
         )
         break

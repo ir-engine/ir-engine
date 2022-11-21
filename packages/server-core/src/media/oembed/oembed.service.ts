@@ -3,11 +3,11 @@ import { Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 
 import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
-import { Location } from '@xrengine/common/src/interfaces/Location'
+import { OEmbed } from '@xrengine/common/src/interfaces/OEmbed'
 import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 
 import { Application } from '../../../declarations'
-import { getStorageProvider } from '../storageprovider/storageprovider'
+import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
 import hooks from './oembed.hooks'
 
 declare module '@xrengine/common/declarations' {
@@ -21,19 +21,22 @@ export default (app: Application): void => {
     find: async (params: Params) => {
       const queryURL = params.query?.url
       if (!queryURL) return new BadRequest('Must provide a valid URL for OEmbed')
+
       const url = new URL(queryURL)
-      const isLocation = /^\/location\//.test(url.pathname)
       const serverSettingsResult = (await app.service('server-setting').find()) as Paginated<ServerSetting>
       const clientSettingsResult = (await app.service('client-setting').find()) as Paginated<ClientSetting>
+
       if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {
         const serverSettings = serverSettingsResult.data[0]
         const clientSettings = clientSettingsResult.data[0]
         if (serverSettings.clientHost !== url.origin.replace(/https:\/\//, ''))
           return new BadRequest('OEmbed request was for a different domain')
-        const returned = {
+
+        const currentOEmbedResponse = {
           version: '1.0',
-          type: isLocation ? 'photo' : 'link',
+          type: 'link',
           title: `${clientSettings.title} - ${clientSettings.url.replace(/https:\/\//, '')}`,
+          description: clientSettings.appDescription,
           provider_name: `${clientSettings.title}`,
           provider_url: `${clientSettings.url}`,
           thumbnail_url:
@@ -41,24 +44,31 @@ export default (app: Application): void => {
               ? `${clientSettings.url}${clientSettings.favicon32px}`
               : clientSettings.favicon32px,
           thumbnail_width: 32,
-          thumbnail_height: 32
-        } as any
+          thumbnail_height: 32,
+          query_url: queryURL
+        } as OEmbed
 
-        if (isLocation) {
-          const locationName = url.pathname.replace(/\/location\//, '')
-          const locationResult = (await app.service('location').find({
-            query: {
-              slugifiedName: locationName
+        const activeRoutes = await app.service('route').find()
+        const uniqueProjects = [...new Set<string>(activeRoutes.data.map((item) => item.project))]
+
+        for (const projectName of uniqueProjects) {
+          const projectConfig = await getProjectConfig(projectName)
+          if (projectConfig?.onEvent) {
+            const oEmbedResponse: OEmbed | null = await onProjectEvent(
+              app,
+              projectName,
+              projectConfig.onEvent,
+              'onOEmbedRequest',
+              url,
+              currentOEmbedResponse
+            )
+            if (oEmbedResponse) {
+              return oEmbedResponse
             }
-          })) as Paginated<Location>
-          if (locationResult.total === 0) throw new BadRequest('Invalid location name')
-          const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
-          const storageProvider = getStorageProvider()
-          returned.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
-          returned.height = 320
-          returned.width = 512
+          }
         }
-        return returned
+
+        return currentOEmbedResponse
       }
     }
   })

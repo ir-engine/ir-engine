@@ -21,6 +21,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
+import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
@@ -61,6 +62,8 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   // getting scene data
   await updateSceneFromJSON(sceneData)
   await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
+
+  dispatchAction(EditorHistoryAction.clearHistory({}))
 
   const camera = world.camera
   const localTransform = getComponent(world.cameraEntity, LocalTransformComponent)
@@ -175,7 +178,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
   if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
-    ;(Engine.instance.currentWorld.scene as any).entity = useWorld().entityTree.rootNode.entity
+    ;(Engine.instance.currentWorld.scene as any).entity = Engine.instance.currentWorld.entityTree.rootNode.entity
   }
 
   const clonedScene = serializeForGLTFExport(Engine.instance.currentWorld.scene)

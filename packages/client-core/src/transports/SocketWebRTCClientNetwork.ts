@@ -4,6 +4,7 @@ import { io as ioclient, Socket } from 'socket.io-client'
 
 import config from '@xrengine/common/src/config'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -29,6 +30,10 @@ import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientNetwork' })
 
+export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
+export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
+export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData; producerPaused: boolean }
+
 // import { encode, decode } from 'msgpackr'
 
 // Adds support for Promise to socket.io-client
@@ -42,7 +47,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
   if (locationConnectionFailed) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld._worldHostId ?? ''
+    const instanceId = Engine.instance.currentWorld.hostIds.world.value ?? ''
     if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
@@ -53,7 +58,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
     }
   } else {
     const mediaInstanceConnectionState = accessMediaInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld._mediaHostId ?? ''
+    const instanceId = Engine.instance.currentWorld.hostIds.media.value ?? ''
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = accessAuthState()
@@ -94,8 +99,8 @@ export class SocketWebRTCClientNetwork extends Network {
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 
-  producers = [] as Producer[]
-  consumers = [] as Consumer[]
+  producers = [] as ProducerExtension[]
+  consumers = [] as ConsumerExtension[]
 
   sendActions() {
     if (!this.ready) return

@@ -15,11 +15,12 @@ import {
   getComponent,
   getOptionalComponentState,
   hasComponent,
-  removeQuery
+  removeQuery,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { defineQueryReactorSystem } from '../../ecs/functions/SystemFunctions'
+import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
-import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
 import {
   AudioNodeGroup,
@@ -103,17 +104,15 @@ export default async function PositionalAudioSystem(world: World) {
   const setMediaStreamVolumeActionQueue = createActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
 
   /** Weak map entry is automatically GC'd when network object is removed */
-  const avatarAudioStreams: WeakMap<NetworkObjectComponentType, MediaStream> = new WeakMap()
+  const avatarAudioStreams: WeakMap<ComponentType<typeof NetworkObjectComponent>, MediaStream> = new WeakMap()
 
-  const positionalAudioPannerReactor = defineQueryReactorSystem(
-    world,
-    'XRE_PositionalAudioPannerReactorSystem',
+  const positionalAudioPannerReactor = startQueryReactor(
     [PositionalAudioComponent, TransformComponent],
     function (props) {
       const entity = props.root.entity
       if (!hasComponent(entity, PositionalAudioComponent)) throw props.root.stop()
 
-      const mediaElement = getOptionalComponentState(entity, MediaElementComponent)
+      const mediaElement = useOptionalComponent(entity, MediaElementComponent)
       const panner = useHookstate(null as ReturnType<typeof addPannerNode> | null)
 
       useEffect(() => {
@@ -145,8 +144,6 @@ export default async function PositionalAudioSystem(world: World) {
      * Scene Objects
      */
 
-    positionalAudioPannerReactor.execute()
-
     /**
      * No need to update pose of positional audio objects if the audio context is not running
      */
@@ -159,9 +156,13 @@ export default async function PositionalAudioSystem(world: World) {
     const networkedAvatarAudioEntities = networkedAvatarAudioQuery()
     for (const entity of networkedAvatarAudioEntities) {
       const networkObject = getComponent(entity, NetworkObjectComponent)
-      const peerId = networkObject.ownerId
+      const peerID = networkObject.ownerId
       const consumer = network?.consumers.find(
-        (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
+        (c) =>
+          c.appData.mediaTag === 'cam-audio' &&
+          Array.from(network.peers.values()).find(
+            (peer) => c.appData.peerID === peer.peerID && peer.userId === networkObject.ownerId
+          )
       )
 
       // avatar still exists but audio stream does not
@@ -183,7 +184,7 @@ export default async function PositionalAudioSystem(world: World) {
       }
 
       // get existing stream - need to wait for UserWindowMedia to populate
-      const existingAudioObject = document.getElementById(`${peerId}_audio`)! as HTMLAudioElement
+      const existingAudioObject = document.getElementById(`${peerID}_audio`)! as HTMLAudioElement
       if (!existingAudioObject) continue
 
       // mute existing stream
@@ -277,7 +278,7 @@ export default async function PositionalAudioSystem(world: World) {
     removeQuery(world, positionalAudioQuery)
     removeQuery(world, networkedAvatarAudioQuery)
     removeActionQueue(setMediaStreamVolumeActionQueue)
-    positionalAudioPannerReactor.cleanup()
+    positionalAudioPannerReactor.stop()
   }
 
   return { execute, cleanup }
