@@ -90,6 +90,16 @@ export default (app: Application) => {
       key8thWall: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      homepageLinkButtonEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      homepageLinkButtonRedirect: {
+        type: DataTypes.STRING
+      },
+      homepageLinkButtonText: {
+        type: DataTypes.STRING
       }
     },
     {
