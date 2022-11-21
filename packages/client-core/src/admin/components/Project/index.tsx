@@ -24,7 +24,6 @@ const Projects = () => {
   const [projectDrawerOpen, setProjectDrawerOpen] = useState(false)
   const [updateDrawerOpen, setUpdateDrawerOpen] = useState(false)
   const [isFirstRun, setIsFirstRun] = useState(true)
-  const [engineVersion, setEngineVersion] = useState('')
 
   const handleOpenProjectDrawer = () => {
     setProjectDrawerOpen(true)
@@ -48,7 +47,7 @@ const Projects = () => {
   useEffect(() => {
     if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
       ProjectService.fetchBuilderTags()
-      ProjectService.getEngineVersion().then((version) => setEngineVersion(version || '{Not Found}'))
+      ProjectService.getBuilderInfo()
     }
   }, [user])
 
@@ -101,7 +100,10 @@ const Projects = () => {
         </Grid>
       </Grid>
 
-      <Chip className={styles.engineVersion} label={`Current Engine Version: ${engineVersion}`} />
+      <div className={styles.engineInfo}>
+        <Chip label={`Current Engine Version: ${adminProjectState.builderInfo.engineVersion.value}`} />
+        <Chip label={`Current Engine Commit: ${adminProjectState.builderInfo.engineCommit.value}`} />
+      </div>
 
       <ProjectTable className={styles.rootTableWithSearch} />
 

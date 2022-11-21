@@ -758,10 +758,15 @@
   flex-direction: column;
 }
 
-.engineVersion {
-  background-color: var(--popupBackground);
-  color: var(--textColor);
+.engineInfo {
+  display: flex;
   margin-bottom: 10px;
+
+  & > * {
+    background-color: var(--popupBackground);
+    color: var(--textColor);
+    margin-right: 5px;
+  }
 }
 
 .projectUpdateContainer {
