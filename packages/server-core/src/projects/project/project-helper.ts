@@ -580,13 +580,13 @@ export const getTags = async (
 }
 
 export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
-  const builderRepo = process.env.BUILDER_REPOSITORY || ''
+  const builderRepo = (process.env.BUILDER_REPOSITORY as string) || ''
   const publicECRExec = publicECRRegex.exec(builderRepo)
   const privateECRExec = privateECRRegex.exec(builderRepo)
   if (publicECRExec) {
     const ecr = new AWS.ECRPUBLIC({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET,
+      accessKeyId: process.env.AWS_ACCESS_KEY as string,
+      secretAccessKey: process.env.AWS_SECRET as string,
       region: 'us-east-1'
     })
     const result = await ecr
@@ -612,8 +612,8 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
       })
   } else if (privateECRExec) {
     const ecr = new AWS.ECR({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET,
+      accessKeyId: process.env.AWS_ACCESS_KEY as string,
+      secretAccessKey: process.env.AWS_SECRET as string,
       region: privateECRExec[1]
     })
     const result = await ecr
@@ -640,7 +640,7 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   } else {
     const repoSplit = builderRepo.split('/')
     const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
-    const repo = repoSplit.length === 1 ? repoSplit[0] : repoSplit[1]
+    const repo = repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'xrengine-builder' : repoSplit[0]) : repoSplit[1]
     try {
       const result = await axios.get(
         `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
@@ -656,6 +656,7 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
         }
       })
     } catch (e) {
+      console.error(e)
       return []
     }
   }
