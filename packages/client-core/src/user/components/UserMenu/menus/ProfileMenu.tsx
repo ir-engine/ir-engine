@@ -220,7 +220,7 @@ const ProfileMenu = ({
   }
 
   const handleLogout = async (e) => {
-    if (changeActiveMenu) changeActiveMenu(null)
+    if (changeActiveMenu) changeActiveMenu(Views.Closed)
     else if (onClose) onClose()
     setShowUserId(false)
     setShowApiKey(false)

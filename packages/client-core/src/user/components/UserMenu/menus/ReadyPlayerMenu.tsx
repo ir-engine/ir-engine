@@ -130,7 +130,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
 
     setLoading(LoadingState.None)
-    changeActiveMenu(null)
+    changeActiveMenu(Views.Closed)
   }
 
   const getCanvasBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {

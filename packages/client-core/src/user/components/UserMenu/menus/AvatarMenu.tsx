@@ -118,7 +118,7 @@ const AvatarMenu = (props: Props) => {
 
   const closeMenu = (e) => {
     e.preventDefault()
-    props.changeActiveMenu(null)
+    props.changeActiveMenu(Views.Closed)
   }
 
   const openAvatarSelectMenu = (e) => {
