@@ -178,7 +178,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
   if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
-    ;(Engine.instance.currentWorld.scene as any).entity = useWorld().entityTree.rootNode.entity
+    ;(Engine.instance.currentWorld.scene as any).entity = Engine.instance.currentWorld.entityTree.rootNode.entity
   }
 
   const clonedScene = serializeForGLTFExport(Engine.instance.currentWorld.scene)

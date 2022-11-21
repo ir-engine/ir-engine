@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, getState, NO_PROXY, useHookstate } from '@xrengine/hyperflux'
 
 import GroupsIcon from '@mui/icons-material/Groups'
 import PersonIcon from '@mui/icons-material/Person'
@@ -20,17 +20,12 @@ import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import SelectAvatarMenu from './menus/SelectAvatarMenu'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
+import { PopupMenuActions, PopupMenuState } from './PopupMenuService'
 import { Views } from './util'
 
 export interface UserMenuProps {
   enableSharing?: boolean
 }
-
-type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
-
-// panels that can be open
-/**  @todo  Replace these top level consts with hyperflux state once new hookstate version is brought in */
-export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 
 export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">
@@ -45,88 +40,79 @@ export const EmoteIcon = () => (
   </svg>
 )
 
-const ActiveMenuContext = createContext<[ActiveMenu, (c: ActiveMenu) => void]>([{ view: Views.Closed }, () => {}])
+export const UserMenu = (): any => {
+  const popupMenuState = useHookstate(getState(PopupMenuState))
+  const Panel = popupMenuState.openMenu.value ? popupMenuState.menus.get(NO_PROXY)[popupMenuState.openMenu.value] : null
+  const hotbarItems = popupMenuState.hotbar
 
-export const useActiveMenu = () => useContext(ActiveMenuContext)
+  const setCurrentActiveMenu = (args) => {
+    dispatchAction(PopupMenuActions.showPopupMenu(args))
+  }
 
-UserMenuPanels.set(Views.Profile, (props) => <ProfileMenu {...props} allowAvatarChange />)
-UserMenuPanels.set(Views.Settings, SettingMenu)
-UserMenuPanels.set(Views.Share, ShareMenu)
-UserMenuPanels.set(Views.Party, PartyMenu)
-UserMenuPanels.set(Views.AvatarSelect, SelectAvatarMenu)
-UserMenuPanels.set(Views.AvatarUpload, AvatarUploadModal)
-UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
-UserMenuPanels.set(Views.Emote, EmoteMenu)
-UserMenuPanels.set(Views.Friends, FriendsMenu)
-UserMenuPanels.set(Views.AvatarContext, AvatarContextMenu)
-
-// menus to be shown as icons at bottom of screen
-export const HotbarMenu = new Map<string, any>()
-HotbarMenu.set(Views.Profile, PersonIcon)
-// HotbarMenu.set(Views.Settings, SettingsIcon)
-HotbarMenu.set(Views.Share, GroupsIcon)
-// HotbarMenu.set(Views.Party, GroupsIcon)
-HotbarMenu.set(Views.Emote, EmoteIcon)
-
-interface Props {
-  animate?: any
-  fadeOutBottom?: any
-}
-
-interface ActiveMenu {
-  view: typeof Views[keyof typeof Views]
-  params?: any
-}
-
-export const UserMenu = (props: Props): any => {
-  const [currentActiveMenu, setCurrentActiveMenu] = useState<ActiveMenu>({ view: Views.Closed })
+  useEffect(() => {
+    getState(PopupMenuState).menus.merge({
+      [Views.Profile]: (props) => <ProfileMenu {...props} allowAvatarChange />,
+      [Views.Settings]: SettingMenu,
+      [Views.Share]: ShareMenu,
+      [Views.Party]: PartyMenu,
+      [Views.AvatarSelect]: SelectAvatarMenu,
+      [Views.AvatarUpload]: AvatarUploadModal,
+      [Views.ReadyPlayer]: ReadyPlayerMenu,
+      [Views.Emote]: EmoteMenu,
+      [Views.Friends]: FriendsMenu,
+      [Views.AvatarContext]: AvatarContextMenu
+    })
+    getState(PopupMenuState).hotbar.merge({
+      [Views.Profile]: PersonIcon,
+      [Views.Share]: GroupsIcon,
+      [Views.Emote]: EmoteIcon
+    })
+  }, [])
 
   const { bottomShelfStyle } = useShelfStyles()
-  const Panel = UserMenuPanels.get(currentActiveMenu?.view)!
 
   return (
-    <ActiveMenuContext.Provider value={[currentActiveMenu, setCurrentActiveMenu]}>
-      <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
-        <div>
-          <section
-            className={`${styles.settingContainer} ${bottomShelfStyle} ${
-              currentActiveMenu?.view ? styles.fadeOutBottom : ''
-            }`}
-          >
-            <div className={styles.iconContainer}>
-              {Array.from(HotbarMenu.keys()).map((id, index) => {
-                const IconNode = HotbarMenu.get(id)
-                return (
-                  <span
-                    key={index}
-                    id={id + '_' + index}
-                    onClick={() => setCurrentActiveMenu({ view: id })}
-                    className={`${styles.materialIconBlock} ${
-                      currentActiveMenu && currentActiveMenu.view === id ? styles.activeMenu : null
-                    }`}
-                  >
-                    <IconNode
-                      className={styles.icon}
-                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    />
-                  </span>
-                )
-              })}
-            </div>
-          </section>
-          {currentActiveMenu && currentActiveMenu.view && (
-            <div style={{ pointerEvents: 'auto' }}>
-              <Panel
-                {...currentActiveMenu.params}
-                changeActiveMenu={(view, params) => {
-                  setCurrentActiveMenu({ view, params })
-                }}
-              />
-            </div>
-          )}
-        </div>
-      </ClickAwayListener>
-    </ActiveMenuContext.Provider>
+    <ClickAwayListener onClickAway={() => setCurrentActiveMenu({ id: Views.Closed })} mouseEvent="onMouseDown">
+      <div>
+        <section
+          className={`${styles.settingContainer} ${bottomShelfStyle} ${
+            popupMenuState.openMenu.value ? styles.fadeOutBottom : ''
+          }`}
+        >
+          <div className={styles.iconContainer}>
+            {Object.keys(hotbarItems.value).map((id, index) => {
+              const IconNode = hotbarItems.get(NO_PROXY)[id]
+              if (!IconNode) return null
+              return (
+                <span
+                  key={index}
+                  id={id + '_' + index}
+                  onClick={() => setCurrentActiveMenu({ id })}
+                  className={`${styles.materialIconBlock} ${
+                    popupMenuState.openMenu.value && popupMenuState.openMenu.value === id ? styles.activeMenu : null
+                  }`}
+                >
+                  <IconNode
+                    className={styles.icon}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  />
+                </span>
+              )
+            })}
+          </div>
+        </section>
+        {Panel && (
+          <div style={{ pointerEvents: 'auto' }}>
+            <Panel
+              {...popupMenuState.params.value}
+              changeActiveMenu={(id, params) => {
+                setCurrentActiveMenu({ id, params })
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </ClickAwayListener>
   )
 }

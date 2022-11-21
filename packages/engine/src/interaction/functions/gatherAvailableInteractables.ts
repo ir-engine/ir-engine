@@ -7,10 +7,8 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractState } from '../systems/InteractiveSystem'
 
 const mat4 = new Matrix4()

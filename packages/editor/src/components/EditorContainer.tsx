@@ -13,7 +13,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
@@ -180,7 +180,7 @@ const EditorContainer = () => {
     }
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (sceneName.value && editorReady) {
       logger.info(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
@@ -469,7 +469,7 @@ const EditorContainer = () => {
     dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (editorError) {
       onEditorError(editorError.value)
     }

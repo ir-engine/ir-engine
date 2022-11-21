@@ -8,13 +8,12 @@ import { Object3D } from 'three'
 
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities, traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
@@ -85,25 +84,26 @@ function getModelNodesFromTreeWalker(
     outputNodes.push(node)
     const isCollapsed = collapsedNodes[node.entityNode.entity]
     if (showObject3Ds && hasComponent(node.entityNode.entity, ModelComponent)) {
-      const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
-      if (!obj3d) continue
+      const group = getOptionalComponent(node.entityNode.entity, GroupComponent)
+      if (!group?.length) continue
       node.isLeaf = false
       if (isCollapsed) continue
       let childIndex = node.childIndex
-      traverseWithDepth(obj3d, node.depth, (obj, depth) => {
-        if (obj === obj3d) return
-        outputNodes.push({
-          depth,
-          obj3d: obj,
-          entityNode: null!,
-          childIndex: childIndex++,
-          lastChild: false,
-          isLeaf: true, //!obj.children.length, // todo, store collapsed state on obj3d
-          isCollapsed: node.isCollapsed,
-          selected: selected.has(obj.uuid),
-          active: false
+      for (const obj3d of group)
+        traverseWithDepth(obj3d, node.depth, (obj, depth) => {
+          if (group.includes(obj)) return
+          outputNodes.push({
+            depth,
+            obj3d: obj,
+            entityNode: null!,
+            childIndex: childIndex++,
+            lastChild: false,
+            isLeaf: true, //!obj.children.length, // todo, store collapsed state on obj3d
+            isCollapsed: node.isCollapsed,
+            selected: selected.has(obj.uuid),
+            active: false
+          })
         })
-      })
     }
   }
   return outputNodes
@@ -175,7 +175,7 @@ export default function HierarchyPanel({
   )
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
-  useHookEffect(updateNodeHierarchy, [
+  useEffect(updateNodeHierarchy, [
     showObject3DInHierarchy,
     selectionState.selectedEntities,
     selectionState.sceneGraphChangeCounter
@@ -400,8 +400,8 @@ export default function HierarchyPanel({
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
       if (!node.obj3d) updateProperties(NameComponent, name, [node.entityNode])
-      const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
-      if (obj3d) obj3d.name = name
+      const groups = getOptionalComponent(node.entityNode.entity, GroupComponent)
+      if (groups) for (const obj of groups) if (obj) obj.name = name
     }
 
     setRenamingNode(null)
@@ -444,7 +444,7 @@ export default function HierarchyPanel({
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = useWorld()
+        const world = Engine.instance.currentWorld
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, world.entityTree.rootNode))
           : isAncestor(item.value, world.entityTree.rootNode))

@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import MetaTags from 'react-meta-tags'
 import { Redirect } from 'react-router-dom'
 
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import styles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
+import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'

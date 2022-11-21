@@ -12,7 +12,7 @@ import {
   materialToDefaultArgs
 } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
 
@@ -89,7 +89,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     thumbnails.value.clear()
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     loadingData.set(true)
     clearThumbs()
       .then(() => {

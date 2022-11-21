@@ -13,9 +13,7 @@ export const createMediaControlsUI = (entity: Entity) => {
 
   addEntityNodeChild(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
-  addComponent(ui.entity, NameComponent, {
-    name: 'mediacontrols-ui-' + entity
-  })
+  addComponent(ui.entity, NameComponent, 'mediacontrols-ui-' + entity)
 
   ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
     const mat = layer.contentMesh.material as THREE.MeshBasicMaterial

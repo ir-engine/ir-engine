@@ -22,7 +22,6 @@ import {
   LoadState,
   SCENE_COMPONENT_ASSET_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/components/AssetComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import { Engine } from '../../../ecs/classes/Engine'
 

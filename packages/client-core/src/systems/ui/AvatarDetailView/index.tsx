@@ -22,7 +22,7 @@ export function createAvatarDetailView(id: string) {
       videoPreviewMesh
     })
   )
-  addComponent(ui.entity, NameComponent, { name: 'avatar-detail-ui-' + id })
+  addComponent(ui.entity, NameComponent, 'avatar-detail-ui-' + id)
   return ui
 }
 

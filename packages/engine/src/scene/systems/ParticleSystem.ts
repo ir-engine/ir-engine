@@ -6,7 +6,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import {
   ParticleEmitterComponent,
   SCENE_COMPONENT_PARTICLE_EMITTER,

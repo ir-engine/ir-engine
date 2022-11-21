@@ -7,7 +7,7 @@ import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { GroupComponent } from '../../components/GroupComponent'
 import {
   SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
   SpotLightComponent,
@@ -70,7 +70,7 @@ describe('SpotLightFunctions', () => {
       deserializeSpotLight(entity, sceneComponentData)
       updateSpotLight(entity)
 
-      const obj3d = getComponent(entity, Object3DComponent)?.value
+      const obj3d = getComponent(entity, GroupComponent)[0]
       assert(obj3d && obj3d instanceof SpotLight, 'SpotLight is not created')
       assert(obj3d.target.position.x === 0 && obj3d.target.position.y === -1 && obj3d.target.position.z === 0)
       assert(obj3d.children.includes(obj3d.target))

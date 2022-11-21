@@ -15,7 +15,7 @@ import {
   registerMaterial
 } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary, MaterialLibraryActions } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, removeActionQueue, useHookEffect, useHookstate, useState } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue, useHookstate, useState } from '@xrengine/hyperflux'
 
 import { Divider, Grid, Stack } from '@mui/material'
 
@@ -97,7 +97,7 @@ export default function MaterialLibraryPanel() {
     nodeChanges.set(nodeChanges.get() + 1)
   }, [])
 
-  useHookEffect(() => {
+  useEffect(() => {
     srcs.set([...MaterialLibrary.sources.values()])
     nodes.set(createNodes())
   }, [nodeChanges, selectionState.selectedEntities])
