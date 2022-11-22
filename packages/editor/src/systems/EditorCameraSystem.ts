@@ -119,7 +119,7 @@ export default async function EditorCameraSystem(world: World) {
       }
       localTransform.position.copy(camera.position)
       localTransform.rotation.copy(camera.quaternion)
-      world.dirtyTransforms.add(entity)
+      world.dirtyTransforms[entity] = true
     }
   }
 

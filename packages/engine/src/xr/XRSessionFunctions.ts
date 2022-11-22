@@ -89,7 +89,6 @@ export const requestXRSession = createHookableFunction(
 
       const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
-      setLocalTransformComponent(world.cameraEntity, world.originEntity)
 
       const onSessionEnd = () => {
         xrState.sessionActive.set(false)
@@ -99,7 +98,6 @@ export const requestXRSession = createHookableFunction(
         EngineRenderer.instance.xrSession = null!
         const world = Engine.instance.currentWorld
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
-        removeComponent(world.cameraEntity, LocalTransformComponent)
         EngineRenderer.instance.renderer.domElement.style.display = ''
 
         xrState.originReferenceSpace.set(null)
