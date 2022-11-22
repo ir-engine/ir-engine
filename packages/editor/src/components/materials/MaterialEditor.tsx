@@ -94,7 +94,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     return () => {
       clearThumbs()
     }
-  }, [materialComponent, materialComponent.prototype, materialComponent.material])
+  }, [materialComponent.prototype, materialComponent.material])
 
   return (
     <Fragment>
