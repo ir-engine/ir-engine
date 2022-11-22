@@ -1,4 +1,4 @@
-import { entityExists } from 'bitecs'
+import { entityExists, Not } from 'bitecs'
 import { Camera, Mesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
@@ -41,7 +41,7 @@ import {
 
 const transformQuery = defineQuery([TransformComponent])
 const localTransformQuery = defineQuery([LocalTransformComponent])
-const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
 const staticBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent])

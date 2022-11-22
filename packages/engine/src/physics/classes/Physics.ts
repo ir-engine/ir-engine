@@ -29,6 +29,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { getTagComponentForRigidBody, RigidBodyComponent } from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
@@ -110,10 +111,7 @@ function applyDescToCollider(
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 }
 
-function createColliderDesc(
-  mesh: Mesh,
-  colliderDescOptions: ColliderDescOptions & { singleton?: boolean }
-): ColliderDesc {
+function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
   if (!colliderDescOptions.shapeType && colliderDescOptions.type)
     colliderDescOptions.shapeType = colliderDescOptions.type
 
@@ -204,10 +202,7 @@ function createColliderDesc(
       return undefined!
   }
 
-  const position = colliderDescOptions.singleton ? new Vector3() : mesh.position
-  const rotation = colliderDescOptions.singleton ? new Quaternion() : mesh.quaternion
-
-  applyDescToCollider(colliderDesc, colliderDescOptions, position, rotation)
+  applyDescToCollider(colliderDesc, colliderDescOptions, mesh.position, mesh.quaternion)
 
   return colliderDesc
 }
