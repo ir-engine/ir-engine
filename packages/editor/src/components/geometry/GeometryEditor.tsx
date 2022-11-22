@@ -28,6 +28,9 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
   )
 
   const geoData = useHookstate(updateGeoData())
+  useEffect(() => {
+    geoData.set(updateGeoData())
+  }, [updateGeo])
 
   const deleteBufferAttribute = useCallback(
     (attribName) => () => {

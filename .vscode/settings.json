@@ -8,5 +8,7 @@
     "/packages/server/upload": true,
     "/packages/client/dist": true
   },
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "scm.alwaysShowRepositories": true,
+  "scm.repositories.visible": 0
 }

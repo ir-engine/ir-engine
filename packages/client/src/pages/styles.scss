@@ -76,6 +76,7 @@
   --inputOutline: #b4b4b4;
   --inputOutlineRgb: 180, 180, 180;
   --inputBackground: #d4d4d4;
+  --primaryHighlight: rgb(81 81 255);
   --dropdownMenuBackground: #c0c0c0;
   --dropdownMenuHoverBackground: #b8b8b8;
   --dropdownMenuSelectedBackground: #acacac;
@@ -84,8 +85,6 @@
   --tableHeaderBackground: #c0c0c0;
   --tableCellBackground: #e1e1e1;
   --tableFooterBackground: #c0c0c0;
-  --themeSwitchTrack: #aab4be;
-  --themeSwitchThumb: #e5d200;
   --dockBackground: #bdbdbda6;
 }
 
@@ -119,6 +118,7 @@
   --inputOutline: #fff;
   --inputOutlineRgb: 255, 255, 255;
   --inputBackground: rgb(80 80 80 / 100%);
+  --primaryHighlight: rgb(81 81 255);
   --dropdownMenuBackground: rgb(61 61 61 / 100%);
   --dropdownMenuHoverBackground: rgb(88 88 88 / 100%);
   --dropdownMenuSelectedBackground: rgb(95 95 95 / 100%);
@@ -127,8 +127,6 @@
   --tableHeaderBackground: rgb(76 76 76 / 100%);
   --tableCellBackground: rgb(104 104 104 / 100%);
   --tableFooterBackground: rgb(71 71 71 / 100%);
-  --themeSwitchTrack: #8796a5;
-  --themeSwitchThumb: #02022d;
   --dockBackground: rgb(53 53 53 / 93%);
 }
 
@@ -162,6 +160,7 @@
   --inputOutline: #fff;
   --inputOutlineRgb: 255, 255, 255;
   --inputBackground: #3c3c6f;
+  --primaryHighlight: rgb(81 81 255);
   --dropdownMenuBackground: #1f1b48;
   --dropdownMenuHoverBackground: #2a2567;
   --dropdownMenuSelectedBackground: #5f5ff1;
@@ -170,8 +169,6 @@
   --tableHeaderBackground: #1f1b48;
   --tableCellBackground: #3c3c6f;
   --tableFooterBackground: #1f1b48;
-  --themeSwitchTrack: #8796a5;
-  --themeSwitchThumb: #02022d;
   --dockBackground: rgb(73 66 152 / 85%);
 }
 
@@ -472,7 +469,6 @@ vite-error-overlay {
 .prompt-box-8w {
   pointer-events: auto;
 }
-
 
 #root {
   height: 100%;

@@ -228,7 +228,7 @@ class TrailRenderer extends Mesh {
     length: number,
     dragTexture: boolean,
     localHeadWidth: number,
-    localHeadGeometry: Vector3[],
+    localHeadGeometry: Vector3[] | undefined,
     targetObject: any
   ) {
     this.length = length > 0 ? length + 1 : 0
@@ -260,7 +260,7 @@ class TrailRenderer extends Mesh {
     this.reset()
   }
 
-  initializeLocalHeadGeometry(localHeadWidth: number, localHeadGeometry: Vector3[]) {
+  initializeLocalHeadGeometry(localHeadWidth: number, localHeadGeometry: Vector3[] | undefined) {
     this.localHeadGeometry = []
 
     if (!localHeadGeometry) {

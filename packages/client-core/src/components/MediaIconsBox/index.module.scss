@@ -29,7 +29,7 @@
       height: 50px;
       display: block;
       transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-      background: var(--purpleButtonColor);
+      background: var(--primaryHighlight);
       top: 0;
       left: 0;
       z-index: -1;
@@ -42,8 +42,8 @@
     }
 
     &.on svg {
-      fill: lightseagreen !important;
-      color: lightseagreen !important;
+      fill: var(--primaryHighlight) !important;
+      color: var(--primaryHighlight) !important;
     }
 
     > svg {

@@ -51,7 +51,6 @@ export const UserMenu = (): any => {
   const popupMenuState = useHookstate(getState(PopupMenuState))
   const Panel = popupMenuState.openMenu.value ? popupMenuState.menus.get(NO_PROXY)[popupMenuState.openMenu.value] : null
   const hotbarItems = popupMenuState.hotbar
-  console.log(hotbarItems, popupMenuState.openMenu.value)
 
   const setCurrentActiveMenu = (args: { id: string; params?: any }) => {
     dispatchAction(PopupMenuActions.showPopupMenu(args))
@@ -96,7 +95,6 @@ export const UserMenu = (): any => {
             {Object.keys(hotbarItems.value).map((id, index) => {
               const IconNode = hotbarItems.get(NO_PROXY)[id]
               if (!IconNode) return null
-              console.log(id)
               return (
                 <span
                   key={index}
@@ -119,7 +117,7 @@ export const UserMenu = (): any => {
         {Panel && (
           <div style={{ pointerEvents: 'auto' }}>
             <Panel
-              {...popupMenuState.params.value}
+              {...popupMenuState.get(NO_PROXY)?.params}
               changeActiveMenu={(id, params) => {
                 setCurrentActiveMenu({ id, params })
               }}

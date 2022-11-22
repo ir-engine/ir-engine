@@ -8,7 +8,7 @@
   &:hover {
     cursor: pointer;
     color: var(--textColor);
-    background-color: dimgray;
+    background: dimgray;
     border-radius: 100px;
   }
 }
@@ -74,7 +74,7 @@
       border-radius: 50%;
       height: 50px;
       width: 50px;
-      background-color: var(--iconButtonBackground);
+      background: var(--iconButtonBackground);
 
       svg {
         color: var(--iconButtonColor);
@@ -86,7 +86,7 @@
 
       &:hover {
         cursor: pointer;
-        background-color: var(--iconButtonHoverColor);
+        background: var(--iconButtonHoverColor);
       }
 
       &:last-child {
@@ -110,7 +110,7 @@
     position: absolute;
     bottom: 75px;
     padding: 0 20px;
-    background-color: var(--popupBackground);
+    background: var(--popupBackground);
     border-radius: 20px;
     width: 140px;
     right: 100px;
@@ -213,7 +213,7 @@
   padding: 30px;
   z-index: 6;
   border-radius: 10px;
-  background-color: var(--popupBackground);
+  background: var(--popupBackground);
   box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
 
@@ -278,7 +278,7 @@
           min-width: 30px;
           border-radius: 50%;
           color: var(--textColor);
-          background-color: var(--iconButtonBackground);
+          background: var(--iconButtonBackground);
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
@@ -288,7 +288,7 @@
             height: 40px;
             bottom: -15px;
             right: -15px;
-            background-color: var(--iconButtonSelectedBackground);
+            background: var(--iconButtonSelectedBackground);
           }
         }
       }
@@ -512,7 +512,7 @@
   padding: 20px;
   z-index: 6;
   border-radius: 20px;
-  background-color: var(--popupBackground);
+  background: var(--popupBackground);
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -595,7 +595,7 @@
           min-width: 30px;
           border-radius: 50%;
           color: var(--textColor);
-          background-color: var(--iconButtonBackground);
+          background: var(--iconButtonBackground);
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
@@ -605,7 +605,7 @@
             height: 40px;
             bottom: -15px;
             right: -15px;
-            background-color: var(--iconButtonSelectedBackground);
+            background: var(--iconButtonSelectedBackground);
           }
 
           svg {
@@ -641,7 +641,7 @@
             }
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-              border-color: white !important;
+              border-color: var(--inputOutline);
             }
           }
 
@@ -905,7 +905,7 @@
       .shareBtn {
         width: 100%;
         height: 35px;
-        background: var(--purpleButtonColor);
+        background: var(--primaryHighlight);
         color: #fff;
         text-transform: capitalize;
 
@@ -939,7 +939,7 @@
 
     .newLocation {
       width: 90px;
-      background: var(--purpleButtonColor);
+      background: var(--primaryHighlight);
       margin: 0;
       height: 40px;
       flex-shrink: 0;
@@ -962,7 +962,7 @@
 
       &:focus-within {
         svg {
-          color: var(--purpleButtonColor);
+          color: var(--primaryHighlight);
         }
       }
     }
@@ -976,7 +976,7 @@
       margin-top: 10px;
 
       .tableHead {
-        background: var(--purpleButtonColor);
+        background: var(--primaryHighlight);
         color: var(--textColor);
       }
 
@@ -1006,7 +1006,7 @@
       }
 
       button:hover {
-        background: var(--purpleButtonColor);
+        background: var(--primaryHighlight);
         color: var(--textColor);
       }
     }
@@ -1107,7 +1107,7 @@
       height: 25px;
       border-radius: 20px;
       background: transparent;
-      color: var(--purpleButtonColor);
+      color: var(--primaryHighlight);
       margin: 0;
       min-width: 0;
       margin-right: 10px;
@@ -1118,7 +1118,7 @@
         width: 0;
         height: 0;
         border-radius: 25px;
-        background: var(--purpleButtonColor);
+        background: var(--primaryHighlight);
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -1169,7 +1169,7 @@
             width: 100px;
             height: 35px;
             margin: 20px 10px;
-            background: var(--purpleButtonColor);
+            background: var(--primaryHighlight);
             font-size: 0.8rem;
 
             &.yesbtn {
@@ -1304,7 +1304,7 @@
       right: -5px;
       border: none;
       border-radius: 50%;
-      background: var(--purpleButtonColor);
+      background: var(--primaryHighlight);
       box-shadow: 2px 2px 10px gray;
       color: var(--textColor);
       transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
@@ -1355,7 +1355,7 @@
         width: 50%;
 
         &:last-child {
-          color: var(--purpleButtonColor);
+          color: var(--primaryHighlight);
         }
 
         svg {
@@ -1411,7 +1411,7 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background-color: var(--popupBackground);
+  background: var(--popupBackground);
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 16px 16px 32px 0 #11111159;
@@ -1461,7 +1461,7 @@
 
     button {
       height: 35px;
-      background-color: var(--iconButtonBackground);
+      background: var(--iconButtonBackground);
       padding: 0;
       border: none;
       color: var(--textColor);
@@ -1475,7 +1475,7 @@
       }
 
       &:hover {
-        background-color: var(--iconButtonSelectedBackground);
+        background: var(--iconButtonSelectedBackground);
       }
     }
 
@@ -1630,7 +1630,7 @@
         border-color: var(--inputOutline);
 
         &::selection {
-          background-color: transparent;
+          background: transparent;
         }
       }
 
@@ -1759,7 +1759,7 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      background-color: var(--iconButtonBackground);
+      background: var(--iconButtonBackground);
       border: none;
       border-radius: 3px;
     }
@@ -1802,7 +1802,7 @@
       margin: 0;
       padding: 0;
       min-width: 0;
-      background-color: white;
+      background: white;
       cursor: pointer;
 
       &:hover {
@@ -1823,7 +1823,7 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        background-color: var(--iconButtonBackground);
+        background: var(--iconButtonBackground);
 
         svg {
           color: var(--textColor);
@@ -1911,7 +1911,7 @@
   position: absolute;
   left: 2px;
   top: 192.7px;
-  background-color: rgb(51 51 110 / 50%);
+  background: rgb(51 51 110 / 50%);
   transform: rotate(45deg);
   border-top-right-radius: 50px;
   border-bottom-right-radius: 50px;
@@ -1922,7 +1922,7 @@
     color: var(--textColor);
     border: none;
     padding: 0;
-    background-color: transparent !important;
+    background: transparent !important;
     top: 18px;
     right: 3px;
     transform: rotate(-45deg);
@@ -1967,7 +1967,7 @@
   position: absolute;
   right: 2px;
   top: 192.7px;
-  background-color: rgb(51 51 110 / 50%);
+  background: rgb(51 51 110 / 50%);
   transform: rotate(135deg);
   border-top-right-radius: 50px;
   border-bottom-right-radius: 50px;
@@ -1980,7 +1980,7 @@
     padding: 0;
     top: 18px;
     right: 3px;
-    background-color: transparent !important;
+    background: transparent !important;
     transform: rotate(225deg);
 
     @media (max-width: 360px) {
@@ -2065,7 +2065,7 @@
       margin: 0;
       padding: 0;
       min-width: 0;
-      background-color: transparent;
+      background: transparent;
 
       &:hover {
         img {
@@ -2206,11 +2206,11 @@
 }
 
 .btnDeepColor {
-  background-color: #23af3a !important;
+  background: #23af3a !important;
 }
 
 .btnDeepColorCancel {
-  background-color: #f87678 !important;
+  background: #f87678 !important;
 }
 
 .btn {
@@ -2226,12 +2226,12 @@
 }
 
 .btnArrow {
-  background-color: #6e6ef7;
+  background: #6e6ef7;
   color: #fff;
   transition: all 0.2s;
 
   &:hover {
-    background-color: #5f5ff8;
+    background: #5f5ff8;
   }
 }
 
@@ -2249,7 +2249,7 @@
 }
 
 .disabled {
-  background-color: #a8a8fe !important;
+  background: #a8a8fe !important;
   cursor: not-allowed;
 }
 
@@ -2304,7 +2304,7 @@
 .input {
   font-size: 14px;
   color: var(--textColor);
-  background-color: var(--inputBackground);
+  background: var(--inputBackground);
 }
 
 .tabRoot {
@@ -2349,7 +2349,7 @@
   cursor: pointer;
   padding: 2px 7px;
   font-size: 11px;
-  color: var(--white);
+  color: var(--textColor);
 }
 
 .menuItem {
@@ -2381,7 +2381,7 @@
 
   & > div > label {
     font-size: 0.9rem;
-    color: #fff;
+    color: var(--textColor);
     margin-bottom: -10px;
     margin-left: -5px;
   }
@@ -2398,7 +2398,7 @@
 }
 
 .collapseBtn {
-  background-color: transparent !important;
+  background: transparent !important;
   color: var(--textColor);
 }
 
@@ -2445,7 +2445,9 @@
 }
 
 .iconBtn {
-  color: var(--sidebarSelectedBackground) !important;
+  :global(.MuiButtonBase-root) {
+    color: var(--primaryHighlight);
+  }
 }
 
 .tabsContent {
@@ -2478,7 +2480,7 @@
   }
 
   .tutorialImage {
-    background-color: #1b1b1b;
+    background: #1b1b1b;
     border-radius: 4px;
   }
 
@@ -2501,7 +2503,7 @@
 
       :global(.MuiCheckbox-root) {
         padding: 0;
-        color: var(--sidebarSelectedBackground);
+        color: var(--primaryHighlight);
         margin-right: 10px;
 
         svg {
@@ -2632,7 +2634,7 @@
   }
 
   :global(.MuiTabs-indicator) {
-    background-color: var(--iconButtonBackground);
+    background: var(--iconButtonBackground);
   }
 }
 
