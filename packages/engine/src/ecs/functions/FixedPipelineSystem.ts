@@ -13,24 +13,27 @@ const logger = multiLogger.child({ component: 'engine:ecs:FixedPipelineSystem' }
 export default function FixedPipelineSystem(world: World) {
   // If the difference between fixedElapsedTime and elapsedTime becomes too large,
   // we should simply skip ahead.
-  const maxTimeDifference = 2
+  const maxFixedFrameDelay = 4
 
   const execute = () => {
     const start = nowMilliseconds()
     let timeUsed = 0
-    let updatesCount = 0
 
     let accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
 
     const engineState = getState(EngineState)
 
     const timestep = engineState.fixedDeltaSeconds.value
-    const limit = timestep * 2000
-    const updatesLimit = 1 / timestep
+    const maxMilliseconds = 8
+
+    if (accumulator < 0) {
+      engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
+      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+    }
 
     let accumulatorDepleted = accumulator < timestep
-    let timeout = timeUsed > limit
-    let updatesLimitReached = updatesCount > updatesLimit
+    let timeout = timeUsed > maxMilliseconds
+    let updatesLimitReached = false
 
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       engineState.fixedTick.set(engineState.fixedTick.value + 1)
@@ -41,28 +44,19 @@ export default function FixedPipelineSystem(world: World) {
       for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.enabled && s.execute()
 
       accumulator -= timestep
-      ++updatesCount
 
       timeUsed = nowMilliseconds() - start
       accumulatorDepleted = accumulator < timestep
-      timeout = timeUsed > limit
-      updatesLimitReached = updatesCount >= updatesLimit
+      timeout = timeUsed > maxMilliseconds
+      const frameDelay = accumulator / timestep
 
-      if (updatesLimitReached || accumulator > maxTimeDifference) {
-        logger.warn(
-          `[FixedPipelineSystem]: The FIXED pipeline is behind by %d seconds! catching up...`,
-          world.elapsedSeconds - world.fixedElapsedSeconds
-        )
+      if (frameDelay > maxFixedFrameDelay) {
+        logger.warn(`[FixedPipelineSystem]: FIXED pipeline is behind by %d frames! catching up...`, frameDelay)
         engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
         engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+        break
       }
     }
-
-    if (world.elapsedSeconds - world.fixedElapsedSeconds > timestep)
-      logger.warn(
-        `[FixedPipelineSystem]: The FIXED pipeline is behind more than the fixed delta! %n`,
-        world.elapsedSeconds - world.fixedElapsedSeconds
-      )
   }
 
   const cleanup = async () => {}
