@@ -45,7 +45,10 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { updateEntityTransform } from '@xrengine/engine/src/transform/systems/TransformSystem'
+import {
+  computeLocalTransformMatrix,
+  computeTransformMatrix
+} from '@xrengine/engine/src/transform/systems/TransformSystem'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
@@ -394,7 +397,8 @@ const rotateObject = (
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
         localTransform.rotation.copy(newLocalQuaternion)
-        updateEntityTransform(node.entity)
+        computeLocalTransformMatrix(node.entity)
+        computeTransformMatrix(node.entity)
       }
     }
   }

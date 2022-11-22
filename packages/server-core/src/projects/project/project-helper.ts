@@ -20,8 +20,10 @@ import { getOctokitForChecking } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_]+)$/
-export const publicECRRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/([\w\d\s\-_]+)$/
-export const privateECRRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/([\w\d\s\-_]+)$/
+export const publicECRRepoRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/([a-z0-9\-_\\]+)$/
+export const publicECRTagRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/[a-z0-9\-_\\]+:([\w\d\s\-_.]+?)$/
+export const privateECRRepoRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/([a-z0-9\-_\\]+)$/
+export const privateECRTagRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/[a-z0-9\-_\\]+:([\w\d\s\-_.]+)$/
 
 interface GitHubFile {
   status: number
@@ -581,8 +583,8 @@ export const getTags = async (
 
 export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   const builderRepo = (process.env.BUILDER_REPOSITORY as string) || ''
-  const publicECRExec = publicECRRegex.exec(builderRepo)
-  const privateECRExec = privateECRRegex.exec(builderRepo)
+  const publicECRExec = publicECRRepoRegex.exec(builderRepo)
+  const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
     const ecr = new AWS.ECRPUBLIC({
       accessKeyId: process.env.AWS_ACCESS_KEY as string,

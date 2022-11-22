@@ -248,7 +248,7 @@ export class World {
     return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
   }
 
-  dirtyTransforms = new Set<Entity>()
+  readonly dirtyTransforms = {} as Record<Entity, true>
 
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()
