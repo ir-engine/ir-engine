@@ -38,7 +38,11 @@
     "@xrengine/engine": "^1.0.0-rc6",
     "@xrengine/hyperflux": "^1.0.0-rc6",
     "axios": "0.26.1",
-    "ee-behave-flow": "git://github.com/dinomut1/ee-behave-flow.git#14e8a2da905d1f19fbf3475a3087997786ed8481",
+    "@fortawesome/fontawesome-svg-core": "^6.1.2",
+    "@fortawesome/free-solid-svg-icons": "^6.1.2",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "behave-graph": "^0.9.9",
+    "downshift": "^6.1.7",
     "classnames": "2.3.1",
     "cross-env": "7.0.3",
     "crypto-js": "^4.1.1",
@@ -52,6 +56,7 @@
     "rc-dock": "3.2.10",
     "rc-slider": "10.0.0",
     "react": "18.2.0",
+    "reactflow": "^11.1.1",
     "react-color": "2.19.3",
     "react-dnd": "16.0.0",
     "react-dnd-html5-backend": "16.0.0",
@@ -65,7 +70,8 @@
     "react-window": "1.8.6",
     "styled-components": "5.3.3",
     "typescript": "4.8.3",
-    "use-http": "1.0.26"
+    "use-http": "1.0.26",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/node": "16.11.26",
@@ -74,6 +80,7 @@
     "@types/react-router-dom": "5.3.3",
     "@types/styled-components": "5.1.24",
     "@types/three": "0.144.0",
+    "@types/uuid": "^8.3.4",
     "esbuild": "0.14.36",
     "mocha": "10.0.0",
     "rimraf": "3.0.2",

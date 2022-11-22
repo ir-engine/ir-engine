@@ -1,4 +1,3 @@
-import BehaveFlow from 'ee-behave-flow/src/App'
 import React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
@@ -13,6 +12,7 @@ import {
 
 import { useSelectionState } from '../../services/SelectionServices'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
+import BehaveFlow from './ee-behave-flow/BehaveFlow'
 
 export default function GraphPanel() {
   const selectionState = useSelectionState()
