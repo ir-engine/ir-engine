@@ -245,19 +245,19 @@ export default async function TransformSystem(world: World) {
       if (makeDirty) world.dirtyTransforms[entity] = true
     }
 
-    const dirtyRigidbodyTransformEntities = invCleanRigidbodyEntities.filter(isDirty)
+    const dirtyRigidbodyEntities = invCleanRigidbodyEntities.filter(isDirty)
     const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
-    const dirtyNonRigidbodyTransformEntities = transformEntities.filter(isDirty)
+    const dirtyTransformEntities = transformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
 
     // compute dirty local transform matrices
     for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
 
     // compute dirty world transform matrices
-    for (const entity of dirtyNonRigidbodyTransformEntities) computeTransformMatrix(entity, world)
+    for (const entity of dirtyTransformEntities) computeTransformMatrix(entity, world)
 
     // teleport rigidbodies w/ dirty transforms
-    for (const entity of dirtyRigidbodyTransformEntities) teleportRigidbody(entity)
+    for (const entity of dirtyRigidbodyEntities) teleportRigidbody(entity)
 
     // update group children
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
