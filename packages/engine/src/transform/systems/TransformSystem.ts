@@ -176,6 +176,10 @@ export default async function TransformSystem(world: World) {
     return aDepth - bDepth
   }
 
+  const traverseComputeBoundingBox = (mesh: Mesh) => {
+    if (mesh.isMesh) mesh.geometry.computeBoundingBox()
+  }
+
   const computeBoundingBox = (entity: Entity) => {
     const box = getComponent(entity, BoundingBoxComponent).box
     const group = getComponent(entity, GroupComponent)
@@ -183,13 +187,7 @@ export default async function TransformSystem(world: World) {
     box.makeEmpty()
 
     for (const obj of group) {
-      obj.traverse((child) => {
-        const mesh = child as Mesh
-        if (mesh.isMesh) {
-          mesh.geometry.computeBoundingBox()
-        }
-      })
-
+      obj.traverse(traverseComputeBoundingBox)
       box.expandByObject(obj)
     }
   }
@@ -200,6 +198,10 @@ export default async function TransformSystem(world: World) {
     box.makeEmpty()
     for (const obj of group) box.expandByObject(obj)
   }
+
+  const filterDirtyRigidbodies = (entity) => world.dirtyTransforms[entity]
+  const filterCleanNonSleepingRigidbodies = (entity) =>
+    !world.dirtyTransforms[entity] && !getComponent(entity, RigidBodyComponent).body.isSleeping()
 
   const execute = () => {
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
@@ -215,14 +217,14 @@ export default async function TransformSystem(world: World) {
       transformsNeedSorting.set(false)
     }
 
+    const rigidbodies = rigidbodyTransformQuery()
+
     // teleport rigidbodies w/ dirty transforms
-    const dirtyRigidbodyTransformEntities = rigidbodyTransformQuery().filter((entity) => world.dirtyTransforms[entity])
+    const dirtyRigidbodyTransformEntities = rigidbodies.filter(filterDirtyRigidbodies)
     for (const entity of dirtyRigidbodyTransformEntities) teleportRigidbody(entity)
 
     // lerp clean entities from rigidbody
-    const cleanRigidbodyTransformEntities = rigidbodyTransformQuery().filter(
-      (entity) => !world.dirtyTransforms[entity] && !getComponent(entity, RigidBodyComponent).body.isSleeping()
-    )
+    const cleanRigidbodyTransformEntities = rigidbodies.filter(filterCleanNonSleepingRigidbodies)
     const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
     const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
     for (const entity of cleanRigidbodyTransformEntities) lerpTransformFromRigidbody(entity, alpha)
@@ -236,15 +238,15 @@ export default async function TransformSystem(world: World) {
     }
 
     // compute dirty local transform matrices
-    const dirtyLocalTransformEntities = localTransformQuery().filter((entity) => world.dirtyTransforms[entity])
+    const dirtyLocalTransformEntities = localTransformQuery().filter(filterDirtyRigidbodies)
     for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
 
     // compute dirty world transform matrices
-    const dirtyNonRigidbodyTransformEntities = transformEntities.filter((entity) => world.dirtyTransforms[entity])
+    const dirtyNonRigidbodyTransformEntities = transformEntities.filter(filterDirtyRigidbodies)
     for (const entity of dirtyNonRigidbodyTransformEntities) computeTransformMatrix(entity, world)
 
     // update group children
-    const dirtyGroupEntities = groupQuery().filter((entity) => world.dirtyTransforms[entity])
+    const dirtyGroupEntities = groupQuery().filter(filterDirtyRigidbodies)
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
     // clear dirty transforms

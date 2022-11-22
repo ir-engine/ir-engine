@@ -8,7 +8,7 @@ const { defineProperties } = Object
 type Vector3Store = { x: Float64Array; y: Float64Array; z: Float64Array }
 type QuaternionStore = { x: Float64Array; y: Float64Array; z: Float64Array; w: Float64Array }
 
-interface ProxyExtensions {
+export interface ProxyExtensions {
   entity: number
   store: Vector3Store | QuaternionStore
 }

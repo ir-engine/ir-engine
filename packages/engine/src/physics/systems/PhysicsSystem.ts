@@ -138,7 +138,9 @@ export default async function PhysicsSystem(world: World) {
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
-    for (const entity of allRigidBodyQuery()) {
+    const allRigidBodies = allRigidBodyQuery()
+
+    for (const entity of allRigidBodies) {
       const rigidBody = getComponent(entity, RigidBodyComponent)
       const body = rigidBody.body
       const translation = body.translation() as Vector3
@@ -156,7 +158,7 @@ export default async function PhysicsSystem(world: World) {
     world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
     world.physicsWorld.step(world.physicsCollisionEventQueue)
 
-    for (const entity of allRigidBodyQuery()) {
+    for (const entity of allRigidBodies) {
       const rigidBody = getComponent(entity, RigidBodyComponent)
       const body = rigidBody.body
       const translation = body.translation() as Vector3
