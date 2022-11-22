@@ -88,7 +88,13 @@ export const removePod = async (app: Application, podName: string): Promise<Serv
   }
 }
 
-const getPodsData = async (labelSelector: string, id: string, label: string, app: Application, nameFilter?: string) => {
+export const getPodsData = async (
+  labelSelector: string,
+  id: string,
+  label: string,
+  app: Application,
+  nameFilter?: string
+) => {
   let pods: ServerPodInfo[] = []
 
   try {
