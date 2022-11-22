@@ -30,6 +30,7 @@ export const defaultThemeSettings = {
     scrollbarCorner: 'rgba(255, 255, 255, 0)',
     inputOutline: '#B4B4B4',
     inputBackground: '#D4D4D4',
+    primaryHighlight: 'rgb(81, 81, 255)',
     dropdownMenuBackground: '#c0c0c0',
     dropdownMenuHoverBackground: '#B8B8B8',
     dropdownMenuSelectedBackground: '#ACACAC',
@@ -38,8 +39,6 @@ export const defaultThemeSettings = {
     tableHeaderBackground: '#c0c0c0',
     tableCellBackground: '#e1e1e1',
     tableFooterBackground: '#c0c0c0',
-    themeSwitchTrack: '#aab4be',
-    themeSwitchThumb: '#e5d200',
     dockBackground: '#bdbdbda6'
   },
   dark: {
@@ -71,6 +70,7 @@ export const defaultThemeSettings = {
     scrollbarCorner: 'rgba(255, 255, 255, 0)',
     inputOutline: '#FFF',
     inputBackground: 'rgba(80,80,80,1)',
+    primaryHighlight: 'rgb(81, 81, 255)',
     dropdownMenuBackground: 'rgba(61,61,61,1)',
     dropdownMenuHoverBackground: 'rgba(88,88,88,1)',
     dropdownMenuSelectedBackground: 'rgba(95,95,95,1)',
@@ -79,8 +79,6 @@ export const defaultThemeSettings = {
     tableHeaderBackground: 'rgba(76,76,76,1)',
     tableCellBackground: 'rgba(104,104,104,1)',
     tableFooterBackground: 'rgba(71,71,71,1)',
-    themeSwitchTrack: '#8796a5',
-    themeSwitchThumb: '#02022d',
     dockBackground: 'rgba(53,53,53,0.93)'
   },
   vaporwave: {
@@ -112,6 +110,7 @@ export const defaultThemeSettings = {
     scrollbarCorner: 'rgba(255, 255, 255, 0)',
     inputOutline: '#FFF',
     inputBackground: '#3c3c6f',
+    primaryHighlight: 'rgb(81, 81, 255)',
     dropdownMenuBackground: '#1f1b48',
     dropdownMenuHoverBackground: '#2A2567',
     dropdownMenuSelectedBackground: '#5f5ff1',
@@ -120,8 +119,6 @@ export const defaultThemeSettings = {
     tableHeaderBackground: '#1f1b48',
     tableCellBackground: '#3c3c6f',
     tableFooterBackground: '#1f1b48',
-    themeSwitchTrack: '#8796a5',
-    themeSwitchThumb: '#02022d',
     dockBackground: 'rgb(73 66 152 / 85%)'
   }
 }
@@ -130,9 +127,9 @@ export const defaultThemeModes = {
   client: 'light',
   editor: 'dark',
   admin: 'vaporwave'
-}
+} as ThemeMode
 
-export const getCurrentTheme = (themeModes: ThemeMode | undefined) => {
+export const getCurrentTheme = (themeModes: ThemeMode | undefined): string => {
   const currentThemeModes = themeModes || defaultThemeModes
   const { pathname } = window.location
 
