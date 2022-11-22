@@ -275,7 +275,7 @@ class GLTFLoader extends Loader {
 
 	}
 
-	parse( data, path, onLoad, onError, url = "", entity = undefined ) {
+	parse( data, path, onLoad, onError, url = "" ) {
 
 		let content;
 		const extensions = {};
@@ -328,8 +328,7 @@ class GLTFLoader extends Loader {
 			requestHeader: this.requestHeader,
 			manager: this.manager,
 			ktx2Loader: this.ktx2Loader,
-			meshoptDecoder: this.meshoptDecoder,
-			entity
+			meshoptDecoder: this.meshoptDecoder
 		} );
 
 		parser.fileLoader.setRequestHeader( this.requestHeader );

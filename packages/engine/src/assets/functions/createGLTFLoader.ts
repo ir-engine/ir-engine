@@ -4,6 +4,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
+import EEECSImporterExtension from '../loaders/gltf/extensions/EEECSImporterExtension'
 import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMaterialImporterExtension'
 import { GPUInstancingExtension } from '../loaders/gltf/extensions/GPUInstancingExtension'
 import { HubsComponentsExtension } from '../loaders/gltf/extensions/HubsComponentsExtension'
@@ -33,7 +34,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }
-
+  loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser))
 
