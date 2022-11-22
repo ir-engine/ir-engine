@@ -18,17 +18,21 @@ export default function FixedPipelineSystem(world: World) {
   const execute = () => {
     const start = nowMilliseconds()
     let timeUsed = 0
-    let updatesCount = 0
 
     let accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
 
     const engineState = getState(EngineState)
 
     const timestep = engineState.fixedDeltaSeconds.value
-    const limit = timestep * 2000
+    const maxMilliseconds = 8
+
+    if (accumulator < 0) {
+      engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
+      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+    }
 
     let accumulatorDepleted = accumulator < timestep
-    let timeout = timeUsed > limit
+    let timeout = timeUsed > maxMilliseconds
     let updatesLimitReached = false
 
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
@@ -40,11 +44,10 @@ export default function FixedPipelineSystem(world: World) {
       for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.enabled && s.execute()
 
       accumulator -= timestep
-      ++updatesCount
 
       timeUsed = nowMilliseconds() - start
       accumulatorDepleted = accumulator < timestep
-      timeout = timeUsed > limit
+      timeout = timeUsed > maxMilliseconds
       const frameDelay = accumulator / timestep
 
       if (frameDelay > maxFixedFrameDelay) {
