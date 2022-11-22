@@ -48,7 +48,7 @@ describe('FixedPipelineSystem', () => {
     assert.equal(world.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
-    const ticks = 4
+    const ticks = 3
     const deltaSeconds = ticks / 60
     world.execute(world.startTime + 1000 * deltaSeconds)
     assert.equal(world.elapsedSeconds, deltaSeconds)
