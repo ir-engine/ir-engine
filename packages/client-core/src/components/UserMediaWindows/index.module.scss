@@ -3,6 +3,7 @@
   flex: 1;
   overflow: auto;
   margin: 0 10px;
+  float: right;
 
   @media (max-width: 1024px) {
     flex: none;
