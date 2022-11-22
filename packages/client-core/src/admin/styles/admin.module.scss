@@ -733,7 +733,7 @@
   display: flex;
 
   &.valid > svg {
-    color: var(--green)
+    color: var(--green);
   }
 
   &.invalid > svg {
