@@ -47,7 +47,7 @@ import {
   setTransformComponent,
   TransformComponent
 } from '../transform/components/TransformComponent'
-import { updateEntityTransform } from '../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import {
   InputSourceComponent,
   XRAnchorComponent,
@@ -130,7 +130,7 @@ export const getImmersiveHitTestTransform = (world = Engine.instance.currentWorl
 
   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
 
-  updateEntityTransform(viewerHitTestEntity)
+  computeTransformMatrix(viewerHitTestEntity)
 
   /** Swipe to rotate */
   const viewerInputSourceEntity = xrState.viewerInputSourceEntity.value

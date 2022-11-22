@@ -32,7 +32,7 @@ export const AvatarServiceReceptor = (action) => {
   matches(action).when(AvatarActions.updateAvatarListAction.matches, (action) => {
     s.skip.set(action.skip)
     s.total.set(action.total)
-    return s.avatarList.merge(action.avatarList)
+    return s.avatarList.set(action.avatarList)
   })
 }
 

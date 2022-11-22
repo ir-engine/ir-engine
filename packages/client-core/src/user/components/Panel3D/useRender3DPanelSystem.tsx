@@ -84,15 +84,23 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       }
     }
 
+    const systemUUID = 'xre.client.AvatarSelectRenderSystem-' + i++
+
     initSystems(world, [
       {
-        uuid: 'xre.client.AvatarSelectRenderSystem-' + i++,
+        uuid: systemUUID,
         type: SystemUpdateType.POST_RENDER,
         systemLoader: () => Promise.resolve({ default: AvatarSelectRenderSystem })
       }
     ])
 
     return () => {
+      const system = world.pipelines[SystemUpdateType.POST_RENDER].find((s) => s.uuid === systemUUID)
+      if (system)
+        world.pipelines[SystemUpdateType.POST_RENDER].splice(
+          world.pipelines[SystemUpdateType.POST_RENDER].indexOf(system),
+          1
+        )
       removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
     }
