@@ -7,10 +7,11 @@ import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
@@ -19,12 +20,8 @@ import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 import { ArrowBack, Check } from '@mui/icons-material'
 import CircularProgress from '@mui/material/CircularProgress'
 
-import {
-  addAnimationLogic,
-  initialize3D,
-  onWindowResize,
-  validate
-} from '../../../user/components/UserMenu/menus/helperFunctions'
+import { resetAnimationLogic, validate } from '../../../user/components/Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { AvatarService } from '../../../user/services/AvatarService'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
 import styleString from './index.scss'
@@ -39,10 +36,6 @@ function createReadyPlayerMenuState() {
   return createState({})
 }
 
-let scene: Scene
-let camera: PerspectiveCamera
-let renderer: WebGLRenderer = null!
-
 const ReadyPlayerMenu = () => {
   const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState<Blob>()
@@ -51,37 +44,18 @@ const ReadyPlayerMenu = () => {
   const [hover, setHover] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
   const [error, setError] = useState('')
-  const [obj, setObj] = useState<any>(null)
-  const [entity, setEntity] = useState<Entity | undefined>()
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  const renderPanel = useRender3DPanelSystem(panelRef)
+  const { entity, camera, scene, renderer } = renderPanel.state
 
   useEffect(() => {
-    if (document.getElementById('stage')) {
-      const world = useWorld()
-      const entity = createEntity()
-      setEntity(entity)
-      addAnimationLogic(entity, world, panelRef)
-      const init = initialize3D()
-      scene = init.scene
-      camera = init.camera
-      renderer = init.renderer
-      const controls = getOrbitControls(camera, renderer.domElement)
-      controls.minDistance = 0.1
-      controls.maxDistance = 10
-      controls.target.set(0, 1.25, 0)
-      controls.update()
-
-      window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-      window.addEventListener('message', (event) => handleMessageEvent(event, entity))
-
-      return () => {
-        window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
-        window.removeEventListener('message', (event) => handleMessageEvent(event, entity))
-      }
+    window.addEventListener('message', (event) => handleMessageEvent(event))
+    return () => {
+      window.removeEventListener('message', (event) => handleMessageEvent(event))
     }
-  }, [avatarUrl, document.getElementById('stage')])
+  }, [avatarUrl])
 
-  const handleMessageEvent = async (event, entity) => {
+  const handleMessageEvent = async (event) => {
     const url = event.data
 
     const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
@@ -93,12 +67,18 @@ const ReadyPlayerMenu = () => {
       try {
         const assetType = AssetLoader.getAssetType(url)
         if (assetType) {
-          loadAvatarForPreview(entity, url).then((obj) => {
+          resetAnimationLogic(entity.value)
+          loadAvatarForPreview(entity.value, url).then((obj) => {
             obj.name = 'avatar'
-            scene.add(obj)
-            const error = validate(obj)
+            scene.value.add(obj)
+            const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
+            if (avatarRigComponent) {
+              avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
+              camera.value.position.y += 0.2
+              camera.value.position.z = 0.6
+            }
+            const error = validate(obj, renderer.value, scene.value, camera.value)
             setError(error)
-            setObj(obj)
           })
           fetch(url)
             .then((res) => res.blob())
@@ -136,7 +116,7 @@ const ReadyPlayerMenu = () => {
     ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
 
     const newContext = canvas.getContext('2d')
-    newContext?.drawImage(renderer.domElement, 0, 0)
+    newContext?.drawImage(renderer.value.domElement, 0, 0)
 
     const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
@@ -150,7 +130,6 @@ const ReadyPlayerMenu = () => {
     <>
       <style>{styleString}</style>
       <div
-        ref={panelRef}
         className="ReadyPlayerPanel"
         style={{ width: selectedFile ? '400px' : '600px', padding: selectedFile ? '15px' : '0' }}
       >
@@ -176,13 +155,14 @@ const ReadyPlayerMenu = () => {
         )}
         {!avatarUrl && <iframe style={{ width: '100%', height: '100%' }} src={config.client.readyPlayerMeUrl} />}
         <div
+          ref={panelRef}
           id="stage"
           className="stage"
           style={{
             width: THUMBNAIL_WIDTH + 'px',
             height: THUMBNAIL_HEIGHT + 'px',
             margin: 'auto',
-            display: !avatarUrl ? 'none' : 'block',
+            display: 'block',
             boxShadow: !avatarUrl || showLoading ? 'none' : '0 0 10px var(--buttonOutlined)',
             borderRadius: '8px'
           }}

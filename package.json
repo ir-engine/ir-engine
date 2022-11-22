@@ -86,7 +86,8 @@
     "validate": "npm run lint && lerna run validate",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
-    "bump-project-versions": "cross-env ts-node --swc scripts/bump-project-versions.js"
+    "bump-project-versions": "cross-env ts-node --swc scripts/bump-project-versions.js",
+    "update-site-manifest": "cross-env ts-node --swc scripts/update-site-manifest.ts"
   },
   "types": "lib/",
   "pre-commit": [
@@ -102,6 +103,7 @@
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "3.3.1",
+    "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@swc/core": "^1.2.210",
     "@types/app-root-path": "1.2.4",
     "@types/cli": "0.11.21",
@@ -109,6 +111,7 @@
     "@types/pino": "^7.0.5",
     "concurrently": "7.1.0",
     "depcheck": "1.4.3",
+    "jsdom": "^20.0.2",
     "kill-port": "1.6.1",
     "lint-staged": "12.3.7",
     "mocha": "10.0.0",
@@ -133,14 +136,16 @@
     "app-root-path": "3.0.0",
     "cli": "1.0.1",
     "dotenv": "14.3.2",
+    "fix-esm": "^1.0.1",
     "lerna": "4.0.0",
     "pino": "^7.10.0",
     "pino-pretty": "^7.6.1",
     "postcss": "^8.4.16",
     "qrcode.react": "^3.1.0",
     "react-json-view": "^1.21.3",
-    "three": "0.144.0",
+    "three": "0.146.0",
     "ts-node": "10.8.2",
-    "typescript": "4.8.3"
+    "typescript": "4.8.3",
+    "vite-plugin-node": "^1.0.0"
   }
 }

@@ -12,12 +12,11 @@ const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
 const SCHEMA = {
   previousPosition: Vector3Schema,
   previousRotation: QuaternionSchema,
-  previousLinearVelocity: Vector3Schema,
-  previousAngularVelocity: Vector3Schema,
   position: Vector3Schema,
   rotation: QuaternionSchema,
   linearVelocity: Vector3Schema,
-  angularVelocity: Vector3Schema
+  angularVelocity: Vector3Schema,
+  scale: Vector3Schema
 }
 
 export const RigidBodyComponent = defineComponent({
@@ -29,12 +28,11 @@ export const RigidBodyComponent = defineComponent({
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
       previousRotation: proxifyQuaternion(this.previousRotation, entity),
-      previousLinearVelocity: proxifyVector3(this.previousLinearVelocity, entity),
-      previousAngularVelocity: proxifyVector3(this.previousAngularVelocity, entity),
       position: proxifyVector3(this.position, entity),
       rotation: proxifyQuaternion(this.rotation, entity),
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
-      angularVelocity: proxifyVector3(this.angularVelocity, entity)
+      angularVelocity: proxifyVector3(this.angularVelocity, entity),
+      scale: proxifyVector3(this.scale, entity)
     }
   },
 

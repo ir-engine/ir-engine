@@ -4,6 +4,7 @@ import { io as ioclient, Socket } from 'socket.io-client'
 
 import config from '@xrengine/common/src/config'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -28,6 +29,10 @@ import { accessAuthState } from '../user/services/AuthService'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientNetwork' })
+
+export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
+export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
+export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData; producerPaused: boolean }
 
 // import { encode, decode } from 'msgpackr'
 
@@ -94,8 +99,8 @@ export class SocketWebRTCClientNetwork extends Network {
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 
-  producers = [] as Producer[]
-  consumers = [] as Consumer[]
+  producers = [] as ProducerExtension[]
+  consumers = [] as ConsumerExtension[]
 
   sendActions() {
     if (!this.ready) return

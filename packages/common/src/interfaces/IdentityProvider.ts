@@ -3,6 +3,7 @@ import { UserId } from './UserId'
 export interface IdentityProvider {
   id: number
   token: string
+  accountIdentifier?: string
   type: string
   isVerified: boolean
   userId: UserId

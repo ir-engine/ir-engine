@@ -15,7 +15,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
 import { accessAuthState, AuthAction } from './AuthService'
 
-const AVATAR_PAGE_LIMIT = 100
+export const AVATAR_PAGE_LIMIT = 100
 
 // State
 export const AvatarState = defineState({
@@ -68,7 +68,7 @@ export const AvatarService = {
     }
   },
 
-  async fetchAvatarList(reset = false, incDec?: 'increment' | 'decrement') {
+  async fetchAvatarList(incDec?: 'increment' | 'decrement') {
     const skip = accessAvatarState().skip.value
     const newSkip =
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip

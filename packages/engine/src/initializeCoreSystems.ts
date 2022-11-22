@@ -1,6 +1,7 @@
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { createGLTFLoader } from './assets/functions/createGLTFLoader'
+import BehaveGraphSystem from './behave-graph/systems/BehaveGraphSystem'
 import { isClient } from './common/functions/isClient'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions } from './ecs/classes/EngineState'
@@ -47,6 +48,11 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
       uuid: 'xre.engine.AssetSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => Promise.resolve({ default: AssetSystem })
+    },
+    {
+      uuid: 'xre.engine.BehaveGraphSystem',
+      type: SystemUpdateType.FIXED_LATE,
+      systemLoader: () => Promise.resolve({ default: BehaveGraphSystem })
     }
   )
 

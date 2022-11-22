@@ -194,7 +194,7 @@ export class World {
       coneOuterGain: 0
     },
     renderSettings: {
-      LODs: DEFAULT_LOD_DISTANCES,
+      LODs: { ...DEFAULT_LOD_DISTANCES },
       csm: true,
       toneMapping: LinearToneMapping as ToneMapping,
       toneMappingExposure: 0.8,
@@ -248,7 +248,7 @@ export class World {
     return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
   }
 
-  dirtyTransforms = new Set<Entity>()
+  readonly dirtyTransforms = {} as Record<Entity, true>
 
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()

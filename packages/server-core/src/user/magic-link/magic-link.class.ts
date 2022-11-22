@@ -194,7 +194,8 @@ export class Magiclink implements ServiceMethods<Data> {
       identityProvider = await identityProviderService.create(
         {
           token: token,
-          type: data.type
+          type: data.type,
+          accountIdentifier: token
         },
         params
       )

@@ -44,7 +44,8 @@ export const BasicArgs = {
       { label: 'Back', value: BackSide },
       { label: 'Both', value: DoubleSide }
     ]
-  }
+  },
+  vertexColors: BoolArg
 }
 
 export const BumpMapArgs = {

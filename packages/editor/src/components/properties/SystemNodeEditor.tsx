@@ -8,14 +8,13 @@ import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemCom
 
 import ExtensionIcon from '@mui/icons-material/Extension'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ScriptInput from '../inputs/ScriptInput'
 import { SelectInput } from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 /**
  * Define properties for Script component.
@@ -66,10 +65,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
 
   const onChangePath = (path) => {
     if (validatePath(path)) {
-      setPropertyOnSelectionEntities({
-        component: SystemComponent,
-        properties: [{ filePath: path }]
-      })
+      updateProperties(SystemComponent, { filePath: path })
 
       setPathValid(true)
     } else {

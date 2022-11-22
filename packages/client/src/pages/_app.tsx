@@ -1,7 +1,6 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 
 import {
@@ -9,6 +8,7 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
+import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
 import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@xrengine/client-core/src/components/InviteToast'
@@ -31,12 +31,24 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@xrengine/client-core/src/API'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
+import {
+  AppThemeServiceReceptor,
+  AppThemeState,
+  getAppTheme,
+  getAppThemeName,
+  useAppThemeName
+} from '@xrengine/client-core/src/common/services/AppThemeState'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+import {
+  OEmbedService,
+  OEmbedServiceReceptor,
+  useOEmbedState
+} from '@xrengine/client-core/src/common/services/OEmbedService'
 import Debug from '@xrengine/client-core/src/components/Debug'
 import config from '@xrengine/common/src/config'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -54,6 +66,7 @@ const App = (): any => {
   const selfUser = authState.user
   const clientSettingState = useClientSettingState()
   const coilSettingState = useCoilSettingState()
+  const appTheme = useHookstate(getState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
   const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
@@ -64,6 +77,9 @@ const App = (): any => {
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
   const projectState = useProjectState()
+  const oEmbedState = useOEmbedState()
+  const pathname = oEmbedState.pathname.value
+  const oEmbed = oEmbedState.oEmbed
 
   const initApp = useCallback(() => {
     if (process.env && process.env.NODE_CONFIG) {
@@ -86,16 +102,20 @@ const App = (): any => {
       })
     }
     addActionReceptor(receptor)
+    addActionReceptor(OEmbedServiceReceptor)
+    addActionReceptor(AppThemeServiceReceptor)
 
     return () => {
       removeActionReceptor(receptor)
+      removeActionReceptor(OEmbedServiceReceptor)
+      removeActionReceptor(AppThemeServiceReceptor)
     }
   }, [notistackRef])
 
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      html.dataset.theme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
+      html.dataset.theme = getAppThemeName()
       updateTheme()
     }
   }, [selfUser?.user_setting?.value])
@@ -147,43 +167,76 @@ const App = (): any => {
 
   useEffect(() => {
     updateTheme()
-  }, [clientThemeSettings])
-
-  const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
+  }, [clientThemeSettings, appTheme.customTheme])
 
   const location = useLocation()
   const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
     `${config.client.clientUrl}${location.pathname}`
   )}&format=json`
 
-  const updateTheme = () => {
-    if (clientThemeSettings) {
-      if (clientThemeSettings?.[currentTheme]) {
-        for (let variable of Object.keys(clientThemeSettings[currentTheme])) {
-          ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
-            '--' + variable,
-            clientThemeSettings[currentTheme][variable]
-          )
-        }
-      }
+  useEffect(() => {
+    if (pathname !== location.pathname) {
+      OEmbedService.fetchData(location.pathname, `${config.client.clientUrl}${location.pathname}`)
     }
+  }, [location.pathname])
+
+  const updateTheme = () => {
+    const currentThemeName = getAppThemeName()
+    const theme = getAppTheme()
+    if (theme)
+      for (let variable of Object.keys(theme)) {
+        ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
+          '--' + variable,
+          theme[variable]
+        )
+      }
   }
+  const currentThemeName = useAppThemeName()
 
   return (
     <>
-      <Helmet>
-        <title>{ctitle}</title>
+      <MetaTags>
+        {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
+        {oEmbed.value && pathname === location.pathname ? (
+          <>
+            <title>{oEmbed.value.title}</title>
+            <meta name="description" content={oEmbed.value.description} />
+
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content={oEmbed.value.query_url} />
+            <meta property="og:title" content={oEmbed.value.title} />
+            <meta property="og:description" content={oEmbed.value.description} />
+            <meta
+              property="og:image"
+              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
+            />
+
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:domain" content={oEmbed.value.provider_url?.replace('https://', '')} />
+            <meta name="twitter:title" content={oEmbed.value.title} />
+            <meta name="twitter:description" content={oEmbed.value.description} />
+            <meta
+              property="twitter:image"
+              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
+            />
+            <meta name="twitter:url" content={oEmbed.value.query_url} />
+          </>
+        ) : (
+          <>
+            <title>{ctitle}</title>
+            {description && <meta name="description" content={description} data-rh="true" />}
+          </>
+        )}
+
+        {paymentPointer && <meta name="monetization" content={paymentPointer} />}
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
-        <meta name="theme-color" content={clientThemeSettings?.[currentTheme]?.mainBackground || '#FFFFFF'} />
-        {description && <meta name="description" content={description}></meta>}
-        {paymentPointer && <meta name="monetization" content={paymentPointer} />}
+        <meta name="theme-color" content={clientThemeSettings?.[currentThemeName]?.mainBackground || '#FFFFFF'} />
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
-        {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
-      </Helmet>
+      </MetaTags>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <SnackbarProvider

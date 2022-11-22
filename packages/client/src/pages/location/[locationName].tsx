@@ -14,7 +14,6 @@ import { AuthService } from '@xrengine/client-core/src/user/services/AuthService
 import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
 import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useHookEffect } from '@xrengine/hyperflux'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 const LocationPage = () => {
@@ -39,7 +38,7 @@ const LocationPage = () => {
   /**
    * Once we have the location, fetch the current scene data
    */
-  useHookEffect(() => {
+  useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value) {
       const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
       SceneService.fetchCurrentScene(project, scene)

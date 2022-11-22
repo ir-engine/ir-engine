@@ -17,12 +17,10 @@ import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorCameraSystem from '../systems/EditorCameraSystem'
 import EditorControlSystem from '../systems/EditorControlSystem'
-import FlyControlSystem from '../systems/FlyControlSystem'
+import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
 import GizmoSystem from '../systems/GizmoSystem'
-import InputSystem from '../systems/InputSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
 import RenderSystem from '../systems/RenderSystem'
-import ResetInputSystem from '../systems/ResetInputSystem'
 import { EditorPage } from './EditorPage'
 import { ProjectPage } from './ProjectPage'
 import { SignInPage } from './SignInPage'
@@ -35,14 +33,8 @@ const systems = [
     args: { enabled: true }
   },
   {
-    uuid: 'core.editor.InputSystem',
-    systemLoader: () => Promise.resolve({ default: InputSystem }),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.FlyControlSystem',
-    systemLoader: () => Promise.resolve({ default: FlyControlSystem }),
+    uuid: 'core.editor.EditorFlyControlSystem',
+    systemLoader: () => Promise.resolve({ default: EditorFlyControlSystem }),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },
@@ -55,12 +47,6 @@ const systems = [
   {
     uuid: 'core.editor.EditorCameraSystem',
     systemLoader: () => Promise.resolve({ default: EditorCameraSystem }),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.ResetInputSystem',
-    systemLoader: () => Promise.resolve({ default: ResetInputSystem }),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
   },

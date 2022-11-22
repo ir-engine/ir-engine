@@ -95,7 +95,7 @@ export default async function EditorCameraSystem(world: World) {
       if (cameraComponent.isPanning) {
         const distance = transform.position.distanceTo(cameraComponent.center)
         delta
-          .set(cameraComponent.cursorDeltaX, -cameraComponent.cursorDeltaY, 0)
+          .set(-cameraComponent.cursorDeltaX, -cameraComponent.cursorDeltaY, 0)
           .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
           .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
         transform.position.add(delta)
@@ -107,7 +107,7 @@ export default async function EditorCameraSystem(world: World) {
       if (cameraComponent.isOrbiting) {
         delta.copy(transform.position).sub(cameraComponent.center)
         spherical.setFromVector3(delta)
-        spherical.theta += cameraComponent.cursorDeltaX * ORBIT_SPEED
+        spherical.theta -= cameraComponent.cursorDeltaX * ORBIT_SPEED
         spherical.phi += cameraComponent.cursorDeltaY * ORBIT_SPEED
         spherical.makeSafe()
         delta.setFromSpherical(spherical)
@@ -119,7 +119,7 @@ export default async function EditorCameraSystem(world: World) {
       }
       localTransform.position.copy(camera.position)
       localTransform.rotation.copy(camera.quaternion)
-      world.dirtyTransforms.add(entity)
+      world.dirtyTransforms[entity] = true
     }
   }
 

@@ -5,13 +5,24 @@ import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import { AvatarID } from '@xrengine/common/src/interfaces/AvatarID'
 import { CreateEditUser, UserInterface } from '@xrengine/common/src/interfaces/User'
 
+import EmailIcon from '@mui/icons-material/Email'
+import GitHubIcon from '@mui/icons-material/GitHub'
+import PhoneIcon from '@mui/icons-material/Phone'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
+import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
+import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
+import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
+import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
+import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete, { AutoCompleteData } from '../../common/AutoComplete'
@@ -37,6 +48,7 @@ interface Props {
 }
 
 const defaultState = {
+  id: '',
   name: '',
   avatar: '' as AvatarID,
   isGuest: true,
@@ -73,6 +85,16 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     }
   })
 
+  const nonGuestLinkedIP = selectedUser?.identity_providers?.filter((ip) => ip.type !== 'guest')
+  const discordIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'discord')
+  const googleIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'google')
+  const facebookIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'facebook')
+  const twitterIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'twitter')
+  const linkedinIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'linkedin')
+  const githubIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'github')
+  const emailIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'email')
+  const smsIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'sms')
+
   if (selectedUser) {
     for (const scope of selectedUser.scopes || []) {
       const scopeExists = scopeMenu.find((item) => item.type === scope.type)
@@ -105,6 +127,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     if (selectedUser) {
       setState({
         ...defaultState,
+        id: selectedUser.id,
         name: selectedUser.name || '',
         avatar: selectedUser.avatarId || ('' as AvatarID),
         isGuest: selectedUser.isGuest,
@@ -202,6 +225,8 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           {mode === UserDrawerMode.ViewEdit && !editMode && selectedUser?.name}
         </DialogTitle>
 
+        <InputText name="id" label={t('admin:components.user.id')} value={state.id} disabled />
+
         <InputText
           name="name"
           label={t('admin:components.user.name')}
@@ -237,6 +262,104 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             control={<Checkbox className={styles.checkedCheckbox} checked={selectedUser?.isGuest} disabled />}
             label={t('admin:components.user.isGuest')}
           />
+        )}
+
+        {nonGuestLinkedIP && nonGuestLinkedIP.length > 0 && (
+          <Grid container spacing={1} sx={{ marginTop: 2, marginBottom: 4 }}>
+            <Grid item md={12}>
+              <Typography variant="body1">{t('admin:components.user.linkedAccounts')}</Typography>
+            </Grid>
+            {discordIp && (
+              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={t('admin:components.user.discord')} arrow>
+                  <span>
+                    <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                  </span>
+                </Tooltip>
+                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                  {discordIp.accountIdentifier!}
+                </Typography>
+              </Grid>
+            )}
+            {googleIp && (
+              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={t('admin:components.user.google')} arrow>
+                  <span>
+                    <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                  </span>
+                </Tooltip>
+                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                  {googleIp.accountIdentifier!}
+                </Typography>
+              </Grid>
+            )}
+            {facebookIp && (
+              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={t('admin:components.user.facebook')} arrow>
+                  <span>
+                    <FacebookIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                  </span>
+                </Tooltip>
+                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                  {facebookIp.accountIdentifier!}
+                </Typography>
+              </Grid>
+            )}
+            {twitterIp && (
+              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={t('admin:components.user.twitter')} arrow>
+                  <span>
+                    <TwitterIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                  </span>
+                </Tooltip>
+                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                  {twitterIp.accountIdentifier!}
+                </Typography>
+              </Grid>
+            )}
+            {linkedinIp && (
+              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={t('admin:components.user.linkedIn')} arrow>
+                  <span>
+                    <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                  </span>
+                </Tooltip>
+                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                  {linkedinIp.accountIdentifier!}
+                </Typography>
+              </Grid>
+            )}
+            {githubIp && (
+              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={t('admin:components.user.github')} arrow>
+                  <GitHubIcon width="20px" height="20px" />
+                </Tooltip>
+                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                  {githubIp.accountIdentifier!}
+                </Typography>
+              </Grid>
+            )}
+            {emailIp && (
+              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={t('admin:components.user.email')} arrow>
+                  <EmailIcon width="20px" height="20px" />
+                </Tooltip>
+                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                  {emailIp.accountIdentifier!}
+                </Typography>
+              </Grid>
+            )}
+            {smsIp && (
+              <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={t('admin:components.user.sms')} arrow>
+                  <PhoneIcon width="20px" height="20px" />
+                </Tooltip>
+                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                  {smsIp.accountIdentifier!}
+                </Typography>
+              </Grid>
+            )}
+          </Grid>
         )}
 
         {viewMode && (

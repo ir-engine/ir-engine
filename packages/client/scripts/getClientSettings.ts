@@ -76,7 +76,7 @@ export const getClientSetting = async () => {
       }) || {
         logo: './logo.svg',
         title: 'XREngine',
-        url: 'https://local.theoverlay.io',
+        url: 'https://local.etherealengine.com',
         releaseName: 'local',
         siteDescription: 'Connected Worlds for Everyone',
         favicon32px: '/favicon-32x32.png',
