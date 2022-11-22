@@ -25,6 +25,8 @@ import { elasticOnlyLogger, logger } from './ServerLogger'
 import services from './services'
 import authentication from './user/authentication'
 
+require('fix-esm').register()
+
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({

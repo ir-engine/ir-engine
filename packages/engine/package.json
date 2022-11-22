@@ -38,6 +38,7 @@
     "@xrengine/common": "^1.0.0-rc6",
     "@xrengine/hyperflux": "^1.0.0-rc6",
     "@xrfoundation/volumetric": "1.0.5",
+    "behave-graph": "^0.9.10",
     "bitecs": "git://github.com/NateTheGreatt/bitECS.git#056c637e05327aab8e355ebf25e9ff202b67e495",
     "browserfs": "^1.4.3",
     "comlink": "4.3.1",
