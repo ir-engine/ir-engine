@@ -2,23 +2,16 @@ import { t } from 'i18next'
 import React from 'react'
 
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  CameraPropertiesComponent,
-  CameraPropertiesComponentType,
-  RaycastPropsType
-} from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
+import { ProjectionType } from '@xrengine/engine/src/camera/types/ProjectionType'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
-import BooleanInput from '../inputs/BooleanInput'
 import { InputGroup } from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
-import NumericStepperInput from '../inputs/NumericStepperInput'
 import SelectInput from '../inputs/SelectInput'
-import NodeEditor from './NodeEditor'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, updateProperty } from './Util'
 
 /** Types copied from Camera Modes of engine. */
 const cameraModeSelect = [
@@ -51,57 +44,37 @@ const cameraModeSelect = [
 /** Types copied from Camera Modes of engine. */
 const projectionTypeSelect = [
   {
-    label: 'Perspective',
+    label: 'Orthographic',
     value: 0
   },
   {
-    label: 'Orthographic',
+    label: 'Perspective',
     value: 1
   }
 ]
 
-export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
-  const cameraPropertiesComponent = getComponent(props.node.entity, CameraPropertiesComponent)
-
-  function updateRaycastProps(propName: keyof RaycastPropsType) {
-    return (value) => {
-      const rProps = Object.entries(cameraPropertiesComponent.raycastProps)
-        .map(([k, v]) => {
-          const result: Object = {}
-          if (k !== propName) result[k] = v
-          else result[k] = value
-          return result
-        })
-        .reduce((a, b) => {
-          return { ...a, ...b }
-        }) as RaycastPropsType
-      updateProperty(CameraPropertiesComponent, 'raycastProps')(rProps)
-    }
-  }
+export const CameraPropertiesNodeEditor = () => {
+  const cameraSettings = useHookstate(Engine.instance.currentWorld.sceneMetadata).camera
+  if (!cameraSettings.value) return null
 
   return (
-    <NodeEditor {...props} description={'Properties that will affect the player camera'}>
-      <InputGroup name="Start In Free Look" label={'Start In Free Look'}>
-        <BooleanInput
-          value={cameraPropertiesComponent.startInFreeLook}
-          onChange={updateProperty(CameraPropertiesComponent, 'startInFreeLook')}
-        />
-      </InputGroup>
+    <PropertyGroup
+      name={t('editor:properties.cameraSettings.name')}
+      description={t('editor:properties.cameraSettings.description')}
+    >
       <InputGroup name="Projection Type" label={'Projection Type'}>
         <SelectInput
-          key={props.node.entity}
-          placeholder={projectionTypeSelect[0].label}
-          value={cameraPropertiesComponent.projectionType}
-          onChange={updateProperty(CameraPropertiesComponent, 'projectionType')}
+          // placeholder={projectionTypeSelect[0].label}
+          value={cameraSettings.projectionType.value}
+          onChange={(val: ProjectionType) => cameraSettings.projectionType.set(val)}
           options={projectionTypeSelect}
         />
       </InputGroup>
       <InputGroup name="Camera Mode" label={'Camera Mode'}>
         <SelectInput
-          key={props.node.entity}
-          placeholder={cameraModeSelect[0].label}
-          value={cameraPropertiesComponent.cameraMode}
-          onChange={updateProperty(CameraPropertiesComponent, 'cameraMode')}
+          // placeholder={cameraModeSelect[0].label}
+          value={cameraSettings.cameraMode.value}
+          onChange={(val: CameraMode) => cameraSettings.cameraMode.set(val)}
           options={cameraModeSelect}
         />
       </InputGroup>
@@ -109,141 +82,108 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       <NumericInputGroup
         name="Field Of View"
         label={'FOV'}
-        onChange={updateProperty(CameraPropertiesComponent, 'fov')}
+        onChange={(val) => cameraSettings.fov.set(val)}
         min={1}
         max={180}
         default={50}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={cameraPropertiesComponent.fov}
+        value={cameraSettings.fov.value}
       />
 
       <NumericInputGroup
         name="cameraNearClip"
         label={'Min Projection Distance'}
-        onChange={updateProperty(CameraPropertiesComponent, 'cameraNearClip')}
+        onChange={(val) => cameraSettings.cameraNearClip.set(val)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={0.1}
-        value={cameraPropertiesComponent.cameraNearClip}
+        value={cameraSettings.cameraNearClip.value}
       />
 
       <NumericInputGroup
         name="cameraFarClip"
         label={'Max Projection Distance'}
-        onChange={updateProperty(CameraPropertiesComponent, 'cameraFarClip')}
+        onChange={(val) => cameraSettings.cameraFarClip.set(val)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={100}
-        value={cameraPropertiesComponent.cameraFarClip}
+        value={cameraSettings.cameraFarClip.value}
       />
       <NumericInputGroup
         name="minCameraDistance"
         label={'Min Camera Distance'}
-        onChange={updateProperty(CameraPropertiesComponent, 'minCameraDistance')}
+        onChange={(val) => cameraSettings.minCameraDistance.set(val)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={20}
-        value={cameraPropertiesComponent.minCameraDistance}
+        value={cameraSettings.minCameraDistance.value}
       />
 
       <NumericInputGroup
         name="maxCameraDistance"
         label={'Max Camera Distance'}
-        onChange={updateProperty(CameraPropertiesComponent, 'maxCameraDistance')}
+        onChange={(val) => cameraSettings.maxCameraDistance.set(val)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={5}
-        value={cameraPropertiesComponent.maxCameraDistance}
+        value={cameraSettings.maxCameraDistance.value}
       />
       <NumericInputGroup
         name="startCameraDistance"
         label={'Start Camera Distance'}
-        onChange={updateProperty(CameraPropertiesComponent, 'startCameraDistance')}
+        onChange={(val) => cameraSettings.startCameraDistance.set(val)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={5}
-        value={cameraPropertiesComponent.startCameraDistance}
+        value={cameraSettings.startCameraDistance.value}
       />
 
       <NumericInputGroup
         name="minPhi"
         label={'Min Phi'}
-        onChange={updateProperty(CameraPropertiesComponent, 'minPhi')}
+        onChange={(val) => cameraSettings.minPhi.set(val)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={20}
-        value={cameraPropertiesComponent.minPhi}
+        value={cameraSettings.minPhi.value}
       />
 
       <NumericInputGroup
         name="maxPhi"
         label={'Max Phi'}
-        onChange={updateProperty(CameraPropertiesComponent, 'maxPhi')}
+        onChange={(val) => cameraSettings.maxPhi.set(val)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={5}
-        value={cameraPropertiesComponent.maxPhi}
+        value={cameraSettings.maxPhi.value}
       />
       <NumericInputGroup
         name="startPhi"
         label={'Start Phi'}
-        onChange={updateProperty(CameraPropertiesComponent, 'startPhi')}
+        onChange={(val) => cameraSettings.startPhi.set(val)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={5}
-        value={cameraPropertiesComponent.startPhi}
+        value={cameraSettings.startPhi.value}
       />
-      <PropertyGroup name={t('editor:properties.camera.lbl-camera-raycast')}>
-        <InputGroup name="Raycasting" label={t('editor:properties.camera.lbl-camera-raycast-toggle')}>
-          <BooleanInput
-            value={cameraPropertiesComponent.raycastProps.enabled}
-            onChange={updateRaycastProps('enabled')}
-          />
-        </InputGroup>
-        <InputGroup name="Ray Count" label={t('editor:properties.camera.lbl-camera-raycast-count')}>
-          <NumericStepperInput
-            mediumStep={1}
-            value={cameraPropertiesComponent.raycastProps.rayCount}
-            onChange={updateRaycastProps('rayCount')}
-          />
-        </InputGroup>
-        <InputGroup name="Ray Length" label={t('editor:properties.camera.lbl-camera-raycast-length')}>
-          <NumericStepperInput
-            mediumStep={0.1}
-            value={cameraPropertiesComponent.raycastProps.rayLength}
-            onChange={updateRaycastProps('rayLength')}
-          />
-        </InputGroup>
-        <InputGroup name="Ray Frequency" label={t('editor:properties.camera.lbl-camera-raycast-frequency')}>
-          <NumericStepperInput
-            mediumStep={0.01}
-            value={cameraPropertiesComponent.raycastProps.rayFrequency}
-            onChange={updateRaycastProps('rayFrequency')}
-          />
-        </InputGroup>
-      </PropertyGroup>
-    </NodeEditor>
+    </PropertyGroup>
   )
 }
-
-CameraPropertiesNodeEditor.iconComponent = CameraAltIcon
-
-export default CameraPropertiesNodeEditor

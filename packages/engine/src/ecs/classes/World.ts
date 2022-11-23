@@ -23,6 +23,8 @@ import { createState, hookstate } from '@xrengine/hyperflux/functions/StateFunct
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CameraMode } from '../../camera/types/CameraMode'
+import { ProjectionType } from '../../camera/types/ProjectionType'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -178,7 +180,22 @@ export class World {
   fogShaders = [] as Shader[]
 
   /** stores a hookstate copy of scene metadata */
+  /** @todo - move each of these to their own state in their respective modules that is registered to the world */
   sceneMetadata = hookstate({
+    camera: {
+      fov: 50,
+      cameraNearClip: 0.01,
+      cameraFarClip: 10000,
+      projectionType: ProjectionType.Perspective,
+      minCameraDistance: 1,
+      maxCameraDistance: 50,
+      startCameraDistance: 5,
+      cameraMode: CameraMode.Dynamic,
+      cameraModeDefault: CameraMode.ThirdPerson,
+      minPhi: -70,
+      maxPhi: 85,
+      startPhi: 10
+    },
     postprocessing: {
       enabled: false,
       effects: defaultPostProcessingSchema

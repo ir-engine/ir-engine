@@ -1,12 +1,8 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, Quaternion, Vector3 } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
@@ -14,11 +10,10 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
@@ -34,7 +29,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'

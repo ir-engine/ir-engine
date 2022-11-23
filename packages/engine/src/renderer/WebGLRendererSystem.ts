@@ -318,7 +318,6 @@ export default async function WebGLRendererSystem(world: World) {
 
     return null
   })
-  reactor.run()
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)

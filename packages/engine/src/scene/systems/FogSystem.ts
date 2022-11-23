@@ -108,8 +108,6 @@ export default async function FogSystem(world: World) {
     return null
   })
 
-  reactor.run()
-
   const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
@@ -146,7 +144,10 @@ export default async function FogSystem(world: World) {
 
   const execute = () => {}
 
-  const cleanup = async () => {}
+  const cleanup = async () => {
+    reactorSystem.stop()
+    reactor.stop()
+  }
 
   return { execute, cleanup }
 }

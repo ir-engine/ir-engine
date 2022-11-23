@@ -1,13 +1,17 @@
 import { BlendFunction } from 'postprocessing'
-import React, { ChangeEvent } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { getState, useState } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Checkbox from '@mui/material/Checkbox'
+import Collapse from '@mui/material/Collapse'
+import IconButton from '@mui/material/IconButton'
 
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
@@ -149,7 +153,8 @@ const PredicationMode = [
 export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
-  const postprocessing = useState(Engine.instance.currentWorld.sceneMetadata).postprocessing
+  const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
+  const postprocessing = useHookstate(Engine.instance.currentWorld.sceneMetadata).postprocessing
   if (!postprocessing.value) return null
 
   const getPropertyValue = (keys: string[]): any => {
@@ -296,10 +301,21 @@ export const PostProcessingSettingsEditor = () => {
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
     >
-      <InputGroup name="Use Immersive Media" label={t('editor:properties.postprocessing.enabled')}>
+      <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
         <BooleanInput value={postprocessing.enabled.value} onChange={(val) => postprocessing.enabled.set(val)} />
       </InputGroup>
-      {renderEffects()}
+      <IconButton
+        style={{ color: 'var(--textColor)' }}
+        onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
+        className={styles.collapseBtn}
+        aria-label="expand"
+        size="small"
+      >
+        {openOtherAudioSettings ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+      </IconButton>
+      <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
+        {renderEffects()}
+      </Collapse>
     </PropertyGroup>
   )
 }

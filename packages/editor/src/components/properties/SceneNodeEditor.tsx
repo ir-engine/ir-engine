@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import LanguageIcon from '@mui/icons-material/Language'
 
+import { CameraPropertiesNodeEditor } from './CameraPropertiesNodeEditor'
 import { FogSettingsEditor } from './FogSettingsEditor'
 import { MediaSettingsEditor } from './MediaSettingsEditor'
 import NodeEditor from './NodeEditor'
@@ -19,6 +20,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.scene.name')}
       description={t('editor:properties.scene.description')}
     >
+      <CameraPropertiesNodeEditor />
       <PostProcessingSettingsEditor />
       <MediaSettingsEditor />
       <RenderSettingsEditor />

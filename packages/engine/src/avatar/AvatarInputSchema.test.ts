@@ -1,7 +1,7 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
+import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { NumericalType } from '../common/types/NumericalTypes'
@@ -28,7 +28,7 @@ describe('avatarInputSchema', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    addComponent(world.cameraEntity, FollowCameraComponent, FollowCameraDefaultValues)
+    addComponent(world.cameraEntity, FollowCameraComponent)
     const follower = getComponent(world.cameraEntity, FollowCameraComponent)
     const firstValue = follower.locked
     fixedCameraBehindAvatar(entity, 'Test', {
@@ -44,7 +44,7 @@ describe('avatarInputSchema', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    addComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent, FollowCameraDefaultValues)
+    addComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent)
     const follower = getComponent(world.cameraEntity, FollowCameraComponent)
     const firstValue = follower.shoulderSide
     switchShoulderSide(entity, 'Test', {
