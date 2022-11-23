@@ -36,13 +36,13 @@ const TaskServer = () => {
   return (
     <Box>
       <Typography component="h1" className={styles.settingsHeading}>
-        {t('admin:components.settings.instanceServer.instanceServer')}
+        {t('admin:components.setting.taskServer.taskServer')}
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={6} sm={6}>
           <InputText
             name="port"
-            label={t('admin:components.settings.instanceServer.port')}
+            label={t('admin:components.setting.taskServer.port')}
             value={settingTaskServer.value.map((el) => el.port).join(', ')}
             disabled
           />
@@ -50,7 +50,7 @@ const TaskServer = () => {
         <Grid item xs={6} sm={6}>
           <InputText
             name="processinterval"
-            label={t('admin:components.settings.instanceServer.processInterval')}
+            label={t('admin:components.setting.taskServer.processInterval')}
             value={settingTaskServer.value.map((el) => el.processInterval).join(', ')}
             disabled
           />

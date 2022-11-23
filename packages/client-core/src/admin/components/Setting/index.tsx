@@ -67,7 +67,7 @@ const settingItems = [
   },
   {
     name: 'taskServer',
-    title: 'TaskServer',
+    title: 'Task Server',
     icon: <ListAltIcon sx={{ color: 'orange' }} />,
     content: <TaskServer />
   },

@@ -330,8 +330,8 @@
       "homepageLinkButtonEnabled": "Show link button on homepage",
       "homepageLinkButtonRedirect": "URL of homepage link button",
       "homepageLinkButtonText": "Text of homepage link button",
-      "instanceServer" : {
-        "instanceServer": "Instance Server",
+      "taskServer" : {
+        "taskServer": "Task Server",
         "port": "Port",
         "processInterval": "Process Interval"
       }
