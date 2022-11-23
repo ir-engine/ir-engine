@@ -1,10 +1,20 @@
 // TODO: this should not be here
 import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
-import { BufferGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, RingGeometry } from 'three'
+import {
+  BufferGeometry,
+  Group,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  RingGeometry,
+  ShadowMaterial
+} from 'three'
 
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
 import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
 export type XRGripButtonComponentType = {}
@@ -229,3 +239,5 @@ export const XRHandComponent = defineComponent({
     }
   }
 })
+
+export const XRPlaneComponent = defineComponent({ name: 'XRPlaneComponent' })
