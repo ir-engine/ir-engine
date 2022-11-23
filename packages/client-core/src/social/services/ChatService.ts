@@ -27,7 +27,6 @@ interface ChatMessageProps {
 
 //State
 
-// TODO: find existing interfaces for these or move these to @xrengine/common/src/interfaces
 const ChatState = defineState({
   name: 'ChatState',
   initial: () => ({

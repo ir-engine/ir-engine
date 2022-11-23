@@ -236,7 +236,7 @@ export default async function PositionalAudioSystem(world: World) {
       audioObject.panner && updateAudioPanner(audioObject.panner, position, rotation, endTime, positionalAudio)
     }
 
-    /** @todo, only apply this to closest 8 (configurable) avatars */
+    /** @todo, only apply this to closest 8 (configurable) avatars #7261 */
 
     for (const entity of networkedAvatarAudioEntities) {
       const networkObject = getComponent(entity, NetworkObjectComponent)
