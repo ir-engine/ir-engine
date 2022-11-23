@@ -38,6 +38,7 @@
     "@mui/material": "5.10.0",
     "@mui/styled-engine-sc": "5.10.0",
     "@mui/styles": "5.9.3",
+    "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@swc/core": "^1.2.210",
     "@xrengine/client-core": "^1.0.0-rc6",
     "@xrengine/common": "^1.0.0-rc6",

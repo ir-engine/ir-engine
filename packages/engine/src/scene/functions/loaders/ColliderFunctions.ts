@@ -71,7 +71,7 @@ export const updateCollider = (entity: Entity) => {
     }
   }
 
-  const rigidbody = getComponent(entity, RigidBodyComponent).body
+  const rigidbody = getComponent(entity, RigidBodyComponent)
 
   /**
    * This component only supports one collider, always at index 0
@@ -91,10 +91,11 @@ export const updateCollider = (entity: Entity) => {
     new Vector3(),
     new Quaternion()
   )
-  world.physicsWorld.createCollider(colliderDesc, rigidbody)
+  world.physicsWorld.createCollider(colliderDesc, rigidbody.body)
 
-  rigidbody.setTranslation(transform.position, true)
-  rigidbody.setRotation(transform.rotation, true)
+  rigidbody.body.setTranslation(transform.position, true)
+  rigidbody.body.setRotation(transform.rotation, true)
+  rigidbody.scale.copy(transform.scale)
 }
 
 export const updateModelColliders = (entity: Entity) => {

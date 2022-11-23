@@ -31,6 +31,13 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@xrengine/client-core/src/API'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
+import {
+  AppThemeServiceReceptor,
+  AppThemeState,
+  getAppTheme,
+  getAppThemeName,
+  useAppThemeName
+} from '@xrengine/client-core/src/common/services/AppThemeState'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
 import {
   OEmbedService,
@@ -41,7 +48,7 @@ import Debug from '@xrengine/client-core/src/components/Debug'
 import config from '@xrengine/common/src/config'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -59,6 +66,7 @@ const App = (): any => {
   const selfUser = authState.user
   const clientSettingState = useClientSettingState()
   const coilSettingState = useCoilSettingState()
+  const appTheme = useHookstate(getState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
   const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
@@ -95,17 +103,19 @@ const App = (): any => {
     }
     addActionReceptor(receptor)
     addActionReceptor(OEmbedServiceReceptor)
+    addActionReceptor(AppThemeServiceReceptor)
 
     return () => {
       removeActionReceptor(receptor)
       removeActionReceptor(OEmbedServiceReceptor)
+      removeActionReceptor(AppThemeServiceReceptor)
     }
   }, [notistackRef])
 
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      html.dataset.theme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
+      html.dataset.theme = getAppThemeName()
       updateTheme()
     }
   }, [selfUser?.user_setting?.value])
@@ -157,9 +167,7 @@ const App = (): any => {
 
   useEffect(() => {
     updateTheme()
-  }, [clientThemeSettings])
-
-  const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
+  }, [clientThemeSettings, appTheme.customTheme])
 
   const location = useLocation()
   const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
@@ -173,17 +181,17 @@ const App = (): any => {
   }, [location.pathname])
 
   const updateTheme = () => {
-    if (clientThemeSettings) {
-      if (clientThemeSettings?.[currentTheme]) {
-        for (let variable of Object.keys(clientThemeSettings[currentTheme])) {
-          ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
-            '--' + variable,
-            clientThemeSettings[currentTheme][variable]
-          )
-        }
+    const currentThemeName = getAppThemeName()
+    const theme = getAppTheme()
+    if (theme)
+      for (let variable of Object.keys(theme)) {
+        ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
+          '--' + variable,
+          theme[variable]
+        )
       }
-    }
   }
+  const currentThemeName = useAppThemeName()
 
   return (
     <>
@@ -225,7 +233,7 @@ const App = (): any => {
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
-        <meta name="theme-color" content={clientThemeSettings?.[currentTheme]?.mainBackground || '#FFFFFF'} />
+        <meta name="theme-color" content={clientThemeSettings?.[currentThemeName]?.mainBackground || '#FFFFFF'} />
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
       </MetaTags>

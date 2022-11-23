@@ -35,7 +35,7 @@ const LoadingView = ({ className, title, variant, titleColor, sx, fullHeight = t
     >
       <CircularProgress size={40} sx={{ marginBottom: 1 }} />
       {title && (
-        <Typography variant={variant} sx={{ color: titleColor }}>
+        <Typography variant={variant} sx={{ color: titleColor ? titleColor : 'var(--textColor)' }}>
           {title}
         </Typography>
       )}

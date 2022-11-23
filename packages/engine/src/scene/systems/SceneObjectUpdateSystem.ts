@@ -148,7 +148,8 @@ export const ScenePrefabs = {
   spline: 'Spline' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
-  loadVolume: 'Load Volume' as const
+  loadVolume: 'Load Volume' as const,
+  behaveGraph: 'Behave Graph' as const
 }
 
 export default async function SceneObjectUpdateSystem(world: World) {

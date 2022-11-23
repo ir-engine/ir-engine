@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
@@ -16,10 +15,7 @@ import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Help } from '@mui/icons-material'
@@ -47,7 +43,7 @@ import DrawerView from '../../common/DrawerView'
 import InputRadio from '../../common/InputRadio'
 import InputText from '../../common/InputText'
 import LoadingView from '../../common/LoadingView'
-import { AdminAvatarActions, AdminAvatarService, useAdminAvatarState } from '../../services/AvatarService'
+import { AdminAvatarActions, useAdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 
 const Input = styled('input')({

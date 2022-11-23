@@ -59,8 +59,7 @@ const SelectAvatarMenu = () => {
 
   const loadNextAvatars = () => {
     if ((page + 1) * imgPerPage >= avatarState.total.value) return
-    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
-      AvatarService.fetchAvatarList(false, 'increment')
+    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length) AvatarService.fetchAvatarList('increment')
     setPage(page + 1)
   }
 

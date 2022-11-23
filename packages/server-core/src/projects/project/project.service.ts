@@ -26,7 +26,7 @@ import {
   getTags,
   updateBuilder
 } from './project-helper'
-import { dockerHubRegex, privateECRRegex, publicECRRegex } from './project-helper'
+import { dockerHubRegex, privateECRTagRegex, publicECRTagRegex } from './project-helper'
 import { Project, ProjectParams, ProjectParamsClient } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
@@ -153,8 +153,8 @@ export const builderInfoGet = (app: Application) => async () => {
       const image = builderContainer.image
       if (image && typeof image === 'string') {
         const dockerHubRegexExec = dockerHubRegex.exec(image)
-        const publicECRRegexExec = publicECRRegex.exec(image)
-        const privateECRRegexExec = privateECRRegex.exec(image)
+        const publicECRRegexExec = publicECRTagRegex.exec(image)
+        const privateECRRegexExec = privateECRTagRegex.exec(image)
         returned.engineCommit =
           dockerHubRegexExec && !publicECRRegexExec
             ? dockerHubRegexExec[1]

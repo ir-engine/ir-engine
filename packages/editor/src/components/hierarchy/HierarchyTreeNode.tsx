@@ -79,7 +79,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     ? getComponent(node.entityNode.entity, NameComponent)
     : ''
 
-  const errors = useOptionalComponent(node.entityNode.entity, ErrorComponent)
+  const errors = node.entityNode ? useOptionalComponent(node.entityNode.entity, ErrorComponent) : undefined
   const firstError = errors?.keys[0]
 
   const onClickToggle = useCallback(

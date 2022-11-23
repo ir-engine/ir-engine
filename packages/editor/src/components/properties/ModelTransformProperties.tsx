@@ -113,15 +113,39 @@ export default function ModelTransformProperties({
     prune: false,
     dracoCompression: {
       enabled: false,
-      options: {}
+      options: {
+        method: 'sequential',
+        encodeSpeed: 0,
+        decodeSpeed: 0,
+        quantizePosition: 14,
+        quantizeNormal: 8,
+        quantizeColor: 8,
+        quantizeTexcoord: 12,
+        quantizeGeneric: 16,
+        quantizationVolume: 'mesh'
+      }
     },
     gltfPack: {
       enabled: false,
-      options: {}
+      options: {
+        meshopt: true,
+        basisU: true,
+        instancing: false,
+        mergeNodes: true,
+        mergeMaterials: true
+      }
     },
     meshQuantization: {
       enabled: false,
-      options: {}
+      options: {
+        quantizePosition: 12,
+        quantizeNormal: 8,
+        quantizeTexcoord: 8,
+        quantizeColor: 8,
+        quantizeWeight: 8,
+        quantizeGeneric: 8,
+        normalizeWeights: false
+      }
     },
     textureFormat: 'ktx2',
     maxTextureSize: 1024
@@ -267,6 +291,18 @@ export default function ModelTransformProperties({
                 ]}
               />
             </InputGroup>
+            <InputGroup name="Remove Duplicates" label={t('editor:properties.model.transform.removeDuplicates')}>
+              <BooleanInput
+                value={transformParms.dedup.value}
+                onChange={onChangeTransformParm(transformParms, 'dedup')}
+              />
+            </InputGroup>
+            <InputGroup name="Prune Unused" label={t('editor:properties.model.transform.pruneUnused')}>
+              <BooleanInput
+                value={transformParms.prune.value}
+                onChange={onChangeTransformParm(transformParms, 'prune')}
+              />
+            </InputGroup>
             <InputGroup name="Use Mesh Quantization" label={t('editor:properties.model.transform.useQuantization')}>
               <BooleanInput
                 value={transformParms.meshQuantization.enabled.value}
@@ -281,12 +317,23 @@ export default function ModelTransformProperties({
             <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
               <BooleanInput
                 value={transformParms.dracoCompression.enabled.value}
-                onChange={onChangeTransformParm(transformParms.dracoCompression, 'useDraco')}
+                onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
               />
               <ParameterInput
                 entity={`${modelState.src.value}-draco-compression`}
                 values={transformParms.dracoCompression.options.value}
                 onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
+              />
+            </InputGroup>
+            <InputGroup name="Use GLTFPack" label={t('editor:properties.model.transform.useGLTFPack')}>
+              <BooleanInput
+                value={transformParms.gltfPack.enabled.value}
+                onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
+              />
+              <ParameterInput
+                entity={`${modelState.src.value}-gltfpack`}
+                values={transformParms.gltfPack.options.value}
+                onChange={onChangeTransformParm.bind({}, transformParms.gltfPack.options)}
               />
             </InputGroup>
             <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>

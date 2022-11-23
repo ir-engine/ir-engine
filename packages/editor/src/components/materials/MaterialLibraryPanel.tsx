@@ -71,7 +71,7 @@ export default function MaterialLibraryPanel() {
       ]
     })
     return result
-  }, [])
+  }, [nodeChanges, srcs])
 
   const nodes = useHookstate(createNodes())
 

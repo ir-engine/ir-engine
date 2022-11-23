@@ -142,11 +142,10 @@ export function removeMaterialSource(src: MaterialSource): boolean {
 }
 
 export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
-  const prototype = prototypeFromId(material.type)
-
+  const prototype = prototypeFromId(material.userData.type ?? material.type)
   addMaterialSource(src)
-  getSourceMaterials(src)!.push(material.uuid)
-
+  const srcMats = getSourceMaterials(src)!
+  !srcMats.includes(material.uuid) && srcMats.push(material.uuid)
   const parameters =
     params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
   MaterialLibrary.materials.set(material.uuid, {

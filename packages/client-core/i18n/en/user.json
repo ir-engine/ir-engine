@@ -371,6 +371,8 @@
     "none": "None",
     "submit": "Submit",
     "edit": "Edit",
+    "confirm": "Confirm",
+    "upload": "Upload",
     "avatarUrl": "Avatar url",
     "upload-success-msg": "Avatar Uploaded Successfully.",
     "remove-success-msg": "Avatar Uploaded Successfully.",
