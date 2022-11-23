@@ -1,10 +1,10 @@
-{{- if (.Values.analytics).enabled }}
+{{- if (.Values.taskserver).enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "xrengine.analytics.fullname" . }}
+  name: {{ include "xrengine.taskserver.fullname" . }}
   labels:
-    {{- include "xrengine.analytics.labels" . | nindent 4 }}
+    {{- include "xrengine.taskserver.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - ""

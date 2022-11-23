@@ -6,8 +6,8 @@ Expand the name of the chart.
 # {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 # {{- end -}}
 
-{{- define "xrengine.analytics.name" -}}
-{{- default .Chart.Name .Values.analytics.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "xrengine.taskserver.name" -}}
+{{- default .Chart.Name .Values.taskserver.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "xrengine.client.name" -}}
@@ -54,11 +54,11 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xrengine.analytics.fullname" -}}
-{{- if .Values.analytics.fullnameOverride -}}
-{{- .Values.analytics.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "xrengine.taskserver.fullname" -}}
+{{- if .Values.taskserver.fullnameOverride -}}
+{{- .Values.taskserver.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name .Values.analytics.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name .Values.taskserver.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -127,9 +127,9 @@ Create chart name and version as used by the chart label.
 {{/*
 Common labels
 */}}
-{{- define "xrengine.analytics.labels" -}}
+{{- define "xrengine.taskserver.labels" -}}
 helm.sh/chart: {{ include "xrengine.chart" . }}
-{{ include "xrengine.analytics.selectorLabels" . }}
+{{ include "xrengine.taskserver.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -139,10 +139,10 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrengine.analytics.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrengine.analytics.name" . }}
+{{- define "xrengine.taskserver.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.taskserver.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: analytics
+app.kubernetes.io/component: taskserver
 {{- end -}}
 
 {{/*
@@ -257,11 +257,11 @@ app.kubernetes.io/component: testbot
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrengine.analytics.serviceAccountName" -}}
-{{- if .Values.analytics.serviceAccount.create -}}
-    {{ default (include "xrengine.analytics.fullname" .) .Values.analytics.serviceAccount.name }}
+{{- define "xrengine.taskserver.serviceAccountName" -}}
+{{- if .Values.taskserver.serviceAccount.create -}}
+    {{ default (include "xrengine.taskserver.fullname" .) .Values.taskserver.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.analytics.serviceAccount.name }}
+    {{ default "default" .Values.taskserver.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 

@@ -1,29 +1,29 @@
-{{- if (.Values.analytics).enabled -}}
+{{- if (.Values.taskserver).enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "xrengine.analytics.fullname" . }}
+  name: {{ include "xrengine.taskserver.fullname" . }}
   labels:
-    {{- include "xrengine.analytics.labels" . | nindent 4 }}
+    {{- include "xrengine.taskserver.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.analytics.replicaCount }}
+  replicas: {{ .Values.taskserver.replicaCount }}
   selector:
     matchLabels:
-      {{- include "xrengine.analytics.selectorLabels" . | nindent 6 }}
+      {{- include "xrengine.taskserver.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "xrengine.analytics.selectorLabels" . | nindent 8 }}
+        {{- include "xrengine.taskserver.selectorLabels" . | nindent 8 }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/analytics-server-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/task-server-configmap.yaml") . | sha256sum }}
     spec:
-    {{- with .Values.analytics.imagePullSecrets }}
+    {{- with .Values.taskserver.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "xrengine.analytics.serviceAccountName" . }}
+      serviceAccountName: {{ include "xrengine.taskserver.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.analytics.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.taskserver.podSecurityContext | nindent 8 }}
       {{- $releaseName := .Release.Name }}
       {{ if not (empty .Values.release) }}
       {{- $releaseName = .Values.release.name | default .Release.Name }}
@@ -31,16 +31,16 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.analytics.securityContext | nindent 12 }}
-          image: "{{ .Values.analytics.image.repository }}:{{ .Values.analytics.image.tag }}"
-          imagePullPolicy: {{ .Values.analytics.image.pullPolicy }}
+            {{- toYaml .Values.taskserver.securityContext | nindent 12 }}
+          image: "{{ .Values.taskserver.image.repository }}:{{ .Values.taskserver.image.tag }}"
+          imagePullPolicy: {{ .Values.taskserver.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ include "xrengine.analytics.fullname" . }}
+                name: {{ include "xrengine.taskserver.fullname" . }}
                 optional: true
           env:
             - name: SERVER_MODE
-              value: "analytics"
+              value: "task"
             - name: KUBERNETES
               value: "true"
             {{ if .Values.sql }}
@@ -116,16 +116,16 @@ spec:
               port: http
             initialDelaySeconds: 10
           resources:
-            {{- toYaml .Values.analytics.resources | nindent 12 }}
-      {{- with .Values.analytics.nodeSelector }}
+            {{- toYaml .Values.taskserver.resources | nindent 12 }}
+      {{- with .Values.taskserver.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.analytics.affinity }}
+    {{- with .Values.taskserver.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.analytics.tolerations }}
+    {{- with .Values.taskserver.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}

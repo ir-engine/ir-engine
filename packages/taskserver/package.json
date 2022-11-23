@@ -1,6 +1,6 @@
 {
-  "name": "@xrengine/analytics",
-  "description": "Analytics generator for XREngine platform",
+  "name": "@xrengine/taskserver",
+  "description": "Task server for EtherealEngine platform",
   "version": "1.0.0-rc6",
   "repository": {
     "type": "git",

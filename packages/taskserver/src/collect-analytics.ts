@@ -1,10 +1,10 @@
 import config from '@xrengine/server-core/src/appconfig'
 import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
-const logger = multiLogger.child({ component: 'analytics' })
+const logger = multiLogger.child({ component: 'taskserver:collect-analytics' })
 
 const DEFAULT_INTERVAL_SECONDS = 1800
-const configInterval = parseInt(config.analytics.processInterval)
+const configInterval = parseInt(config.taskserver.processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
 export default (app): void => {
