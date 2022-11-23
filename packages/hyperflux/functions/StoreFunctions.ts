@@ -2,8 +2,7 @@ import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
-import ActionFunctions from './ActionFunctions'
-import { ActionReceptor, ResolvedActionType, Topic } from './ActionFunctions'
+import { ActionReceptor, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -58,15 +57,13 @@ export interface HyperStore {
   }
   /** functions that receive actions */
   receptors: ReadonlyArray<ActionReceptor>
-  /** functions that re-run on state changes, compatible w/ React hooks */
-  reactors: WeakMap<() => void, any>
 }
 
 export class HyperFlux {
   static store: HyperStore
 }
 
-function createHyperStore(options: {
+export function createHyperStore(options: {
   forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
   getDispatchTime: () => number
@@ -100,16 +97,6 @@ function createHyperStore(options: {
     }
   } as HyperStore
   HyperFlux.store = store
-  ActionFunctions.addOutgoingTopicIfNecessary(store.defaultTopic)
+  addOutgoingTopicIfNecessary(store.defaultTopic)
   return store
-}
-
-// function destroyStore(store = getStore()) {
-//   for (const reactor of [...store.reactors]) {
-//     StateFunctions.removeStateReactor(reactor)
-//   }
-// }
-
-export default {
-  createHyperStore
 }

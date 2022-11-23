@@ -2,18 +2,24 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
-  SCENE_COMPONENT_DYNAMIC_LOAD,
-  SceneDynamicLoadTagComponent
-} from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { executeCommandWithHistoryOnSelection } from '../../classes/History'
-import { TagComponentOperation } from '../../commands/TagComponentCommand'
-import EditorCommands from '../../constants/EditorCommands'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorHistoryAction } from '../../services/EditorHistory'
+import { EditorAction } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
@@ -30,47 +36,42 @@ import { EditorComponentType, updateProperty } from './Util'
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
+  useOptionalComponent(props.node.entity, SceneDynamicLoadTagComponent)
+  const transformComponent = useComponent(props.node.entity, TransformComponent)
+  const localTransformComponent = useOptionalComponent(props.node.entity, LocalTransformComponent)
+
+  const onRelease = () => {
+    dispatchAction(EditorAction.sceneModified({ modified: true }))
+    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  }
+
   const onChangeDynamicLoad = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.TAG_COMPONENT,
-      operations: [
-        {
-          component: SceneDynamicLoadTagComponent,
-          sceneComponentName: SCENE_COMPONENT_DYNAMIC_LOAD,
-          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-        }
-      ]
-    })
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+      (n) => typeof n !== 'string'
+    ) as EntityTreeNode[]
+    EditorControlFunctions.addOrRemoveComponent(nodes, SceneDynamicLoadTagComponent, value)
   }
 
   //function to handle the position properties
   const onChangePosition = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.POSITION,
-      positions: [value]
-    })
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    EditorControlFunctions.positionObject(nodes, [value])
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value: Euler) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.ROTATION,
-      rotations: [value]
-    })
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    EditorControlFunctions.rotateObject(nodes, [value])
   }
 
   //function to handle changes in scale properties
   const onChangeScale = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.SCALE,
-      scales: [value],
-      overrideScale: true
-    })
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.Local, true)
   }
 
   //rendering editor view for Transform properties
-  const transform =
-    getComponent(props.node.entity, LocalTransformComponent) ?? getComponent(props.node.entity, TransformComponent)
+  const transform = localTransformComponent ?? transformComponent!
 
   return (
     <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
@@ -92,15 +93,16 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
         <Vector3Input
-          value={transform.position}
+          value={transform.position.value}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
           onChange={onChangePosition}
+          onRelease={onRelease}
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput quaternion={transform.rotation} onChange={onChangeRotation} unit="°" />
+        <EulerInput quaternion={transform.rotation.value} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input
@@ -108,8 +110,9 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          value={transform.scale}
+          value={transform.scale.value}
           onChange={onChangeScale}
+          onRelease={onRelease}
         />
       </InputGroup>
     </NodeEditor>

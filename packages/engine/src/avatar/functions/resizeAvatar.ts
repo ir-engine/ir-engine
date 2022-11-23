@@ -2,14 +2,14 @@ import { Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { createAvatarCollider } from './createAvatar'
+import { createAvatarCollider } from './spawnAvatarReceptor'
 
 export const resizeAvatar = (entity: Entity, height: number, center: Vector3) => {
-  const avatar = getComponent(entity, AvatarComponent)
+  const avatar = getComponent(entity, AvatarComponent) as ComponentType<typeof AvatarComponent>
 
   avatar.avatarHeight = height
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
@@ -19,6 +19,7 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
   const collider = createAvatarCollider(entity)
 
   if (hasComponent(entity, AvatarControllerComponent)) {
-    getComponent(entity, AvatarControllerComponent).bodyCollider = collider
+    ;(getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>).bodyCollider =
+      collider
   }
 }

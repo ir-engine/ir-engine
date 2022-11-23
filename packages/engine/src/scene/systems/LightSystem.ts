@@ -23,7 +23,6 @@ import {
   SCENE_COMPONENT_HEMISPHERE_LIGHT,
   SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
 } from '../components/HemisphereLightComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import {
   PointLightComponent,
   SCENE_COMPONENT_POINT_LIGHT,
@@ -75,16 +74,14 @@ export default async function LightSystem(world: World) {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
     defaultData: SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeHemisphereLight,
-    serialize: serializeHemisphereLight,
-    shouldDeserialize: shouldDeserializeHemisphereLight
+    serialize: serializeHemisphereLight
   })
 
   world.sceneComponentRegistry.set(AmbientLightComponent.name, SCENE_COMPONENT_AMBIENT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
     defaultData: SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeAmbientLight,
-    serialize: serializeAmbientLight,
-    shouldDeserialize: shouldDeserializeAmbientLight
+    serialize: serializeAmbientLight
   })
 
   world.sceneComponentRegistry.set(PointLightComponent.name, SCENE_COMPONENT_POINT_LIGHT)

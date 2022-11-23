@@ -1,4 +1,3 @@
-import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import AvatarSpawnSystem from './avatar/AvatarSpawnSystem'
 import AvatarSystem from './avatar/AvatarSystem'
@@ -29,7 +28,7 @@ export const initializeSceneSystems = async () => {
       type: SystemUpdateType.FIXED,
       systemLoader: () => Promise.resolve({ default: AvatarSystem })
     },
-    /** @todo fix equippable implementation */
+    /** @todo fix equippable implementation #3947 */
     // {
     //   uuid: 'xre.engine.EquippableSystem',
     //   type: SystemUpdateType.FIXED_LATE,
@@ -48,9 +47,6 @@ export const initializeSceneSystems = async () => {
   )
   if (isClient) {
     systemsToLoad.push(...(await import('./initializeSceneClientSystems')).default())
-
-    // todo: figure out the race condition that is stopping us from moving this to SceneObjectSystem
-    initializeKTX2Loader(getGLTFLoader())
   }
 
   await initSystems(world, systemsToLoad)

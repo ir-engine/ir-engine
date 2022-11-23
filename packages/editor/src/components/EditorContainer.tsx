@@ -13,7 +13,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
@@ -35,9 +35,12 @@ import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
 import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
+import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
+import GraphPanel from './graph/GraphPanel'
+import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { HierarchyPanelTitle } from './hierarchy/HierarchyPanelTitle'
 import { DialogContext } from './hooks/useDialog'
@@ -179,7 +182,7 @@ const EditorContainer = () => {
     }
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (sceneName.value && editorReady) {
       logger.info(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
@@ -306,7 +309,7 @@ const EditorContainer = () => {
     const el = document.createElement('input')
     el.type = 'file'
     el.multiple = true
-    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv'
+    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.m3u8'
     el.style.display = 'none'
     el.onchange = async () => {
       const pName = projectName.value
@@ -388,6 +391,16 @@ const EditorContainer = () => {
       }
       return
     }
+
+    const result: { generateThumbnails: boolean } = (await new Promise((resolve) => {
+      setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+    })) as any
+
+    if (!result) {
+      setDialogComponent(null)
+      return
+    }
+
     const abortController = new AbortController()
 
     setDialogComponent(
@@ -404,12 +417,16 @@ const EditorContainer = () => {
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
 
-    const blob = await takeScreenshot(512, 320)
-
     try {
       if (projectName.value) {
-        await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
-        await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
+        if (result.generateThumbnails) {
+          const blob = await takeScreenshot(512, 320)
+
+          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
+          await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
+        } else {
+          await saveScene(projectName.value, sceneName.value, null, abortController.signal)
+        }
       }
 
       dispatchAction(EditorAction.sceneModified({ modified: false }))
@@ -454,7 +471,7 @@ const EditorContainer = () => {
     dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (editorError) {
       onEditorError(editorError.value)
     }
@@ -591,6 +608,11 @@ const EditorContainer = () => {
                   id: 'materialLibraryPanel',
                   title: <MaterialLibraryPanelTitle />,
                   content: <MaterialLibraryPanel />
+                },
+                {
+                  id: 'graphPanel',
+                  title: <GraphPanelTitle />,
+                  content: <GraphPanel />
                 }
               ]
             },

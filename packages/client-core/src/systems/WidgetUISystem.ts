@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
+import config from '@xrengine/common/src/config'
+import { isDev } from '@xrengine/common/src/config'
 import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
 import { V_001, V_010, V_100 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
@@ -55,7 +56,7 @@ export default async function WidgetSystem(world: World) {
   const widgetMenuUI = createWidgetButtonsView()
   removeComponent(widgetMenuUI.entity, VisibleComponent)
 
-  addComponent(widgetMenuUI.entity, NameComponent, { name: 'widget_menu' })
+  addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
 
   const widgetState = getState(WidgetAppState)
 
@@ -116,6 +117,9 @@ export default async function WidgetSystem(world: World) {
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       setVisibleComponent(widget.ui.entity, action.shown)
+      if (action.shown) {
+        if (typeof widget.onOpen === 'function') widget.onOpen()
+      } else if (typeof widget.onClose === 'function') widget.onClose()
     }
     for (const action of registerWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!

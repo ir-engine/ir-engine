@@ -1,5 +1,6 @@
 import type { World } from '@xrengine/engine/src/ecs/classes/World'
 
+import { loadConfigForProject } from './loadConfigForProject'
 import type { ProjectConfigInterface } from './ProjectConfigInterface'
 
 export const loadEngineInjection = async (world: World, projects: string[]) => {
@@ -10,8 +11,7 @@ export const loadEngineInjection = async (world: World, projects: string[]) => {
     projects
       .map(async (project) => {
         try {
-          const projectConfig = (await import(`./projects/${project}/xrengine.config.ts`))
-            .default as ProjectConfigInterface
+          const projectConfig = (await loadConfigForProject(project))!
           if (typeof projectConfig.worldInjection !== 'function') return null!
           return (await projectConfig.worldInjection()).default(world)
         } catch (e) {

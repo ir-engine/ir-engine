@@ -15,7 +15,7 @@ import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { Physics, RaycastArgs } from '@xrengine/engine/src/physics/classes/Physics'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
@@ -52,12 +52,12 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
 
   const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
 
-  contextMenuXRUI.container.scale.setScalar(Math.max(1, cameraPosition.distanceTo(userTransform.position) / 3))
-  contextMenuXRUI.container.position.copy(userTransform.position)
-  contextMenuXRUI.container.position.y += avatarHeight - 0.3
-  contextMenuXRUI.container.position.x += 0.1
-  contextMenuXRUI.container.position.z += contextMenuXRUI.container.position.z > cameraPosition.z ? -0.4 : 0.4
-  contextMenuXRUI.container.quaternion.copy(cameraTransform.rotation)
+  contextMenuXRUI.scale.setScalar(Math.max(1, cameraPosition.distanceTo(userTransform.position) / 3))
+  contextMenuXRUI.position.copy(userTransform.position)
+  contextMenuXRUI.position.y += avatarHeight - 0.3
+  contextMenuXRUI.position.x += 0.1
+  contextMenuXRUI.position.z += contextMenuXRUI.position.z > cameraPosition.z ? -0.4 : 0.4
+  contextMenuXRUI.quaternion.copy(cameraTransform.rotation)
 }
 
 export default async function AvatarUISystem(world: World) {
@@ -78,7 +78,7 @@ export default async function AvatarUISystem(world: World) {
   const handleAvatarClick = (action: ReturnType<typeof EngineActions.buttonClicked>) => {
     /** clickaway */
     if (AvatarContextMenuUI.state.id.value !== '' && !action.clicked && action.button === BaseInput.PRIMARY) {
-      const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent).container
+      const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent)
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (!hit) {
         AvatarContextMenuUI.state.id.set('')
@@ -183,7 +183,8 @@ export default async function AvatarUISystem(world: World) {
         if (immersiveMedia && videoPreviewTimer === 0) {
           const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
           const consumer = world.mediaNetwork!.consumers.find(
-            (consumer) => consumer._appData.peerId === ownerId && consumer._appData.mediaTag === 'cam-video'
+            (consumer) =>
+              consumer.appData.peerID === world.mediaNetwork.peerID && consumer.appData.mediaTag === 'cam-video'
           ) as Consumer
           const paused = consumer && (consumer as any).producerPaused
           if (videoPreviewMesh.material.map) {

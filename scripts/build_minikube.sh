@@ -37,16 +37,16 @@ else
   MYSQL_DATABASE=$MYSQL_DATABASE
 fi
 
-if [ -z "$VITE_CLIENT_HOST" ]
+if [ -z "$VITE_APP_HOST" ]
 then
-  VITE_CLIENT_HOST=local.theoverlay.io
+  VITE_APP_HOST=local.etherealengine.com
 else
-  VITE_CLIENT_HOST=$VITE_CLIENT_HOST
+  VITE_APP_HOST=$VITE_APP_HOST
 fi
 
 if [ -z "$VITE_SERVER_HOST" ]
 then
-  VITE_SERVER_HOST=api-local.theoverlay.io
+  VITE_SERVER_HOST=api-local.etherealengine.com
 else
   VITE_SERVER_HOST=$VITE_SERVER_HOST
 fi
@@ -67,7 +67,7 @@ fi
 
 if [ -z "$VITE_INSTANCESERVER_HOST" ]
 then
-  VITE_INSTANCESERVER_HOST=instanceserver-local.theoverlay.io
+  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.com
 else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
@@ -109,14 +109,14 @@ DOCKER_BUILDKIT=1 docker build -t xrengine \
   --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
   --build-arg MYSQL_USER=$MYSQL_USER \
   --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
-  --build-arg VITE_CLIENT_HOST=$VITE_CLIENT_HOST \
+  --build-arg VITE_APP_HOST=$VITE_APP_HOST \
   --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
   --build-arg VITE_FILE_SERVER=$VITE_FILE_SERVER \
   --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
   --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
   --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
-  --build-arg VITE_DISABLE_LOG=$VITE_VITE_DISABLE_LOG \
-  --build-arg VITE_8TH_WALL=$VITE_VITE_8TH_WALL \
+  --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
+  --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
 #DOCKER_BUILDKIT=1 docker build -t xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .

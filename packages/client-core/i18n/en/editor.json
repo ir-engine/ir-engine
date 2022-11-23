@@ -2,7 +2,7 @@
   "loading": "Loading Project",
   "loadingError": "Error loading project",
   "loadingErrorMsg": "There was an error when loading the project.",
-  "selectSceneMsg": "Select Scene to start playing with the engine",
+  "selectSceneMsg": "Select a Scene in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
   "generateScreenshot": "Generating Project Screenshot",
@@ -113,6 +113,11 @@
       "descreaseGridSize": "Decrease Grid Size",
       "stopPreview": "Stop Previewing Scene",
       "playPreview": "Preview Scene"
+    },
+    "instance": {
+      "none": "None",
+      "users": "Users",
+      "user": "User"
     }
   },
   "properties": {
@@ -144,6 +149,11 @@
       "lbl-load": "Load Into Scene",
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
+    },
+    "persistent-anchor": {
+      "name": "Persistent Anchor",
+      "description": "Anchors this entity to a real life reference",
+      "lbl-name": "Anchor Name"
     },
     "media": {
       "name": "Media",
@@ -554,15 +564,13 @@
     },
     "video": {
       "name": "Video",
-      "description": "Dynamically loads a video.",
-      "lbl-video": "Video",
-      "lbl-projection": "Projection",
-      "lbl-islivestream": "Live Stream",
-      "lbl-interactable": "Interactable",
-      "lbl-id": "Element Id",
-      "lbl-play": "Play",
-      "lbl-pause": "Pause",
-      "error-url": "Error Loading From URL"
+      "lbl-media": "Media Source",
+      "lbl-size": "Canvas Size",
+      "lbl-size-info": "The dimensions of the surface on which the video will be presented",
+      "lbl-fit": "Video Fit",
+      "lbl-fit-info": "How the video should be stretched within the given canvas size",
+      "lbl-media-info": "An entity w/ a media component that should be sourced for display",
+      "description": "Display a video"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -609,6 +617,9 @@
       "lbl-forNearDistance": "Fog Near Distance",
       "lbl-fogFarDistance": "Fog Far Distance",
       "lbl-fogDensity": "Fog Density"
+    },
+    "xr": {
+      "name": "XR Settings"
     },
     "mountPoint": {
       "name": "Mount point",
@@ -720,8 +731,13 @@
       "header": "Your scene has been published.",
       "lbl-view": "View Your Scene"
     },
+    "saveScene": {
+      "title": "Save",
+      "lbl-thumbnail": "Generate thumbnail & envmap",
+      "lbl-confirm": "Save Scene"
+    },
     "saveNewScene": {
-      "title": "Support",
+      "title": "Save As",
       "lbl-name": "Scene Name",
       "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
       "lbl-confirm": "Save Scene"

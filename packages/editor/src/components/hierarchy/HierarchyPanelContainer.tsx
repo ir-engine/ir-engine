@@ -8,23 +8,21 @@ import { Object3D } from 'three'
 
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities, traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
-import { executeCommandWithHistory, setPropertyOnEntityNode } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
@@ -32,6 +30,7 @@ import { accessSelectionState, useSelectionState } from '../../services/Selectio
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
+import { updateProperties } from '../properties/Util'
 import { AppContext } from '../Search/context'
 import Search from '../Search/Search'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
@@ -85,25 +84,26 @@ function getModelNodesFromTreeWalker(
     outputNodes.push(node)
     const isCollapsed = collapsedNodes[node.entityNode.entity]
     if (showObject3Ds && hasComponent(node.entityNode.entity, ModelComponent)) {
-      const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
-      if (!obj3d) continue
+      const group = getOptionalComponent(node.entityNode.entity, GroupComponent)
+      if (!group?.length) continue
       node.isLeaf = false
       if (isCollapsed) continue
       let childIndex = node.childIndex
-      traverseWithDepth(obj3d, node.depth, (obj, depth) => {
-        if (obj === obj3d) return
-        outputNodes.push({
-          depth,
-          obj3d: obj,
-          entityNode: null!,
-          childIndex: childIndex++,
-          lastChild: false,
-          isLeaf: true, //!obj.children.length, // todo, store collapsed state on obj3d
-          isCollapsed: node.isCollapsed,
-          selected: selected.has(obj.uuid),
-          active: false
+      for (const obj3d of group)
+        traverseWithDepth(obj3d, node.depth, (obj, depth) => {
+          if (group.includes(obj)) return
+          outputNodes.push({
+            depth,
+            obj3d: obj,
+            entityNode: null!,
+            childIndex: childIndex++,
+            lastChild: false,
+            isLeaf: true, //!obj.children.length, // todo, store collapsed state on obj3d
+            isCollapsed: node.isCollapsed,
+            selected: selected.has(obj.uuid),
+            active: false
+          })
         })
-      })
     }
   }
   return outputNodes
@@ -146,8 +146,7 @@ export default function HierarchyPanel({
     const condition = new RegExp(searchHierarchy.toLowerCase())
     nodes.forEach((node) => {
       if (
-        (node.entityNode &&
-          condition.test(getComponent(node.entityNode.entity, NameComponent)?.name?.toLowerCase() ?? '')) ||
+        (node.entityNode && condition.test(getComponent(node.entityNode.entity, NameComponent)?.toLowerCase() ?? '')) ||
         (node.obj3d && condition.test(node.obj3d.name?.toLowerCase() ?? ''))
       )
         nodeSearch.push(node)
@@ -176,7 +175,7 @@ export default function HierarchyPanel({
   )
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
-  useHookEffect(updateNodeHierarchy, [
+  useEffect(updateNodeHierarchy, [
     showObject3DInHierarchy,
     selectionState.selectedEntities,
     selectionState.sceneGraphChangeCounter
@@ -225,30 +224,24 @@ export default function HierarchyPanel({
   /* Expand & Collapse Functions */
 
   const onObjectChanged = useCallback(
-    (_, propertyName) => {
+    (propertyName) => {
       if (propertyName === 'name' || !propertyName) updateNodeHierarchy()
     },
     [collapsedNodes]
   )
 
   useEffect(() => {
-    onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    onObjectChanged(selectionState.propertyName.value)
   }, [selectionState.objectChangeCounter])
 
   /* Event handlers */
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 1) {
       if (e.shiftKey) {
-        executeCommandWithHistory({
-          type: EditorCommands.TOGGLE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-        })
+        EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
         setSelectedNode(null)
       } else if (!node.selected) {
-        executeCommandWithHistory({
-          type: EditorCommands.REPLACE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-        })
+        EditorControlFunctions.replaceSelection([node.entityNode ?? node.obj3d!.uuid])
         setSelectedNode(node)
       }
     }
@@ -302,10 +295,7 @@ export default function HierarchyPanel({
           if (!nextNode) return
 
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [nextNode.entityNode ?? nextNode.obj3d!.uuid]
-            })
+            EditorControlFunctions.addToSelection([nextNode.entityNode ?? nextNode.obj3d!.uuid])
           }
 
           const nextNodeEl = document.getElementById(getNodeElId(nextNode))
@@ -319,10 +309,7 @@ export default function HierarchyPanel({
           if (!prevNode) return
 
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [prevNode.entityNode ?? prevNode.obj3d!.uuid]
-            })
+            EditorControlFunctions.addToSelection([prevNode.entityNode ?? prevNode.obj3d!.uuid])
           }
 
           const prevNodeEl = document.getElementById(getNodeElId(prevNode))
@@ -347,16 +334,10 @@ export default function HierarchyPanel({
 
         case 'Enter':
           if (e.shiftKey) {
-            executeCommandWithHistory({
-              type: EditorCommands.TOGGLE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-            })
+            EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
             setSelectedNode(null)
           } else {
-            executeCommandWithHistory({
-              type: EditorCommands.REPLACE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
-            })
+            EditorControlFunctions.replaceSelection([node.entityNode ?? node.obj3d!.uuid])
             setSelectedNode(node)
           }
           break
@@ -376,7 +357,7 @@ export default function HierarchyPanel({
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.REMOVE_OBJECTS, affectedNodes: objs })
+    EditorControlFunctions.removeObject(objs)
   }, [])
 
   const onDuplicateNode = useCallback((node: HeirarchyTreeNodeType) => {
@@ -385,7 +366,7 @@ export default function HierarchyPanel({
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.DUPLICATE_OBJECTS, affectedNodes: objs })
+    EditorControlFunctions.duplicateObject(objs)
   }, [])
 
   const onGroupNodes = useCallback((node: HeirarchyTreeNodeType) => {
@@ -394,7 +375,8 @@ export default function HierarchyPanel({
     const objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
-    executeCommandWithHistory({ type: EditorCommands.GROUP, affectedNodes: objs })
+
+    EditorControlFunctions.groupObjects(objs, [], [])
   }, [])
   /* Event handlers */
 
@@ -404,7 +386,7 @@ export default function HierarchyPanel({
 
     if (node.entityNode) {
       const entity = node.entityNode.entity
-      setRenamingNode({ entity, name: getComponent(entity, NameComponent).name })
+      setRenamingNode({ entity, name: getComponent(entity, NameComponent) })
     } else {
       // todo
     }
@@ -417,14 +399,9 @@ export default function HierarchyPanel({
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
-      setPropertyOnEntityNode({
-        affectedNodes: [node.entityNode ?? node.obj3d],
-        component: NameComponent,
-        properties: [{ name }]
-      })
-
-      const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
-      if (obj3d) obj3d.name = name
+      if (!node.obj3d) updateProperties(NameComponent, name, [node.entityNode])
+      const groups = getOptionalComponent(node.entityNode.entity, GroupComponent)
+      if (groups) for (const obj of groups) if (obj) obj.name = name
     }
 
     setRenamingNode(null)
@@ -460,18 +437,14 @@ export default function HierarchyPanel({
         return
       }
 
-      executeCommandWithHistory({
-        type: EditorCommands.REPARENT,
-        affectedNodes: [item.value],
-        parents: [Engine.instance.currentWorld.entityTree.rootNode]
-      })
+      EditorControlFunctions.reparentObject([item.value], [Engine.instance.currentWorld.entityTree.rootNode])
     },
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = useWorld()
+        const world = Engine.instance.currentWorld
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, world.entityTree.rootNode))
           : isAncestor(item.value, world.entityTree.rootNode))
@@ -513,19 +486,21 @@ export default function HierarchyPanel({
     <>
       <div className={styles.panelContainer}>
         <div className={styles.dockableTabButtons}>
-          <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
           {editorState.advancedMode.value && (
-            <>
+            <div style={{ flex: 1 }}>
               {t('editor:hierarchy.lbl-explode')}
               <Checkbox
-                style={{ padding: '0px' }}
+                className={styles.checkbox}
+                classes={{ checked: styles.checkboxChecked }}
                 value={editorState.showObject3DInHierarchy.value}
+                sx={{ marginLeft: '5px' }}
                 onChange={(e, value) =>
                   dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
                 }
               />
-            </>
+            </div>
           )}
+          <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
         {Engine.instance.currentWorld.scene && (
           <div style={{ height: '100%' }}>

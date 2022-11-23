@@ -9,6 +9,9 @@ import {
   PCFShadowMap,
   PCFSoftShadowMap,
   ReinhardToneMapping,
+  ShadowMapType,
+  ToneMapping,
+  Vector3,
   VSMShadowMap
 } from 'three'
 
@@ -95,11 +98,11 @@ export const RenderSettingsEditor = () => {
       >
         <Vector3Input
           hideLabels
-          value={settings.LODs}
+          value={new Vector3(settings.LODs['0'], settings.LODs['1'], settings.LODs['2'])}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          onChange={(val) => sceneMetadata.LODs.set(val)}
+          onChange={(val) => sceneMetadata.LODs.set({ '0': val.x, '1': val.y, '2': val.z })}
         />
       </InputGroup>
       <InputGroup
@@ -117,7 +120,7 @@ export const RenderSettingsEditor = () => {
         <SelectInput
           options={ToneMappingOptions}
           value={settings.toneMapping}
-          onChange={(val) => sceneMetadata.toneMapping.set(val)}
+          onChange={(val: ToneMapping) => sceneMetadata.toneMapping.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -141,7 +144,7 @@ export const RenderSettingsEditor = () => {
         <SelectInput
           options={ShadowTypeOptions}
           value={settings.shadowMapType ?? -1}
-          onChange={(val) => sceneMetadata.shadowMapType.set(val)}
+          onChange={(val: ShadowMapType) => sceneMetadata.shadowMapType.set(val)}
         />
       </InputGroup>
     </PropertyGroup>

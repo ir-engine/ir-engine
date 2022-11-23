@@ -10,7 +10,6 @@ import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTra
 
 import {
   authorizeUserToJoinServer,
-  disconnectClientIfConnected,
   handleConnectingPeer,
   handleDisconnect,
   handleHeartbeat,
@@ -87,10 +86,7 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
           {}
         )
         userId = authResult['identity-provider'].userId as UserId
-        user = await network.app.service('user').Model.findOne({
-          attributes: ['id', 'name', 'instanceId', 'avatarId'],
-          where: { id: userId }
-        })
+        user = await network.app.service('user').get(userId)
 
         if (!user) {
           authTask.status = 'fail'
@@ -118,8 +114,6 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
          * @todo Check that token is valid (to prevent users hacking with a manipulated user ID payload)
          * @todo Check if the user is banned
          */
-
-        disconnectClientIfConnected(network, socket, userId)
 
         await handleConnectingPeer(network, socket, user)
       } catch (e) {

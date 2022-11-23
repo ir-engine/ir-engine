@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
-import { executeModifyPropertyCommand } from '../../classes/History'
 import { PropertiesPanelButton } from '../inputs/Button'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
@@ -22,11 +24,10 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
 
   const onSetFromViewport = () => {
     const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
-    executeModifyPropertyCommand({
-      affectedNodes: [props.node],
-      component: TransformComponent,
-      properties: [{ position: position.clone(), rotation: rotation.clone() }]
-    })
+    const transform = getComponent(props.node.entity, LocalTransformComponent)
+    transform.position.copy(position)
+    transform.rotation.copy(rotation)
+    LocalTransformComponent.mapState[props.node.entity].set(LocalTransformComponent.map[props.node.entity])
   }
 
   return (

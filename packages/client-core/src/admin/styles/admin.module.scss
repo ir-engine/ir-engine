@@ -58,7 +58,7 @@
 
   &.forceVaporwave {
     background: linear-gradient(90deg, #5236ff, #c20560);
-    color: #FFF !important;
+    color: #fff !important;
   }
 
   &:hover {
@@ -469,6 +469,10 @@
   background-color: var(--panelBackground);
 }
 
+.selectedCard {
+  background-color: var(--panelCards);
+}
+
 .label {
   color: var(--textColor);
 }
@@ -686,4 +690,108 @@
 .pickerControls {
   display: flex;
   flex-direction: row;
+}
+
+.containerCircle {
+  height: 15px;
+  width: 15px;
+  margin-right: 5px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.containerGreen {
+  background-color: limegreen;
+}
+
+.containerRed {
+  background-color: red;
+}
+
+.projectMismatchWarning,
+.projectUpdateWarning {
+  color: var(--amber);
+  text-align: center;
+  display: flex;
+  align-items: center;
+
+  & > svg {
+    font-size: 2.5em;
+  }
+}
+
+.drawerHeader {
+  font-size: 2em;
+}
+
+.drawerSubHeader {
+  font-size: 1.5em;
+}
+
+.validContainer {
+  display: flex;
+
+  &.valid > svg {
+    color: var(--green);
+  }
+
+  &.invalid > svg {
+    color: var(--red);
+  }
+
+  & > :first-child {
+    margin-right: 5px;
+  }
+}
+
+.errorText {
+  color: var(--red);
+}
+
+.projectVersion {
+  color: var(--yellow);
+}
+
+.projectSelector {
+  display: flex;
+  flex-direction: column;
+}
+
+.engineInfo {
+  display: flex;
+  margin-bottom: 10px;
+
+  & > * {
+    background-color: var(--popupBackground);
+    color: var(--textColor);
+    margin-right: 5px;
+  }
+}
+
+.projectUpdateContainer {
+  border: var(--borderStyle);
+  border-radius: 10px;
+  padding: 5px;
+  margin-bottom: 5px;
+
+  & > div {
+    margin-top: 0 !important;
+  }
+}
+
+.sourceContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  & > div {
+    margin: 0;
+    flex-grow: 1;
+  }
+
+  & > button {
+    flex-shrink: 1;
+    margin-left: 5px;
+  }
 }

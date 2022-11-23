@@ -44,6 +44,7 @@ export const PrefabFileType = {
   png: ScenePrefabs.image,
   jpeg: ScenePrefabs.image,
   jpg: ScenePrefabs.image,
+  m3u8: MediaPrefabs.video,
   mp4: MediaPrefabs.video,
   mpeg: MediaPrefabs.audio,
   mp3: MediaPrefabs.audio,
@@ -56,6 +57,7 @@ export const PrefabFileType = {
   'image/jpeg': ScenePrefabs.image,
   'image/jpg': ScenePrefabs.image,
   'application/pdf': null,
+  'application/vnd.apple.mpegurl': MediaPrefabs.video,
   'video/mp4': MediaPrefabs.video,
   'audio/mpeg': MediaPrefabs.audio,
   'audio/mp3': MediaPrefabs.audio
@@ -346,7 +348,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           className={styles.filesLoading}
           title={t('editor:layout.filebrowser.loadingFiles')}
           variant="body2"
-          titleColor="var(--textColor)"
         />
       )}
 

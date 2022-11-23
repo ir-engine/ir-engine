@@ -18,6 +18,7 @@ export const EngineState = defineState({
     fixedElapsedSeconds: 0,
     fixedTick: 0,
     isEngineInitialized: false,
+    sceneLoading: false,
     sceneLoaded: false,
     joinedWorld: false,
     loadingProgress: 0,
@@ -27,7 +28,6 @@ export const EngineState = defineState({
     socketInstance: false,
     userHasInteracted: false,
     spectating: false,
-    errorEntities: {} as { [key: Entity]: boolean },
     usersTyping: {} as { [key: string]: true },
     avatarLoadingEffect: true,
     /**
@@ -50,14 +50,15 @@ export function EngineEventReceptor(a) {
     )
     .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
     .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
-    .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoaded: true, loadingProgress: 100 }))
+    .when(EngineActions.sceneLoaded.matches, (action) =>
+      s.merge({ sceneLoading: false, sceneLoaded: true, loadingProgress: 100 })
+    )
     .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
     .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
     .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
     .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
-    .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
 
@@ -122,12 +123,6 @@ export class EngineActions {
     type: 'xre.engine.Engine.SET_USER_HAS_INTERACTED' as const
   })
 
-  static updateEntityError = defineAction({
-    type: 'xre.engine.Engine.ENTITY_ERROR_UPDATE' as const,
-    entity: matches.number as Validator<unknown, Entity>,
-    isResolved: matches.boolean.optional()
-  })
-
   static setupAnimation = defineAction({
     type: 'xre.engine.Engine.SETUP_ANIMATION' as const,
     entity: matches.number
@@ -136,6 +131,14 @@ export class EngineActions {
   static spectateUser = defineAction({
     type: 'xre.engine.Engine.SPECTATE_USER' as const,
     user: matches.string.optional()
+  })
+
+  static exitSpectate = defineAction({
+    type: 'xre.engine.Engine.EXIT_SPECTATE' as const
+  })
+
+  static avatarAlreadyInWorld = defineAction({
+    type: 'xre.world.AVATAR_ALREADY_IN_WORLD'
   })
 
   static interactedWithObject = defineAction({
@@ -147,6 +150,7 @@ export class EngineActions {
   /**
    * Dispatched whenever an otherwise unchanging scene object has it's properties changed,
    *   such as making changes from the editor.
+   * @deprecated
    **/
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.Engine.SCENE_OBJECT_UPDATE' as const,

@@ -6,7 +6,6 @@ import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/service
 import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
-import { AdminGithubAppActions, AdminGithubAppReceptors } from '../admin/services/GithubAppService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
 import { AdminInstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
 import { AdminInstanceActions, AdminInstanceReceptors } from '../admin/services/InstanceService'
@@ -17,6 +16,8 @@ import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
+import { AdminServerInfoActions, AdminServerInfoReceptors } from '../admin/services/ServerInfoService'
+import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
 import { AdminRedisSettingActions, RedisSettingReceptors } from '../admin/services/Setting/AdminRedisSettingService'
 import {
   AdminAnalyticsSettingActions,
@@ -42,6 +43,11 @@ import { AdminUserActions, AdminUserReceptors } from '../admin/services/UserServ
 
 export default async function AdminSystem(world: World) {
   const fetchedAnalyticsQueue = createActionQueue(AdminAnalyticsSettingActions.fetchedAnalytics.matches)
+  const fetchServerInfoRequestedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
+  const fetchServerInfoRetrievedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRetrieved.matches)
+  const serverInfoPodRemovedQueue = createActionQueue(AdminServerInfoActions.serverInfoPodRemoved.matches)
+  const fetchServerLogsRequestedQueue = createActionQueue(AdminServerLogsActions.fetchServerLogsRequested.matches)
+  const fetchServerLogsRetrievedQueue = createActionQueue(AdminServerLogsActions.fetchServerLogsRetrieved.matches)
   const redisSettingRetrievedQueue = createActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
   const awsSettingRetrievedQueue = createActionQueue(AdminAwsSettingActions.awsSettingRetrieved.matches)
   const awsSettingPatchedQueue = createActionQueue(AdminAwsSettingActions.awsSettingPatched.matches)
@@ -99,7 +105,6 @@ export default async function AdminSystem(world: World) {
   const updateGroupQueue = createActionQueue(AdminGroupActions.updateGroup.matches)
   const removeGroupActionQueue = createActionQueue(AdminGroupActions.removeGroupAction.matches)
   const addAdminGroupQueue = createActionQueue(AdminGroupActions.addAdminGroup.matches)
-  const githubAppFetchedQueue = createActionQueue(AdminGithubAppActions.githubAppFetched.matches)
   const installedRoutesRetrievedQueue = createActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
   const activeRoutesRetrievedQueue = createActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
   const fetchedSingleUserQueue = createActionQueue(AdminUserActions.fetchedSingleUser.matches)
@@ -125,6 +130,15 @@ export default async function AdminSystem(world: World) {
 
   const execute = () => {
     for (const action of fetchedAnalyticsQueue()) AnalyticsSettingReceptors.fetchedAnalyticsReceptor(action)
+    for (const action of fetchServerInfoRequestedQueue())
+      AdminServerInfoReceptors.fetchServerInfoRequestedReceptor(action)
+    for (const action of fetchServerInfoRetrievedQueue())
+      AdminServerInfoReceptors.fetchServerInfoRetrievedReceptor(action)
+    for (const action of serverInfoPodRemovedQueue()) AdminServerInfoReceptors.serverInfoPodRemovedReceptor(action)
+    for (const action of fetchServerLogsRequestedQueue())
+      AdminServerLogsReceptors.fetchServerLogsRequestedReceptor(action)
+    for (const action of fetchServerLogsRetrievedQueue())
+      AdminServerLogsReceptors.fetchServerLogsRetrievedReceptor(action)
     for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
     for (const action of awsSettingRetrievedQueue()) AwsSettingReceptors.awsSettingRetrievedReceptor(action)
     for (const action of awsSettingPatchedQueue()) AwsSettingReceptors.awsSettingPatchedReceptor(action)
@@ -184,7 +198,6 @@ export default async function AdminSystem(world: World) {
     for (const action of updateGroupQueue()) AdminGroupServiceReceptors.updateGroupReceptor(action)
     for (const action of removeGroupActionQueue()) AdminGroupServiceReceptors.removeGroupActionReceptor(action)
     for (const action of addAdminGroupQueue()) AdminGroupServiceReceptors.addAdminGroupReceptor(action)
-    for (const action of githubAppFetchedQueue()) AdminGithubAppReceptors.githubAppFetchedReceptor(action)
     for (const action of installedRoutesRetrievedQueue()) AdminRouteReceptors.installedRoutesRetrievedReceptor(action)
     for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
     for (const action of fetchedSingleUserQueue()) AdminUserReceptors.fetchedSingleUserReceptor(action)
@@ -211,6 +224,8 @@ export default async function AdminSystem(world: World) {
 
   const cleanup = async () => {
     removeActionQueue(fetchedAnalyticsQueue)
+    removeActionQueue(fetchServerInfoRequestedQueue)
+    removeActionQueue(fetchServerInfoRetrievedQueue)
     removeActionQueue(redisSettingRetrievedQueue)
     removeActionQueue(awsSettingRetrievedQueue)
     removeActionQueue(awsSettingPatchedQueue)
@@ -268,7 +283,6 @@ export default async function AdminSystem(world: World) {
     removeActionQueue(updateGroupQueue)
     removeActionQueue(removeGroupActionQueue)
     removeActionQueue(addAdminGroupQueue)
-    removeActionQueue(githubAppFetchedQueue)
     removeActionQueue(installedRoutesRetrievedQueue)
     removeActionQueue(activeRoutesRetrievedQueue)
     removeActionQueue(fetchedSingleUserQueue)

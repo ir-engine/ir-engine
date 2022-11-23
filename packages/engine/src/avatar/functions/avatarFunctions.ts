@@ -1,6 +1,7 @@
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -13,6 +14,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -75,6 +77,9 @@ export const loadAvatarForUser = async (
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect.value
 ) => {
+  if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
+    return
+
   if (loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) {
       getComponent(entity, AvatarControllerComponent).movementEnabled = false
@@ -110,7 +115,7 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
   const parent = await loadAvatarModelAsset(avatarURL)
   if (!parent) return
   setupAvatarModel(entity)(parent)
-  animateModel(entity)
+  // animateModel(entity)
   return parent
 }
 
@@ -180,7 +185,7 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const controllerComponent = getComponent(entity, AvatarControllerComponent)
+  const controllerComponent = getOptionalComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
   // Mixer has some issues when binding with the target skeleton
@@ -277,7 +282,7 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
-  const avatarRigComponent = getComponent(entity, AvatarRigComponent)
+  const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
   if (!avatarRigComponent) return false
   const bone = avatarRigComponent.rig[boneName]
   if (!bone) return false

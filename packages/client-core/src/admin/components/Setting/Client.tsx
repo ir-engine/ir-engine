@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next'
 
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
+import HelpIcon from '@mui/icons-material/Help'
 import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
+import Tooltip from '@mui/material/Tooltip'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -17,10 +20,12 @@ const Client = () => {
   const user = authState.user
 
   const clientSettingState = useClientSettingState()
-  const [clientSetting] = clientSettingState?.client?.value || []
+  const [clientSetting] = clientSettingState?.client?.value || {}
   const id = clientSetting?.id
   const [logo, setLogo] = useState(clientSetting?.logo)
   const [title, setTitle] = useState(clientSetting?.title)
+  const [shortTitle, setShortTitle] = useState(clientSetting?.shortTitle)
+  const [startPath, setStartPath] = useState(clientSetting?.startPath || '/')
   const [appTitle, setAppTitle] = useState(clientSetting?.appTitle)
   const [appSubtitle, setAppSubtitle] = useState(clientSetting?.appSubtitle)
   const [appDescription, setAppDescription] = useState(clientSetting?.appDescription)
@@ -30,7 +35,15 @@ const Client = () => {
   const [icon512px, setIcon512px] = useState(clientSetting?.icon512px)
   const [favicon16px, setFavicon16px] = useState(clientSetting?.favicon16px)
   const [favicon32px, setFavicon32px] = useState(clientSetting?.favicon32px)
+  const [key8thWall, setKey8thWall] = useState(clientSetting?.key8thWall)
   const [siteDescription, setSiteDescription] = useState(clientSetting?.siteDescription)
+  const [homepageLinkButtonEnabled, setHomepageLinkButtonEnabled] = useState(
+    clientSetting?.homepageLinkButtonEnabled as boolean
+  )
+  const [homepageLinkButtonRedirect, setHomepageLinkButtonRedirect] = useState(
+    clientSetting?.homepageLinkButtonRedirect
+  )
+  const [homepageLinkButtonText, setHomepageLinkButtonText] = useState(clientSetting?.homepageLinkButtonText)
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
@@ -42,6 +55,8 @@ const Client = () => {
     if (clientSetting) {
       setLogo(clientSetting?.logo)
       setTitle(clientSetting?.title)
+      setShortTitle(clientSetting?.shortTitle)
+      setStartPath(clientSetting?.startPath || '/')
       setAppTitle(clientSetting?.appTitle)
       setAppSubtitle(clientSetting?.appSubtitle)
       setAppDescription(clientSetting?.appDescription)
@@ -52,6 +67,10 @@ const Client = () => {
       setFavicon16px(clientSetting?.favicon16px)
       setFavicon32px(clientSetting?.favicon32px)
       setSiteDescription(clientSetting?.siteDescription)
+      setKey8thWall(clientSetting?.key8thWall)
+      setHomepageLinkButtonEnabled(clientSetting?.homepageLinkButtonEnabled)
+      setHomepageLinkButtonRedirect(clientSetting?.homepageLinkButtonRedirect)
+      setHomepageLinkButtonText(clientSetting?.homepageLinkButtonText)
     }
   }, [clientSettingState?.updateNeeded?.value])
 
@@ -86,18 +105,24 @@ const Client = () => {
       {
         logo: logo,
         title: title,
+        shortTitle: shortTitle,
+        startPath: startPath,
         icon192px: icon192px,
         icon512px: icon512px,
         favicon16px: favicon16px,
         favicon32px: favicon32px,
         siteDescription: siteDescription,
+        appBackground: appBackground,
         appTitle: appTitle,
         appSubtitle: appSubtitle,
         appDescription: appDescription,
-        appBackground: appBackground,
         appSocialLinks: JSON.stringify(appSocialLinks),
         themeSettings: JSON.stringify(clientSetting?.themeSettings),
-        themeModes: JSON.stringify(clientSetting?.themeModes)
+        themeModes: JSON.stringify(clientSetting?.themeModes),
+        key8thWall: key8thWall,
+        homepageLinkButtonEnabled: homepageLinkButtonEnabled,
+        homepageLinkButtonRedirect: homepageLinkButtonRedirect,
+        homepageLinkButtonText: homepageLinkButtonText
       },
       id
     )
@@ -116,6 +141,10 @@ const Client = () => {
     setFavicon16px(clientSetting?.favicon16px)
     setFavicon32px(clientSetting?.favicon32px)
     setSiteDescription(clientSetting?.siteDescription)
+    setKey8thWall(clientSetting?.key8thWall)
+    setHomepageLinkButtonEnabled(clientSetting?.homepageLinkButtonEnabled)
+    setHomepageLinkButtonRedirect(clientSetting?.homepageLinkButtonRedirect)
+    setHomepageLinkButtonText(clientSetting?.homepageLinkButtonText)
   }
 
   return (
@@ -152,6 +181,31 @@ const Client = () => {
             value={appBackground || ''}
             onChange={(e) => setAppBackground(e.target.value)}
           />
+
+          <InputSwitch
+            name="homepageLinkButtonEnabled"
+            label={t('admin:components.setting.homepageLinkButtonEnabled')}
+            checked={homepageLinkButtonEnabled}
+            onChange={(e) => setHomepageLinkButtonEnabled(e.target.checked)}
+          />
+
+          {homepageLinkButtonEnabled && (
+            <InputText
+              name="description"
+              label={t('admin:components.setting.homepageLinkButtonRedirect')}
+              value={homepageLinkButtonRedirect || ''}
+              onChange={(e) => setHomepageLinkButtonRedirect(e.target.value)}
+            />
+          )}
+
+          {homepageLinkButtonEnabled && (
+            <InputText
+              name="description"
+              label={t('admin:components.setting.homepageLinkButtonText')}
+              value={homepageLinkButtonText || ''}
+              onChange={(e) => setHomepageLinkButtonText(e.target.value)}
+            />
+          )}
 
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.appSocialLinks')}</Typography>
 
@@ -194,6 +248,30 @@ const Client = () => {
             value={title || ''}
             onChange={(e) => setTitle(e.target.value)}
           />
+
+          <div className={styles.tooltipRow}>
+            <InputText
+              name="shortTitle"
+              label={t('admin:components.setting.shortTitle')}
+              value={shortTitle || ''}
+              onChange={(e) => setShortTitle(e.target.value)}
+            />
+            <Tooltip title={t('admin:components.setting.shortTitleTooltip')} arrow>
+              <HelpIcon />
+            </Tooltip>
+          </div>
+
+          <div className={styles.tooltipRow}>
+            <InputText
+              name="startPath"
+              label={t('admin:components.setting.startPath')}
+              value={startPath || '/'}
+              onChange={(e) => setStartPath(e.target.value)}
+            />
+            <Tooltip title={t('admin:components.setting.startPathTooltip')} arrow>
+              <HelpIcon />
+            </Tooltip>
+          </div>
 
           <InputText
             name="description"
@@ -244,6 +322,13 @@ const Client = () => {
             label={t('admin:components.setting.releaseName')}
             value={clientSetting?.releaseName || ''}
             disabled
+          />
+
+          <InputText
+            name="key8thWall"
+            label={t('admin:components.setting.key8thWall')}
+            value={key8thWall || ''}
+            onChange={(e) => setKey8thWall(e.target.value)}
           />
         </Grid>
       </Grid>

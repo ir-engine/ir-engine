@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
@@ -15,11 +15,10 @@ import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticR
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -31,9 +30,10 @@ import Tabs from '@mui/material/Tabs'
 
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AvatarService } from '../../../services/AvatarService'
+import { resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
 import { Views } from '../util'
-import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:AvatarSelectMenu' })
 
@@ -92,16 +92,26 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
+  const renderPanel = useRender3DPanelSystem(panelRef)
+  const { entity, camera, scene, renderer } = renderPanel.state
+
   const loadAvatarByURL = async (objectURL) => {
     try {
-      const obj = await loadAvatarForPreview(entity, objectURL)
+      resetAnimationLogic(entity.value)
+      const obj = await loadAvatarForPreview(entity.value, objectURL)
       if (!obj) {
         setAvatarModel(null!)
         setError('Failed to load')
         return
       }
-      scene.add(obj)
-      const error = validate(obj)
+      scene.value.add(obj)
+      const error = validate(obj, renderer.value, scene.value, camera.value)
+      const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
+      if (avatarRigComponent) {
+        avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
+        camera.value.position.y += 0.2
+        camera.value.position.z = 0.6
+      }
       setError(error)
       if (error === '') {
         setAvatarModel(obj)
@@ -151,34 +161,8 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
 
   const { t } = useTranslation()
 
-  useEffect(() => {
-    const world = useWorld()
-    entity = createEntity()
-    addAnimationLogic(entity, world, panelRef)
-    const init = initialize3D()
-    scene = init.scene
-    camera = init.camera
-    renderer = init.renderer
-    const controls = getOrbitControls(camera, renderer.domElement)
-
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.5, 0)
-    controls.update()
-    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-
-    if (avatarData) {
-      loadAvatarByURL(avatarData.url)
-    }
-
-    return () => {
-      removeEntity(entity)
-      entity = null!
-      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-    }
-  }, [])
-
   const handleAvatarChange = (e) => {
+    if (!e.target.files.length) return
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
       setError(
         t('user:avatar.fileOversized', {
@@ -189,7 +173,6 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
       return
     }
 
-    scene.children = scene.children.filter((c) => c.name !== 'avatar')
     const file = e.target.files[0]
     const reader = new FileReader()
     reader.onload = (fileData) => {
@@ -230,7 +213,7 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
         const canvas = document.createElement('canvas')
         ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
         const newContext = canvas.getContext('2d')
-        newContext?.drawImage(renderer.domElement, 0, 0)
+        newContext?.drawImage(renderer.value.domElement, 0, 0)
         canvas.toBlob((blob) => {
           AvatarService.createAvatar(avatarBlob, blob!, avatarName, false)
         })
@@ -267,10 +250,10 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
     changeActiveMenu(Views.AvatarSelect)
   }
 
-  const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
+  const uploadButtonEnabled = fileSelected && !error && avatarName.length > 3
 
   return (
-    <div ref={panelRef} className={styles.avatarUploadPanel}>
+    <div className={styles.avatarUploadPanel}>
       <div className={styles.avatarHeaderBlock}>
         <button type="button" className={styles.iconBlock} onClick={openAvatarMenu}>
           <ArrowBack />
@@ -289,6 +272,7 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
 
       <div
         id="stage"
+        ref={panelRef}
         className={styles.stage}
         style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }}
       >

@@ -2,6 +2,7 @@ import { strictEqual } from 'assert'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
@@ -14,7 +15,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
@@ -32,7 +33,15 @@ import {
   writeVector3,
   writeXRHands
 } from './DataWriter'
-import { createViewCursor, readFloat32, readUint8, readUint16, readUint32, sliceViewCursor } from './ViewCursor'
+import {
+  createViewCursor,
+  readFloat32,
+  readFloat64,
+  readUint8,
+  readUint16,
+  readUint32,
+  sliceViewCursor
+} from './ViewCursor'
 
 describe('DataWriter', () => {
   before(() => {
@@ -57,12 +66,12 @@ describe('DataWriter', () => {
 
     const testView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(testView), 0b111)
-    strictEqual(readFloat32(testView), x)
-    strictEqual(readFloat32(testView), y)
-    strictEqual(readFloat32(testView), z)
+    strictEqual(readFloat64(testView), x)
+    strictEqual(readFloat64(testView), y)
+    strictEqual(readFloat64(testView), z)
 
     sliceViewCursor(writeView)
 
@@ -73,11 +82,11 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(readView), 0b101)
-    strictEqual(readFloat32(readView), x + 1)
-    strictEqual(readFloat32(readView), z + 1)
+    strictEqual(readFloat64(readView), x + 1)
+    strictEqual(readFloat64(readView), z + 1)
   })
 
   it('should writeVector3', () => {
@@ -93,12 +102,12 @@ describe('DataWriter', () => {
 
     const testView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(testView), 0b111)
-    strictEqual(readFloat32(testView), x)
-    strictEqual(readFloat32(testView), y)
-    strictEqual(readFloat32(testView), z)
+    strictEqual(readFloat64(testView), x)
+    strictEqual(readFloat64(testView), y)
+    strictEqual(readFloat64(testView), z)
 
     sliceViewCursor(writeView)
 
@@ -109,11 +118,11 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(readView), 0b101)
-    strictEqual(readFloat32(readView), x + 1)
-    strictEqual(readFloat32(readView), z + 1)
+    strictEqual(readFloat64(readView), x + 1)
+    strictEqual(readFloat64(readView), z + 1)
   })
 
   it('should writePosition', () => {
@@ -129,12 +138,12 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(readUint8(readView), 0b111)
-    strictEqual(readFloat32(readView), x)
-    strictEqual(readFloat32(readView), y)
-    strictEqual(readFloat32(readView), z)
+    strictEqual(readFloat64(readView), x)
+    strictEqual(readFloat64(readView), y)
+    strictEqual(readFloat64(readView), z)
   })
 
   it('should writeCompressedRotation', () => {
@@ -156,7 +165,7 @@ describe('DataWriter', () => {
     const readView = createViewCursor(writeView.buffer)
     readRotation(readView, entity)
 
-    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
@@ -170,21 +179,21 @@ describe('DataWriter', () => {
     const entity = 42 as Entity
 
     const [x, y, z] = [1.333, 2.333, 3.333]
-    VelocityComponent.linear.x[entity] = x
-    VelocityComponent.linear.y[entity] = y
-    VelocityComponent.linear.z[entity] = z
+    RigidBodyComponent.linearVelocity.x[entity] = x
+    RigidBodyComponent.linearVelocity.y[entity] = y
+    RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(VelocityComponent.linear)(writeView, entity)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
-    readCompressedVector3(VelocityComponent.linear)(readView, entity)
+    readCompressedVector3(RigidBodyComponent.linearVelocity)(readView, entity)
 
-    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values and compare
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.x[entity], 1), roundNumberToPlaces(x, 1))
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.y[entity], 1), roundNumberToPlaces(y, 1))
-    strictEqual(roundNumberToPlaces(VelocityComponent.linear.z[entity], 1), roundNumberToPlaces(z, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.y[entity], 1), roundNumberToPlaces(y, 1))
+    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.z[entity], 1), roundNumberToPlaces(z, 1))
   })
 
   it('should writeTransform', () => {
@@ -209,15 +218,18 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 3 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(
+      writeView.cursor,
+      3 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 1 * Uint32Array.BYTES_PER_ELEMENT
+    )
 
     strictEqual(readUint8(readView), 0b11)
 
     strictEqual(readUint8(readView), 0b111)
 
-    strictEqual(readFloat32(readView), posX)
-    strictEqual(readFloat32(readView), posY)
-    strictEqual(readFloat32(readView), posZ)
+    strictEqual(readFloat64(readView), posX)
+    strictEqual(readFloat64(readView), posY)
+    strictEqual(readFloat64(readView), posZ)
 
     readRotation(readView, entity)
 
@@ -263,7 +275,7 @@ describe('DataWriter', () => {
     })
 
     // add component
-    const xrHandsInput = addComponent(entity, XRHandsInputComponent, { hands: hands })
+    addComponent(entity, XRHandsInputComponent, { hands: hands })
 
     writeXRHands(writeView, entity)
 
@@ -285,7 +297,8 @@ describe('DataWriter', () => {
         (1 * Uint16Array.BYTES_PER_ELEMENT +
           1 * Uint8Array.BYTES_PER_ELEMENT +
           6 * Uint16Array.BYTES_PER_ELEMENT +
-          (2 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT) * numOfJoints) *
+          (2 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 1 * Uint32Array.BYTES_PER_ELEMENT) *
+            numOfJoints) *
           numOfHands
     )
 
@@ -305,9 +318,9 @@ describe('DataWriter', () => {
 
         bone.forEach((joint) => {
           strictEqual(readUint8(readView), 0b111)
-          strictEqual(readFloat32(readView), posX)
-          strictEqual(readFloat32(readView), posY)
-          strictEqual(readFloat32(readView), posZ)
+          strictEqual(readFloat64(readView), posX)
+          strictEqual(readFloat64(readView), posY)
+          strictEqual(readFloat64(readView), posZ)
 
           readRotation(readView, entity)
 
@@ -326,6 +339,7 @@ describe('DataWriter', () => {
     const entity = createEntity()
     const networkId = 999 as NetworkId
     const userId = '0' as UserId
+    const peerID = 'peer id' as PeerID
     const userIndex = 0
 
     // construct values for a valid quaternion
@@ -344,7 +358,7 @@ describe('DataWriter', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
-      authorityUserId: userId,
+      authorityPeerID: peerID,
       ownerId: userId
     })
 
@@ -356,7 +370,10 @@ describe('DataWriter', () => {
 
     strictEqual(
       writeView.cursor,
-      1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT
+      1 * Uint32Array.BYTES_PER_ELEMENT +
+        4 * Uint8Array.BYTES_PER_ELEMENT +
+        3 * Float64Array.BYTES_PER_ELEMENT +
+        1 * Uint32Array.BYTES_PER_ELEMENT
     )
 
     // read networkId
@@ -372,9 +389,9 @@ describe('DataWriter', () => {
     strictEqual(readUint8(readView), 0b111)
 
     // read position values
-    strictEqual(readFloat32(readView), posX)
-    strictEqual(readFloat32(readView), posY)
-    strictEqual(readFloat32(readView), posZ)
+    strictEqual(readFloat64(readView), posX)
+    strictEqual(readFloat64(readView), posY)
+    strictEqual(readFloat64(readView), posZ)
 
     // read rotation values
     readRotation(readView, entity)
@@ -403,7 +420,7 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
@@ -416,7 +433,7 @@ describe('DataWriter', () => {
 
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
     })
@@ -426,7 +443,11 @@ describe('DataWriter', () => {
 
     const expectedBytes =
       1 * Uint32Array.BYTES_PER_ELEMENT +
-      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
+      n *
+        (1 * Uint32Array.BYTES_PER_ELEMENT +
+          4 * Uint8Array.BYTES_PER_ELEMENT +
+          3 * Float64Array.BYTES_PER_ELEMENT +
+          1 * Uint32Array.BYTES_PER_ELEMENT)
 
     strictEqual(writeView.cursor, 0)
     strictEqual(packet.byteLength, expectedBytes)
@@ -450,9 +471,9 @@ describe('DataWriter', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), posX)
-      strictEqual(readFloat32(readView), posY)
-      strictEqual(readFloat32(readView), posZ)
+      strictEqual(readFloat64(readView), posX)
+      strictEqual(readFloat64(readView), posY)
+      strictEqual(readFloat64(readView), posZ)
 
       // read rotation values
       readRotation(readView, entities[i])
@@ -467,6 +488,7 @@ describe('DataWriter', () => {
 
   it('should createDataWriter', () => {
     const world = Engine.instance.currentWorld
+    const peerID = 'peerID' as PeerID
 
     const write = createDataWriter()
 
@@ -484,7 +506,7 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
+      const userId = entity as unknown as UserId & PeerID
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
@@ -497,24 +519,29 @@ describe('DataWriter', () => {
 
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityUserId: userId,
+        authorityPeerID: userId,
         ownerId: userId
       })
     })
 
     const network = Engine.instance.currentWorld.worldNetwork
-    const packet = write(world, network, Engine.instance.userId, entities)
+    const packet = write(world, network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =
-      3 * Uint32Array.BYTES_PER_ELEMENT +
-      n * (1 * Uint32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT + 4 * Float32Array.BYTES_PER_ELEMENT)
+      4 * Uint32Array.BYTES_PER_ELEMENT +
+      n *
+        (1 * Uint32Array.BYTES_PER_ELEMENT +
+          4 * Uint8Array.BYTES_PER_ELEMENT +
+          3 * Float64Array.BYTES_PER_ELEMENT +
+          1 * Uint32Array.BYTES_PER_ELEMENT)
 
     strictEqual(packet.byteLength, expectedBytes)
 
     const readView = createViewCursor(packet)
 
-    const tick = readUint32(readView)
     const userIndex = readUint32(readView)
+    const peerIndex = readUint32(readView)
+    const tick = readUint32(readView)
 
     const count = readUint32(readView)
     strictEqual(count, entities.length)
@@ -533,9 +560,9 @@ describe('DataWriter', () => {
       strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat32(readView), posX)
-      strictEqual(readFloat32(readView), posY)
-      strictEqual(readFloat32(readView), posZ)
+      strictEqual(readFloat64(readView), posX)
+      strictEqual(readFloat64(readView), posY)
+      strictEqual(readFloat64(readView), posZ)
 
       // read rotation values
       readRotation(readView, entities[i])

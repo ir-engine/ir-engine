@@ -30,7 +30,7 @@ describe('PortalFunctions', () => {
 
     const randomVector3 = new Vector3().random()
 
-    addComponent(entity, NameComponent, { name: 'test-portal' })
+    addComponent(entity, NameComponent, 'test-portal')
 
     setTransformComponent(entity, randomVector3)
 

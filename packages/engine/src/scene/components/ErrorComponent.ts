@@ -1,7 +1,25 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import {
+  Component,
+  ComponentErrorsType,
+  defineComponent,
+  getOptionalComponentState
+} from '../../ecs/functions/ComponentFunctions'
 
 export type ErrorComponentType = {
-  [key: string]: any
+  [componentName: string]: {
+    [errorKey: string]: string
+  }
 }
 
-export const ErrorComponent = createMappedComponent<ErrorComponentType>('ErrorComponent')
+export const ErrorComponent = defineComponent<ErrorComponentType>({
+  name: 'ErrorComponent',
+  onInit: () => ({} as ErrorComponentType)
+})
+
+export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {
+  return getOptionalComponentState(entity, ErrorComponent)?.[component.name].value as Record<
+    ComponentErrorsType<C>,
+    string
+  >
+}

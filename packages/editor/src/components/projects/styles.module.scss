@@ -54,6 +54,7 @@
   display: flex;
   background-color: var(--mainBackground);
   pointer-events: auto;
+  max-height: 100%;
 }
 
 .projectPageContainer {
@@ -67,6 +68,7 @@
   border-radius: 10px;
   min-height: calc(100vh - 110px);
   max-width: 1280px;
+  overflow-y: auto;
 
   .projectGridContainer {
     display: flex;
@@ -604,4 +606,12 @@
 
 .profilePaper {
   background-color: transparent;
+}
+
+[class*="MuiDrawer-modal"] {
+  z-index: 1400;
+}
+
+#menu-projectURL {
+  z-index: 1500;
 }

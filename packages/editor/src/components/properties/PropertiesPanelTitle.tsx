@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -31,7 +32,7 @@ export const PropertiesPanelTitle = () => {
                 if (currentState) {
                   dispatchAction(
                     EditorAction.lockPropertiesPanel({
-                      lockPropertiesPanel: ''
+                      lockPropertiesPanel: '' as EntityUUID
                     })
                   )
                 } else {
@@ -40,7 +41,7 @@ export const PropertiesPanelTitle = () => {
                       EditorAction.lockPropertiesPanel({
                         lockPropertiesPanel:
                           typeof currentEntity === 'string'
-                            ? currentEntity
+                            ? (currentEntity as EntityUUID)
                             : Engine.instance.currentWorld.entityTree.entityNodeMap.get(currentEntity)!.uuid
                       })
                     )

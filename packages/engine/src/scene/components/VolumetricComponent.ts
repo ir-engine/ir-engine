@@ -1,20 +1,14 @@
-import { subscribable } from '@hookstate/subscribable'
-
-import { hookstate, StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
+import { StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const VolumetricComponent = defineComponent({
   name: 'XRE_volumetric',
 
-  onAdd: (entity) => {
-    const state = hookstate(
-      {
-        useLoadingEffect: false
-      },
-      subscribable()
-    )
-    return state
+  onInit: (entity) => {
+    return {
+      useLoadingEffect: false
+    }
   },
 
   toJSON: (entity, component) => {
@@ -23,8 +17,8 @@ export const VolumetricComponent = defineComponent({
     }
   },
 
-  onUpdate: (entity, component, json) => {
-    if (typeof json.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value)
+  onSet: (entity, component, json) => {
+    if (typeof json?.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value)
       component.useLoadingEffect.set(json.useLoadingEffect)
   },
 

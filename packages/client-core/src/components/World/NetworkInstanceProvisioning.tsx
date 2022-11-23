@@ -2,10 +2,12 @@ import React, { useEffect } from 'react'
 
 import {
   LocationInstanceConnectionService,
-  useLocationInstanceConnectionState
+  useLocationInstanceConnectionState,
+  useWorldInstance
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
+  useMediaInstance,
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
@@ -38,14 +40,13 @@ export const NetworkInstanceProvisioning = () => {
   const partyState = usePartyState()
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
-  const instanceConnectionState = useLocationInstanceConnectionState()
-  const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
+  const currentLocationInstanceConnection = useWorldInstance()
 
   const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
-  const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId!].ornull
+  const currentChannelInstanceConnection = useMediaInstance()
 
   MediaInstanceConnectionService.useAPIListeners()
+  PartyService.useAPIListeners()
 
   useEffect(() => {
     addActionReceptor(MediaServiceReceptor)
@@ -62,7 +63,7 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [])
 
-  useRoomCodeURLParam()
+  useRoomCodeURLParam(false, true)
 
   // 2. once we have the location, provision the instance server
   useEffect(() => {

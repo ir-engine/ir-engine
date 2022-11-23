@@ -38,6 +38,7 @@ export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
     const sceneData = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
     dispatchAction(SceneActions.currentSceneChanged({ sceneData: sceneData.data }))
+    return sceneData
   },
 
   useAPIListeners: () => {
@@ -56,7 +57,6 @@ export const SceneService = {
       //   if (ev.code === 'KeyN') sceneUpdatedListener()
       // })
 
-      /** @todo currently broken */
       API.instance.client.service('scene').on('updated', sceneUpdatedListener)
 
       return () => {

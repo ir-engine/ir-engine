@@ -9,7 +9,6 @@ export const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       background: 'transparent',
       boxShadow: 'none',
-      margin: 'auto',
       alignItems: 'center'
     },
     input: {

@@ -5,7 +5,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -25,7 +25,6 @@ export default async function XRUISystem(world: World) {
 
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
-  const xruiQuery = defineQuery([XRUIComponent])
   const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent])
   const pointerQuery = defineQuery([XRPointerComponent])
 
@@ -51,7 +50,7 @@ export default async function XRUISystem(world: World) {
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
     for (const entity of visibleXruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).container
+      const layer = getComponent(entity, XRUIComponent)
       layer.updateWorldMatrix(true, true)
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (hit && hit.intersection.object.visible) {
@@ -67,7 +66,7 @@ export default async function XRUISystem(world: World) {
     let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
     for (const entity of xruiEntities) {
-      const layer = getComponent(entity, XRUIComponent).container
+      const layer = getComponent(entity, XRUIComponent)
 
       /**
        * get closest hit from all XRUIs
@@ -117,17 +116,7 @@ export default async function XRUISystem(world: World) {
   document.body.addEventListener('dblclick', redirectDOMEvent)
 
   const execute = () => {
-    const input = getComponent(world.localClientEntity, InputComponent)
-
-    for (const entity of xruiQuery.enter()) {
-      const layer = getComponent(entity, XRUIComponent).container
-      layer.interactionRays = xrui.interactionRays
-    }
-
-    for (const entity of xruiQuery.exit()) {
-      const layer = getComponent(entity, XRUIComponent, true).container
-      layer.destroy()
-    }
+    const input = getOptionalComponent(world.localClientEntity, InputComponent)
 
     const xrFrame = Engine.instance.xrFrame
 
@@ -165,7 +154,7 @@ export default async function XRUISystem(world: World) {
 
     for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
-      xrui.container.update()
+      xrui.update()
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.currentWorld.camera.projectionMatrix)
@@ -177,7 +166,6 @@ export default async function XRUISystem(world: World) {
     document.body.removeEventListener('click', redirectDOMEvent)
     document.body.removeEventListener('contextmenu', redirectDOMEvent)
     document.body.removeEventListener('dblclick', redirectDOMEvent)
-    removeQuery(world, xruiQuery)
     removeQuery(world, visibleXruiQuery)
     removeQuery(world, pointerQuery)
   }

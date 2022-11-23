@@ -13,9 +13,9 @@ export type TransformComponentType = {
   matrix: Matrix4
 }
 
-const { f32 } = Types
-export const Vector3Schema = { x: f32, y: f32, z: f32 }
-export const QuaternionSchema = { x: f32, y: f32, z: f32, w: f32 }
+const { f64 } = Types
+export const Vector3Schema = { x: f64, y: f64, z: f64 }
+export const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
 export const TransformSchema = {
   position: Vector3Schema,
   rotation: QuaternionSchema,
@@ -53,13 +53,14 @@ export function setTransformComponent(
   scale = new Vector3(1, 1, 1)
 ) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
-  return setComponent(entity, TransformComponent, {
+  setComponent(entity, TransformComponent, {
     position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, position),
     rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, rotation),
     scale: proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, scale),
     matrix: new Matrix4(),
     matrixInverse: new Matrix4()
   })
+  TransformComponent.mapState[entity].set(TransformComponent.map[entity])
 }
 
 /**
@@ -81,7 +82,7 @@ export function setLocalTransformComponent(
   if (entity === parentEntity) throw new Error('Tried to parent entity to self - this is not allowed')
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
-  return setComponent(entity, LocalTransformComponent, {
+  setComponent(entity, LocalTransformComponent, {
     parentEntity,
     // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
     position: proxifyVector3WithDirty(LocalTransformComponent.position, entity, dirtyTransforms, position.clone()),
@@ -89,6 +90,7 @@ export function setLocalTransformComponent(
     scale: proxifyVector3WithDirty(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()),
     matrix: new Matrix4()
   })
+  LocalTransformComponent.mapState[entity].set(LocalTransformComponent.map[entity])
 }
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'

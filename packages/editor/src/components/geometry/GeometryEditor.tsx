@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react'
 import React from 'react'
 import { BufferGeometry } from 'three'
 
-import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import DeleteIcon from '@mui/icons-material/DeleteForeverTwoTone'
 import { Box, Grid, Stack, Typography } from '@mui/material'
@@ -28,6 +28,9 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
   )
 
   const geoData = useHookstate(updateGeoData())
+  useEffect(() => {
+    geoData.set(updateGeoData())
+  }, [updateGeo])
 
   const deleteBufferAttribute = useCallback(
     (attribName) => () => {

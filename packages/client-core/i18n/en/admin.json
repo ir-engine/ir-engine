@@ -51,6 +51,7 @@
     },
     "common": {
       "cancel": "Cancel",
+      "close": "Close",
       "edit": "Edit",
       "submit": "Submit",
       "save": "Save",
@@ -65,6 +66,7 @@
       "view": "View",
       "yes": "Yes",
       "no": "No",
+      "refresh": "Refresh",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors"
     },
@@ -132,18 +134,22 @@
     },
     "project": {
       "addProject": "Add Project",
+      "updateProject": "Update Project",
       "rebuild": "Rebuild",
       "rebuilding": "Rebuilding",
+      "updateEngine": "Update Engine",
+      "updateSelector": "Update projects",
+      "projectWarning": "WARNING: Updating projects along with the Engine version may result in loss of work. If you revert to an old engine project and update projects with it, your copy of these projects will also be reverted. It is recommended that you back up the destination branch of these projects if you have made modifications that might be lost.",
+      "updateAndRebuild": "Update Engine/Rebuild",
       "checking": "Checking Rebuild",
       "project": "Project",
-      "githubPublicUrl": "Github Public Url",
+      "githubUrl": "Github URL",
       "urlRequired": "URL is required",
       "urlCantEmpty": "URL can't be empty",
       "updateGithubRepoLink": "Update GitHub Repo Link",
       "setGithubRepoLink": "Set GitHub Repo Link",
-      "githubRepoUrl": "GitHub Repo Url",
-      "publicUrl": "Public Url",
-      "selectFromList": "Select From List",
+      "githubRepoUrl": "GitHub Repo URL",
+      "publicUrl": "Public URL",
       "processing": "Processing",
       "confirmProjectsRebuild": "Do you want to rebuild projects?",
       "confirmProjectRebuild": "Do you want to rebuild project",
@@ -158,11 +164,32 @@
       "userInviteCode": "User Invite Code",
       "inviteCodeCantEmpty": "Invite code can't be empty",
       "inviteCodeRequired": "Invite code is required",
-      "source": "Source",
-      "files": "Files"
+      "source": "Source Repo",
+      "sourceType": "Source type",
+      "destination": "Destination Repo",
+      "destinationType": "Destination type",
+      "destinationProcessing": "Checking that you have access to destination repo",
+      "sourceVsDestinationProcessing": "Checking that source and destination are the same project, or destination is empty",
+      "files": "Files",
+      "branchData": "Source branch",
+      "tagData": "Tagged version",
+      "branchProcessing": "Fetching branches of project",
+      "tagsProcessing": "Fetching Tagged Versions of project",
+      "mismatchedProjectWarning": "This version of this project does not match the installed version of Ethereal Engine. There may be compilation or runtime errors if this project is installed.",
+      "needsGithubProvider": "You must connect your account with GitHub in order to add or update projects from GitHub",
+      "sourceProjectName": "Project in source repo",
+      "destinationProjectName": "Project in destination repo",
+      "destinationRepoEmpty": "The destination repo is empty",
+      "destinationURLValid": "Destination URL valid and accessible?",
+      "sourceURLValid": "Source URL valid and accessible?",
+      "sourceMatchesDestination": "Source Project matches destination, or destination empty?",
+      "changeDestination": "Change Destination Repo",
+      "copyDestination": "Copy Destination"
     },
     "instance": {
-      "confirmInstanceDelete": "Do you want to delete instance"
+      "confirmInstanceDelete": "Do you want to delete instance",
+      "location": "Location",
+      "count": "Count"
     },
     "resources": {
       "resources": "resources",
@@ -182,7 +209,7 @@
       "resourceUrlInvalid": "Resource url is not valid",
       "resourceFileOversized": "Resource file size must be between {{minSize}} MB and {{maxSize}} MB",
       "selectFile": "Select File",
-      "resourceUrl": "Resource Url"
+      "resourceUrl": "Resource URL"
     },
     "setting": {
       "authentication": "Authentication",
@@ -296,7 +323,16 @@
       "defaultThemes": "Default Themes",
       "theme": "Theme",
       "editor": "Editor",
-      "admin": "Admin"
+      "admin": "Admin",
+      "key8thWall": "8th Wall Key",
+      "shortTitle": "PWA Short Title",
+      "startPath": "PWA Start Path",
+      "shortTitleTooltip": "The displayed title of a PWA-installed copy of this app if 'title' is too long; recommended max 12 characters",
+      "startPathTooltip": "The path that a PWA-installed copy of this app will direct to",
+      "authSettingsRefreshNotification": "Updating authentication settings requires restarting the API pods. This should be complete within a few minutes. Changes you just made may not be reflected until then.",
+      "homepageLinkButtonEnabled": "Show link button on homepage",
+      "homepageLinkButtonRedirect": "URL of homepage link button",
+      "homepageLinkButtonText": "Text of homepage link button"
     },
     "avatar": {
       "source": "Source",
@@ -304,10 +340,12 @@
       "url": "Url",
       "avatarPreview": "Avatar Preview",
       "thumbnailPreview": "Thumbnail Preview",
-      "avatarUrl": "Avatar Url",
-      "thumbnailUrl": "Thumbnail Url",
+      "avatarUrl": "Avatar URL",
+      "thumbnailUrl": "Thumbnail URL",
       "selectAvatar": "Select Avatar",
       "selectThumbnail": "Select Thumbnail",
+      "saveThumbnail": "Generate Thumbnail",
+      "saveThumbnailTooltip": "Generate thumbnail from avatar preview",
       "nameCantEmpty": "Name can't be empty",
       "avatarUrlCantEmpty": "Avatar url can't be empty",
       "thumbnailUrlCantEmpty": "Thumbnail url can't be empty",
@@ -325,7 +363,8 @@
       "loading": "Loading",
       "confirmAvatarDelete": "Do you want to delete avatar",
       "confirmMultiDelete": "Do you want to delete all of the selected avatars?",
-      "deleteSelected": "Delete selected avatars"
+      "deleteSelected": "Delete selected avatars",
+      "confirmThumbnailReplace": "Do you want to replace previously selected avatar thumbnail with current avatar preview?"
     },
     "dialog": {
       "noAccess": "No access",
@@ -341,6 +380,7 @@
       "avatarRequired": "Avatar is required",
       "scopeTypeRequired": "Scope type is required",
       "hideGuests": "Hide guests",
+      "id": "Id",
       "name": "Name",
       "avatar": "Avatar",
       "grantScope": "Grant Scope",
@@ -350,7 +390,38 @@
       "confirmUserDelete": "Do you want to delete user",
       "isGuest": "Is guest",
       "selectAllScopes": "Select All Scopes",
-      "clearAllScopes": "Clear All Scopes"
+      "clearAllScopes": "Clear All Scopes",
+      "userSearch": "user by id, name or account identifier",
+      "linkedAccounts": "Linked Accounts",
+      "discord": "Discord",
+      "facebook": "Facebook",
+      "google": "Google",
+      "github": "Github",
+      "linkedIn": "LinkedIn",
+      "twitter": "Twitter",
+      "sms": "SMS",
+      "email": "Email"
+    },
+    "server": {
+      "loading": "Fetching Server Info",
+      "loadingLogs": "Fetching Server Logs",
+      "name": "Name",
+      "status": "Status",
+      "type": "Type",
+      "users": "Users",
+      "instance": "Instance",
+      "restarts": "Restarts",
+      "containers": "Containers",
+      "container": "Container",
+      "age": "Age",
+      "logs": "Logs",
+      "autoRefresh": "Auto Refresh",
+      "none": "None",
+      "seconds": "seconds",
+      "minute": "minute",
+      "minutes": "minutes",
+      "download": "Download",
+      "confirmPodDelete": "Do you want to delete pod"
     }
   }
 }

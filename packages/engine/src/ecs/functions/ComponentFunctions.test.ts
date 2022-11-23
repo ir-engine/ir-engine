@@ -14,7 +14,6 @@ import {
   removeComponent
 } from './ComponentFunctions'
 import { createEntity } from './EntityFunctions'
-import { useWorld } from './SystemHooks'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
@@ -28,7 +27,6 @@ describe('ComponentFunctions', async () => {
 
       assert.equal(TagComponent.name, 'TagComponent')
       assert.equal(typeof TagComponent.schema, 'undefined')
-      assert.equal(TagComponent.map.size, 0)
       assert.equal(ComponentMap.size, 1)
     })
 
@@ -47,7 +45,6 @@ describe('ComponentFunctions', async () => {
 
       assert.equal(Vector3Component.name, 'Vector3Component')
       assert.equal(Vector3Component.schema, Vector3Schema)
-      assert.equal(Vector3Component.map.size, 0)
       assert.equal(ComponentMap.size, 1)
     })
   })
@@ -57,17 +54,19 @@ describe('ComponentFunctions', async () => {
       const TestComponent = createMappedComponent('TestComponent')
 
       const entity = createEntity()
-      const component = addComponent(entity, TestComponent, {})
+      addComponent(entity, TestComponent, {})
+      const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
-      assert.ok(bitECS.hasComponent(useWorld(), TestComponent, entity))
+      assert.ok(bitECS.hasComponent(Engine.instance.currentWorld, TestComponent, entity))
     })
 
     it('should add component with AoS values', () => {
       const TestComponent = createMappedComponent<{ value: number }>('TestComponent')
 
       const entity = createEntity()
-      const component = addComponent(entity, TestComponent, { value: 5 })
+      addComponent(entity, TestComponent, { value: 5 })
+      const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
       assert.equal(component.value, 5)
@@ -168,9 +167,9 @@ describe('ComponentFunctions', async () => {
       assert.ok(hasComponent(entity, TestComponent))
     })
 
-    it('should throw on null entity argument', () => {
-      assert.throws(() => hasComponent(null!, null!))
-      assert.throws(() => hasComponent(undefined!, undefined!))
+    it('should return false for null entity argument', () => {
+      assert(!hasComponent(null!, null!))
+      assert(!hasComponent(undefined!, undefined!))
     })
   })
 
@@ -216,9 +215,9 @@ describe('ComponentFunctions', async () => {
       assert.ok(!hasComponent(entity, TestComponent))
     })
 
-    it('should throw on null entity argument', () => {
-      assert.throws(() => removeComponent(null!, null!))
-      assert.throws(() => removeComponent(undefined!, undefined!))
+    it('should return undefined on null entity argument', () => {
+      assert.equal(removeComponent(null!, null!), undefined)
+      assert.equal(removeComponent(undefined!, undefined!), undefined)
     })
   })
 

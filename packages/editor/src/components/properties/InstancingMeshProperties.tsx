@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Mesh } from 'three'
 
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { MeshProperties } from '@xrengine/engine/src/scene/components/InstancingComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import iterateObject3D from '@xrengine/engine/src/scene/util/iterateObject3D'
 
 import InputGroup from '../inputs/InputGroup'
@@ -20,19 +20,23 @@ export default function InstancingMeshProperties({ value, onChange, ...rest }) {
 
   const initialMeshes = traverseScene(
     (node) => {
-      const obj3d = getComponent(node.entity, Object3DComponent).value
-      const meshes = iterateObject3D(
-        obj3d,
-        (child: Mesh) => child,
-        (child: Mesh) => child.isMesh
-      )
+      const group = getComponent(node.entity, GroupComponent)
+      const meshes = group
+        .map((obj3d) =>
+          iterateObject3D(
+            obj3d,
+            (child: Mesh) => child,
+            (child: Mesh) => child.isMesh
+          )
+        )
+        .flat()
       return meshes.length > 0 ? node : null
     },
-    (node) => hasComponent(node.entity, Object3DComponent)
+    (node) => hasComponent(node.entity, GroupComponent)
   )
     .filter((x) => x !== null)
     .map((node) => {
-      return { label: getComponent(node!.entity, NameComponent)?.name, value: node!.uuid }
+      return { label: getComponent(node!.entity, NameComponent), value: node!.uuid }
     })
 
   function updateProp(prop: keyof MeshProperties) {
@@ -46,7 +50,6 @@ export default function InstancingMeshProperties({ value, onChange, ...rest }) {
     <CollapsibleBlock label={t('editor:properties.instancing.mesh.properties')}>
       <InputGroup name="Instanced Mesh" label={t('editor:properties.instancing.mesh.instancedMesh')}>
         <SelectInput
-          error={t('editor:properties.instancing.mesh.error-instancedMesh')}
           placeholder={t('editor:properties.instancing.mesh.placeholder-instancedMesh')}
           value={props.instancedMesh}
           onChange={updateProp('instancedMesh')}

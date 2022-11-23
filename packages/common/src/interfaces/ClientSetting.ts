@@ -2,6 +2,8 @@ export interface ClientSetting {
   id: string
   logo: string
   title: string
+  shortTitle: string
+  startPath: string
   url: string
   releaseName?: string
   siteDescription: string
@@ -16,6 +18,10 @@ export interface ClientSetting {
   appSocialLinks: Array<SocialLink>
   themeSettings: ThemeSetting
   themeModes: ThemeMode
+  key8thWall: string
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
 }
 
 interface SocialLink {
@@ -60,6 +66,7 @@ export interface ThemeOptions {
   scrollbarCorner: string
   inputOutline: string
   inputBackground: string
+  primaryHighlight: string
   dropdownMenuBackground: string
   dropdownMenuHoverBackground: string
   dropdownMenuSelectedBackground: string
@@ -69,13 +76,13 @@ export interface ThemeOptions {
   tableCellBackground: string
   tableFooterBackground: string
   dockBackground: string
-  themeSwitchTrack: string
-  themeSwitchThumb: string
 }
 
 export interface PatchClientSetting {
   logo: string
   title: string
+  shortTitle: string
+  startPath: string
   icon192px: string
   icon512px: string
   favicon16px: string
@@ -88,4 +95,8 @@ export interface PatchClientSetting {
   appSocialLinks: string
   themeSettings: string
   themeModes: string
+  key8thWall: string
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
 }

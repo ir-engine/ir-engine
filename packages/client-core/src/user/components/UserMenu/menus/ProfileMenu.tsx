@@ -1,11 +1,11 @@
 import { useHookstate } from '@hookstate/core'
-import * as polyfill from 'credential-handler-polyfill'
+// import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import config, { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 // import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
@@ -112,22 +112,20 @@ const ProfileMenu = ({
     (authState.linkedin && oauthConnectedState.linkedin) ||
     (authState.twitter && oauthConnectedState.twitter)
 
-  const loadCredentialHandler = async () => {
-    try {
-      const mediator =
-        globalThis.process.env['VITE_MEDIATOR_SERVER'] +
-        `/mediator?origin=${encodeURIComponent(window.location.origin)}`
+  // const loadCredentialHandler = async () => {
+  //   try {
+  //     const mediator = config.client.mediatorServer + `/mediator?origin=${encodeURIComponent(window.location.origin)}`
 
-      await polyfill.loadOnce(mediator)
-      console.log('Ready to work with credentials!')
-    } catch (e) {
-      logger.error(e, 'Error loading polyfill')
-    }
-  }
+  //     await polyfill.loadOnce(mediator)
+  //     console.log('Ready to work with credentials!')
+  //   } catch (e) {
+  //     logger.error(e, 'Error loading polyfill')
+  //   }
+  // }
 
-  useEffect(() => {
-    loadCredentialHandler()
-  }, []) // Only run once
+  // useEffect(() => {
+  //   loadCredentialHandler()
+  // }, []) // Only run once
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name.value)
@@ -222,7 +220,7 @@ const ProfileMenu = ({
   }
 
   const handleLogout = async (e) => {
-    if (changeActiveMenu) changeActiveMenu(null)
+    if (changeActiveMenu) changeActiveMenu(Views.Closed)
     else if (onClose) onClose()
     setShowUserId(false)
     setShowApiKey(false)
@@ -239,7 +237,7 @@ const ProfileMenu = ({
    * some in-engine action, makes a payment, etc).
    */
   async function handleIssueCredentialClick() {
-    /** @todo temporarily disabled for vite upgrade */
+    /** @todo temporarily disabled for vite upgrade #6453 */
     // const signedVp = await requestVcForEvent('EnteredVolumeEvent')
     // console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
     // const webCredentialType = 'VerifiablePresentation'
@@ -346,7 +344,7 @@ const ProfileMenu = ({
     }
   }
 
-  const enableWalletLogin = authState?.didWallet
+  const enableWalletLogin = false // authState?.didWallet
 
   const enableSocial =
     authState?.discord ||

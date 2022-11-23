@@ -19,7 +19,6 @@ import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGro
 import { ColliderDescOptions } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFModel'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -31,7 +30,6 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { VelocityComponent } from '../components/VelocityComponent'
 import { getInteractionGroups } from './getInteractionGroups'
 
 /**

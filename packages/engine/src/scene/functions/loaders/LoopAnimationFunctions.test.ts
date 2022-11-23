@@ -12,8 +12,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { ModelComponent } from '../../components/ModelComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 
 class AnimationManager {
   static instance = {
@@ -114,7 +112,6 @@ describe('LoopAnimationFunctions', () => {
     //     const animationComponent = getComponent(entity, AnimationComponent)
 
     //     assert(hasComponent(entity, AvatarAnimationComponent))
-    //     //assert(hasComponent(entity, VelocityComponent)) velocity component no longer present by default
     //     assert.equal(animationComponent.animations, AnimationManager.instance._animations)
     //   })
 
@@ -126,7 +123,6 @@ describe('LoopAnimationFunctions', () => {
     //     const animationComponent = getComponent(entity, AnimationComponent)
 
     //     assert(!hasComponent(entity, AvatarAnimationComponent))
-    //     //assert(!hasComponent(entity, VelocityComponent))
     //     assert.equal(animationComponent.animations, obj3d.animations)
     //   })
     // }

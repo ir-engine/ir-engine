@@ -4,7 +4,12 @@ import { Quaternion, Vector3 } from 'three'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, hasComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -25,15 +30,18 @@ export const deserializeCollider: ComponentDeserializeFunction = (
 
 export const updateCollider = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
-  const colliderComponent = getComponent(entity, ColliderComponent)
-  const world = Engine.instance.currentWorld
+  const colliderComponent = getOptionalComponent(entity, ColliderComponent)
+
   if (!colliderComponent) return
+
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
     colliderComponent.bodyType !== getComponent(entity, RigidBodyComponent).body.bodyType()
 
+  const world = Engine.instance.currentWorld
+
   if (rigidbodyTypeChanged) {
-    const rigidbody = getComponent(entity, RigidBodyComponent)?.body
+    const rigidbody = getOptionalComponent(entity, RigidBodyComponent)?.body
     /**
      * If rigidbody exists, simply change it's type
      */
@@ -42,7 +50,6 @@ export const updateCollider = (entity: Entity) => {
     } else {
       /**
        * If rigidbody does not exist, create one
-       * note: this adds a VelocityComponent
        */
       let bodyDesc: RigidBodyDesc
       switch (colliderComponent.bodyType) {
@@ -64,7 +71,7 @@ export const updateCollider = (entity: Entity) => {
     }
   }
 
-  const rigidbody = getComponent(entity, RigidBodyComponent).body
+  const rigidbody = getComponent(entity, RigidBodyComponent)
 
   /**
    * This component only supports one collider, always at index 0
@@ -77,15 +84,18 @@ export const updateCollider = (entity: Entity) => {
       shapeType: colliderComponent.shapeType,
       isTrigger: colliderComponent.isTrigger,
       collisionLayer: colliderComponent.collisionLayer,
-      collisionMask: colliderComponent.collisionMask
+      collisionMask: colliderComponent.collisionMask,
+      restitution: colliderComponent.restitution,
+      removeMesh: colliderComponent.removeMesh
     },
     new Vector3(),
     new Quaternion()
   )
-  world.physicsWorld.createCollider(colliderDesc, rigidbody)
+  world.physicsWorld.createCollider(colliderDesc, rigidbody.body)
 
-  rigidbody.setTranslation(transform.position, true)
-  rigidbody.setRotation(transform.rotation, true)
+  rigidbody.body.setTranslation(transform.position, true)
+  rigidbody.body.setRotation(transform.rotation, true)
+  rigidbody.scale.copy(transform.scale)
 }
 
 export const updateModelColliders = (entity: Entity) => {
@@ -100,7 +110,8 @@ export const updateModelColliders = (entity: Entity) => {
     isTrigger: colliderComponent.isTrigger,
     removeMesh: colliderComponent.removeMesh,
     collisionLayer: colliderComponent.collisionLayer,
-    collisionMask: colliderComponent.collisionMask
+    collisionMask: colliderComponent.collisionMask,
+    restitution: colliderComponent.restitution
   })
 }
 
@@ -131,7 +142,8 @@ export const serializeCollider: ComponentSerializeFunction = (entity) => {
     isTrigger: collider.isTrigger,
     removeMesh: collider.removeMesh,
     collisionLayer: collider.collisionLayer,
-    collisionMask: collider.collisionMask
+    collisionMask: collider.collisionMask,
+    restitution: collider.restitution
   } as ColliderComponentType
   if (collider.isTrigger) {
     response.onEnter = collider.onEnter
@@ -148,7 +160,8 @@ export const parseColliderProperties = (props: Partial<ColliderComponentType>): 
     isTrigger: props.isTrigger ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.isTrigger,
     removeMesh: props.removeMesh ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.removeMesh,
     collisionLayer: props.collisionLayer ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.collisionLayer,
-    collisionMask: props.collisionMask ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.collisionMask
+    collisionMask: props.collisionMask ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.collisionMask,
+    restitution: props.restitution ?? SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES.restitution
   } as ColliderComponentType
   if (response.isTrigger) {
     response.onEnter = props.onEnter

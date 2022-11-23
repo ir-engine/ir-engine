@@ -12,6 +12,7 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import {
   addComponent,
+  ComponentType,
   defineQuery,
   getComponent,
   hasComponent,
@@ -29,7 +30,6 @@ import {
   SCENE_COMPONENT_MOUNT_POINT,
   SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
 } from '../../scene/components/MountPointComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
@@ -109,10 +109,11 @@ export default async function MountPointSystem(world: World) {
           true
         )
         rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-        const sitting = addComponent(avatarEntity, SittingComponent, {
+        addComponent(avatarEntity, SittingComponent, {
           mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
         })
+        const sitting = getComponent(avatarEntity, SittingComponent)
         getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
 
         const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)

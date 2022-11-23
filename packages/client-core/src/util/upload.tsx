@@ -1,6 +1,6 @@
 import i18n from 'i18next'
 
-import { serverHost } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 
 import { accessAuthState } from '../user/services/AuthService'
 import { RethrownError } from './errors'
@@ -11,11 +11,10 @@ export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => vo
 /**
  * upload used to upload image as blob data.
  *
- * @param  {any}  blobs
+ * @param  {any}  service
  * @param  {any}  onUploadProgress
- * @param  {any}  signal
- * @param  {any}  projectId
- * @param  {string}  fileIdentifier
+ * @param  {any}  files
+ * @param  {any}  params
  * @return {Promise}
  */
 
@@ -76,7 +75,7 @@ export const uploadToFeathersService = (
         formData.set('media', files)
       }
 
-      request.open('post', `${serverHost}/${service}`, true)
+      request.open('post', `${config.client.serverUrl}/${service}`, true)
       request.setRequestHeader('Authorization', `Bearer ${token}`)
       request.send(formData)
     })

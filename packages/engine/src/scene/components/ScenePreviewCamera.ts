@@ -5,18 +5,18 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'XRE_scenePreviewCamera',
 
-  onAdd: (entity) => {
+  onInit: (entity) => {
     return {
       camera: new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     }
   },
 
   onRemove: (entity, component) => {
-    component.camera.remove()
+    component.camera.value.removeFromParent()
   },
 
   toJSON: () => {
-    return null! as any
+    return {} as any
   }
 })
 

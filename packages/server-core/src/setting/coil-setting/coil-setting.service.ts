@@ -1,4 +1,5 @@
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
 import { CoilSetting } from './coil-setting.class'
 import hooks from './coil-setting.hooks'
 import createModel from './coil-setting.model'
@@ -20,4 +21,8 @@ export default (app: Application): void => {
   app.use('coil-setting', event)
   const service = app.service('coil-setting')
   service.hooks(hooks)
+
+  service.on('patched', () => {
+    updateAppConfig()
+  })
 }

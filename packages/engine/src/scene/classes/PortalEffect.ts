@@ -28,16 +28,27 @@ export class PortalEffect extends Object3D {
   tubeMaterial: MeshBasicMaterial
   tubeGeometry: TubeGeometry
   tubeMesh: Mesh
-  texture: Texture
   numPoints = 200
 
-  constructor(texture: Texture) {
+  constructor() {
     super()
-    this.texture = texture
     this.name = 'PortalEffect'
 
     this.createMesh()
     this.add(this.tubeMesh)
+  }
+
+  get texture() {
+    return this.tubeMaterial.map
+  }
+
+  set texture(val: Texture | null) {
+    this.tubeMaterial.map = val
+    if (this.tubeMaterial.map) {
+      this.tubeMaterial.map.wrapS = MirroredRepeatWrapping
+      this.tubeMaterial.map.wrapT = MirroredRepeatWrapping
+      if (this.tubeMaterial.map.repeat) this.tubeMaterial.map.repeat.set(1, 10)
+    }
   }
 
   createMesh() {
@@ -65,12 +76,8 @@ export class PortalEffect extends Object3D {
     this.tubeMaterial = new MeshBasicMaterial({
       side: BackSide,
       transparent: true,
-      opacity: 0,
-      map: this.texture
+      opacity: 0
     })
-    this.tubeMaterial.map!.wrapS = MirroredRepeatWrapping
-    this.tubeMaterial.map!.wrapT = MirroredRepeatWrapping
-    if (this.tubeMaterial.map!.repeat) this.tubeMaterial.map!.repeat.set(1, 10)
 
     const radialSegments = 24
     const tubularSegments = this.numPoints / 10
@@ -96,7 +103,7 @@ export class PortalEffect extends Object3D {
   }
 
   updateMaterialOffset(delta: number) {
-    this.tubeMaterial.map!.offset.x += delta
+    if (this.tubeMaterial.map) this.tubeMaterial.map.offset.x += delta
   }
 
   update(delta: number) {

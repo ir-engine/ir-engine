@@ -18,6 +18,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import {
   addComponent,
+  ComponentType,
   defineQuery,
   getComponent,
   hasComponent,
@@ -31,7 +32,6 @@ import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/Collision
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
@@ -58,9 +58,9 @@ const downwardGroundRaycast = {
 
 export default async function AvatarLoadingSystem(world: World) {
   const effectQuery = defineQuery([AvatarEffectComponent])
-  const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
-  const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
-  const dissolveQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarDissolveComponent])
+  const growQuery = defineQuery([AvatarEffectComponent, GroupComponent])
+  const commonQuery = defineQuery([AvatarEffectComponent, GroupComponent])
+  const dissolveQuery = defineQuery([AvatarEffectComponent, GroupComponent, AvatarDissolveComponent])
   const [textureLight, texturePlate] = await Promise.all([
     AssetLoader.loadAsync('/itemLight.png'),
     AssetLoader.loadAsync('/itemPlate.png')
@@ -103,13 +103,14 @@ export default async function AvatarLoadingSystem(world: World) {
     for (const entity of effectQuery.enter()) {
       const effectComponent = getComponent(entity, AvatarEffectComponent)
       const sourceTransform = getComponent(effectComponent.sourceEntity, TransformComponent)
-      const transform = setTransformComponent(
+      setTransformComponent(
         entity,
         sourceTransform.position.clone(),
         sourceTransform.rotation.clone(),
         sourceTransform.scale.clone()
       )
-      addComponent(entity, VisibleComponent, true)
+      const transform = getComponent(entity, TransformComponent)
+      setComponent(entity, VisibleComponent, true)
       /**
        * cast ray to move this downward to be on the ground
        */
@@ -176,18 +177,18 @@ export default async function AvatarLoadingSystem(world: World) {
     }
 
     for (const entity of growQuery(world)) {
-      const object = getComponent(entity, Object3DComponent).value
-      object.updateWorldMatrix(true, true)
+      const group = getComponent(entity, GroupComponent)
+      for (const object of group) object.updateWorldMatrix(true, true)
     }
 
     for (const entity of commonQuery(world)) {
-      const object = getComponent(entity, Object3DComponent).value
+      const group = getComponent(entity, GroupComponent)
       const opacityMultiplier = getComponent(entity, AvatarEffectComponent).opacityMultiplier
 
       let pillar: any = null!
       let plate: any = null!
 
-      const childrens = object.children
+      const childrens = group.map((obj) => obj.children).flat()
       for (let i = 0; i < childrens.length; i++) {
         if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
         if (childrens[i].name === 'plate_obj') plate = childrens[i]
@@ -223,14 +224,15 @@ export default async function AvatarLoadingSystem(world: World) {
       if (disolveEffect.update(delta)) {
         removeComponent(entity, AvatarDissolveComponent)
         const effectComponent = getComponent(entity, AvatarEffectComponent)
-        const avatarObject = getComponent(effectComponent.sourceEntity, Object3DComponent).value
+        const avatarGroup = getComponent(effectComponent.sourceEntity, GroupComponent)
 
         effectComponent.originMaterials.forEach(({ id, material }) => {
-          avatarObject.traverse((obj) => {
-            if (obj.uuid === id) {
-              obj['material'] = material
-            }
-          })
+          for (const avatarObject of avatarGroup)
+            avatarObject.traverse((obj) => {
+              if (obj.uuid === id) {
+                obj['material'] = material
+              }
+            })
         })
 
         setComponent(entity, TweenComponent, {

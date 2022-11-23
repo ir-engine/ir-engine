@@ -89,8 +89,8 @@ export const NetworkUserService = {
       $limit: 1000,
       action: instance ? 'layer-users' : 'channel-users'
     } as any
-    if (!instance) query.channelInstanceId = Engine.instance.currentWorld._mediaHostId
-    else query.instanceId = Engine.instance.currentWorld._worldHostId
+    if (!instance) query.channelInstanceId = Engine.instance.currentWorld.hostIds.media.value
+    else query.instanceId = Engine.instance.currentWorld.hostIds.world.value
     const layerUsers = (await API.instance.client.service('user').find({
       query: query
     })) as Paginated<UserInterface>

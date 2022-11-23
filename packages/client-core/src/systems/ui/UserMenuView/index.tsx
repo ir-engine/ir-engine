@@ -8,12 +8,12 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { getState, useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FriendService, useFriendState } from '../../../social/services/FriendService'
 import { InviteService } from '../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../social/services/PartyService'
-import { useActiveMenu } from '../../../user/components/UserMenu'
+import { PopupMenuActions } from '../../../user/components/UserMenu/PopupMenuService'
 import { getAvatarURLForUser, Views } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useNetworkUserState } from '../../../user/services/NetworkUserService'
@@ -35,8 +35,6 @@ interface UserMenuState {
 
 const AvatarContextMenu = () => {
   const detailState = useXRUIState<UserMenuState>()
-  const [currentActiveMenu, setCurrentActiveMenu] = useActiveMenu()
-
   const engineState = useEngineState()
   const userState = useNetworkUserState()
   const partyState = usePartyState()
@@ -59,9 +57,6 @@ const AvatarContextMenu = () => {
   const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.id.value)
   const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.id.value)
 
-  // TODO: move these to widget register
-  PartyService.useAPIListeners()
-
   const inviteToParty = () => {
     if (authState.user?.partyId?.value && user?.id?.value) {
       const partyId = authState.user?.partyId?.value ?? ''
@@ -80,10 +75,10 @@ const AvatarContextMenu = () => {
     console.log('Mute pressed')
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     if (detailState.id.value !== '') {
       const tappedUser = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-      setCurrentActiveMenu({ view: Views.AvatarContext, params: { user: tappedUser?.value } })
+      dispatchAction(PopupMenuActions.showPopupMenu({ id: Views.AvatarContext, params: { user: tappedUser?.value } }))
     }
   }, [detailState.id])
 

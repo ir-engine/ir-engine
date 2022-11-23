@@ -3,7 +3,13 @@ import { Group, Layers, Mesh, Scene } from 'three'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, createMappedComponent, defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  createMappedComponent,
+  defineQuery,
+  getComponent,
+  getComponentState
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
@@ -29,7 +35,7 @@ describe('loadGLTFModel', () => {
 
     const entity = createEntity()
     addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
-    const modelComponent = addComponent(entity, ModelComponent, {
+    addComponent(entity, ModelComponent, {
       ...mockComponentData
     })
     const entityName = 'entity name'
@@ -40,7 +46,8 @@ describe('loadGLTFModel', () => {
       // 'xrengine.spawn-point': '',
       'xrengine.CustomComponent.value': number
     }
-    modelComponent.merge({ scene: mesh })
+    const modelComponent = getComponentState(entity, ModelComponent)
+    modelComponent.scene.set(mesh)
     addObjectToGroup(entity, mesh)
     const modelQuery = defineQuery([TransformComponent, GroupComponent])
     const childQuery = defineQuery([
@@ -63,7 +70,7 @@ describe('loadGLTFModel', () => {
 
     // assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
     assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).value, number)
-    assert.equal(getComponent(mockSpawnPointEntity, NameComponent).name, entityName)
+    assert.equal(getComponent(mockSpawnPointEntity, NameComponent), entityName)
     assert(getComponent(mockSpawnPointEntity, GroupComponent)[0].layers.test(expectedLayer))
   })
 

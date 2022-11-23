@@ -18,18 +18,16 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Sky } from '../../classes/Sky'
-import {
-  SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
-  SkyboxComponent,
-  SkyboxComponentType
-} from '../../components/SkyboxComponent'
+import { SkyboxComponent } from '../../components/SkyboxComponent'
 import { SkyTypeEnum } from '../../constants/SkyTypeEnum'
 import { getPmremGenerator, loadCubeMapTexture, textureLoader } from '../../constants/Util'
 import { addError, removeError } from '../ErrorFunctions'
 
-export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, data: SkyboxComponentType) => {
-  const props = parseSkyboxProperties(data)
-  setComponent(entity, SkyboxComponent, props)
+export const deserializeSkybox: ComponentDeserializeFunction = (
+  entity: Entity,
+  data: ReturnType<typeof SkyboxComponent.toJSON>
+) => {
+  setComponent(entity, SkyboxComponent, data)
 }
 
 export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
@@ -48,10 +46,10 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
         (texture) => {
           texture.encoding = sRGBEncoding
           Engine.instance.currentWorld.scene.background = texture
-          removeError(entity, 'error')
+          removeError(entity, SkyboxComponent, 'FILE_ERROR')
         },
         undefined,
-        (error) => addError(entity, 'error', error.message)
+        (error) => addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
       )
       break
 
@@ -61,11 +59,11 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
         (texture) => {
           texture.encoding = sRGBEncoding
           Engine.instance.currentWorld.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
-          removeError(entity, 'error')
+          removeError(entity, SkyboxComponent, 'FILE_ERROR')
         },
         undefined,
         (error) => {
-          addError(entity, 'error', error.message)
+          addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
         }
       )
       break
@@ -94,7 +92,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
   }
 
   if (component.backgroundType !== SkyTypeEnum.skybox && component.sky) {
-    component.sky = undefined
+    component.sky = null
   }
 }
 
@@ -115,26 +113,4 @@ const setSkyDirection = (direction: Vector3): void => {
 
 export const shouldDeserializeSkybox: ComponentShouldDeserializeFunction = () => {
   return getComponentCountOfType(SkyboxComponent) <= 0
-}
-
-const parseSkyboxProperties = (props): SkyboxComponentType => {
-  return {
-    backgroundColor: new Color(props.backgroundColor ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.backgroundColor),
-    equirectangularPath: props.equirectangularPath ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.equirectangularPath,
-    cubemapPath: props.cubemapPath ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.cubemapPath,
-    backgroundType: props.backgroundType ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.backgroundType,
-    skyboxProps: props.skyboxProps
-      ? {
-          turbidity: props.skyboxProps.turbidity ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.turbidity,
-          rayleigh: props.skyboxProps.rayleigh ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.rayleigh,
-          luminance: props.skyboxProps.luminance ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.luminance,
-          mieCoefficient:
-            props.skyboxProps.mieCoefficient ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.mieCoefficient,
-          mieDirectionalG:
-            props.skyboxProps.mieDirectionalG ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.mieDirectionalG,
-          inclination: props.skyboxProps.inclination ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.inclination,
-          azimuth: props.skyboxProps.azimuth ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.azimuth
-        }
-      : SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps
-  }
 }

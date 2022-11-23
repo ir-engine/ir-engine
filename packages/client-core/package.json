@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "1.0.0-rc4",
+  "version": "1.0.0-rc6",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -47,9 +47,9 @@
     "@mui/styled-engine-sc": "5.10.0",
     "@mui/styles": "5.9.3",
     "@mui/x-date-pickers": "5.0.0-beta.4",
-    "@xrengine/common": "^1.0.0-rc4",
-    "@xrengine/engine": "^1.0.0-rc4",
-    "@xrengine/hyperflux": "^1.0.0-rc4",
+    "@xrengine/common": "^1.0.0-rc6",
+    "@xrengine/engine": "^1.0.0-rc6",
+    "@xrengine/hyperflux": "^1.0.0-rc6",
     "apexcharts": "^3.28.3",
     "axios": "0.26.1",
     "classnames": "2.3.1",
@@ -60,6 +60,7 @@
     "hark": "^1.2.3",
     "i18next": "21.6.16",
     "image-palette-core": "0.2.2",
+    "javascript-time-ago": "^2.5.7",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
     "material-ui-confirm": "3.0.5",
@@ -76,6 +77,7 @@
     "react-i18next": "11.16.6",
     "react-joystick-component": "4.0.0",
     "react-material-ui-form-validator": "3.0.0",
+    "react-reflex": "^4.0.9",
     "react-responsive": "9.0.0-beta.6",
     "react-router-dom": "5.3.0",
     "semantic-ui-react": "2.1.2",

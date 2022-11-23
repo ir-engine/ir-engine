@@ -15,13 +15,12 @@ import {
   registerMaterial
 } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
 import { MaterialLibrary, MaterialLibraryActions } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, removeActionQueue, useHookEffect, useHookstate, useState } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue, useHookstate, useState } from '@xrengine/hyperflux'
 
 import { Divider, Grid, Stack } from '@mui/material'
 
-import { executeCommandWithHistory } from '../../classes/History'
-import EditorCommands from '../../constants/EditorCommands'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { useEditorState } from '../../services/EditorServices'
 import { useSelectionState } from '../../services/SelectionServices'
 import { HeirarchyTreeCollapsedNodeType } from '../hierarchy/HeirarchyTreeWalker'
@@ -35,12 +34,12 @@ export default function MaterialLibraryPanel() {
   const selectionState = useSelectionState()
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useHookstate(0)
-  const srcs = [...MaterialLibrary.sources.values()]
+  const srcs = useHookstate([...MaterialLibrary.sources.values()])
   const collapsedNodes = useHookstate(
-    new Set<string>(srcs.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE)))
+    new Set<string>(srcs.value.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE)))
   )
   const createNodes = useCallback((): MaterialLibraryEntryType[] => {
-    const result = srcs.flatMap((srcComp) => {
+    const result = srcs.value.flatMap((srcComp) => {
       const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
       const isCollapsed = collapsedNodes.value.has(uuid)
       return [
@@ -72,16 +71,13 @@ export default function MaterialLibraryPanel() {
       ]
     })
     return result
-  }, [])
+  }, [nodeChanges, srcs])
 
   const nodes = useHookstate(createNodes())
 
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
     if (!editorState.lockPropertiesPanel.get()) {
-      executeCommandWithHistory({
-        type: EditorCommands.REPLACE_SELECTION,
-        affectedNodes: [entryId(node.entry, node.type)]
-      })
+      EditorControlFunctions.replaceSelection([entryId(node.entry, node.type)])
     }
   }, [])
 
@@ -101,7 +97,8 @@ export default function MaterialLibraryPanel() {
     nodeChanges.set(nodeChanges.get() + 1)
   }, [])
 
-  useHookEffect(() => {
+  useEffect(() => {
+    srcs.set([...MaterialLibrary.sources.values()])
     nodes.set(createNodes())
   }, [nodeChanges, selectionState.selectedEntities])
 

@@ -2,6 +2,8 @@ export enum MouseInput {
   LeftButton = 'MouseInput_LeftButton',
   MiddleButton = 'MouseInput_MiddleButton',
   RightButton = 'MouseInput_RightButton',
+  LeftButtonDoubleClick = 'MouseInput_LeftButtonDoubleClick',
+  RightButtonDoubleClick = 'MouseInput_RightButtonDoubleClick',
   MousePosition = 'MouseInput_MousePosition',
   MouseClickDownPosition = 'MouseInput_MouseClickDownPosition',
   MouseClickDownTransformRotation = 'MouseInput_MouseClickDownTransformRotation',

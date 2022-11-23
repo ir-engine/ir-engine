@@ -23,8 +23,7 @@ export default (app: Application) => {
       },
       url: {
         type: DataTypes.STRING,
-        allowNull: true,
-        unique: true
+        allowNull: true
       },
       key: DataTypes.STRING,
       mimeType: {

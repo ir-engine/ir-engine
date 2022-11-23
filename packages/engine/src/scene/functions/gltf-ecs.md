@@ -25,9 +25,9 @@ Example
 
 would result in an entity with components
 
-NameComponent { name: "MyTrigger" }
+NameComponent: "MyTrigger"
 TransformComponent { position, rotation, scale } (from mesh relative to world origin)
-Object3DComponent { value: (the mesh this was loaded from) }
+GroupComponent [(the mesh this was loaded from)]
 RigidBodyComponent { body: (a physics trigger box body) }
 ColliderComponent { isTrigger: true, ... }
 CustomComponent: { value: 12345 }

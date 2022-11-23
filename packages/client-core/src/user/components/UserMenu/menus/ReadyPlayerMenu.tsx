@@ -2,22 +2,23 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { ArrowBack, Check } from '@mui/icons-material'
-import CircularProgress from '@mui/material/CircularProgress'
 
+import LoadingView from '../../../../admin/common/LoadingView'
+import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
+import { resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
 import { Views } from '../util'
-import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
 interface Props {
   changeActiveMenu: Function
@@ -27,71 +28,80 @@ let scene: Scene
 let camera: PerspectiveCamera
 let renderer: WebGLRenderer = null!
 
+enum LoadingState {
+  None,
+  LoadingRPM,
+  Downloading,
+  LoadingPreview,
+  Uploading
+}
+
 const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [hover, setHover] = useState(false)
-  const [showLoading, setShowLoading] = useState(false)
+  const [loading, setLoading] = useState(LoadingState.LoadingRPM)
   const [error, setError] = useState('')
-  const [obj, setObj] = useState<any>(null)
-  const [entity, setEntity] = useState<Entity | undefined>()
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  const renderPanel = useRender3DPanelSystem(panelRef)
+  const { entity, camera, scene, renderer } = renderPanel.state
 
   useEffect(() => {
-    const world = useWorld()
-    const entity = createEntity()
-    setEntity(entity)
-    addAnimationLogic(entity, world, panelRef)
-    const init = initialize3D()
-    scene = init.scene
-    camera = init.camera
-    renderer = init.renderer
-    const controls = getOrbitControls(camera, renderer.domElement)
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.25, 0)
-    controls.update()
-
-    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-    window.addEventListener('message', (event) => handleMessageEvent(event, entity))
-
+    window.addEventListener('message', handleMessageEvent)
     return () => {
-      window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
-      window.removeEventListener('message', (event) => handleMessageEvent(event, entity))
+      window.removeEventListener('message', handleMessageEvent)
     }
   }, [avatarUrl])
 
-  const handleMessageEvent = async (event, entity) => {
+  const handleMessageEvent = async (event) => {
     const url = event.data
 
+    const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
+
     if (url && url.toString().toLowerCase().startsWith('http')) {
+      setLoading(LoadingState.Downloading)
       setAvatarUrl(url)
+      setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
+
       try {
         const assetType = AssetLoader.getAssetType(url)
         if (assetType) {
-          loadAvatarForPreview(entity, url).then((obj) => {
-            obj.name = 'avatar'
-            scene.add(obj)
-            const error = validate(obj)
-            setError(error)
-            setObj(obj)
-          })
-          fetch(url)
-            .then((res) => res.blob())
-            .then((data) => setSelectedFile(data))
-            .catch((err) => {
-              setError(err.message)
-              console.log(err.message)
-            })
+          try {
+            const res = await fetch(url)
+            const data = await res.blob()
+
+            setSelectedFile(data)
+          } catch (err) {
+            setError(err.message)
+            console.log(err.message)
+          }
+
+          setLoading(LoadingState.LoadingPreview)
+
+          resetAnimationLogic(entity.value)
+          const obj = await loadAvatarForPreview(entity.value, url)
+          obj.name = 'avatar'
+          scene.value.add(obj)
+
+          const error = validate(obj, renderer.value, scene.value, camera.value)
+          setError(error)
+          renderPanel.resize()
+
+          const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
+          if (avatarRigComponent) {
+            avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
+            camera.value.position.y += 0.2
+            camera.value.position.z = 0.6
+          }
         }
       } catch (error) {
         console.error(error)
         setError(t('user:usermenu.avatar.selectValidFile'))
       }
-    } else {
-      setShowLoading(false)
+
+      setLoading(LoadingState.None)
     }
   }
 
@@ -100,34 +110,45 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     changeActiveMenu(Views.Profile)
   }
 
-  const uploadAvatar = () => {
+  const uploadAvatar = async () => {
     if (error || selectedFile === undefined) {
       return
     }
+    setLoading(LoadingState.Uploading)
 
     const canvas = document.createElement('canvas')
-    ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
+    canvas.width = THUMBNAIL_WIDTH
+    canvas.height = THUMBNAIL_HEIGHT
 
     const newContext = canvas.getContext('2d')
-    newContext?.drawImage(renderer.domElement, 0, 0)
+    newContext?.drawImage(renderer.value.domElement, 0, 0)
 
-    var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
+    const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
-    canvas.toBlob(async (blob) => {
-      setShowLoading(true)
-      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
-      setShowLoading(false)
-      changeActiveMenu(null)
+    const blob = await getCanvasBlob(canvas)
+
+    await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
+
+    setLoading(LoadingState.None)
+    changeActiveMenu(Views.Closed)
+  }
+
+  const getCanvasBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        resolve(blob)
+      })
     })
   }
 
+  const avatarPreviewLoaded = loading === LoadingState.None && selectedFile
+
   return (
     <div
-      ref={panelRef}
-      className={styles.ReadyPlayerPanel}
-      style={{ width: selectedFile ? '400px' : '600px', padding: selectedFile ? '15px' : '0' }}
+      className={`${styles.menuPanel} ${styles.readyPlayerPanel}`}
+      style={{ width: avatarPreviewLoaded ? '400px' : '600px', padding: avatarPreviewLoaded ? '15px' : '0' }}
     >
-      {selectedFile && (
+      {avatarPreviewLoaded && (
         <div className={styles.avatarHeaderBlock}>
           <button
             type="button"
@@ -142,27 +163,49 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
         </div>
       )}
 
+      {loading !== LoadingState.None && (
+        <LoadingView
+          sx={{ position: 'absolute', background: 'inherit' }}
+          variant="body2"
+          title={
+            loading === LoadingState.Downloading
+              ? t('user:avatar.downloading')
+              : loading === LoadingState.LoadingPreview
+              ? t('user:avatar.loadingPreview')
+              : loading === LoadingState.Uploading
+              ? t('user:avatar.uploading')
+              : t('user:avatar.loadingRPM')
+          }
+        />
+      )}
+
       {!avatarUrl && (
         <iframe
-          style={{ width: '100%', height: '100%' }}
-          src={`${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`}
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            width: '100%',
+            height: '100%'
+          }}
+          src={config.client.readyPlayerMeUrl}
         />
       )}
 
       <div
+        ref={panelRef}
         id="stage"
         className={styles.stage}
         style={{
           width: THUMBNAIL_WIDTH + 'px',
           height: THUMBNAIL_HEIGHT + 'px',
           margin: 'auto',
-          display: !avatarUrl ? 'none' : 'block',
-          boxShadow: !avatarUrl || showLoading ? 'none' : '0 0 10px var(--buttonOutlined)',
+          display: avatarUrl ? 'block' : 'none',
+          boxShadow: avatarPreviewLoaded ? '0 0 10px var(--buttonOutlined)' : 'none',
           borderRadius: '8px'
         }}
       ></div>
 
-      {selectedFile && (
+      {avatarPreviewLoaded && (
         <button
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
@@ -185,8 +228,6 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
           <Check />
         </button>
       )}
-
-      {showLoading && <CircularProgress style={{ position: 'absolute', top: '50%', left: '46%' }} />}
     </div>
   )
 }

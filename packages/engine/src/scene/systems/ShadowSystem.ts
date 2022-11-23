@@ -17,6 +17,8 @@ export default async function ShadowSystem(world: World) {
   let lastActiveDirectionLight = null as DirectionalLight | null
 
   const execute = () => {
+    if (world.fixedTick % 50 === 0) return
+
     let activeDirectionalLight = null as DirectionalLight | null
 
     if (getState(XRState).isEstimatingLight.value)

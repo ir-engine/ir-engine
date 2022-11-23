@@ -12,7 +12,6 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
-import { executeModifyPropertyCommand, setPropertyOnSelectionEntities } from '../../classes/History'
 import { uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -22,7 +21,7 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput, { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 type PortalOptions = {
   name: string
@@ -45,7 +44,7 @@ const rotation = new Quaternion()
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const { t } = useTranslation()
-  const portalName = getComponent(props.node.entity, NameComponent).name
+  const portalName = getComponent(props.node.entity, NameComponent)
   const transformComponent = getComponent(props.node.entity, TransformComponent)
 
   useEffect(() => {
@@ -72,27 +71,17 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const bakeCubemap = async () => {
     const url = await uploadCubemapBakeToServer(portalName, transformComponent.position)
     loadPortals()
-    executeModifyPropertyCommand({
-      component: PortalComponent,
-      properties: [{ previewImageURL: url }],
-      affectedNodes: [props.node]
-    })
+    updateProperties(PortalComponent, { previewImageURL: url }, [props.node])
   }
 
   const changeSpawnRotation = (value: Euler) => {
     rotation.setFromEuler(value)
 
-    setPropertyOnSelectionEntities({
-      component: PortalComponent,
-      properties: [{ spawnRotation: rotation }]
-    })
+    updateProperties(PortalComponent, { spawnRotation: rotation })
   }
 
   const changePreviewType = (val) => {
-    setPropertyOnSelectionEntities({
-      component: PortalComponent,
-      properties: [{ previewType: val }]
-    })
+    updateProperties(PortalComponent, { previewType: val })
     loadPortals()
   }
 
@@ -109,10 +98,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           options={portals}
           value={portalComponent.linkedPortalId}
           onChange={updateProperty(PortalComponent, 'linkedPortalId')}
-          filterOption={(option: PortalFilterOption, searchString: string) => {
-            return option.label.includes(searchString || '')
-          }}
-          getOptionLabel={(data) => data.name}
         />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>

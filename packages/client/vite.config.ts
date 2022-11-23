@@ -1,10 +1,11 @@
+import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import fsExtra from 'fs-extra'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
-import { defineConfig, loadEnv, UserConfig, UserConfigExport } from 'vite'
+import { defineConfig, loadEnv, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import PkgConfig from 'vite-plugin-package-config'
@@ -75,7 +76,11 @@ export default defineConfig(async () => {
 
   const returned = {
     optimizeDeps: {
-      exclude: ['@xrfoundation/volumetric']
+      exclude: ['@xrfoundation/volumetric'],
+      include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
+      esbuildOptions: {
+        target: 'es2020'
+      }
     },
     plugins: [
       PkgConfig(),
@@ -98,6 +103,9 @@ export default defineConfig(async () => {
         filter: /\.(js|mjs|json|css)$/i,
         algorithm: 'brotliCompress',
         deleteOriginFile: true
+      }),
+      viteCommonjs({
+        include: ['use-sync-external-store']
       })
     ],
     server: {
@@ -109,7 +117,7 @@ export default defineConfig(async () => {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         'socket.io-client': 'socket.io-client/dist/socket.io.js',
-        '@mui/styled-engine': '@mui/styled-engine-sc'
+        '@mui/styled-engine': '@mui/styled-engine-sc/'
       }
     },
     build: {
@@ -139,10 +147,13 @@ export default defineConfig(async () => {
     }
   }
   if (
-    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER &&
+    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
     process.env.STORAGE_PROVIDER === 'aws' &&
     process.env.STORAGE_CLOUDFRONT_DOMAIN
   )
     returned.base = `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
+  else if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' && process.env.STORAGE_PROVIDER === 'local') {
+    returned.base = `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
+  }
   return await getProjectConfigExtensions(returned)
 })

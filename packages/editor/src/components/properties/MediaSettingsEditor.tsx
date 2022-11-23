@@ -29,7 +29,7 @@ export const MediaSettingsEditor = () => {
         <SelectInput
           options={DistanceModelOptions}
           value={settings.distanceModel}
-          onChange={(val) => sceneMetadata.distanceModel.set(val)}
+          onChange={(val: DistanceModelType) => sceneMetadata.distanceModel.set(val)}
         />
       </InputGroup>
       <InputGroup

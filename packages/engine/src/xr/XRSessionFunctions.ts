@@ -1,4 +1,4 @@
-import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
+import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
@@ -7,6 +7,7 @@ import { TouchInputs } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
+import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { BinaryValue } from './../common/enums/BinaryValue'
 import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'

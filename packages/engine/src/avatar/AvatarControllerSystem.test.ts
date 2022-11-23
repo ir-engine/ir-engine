@@ -1,6 +1,8 @@
 import assert from 'assert'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { quaternionEqualsEpsilon } from '../../tests/util/MathTestUtils'
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -15,13 +17,14 @@ import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { rotateBodyTowardsVector } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { createAvatar } from './functions/createAvatar'
+import { spawnAvatarReceptor } from './functions/spawnAvatarReceptor'
 
 describe('AvatarControllerSystem', async () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.userId = 'userId' as UserId
   })
 
   it('check rotateBodyTowardsVector', async () => {
@@ -29,7 +32,8 @@ describe('AvatarControllerSystem', async () => {
 
     const spawnAvatarAction = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatarAction)
-    const avatarEntity = createAvatar(spawnAvatarAction)
+    spawnAvatarReceptor(spawnAvatarAction)
+    const avatarEntity = world.getUserAvatarEntity(Engine.instance.userId)
     const ridigbody = getComponent(avatarEntity, RigidBodyComponent)
 
     const testRotation = new Quaternion().copy(ridigbody.body.rotation() as Quaternion)

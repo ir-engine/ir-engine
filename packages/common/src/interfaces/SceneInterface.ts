@@ -1,19 +1,21 @@
+import { EntityUUID } from './EntityUUID'
+
 export interface ComponentJson<T extends any = any> {
-  // todo: eventually remove '= any'
   name: string
   props: T
 }
+
 export interface EntityJson {
-  name: string
+  name: EntityUUID | string
   components: Array<ComponentJson>
-  parent?: string
+  parent?: EntityUUID
   index?: number
 }
 
 export interface SceneJson {
   metadata: { [uuid: string]: any }
-  entities: { [uuid: string]: EntityJson }
-  root: string
+  entities: { [uuid: EntityUUID]: EntityJson }
+  root: EntityUUID
   version: number
 }
 

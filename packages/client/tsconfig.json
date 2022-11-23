@@ -13,6 +13,7 @@
     "module": "CommonJS",
     "strict": false,
     "strictNullChecks": true,
+    "strictBindCallApply": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,

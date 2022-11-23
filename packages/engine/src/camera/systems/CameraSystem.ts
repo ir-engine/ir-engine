@@ -7,6 +7,7 @@ import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -17,11 +18,12 @@ import {
   addComponent,
   defineQuery,
   getComponent,
+  getOptionalComponent,
   removeComponent,
   removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -30,11 +32,12 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import CameraFadeBlackEffectSystem from './CameraFadeBlackEffectSystem'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -82,7 +85,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   if (!cameraEntity) return
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const target = getComponent(cameraEntity, TargetCameraRotationComponent)
+  const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent)
   if (!target) return
 
   const epsilon = 0.001
@@ -177,7 +180,7 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const cameraTransform = getComponent(cameraEntity, TransformComponent)
+  const cameraTransform = getComponent(cameraEntity, LocalTransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
   if (!targetTransform) return
@@ -251,7 +254,7 @@ export function cameraSpawnReceptor(
 
   console.log('Camera Spawn Receptor Call', entity)
 
-  addComponent(entity, CameraComponent, null)
+  setComponent(entity, CameraComponent)
 }
 
 export default async function CameraSystem(world: World) {
@@ -260,19 +263,28 @@ export default async function CameraSystem(world: World) {
   const spectatorQuery = defineQuery([SpectatorComponent])
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
+  const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
 
   const execute = () => {
     for (const action of cameraSpawnActions()) cameraSpawnReceptor(action, world)
 
     for (const action of spectateUserActions()) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
-      if (action.user) {
-        setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
-      } else {
-        removeComponent(cameraEntity, SpectatorComponent)
-        deleteSearchParams('spectate')
-        dispatchAction(EngineActions.leaveWorld({}))
-      }
+      if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
+      else
+        setComponent(cameraEntity, FlyControlComponent, {
+          boostSpeed: 4,
+          moveSpeed: 4,
+          lookSensitivity: 5,
+          maxXRotation: MathUtils.degToRad(80)
+        })
+    }
+
+    for (const action of exitSpectateActions()) {
+      const cameraEntity = Engine.instance.currentWorld.cameraEntity
+      removeComponent(cameraEntity, SpectatorComponent)
+      deleteSearchParams('spectate')
+      dispatchAction(EngineActions.leaveWorld({}))
     }
 
     for (const cameraEntity of followCameraQuery.enter()) {
@@ -316,5 +328,5 @@ export default async function CameraSystem(world: World) {
     removeActionQueue(spectateUserActions)
   }
 
-  return { execute, cleanup }
+  return { execute, cleanup, subsystems: [async () => ({ default: CameraFadeBlackEffectSystem })] }
 }

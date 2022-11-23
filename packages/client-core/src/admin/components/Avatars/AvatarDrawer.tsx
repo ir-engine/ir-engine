@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
@@ -14,17 +13,16 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Help } from '@mui/icons-material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import FaceIcon from '@mui/icons-material/Face'
 import MouseIcon from '@mui/icons-material/Mouse'
+import PortraitIcon from '@mui/icons-material/Portrait'
 import { FormHelperText, Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -36,24 +34,17 @@ import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import {
-  addAnimationLogic,
-  initialize3D,
-  onWindowResize
-} from '../../../user/components/UserMenu/menus/helperFunctions'
+import { resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import DrawerView from '../../common/DrawerView'
 import InputRadio from '../../common/InputRadio'
 import InputText from '../../common/InputText'
 import LoadingView from '../../common/LoadingView'
-import { AdminAvatarActions, AdminAvatarService, useAdminAvatarState } from '../../services/AvatarService'
+import { AdminAvatarActions, useAdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
-
-let camera: PerspectiveCamera
-let scene: Scene
-let renderer: WebGLRenderer = null!
-let entity: Entity = null!
 
 const Input = styled('input')({
   display: 'none'
@@ -62,6 +53,12 @@ const Input = styled('input')({
 export enum AvatarDrawerMode {
   Create,
   ViewEdit
+}
+
+enum ConfirmState {
+  None,
+  File,
+  Url
 }
 
 interface Props {
@@ -89,10 +86,14 @@ const defaultState = {
 
 const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => {
   const { t } = useTranslation()
-  const containerRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({ ...defaultState })
   const [avatarLoading, setAvatarLoading] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(ConfirmState.None)
+
+  const renderPanel = useRender3DPanelSystem(panelRef)
+  const { entity, camera, scene, renderer } = renderPanel.state
 
   const { user } = useAuthState().value
   const { thumbnail } = useAdminAvatarState().value
@@ -104,34 +105,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   if (state.source === 'file' && state.thumbnailFile) {
     thumbnailSrc = URL.createObjectURL(state.thumbnailFile)
   } else if (state.source === 'url' && state.thumbnailUrl) {
-    thumbnailSrc = state.thumbnailUrl + '?' + new Date().getTime()
+    thumbnailSrc = state.thumbnailUrl
   }
-
-  useEffect(() => {
-    const world = useWorld()
-    entity = createEntity()
-
-    addAnimationLogic(entity, world, containerRef)
-
-    const init = initialize3D()
-    scene = init.scene
-    camera = init.camera
-    renderer = init.renderer
-
-    const controls = getOrbitControls(camera, renderer.domElement)
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.5, 0)
-    controls.update()
-
-    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-
-    return () => {
-      removeEntity(entity)
-      entity = null!
-      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-    }
-  }, [])
 
   useEffect(() => {
     const initSelected = async () => {
@@ -174,8 +149,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   }
 
   const updateAvatar = async () => {
-    scene.children = scene.children.filter((c) => c.name !== 'avatar')
-
     let url = ''
     if (state.source === 'url' && state.avatarUrl) {
       const validEndsWith = AVATAR_FILE_ALLOWED_EXTENSIONS.split(',').some((suffix) => {
@@ -193,10 +166,17 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
     if (url) {
       setAvatarLoading(true)
-      const avatar = await loadAvatarForPreview(entity, url)
+      resetAnimationLogic(entity.value)
+      const avatar = await loadAvatarForPreview(entity.value, url)
+      const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
+      if (avatarRigComponent) {
+        avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
+        camera.value.position.y += 0.2
+        camera.value.position.z = 0.6
+      }
       setAvatarLoading(false)
       avatar.name = 'avatar'
-      scene.add(avatar)
+      scene.value.add(avatar)
     }
   }
 
@@ -321,7 +301,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
           avatarBlob,
           thumbnailBlob,
           state.name + '_' + selectedAvatar.id,
-          selectedAvatar.isPublic
+          selectedAvatar.isPublic,
+          selectedAvatar.id
         )
         const removalPromises = [] as any
         if (uploadResponse[0].id !== selectedAvatar.modelResourceId)
@@ -337,8 +318,52 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     }
   }
 
+  const handleGenerateFileThumbnail = () => {
+    if (state.thumbnailFile) {
+      setShowConfirm(ConfirmState.File)
+      return
+    }
+
+    handleGenerateThumbnail(true)
+  }
+
+  const handleGenerateUrlThumbnail = () => {
+    if (state.thumbnailUrl) {
+      setShowConfirm(ConfirmState.Url)
+      return
+    }
+
+    handleGenerateThumbnail(false)
+  }
+
+  const handleGenerateThumbnail = async (isFile: boolean) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = THUMBNAIL_WIDTH
+    canvas.height = THUMBNAIL_HEIGHT
+
+    const newContext = canvas.getContext('2d')
+    newContext?.drawImage(renderer.value.domElement, 0, 0)
+
+    const blob = await getCanvasBlob(canvas)
+    if (isFile) {
+      setState({ ...state, thumbnailFile: new File([blob!], 'thumbnail.png') })
+    } else {
+      setState({ ...state, thumbnailUrl: URL.createObjectURL(blob!) })
+    }
+
+    setShowConfirm(ConfirmState.None)
+  }
+
+  const getCanvasBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        resolve(blob)
+      })
+    })
+  }
+
   return (
-    <Container ref={containerRef} maxWidth="sm" className={styles.mt10}>
+    <Container maxWidth="sm" className={styles.mt10}>
       <DialogTitle className={styles.textAlign}>
         {mode === AvatarDrawerMode.Create && t('user:avatar.createAvatar')}
         {mode === AvatarDrawerMode.ViewEdit &&
@@ -410,7 +435,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         className={styles.preview}
         style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px', position: 'relative' }}
       >
-        <div id="stage" style={{ width: '100%', height: '100%' }} />
+        <div ref={panelRef} id="stage" style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }} />
 
         {avatarLoading && (
           <LoadingView
@@ -488,6 +513,17 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
             </Button>
           </label>
 
+          <Button
+            className={styles.gradientButton}
+            startIcon={<PortraitIcon />}
+            sx={{ marginLeft: 1, width: '250px' }}
+            title={t('admin:components.avatar.saveThumbnailTooltip')}
+            disabled={!state.avatarFile || avatarLoading}
+            onClick={handleGenerateFileThumbnail}
+          >
+            {t('admin:components.avatar.saveThumbnail')}
+          </Button>
+
           {state.formErrors.thumbnailFile && (
             <Box>
               <FormControl error>
@@ -499,15 +535,28 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       )}
 
       {state.source === 'url' && (
-        <InputText
-          name="thumbnailUrl"
-          sx={{ mt: 2, mb: 1 }}
-          label={t('admin:components.avatar.thumbnailUrl')}
-          value={state.thumbnailUrl}
-          error={state.formErrors.thumbnailUrl}
-          disabled={viewMode}
-          onChange={handleChange}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'self-end' }}>
+          <InputText
+            name="thumbnailUrl"
+            sx={{ mt: 2, mb: 1, flex: 1 }}
+            label={t('admin:components.avatar.thumbnailUrl')}
+            value={state.thumbnailUrl}
+            error={state.formErrors.thumbnailUrl}
+            disabled={viewMode}
+            onChange={handleChange}
+          />
+
+          <Button
+            className={styles.gradientButton}
+            startIcon={<PortraitIcon />}
+            sx={{ marginLeft: 1, width: '250px' }}
+            title={t('admin:components.avatar.saveThumbnailTooltip')}
+            disabled={viewMode || !state.avatarUrl || avatarLoading}
+            onClick={handleGenerateUrlThumbnail}
+          >
+            {t('admin:components.avatar.saveThumbnail')}
+          </Button>
+        </Box>
       )}
 
       <Box
@@ -548,6 +597,15 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
           </Button>
         )}
       </DialogActions>
+
+      {showConfirm !== ConfirmState.None && (
+        <ConfirmDialog
+          open
+          description={t('admin:components.avatar.confirmThumbnailReplace')}
+          onClose={() => setShowConfirm(ConfirmState.None)}
+          onSubmit={() => handleGenerateThumbnail(showConfirm === ConfirmState.File)}
+        />
+      )}
     </Container>
   )
 }

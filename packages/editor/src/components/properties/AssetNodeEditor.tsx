@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AssetComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'

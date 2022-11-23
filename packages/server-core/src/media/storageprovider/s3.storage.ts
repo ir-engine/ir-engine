@@ -197,9 +197,7 @@ export class S3Provider implements StorageProviderInterface {
 
     if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
 
-    const result = await this.provider.putObject(args).promise()
-
-    return result
+    return this.provider.putObject(args).promise()
   }
 
   /**
@@ -209,7 +207,7 @@ export class S3Provider implements StorageProviderInterface {
   async createInvalidation(invalidationItems: any[]) {
     // for non-standard s3 setups, we don't use cloudfront
     if (config.server.storageProvider !== 'aws') return
-    const data = await this.cloudfront
+    return this.cloudfront
       .createInvalidation({
         DistributionId: config.aws.cloudfront.distributionId,
         InvalidationBatch: {
@@ -221,8 +219,6 @@ export class S3Provider implements StorageProviderInterface {
         }
       })
       .promise()
-
-    return data
   }
 
   /**

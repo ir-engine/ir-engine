@@ -11,7 +11,6 @@ import {
   SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '../../components/EnvMapBakeComponent'
 import { GroupComponent } from '../../components/GroupComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 
 export const deserializeEnvMapBake: ComponentDeserializeFunction = (entity: Entity, data: EnvMapBakeComponentType) => {

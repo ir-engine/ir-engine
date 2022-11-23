@@ -4,10 +4,11 @@ import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
@@ -29,7 +30,9 @@ export function animationActionReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
   world = Engine.instance.currentWorld
 ) {
-  if (Engine.instance.userId === action.$from) return // Only run on other clients
+  // Only run on other peers
+  if (!world.worldNetwork || !action.$peer || world.worldNetwork.peerID === action.$peer) return
+
   const avatarEntity = world.getUserAvatarEntity(action.$from)
 
   const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
@@ -43,14 +46,19 @@ export function animationActionReceptor(
 export default async function AnimationSystem(world: World) {
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
-  const animationQuery = defineQuery([AnimationComponent])
+  const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
   const movingAvatarAnimationQuery = defineQuery([
     AnimationComponent,
     AvatarAnimationComponent,
     AvatarRigComponent,
-    VelocityComponent
+    VisibleComponent
   ])
-  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
+  const avatarAnimationQuery = defineQuery([
+    AnimationComponent,
+    AvatarAnimationComponent,
+    AvatarRigComponent,
+    VisibleComponent
+  ])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
@@ -99,18 +107,22 @@ export default async function AnimationSystem(world: World) {
     for (const entity of movingAvatarAnimationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
       const deltaTime = delta * animationComponent.animationSpeed
-      const velocity = getComponent(entity, VelocityComponent)
 
-      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
-      avatarAnimationComponent.locomotion.x = 0
-      avatarAnimationComponent.locomotion.y = velocity.linear.y
-      // lerp animated forward animation to smoothly animate to a stop
-      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-        avatarAnimationComponent.locomotion.z || 0,
-        _vector3.copy(velocity.linear).setComponent(1, 0).length(),
-        10 * deltaTime
-      )
+      if (rigidbodyComponent) {
+        // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
+        avatarAnimationComponent.locomotion.x = 0
+        avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
+        // lerp animated forward animation to smoothly animate to a stop
+        avatarAnimationComponent.locomotion.z = MathUtils.lerp(
+          avatarAnimationComponent.locomotion.z || 0,
+          _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+          10 * deltaTime
+        )
+      } else {
+        avatarAnimationComponent.locomotion.setScalar(0)
+      }
 
       updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
     }

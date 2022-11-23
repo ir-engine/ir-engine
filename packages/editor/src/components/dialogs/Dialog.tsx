@@ -76,8 +76,10 @@ export const DialogContent = (styled as any).div`
  * @type {Styled component}
  */
 const DialogBottomNav = (styled as any).div`
+  display: flex;
   padding: 8px;
   margin: auto;
+  margin-bottom: 10px;
 
   a {
     color: var(--textColor);

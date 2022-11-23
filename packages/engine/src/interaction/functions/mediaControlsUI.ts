@@ -6,7 +6,6 @@ import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctio
 import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createMediaControlsView } from '../ui/MediaControlsUI'
 
 export const createMediaControlsUI = (entity: Entity) => {
@@ -14,12 +13,9 @@ export const createMediaControlsUI = (entity: Entity) => {
 
   addEntityNodeChild(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
-  addComponent(ui.entity, NameComponent, {
-    name: 'mediacontrols-ui-' + entity
-  })
+  addComponent(ui.entity, NameComponent, 'mediacontrols-ui-' + entity)
 
-  const xrui = getComponent(ui.entity, XRUIComponent)
-  xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+  ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
     const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
     mat.transparent = true
   })

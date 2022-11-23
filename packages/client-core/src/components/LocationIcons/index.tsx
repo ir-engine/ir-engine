@@ -31,7 +31,7 @@ export const LocationIcons = () => {
         <XRLoading />
         <MediaIconsBox />
         <TouchGamepad />
-        {iOS && <Fullscreen />}
+        {!iOS && <Fullscreen />}
       </div>
     </>
   )

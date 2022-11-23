@@ -2,15 +2,16 @@ import * as mediasoupClient from 'mediasoup-client'
 import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
-import { instanceserverHost } from '@xrengine/common/src/config'
+import config from '@xrengine/common/src/config'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { clearOutgoingActions, dispatchAction } from '@xrengine/hyperflux'
-import ActionFunctions, { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, addOutgoingTopicIfNecessary, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import {
   accessLocationInstanceConnectionState,
@@ -29,6 +30,10 @@ import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientNetwork' })
 
+export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
+export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
+export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData; producerPaused: boolean }
+
 // import { encode, decode } from 'msgpackr'
 
 // Adds support for Promise to socket.io-client
@@ -42,7 +47,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
   if (locationConnectionFailed) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld._worldHostId ?? ''
+    const instanceId = Engine.instance.currentWorld.hostIds.world.value ?? ''
     if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
@@ -53,7 +58,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
     }
   } else {
     const mediaInstanceConnectionState = accessMediaInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld._mediaHostId ?? ''
+    const instanceId = Engine.instance.currentWorld.hostIds.media.value ?? ''
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = accessAuthState()
@@ -81,7 +86,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
 export class SocketWebRTCClientNetwork extends Network {
   constructor(hostId: UserId, topic: Topic) {
     super(hostId, topic)
-    ActionFunctions.addOutgoingTopicIfNecessary(topic)
+    addOutgoingTopicIfNecessary(topic)
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
@@ -94,8 +99,8 @@ export class SocketWebRTCClientNetwork extends Network {
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 
-  producers = [] as Producer[]
-  consumers = [] as Consumer[]
+  producers = [] as ProducerExtension[]
+  consumers = [] as ConsumerExtension[]
 
   sendActions() {
     if (!this.ready) return
@@ -153,16 +158,16 @@ export class SocketWebRTCClientNetwork extends Network {
     if (!roomCode) delete query.roomCode
 
     try {
-      if (globalThis.process.env['VITE_LOCAL_BUILD'] === 'true') {
+      if (config.client.localBuild === 'true') {
         this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {
           query
         })
-      } else if (process.env.APP_ENV === 'development' && process.env.VITE_LOCAL_NGINX !== 'true') {
+      } else if (config.client.appEnv === 'development' && config.client.localNginx !== 'true') {
         this.socket = ioclient(`${ipAddress as string}:${port.toString()}`, {
           query
         })
       } else {
-        this.socket = ioclient(instanceserverHost, {
+        this.socket = ioclient(config.client.instanceserverUrl, {
           path: `/socket.io/${ipAddress as string}/${port.toString()}`,
           query
         })

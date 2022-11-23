@@ -1,12 +1,25 @@
+import { hookstate, none } from '@xrengine/hyperflux'
+
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, SetComponentType } from '../../ecs/functions/ComponentFunctions'
 
-export type NameComponentType = {
-  name: string
-}
+export const NameComponent = defineComponent({
+  name: 'NameComponent',
 
-export const NameComponent = createMappedComponent<NameComponentType>('NameComponent')
+  onInit: () => '',
 
-export const setNameComponent = (entity: Entity, name: string) => {
-  setComponent(entity, NameComponent, { name })
-}
+  onSet: (entity, component, name?: string) => {
+    if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')
+    component.set(name)
+    NameComponent.entitiesByName[name].set(entity)
+  },
+
+  onRemove: (entity, component) => {
+    const name = component.value
+    if (NameComponent.entitiesByName[name].value === entity) {
+      NameComponent.entitiesByName[name].set(none)
+    }
+  },
+
+  entitiesByName: hookstate({} as Record<string, Entity>)
+})

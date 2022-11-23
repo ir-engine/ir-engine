@@ -14,12 +14,10 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
-import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes } from '../../constants/AssetTypes'
-import EditorCommands from '../../constants/EditorCommands'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { shouldPrefabDeserialize } from '../../functions/shouldDeserialize'
 import { useSelectionState } from '../../services/SelectionServices'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
@@ -28,22 +26,20 @@ export interface PrefabItemType {
   type: string
   prefabType: string
   Icon: any
-  label: string // todo
-  description?: string // todo
+  label: string
+  description?: string
 }
 
 const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
 
   Engine.instance.currentWorld.scenePrefabRegistry.forEach((_, prefabType: string) => {
-    if (shouldPrefabDeserialize(prefabType)) {
-      arr.push({
-        prefabType,
-        type: ItemTypes.Prefab,
-        Icon: prefabIcons[prefabType] || null,
-        label: prefabType
-      })
-    }
+    arr.push({
+      prefabType,
+      type: ItemTypes.Prefab,
+      Icon: prefabIcons[prefabType] || null,
+      label: prefabType
+    })
   })
 
   return arr
@@ -57,13 +53,7 @@ export const addPrefabElement = (
   const node = createEntityNode(createEntity())
   node.parentEntity = Engine.instance.currentWorld.sceneEntity
 
-  executeCommandWithHistory({
-    type: EditorCommands.ADD_OBJECTS,
-    affectedNodes: [node],
-    prefabTypes: [item.prefabType],
-    parents: parent ? [parent] : undefined,
-    befores: before ? [before] : undefined
-  })
+  EditorControlFunctions.addObject([node], parent ? [parent] : [], before ? [before] : [], [item.prefabType], [], true)
 
   return node
 }

@@ -1,9 +1,9 @@
 import { createState, useHookstate } from '@hookstate/core'
-import * as polyfill from 'credential-handler-polyfill'
+// import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import config, { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import multiLogger from '@xrengine/common/src/logger'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -128,21 +128,19 @@ const ProfileDetailView = () => {
     (authState.linkedin && oauthConnectedState.linkedin) ||
     (authState.twitter && oauthConnectedState.twitter)
 
-  const loadCredentialHandler = async () => {
-    try {
-      const mediator = `${globalThis.process.env['VITE_MEDIATOR_SERVER']}/mediator?origin=${encodeURIComponent(
-        window.location.origin
-      )}`
+  // const loadCredentialHandler = async () => {
+  //   try {
+  //     const mediator = `${config.client.mediatorServer}/mediator?origin=${encodeURIComponent(window.location.origin)}`
 
-      await polyfill.loadOnce(mediator)
-    } catch (e) {
-      logger.error(e, 'Error loading polyfill')
-    }
-  }
+  //     await polyfill.loadOnce(mediator)
+  //   } catch (e) {
+  //     logger.error(e, 'Error loading polyfill')
+  //   }
+  // }
 
-  useEffect(() => {
-    loadCredentialHandler()
-  }, []) // Only run once
+  // useEffect(() => {
+  //   loadCredentialHandler()
+  // }, []) // Only run once
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name.value)

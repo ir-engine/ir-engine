@@ -1,21 +1,33 @@
-import { entityExists } from 'bitecs'
-import { Camera, Mesh, Quaternion, Vector3 } from 'three'
+import { entityExists, Not } from 'bitecs'
+import { Camera, Mesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
+import { V_000 } from '../../common/constants/MathConstants'
+import { proxifyQuaternion } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getComponentState,
+  getOptionalComponent,
+  getOptionalComponentState,
+  hasComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyFixedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -27,131 +39,111 @@ import {
   TransformComponent
 } from '../components/TransformComponent'
 
-const scratchVector3 = new Vector3()
-const scratchQuaternion = new Quaternion()
-
 const transformQuery = defineQuery([TransformComponent])
+const localTransformQuery = defineQuery([LocalTransformComponent])
+const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
-const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
-const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
+const staticBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent])
+const dynamicBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
 
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 
-const prevRigidbodyScale = new Map<Entity, Vector3>()
-
-const updateTransformFromLocalTransform = (entity: Entity) => {
-  const world = Engine.instance.currentWorld
+export const computeLocalTransformMatrix = (entity: Entity) => {
   const localTransform = getComponent(entity, LocalTransformComponent)
-  const parentTransform = localTransform?.parentEntity
-    ? getComponent(localTransform.parentEntity, TransformComponent)
-    : undefined
-  if (
-    localTransform &&
-    parentTransform &&
-    (world.dirtyTransforms.has(entity) || world.dirtyTransforms.has(localTransform.parentEntity))
-  ) {
-    const transform = getComponent(entity, TransformComponent)
-    localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
-    transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
-    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+  localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
+}
+
+export const computeTransformMatrix = (entity: Entity, world = Engine.instance.currentWorld) => {
+  const transform = getComponent(entity, TransformComponent)
+  updateTransformFromComputedTransform(entity)
+  updateTransformFromLocalTransform(entity)
+  transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+  transform.matrixInverse.copy(transform.matrix).invert()
+}
+
+export const teleportRigidbody = (entity: Entity) => {
+  const transform = getComponent(entity, TransformComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  rigidBody.body.setTranslation(transform.position, !rigidBody.body.isSleeping())
+  rigidBody.body.setRotation(transform.rotation, !rigidBody.body.isSleeping())
+  rigidBody.body.setLinvel(V_000, !rigidBody.body.isSleeping())
+  rigidBody.body.setAngvel(V_000, !rigidBody.body.isSleeping())
+  rigidBody.previousPosition.copy(transform.position)
+  rigidBody.position.copy(transform.position)
+  rigidBody.previousRotation.copy(transform.rotation)
+  rigidBody.rotation.copy(transform.rotation)
+  // if scale has changed, we have to recreate the collider
+  const scaleChanged = rigidBody.scale.manhattanDistanceTo(transform.scale) > 0.0001
+  if (scaleChanged) {
+    if (hasComponent(entity, GLTFLoadedComponent)) updateModelColliders(entity)
+    else updateCollider(entity)
   }
 }
 
-const updateTransformFromRigidbody = (entity: Entity) => {
-  if (!hasComponent(entity, RigidBodyComponent)) return
-
-  const world = Engine.instance.currentWorld
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
-  const velocity = getComponent(entity, VelocityComponent)
-  const localTransform = getComponent(entity, LocalTransformComponent)
-
-  // if transforms have been changed outside of the transform system, perform physics teleportation on the rigidbody
-  if (world.dirtyTransforms.has(entity) || (localTransform && world.dirtyTransforms.has(localTransform.parentEntity))) {
-    const prevScale = prevRigidbodyScale.get(entity)
-    prevRigidbodyScale.set(entity, transform.scale.clone())
-
-    rigidBody.body.setTranslation(transform.position, !rigidBody.body.isSleeping())
-    rigidBody.body.setRotation(transform.rotation, !rigidBody.body.isSleeping())
-
-    // if scale has changed, we have to recreate the collider
-    const scaleChanged = prevScale ? prevScale.manhattanDistanceTo(transform.scale) > 0.0001 : true
-
-    if (scaleChanged) {
-      if (hasComponent(entity, GLTFLoadedComponent)) updateModelColliders(entity)
-      else updateCollider(entity)
-    }
-
-    return
-  }
-
+export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
   Interpolate the remaining time after the fixed pipeline is complete.
   See https://gafferongames.com/post/fix_your_timestep/#the-final-touch
   */
-  const accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
-  const alpha = accumulator / getState(EngineState).fixedDeltaSeconds.value
 
-  const bodyPosition = rigidBody.body.translation() as Vector3
-  const bodyRotation = rigidBody.body.rotation() as Quaternion
+  const previousPositionX = RigidBodyComponent.previousPosition.x[entity]
+  const previousPositionY = RigidBodyComponent.previousPosition.y[entity]
+  const previousPositionZ = RigidBodyComponent.previousPosition.z[entity]
+  const previousRotationX = RigidBodyComponent.previousRotation.x[entity]
+  const previousRotationY = RigidBodyComponent.previousRotation.y[entity]
+  const previousRotationZ = RigidBodyComponent.previousRotation.z[entity]
+  const previousRotationW = RigidBodyComponent.previousRotation.w[entity]
 
-  if (rigidBody.body.isSleeping()) {
-    transform.position.copy(bodyPosition)
-    transform.rotation.copy(bodyRotation)
-  } else {
-    transform.position.copy(rigidBody.previousPosition).lerp(scratchVector3.copy(bodyPosition), alpha)
-    transform.rotation.copy(rigidBody.previousRotation).slerp(scratchQuaternion.copy(bodyRotation), alpha)
-    velocity.linear
-      .copy(rigidBody.previousLinearVelocity)
-      .lerp(scratchVector3.copy(rigidBody.body.linvel() as Vector3), alpha)
-    velocity.angular
-      .copy(rigidBody.previousAngularVelocity)
-      .lerp(scratchVector3.copy(rigidBody.body.angvel() as Vector3), alpha)
-  }
+  const positionX = RigidBodyComponent.position.x[entity]
+  const positionY = RigidBodyComponent.position.y[entity]
+  const positionZ = RigidBodyComponent.position.z[entity]
+  const rotationX = RigidBodyComponent.rotation.x[entity]
+  const rotationY = RigidBodyComponent.rotation.y[entity]
+  const rotationZ = RigidBodyComponent.rotation.z[entity]
+  const rotationW = RigidBodyComponent.rotation.w[entity]
 
-  transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+  TransformComponent.position.x[entity] = previousPositionX + (positionX - previousPositionX) * alpha
+  TransformComponent.position.y[entity] = previousPositionY + (positionY - previousPositionY) * alpha
+  TransformComponent.position.z[entity] = previousPositionZ + (positionZ - previousPositionZ) * alpha
+  TransformComponent.rotation.x[entity] = previousRotationX + (rotationX - previousRotationX) * alpha
+  TransformComponent.rotation.y[entity] = previousRotationY + (rotationY - previousRotationY) * alpha
+  TransformComponent.rotation.z[entity] = previousRotationZ + (rotationZ - previousRotationZ) * alpha
+  TransformComponent.rotation.w[entity] = previousRotationW + (rotationW - previousRotationW) * alpha
 
-  if (localTransform) {
-    const parentTransform = getComponent(localTransform.parentEntity, TransformComponent) || transform
-    localTransform.matrix.multiplyMatrices(parentTransform.matrixInverse, transform.matrix)
-    localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
-    updateTransformFromLocalTransform(entity)
-  }
+  Engine.instance.currentWorld.dirtyTransforms[entity] = true
 }
 
-export const updateEntityTransform = (entity: Entity, world = Engine.instance.currentWorld) => {
+const updateTransformFromLocalTransform = (entity: Entity) => {
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
+  const parentTransform = localTransform?.parentEntity
+    ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
+    : undefined
+  if (!localTransform || !parentTransform) return false
   const transform = getComponent(entity, TransformComponent)
-  if (!transform) return
+  transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
+  transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+  return true
+}
 
-  const computedTransform = getComponent(entity, ComputedTransformComponent)
+const updateTransformFromComputedTransform = (entity: Entity) => {
+  const computedTransform = getOptionalComponent(entity, ComputedTransformComponent)
+  if (!computedTransform) return false
+  computedTransform.computeFunction(entity, computedTransform.referenceEntity)
+  return true
+}
+
+const updateGroupChildren = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
-
-  updateTransformFromLocalTransform(entity)
-  updateTransformFromRigidbody(entity)
-
-  if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
-    computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
-  }
-
-  if (world.dirtyTransforms.has(entity)) {
-    // avoid scale 0 to prevent NaN errors
-    // transform.scale.x = Math.max(1e-10, transform.scale.x)
-    // transform.scale.y = Math.max(1e-10, transform.scale.y)
-    // transform.scale.z = Math.max(1e-10, transform.scale.z)
-    transform.matrix.compose(transform.position, transform.rotation, transform.scale)
-    transform.matrixInverse.copy(transform.matrix).invert()
-  }
-
-  if (group) {
-    // drop down one level and update children
-    for (const root of group) {
-      for (const obj of root.children) {
-        obj.updateMatrixWorld()
-      }
+  // drop down one level and update children
+  for (const root of group) {
+    for (const obj of root.children) {
+      obj.updateMatrixWorld()
     }
   }
 }
+
 const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
   return getComponent(entity, TransformComponent).position.distanceToSquared(targetPosition)
 }
@@ -171,8 +163,8 @@ export default async function TransformSystem(world: World) {
   const updateTransformDepth = (entity: Entity) => {
     if (transformDepths.has(entity)) return transformDepths.get(entity)
 
-    const referenceEntity = getComponent(entity, ComputedTransformComponent)?.referenceEntity
-    const parentEntity = getComponent(entity, LocalTransformComponent)?.parentEntity
+    const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
+    const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
 
     const referenceEntityDepth = referenceEntity ? updateTransformDepth(referenceEntity) : 0
     const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
@@ -188,6 +180,10 @@ export default async function TransformSystem(world: World) {
     return aDepth - bDepth
   }
 
+  const traverseComputeBoundingBox = (mesh: Mesh) => {
+    if (mesh.isMesh) mesh.geometry.computeBoundingBox()
+  }
+
   const computeBoundingBox = (entity: Entity) => {
     const box = getComponent(entity, BoundingBoxComponent).box
     const group = getComponent(entity, GroupComponent)
@@ -195,13 +191,7 @@ export default async function TransformSystem(world: World) {
     box.makeEmpty()
 
     for (const obj of group) {
-      obj.traverse((child) => {
-        const mesh = child as Mesh
-        if (mesh.isMesh) {
-          mesh.geometry.computeBoundingBox()
-        }
-      })
-
+      obj.traverse(traverseComputeBoundingBox)
       box.expandByObject(obj)
     }
   }
@@ -213,13 +203,23 @@ export default async function TransformSystem(world: World) {
     for (const obj of group) box.expandByObject(obj)
   }
 
+  const isDirty = (entity: Entity) => world.dirtyTransforms[entity]
+
+  const filterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
+    !world.dirtyTransforms[entity] &&
+    hasComponent(entity, RigidBodyDynamicTagComponent) &&
+    !getComponent(entity, RigidBodyComponent).body.isSleeping()
+
+  const invFilterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
+    !filterCleanNonSleepingDynamicRigidbodies(entity)
+
   const execute = () => {
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
 
     // if transform order is dirty, sort by reference depth
+    // Note: cyclic references will cause undefined behavior
     const { transformsNeedSorting } = getState(EngineState)
     const transformEntities = transformQuery()
-
     if (transformsNeedSorting.value) {
       transformDepths.clear()
       for (const entity of transformEntities) updateTransformDepth(entity)
@@ -227,17 +227,36 @@ export default async function TransformSystem(world: World) {
       transformsNeedSorting.set(false)
     }
 
-    // Note: cyclic references will cause undefined behavior
+    const allRigidbodyEntities = rigidbodyTransformQuery()
+    const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingDynamicRigidbodies)
+    const invCleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingDynamicRigidbodies)
 
-    // TODO: try to split transform update logic apart into multiple iterations for improved cpu prediction:
-    //  1) update dirty local transform matrices
-    //  2) apply dirty world transforms to rigidbodies (physics teleport, and also copy to previous physics position/rotation for interpolation)
-    //  3) readback rigidbody transforms and calculate interpolated transforms
-    //  4) update all dirty computed and local to world transform matrices (IMPORTANT: strictly ordered by reference depth)
-    //  5) call updateMatrixWorld on group children
-    for (const entity of transformEntities) updateEntityTransform(entity, world)
+    // lerp clean dynamic rigidbody entities (make them dirty)
+    const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
+    const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
+    for (const entity of cleanDynamicRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
-    world.dirtyTransforms.clear()
+    // entities with dirty parent or reference entities, or computed transforms, should also be dirty
+    for (const entity of transformQuery()) {
+      const makeDirty =
+        world.dirtyTransforms[entity] ||
+        world.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
+        world.dirtyTransforms[getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0] ||
+        hasComponent(entity, ComputedTransformComponent)
+      if (makeDirty) world.dirtyTransforms[entity] = true
+    }
+
+    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirty)
+    const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
+    const dirtyTransformEntities = transformEntities.filter(isDirty)
+    const dirtyGroupEntities = groupQuery().filter(isDirty)
+
+    for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
+    for (const entity of dirtyTransformEntities) computeTransformMatrix(entity, world)
+    for (const entity of dirtyRigidbodyEntities) teleportRigidbody(entity)
+    for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
+
+    for (const entity in world.dirtyTransforms) delete world.dirtyTransforms[entity]
 
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
@@ -247,7 +266,7 @@ export default async function TransformSystem(world: World) {
         if (
           hasComponent(entity, BoundingBoxComponent) &&
           hasComponent(entity, TransformComponent) &&
-          hasComponent(entity, Object3DComponent)
+          hasComponent(entity, GroupComponent)
         )
           updateBoundingBox(entity)
       }
@@ -258,7 +277,7 @@ export default async function TransformSystem(world: World) {
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
     if (entityExists(world, world.localClientEntity)) {
-      const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+      const localClientPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
       if (localClientPosition) {
         for (const entity of distanceFromLocalClientQuery())
           DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(

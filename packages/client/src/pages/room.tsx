@@ -1,7 +1,7 @@
 import React from 'react'
-import { Helmet } from 'react-helmet'
 
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
 import RoomMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/RoomMenu'
 
 export const RoomPage = (): any => {
@@ -17,12 +17,12 @@ export const RoomPage = (): any => {
             }
           `}
       </style>
-      <Helmet>
+      <MetaTags>
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap"
           rel="stylesheet"
         />
-      </Helmet>
+      </MetaTags>
       <div className="main-background">
         <div className="img-container">
           {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}
@@ -46,7 +46,6 @@ export const RoomPage = (): any => {
                     top: 0px;
                     left: 0px;
                     width: 100%;
-                    min-width: 420px;
                     transform: none;
                     pointer-events: auto;
                 }

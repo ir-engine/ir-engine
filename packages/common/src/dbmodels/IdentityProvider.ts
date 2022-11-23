@@ -3,6 +3,7 @@ import { UserId } from '../interfaces/UserId'
 export interface IdentityProviderInterface {
   id: string
   token: string
+  accountIdentifier: string
   password: string
   isVerified: string
   verifyToken: string

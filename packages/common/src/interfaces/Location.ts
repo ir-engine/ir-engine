@@ -42,7 +42,6 @@ export const LocationSeed: Location = {
   locationSetting: {
     id: '',
     locationId: '',
-    instanceMediaChatEnabled: false,
     audioEnabled: false,
     screenSharingEnabled: false,
     faceStreamingEnabled: false,

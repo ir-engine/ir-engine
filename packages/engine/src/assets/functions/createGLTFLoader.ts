@@ -1,6 +1,7 @@
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMaterialImporterExtension'
@@ -16,7 +17,7 @@ import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
-  ktxLoader.setTranscoderPath(`/loader_decoders/basis/`)
+  ktxLoader.setTranscoderPath(Engine.instance.publicPath + '/loader_decoders/basis/')
   ktxLoader.detectSupport(EngineRenderer.instance.renderer)
   loader.setKTX2Loader(ktxLoader)
 }
@@ -40,9 +41,10 @@ export const createGLTFLoader = (keepMaterials = false) => {
 
   if (isClient) {
     const dracoLoader = new DRACOLoader()
-    dracoLoader.setDecoderPath('/loader_decoders/')
+    dracoLoader.setDecoderPath(Engine.instance.publicPath + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)
     loader.setDRACOLoader(dracoLoader)
+    initializeKTX2Loader(loader)
   } else {
     const dracoLoader = new NodeDRACOLoader()
     /* @ts-ignore */

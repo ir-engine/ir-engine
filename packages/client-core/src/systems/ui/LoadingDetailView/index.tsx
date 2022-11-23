@@ -12,7 +12,6 @@ import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { getState, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppLoadingStates, useLoadingState } from '../../../common/services/AppLoadingService'
 import { useSceneState } from '../../../world/services/SceneService'
@@ -41,8 +40,6 @@ function setDefaultPalette(colors) {
 }
 
 const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
-  const loadingSystemState = useHookstate(getState(LoadingSystemState))
-  const loadingState = useLoadingState()
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
@@ -84,15 +81,6 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
       img.onload = null
     }
   }, [sceneState.currentScene.ornull?.thumbnailUrl])
-
-  useHookEffect(() => {
-    if (loadingState.state.value === AppLoadingStates.SUCCESS) {
-      props.transition.setState('OUT')
-    }
-    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
-      props.transition.setState('IN')
-    }
-  }, [loadingState.state])
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value

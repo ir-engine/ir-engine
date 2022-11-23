@@ -2,13 +2,12 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '@xrengine/engine/src/scene/components/EnvmapComponent'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { deserializeEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import FolderInput from '../inputs/FolderInput'
@@ -16,7 +15,7 @@ import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -41,28 +40,17 @@ const EnvMapTextureOptions = Object.values(EnvMapTextureType).map((value) => {
 export const EnvMapEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
-  const engineState = useEngineState()
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
     if (directory !== envmapComponent.envMapSourceURL) {
-      setPropertyOnSelectionEntities({
-        component: EnvmapComponent,
-        properties: [{ envMapSourceURL: directory }]
-      })
+      updateProperties(EnvmapComponent, { envMapSourceURL: directory })
     }
   }, [])
 
-  let envmapComponent = getComponent(entity, EnvmapComponent)
+  let envmapComponent = useComponent(entity, EnvmapComponent)
 
-  // if component is not there for previously saved model entities then create one
-  if (!envmapComponent) {
-    deserializeEnvMap(props.node.entity, { name: SCENE_COMPONENT_ENVMAP, props: {} })
-    envmapComponent = getComponent(entity, EnvmapComponent)
-  }
-
-  const hasError = engineState.errorEntities[entity].get()
-  const errorComponent = getComponent(entity, ErrorComponent)
+  const errors = getEntityErrors(props.node.entity, EnvmapComponent)
 
   return (
     <NodeEditor
@@ -75,51 +63,51 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.node.entity}
           options={EnvMapSourceOptions}
-          value={envmapComponent.type}
+          value={envmapComponent.type.value}
           onChange={updateProperty(EnvmapComponent, 'type')}
         />
       </InputGroup>
-      {envmapComponent.type === EnvMapSourceType.Color && (
+      {envmapComponent.type.value === EnvMapSourceType.Color && (
         <InputGroup name="EnvMapColor" label="EnvMap Color">
           <ColorInput
-            value={envmapComponent.envMapSourceColor}
+            value={envmapComponent.envMapSourceColor.value}
             onChange={updateProperty(EnvmapComponent, 'envMapSourceColor')}
           />
         </InputGroup>
       )}
-      {envmapComponent.type === EnvMapSourceType.Texture && (
+      {envmapComponent.type.value === EnvMapSourceType.Texture && (
         <div>
           <InputGroup name="Texture Type" label="Texture Type">
             <SelectInput
               key={props.node.entity}
               options={EnvMapTextureOptions}
-              value={envmapComponent.envMapTextureType}
+              value={envmapComponent.envMapTextureType.value}
               onChange={updateProperty(EnvmapComponent, 'envMapTextureType')}
             />
           </InputGroup>
           <InputGroup name="Texture URL" label="Texture URL">
-            {envmapComponent.envMapTextureType === EnvMapTextureType.Cubemap && (
+            {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
               <FolderInput value={envmapComponent.envMapSourceURL} onChange={onChangeCubemapURLSource} />
             )}
-            {envmapComponent.envMapTextureType === EnvMapTextureType.Equirectangular && (
+            {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
               <ImagePreviewInput
-                value={envmapComponent.envMapSourceURL}
+                value={envmapComponent.envMapSourceURL.value}
                 onChange={updateProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
-            {hasError && errorComponent.envmapError && (
+            {errors?.MISSING_FILE && (
               <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.scene.error-url')}</div>
             )}
           </InputGroup>
         </div>
       )}
 
-      {envmapComponent.type !== EnvMapSourceType.None && (
+      {envmapComponent.type.value !== EnvMapSourceType.None && (
         <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
           <CompoundNumericInput
             min={0}
             max={20}
-            value={envmapComponent.envMapIntensity}
+            value={envmapComponent.envMapIntensity.value}
             onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
           />
         </InputGroup>

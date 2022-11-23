@@ -1,7 +1,8 @@
 import * as THREE from 'three'
-import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Vector2, Vector3 } from 'three'
+import { BufferGeometry, Euler, Mesh, Object3D, Quaternion, Scene, Vector2, Vector3 } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
+import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
 //@ts-ignore
@@ -33,6 +34,8 @@ declare module 'three/src/core/Object3D' {
   }
 }
 
+Scene.DefaultMatrixAutoUpdate = false
+
 /**
  * Since we have complete control over matrix updates, we know that at any given point
  *  in execution time if the matrix will be up to date or a frame late, and we can simply
@@ -55,4 +58,4 @@ Object3D.prototype.getWorldDirection = function (target) {
   return target.set(e[8], e[9], e[10]).normalize()
 }
 
-globalThis.THREE = THREE
+globalThis.THREE = { ...THREE, GLTFLoader } as any

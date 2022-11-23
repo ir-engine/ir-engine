@@ -6,6 +6,7 @@ import { Box, Button, Grid, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
 import { initialAuthState } from '../../../common/initialAuthState'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
@@ -124,6 +125,9 @@ const Account = () => {
     }
 
     AuthSettingsService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
+    NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
+      variant: 'warning'
+    })
   }
 
   const handleCancel = () => {
@@ -232,7 +236,11 @@ const Account = () => {
 
             <Grid item xs={12} sm={6} md={6}>
               {Object.keys(state)
-                .splice(-Math.ceil(Object.keys(state).length / 2))
+                .splice(
+                  Object.keys(state).length % 2 === 1
+                    ? -Math.ceil(Object.keys(state).length / 2) + 1
+                    : -Math.ceil(Object.keys(state).length / 2)
+                )
                 .map((strategyName, i) => (
                   <InputSwitch
                     key={i}

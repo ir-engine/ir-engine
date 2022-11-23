@@ -1,9 +1,10 @@
 import { SkinnedMesh, Vector2, Vector3 } from 'three'
 
+import { isDev } from '@xrengine/common/src/config'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { CameraSettings } from '../camera/CameraState'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -14,7 +15,14 @@ import { clamp } from '../common/functions/MathLerpFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentType,
+  getComponent,
+  getOptionalComponent,
+  removeComponent,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { PhysicsDebugInput } from '../input/enums/DebugEnum'
@@ -33,7 +41,6 @@ import { InputAlias } from '../input/types/InputAlias'
 import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { unequipEntity } from '../interaction/functions/equippableFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
-import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { Physics, RaycastArgs } from '../physics/classes/Physics'
@@ -42,7 +49,7 @@ import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
+import { GroupComponent } from '../scene/components/GroupComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/XRComponents'
 import { getControlMode } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -110,7 +117,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
 
 const drop = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   console.log('dropping')
-  const equipper = getComponent(entity, EquipperComponent)
+  const equipper = getOptionalComponent(entity, EquipperComponent)
   if (!equipper?.equippedEntity) return
 
   unequipEntity(entity)
@@ -124,7 +131,9 @@ const cycleCameraMode = (entity: Entity, inputKey: InputAlias, inputValue: Input
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
 
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
-  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
+  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent) as
+    | ComponentType<typeof FollowCameraComponent>
+    | undefined
 
   switch (cameraFollow?.mode) {
     case CameraMode.FirstPerson:
@@ -154,7 +163,10 @@ export const fixedCameraBehindAvatar: InputBehaviorType = (
   inputValue: InputValue
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const follower = getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent)
+  const follower = getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent) as
+    | ComponentType<typeof FollowCameraComponent>
+    | undefined
+  console.log(follower)
   if (follower && follower.mode !== CameraMode.FirstPerson) {
     follower.locked = !follower.locked
   }
@@ -167,14 +179,18 @@ export const switchShoulderSide: InputBehaviorType = (
 ): void => {
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
+  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent) as
+    | ComponentType<typeof FollowCameraComponent>
+    | undefined
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
   }
 }
 
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
-  const cameraRotationTransition = getComponent(entity, TargetCameraRotationComponent)
+  const cameraRotationTransition = getOptionalComponent(entity, TargetCameraRotationComponent) as
+    | ComponentType<typeof TargetCameraRotationComponent>
+    | undefined
   if (!cameraRotationTransition) {
     addComponent(entity, TargetCameraRotationComponent, {
       phi: phi,
@@ -211,7 +227,9 @@ export const changeCameraDistanceByDelta: InputBehaviorType = (
 
   const avatarController = getComponent(entity, AvatarControllerComponent)
   const cameraEntity = avatarController.cameraEntity
-  const followComponent = getComponent(cameraEntity, FollowCameraComponent)
+  const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent) as
+    | ComponentType<typeof FollowCameraComponent>
+    | undefined
 
   if (!followComponent) {
     return
@@ -258,7 +276,11 @@ export const setCameraRotation: InputBehaviorType = (
   const { deltaSeconds: delta } = Engine.instance.currentWorld
 
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
-  const followComponent = getComponent(cameraEntity, FollowCameraComponent)
+  const followComponent = getComponent(cameraEntity, FollowCameraComponent) as ComponentType<
+    typeof FollowCameraComponent
+  >
+
+  if (!followComponent) return
 
   switch (inputKey) {
     case BaseInput.CAMERA_ROTATE_LEFT:
@@ -285,11 +307,12 @@ const morphNameByInput = {
 }
 
 const setAvatarExpression: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const object = getComponent(entity, Object3DComponent)
+  const group = getComponent(entity, GroupComponent)
   let body
-  object.value.traverse((obj: SkinnedMesh) => {
-    if (!body && obj.morphTargetDictionary) body = obj
-  })
+  for (const obj of group)
+    obj.traverse((obj: SkinnedMesh) => {
+      if (!body && obj.morphTargetDictionary) body = obj
+    })
 
   if (!body?.isMesh || !body?.morphTargetDictionary) {
     console.warn('[Avatar Emotions]: This avatar does not support expressive visemes.')
@@ -327,7 +350,7 @@ export const toggleRunning: InputBehaviorType = (
   inputKey: InputAlias,
   inputValue: InputValue
 ): void => {
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   if (inputValue.lifecycleState === LifecycleValue.Started) controller.isWalking = !controller.isWalking
 }
 
@@ -336,7 +359,7 @@ const setLocalMovementDirection: InputBehaviorType = (
   inputKey: InputAlias,
   inputValue: InputValue
 ): void => {
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   const hasEnded = inputValue.lifecycleState === LifecycleValue.Ended
   switch (inputKey) {
     case BaseInput.JUMP:
@@ -358,21 +381,22 @@ const setLocalMovementDirection: InputBehaviorType = (
   controller.localMovementDirection.normalize()
 }
 
-const axisLookSensitivity = 200
 const vrAxisLookSensitivity = 0.025
 
 const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const avatarController = getComponent(entity, AvatarControllerComponent)
   const cameraEntity = avatarController.cameraEntity
-  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
+  const followCamera = getOptionalComponent(cameraEntity, FollowCameraComponent)
+
+  const cameraSettings = getState(CameraSettings)
 
   if (followCamera) {
-    const target = getComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
+    const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
     if (target)
       setTargetCameraRotation(
         cameraEntity,
-        target.phi - inputValue.value[1] * axisLookSensitivity,
-        target.theta - inputValue.value[0] * axisLookSensitivity,
+        target.phi - inputValue.value[1] * cameraSettings.cameraRotationSpeed.value,
+        target.theta - inputValue.value[0] * cameraSettings.cameraRotationSpeed.value,
         0.1
       )
     return
@@ -450,15 +474,6 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
     dispatchAction(EngineActions.buttonClicked({ clicked: true, button: BaseInput.PRIMARY }))
   if (inputValue.lifecycleState === LifecycleValue.Ended)
     dispatchAction(EngineActions.buttonClicked({ clicked: false, button: BaseInput.PRIMARY }))
-
-  if (inputValue.lifecycleState !== LifecycleValue.Ended) {
-    return
-  }
-  const input = getComponent(entity, InputComponent)
-  const coords = input.data.get(BaseInput.SCREENXY)?.value
-  if (coords) {
-    addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
-  }
 }
 
 export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, inputValue) => {

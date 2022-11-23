@@ -3,8 +3,9 @@ import assert from 'assert'
 import { Matrix4, Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
+import { applyIncomingActions, clearOutgoingActions } from '@xrengine/hyperflux'
 
 import { Engine } from '../../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
@@ -31,11 +32,16 @@ describe.skip('Equippables Integration Tests', () => {
   it('Can equip and unequip', async () => {
     const world = Engine.instance.currentWorld
 
-    const hostUserId = 'world' as UserId
+    const hostUserId = 'world' as UserId & PeerID
     world.worldNetwork.hostId = hostUserId
     const hostIndex = 0
 
-    world.worldNetwork.peers.set(hostUserId, { userId: hostUserId, index: hostIndex })
+    world.worldNetwork.peers.set(hostUserId, {
+      peerID: hostUserId,
+      peerIndex: hostIndex,
+      userId: hostUserId,
+      userIndex: hostIndex
+    })
 
     const userId = 'user id' as UserId
     const userName = 'user name'
@@ -61,9 +67,9 @@ describe.skip('Equippables Integration Tests', () => {
     Physics.createRigidBodyForGroup(equippableEntity, world.physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
-    const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
+    addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: world.worldNetwork.hostId,
-      authorityUserId: world.worldNetwork.hostId,
+      authorityPeerID: world.worldNetwork.peerID,
       networkId: 0 as NetworkId
     })
 
@@ -76,8 +82,8 @@ describe.skip('Equippables Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    ActionFunctions.clearOutgoingActions(world.worldNetwork.topic)
-    ActionFunctions.applyIncomingActions()
+    clearOutgoingActions(world.worldNetwork.topic)
+    applyIncomingActions()
 
     // equipperQueryEnter(equipperEntity)
 
@@ -91,8 +97,8 @@ describe.skip('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    ActionFunctions.clearOutgoingActions(world.worldNetwork.topic)
-    ActionFunctions.applyIncomingActions()
+    clearOutgoingActions(world.worldNetwork.topic)
+    applyIncomingActions()
 
     equipperQueryExit(equipperEntity)
 

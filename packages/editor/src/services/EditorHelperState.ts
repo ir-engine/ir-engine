@@ -27,6 +27,7 @@ type EditorHelperStateType = {
   translationSnap: number
   rotationSnap: number
   scaleSnap: number
+  isGenerateThumbnailsEnabled: boolean
 }
 
 const EditorHelperState = defineState({
@@ -42,7 +43,8 @@ const EditorHelperState = defineState({
       snapMode: SnapMode.Grid,
       translationSnap: 0.5,
       rotationSnap: 10,
-      scaleSnap: 0.1
+      scaleSnap: 0.1,
+      isGenerateThumbnailsEnabled: true
     } as EditorHelperStateType),
   onCreate: () => {
     syncStateWithLocalStorage(EditorHelperState, [
@@ -55,7 +57,8 @@ const EditorHelperState = defineState({
       'snapMode',
       'translationSnap',
       'rotationSnap',
-      'scaleSnap'
+      'scaleSnap',
+      'isGenerateThumbnailsEnabled'
     ])
   }
 })
@@ -104,6 +107,10 @@ export const EditorHelperServiceReceptor = (action): any => {
     })
     .when(EditorHelperAction.changeScaleSnap.matches, (action) => {
       s.merge({ scaleSnap: action.scaleSnap })
+      return s
+    })
+    .when(EditorHelperAction.changedGenerateThumbnails.matches, (action) => {
+      s.merge({ isGenerateThumbnailsEnabled: action.isGenerateThumbnailsEnabled })
       return s
     })
 }
@@ -162,5 +169,10 @@ export class EditorHelperAction {
   static changeScaleSnap = defineAction({
     type: 'xre.editor.EditorHelper.SCALE_SNAP_CHANGED' as const,
     scaleSnap: matches.number
+  })
+
+  static changedGenerateThumbnails = defineAction({
+    type: 'xre.editor.EditorHelper.GENERATE_THUMBNAILS_CHANGED' as const,
+    isGenerateThumbnailsEnabled: matches.boolean
   })
 }

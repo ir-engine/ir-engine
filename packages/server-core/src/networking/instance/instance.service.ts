@@ -24,6 +24,7 @@ declare module '@xrengine/common/declarations' {
 type ActiveInstance = {
   id: string
   location: string
+  currentUsers: number
 }
 
 // TODO: paginate this
@@ -67,7 +68,8 @@ export const getActiveInstancesForScene =
       .map((instance) => {
         return {
           id: instance.id,
-          location: instance.location!.id
+          location: instance.location!.id,
+          currentUsers: instance.currentUsers
         }
       })
       .filter((a) => !!a)
