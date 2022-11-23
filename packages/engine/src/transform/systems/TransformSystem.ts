@@ -205,12 +205,13 @@ export default async function TransformSystem(world: World) {
 
   const isDirty = (entity: Entity) => world.dirtyTransforms[entity]
 
-  const filterCleanNonSleepingRigidbodies = (entity: Entity) =>
+  const filterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
     !world.dirtyTransforms[entity] &&
-    !hasComponent(entity, RigidBodyFixedTagComponent) &&
+    hasComponent(entity, RigidBodyDynamicTagComponent) &&
     !getComponent(entity, RigidBodyComponent).body.isSleeping()
 
-  const invFilterCleanNonSleepingRigidbodies = (entity: Entity) => !filterCleanNonSleepingRigidbodies(entity)
+  const invFilterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
+    !filterCleanNonSleepingDynamicRigidbodies(entity)
 
   const execute = () => {
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
@@ -227,13 +228,13 @@ export default async function TransformSystem(world: World) {
     }
 
     const allRigidbodyEntities = rigidbodyTransformQuery()
-    const cleanRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)
-    const invCleanRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingRigidbodies)
+    const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingDynamicRigidbodies)
+    const invCleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingDynamicRigidbodies)
 
-    // lerp clean rigidbody entities (make them dirty)
+    // lerp clean dynamic rigidbody entities (make them dirty)
     const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
     const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
-    for (const entity of cleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
+    for (const entity of cleanDynamicRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
     for (const entity of transformQuery()) {
@@ -245,7 +246,7 @@ export default async function TransformSystem(world: World) {
       if (makeDirty) world.dirtyTransforms[entity] = true
     }
 
-    const dirtyRigidbodyEntities = invCleanRigidbodyEntities.filter(isDirty)
+    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirty)
     const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
     const dirtyTransformEntities = transformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
