@@ -207,7 +207,10 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
     nuMat.defines = nuMat.defines ?? {}
     nuMat.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
   }
-  nuMat.userData = material.userData
+  nuMat.userData = {
+    ...nuMat.userData,
+    ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
+  }
   registerMaterial(nuMat, materialEntry.src)
   return nuMat
 }
