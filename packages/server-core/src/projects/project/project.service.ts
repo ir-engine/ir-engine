@@ -181,8 +181,6 @@ export default (app: Application): void => {
 
   app.use('project', projectClass)
 
-  // TODO: move these to sub-methods of 'project' service
-
   app.use('projects', {
     find: getProjectsList
   })

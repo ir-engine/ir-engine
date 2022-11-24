@@ -221,7 +221,6 @@ export const InstanceChat = ({
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
   const chatState = useChatState()
 
-  // TODO: move to register event for chat widget
   ChatService.useAPIListeners()
   useEffect(() => {
     addActionReceptor(ChatServiceReceptor)

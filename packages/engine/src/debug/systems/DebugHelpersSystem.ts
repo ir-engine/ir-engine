@@ -122,7 +122,7 @@ export default async function DebugHelpersSystem(world: World) {
 
     /**
      * EDITOR GIZMOS
-     * @todo refactor this modularly (these queries should be in the system that loads the associated component)
+     * @todo refactor this modularly (these queries should be in the system that loads the associated component) #7265
      */
     if (Engine.instance.isEditor) {
       /**

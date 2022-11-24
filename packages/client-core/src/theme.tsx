@@ -364,7 +364,7 @@ const theme = createTheme({
           fontSize: 16,
           color: 'var(--textColor)'
         },
-        //@ts-ignore // TODO
+        //@ts-ignore
         label: {
           textTransform: 'capitalize'
         },

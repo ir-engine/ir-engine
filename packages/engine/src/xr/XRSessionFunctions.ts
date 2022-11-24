@@ -46,7 +46,8 @@ export const requestXRSession = createHookableFunction(
           'hit-test',
           'light-estimation',
           'depth-sensing',
-          'anchors'
+          'anchors',
+          'plane-detection'
         ],
         depthSensing: {
           usagePreference: ['cpu-optimized', 'gpu-optimized'],

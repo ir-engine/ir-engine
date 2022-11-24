@@ -1,5 +1,3 @@
-import { Quaternion, Vector3 } from 'three'
-
 import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { World } from '../ecs/classes/World'
@@ -10,16 +8,12 @@ import {
   PersistentAnchorComponent,
   SCENE_COMPONENT_PERSISTENT_ANCHOR
 } from './XRAnchorComponents'
-import { updateWorldOrigin } from './XRAnchorSystem'
 
 export default async function VPSSystem(world: World) {
   world.sceneComponentRegistry.set(PersistentAnchorComponent.name, SCENE_COMPONENT_PERSISTENT_ANCHOR)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSISTENT_ANCHOR, {
     defaultData: {}
   })
-
-  const vec3 = new Vector3()
-  const quat = new Quaternion()
 
   const vpsAnchorQuery = defineQuery([PersistentAnchorComponent])
   const vpsAnchorFoundQueue = createActionQueue(PersistentAnchorActions.anchorFound.matches)

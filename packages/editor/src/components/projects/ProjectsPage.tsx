@@ -233,7 +233,7 @@ const ProjectsPage = () => {
     fetchCommunityProjects()
   }, [authUser.accessToken])
 
-  // TODO: Implement tutorial
+  // TODO: Implement tutorial #7257
   const openTutorial = () => {
     logger.info('Implement Tutorial...')
   }
@@ -281,7 +281,6 @@ const ProjectsPage = () => {
     setUpdatingProject(true)
     if (activeProject) {
       try {
-        // TODO: using repo path as IDs & names are not properly implemented for official projects
         const proj = installedProjects.find((proj) => proj.id === activeProject.id)!
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()

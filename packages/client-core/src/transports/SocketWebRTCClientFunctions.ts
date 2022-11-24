@@ -202,7 +202,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   // use sendBeacon to tell the server we're disconnecting when
   // the page unloads
   window.addEventListener('unload', async () => {
-    // TODO: Handle this as a full disconnect
+    // TODO: Handle this as a full disconnect #5404
     network.socket.emit(MessageTypes.LeaveWorld.toString())
   })
 }

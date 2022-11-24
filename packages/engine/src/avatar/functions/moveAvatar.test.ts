@@ -16,7 +16,6 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { moveAvatarWithVelocity } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
-// @todo this test is exhibiting odd behaviour
 describe('moveAvatar function tests', () => {
   beforeEach(async () => {
     createEngine()

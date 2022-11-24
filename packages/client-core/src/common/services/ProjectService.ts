@@ -170,7 +170,7 @@ export const ProjectService = {
   },
   useAPIListeners: () => {
     useEffect(() => {
-      // TODO
+      // TODO #7254
       // API.instance.client.service('project-build').on('patched', (params) => {
       //   store.dispatch(ProjectAction.buildProgress(params.message))
       // })
@@ -321,7 +321,7 @@ export class ProjectAction {
     builderInfo: matches.object as Validator<unknown, BuilderInfo>
   })
 
-  // TODO
+  // TODO #7254
   // buildProgress: (message: string) => {
   //   return {
   //     type: 'xre.client.Project.PROJECT_BUILDER_UPDATE' as const,
