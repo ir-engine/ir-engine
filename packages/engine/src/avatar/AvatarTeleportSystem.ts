@@ -134,11 +134,9 @@ export default async function AvatarTeleportSystem(world: World) {
   const avatarTeleportQuery = defineQuery([AvatarTeleportComponent])
   let fadeBackInAccumulator = -1
 
-  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds
-
   const execute = () => {
     if (fadeBackInAccumulator >= 0) {
-      fadeBackInAccumulator += fixedDeltaSeconds.value
+      fadeBackInAccumulator += world.deltaSeconds
       if (fadeBackInAccumulator > 0.25) {
         fadeBackInAccumulator = -1
         teleportAvatar(world.localClientEntity, guideCursor.position)
