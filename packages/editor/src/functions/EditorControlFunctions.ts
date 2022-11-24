@@ -200,22 +200,29 @@ const addObject = (
 
   for (let i = 0; i < rootObjects.length; i++) {
     const object = rootObjects[i]
+    let newRoot = null as null | EntityTreeNode
     if (typeof object !== 'string') {
       if (prefabTypes.length) {
-        createNewEditorNode(object, prefabTypes[i] ?? prefabTypes[0])
+        const newNode = createEntityNode(createEntity())
+        createNewEditorNode(newNode, prefabTypes[i] ?? prefabTypes[0])
+        newRoot = newNode
       } else if (sceneData.length) {
         const data = sceneData[i] ?? sceneData[0]
 
         traverseEntityNode(object, (node) => {
           if (!data.entities[node.uuid]) return
-          node.entity = createEntity()
-          deserializeSceneEntity(node, data.entities[node.uuid])
+          const entity = createEntity()
+          const newNode = createEntityNode(entity)
+          deserializeSceneEntity(newNode, data.entities[node.uuid])
 
           if (node.parentEntity && node.uuid !== data.root)
-            reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
+            reparentObject3D(newNode, node.parentEntity, undefined, world.entityTree)
+          if (node === object) newRoot = newNode
         })
       }
     }
+
+    if (!newRoot) continue // this should never happen
 
     let parent = parents.length ? parents[i] ?? parents[0] : world.entityTree.rootNode
     let before = befores.length ? befores[i] ?? befores[0] : undefined
@@ -238,12 +245,12 @@ const addObject = (
           ? pObj3d.children.indexOf(obj3dFromUuid(before))
           : undefined
     }
-    if (typeof parent !== 'string' && typeof object !== 'string') {
-      addEntityNodeChild(object, parent, index)
+    if (typeof parent !== 'string' && typeof newRoot !== 'string') {
+      addEntityNodeChild(newRoot, parent, index)
 
-      reparentObject3D(object, parent, typeof before === 'string' ? undefined : before, world.entityTree)
+      reparentObject3D(newRoot, parent, typeof before === 'string' ? undefined : before, world.entityTree)
 
-      traverseEntityNode(object, (node) => makeUniqueName(node))
+      traverseEntityNode(newRoot, (node) => makeUniqueName(node))
     }
   }
 
