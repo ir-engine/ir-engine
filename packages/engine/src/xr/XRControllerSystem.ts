@@ -293,31 +293,31 @@ const updateInputSourceEntities = () => {
     }
 
     const controllerEntity = xrInputSourcesMap.get(inputSource)!
-    const controller = getComponentState(controllerEntity, XRControllerComponent)
+    const controller = getComponent(controllerEntity, XRControllerComponent)
 
-    if (gripSpace && !controller.grip.value) {
+    if (gripSpace && !controller.grip) {
       const gripEntity = addGripInputSource(inputSource, gripSpace)
-      controller.grip.set(gripEntity)
+      getComponentState(controllerEntity, XRControllerComponent).grip.set(gripEntity)
       changed = true
     }
 
-    if (hand && !controller.hand.value) {
+    if (hand && !controller.hand) {
       const handEntity = addHandInputSource(inputSource, hand)
-      controller.hand.set(handEntity)
+      getComponentState(controllerEntity, XRControllerComponent).hand.set(handEntity)
       changed = true
     }
 
-    if (!gripSpace && controller.grip.value) {
-      xrGripInputSourcesMap.delete(getComponent(controller.grip.value, XRControllerGripComponent).gripSpace)
-      removeEntity(controller.grip.value)
-      controller.grip.set(UndefinedEntity)
+    if (!gripSpace && controller.grip) {
+      xrGripInputSourcesMap.delete(getComponent(controller.grip, XRControllerGripComponent).gripSpace)
+      removeEntity(controller.grip)
+      getComponentState(controllerEntity, XRControllerComponent).grip.set(UndefinedEntity)
       changed = true
     }
 
-    if (!hand && controller.hand.value) {
-      xrHandInputSourcesMap.delete(getComponent(controller.hand.value, XRHandComponent).hand)
-      removeEntity(controller.hand.value)
-      controller.hand.set(UndefinedEntity)
+    if (!hand && controller.hand) {
+      xrHandInputSourcesMap.delete(getComponent(controller.hand, XRHandComponent).hand)
+      removeEntity(controller.hand)
+      getComponentState(controllerEntity, XRControllerComponent).hand.set(UndefinedEntity)
       changed = true
     }
   }

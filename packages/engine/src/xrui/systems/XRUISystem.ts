@@ -10,6 +10,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { PointerObject, XRPointerComponent } from '../../xr/XRComponents'
 import { xrInputSourcesMap } from '../../xr/XRControllerSystem'
@@ -155,6 +156,18 @@ export default async function XRUISystem(world: World) {
     for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
       xrui.update()
+    }
+
+    for (const entity of visibleXruiQuery.enter()) {
+      const xrui = getComponent(entity, XRUIComponent)
+      xrui.matrixWorldAutoUpdate = true
+      xrui.matrixAutoUpdate = true
+    }
+
+    for (const entity of visibleXruiQuery.exit()) {
+      const xrui = getComponent(entity, XRUIComponent)
+      xrui.matrixWorldAutoUpdate = false
+      xrui.matrixAutoUpdate = false
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.currentWorld.camera.projectionMatrix)
