@@ -15,7 +15,7 @@ import {
   setTransformComponent,
   TransformComponent
 } from '../../transform/components/TransformComponent'
-import { updateEntityTransform } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
@@ -151,7 +151,7 @@ export function createEntityNode(entity: Entity, uuid?: EntityUUID): EntityTreeN
  * @param index Index at which child node will be added
  */
 export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode, index: number = -1): void {
-  // TODO: move this logic into the TransformSystem, in response to an EntityTree action
+  // TODO: move this logic into the TransformSystem, in response to an EntityTree action #7206
 
   if (parent.children.includes(node.entity)) return
 
@@ -164,8 +164,8 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
   node.parentEntity = parent.entity
   addToEntityTreeMaps(node)
 
-  updateEntityTransform(parent.entity)
-  updateEntityTransform(node.entity)
+  computeTransformMatrix(parent.entity)
+  computeTransformMatrix(node.entity)
   const parentTransform = getComponent(parent.entity, TransformComponent)
   const childTransform = getComponent(node.entity, TransformComponent)
   getState(EngineState).transformsNeedSorting.set(true)

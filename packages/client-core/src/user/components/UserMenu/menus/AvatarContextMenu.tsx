@@ -45,9 +45,6 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
   const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.id)
   const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.id)
 
-  // TODO: move these to widget register
-  PartyService.useAPIListeners()
-
   useEffect(() => {
     if (friendState.updateNeeded.value === true) {
       FriendService.getUserRelationship(selfId)

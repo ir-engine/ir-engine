@@ -115,7 +115,7 @@ export default async function MediaSystem(world: World) {
 
   world.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_MEDIA, props: {} }, // todo: add sample volumetric
+    { name: SCENE_COMPONENT_MEDIA, props: {} },
     { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} },
     { name: SCENE_COMPONENT_VOLUMETRIC, props: {} }
   ])

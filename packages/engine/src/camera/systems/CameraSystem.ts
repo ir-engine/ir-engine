@@ -32,7 +32,7 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
@@ -180,7 +180,7 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const cameraTransform = getComponent(cameraEntity, TransformComponent)
+  const cameraTransform = getComponent(cameraEntity, LocalTransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
   if (!targetTransform) return

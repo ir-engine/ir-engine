@@ -5,7 +5,6 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { EditorControlComponent } from '../classes/EditorControlComponent'
-import { EditorInputComponent } from '../classes/InputComponent'
 import { SceneState } from './sceneRenderFunctions'
 
 export const createEditorEntity = (): Entity => {
@@ -14,14 +13,6 @@ export const createEditorEntity = (): Entity => {
   setComponent(entity, NameComponent, 'Editor Control Entity')
 
   setComponent(entity, EditorControlComponent, {})
-
-  setComponent(entity, EditorInputComponent, {
-    mappings: new Map(),
-    activeMapping: null!,
-    actionState: null!,
-    defaultState: null!,
-    resetKeys: null!
-  })
 
   SceneState.transformGizmo.setTransformMode(TransformMode.Translate)
 

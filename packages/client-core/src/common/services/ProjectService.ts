@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 
+import { BuilderInfo } from '@xrengine/common/src/interfaces/BuilderInfo'
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { UpdateProjectInterface } from '@xrengine/common/src/interfaces/UpdateProjectInterface'
@@ -21,7 +22,11 @@ export const ProjectState = defineState({
     projects: [] as Array<ProjectInterface>,
     updateNeeded: true,
     rebuilding: true,
-    builderTags: [] as Array<BuilderTag>
+    builderTags: [] as Array<BuilderTag>,
+    builderInfo: {
+      engineVersion: '',
+      engineCommit: ''
+    }
   })
 })
 
@@ -42,6 +47,9 @@ export const ProjectServiceReceptor = (action) => {
     })
     .when(ProjectAction.builderTagsFetched.matches, (action) => {
       return s.merge({ builderTags: action.builderTags })
+    })
+    .when(ProjectAction.builderInfoFetched.matches, (action) => {
+      return s.merge({ builderInfo: action.builderInfo })
     })
 }
 
@@ -162,7 +170,7 @@ export const ProjectService = {
   },
   useAPIListeners: () => {
     useEffect(() => {
-      // TODO
+      // TODO #7254
       // API.instance.client.service('project-build').on('patched', (params) => {
       //   store.dispatch(ProjectAction.buildProgress(params.message))
       // })
@@ -267,11 +275,12 @@ export const ProjectService = {
     }
   },
 
-  getEngineVersion: async () => {
+  getBuilderInfo: async () => {
     try {
-      return API.instance.client.service('builder-version').get()
+      const result = await API.instance.client.service('builder-info').get()
+      dispatchAction(ProjectAction.builderInfoFetched({ builderInfo: result }))
     } catch (err) {
-      logger.error('Error with getting engine version', err)
+      logger.error('Error with getting engine info', err)
       throw err
     }
   }
@@ -307,7 +316,12 @@ export class ProjectAction {
     builderTags: matches.array as Validator<unknown, BuilderTag[]>
   })
 
-  // TODO
+  static builderInfoFetched = defineAction({
+    type: 'xre.client.project.BUILDER_INFO_FETCHED' as const,
+    builderInfo: matches.object as Validator<unknown, BuilderInfo>
+  })
+
+  // TODO #7254
   // buildProgress: (message: string) => {
   //   return {
   //     type: 'xre.client.Project.PROJECT_BUILDER_UPDATE' as const,

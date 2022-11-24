@@ -23,12 +23,9 @@ import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
-const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 : 1000 // TODO set to 0 after next bitECS update
+const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 : 5000 // TODO set to 0 after next bitECS update
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
-/**
- * @todo move this to engine scope
- */
 export const ComponentMap = new Map<string, Component<any, any, any>>()
 globalThis.ComponentMap = ComponentMap
 
@@ -41,14 +38,18 @@ type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 
 export interface ComponentPartial<
   ComponentType = any,
-  Schema = unknown,
+  Schema extends bitECS.ISchema = {},
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
 > {
   name: string
   schema?: Schema
-  onInit?: (entity: Entity, world: World) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (
+    this: SoAComponentType<Schema>,
+    entity: Entity,
+    world: World
+  ) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
   onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
@@ -57,14 +58,18 @@ export interface ComponentPartial<
 }
 export interface Component<
   ComponentType = any,
-  Schema = unknown,
+  Schema extends bitECS.ISchema = {},
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = string
 > {
   name: string
   schema?: Schema
-  onInit: (entity: Entity, world: World) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit: (
+    this: SoAComponentType<Schema>,
+    entity: Entity,
+    world: World
+  ) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
@@ -127,7 +132,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
 
 export const getOptionalComponentState = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, unknown, unknown>,
+  component: Component<ComponentType, {}, unknown>,
   world = Engine.instance.currentWorld
 ): State<ComponentType> | undefined => {
   // if (entity === UndefinedEntity) return undefined
@@ -137,7 +142,7 @@ export const getOptionalComponentState = <ComponentType>(
 
 export const getComponentState = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, unknown, unknown>,
+  component: Component<ComponentType, {}, unknown>,
   world = Engine.instance.currentWorld
 ): State<ComponentType> => {
   const componentState = getOptionalComponentState(entity, component, world)!
@@ -148,7 +153,7 @@ export const getComponentState = <ComponentType>(
 
 export const getOptionalComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, unknown, unknown>,
+  component: Component<ComponentType, {}, unknown>,
   world = Engine.instance.currentWorld
 ): ComponentType | undefined => {
   return component.map[entity] as ComponentType | undefined
@@ -156,7 +161,7 @@ export const getOptionalComponent = <ComponentType>(
 
 export const getComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, unknown, unknown>,
+  component: Component<ComponentType, {}, unknown>,
   world = Engine.instance.currentWorld
 ): ComponentType => {
   return component.map[entity] as ComponentType

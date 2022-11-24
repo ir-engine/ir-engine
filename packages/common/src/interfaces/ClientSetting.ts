@@ -19,6 +19,9 @@ export interface ClientSetting {
   themeSettings: ThemeSetting
   themeModes: ThemeMode
   key8thWall: string
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
 }
 
 interface SocialLink {
@@ -63,6 +66,7 @@ export interface ThemeOptions {
   scrollbarCorner: string
   inputOutline: string
   inputBackground: string
+  primaryHighlight: string
   dropdownMenuBackground: string
   dropdownMenuHoverBackground: string
   dropdownMenuSelectedBackground: string
@@ -72,8 +76,6 @@ export interface ThemeOptions {
   tableCellBackground: string
   tableFooterBackground: string
   dockBackground: string
-  themeSwitchTrack: string
-  themeSwitchThumb: string
 }
 
 export interface PatchClientSetting {
@@ -94,4 +96,7 @@ export interface PatchClientSetting {
   themeSettings: string
   themeModes: string
   key8thWall: string
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
 }

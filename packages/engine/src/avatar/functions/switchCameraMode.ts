@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 
 type SwitchCameraModeProps = {
-  cameraMode: CameraMode // TODO
+  cameraMode: CameraMode
   pointerLock?: boolean
 }
 

@@ -10,7 +10,6 @@ import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
 import { Socket } from 'socket.io'
-import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 
 import { isDev } from '@xrengine/common/src/config'
 import { pipe } from '@xrengine/common/src/utils/pipe'
@@ -25,6 +24,8 @@ import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
 import services from './services'
 import authentication from './user/authentication'
+
+require('fix-esm').register()
 
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(

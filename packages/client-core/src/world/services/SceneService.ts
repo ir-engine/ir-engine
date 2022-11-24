@@ -57,7 +57,6 @@ export const SceneService = {
       //   if (ev.code === 'KeyN') sceneUpdatedListener()
       // })
 
-      /** @todo currently broken */
       API.instance.client.service('scene').on('updated', sceneUpdatedListener)
 
       return () => {

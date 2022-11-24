@@ -1,22 +1,19 @@
 import { MathUtils, Matrix3, Vector3 } from 'three'
 
 import { FlyControlComponent } from '@xrengine/engine/src/avatar/components/FlyControlComponent'
+import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
-  addComponent,
-  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { MouseInput } from '@xrengine/engine/src/input/enums/InputEnums'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
-import { ActionSets, EditorActionSet } from '../controls/input-mappings'
-import { addInputActionMapping, getInput, removeInputActionMapping } from '../functions/parseInputActionMapping'
 import { SceneState } from '../functions/sceneRenderFunctions'
 import { EditorHelperAction } from '../services/EditorHelperState'
 
@@ -26,8 +23,16 @@ export default async function FlyControlSystem(world: World) {
 
   const execute = () => {
     const camera = Engine.instance.currentWorld.camera
+    const rightMouseDown = world.inputState.get(MouseInput.RightButton)
+    const startFlying =
+      rightMouseDown &&
+      rightMouseDown.lifecycleState === LifecycleValue.Started &&
+      !hasComponent(SceneState.editorEntity, FlyControlComponent)
+    const stopFlying =
+      (!rightMouseDown || rightMouseDown.lifecycleState === LifecycleValue.Ended) &&
+      hasComponent(SceneState.editorEntity, FlyControlComponent)
 
-    if (getInput(EditorActionSet.disableFlyMode) && hasComponent(SceneState.editorEntity, FlyControlComponent)) {
+    if (stopFlying) {
       const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
 
       const distance = camera.position.distanceTo(cameraComponent.center)
@@ -41,7 +46,7 @@ export default async function FlyControlSystem(world: World) {
       dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
     }
 
-    if (getInput(EditorActionSet.flying) && !hasComponent(SceneState.editorEntity, FlyControlComponent)) {
+    if (startFlying) {
       setComponent(SceneState.editorEntity, FlyControlComponent, {
         boostSpeed: 4,
         moveSpeed: 4,

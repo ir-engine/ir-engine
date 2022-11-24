@@ -348,7 +348,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           className={styles.filesLoading}
           title={t('editor:layout.filebrowser.loadingFiles')}
           variant="body2"
-          titleColor="var(--textColor)"
         />
       )}
 

@@ -38,6 +38,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
 
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
+  const engineCommit = adminProjectState.builderInfo.engineCommit
 
   const projectUpdateStatus = useProjectUpdateState()
 
@@ -67,7 +68,9 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     })
     return {
       value: el.tag,
-      label: `Engine Version ${el.engineVersion} -- Commit ${el.commitSHA.slice(0, 8)} -- Pushed ${pushedDate}`
+      label: `${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
+        el.engineVersion
+      } -- Commit ${el.commitSHA.slice(0, 8)} -- Pushed ${pushedDate}`
     }
   })
 
@@ -111,6 +114,11 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
         .indexOf(true) > -1
     setSubmitDisabled(selectedTag?.length === 0 || invalidProjects)
   }, [selectedTag, projectUpdateStatus])
+
+  useEffect(() => {
+    const matchingTag = builderTags.find((tag) => tag.tag === engineCommit.value)
+    if (open && engineCommit.value && matchingTag && selectedTag.length === 0) setSelectedTag(engineCommit.value)
+  }, [open, engineCommit.value, builderTags])
 
   return (
     <DrawerView open={open} onClose={handleClose}>

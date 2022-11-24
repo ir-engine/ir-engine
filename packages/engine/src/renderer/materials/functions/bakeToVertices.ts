@@ -68,7 +68,8 @@ export default async function bakeToVertices<T extends Material>(
         })
     ]).then((samples) => {
       const composited = samples.reduce(
-        (sample1, sample0) => sample0.map((col, idx) => (sample1.length <= idx ? col : col.multiply(sample1[idx]))),
+        (sample1, sample0) =>
+          sample0.map((col, idx) => (sample1.length <= idx ? col.clone() : col.clone().multiply(sample1[idx]))),
         []
       )
       if (composited.length > 0)

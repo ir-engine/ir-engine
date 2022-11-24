@@ -19,13 +19,10 @@ import { LocalTransformComponent } from '@xrengine/engine/src/transform/componen
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
-import { ActionSets, EditorMapping } from '../controls/input-mappings'
-import { initInputEvents } from '../controls/InputEvents'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
-import { addInputActionMapping } from './parseInputActionMapping'
 
 export type DefaultExportOptionsType = {
   shouldCombineMeshes: boolean
@@ -71,7 +68,7 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   camera.lookAt(new Vector3())
   localTransform.position.copy(camera.position)
   localTransform.rotation.copy(camera.quaternion)
-  world.dirtyTransforms.add(world.cameraEntity)
+  world.dirtyTransforms[world.cameraEntity] = true
 
   world.camera.layers.enable(ObjectLayers.Scene)
   world.camera.layers.enable(ObjectLayers.NodeHelper)
@@ -111,10 +108,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
  */
 export async function initializeRenderer(): Promise<void> {
   try {
-    initInputEvents()
-
-    addInputActionMapping(ActionSets.EDITOR, EditorMapping)
-
     dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
 
     accessEngineRendererState().automatic.set(false)

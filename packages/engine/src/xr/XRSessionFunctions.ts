@@ -7,6 +7,7 @@ import { TouchInputs } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
+import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { BinaryValue } from './../common/enums/BinaryValue'
 import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'
@@ -45,7 +46,8 @@ export const requestXRSession = createHookableFunction(
           'hit-test',
           'light-estimation',
           'depth-sensing',
-          'anchors'
+          'anchors',
+          'plane-detection'
         ],
         depthSensing: {
           usagePreference: ['cpu-optimized', 'gpu-optimized'],

@@ -42,7 +42,6 @@ describe('spawnAvatarReceptor', () => {
 
     const entity = world.getUserAvatarEntity(Engine.instance.userId)
 
-    // TODO: Update for rapier physics stuff
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarComponent))
     assert(hasComponent(entity, NameComponent))
