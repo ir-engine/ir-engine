@@ -93,7 +93,7 @@ export const getControlMode = () => {
 
 export const getAvatarHeadLock = () => {
   const { avatarHeadLock } = getState(XRState)
-  return avatarHeadLock.value === 'auto' ? true : avatarHeadLock.value
+  return avatarHeadLock.value === 'auto' ? false : avatarHeadLock.value
 }
 
 /**
