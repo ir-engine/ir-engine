@@ -94,7 +94,7 @@ export default async function XRDetectedPlanesSystem(world: World) {
       }
     }
     const frame = Engine.instance.xrFrame as XRFrame & DetectedPlanesType
-    if (!frame) return
+    if (!frame?.detectedPlanes) return
 
     for (const [plane, entity] of detectedPlanesMap) {
       if (!frame.detectedPlanes.has(plane)) {
