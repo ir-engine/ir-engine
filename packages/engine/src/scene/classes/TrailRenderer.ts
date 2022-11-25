@@ -10,12 +10,15 @@ import {
   Object3D,
   OneMinusSrcAlphaFactor,
   Quaternion,
+  ShaderChunk,
   ShaderMaterial,
   SrcAlphaFactor,
   Vector2,
   Vector3,
   Vector4
 } from 'three'
+
+import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
 
 /**
  * @author Mark Kellogg - http://www.github.com/mkkellogg
@@ -60,18 +63,6 @@ for (let i = 0; i < MaxHeadVertices; i++) {
   tempLocalHeadGeometry.push(vertex)
 }
 
-const returnObj = {
-  attribute: null,
-  offset: 0,
-  count: -1
-}
-
-const returnObj2 = {
-  attribute: null,
-  offset: 0,
-  count: -1
-}
-
 const BaseVertexVars = [
   'attribute float nodeID;',
   'attribute float nodeVertexID;',
@@ -87,14 +78,19 @@ const BaseVertexVars = [
   'uniform vec4 headColor;',
   'uniform vec4 tailColor;',
 
-  'varying vec4 vColor;'
+  'varying vec4 vColor;',
+  '#include <logdepthbuf_pars_vertex>'
 ].join('\n')
 
-const TexturedVertexVars = [BaseVertexVars, 'varying vec2 vUV;', 'uniform float dragTexture;'].join('\n')
+// const TexturedVertexVars = [BaseVertexVars, 'varying vec2 vUV;', 'uniform float dragTexture;'].join('\n')
 
-const BaseFragmentVars = ['varying vec4 vColor;', 'uniform sampler2D texture;'].join('\n')
+const BaseFragmentVars = [
+  'varying vec4 vColor;',
+  'uniform sampler2D texture;',
+  '#include <logdepthbuf_pars_fragment>'
+].join('\n')
 
-const TexturedFragmentVars = [BaseFragmentVars, 'varying vec2 vUV;'].join('\n')
+// const TexturedFragmentVars = [BaseFragmentVars, 'varying vec2 vUV;'].join('\n')
 
 const VertexShaderCore = [
   'float fraction = ( maxID - nodeID ) / ( maxID - minID );',
@@ -106,46 +102,52 @@ const BaseVertexShader = [
   BaseVertexVars,
 
   'void main() { ',
-
+  LogarithmicDepthBufferMaterialChunk,
   VertexShaderCore,
   'gl_Position = projectionMatrix * viewMatrix * realPosition;',
 
   '}'
 ].join('\n')
 
-const BaseFragmentShader = [BaseFragmentVars, 'void main() { ', 'gl_FragColor = vColor;', '}'].join('\n')
-
-const TexturedVertexShader = [
-  TexturedVertexVars,
-
+const BaseFragmentShader = [
+  BaseFragmentVars,
   'void main() { ',
-
-  VertexShaderCore,
-  'float s = 0.0;',
-  'float t = 0.0;',
-  'if ( dragTexture == 1.0 ) { ',
-  '   s = fraction *  textureTileFactor.s; ',
-  ' 	t = ( nodeVertexID / verticesPerNode ) * textureTileFactor.t;',
-  '} else { ',
-  '	s = nodeID / maxTrailLength * textureTileFactor.s;',
-  ' 	t = ( nodeVertexID / verticesPerNode ) * textureTileFactor.t;',
-  '}',
-  'vUV = vec2( s, t ); ',
-  'gl_Position = projectionMatrix * viewMatrix * realPosition;',
-
+  '#include <logdepthbuf_fragment>',
+  'gl_FragColor = vColor;',
   '}'
 ].join('\n')
 
-const TexturedFragmentShader = [
-  TexturedFragmentVars,
+// const TexturedVertexShader = [
+//   TexturedVertexVars,
 
-  'void main() { ',
+//   'void main() { ',
 
-  'vec4 textureColor = texture2D( texture, vUV );',
-  'gl_FragColor = vColor * textureColor;',
+//   VertexShaderCore,
+//   'float s = 0.0;',
+//   'float t = 0.0;',
+//   'if ( dragTexture == 1.0 ) { ',
+//   '   s = fraction *  textureTileFactor.s; ',
+//   ' 	t = ( nodeVertexID / verticesPerNode ) * textureTileFactor.t;',
+//   '} else { ',
+//   '	s = nodeID / maxTrailLength * textureTileFactor.s;',
+//   ' 	t = ( nodeVertexID / verticesPerNode ) * textureTileFactor.t;',
+//   '}',
+//   'vUV = vec2( s, t ); ',
+//   'gl_Position = projectionMatrix * viewMatrix * realPosition;',
 
-  '}'
-].join('\n')
+//   '}'
+// ].join('\n')
+
+// const TexturedFragmentShader = [
+//   TexturedFragmentVars,
+
+//   'void main() { ',
+
+//   'vec4 textureColor = texture2D( texture, vUV );',
+//   'gl_FragColor = vColor * textureColor;',
+
+//   '}'
+// ].join('\n')
 
 class TrailRenderer extends Mesh {
   orientToMovement = false
@@ -191,16 +193,16 @@ class TrailRenderer extends Mesh {
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
 
-      transparent: true,
-      alphaTest: 0.5,
+      transparent: false,
+      // alphaTest: 0.5,
 
-      blending: CustomBlending,
-      blendSrc: SrcAlphaFactor,
-      blendDst: OneMinusSrcAlphaFactor,
-      blendEquation: AddEquation,
+      // blending: CustomBlending,
+      // blendSrc: SrcAlphaFactor,
+      // blendDst: OneMinusSrcAlphaFactor,
+      // blendEquation: AddEquation,
 
-      depthTest: true,
-      depthWrite: false,
+      // depthTest: true,
+      // depthWrite: false,
 
       side: DoubleSide
     })
@@ -210,11 +212,11 @@ class TrailRenderer extends Mesh {
     return TrailRenderer.createMaterial(BaseVertexShader, BaseFragmentShader, customUniforms)
   }
 
-  static createTexturedMaterial(customUniforms: any = {}) {
-    customUniforms.texture = { type: 't', value: null }
+  // static createTexturedMaterial(customUniforms: any = {}) {
+  //   customUniforms.texture = { type: 't', value: null }
 
-    return TrailRenderer.createMaterial(TexturedVertexShader, TexturedFragmentShader, customUniforms)
-  }
+  //   return TrailRenderer.createMaterial(TexturedVertexShader, TexturedFragmentShader, customUniforms)
+  // }
 
   constructor(orientToMovement) {
     super()
