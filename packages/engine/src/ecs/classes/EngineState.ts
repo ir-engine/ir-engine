@@ -14,6 +14,7 @@ export const EngineState = defineState({
     frameTime: 0,
     deltaSeconds: 0,
     elapsedSeconds: 0,
+    physicsSubsteps: 1,
     fixedDeltaSeconds: 1 / 60,
     fixedElapsedSeconds: 0,
     fixedTick: 0,

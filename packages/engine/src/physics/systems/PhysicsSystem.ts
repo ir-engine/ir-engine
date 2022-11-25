@@ -106,6 +106,8 @@ export default async function PhysicsSystem(world: World) {
     { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
   ])
 
+  const engineState = getState(EngineState)
+
   const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
   const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
   const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
@@ -155,8 +157,13 @@ export default async function PhysicsSystem(world: World) {
     }
 
     // step physics world
-    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
-    world.physicsWorld.step(world.physicsCollisionEventQueue)
+    const substeps = engineState.physicsSubsteps.value
+    world.physicsWorld.timestep = engineState.fixedDeltaSeconds.value / substeps
+    for (let i = 0; i < substeps; i++) {
+      world.physicsWorld.step(world.physicsCollisionEventQueue)
+    }
+
+    processCollisions(world, drainCollisions, drainContacts, collisionQuery())
 
     for (const entity of allRigidBodies) {
       const rigidBody = getComponent(entity, RigidBodyComponent)
@@ -179,8 +186,6 @@ export default async function PhysicsSystem(world: World) {
       RigidBodyComponent.angularVelocity.y[entity] = angvel.y
       RigidBodyComponent.angularVelocity.z[entity] = angvel.z
     }
-
-    processCollisions(world, drainCollisions, drainContacts, collisionQuery())
   }
 
   const cleanup = async () => {
