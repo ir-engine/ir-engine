@@ -53,7 +53,9 @@ export class AudioEffectPlayer {
     }
   }
 
-  play = (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
+  play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
+    await Promise.resolve()
+
     if (!this.#els.length) return
 
     if (!this.bufferMap[sound]) {

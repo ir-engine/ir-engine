@@ -36,13 +36,14 @@ export default async function AvatarIKTargetSystem(world: World) {
 
   const execute = () => {
     const inAttachedControlMode = getControlMode() === 'attached'
+    const localClientEntity = world.localClientEntity
 
     /**
      * Head
      */
     for (const entity of headIKQuery(world)) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
-      if (inAttachedControlMode && entity === world.localClientEntity) {
+      if (inAttachedControlMode && entity === localClientEntity) {
         ik.target.quaternion.copy(world.camera.quaternion)
         ik.target.position.copy(world.camera.position)
       }
@@ -61,7 +62,7 @@ export default async function AvatarIKTargetSystem(world: World) {
       if (!rig) continue
 
       const ik = getComponent(entity, AvatarLeftHandIKComponent)
-      if (entity === world.localClientEntity) {
+      if (entity === localClientEntity) {
         const leftControllerEntity = xrState.leftControllerEntity.value
         if (leftControllerEntity) {
           const controller = getComponent(leftControllerEntity, XRControllerComponent)
@@ -120,7 +121,7 @@ export default async function AvatarIKTargetSystem(world: World) {
 
       const ik = getComponent(entity, AvatarRightHandIKComponent)
 
-      if (entity === world.localClientEntity) {
+      if (entity === localClientEntity) {
         const rightControllerEntity = xrState.rightControllerEntity.value
         if (rightControllerEntity) {
           const controller = getComponent(rightControllerEntity, XRControllerComponent)

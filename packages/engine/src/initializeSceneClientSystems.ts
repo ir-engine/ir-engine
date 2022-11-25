@@ -35,7 +35,7 @@ export default function () {
     },
     {
       uuid: 'xre.engine.AvatarTeleportSystem',
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.UPDATE_LATE,
       systemLoader: () => Promise.resolve({ default: AvatarTeleportSystem })
     },
     {
