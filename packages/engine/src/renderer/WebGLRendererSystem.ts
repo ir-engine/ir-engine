@@ -138,7 +138,9 @@ export class EngineRenderer {
       logarithmicDepthBuffer: true,
       canvas,
       context,
-      preserveDrawingBuffer: !isHMD
+      preserveDrawingBuffer: !isHMD,
+      //@ts-ignore
+      multiviewStereo: true
     }
 
     this.canvas = canvas

@@ -31,12 +31,12 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
     },
     {
       uuid: 'xre.engine.SceneLoadingSystem',
-      type: SystemUpdateType.FIXED_LATE,
+      type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: SceneLoadingSystem })
     },
     {
       uuid: 'xre.engine.SceneObjectUpdateSystem',
-      type: SystemUpdateType.FIXED_LATE,
+      type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: SceneObjectUpdateSystem })
     },
     {
@@ -46,7 +46,7 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
     },
     {
       uuid: 'xre.engine.AssetSystem',
-      type: SystemUpdateType.FIXED_LATE,
+      type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: AssetSystem })
     },
     {

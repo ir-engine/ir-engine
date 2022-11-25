@@ -26,22 +26,23 @@ export const processEngineInputState = (world = Engine.instance.currentWorld) =>
       if (value.lifecycleState === LifecycleValue.Started && prevLifecycle === LifecycleValue.Started)
         value.lifecycleState = LifecycleValue.Unchanged
     } else {
-      const isSameValue =
-        world.prevInputState.get(key) && value.value.every((val, i) => val === world.prevInputState.get(key)!.value[i])
-      const isZero = value.value.every((v) => v === 0)
-
       /**
        * Ignore axes started with 0 to avoid overriding multiple physics to virtual mapping
        */
-      if (value.lifecycleState === LifecycleValue.Started && isZero) {
-        value.lifecycleState = LifecycleValue.Ended
+      if (value.lifecycleState === LifecycleValue.Started) {
+        const isZero = value.value.every((v) => v === 0)
+        if (isZero) value.lifecycleState = LifecycleValue.Ended
       }
 
       /**
        * If input lifecycle is not ended, figure out if it's changed or unchanged, and if it's zeroed and unchanged, end it
        */
       if (value.lifecycleState !== LifecycleValue.Ended) {
+        const isSameValue =
+          world.prevInputState.get(key) &&
+          value.value.every((val, i) => val === world.prevInputState.get(key)!.value[i])
         if (isSameValue) {
+          const isZero = value.value.every((v) => v === 0)
           if (isZero) {
             value.lifecycleState = LifecycleValue.Ended
           } else {
