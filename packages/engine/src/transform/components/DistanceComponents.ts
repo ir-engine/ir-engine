@@ -6,11 +6,11 @@ import { createMappedComponent, setComponent } from '../../ecs/functions/Compone
 export const DistanceComponentSchema = { squaredDistance: Types.f32 }
 
 export const DistanceFromLocalClientComponent = createMappedComponent<{}, typeof DistanceComponentSchema>(
-  'DistanceComponent',
+  'DistanceFromLocalClientComponent',
   DistanceComponentSchema
 )
 export const DistanceFromCameraComponent = createMappedComponent<{}, typeof DistanceComponentSchema>(
-  'DistanceComponent',
+  'DistanceFromCameraComponent',
   DistanceComponentSchema
 )
 

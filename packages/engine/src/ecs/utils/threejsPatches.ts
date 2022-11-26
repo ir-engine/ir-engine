@@ -35,6 +35,8 @@ declare module 'three/src/core/Object3D' {
 }
 
 Scene.DefaultMatrixAutoUpdate = false
+// Object3D.DefaultMatrixAutoUpdate = false
+// ;(Object3D as any).DefaultMatrixWorldAutoUpdate = false
 
 /**
  * Since we have complete control over matrix updates, we know that at any given point
