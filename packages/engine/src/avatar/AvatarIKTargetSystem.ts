@@ -6,6 +6,7 @@ import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRControllerComponent } from '../xr/XRComponents'
 import { getControlMode, XRState } from '../xr/XRState'
@@ -25,12 +26,16 @@ const _rotY90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI 
 const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
 
 export default async function AvatarIKTargetSystem(world: World) {
-  const leftHandQuery = defineQuery([AvatarLeftHandIKComponent, AvatarRigComponent])
-  const rightHandQuery = defineQuery([AvatarRightHandIKComponent, AvatarRigComponent])
-  const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarRigComponent])
-  const localHeadIKQuery = defineQuery([AvatarHeadIKComponent, AvatarControllerComponent])
-  const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
-  const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarRigComponent])
+  const leftHandQuery = defineQuery([VisibleComponent, AvatarLeftHandIKComponent, AvatarRigComponent])
+  const rightHandQuery = defineQuery([VisibleComponent, AvatarRightHandIKComponent, AvatarRigComponent])
+  const headIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarRigComponent])
+  const localHeadIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarControllerComponent])
+  const headDecapQuery = defineQuery([VisibleComponent, AvatarHeadDecapComponent])
+  const armsTwistCorrectionQuery = defineQuery([
+    VisibleComponent,
+    AvatarArmsTwistCorrectionComponent,
+    AvatarRigComponent
+  ])
 
   const xrState = getState(XRState)
 
