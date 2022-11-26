@@ -88,6 +88,10 @@ export const addClientInputListeners = () => {
   addListener(document, 'keyup', handleKey)
   addListener(document, 'keydown', handleKey)
 
+  addListener(document, 'keyup', (event: KeyboardEvent) => {})
+
+  addListener(document, 'keydown', (event: KeyboardEvent) => {})
+
   addListener(window, 'focus', handleWindowFocus)
   addListener(window, 'blur', handleWindowFocus)
 

@@ -15,6 +15,7 @@ import { clamp } from '../common/functions/MathLerpFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
+import { World } from '../ecs/classes/World'
 import {
   addComponent,
   ComponentType,
@@ -614,4 +615,14 @@ export const createBehaviorMap = () => {
 export const AvatarInputSchema: InputSchema = {
   inputMap: createAvatarInput(),
   behaviorMap: createBehaviorMap()
+}
+
+export default async function AvatarInputSystem(world: World) {
+  const execute = () => {
+    const { inputSources } = world
+  }
+
+  const cleanup = () => {}
+
+  return { execute, cleanup }
 }

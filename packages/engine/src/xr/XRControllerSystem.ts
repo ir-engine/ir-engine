@@ -347,6 +347,7 @@ const updateInputSourceEntities = () => {
     )
   }
 }
+type Writable<T> = T extends object ? { -readonly [K in keyof T]: Writable<T[K]> } : T
 
 export const xrInputSourcesMap = new Map<XRInputSource, Entity>()
 export const xrGripInputSourcesMap = new Map<XRSpace, Entity>()
@@ -356,6 +357,28 @@ export default async function XRControllerSystem(world: World) {
   const controllerQuery = defineQuery([XRControllerComponent])
   const gripQuery = defineQuery([XRControllerGripComponent])
   const handQuery = defineQuery([XRHandComponent])
+
+  const targetRaySpace = {} as XRSpace
+
+  const defaultInputSource = {
+    handedness: 'none',
+    targetRayMode: 'screen',
+    targetRaySpace,
+    gripSpace: undefined,
+    gamepad: {
+      axes: [],
+      buttons: [],
+      connected: true,
+      hapticActuators: [],
+      id: '',
+      index: 0,
+      mapping: 'ethereal' as any,
+      timestamp: Date.now()
+    },
+    profiles: ['ethereal'],
+    hand: undefined
+  }
+  const defaultInputSourceArray = [defaultInputSource] as XRInputSourceArray
 
   const execute = () => {
     updateInputSourceEntities()
@@ -383,7 +406,9 @@ export default async function XRControllerSystem(world: World) {
 
       world.inputSources = session.inputSources
     } else {
-      world.inputSources = []
+      world.inputSources = defaultInputSourceArray
+      const inputSource = defaultInputSource
+      inputSource.gamepad.timestamp = Date.now()
     }
   }
 
