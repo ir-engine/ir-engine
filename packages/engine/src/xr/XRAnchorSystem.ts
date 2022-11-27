@@ -269,6 +269,7 @@ export default async function XRAnchorSystem(world: World) {
   pinConeMesh.position.setY(0.05)
   pinConeMesh.rotateX(Math.PI)
   const worldOriginPinpointAnchor = new Group()
+  worldOriginPinpointAnchor.name = 'world-origin-pinpoint-anchor'
   worldOriginPinpointAnchor.add(pinSphereMesh, pinConeMesh)
 
   const xrViewerHitTestMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))

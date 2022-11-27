@@ -138,6 +138,7 @@ const updateGroupChildren = (entity: Entity) => {
   for (const root of group) {
     for (const obj of root.children) {
       obj.updateMatrixWorld()
+      obj.matrixWorldNeedsUpdate = false
     }
   }
 }

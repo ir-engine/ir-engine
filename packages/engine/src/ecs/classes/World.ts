@@ -79,6 +79,7 @@ export class World {
     setTransformComponent(this.originEntity)
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
+    this.origin.name = 'world-origin'
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')
@@ -87,8 +88,7 @@ export class World {
     setTransformComponent(this.cameraEntity)
     setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
-    /** @todo */
-    // this.scene.matrixAutoUpdate = false
+    this.scene.matrixAutoUpdate = false
     this.scene.layers.set(ObjectLayers.Scene)
   }
 

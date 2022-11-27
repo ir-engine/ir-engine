@@ -217,6 +217,7 @@ export const XRHandComponent = defineComponent({
   name: 'XRHand',
   onInit: (entity) => {
     const group = new Group()
+    group.name = `xr-hand-${entity}`
     addObjectToGroup(entity, group)
     return {
       hand: null! as XRHand,

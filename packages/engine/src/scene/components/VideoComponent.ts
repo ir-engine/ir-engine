@@ -23,7 +23,7 @@ export const VideoComponent = defineComponent({
 
   onInit: (entity) => {
     const videoGroup = new Group()
-    videoGroup.name = 'video-group'
+    videoGroup.name = `video-group-${entity}`
     const videoMesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
     videoGroup.add(videoMesh)
     videoMesh.matrixAutoUpdate = false
