@@ -242,6 +242,11 @@ export class World {
   }
 
   /**
+   *
+   */
+  priorityAvatarEntities: Set<Entity>
+
+  /**
    * The local client entity
    */
   get localClientEntity() {

@@ -13,6 +13,9 @@ export type AvatarAnimationComponentType = {
 
   /** The input vector for 2D locomotion blending space */
   locomotion: Vector3
+
+  /** Time since the last update */
+  deltaAccumulator: number
 }
 
 export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')

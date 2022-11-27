@@ -1,4 +1,5 @@
-import { Quaternion, Vector3 } from 'three'
+import { Not } from 'bitecs'
+import { Bone, MathUtils, Matrix4, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -7,26 +8,40 @@ import { V_000 } from '../common/constants/MathConstants'
 import { clamp } from '../common/functions/MathLerpFunctions'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { GroupComponent } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRControllerComponent } from '../xr/XRComponents'
 import { getControlMode, XRState } from '../xr/XRState'
+import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
-import { AvatarRigComponent } from './components/AvatarAnimationComponent'
+import { AnimationManager } from './AnimationManager'
+import { AnimationComponent } from './components/AnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './components/AvatarIKComponents'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
+const _vector3 = new Vector3()
 const _vec = new Vector3()
 const _rotXneg60 = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 1.5)
 const _rotY90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2)
 const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
+
+function noop() {}
+
+function iterateSkeletons(skinnedMesh: SkinnedMesh) {
+  if (skinnedMesh.isSkinnedMesh) {
+    skinnedMesh.skeleton.update()
+  }
+}
 
 export default async function AvatarIKTargetSystem(world: World) {
   const leftHandQuery = defineQuery([VisibleComponent, AvatarLeftHandIKComponent, AvatarRigComponent])
@@ -40,48 +55,103 @@ export default async function AvatarIKTargetSystem(world: World) {
     AvatarRigComponent
   ])
 
-  const avatarQuery = defineQuery([VisibleComponent, AvatarRigComponent, AvatarHeadIKComponent])
+  /** override Skeleton.update, as it is called inside  */
+  // const skeletonUpdate = Skeleton.prototype.update
 
-  const maxSqrDistance = 25 * 25
-  const minAccumulationRate = 0.01
-  const maxAccumulationRate = 0.1
-  const priorityQueue = createPriorityQueue(avatarQuery(), { priorityThreshold: maxAccumulationRate })
+  const movingAvatarAnimationQuery = defineQuery([
+    AnimationComponent,
+    AvatarAnimationComponent,
+    AvatarRigComponent,
+    VisibleComponent,
+    Not(AvatarHeadIKComponent)
+  ])
+  const avatarAnimationQuery = defineQuery([
+    AnimationComponent,
+    AvatarAnimationComponent,
+    AvatarRigComponent,
+    VisibleComponent,
+    Not(AvatarHeadIKComponent)
+  ])
 
-  const filterPriorityEntities = (entity: Entity) => priorityQueue.priorityEntities.has(entity)
+  const filterPriorityEntities = (entity: Entity) => world.priorityAvatarEntities.has(entity)
 
   const xrState = getState(XRState)
 
   const execute = () => {
+    const { localClientEntity } = world
     const inAttachedControlMode = getControlMode() === 'attached'
-    const localClientEntity = world.localClientEntity
 
-    for (const entity of avatarQuery()) {
-      /**
-       * if outside of frustum, priority get set to 0 otherwise
-       * whatever your distance is, gets mapped linearly to your priority
-       */
-
-      const sqrDistance = DistanceFromCameraComponent.squaredDistance[entity]
-      if (FrustumCullCameraComponent.isCulled[entity]) {
-        priorityQueue.setPriority(entity, 0)
-      } else {
-        const accumulation = clamp(
-          (maxSqrDistance / sqrDistance) * world.deltaSeconds,
-          minAccumulationRate,
-          maxAccumulationRate
-        )
-        priorityQueue.addPriority(entity, accumulation)
-      }
-    }
-
-    priorityQueue.update()
-
+    const movingAvatarEntities = movingAvatarAnimationQuery(world).filter(filterPriorityEntities)
+    const avatarAnimationEntities = avatarAnimationQuery(world).filter(filterPriorityEntities)
     const headIKEntities = headIKQuery(world).filter(filterPriorityEntities)
     const leftHandEntities = leftHandQuery(world).filter(filterPriorityEntities)
     const rightHandEntities = rightHandQuery(world).filter(filterPriorityEntities)
 
+    const elapsedSeconds = world.elapsedSeconds
+
     /**
-     * Head
+     * Apply motion to velocity controlled animations
+     */
+    for (const entity of movingAvatarEntities) {
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
+
+      const delta = elapsedSeconds - avatarAnimationComponent.deltaAccumulator
+      const deltaTime = delta * animationComponent.animationSpeed
+      avatarAnimationComponent.deltaAccumulator = elapsedSeconds
+
+      if (rigidbodyComponent) {
+        // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
+        avatarAnimationComponent.locomotion.x = 0
+        avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
+        // lerp animated forward animation to smoothly animate to a stop
+        avatarAnimationComponent.locomotion.z = MathUtils.lerp(
+          avatarAnimationComponent.locomotion.z || 0,
+          _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+          10 * deltaTime
+        )
+      } else {
+        avatarAnimationComponent.locomotion.setScalar(0)
+      }
+
+      updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
+    }
+
+    /**
+     * Apply retargeting
+     */
+    for (const entity of avatarAnimationEntities) {
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      const rootBone = animationComponent.mixer.getRoot() as Bone
+      const avatarRigComponent = getComponent(entity, AvatarRigComponent)
+      const rig = avatarRigComponent.rig
+
+      rootBone.traverse((bone: Bone) => {
+        if (!bone.isBone) return
+
+        const targetBone = rig[bone.name]
+        if (!targetBone) {
+          return
+        }
+
+        targetBone.quaternion.copy(bone.quaternion)
+
+        // Only copy the root position
+        if (targetBone === rig.Hips) {
+          targetBone.position.copy(bone.position)
+          targetBone.position.y *= avatarAnimationComponent.rootYRatio
+        }
+      })
+
+      // TODO: Find a more elegant way to handle root motion
+      const rootPos = AnimationManager.instance._defaultRootBone.position
+      rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+    }
+
+    /**
+     * Apply head IK
      */
     for (const entity of headIKEntities) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
@@ -97,7 +167,7 @@ export default async function AvatarIKTargetSystem(world: World) {
     }
 
     /**
-     * Hands
+     * Apply left hand IK
      */
     for (const entity of leftHandEntities) {
       const { rig } = getComponent(entity, AvatarRigComponent)
@@ -156,6 +226,9 @@ export default async function AvatarIKTargetSystem(world: World) {
       }
     }
 
+    /**
+     * Apply right hand IK
+     */
     for (const entity of rightHandEntities) {
       const { rig } = getComponent(entity, AvatarRigComponent)
 
@@ -236,6 +309,20 @@ export default async function AvatarIKTargetSystem(world: World) {
     //     )
     //   }
     // }
+
+    /**
+     * Update threejs skeleton manually
+     *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
+     * @todo this causes significant visual artefacts
+     */
+
+    // Skeleton.prototype.update = skeletonUpdate
+    // for (const entity of world.priorityAvatarEntities) {
+    //   const group = getComponent(entity, GroupComponent)
+    //   for (const obj of group)
+    //     obj.traverse(iterateSkeletons)
+    // }
+    // Skeleton.prototype.update = noop
   }
 
   const cleanup = async () => {
@@ -245,6 +332,9 @@ export default async function AvatarIKTargetSystem(world: World) {
     removeQuery(world, localHeadIKQuery)
     removeQuery(world, headIKQuery)
     removeQuery(world, armsTwistCorrectionQuery)
+    removeQuery(world, movingAvatarAnimationQuery)
+    removeQuery(world, avatarAnimationQuery)
+    // Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }

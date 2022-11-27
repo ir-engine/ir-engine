@@ -12,13 +12,13 @@ export const createPriorityQueue = (entities: Entity[], args: { priorityThreshol
 
   heap.init(entities)
 
-  const priorityEntities = new Set()
+  const priorityEntities = new Set<Entity>()
 
   const popFunc = (entity: Entity) => {
     const priority = priorities[entity]
     if (priority > queue.priorityThreshold) {
       priorities[entity] = 0
-      priorityEntities.add(heap.pop())
+      priorityEntities.add(heap.pop()!)
     }
   }
 
