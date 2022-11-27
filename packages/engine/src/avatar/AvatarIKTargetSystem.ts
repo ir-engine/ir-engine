@@ -10,7 +10,7 @@ import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
-import { DistanceFromCameraComponent } from '../transform/components/DistanceComponents'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRControllerComponent } from '../xr/XRComponents'
 import { getControlMode, XRState } from '../xr/XRState'
@@ -45,7 +45,7 @@ export default async function AvatarIKTargetSystem(world: World) {
   const maxSqrDistance = 25 * 25
   const minAccumulationRate = 0.01
   const maxAccumulationRate = 0.1
-  const priorityQueue = createPriorityQueue(avatarQuery(), 'AvatarIK', { priorityThreshold: maxAccumulationRate })
+  const priorityQueue = createPriorityQueue(avatarQuery(), { priorityThreshold: maxAccumulationRate })
 
   const filterPriorityEntities = (entity: Entity) => priorityQueue.priorityEntities.has(entity)
 
@@ -57,25 +57,21 @@ export default async function AvatarIKTargetSystem(world: World) {
 
     for (const entity of avatarQuery()) {
       /**
-       * heuristics
-       * - distance
-       * - fustrum (todo)
-       *
-       * if outside of fustrum, priority get set to 0 otherwise
+       * if outside of frustum, priority get set to 0 otherwise
        * whatever your distance is, gets mapped linearly to your priority
        */
 
       const sqrDistance = DistanceFromCameraComponent.squaredDistance[entity]
-      // if (sqrDistance < maxSqrDistance) {
-      const accumulation = clamp(
-        (maxSqrDistance / sqrDistance) * world.deltaSeconds,
-        minAccumulationRate,
-        maxAccumulationRate
-      )
-      priorityQueue.addPriority(entity, accumulation)
-      // } else {
-      //   priorityQueue.setPriority(entity, 0)
-      // }
+      if (FrustumCullCameraComponent.isCulled[entity]) {
+        priorityQueue.setPriority(entity, 0)
+      } else {
+        const accumulation = clamp(
+          (maxSqrDistance / sqrDistance) * world.deltaSeconds,
+          minAccumulationRate,
+          maxAccumulationRate
+        )
+        priorityQueue.addPriority(entity, accumulation)
+      }
     }
 
     priorityQueue.update()

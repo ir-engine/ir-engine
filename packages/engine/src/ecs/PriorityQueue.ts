@@ -2,17 +2,12 @@ import { Types } from 'bitecs'
 import Heap from 'heap-js'
 
 import { Entity } from './classes/Entity'
-import { defineComponent, defineQuery } from './functions/ComponentFunctions'
+import { INITIAL_COMPONENT_SIZE } from './functions/ComponentFunctions'
 
-export const createPriorityQueue = (entities: Entity[], name: string, args: { priorityThreshold: number }) => {
-  const PriorityComponent = defineComponent({
-    name: 'PriorityComponent_' + name,
-    schema: {
-      priority: Types.f64
-    }
-  })
+export const createPriorityQueue = (entities: Entity[], args: { priorityThreshold: number }) => {
+  const priorities = new Float64Array(INITIAL_COMPONENT_SIZE)
 
-  const comparison = (a, b) => PriorityComponent.priority[b] - PriorityComponent.priority[a]
+  const comparison = (a, b) => priorities[b] - priorities[a]
   const heap = new Heap<Entity>(comparison)
 
   heap.init(entities)
@@ -20,9 +15,9 @@ export const createPriorityQueue = (entities: Entity[], name: string, args: { pr
   const priorityEntities = new Set()
 
   const popFunc = (entity: Entity) => {
-    const priority = PriorityComponent.priority[entity]
+    const priority = priorities[entity]
     if (priority > queue.priorityThreshold) {
-      PriorityComponent.priority[entity] = 0
+      priorities[entity] = 0
       priorityEntities.add(heap.pop())
     }
   }
@@ -30,10 +25,10 @@ export const createPriorityQueue = (entities: Entity[], name: string, args: { pr
   const queue = {
     heap,
     setPriority: (entity: Entity, priority: number) => {
-      PriorityComponent.priority[entity] = priority
+      priorities[entity] = priority
     },
     addPriority: (entity: Entity, priority: number) => {
-      PriorityComponent.priority[entity] += priority
+      priorities[entity] += priority
     },
     update: () => {
       priorityEntities.clear()
@@ -43,6 +38,6 @@ export const createPriorityQueue = (entities: Entity[], name: string, args: { pr
     priorityEntities,
     priorityThreshold: args.priorityThreshold
   }
-  globalThis.queue = queue
+
   return queue
 }

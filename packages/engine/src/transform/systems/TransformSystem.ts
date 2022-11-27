@@ -1,37 +1,34 @@
-import { entityExists, Not } from 'bitecs'
-import { Camera, Mesh, Vector3 } from 'three'
+import { entityExists } from 'bitecs'
+import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
-import { proxifyQuaternion } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
-  getComponentState,
   getOptionalComponent,
-  getOptionalComponentState,
   hasComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import {
-  RigidBodyComponent,
-  RigidBodyDynamicTagComponent,
-  RigidBodyFixedTagComponent
-} from '../../physics/components/RigidBodyComponent'
+import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
-import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
+import {
+  DistanceFromCameraComponent,
+  DistanceFromLocalClientComponent,
+  FrustumCullCameraComponent
+} from '../components/DistanceComponents'
 import {
   LocalTransformComponent,
   SCENE_COMPONENT_TRANSFORM,
@@ -49,6 +46,7 @@ const dynamicBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponen
 
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
+const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
 export const computeLocalTransformMatrix = (entity: Entity) => {
   const localTransform = getComponent(entity, LocalTransformComponent)
@@ -155,6 +153,9 @@ export default async function TransformSystem(world: World) {
     deserialize: deserializeTransform,
     serialize: serializeTransform
   })
+
+  const _frustum = new Frustum()
+  const _projScreenMatrix = new Matrix4()
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
@@ -275,6 +276,17 @@ export default async function TransformSystem(world: World) {
     const cameraPosition = getComponent(world.cameraEntity, TransformComponent).position
     for (const entity of distanceFromCameraQuery())
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
+
+    /** @todo expose the frustum in WebGLRenderer to not calculate this twice  */
+    _projScreenMatrix.multiplyMatrices(world.camera.projectionMatrix, world.camera.matrixWorldInverse)
+    _frustum.setFromProjectionMatrix(_projScreenMatrix)
+
+    for (const entity of frustumCulledQuery())
+      FrustumCullCameraComponent.isCulled[entity] = _frustum.containsPoint(
+        getComponent(entity, TransformComponent).position
+      )
+        ? 0
+        : 1
 
     if (entityExists(world, world.localClientEntity)) {
       const localClientPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position

@@ -14,6 +14,12 @@ export const DistanceFromCameraComponent = createMappedComponent<{}, typeof Dist
   DistanceComponentSchema
 )
 
+export const FrustumCullCameraSchema = { isCulled: Types.ui8 }
+export const FrustumCullCameraComponent = createMappedComponent<{}, typeof FrustumCullCameraSchema>(
+  'FrustumCullCameraComponent',
+  FrustumCullCameraSchema
+)
+
 export function setDistanceFromLocalClientComponent(entity: Entity) {
   setComponent(entity, DistanceFromLocalClientComponent, {})
 }
