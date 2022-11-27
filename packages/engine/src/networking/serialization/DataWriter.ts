@@ -404,7 +404,7 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID, world: World) => {
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
-  // writeUint32(v, world.fixedTick)
+  writeUint32(v, world.fixedTick)
 }
 
 export const createDataWriter = (size: number = 100000) => {

@@ -304,7 +304,7 @@ export const readEntities = (v: ViewCursor, world: World, byteLength: number, fr
 export const readMetadata = (v: ViewCursor, world: World) => {
   const userIndex = readUint32(v)
   const peerIndex = readUint32(v)
-  // const fixedTick = readUint32(v)
+  const fixedTick = readUint32(v)
   // if (userIndex === world.peerIDToUserIndex.get(world.worldNetwork.hostId)! && !world.worldNetwork.isHosting) world.fixedTick = fixedTick
   return { userIndex, peerIndex }
 }
