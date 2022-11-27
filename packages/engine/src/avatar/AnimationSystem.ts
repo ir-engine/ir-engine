@@ -1,3 +1,4 @@
+import { Not } from 'bitecs'
 import { Bone, Euler, MathUtils, Vector3 } from 'three'
 
 import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
@@ -19,6 +20,7 @@ import AvatarHandAnimationSystem from './AvatarHandAnimationSystem'
 import AvatarIKTargetSystem from './AvatarIKTargetSystem'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
+import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
@@ -46,18 +48,20 @@ export function animationActionReceptor(
 export default async function AnimationSystem(world: World) {
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
-  const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
+  const animationQuery = defineQuery([AnimationComponent, VisibleComponent, Not(AvatarHeadIKComponent)])
   const movingAvatarAnimationQuery = defineQuery([
     AnimationComponent,
     AvatarAnimationComponent,
     AvatarRigComponent,
-    VisibleComponent
+    VisibleComponent,
+    Not(AvatarHeadIKComponent)
   ])
   const avatarAnimationQuery = defineQuery([
     AnimationComponent,
     AvatarAnimationComponent,
     AvatarRigComponent,
-    VisibleComponent
+    VisibleComponent,
+    Not(AvatarHeadIKComponent)
   ])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 

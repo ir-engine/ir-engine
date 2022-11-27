@@ -4,13 +4,16 @@ import { getState } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
+import { clamp } from '../common/functions/MathLerpFunctions'
+import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRControllerComponent } from '../xr/XRComponents'
 import { getControlMode, XRState } from '../xr/XRState'
-import { applyBoneTwist } from './animation/armsTwistCorrection'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AvatarRigComponent } from './components/AvatarAnimationComponent'
@@ -37,16 +40,50 @@ export default async function AvatarIKTargetSystem(world: World) {
     AvatarRigComponent
   ])
 
+  const avatarQuery = defineQuery([VisibleComponent, AvatarRigComponent, AvatarHeadIKComponent])
+
+  const maxSqrDistance = 25 * 25
+  const minAccumulationRate = 0.01
+  const maxAccumulationRate = 0.1
+  const priorityQueue = createPriorityQueue(avatarQuery(), { priorityThreshold: maxAccumulationRate })
+
+  const filterPriorityEntities = (entity: Entity) => priorityQueue.priorityEntities.has(entity)
+
   const xrState = getState(XRState)
 
   const execute = () => {
     const inAttachedControlMode = getControlMode() === 'attached'
     const localClientEntity = world.localClientEntity
 
+    for (const entity of avatarQuery()) {
+      /**
+       * if outside of frustum, priority get set to 0 otherwise
+       * whatever your distance is, gets mapped linearly to your priority
+       */
+
+      const sqrDistance = DistanceFromCameraComponent.squaredDistance[entity]
+      if (FrustumCullCameraComponent.isCulled[entity]) {
+        priorityQueue.setPriority(entity, 0)
+      } else {
+        const accumulation = clamp(
+          (maxSqrDistance / sqrDistance) * world.deltaSeconds,
+          minAccumulationRate,
+          maxAccumulationRate
+        )
+        priorityQueue.addPriority(entity, accumulation)
+      }
+    }
+
+    priorityQueue.update()
+
+    const headIKEntities = headIKQuery(world).filter(filterPriorityEntities)
+    const leftHandEntities = leftHandQuery(world).filter(filterPriorityEntities)
+    const rightHandEntities = rightHandQuery(world).filter(filterPriorityEntities)
+
     /**
      * Head
      */
-    for (const entity of headIKQuery(world)) {
+    for (const entity of headIKEntities) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
       if (inAttachedControlMode && entity === localClientEntity) {
         ik.target.quaternion.copy(world.camera.quaternion)
@@ -62,9 +99,8 @@ export default async function AvatarIKTargetSystem(world: World) {
     /**
      * Hands
      */
-    for (const entity of leftHandQuery()) {
+    for (const entity of leftHandEntities) {
       const { rig } = getComponent(entity, AvatarRigComponent)
-      if (!rig) continue
 
       const ik = getComponent(entity, AvatarLeftHandIKComponent)
       if (entity === localClientEntity) {
@@ -120,9 +156,8 @@ export default async function AvatarIKTargetSystem(world: World) {
       }
     }
 
-    for (const entity of rightHandQuery()) {
+    for (const entity of rightHandEntities) {
       const { rig } = getComponent(entity, AvatarRigComponent)
-      if (!rig) continue
 
       const ik = getComponent(entity, AvatarRightHandIKComponent)
 
@@ -170,37 +205,37 @@ export default async function AvatarIKTargetSystem(world: World) {
       }
     }
 
-    for (const entity of armsTwistCorrectionQuery.enter()) {
-      const { bindRig } = getComponent(entity, AvatarRigComponent)
-      const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
-      twistCorrection.LeftHandBindRotationInv.copy(bindRig.LeftHand.quaternion).invert()
-      twistCorrection.RightHandBindRotationInv.copy(bindRig.RightHand.quaternion).invert()
-    }
+    // for (const entity of armsTwistCorrectionQuery.enter()) {
+    //   const { bindRig } = getComponent(entity, AvatarRigComponent)
+    //   const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
+    //   twistCorrection.LeftHandBindRotationInv.copy(bindRig.LeftHand.quaternion).invert()
+    //   twistCorrection.RightHandBindRotationInv.copy(bindRig.RightHand.quaternion).invert()
+    // }
 
-    for (const entity of armsTwistCorrectionQuery()) {
-      const { rig, bindRig } = getComponent(entity, AvatarRigComponent)
-      const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
+    // for (const entity of armsTwistCorrectionQuery()) {
+    //   const { rig, bindRig } = getComponent(entity, AvatarRigComponent)
+    //   const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
 
-      if (rig.LeftForeArmTwist) {
-        applyBoneTwist(
-          twistCorrection.LeftHandBindRotationInv,
-          rig.LeftHand.quaternion,
-          bindRig.LeftForeArmTwist.quaternion,
-          rig.LeftForeArmTwist.quaternion,
-          twistCorrection.LeftArmTwistAmount
-        )
-      }
+    //   if (rig.LeftForeArmTwist) {
+    //     applyBoneTwist(
+    //       twistCorrection.LeftHandBindRotationInv,
+    //       rig.LeftHand.quaternion,
+    //       bindRig.LeftForeArmTwist.quaternion,
+    //       rig.LeftForeArmTwist.quaternion,
+    //       twistCorrection.LeftArmTwistAmount
+    //     )
+    //   }
 
-      if (rig.RightForeArmTwist) {
-        applyBoneTwist(
-          twistCorrection.RightHandBindRotationInv,
-          rig.RightHand.quaternion,
-          bindRig.RightForeArmTwist.quaternion,
-          rig.RightForeArmTwist.quaternion,
-          twistCorrection.RightArmTwistAmount
-        )
-      }
-    }
+    //   if (rig.RightForeArmTwist) {
+    //     applyBoneTwist(
+    //       twistCorrection.RightHandBindRotationInv,
+    //       rig.RightHand.quaternion,
+    //       bindRig.RightForeArmTwist.quaternion,
+    //       rig.RightForeArmTwist.quaternion,
+    //       twistCorrection.RightArmTwistAmount
+    //     )
+    //   }
+    // }
   }
 
   const cleanup = async () => {
