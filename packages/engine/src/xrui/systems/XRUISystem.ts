@@ -5,7 +5,13 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -156,18 +162,9 @@ export default async function XRUISystem(world: World) {
     for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
       xrui.update()
-    }
-
-    for (const entity of visibleXruiQuery.enter()) {
-      const xrui = getComponent(entity, XRUIComponent)
-      xrui.matrixWorldAutoUpdate = true
-      xrui.matrixAutoUpdate = true
-    }
-
-    for (const entity of visibleXruiQuery.exit()) {
-      const xrui = getComponent(entity, XRUIComponent)
-      xrui.matrixWorldAutoUpdate = false
-      xrui.matrixAutoUpdate = false
+      const visible = hasComponent(entity, VisibleComponent)
+      xrui.matrixWorldAutoUpdate = visible
+      xrui.matrixAutoUpdate = visible
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.currentWorld.camera.projectionMatrix)
