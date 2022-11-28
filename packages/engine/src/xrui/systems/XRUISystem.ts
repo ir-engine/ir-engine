@@ -182,6 +182,7 @@ export default async function XRUISystem(world: World) {
     document.body.removeEventListener('contextmenu', redirectDOMEvent)
     document.body.removeEventListener('dblclick', redirectDOMEvent)
     removeQuery(world, visibleXruiQuery)
+    removeQuery(world, xruiQuery)
     removeQuery(world, pointerQuery)
   }
 

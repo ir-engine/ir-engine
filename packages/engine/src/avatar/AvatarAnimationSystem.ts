@@ -1,19 +1,13 @@
-import { Not } from 'bitecs'
-import { Bone, MathUtils, Matrix4, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Bone, MathUtils, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
-import { clamp } from '../common/functions/MathLerpFunctions'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
-import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { GroupComponent } from '../scene/components/GroupComponent'
-import { VisibleComponent } from '../scene/components/VisibleComponent'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRControllerComponent } from '../xr/XRComponents'
 import { getControlMode, XRState } from '../xr/XRState'
@@ -44,7 +38,7 @@ const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math
 //   }
 // }
 
-export default async function AvatarIKTargetSystem(world: World) {
+export default async function AvatarAnimationSystem(world: World) {
   const leftHandQuery = defineQuery([AvatarLeftHandIKComponent, AvatarRigComponent])
   const rightHandQuery = defineQuery([AvatarRightHandIKComponent, AvatarRigComponent])
   const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarRigComponent])

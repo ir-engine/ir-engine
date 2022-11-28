@@ -17,8 +17,8 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { AnimationManager } from './AnimationManager'
+import AvatarAnimationSystem from './AvatarAnimationSystem'
 import AvatarHandAnimationSystem from './AvatarHandAnimationSystem'
-import AvatarIKTargetSystem from './AvatarIKTargetSystem'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarRigComponent } from './components/AvatarAnimationComponent'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
@@ -136,7 +136,7 @@ export default async function AnimationSystem(world: World) {
     execute,
     cleanup,
     subsystems: [
-      () => Promise.resolve({ default: AvatarIKTargetSystem }),
+      () => Promise.resolve({ default: AvatarAnimationSystem }),
       () => Promise.resolve({ default: AvatarHandAnimationSystem })
     ]
   }
