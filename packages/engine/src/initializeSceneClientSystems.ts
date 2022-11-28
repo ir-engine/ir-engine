@@ -35,7 +35,7 @@ export default function () {
     },
     {
       uuid: 'xre.engine.AvatarTeleportSystem',
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.UPDATE_LATE,
       systemLoader: () => Promise.resolve({ default: AvatarTeleportSystem })
     },
     {
@@ -65,7 +65,7 @@ export default function () {
     },
     {
       uuid: 'xre.engine.PositionalAudioSystem',
-      type: SystemUpdateType.PRE_RENDER,
+      type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: PositionalAudioSystem })
     },
     {

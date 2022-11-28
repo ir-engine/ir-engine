@@ -53,41 +53,6 @@ export function teleportObjectReceptor(
   transform.rotation.copy(action.rotation)
 }
 
-const processCollisions = (world: World, drainCollisions, drainContacts, collisionEntities: Entity[]) => {
-  const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
-
-  for (const collisionEntity of collisionEntities) {
-    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
-    for (const [entity, hit] of collisionComponent) {
-      if (hit.type !== CollisionEvents.COLLISION_PERSIST && hit.type !== CollisionEvents.TRIGGER_PERSIST) {
-        existingColliderHits.push({ entity, collisionEntity, hit })
-      }
-    }
-  }
-
-  world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
-  world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
-
-  for (const { entity, collisionEntity, hit } of existingColliderHits) {
-    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
-    if (!collisionComponent) continue
-    const newHit = collisionComponent.get(entity)!
-    if (!newHit) continue
-    if (hit.type === CollisionEvents.COLLISION_START && newHit.type === CollisionEvents.COLLISION_START) {
-      newHit.type = CollisionEvents.COLLISION_PERSIST
-    }
-    if (hit.type === CollisionEvents.TRIGGER_START && newHit.type === CollisionEvents.TRIGGER_START) {
-      newHit.type = CollisionEvents.TRIGGER_PERSIST
-    }
-    if (hit.type === CollisionEvents.COLLISION_END && newHit.type === CollisionEvents.COLLISION_END) {
-      collisionComponent.delete(entity)
-    }
-    if (hit.type === CollisionEvents.TRIGGER_END && newHit.type === CollisionEvents.TRIGGER_END) {
-      collisionComponent.delete(entity)
-    }
-  }
-}
-
 export const PhysicsPrefabs = {
   collider: 'collider' as const
 }
@@ -105,6 +70,8 @@ export default async function PhysicsSystem(world: World) {
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
   ])
+
+  const engineState = getState(EngineState)
 
   const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
   const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
@@ -154,9 +121,45 @@ export default async function PhysicsSystem(world: World) {
       RigidBodyComponent.previousRotation.w[entity] = rotation.w
     }
 
+    const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
+
+    for (const collisionEntity of collisionQuery()) {
+      const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+      for (const [entity, hit] of collisionComponent) {
+        if (hit.type !== CollisionEvents.COLLISION_PERSIST && hit.type !== CollisionEvents.TRIGGER_PERSIST) {
+          existingColliderHits.push({ entity, collisionEntity, hit })
+        }
+      }
+    }
+
     // step physics world
-    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
-    world.physicsWorld.step(world.physicsCollisionEventQueue)
+    const substeps = engineState.physicsSubsteps.value
+    world.physicsWorld.timestep = engineState.fixedDeltaSeconds.value / substeps
+    for (let i = 0; i < substeps; i++) {
+      world.physicsWorld.step(world.physicsCollisionEventQueue)
+      world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
+      world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
+    }
+
+    /** process collisions */
+    for (const { entity, collisionEntity, hit } of existingColliderHits) {
+      const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+      if (!collisionComponent) continue
+      const newHit = collisionComponent.get(entity)!
+      if (!newHit) continue
+      if (hit.type === CollisionEvents.COLLISION_START && newHit.type === CollisionEvents.COLLISION_START) {
+        newHit.type = CollisionEvents.COLLISION_PERSIST
+      }
+      if (hit.type === CollisionEvents.TRIGGER_START && newHit.type === CollisionEvents.TRIGGER_START) {
+        newHit.type = CollisionEvents.TRIGGER_PERSIST
+      }
+      if (hit.type === CollisionEvents.COLLISION_END && newHit.type === CollisionEvents.COLLISION_END) {
+        collisionComponent.delete(entity)
+      }
+      if (hit.type === CollisionEvents.TRIGGER_END && newHit.type === CollisionEvents.TRIGGER_END) {
+        collisionComponent.delete(entity)
+      }
+    }
 
     for (const entity of allRigidBodies) {
       const rigidBody = getComponent(entity, RigidBodyComponent)
@@ -179,8 +182,6 @@ export default async function PhysicsSystem(world: World) {
       RigidBodyComponent.angularVelocity.y[entity] = angvel.y
       RigidBodyComponent.angularVelocity.z[entity] = angvel.z
     }
-
-    processCollisions(world, drainCollisions, drainContacts, collisionQuery())
   }
 
   const cleanup = async () => {
