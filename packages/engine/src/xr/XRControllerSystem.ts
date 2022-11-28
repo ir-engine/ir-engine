@@ -94,7 +94,6 @@ const updateHand = (entity: Entity, referenceSpace: XRReferenceSpace) => {
 
     if (joints[inputjoint.jointName] === undefined) {
       const joint = new Group() as Group & { jointRadius: number | undefined }
-      joint.matrixAutoUpdate = false
       joints[inputjoint.jointName] = joint
       group.add(joint)
     }

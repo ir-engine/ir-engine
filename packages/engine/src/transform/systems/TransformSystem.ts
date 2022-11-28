@@ -64,10 +64,11 @@ export const computeTransformMatrix = (entity: Entity, world = Engine.instance.c
 export const teleportRigidbody = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  rigidBody.body.setTranslation(transform.position, !rigidBody.body.isSleeping())
-  rigidBody.body.setRotation(transform.rotation, !rigidBody.body.isSleeping())
-  rigidBody.body.setLinvel(V_000, !rigidBody.body.isSleeping())
-  rigidBody.body.setAngvel(V_000, !rigidBody.body.isSleeping())
+  const isAwake = !rigidBody.body.isSleeping()
+  rigidBody.body.setTranslation(transform.position, isAwake)
+  rigidBody.body.setRotation(transform.rotation, isAwake)
+  rigidBody.body.setLinvel(V_000, isAwake)
+  rigidBody.body.setAngvel(V_000, isAwake)
   rigidBody.previousPosition.copy(transform.position)
   rigidBody.position.copy(transform.position)
   rigidBody.previousRotation.copy(transform.rotation)
@@ -132,12 +133,13 @@ const updateTransformFromComputedTransform = (entity: Entity) => {
   return true
 }
 
-const updateGroupChildren = (entity: Entity) => {
+export const updateGroupChildren = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
   // drop down one level and update children
   for (const root of group) {
     for (const obj of root.children) {
       obj.updateMatrixWorld()
+      obj.matrixWorldNeedsUpdate = false
     }
   }
 }

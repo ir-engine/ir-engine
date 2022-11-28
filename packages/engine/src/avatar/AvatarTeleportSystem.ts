@@ -104,6 +104,7 @@ export default async function AvatarTeleportSystem(world: World) {
   const lineMaterial = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
   const guideline = new Line(lineGeometry, lineMaterial)
   guideline.frustumCulled = false
+  guideline.name = 'teleport-guideline'
 
   let visibleSegments = 2
 
@@ -115,6 +116,7 @@ export default async function AvatarTeleportSystem(world: World) {
 
   // The guide cursor at the end of the line
   const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
+  guideCursorGeometry.name = 'teleport-guide-cursor'
   guideCursorGeometry.rotateX(-Math.PI / 2)
   guideCursorGeometry.translate(0, 0.01, 0)
   const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide, transparent: true })

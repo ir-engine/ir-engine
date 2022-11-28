@@ -25,8 +25,6 @@ export default async function DebugRenderer(world: World) {
   const lineMaterial = new LineBasicMaterial({ vertexColors: true })
   const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
   _lineSegments.frustumCulled = false
-  _lineSegments.matrixAutoUpdate = false
-  _lineSegments.matrixWorldAutoUpdate = false
   setObjectLayers(_lineSegments, ObjectLayers.PhysicsHelper)
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)

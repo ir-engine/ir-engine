@@ -144,6 +144,7 @@ export default async function AvatarUISystem(world: World) {
       const transition = createTransitionState(1, 'IN')
       AvatarUITransitions.set(userEntity, transition)
       const root = new Group()
+      root.name = `avatar-ui-root-${userEntity}`
       ui.state.videoPreviewMesh.value.position.y += 0.3
       ui.state.videoPreviewMesh.value.visible = false
       root.add(ui.state.videoPreviewMesh.value)

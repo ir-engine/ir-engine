@@ -29,7 +29,6 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { getTagComponentForRigidBody, RigidBodyComponent } from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
