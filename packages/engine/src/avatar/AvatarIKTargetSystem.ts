@@ -35,25 +35,22 @@ const _rotXneg60 = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math
 const _rotY90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2)
 const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
 
-function noop() {}
+// todo
+// function noop() {}
 
-function iterateSkeletons(skinnedMesh: SkinnedMesh) {
-  if (skinnedMesh.isSkinnedMesh) {
-    skinnedMesh.skeleton.update()
-  }
-}
+// function iterateSkeletons(skinnedMesh: SkinnedMesh) {
+//   if (skinnedMesh.isSkinnedMesh) {
+//     skinnedMesh.skeleton.update()
+//   }
+// }
 
 export default async function AvatarIKTargetSystem(world: World) {
-  const leftHandQuery = defineQuery([VisibleComponent, AvatarLeftHandIKComponent, AvatarRigComponent])
-  const rightHandQuery = defineQuery([VisibleComponent, AvatarRightHandIKComponent, AvatarRigComponent])
-  const headIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarRigComponent])
-  const localHeadIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarControllerComponent])
-  const headDecapQuery = defineQuery([VisibleComponent, AvatarHeadDecapComponent])
-  const armsTwistCorrectionQuery = defineQuery([
-    VisibleComponent,
-    AvatarArmsTwistCorrectionComponent,
-    AvatarRigComponent
-  ])
+  const leftHandQuery = defineQuery([AvatarLeftHandIKComponent, AvatarRigComponent])
+  const rightHandQuery = defineQuery([AvatarRightHandIKComponent, AvatarRigComponent])
+  const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarRigComponent])
+  const localHeadIKQuery = defineQuery([AvatarHeadIKComponent, AvatarControllerComponent])
+  const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
+  const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarRigComponent])
 
   /** override Skeleton.update, as it is called inside  */
   // const skeletonUpdate = Skeleton.prototype.update

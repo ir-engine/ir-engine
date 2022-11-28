@@ -22,6 +22,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { XRState } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
@@ -143,10 +144,6 @@ export default async function SceneObjectSystem(world: World) {
     }, [groupComponent])
 
     useEffect(() => {
-      if (groupComponent?.value) for (const obj of groupComponent.value) obj.visible = !!visibleComponent?.value
-    }, [visibleComponent, groupComponent])
-
-    useEffect(() => {
       if (groupComponent?.value) {
         if (shadowComponent?.value)
           for (const obj of groupComponent.value) {
@@ -164,6 +161,12 @@ export default async function SceneObjectSystem(world: World) {
     for (const entity of updatableQuery()) {
       const callbacks = getComponent(entity, CallbackComponent)
       callbacks.get(UpdatableCallback)?.(delta)
+    }
+
+    for (const entity of groupQuery()) {
+      const group = getComponent(entity, GroupComponent)
+      const visible = hasComponent(entity, VisibleComponent) && !FrustumCullCameraComponent.isCulled[entity]
+      for (const obj of group) obj.visible = visible
     }
   }
 

@@ -33,6 +33,7 @@ export default async function XRUISystem(world: World) {
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent])
+  const xruiQuery = defineQuery([XRUIComponent])
   const pointerQuery = defineQuery([XRPointerComponent])
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
@@ -162,6 +163,10 @@ export default async function XRUISystem(world: World) {
     for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
       xrui.update()
+    }
+
+    for (const entity of xruiQuery()) {
+      const xrui = getComponent(entity, XRUIComponent)
       const visible = hasComponent(entity, VisibleComponent)
       xrui.matrixWorldAutoUpdate = visible
       xrui.matrixAutoUpdate = visible
