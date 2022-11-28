@@ -1,3 +1,4 @@
+import { clamp } from 'lodash'
 import { Bone, MathUtils, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
@@ -7,8 +8,12 @@ import { V_000 } from '../common/constants/MathConstants'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { GroupComponent } from '../scene/components/GroupComponent'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRControllerComponent } from '../xr/XRComponents'
 import { getControlMode, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
@@ -22,6 +27,7 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './components/AvatarIKComponents'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
+import { LoopAnimationComponent } from './components/LoopAnimationComponent'
 
 const _vector3 = new Vector3()
 const _vec = new Vector3()
@@ -45,24 +51,58 @@ export default async function AvatarAnimationSystem(world: World) {
   const localHeadIKQuery = defineQuery([AvatarHeadIKComponent, AvatarControllerComponent])
   const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
   const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarRigComponent])
+  const loopAnimationQuery = defineQuery([
+    LoopAnimationComponent,
+    AnimationComponent,
+    AvatarAnimationComponent,
+    AvatarRigComponent
+  ])
+  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 
   /** override Skeleton.update, as it is called inside  */
   // const skeletonUpdate = Skeleton.prototype.update
 
-  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
+  const maxSqrDistance = 25 * 25
+  const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
+  const minAccumulationRate = 0.01
+  const maxAccumulationRate = 0.1
+  const priorityQueue = createPriorityQueue(avatarAnimationQuery(), { priorityThreshold: maxAccumulationRate })
 
+  world.priorityAvatarEntities = priorityQueue.priorityEntities
   const filterPriorityEntities = (entity: Entity) => world.priorityAvatarEntities.has(entity)
 
   const xrState = getState(XRState)
 
   const execute = () => {
-    const { localClientEntity, elapsedSeconds } = world
+    const { localClientEntity, elapsedSeconds, deltaSeconds } = world
     const inAttachedControlMode = getControlMode() === 'attached'
+
+    for (const entity of avatarAnimationQuery()) {
+      /**
+       * if outside of frustum, priority get set to 0 otherwise
+       * whatever your distance is, gets mapped linearly to your priority
+       */
+      const sqrDistance = DistanceFromCameraComponent.squaredDistance[entity]
+      // min distance to ensure entities that might be overlapping the camera are not frustum culled
+      if (sqrDistance > minimumFrustumCullDistanceSqr && FrustumCullCameraComponent.isCulled[entity]) {
+        priorityQueue.setPriority(entity, 0)
+      } else {
+        const accumulation = clamp(
+          (maxSqrDistance / sqrDistance) * deltaSeconds,
+          minAccumulationRate,
+          maxAccumulationRate
+        )
+        priorityQueue.addPriority(entity, accumulation)
+      }
+    }
+
+    priorityQueue.update()
 
     const avatarAnimationEntities = avatarAnimationQuery(world).filter(filterPriorityEntities)
     const headIKEntities = headIKQuery(world).filter(filterPriorityEntities)
     const leftHandEntities = leftHandQuery(world).filter(filterPriorityEntities)
     const rightHandEntities = rightHandQuery(world).filter(filterPriorityEntities)
+    const loopAnimationEntities = loopAnimationQuery(world).filter(filterPriorityEntities)
 
     for (const entity of avatarAnimationEntities) {
       /**
@@ -283,6 +323,12 @@ export default async function AvatarAnimationSystem(world: World) {
     //     )
     //   }
     // }
+
+    /**
+     * Since the scene does not automatically update the matricies for all objects,which updates bones,
+     * we need to manually do it for Loop Animation Entities
+     */
+    for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
     /**
      * Update threejs skeleton manually

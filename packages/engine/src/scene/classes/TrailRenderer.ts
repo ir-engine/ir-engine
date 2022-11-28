@@ -220,7 +220,6 @@ class TrailRenderer extends Mesh {
 
   constructor(orientToMovement) {
     super()
-    this.matrixAutoUpdate = false
     this.frustumCulled = false
     if (orientToMovement) this.orientToMovement = true
   }

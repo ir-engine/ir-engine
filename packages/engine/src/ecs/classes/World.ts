@@ -88,7 +88,12 @@ export class World {
     setTransformComponent(this.cameraEntity)
     setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
+    this.camera.matrixAutoUpdate = false
+    this.camera.matrixWorldAutoUpdate = false
+
     this.scene.matrixAutoUpdate = false
+    this.scene.matrixWorldAutoUpdate = false
+
     this.scene.layers.set(ObjectLayers.Scene)
   }
 

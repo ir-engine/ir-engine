@@ -1,5 +1,4 @@
 import { Not } from 'bitecs'
-import { clamp } from 'lodash'
 import { Euler } from 'three'
 
 import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
@@ -7,12 +6,10 @@ import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
-import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
@@ -20,7 +17,6 @@ import { AnimationManager } from './AnimationManager'
 import AvatarAnimationSystem from './AvatarAnimationSystem'
 import AvatarHandAnimationSystem from './AvatarHandAnimationSystem'
 import { AnimationComponent } from './components/AnimationComponent'
-import { AvatarRigComponent } from './components/AvatarAnimationComponent'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
 const euler1YXZ = new Euler()
@@ -53,39 +49,8 @@ export default async function AnimationSystem(world: World) {
 
   await AnimationManager.instance.loadDefaultAnimations()
 
-  const avatarQuery = defineQuery([AvatarRigComponent])
-
-  const maxSqrDistance = 25 * 25
-  const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
-  const minAccumulationRate = 0.01
-  const maxAccumulationRate = 0.1
-  const priorityQueue = createPriorityQueue(avatarQuery(), { priorityThreshold: maxAccumulationRate })
-
-  world.priorityAvatarEntities = priorityQueue.priorityEntities
-
   const execute = () => {
     const { deltaSeconds } = world
-
-    for (const entity of avatarQuery()) {
-      /**
-       * if outside of frustum, priority get set to 0 otherwise
-       * whatever your distance is, gets mapped linearly to your priority
-       */
-      const sqrDistance = DistanceFromCameraComponent.squaredDistance[entity]
-      // min distance to ensure entities that might be overlapping the camera are not frustum culled
-      if (sqrDistance > minimumFrustumCullDistanceSqr && FrustumCullCameraComponent.isCulled[entity]) {
-        priorityQueue.setPriority(entity, 0)
-      } else {
-        const accumulation = clamp(
-          (maxSqrDistance / sqrDistance) * deltaSeconds,
-          minAccumulationRate,
-          maxAccumulationRate
-        )
-        priorityQueue.addPriority(entity, accumulation)
-      }
-    }
-
-    priorityQueue.update()
 
     for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
 

@@ -26,7 +26,6 @@ export const VideoComponent = defineComponent({
     videoGroup.name = `video-group-${entity}`
     const videoMesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
     videoGroup.add(videoMesh)
-    videoMesh.matrixAutoUpdate = false
 
     return {
       side: DoubleSide as Side,

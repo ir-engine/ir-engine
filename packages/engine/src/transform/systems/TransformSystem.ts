@@ -132,7 +132,7 @@ const updateTransformFromComputedTransform = (entity: Entity) => {
   return true
 }
 
-const updateGroupChildren = (entity: Entity) => {
+export const updateGroupChildren = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
   // drop down one level and update children
   for (const root of group) {

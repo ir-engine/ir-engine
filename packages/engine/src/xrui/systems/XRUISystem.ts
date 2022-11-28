@@ -165,6 +165,7 @@ export default async function XRUISystem(world: World) {
       xrui.update()
     }
 
+    /** @todo remove this once XRUI no longer forces it internally */
     for (const entity of xruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
       const visible = hasComponent(entity, VisibleComponent)

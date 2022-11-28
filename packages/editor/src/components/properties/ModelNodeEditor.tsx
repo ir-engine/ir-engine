@@ -111,12 +111,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'generateBVH')}
         />
       </InputGroup>
-      <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
-        <BooleanInput
-          value={modelComponent.matrixAutoUpdate.value}
-          onChange={updateProperty(ModelComponent, 'matrixAutoUpdate')}
-        />
-      </InputGroup>
       <InputGroup name="Is Equippable" label={t('editor:properties.model.lbl-isEquippable')}>
         <BooleanInput value={isEquippable} onChange={onChangeEquippable} />
       </InputGroup>

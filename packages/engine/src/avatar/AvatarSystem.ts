@@ -55,9 +55,6 @@ export function setupHeadIK(entity: Entity) {
     rotationClamp: 0.785398
   })
 
-  target.matrixAutoUpdate = false
-  target.matrixWorldAutoUpdate = false
-
   const headIK = getComponent(entity, AvatarHeadIKComponent)
   proxifyVector3(AvatarHeadIKComponent.target.position, entity, headIK.target.position)
   proxifyQuaternion(AvatarHeadIKComponent.target.quaternion, entity, headIK.target.quaternion)
@@ -66,12 +63,8 @@ export function setupHeadIK(entity: Entity) {
 export function setupLeftHandIK(entity: Entity) {
   const leftHint = new Object3D()
   leftHint.name = `ik-left-hint-${entity}`
-  leftHint.matrixAutoUpdate = false
-  leftHint.matrixWorldAutoUpdate = false
   const leftOffset = new Object3D()
   leftOffset.name = `ik-left-offset-${entity}`
-  leftOffset.matrixAutoUpdate = false
-  leftOffset.matrixWorldAutoUpdate = false
 
   const rig = getComponent(entity, AvatarRigComponent)
 
@@ -87,8 +80,6 @@ export function setupLeftHandIK(entity: Entity) {
 
   const target = new Object3D()
   target.name = `ik-right-target-${entity}`
-  target.matrixAutoUpdate = false
-  target.matrixWorldAutoUpdate = false
 
   setComponent(entity, AvatarLeftHandIKComponent, {
     target,
@@ -113,12 +104,8 @@ export function setupLeftHandIK(entity: Entity) {
 export function setupRightHandIK(entity: Entity) {
   const rightHint = new Object3D()
   rightHint.name = `ik-right-hint-${entity}`
-  rightHint.matrixAutoUpdate = false
-  rightHint.matrixWorldAutoUpdate = false
   const rightOffset = new Object3D()
   rightOffset.name = `ik-right-offset-${entity}`
-  rightOffset.matrixAutoUpdate = false
-  rightOffset.matrixWorldAutoUpdate = false
 
   const rig = getComponent(entity, AvatarRigComponent)
 
@@ -134,8 +121,6 @@ export function setupRightHandIK(entity: Entity) {
 
   const target = new Object3D()
   target.name = `ik-right-target-${entity}`
-  target.matrixAutoUpdate = false
-  target.matrixWorldAutoUpdate = false
 
   setComponent(entity, AvatarRightHandIKComponent, {
     target,
