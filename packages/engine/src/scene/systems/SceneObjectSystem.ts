@@ -22,7 +22,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { XRState } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
@@ -156,6 +156,8 @@ export default async function SceneObjectSystem(world: World) {
     return null
   })
 
+  const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
+
   const execute = () => {
     const delta = getState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
@@ -165,7 +167,15 @@ export default async function SceneObjectSystem(world: World) {
 
     for (const entity of groupQuery()) {
       const group = getComponent(entity, GroupComponent)
-      const visible = hasComponent(entity, VisibleComponent) && !FrustumCullCameraComponent.isCulled[entity]
+      /**
+       * do frustum culling here, but only if the object is more than 5 units away
+       */
+      const visible =
+        hasComponent(entity, VisibleComponent) &&
+        !(
+          FrustumCullCameraComponent.isCulled[entity] &&
+          DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
+        )
       for (const obj of group) obj.visible = visible
     }
   }

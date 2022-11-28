@@ -55,41 +55,25 @@ export default async function AvatarIKTargetSystem(world: World) {
   /** override Skeleton.update, as it is called inside  */
   // const skeletonUpdate = Skeleton.prototype.update
 
-  const movingAvatarAnimationQuery = defineQuery([
-    AnimationComponent,
-    AvatarAnimationComponent,
-    AvatarRigComponent,
-    VisibleComponent,
-    Not(AvatarHeadIKComponent)
-  ])
-  const avatarAnimationQuery = defineQuery([
-    AnimationComponent,
-    AvatarAnimationComponent,
-    AvatarRigComponent,
-    VisibleComponent,
-    Not(AvatarHeadIKComponent)
-  ])
+  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 
   const filterPriorityEntities = (entity: Entity) => world.priorityAvatarEntities.has(entity)
 
   const xrState = getState(XRState)
 
   const execute = () => {
-    const { localClientEntity } = world
+    const { localClientEntity, elapsedSeconds } = world
     const inAttachedControlMode = getControlMode() === 'attached'
 
-    const movingAvatarEntities = movingAvatarAnimationQuery(world).filter(filterPriorityEntities)
     const avatarAnimationEntities = avatarAnimationQuery(world).filter(filterPriorityEntities)
     const headIKEntities = headIKQuery(world).filter(filterPriorityEntities)
     const leftHandEntities = leftHandQuery(world).filter(filterPriorityEntities)
     const rightHandEntities = rightHandQuery(world).filter(filterPriorityEntities)
 
-    const elapsedSeconds = world.elapsedSeconds
-
-    /**
-     * Apply motion to velocity controlled animations
-     */
-    for (const entity of movingAvatarEntities) {
+    for (const entity of avatarAnimationEntities) {
+      /**
+       * Apply motion to velocity controlled animations
+       */
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
@@ -112,15 +96,14 @@ export default async function AvatarIKTargetSystem(world: World) {
         avatarAnimationComponent.locomotion.setScalar(0)
       }
 
+      /**
+       * Update animation graph
+       */
       updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
-    }
 
-    /**
-     * Apply retargeting
-     */
-    for (const entity of avatarAnimationEntities) {
-      const animationComponent = getComponent(entity, AnimationComponent)
-      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      /**
+       * Apply retargeting
+       */
       const rootBone = animationComponent.mixer.getRoot() as Bone
       const avatarRigComponent = getComponent(entity, AvatarRigComponent)
       const rig = avatarRigComponent.rig
@@ -329,7 +312,6 @@ export default async function AvatarIKTargetSystem(world: World) {
     removeQuery(world, localHeadIKQuery)
     removeQuery(world, headIKQuery)
     removeQuery(world, armsTwistCorrectionQuery)
-    removeQuery(world, movingAvatarAnimationQuery)
     removeQuery(world, avatarAnimationQuery)
     // Skeleton.prototype.update = skeletonUpdate
   }

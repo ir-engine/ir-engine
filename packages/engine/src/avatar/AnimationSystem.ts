@@ -53,10 +53,10 @@ export default async function AnimationSystem(world: World) {
 
   await AnimationManager.instance.loadDefaultAnimations()
 
-  const avatarQuery = defineQuery([VisibleComponent, AvatarRigComponent])
+  const avatarQuery = defineQuery([AvatarRigComponent])
 
   const maxSqrDistance = 25 * 25
-  const minimumFrustumCullDistance = 5 * 5 // 5 units
+  const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
   const minAccumulationRate = 0.01
   const maxAccumulationRate = 0.1
   const priorityQueue = createPriorityQueue(avatarQuery(), { priorityThreshold: maxAccumulationRate })
@@ -71,10 +71,9 @@ export default async function AnimationSystem(world: World) {
        * if outside of frustum, priority get set to 0 otherwise
        * whatever your distance is, gets mapped linearly to your priority
        */
-
       const sqrDistance = DistanceFromCameraComponent.squaredDistance[entity]
       // min distance to ensure entities that might be overlapping the camera are not frustum culled
-      if (sqrDistance > minimumFrustumCullDistance && FrustumCullCameraComponent.isCulled[entity]) {
+      if (sqrDistance > minimumFrustumCullDistanceSqr && FrustumCullCameraComponent.isCulled[entity]) {
         priorityQueue.setPriority(entity, 0)
       } else {
         const accumulation = clamp(
