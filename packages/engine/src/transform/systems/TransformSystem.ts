@@ -299,8 +299,6 @@ export default async function TransformSystem(world: World) {
             localClientPosition
           )
       }
-
-      updateReferenceSpace(world.localClientEntity)
     }
   }
 

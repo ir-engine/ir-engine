@@ -31,7 +31,7 @@ import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
-import { moveAvatarWithVelocity, updateAvatarControllerOnGround } from './functions/moveAvatar'
+import { moveAvatarWithController, updateAvatarControllerOnGround } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -94,31 +94,8 @@ export default async function AvatarControllerSystem(world: World) {
     const controlledEntity = Engine.instance.currentWorld.localClientEntity
 
     if (hasComponent(controlledEntity, AvatarControllerComponent)) {
-      const controller = getComponent(controlledEntity, AvatarControllerComponent)
       updateAvatarControllerOnGround(controlledEntity)
-      if (controller.movementEnabled) {
-        /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
-         *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
-         *    if detecting input on the other user #7263
-         */
-        if (
-          !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
-          world.worldNetwork &&
-          controller.localMovementDirection.lengthSq() > 0.1
-        ) {
-          const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
-          dispatchAction(
-            WorldNetworkAction.transferAuthorityOfObject({
-              ownerId: networkObject.ownerId,
-              networkId: networkObject.networkId,
-              newAuthority: world.worldNetwork?.peerID
-            })
-          )
-          setComponent(controlledEntity, NetworkObjectAuthorityTag)
-        }
-        moveAvatarWithVelocity(controlledEntity)
-      }
-
+      moveAvatarWithController(controlledEntity)
       const rigidbody = getComponent(controlledEntity, RigidBodyComponent)
       if (rigidbody.body.translation().y < -10) respawnAvatar(controlledEntity)
     }

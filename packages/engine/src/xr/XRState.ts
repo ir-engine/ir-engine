@@ -82,7 +82,7 @@ export class XRAction {
   })
 }
 
-export const getControlMode = () => {
+export const getXRAvatarControlMode = () => {
   const { avatarControlMode, sessionMode, sessionActive } = getState(XRState).value
   if (!sessionActive) return 'none'
   if (avatarControlMode === 'auto') {
@@ -91,7 +91,7 @@ export const getControlMode = () => {
   return avatarControlMode
 }
 
-export const getAvatarHeadLock = () => {
+export const getXRAvatarHeadLock = () => {
   const { avatarHeadLock } = getState(XRState)
   return avatarHeadLock.value === 'auto' ? false : avatarHeadLock.value
 }
@@ -101,7 +101,7 @@ export const getAvatarHeadLock = () => {
  * @param {boolean} offhand specifies to return the non-preferred hand instead
  * @returns {Entity}
  */
-export const getPreferredControllerEntity = (offhand = false) => {
+export const getXRPreferredControllerEntity = (offhand = false) => {
   const xrState = getState(XRState)
   if (!xrState.sessionActive.value) return null
   const avatarInputSettings = getState(AvatarInputSettingsState)

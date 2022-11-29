@@ -3,7 +3,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { getControlMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
+import { getXRAvatarControlMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 import { dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
@@ -32,7 +32,7 @@ export function createAnchorWidget(world: World) {
       )
     },
     system: () => {
-      const isImmersive = getControlMode() === 'attached'
+      const isImmersive = getXRAvatarControlMode() === 'attached'
       if (!isImmersive) return
       if (!xrState.scenePlacementMode.value) return
       const buttonInput =

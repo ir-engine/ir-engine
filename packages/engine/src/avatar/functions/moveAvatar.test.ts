@@ -13,7 +13,7 @@ import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetw
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { moveAvatarWithVelocity } from './moveAvatar'
+import { moveAvatarWithController } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 describe('moveAvatar function tests', () => {
@@ -52,7 +52,7 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
 
     /* assert */
   })
@@ -82,7 +82,7 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
 
     /* assert */
   })
@@ -117,7 +117,7 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
 
     /* assert */
   })
@@ -149,17 +149,17 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    moveAvatarWithController(entity)
 
     /* assert */
   })

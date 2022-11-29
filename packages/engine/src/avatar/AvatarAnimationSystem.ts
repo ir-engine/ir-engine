@@ -15,7 +15,7 @@ import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../tran
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRControllerComponent } from '../xr/XRComponents'
-import { getControlMode, XRState } from '../xr/XRState'
+import { getXRAvatarControlMode, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
@@ -75,7 +75,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const execute = () => {
     const { localClientEntity, elapsedSeconds, deltaSeconds } = world
-    const inAttachedControlMode = getControlMode() === 'attached'
+    const inAttachedControlMode = getXRAvatarControlMode() === 'attached'
 
     for (const entity of avatarAnimationQuery()) {
       /**

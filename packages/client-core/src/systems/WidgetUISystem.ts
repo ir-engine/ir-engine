@@ -24,7 +24,7 @@ import {
   setLocalTransformComponent
 } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRControllerComponent } from '@xrengine/engine/src/xr/XRComponents'
-import { getPreferredControllerEntity } from '@xrengine/engine/src/xr/XRState'
+import { getXRPreferredControllerEntity } from '@xrengine/engine/src/xr/XRState'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
@@ -131,7 +131,7 @@ export default async function WidgetSystem(world: World) {
       if (typeof widget.cleanup === 'function') widget.cleanup()
     }
 
-    const controllerEntity = getPreferredControllerEntity(true)
+    const controllerEntity = getXRPreferredControllerEntity(true)
 
     if (hasComponent(widgetMenuUI.entity, LocalTransformComponent) && !controllerEntity)
       removeComponent(widgetMenuUI.entity, LocalTransformComponent)

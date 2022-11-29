@@ -51,7 +51,7 @@ import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/XRComponents'
-import { getControlMode } from '../xr/XRState'
+import { getXRAvatarControlMode } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { moveAvatarWithTeleport, rotateAvatar } from './functions/moveAvatar'
 import { switchCameraMode } from './functions/switchCameraMode'
@@ -403,7 +403,7 @@ const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAl
   }
 
   // if vr, rotate the avatar
-  if (getControlMode() === 'attached') {
+  if (getXRAvatarControlMode() === 'attached') {
     if (getState(AvatarInputSettingsState).controlScheme.value === 'AvatarMovementScheme_Teleport') {
       moveAvatarWithTeleport(entity, inputValue.value[1], inputKey === BaseInput.PRIMARY_MOVE_LEFT ? 'left' : 'right')
 
@@ -431,7 +431,7 @@ const moveRightController: InputBehaviorType = (entity: Entity, inputKey: InputA
   }
 
   // if vr, rotate the avatar
-  if (getControlMode() === 'attached') {
+  if (getXRAvatarControlMode() === 'attached') {
     if (getState(AvatarInputSettingsState).controlScheme.value === 'AvatarMovementScheme_Teleport') {
       moveAvatarWithTeleport(entity, inputValue.value[1], inputKey === BaseInput.PRIMARY_MOVE_LEFT ? 'left' : 'right')
 

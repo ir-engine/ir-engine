@@ -1,7 +1,7 @@
 import { Collider } from '@dimforge/rapier3d-compat'
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarDirection } from '../../common/constants/Axis3D'
 import { V_010 } from '../../common/constants/MathConstants'
@@ -18,7 +18,8 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { AvatarMovementScheme } from '../../input/enums/InputEnums'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -26,7 +27,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { getAvatarHeadLock, getControlMode, XRState } from '../../xr/XRState'
+import { getXRAvatarControlMode, getXRAvatarHeadLock, XRState } from '../../xr/XRState'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -105,24 +106,64 @@ export const updateAvatarControllerOnGround = (entity: Entity) => {
 // }
 
 /**
- * Moves the avatar with velocity controls
+ * Moves the avatar with the avatar controller
  * @param entity
  */
-export const moveAvatarWithVelocity = (entity: Entity) => {
-  const isInVR = getControlMode() === 'attached'
-  const avatarInputState = getState(AvatarInputSettingsState)
-  if (isInVR && avatarInputState.controlScheme.value !== AvatarMovementScheme.Linear) {
-    return
+export const moveAvatarWithController = (entity: Entity) => {
+  const world = Engine.instance.currentWorld
+  const controller = getComponent(entity, AvatarControllerComponent)
+
+  if (!controller.movementEnabled) return
+
+  const xrState = getState(XRState)
+
+  /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
+   *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
+   *    if detecting input on the other user #7263
+   */
+  if (
+    !hasComponent(entity, NetworkObjectAuthorityTag) &&
+    Engine.instance.currentWorld.worldNetwork &&
+    (xrState.sessionActive || controller.localMovementDirection.lengthSq() > 0.1)
+  ) {
+    const networkObject = getComponent(entity, NetworkObjectComponent)
+    dispatchAction(
+      WorldNetworkAction.transferAuthorityOfObject({
+        ownerId: networkObject.ownerId,
+        networkId: networkObject.networkId,
+        newAuthority: world.worldNetwork?.peerID
+      })
+    )
+    setComponent(entity, NetworkObjectAuthorityTag)
   }
+
+  if (!hasComponent(entity, NetworkObjectAuthorityTag)) return
+
+  const avatarInputState = getState(AvatarInputSettingsState)
 
   const camera = Engine.instance.currentWorld.camera
   const cameraDirection = camera.getWorldDirection(_vec).setY(0).normalize()
   const forwardOrientation = _quat.setFromUnitVectors(AvatarDirection.Forward, cameraDirection)
 
-  avatarApplyVelocity(entity, forwardOrientation)
+  // if (avatarInputState.controlScheme.value === AvatarMovementScheme.Linear) {
+  avatarApplyMovement(entity, forwardOrientation)
+  // }
+
+  // if (xrState.sessionActive && getControlMode() === 'attached') {
+  //   // avatarApplyXRMovement(entity)
+  // }
+
   avatarApplyRotation(entity)
   avatarStepOverObstacles(entity, forwardOrientation)
 }
+
+// export const avatarApplyXRMovement = (entity: Entity) => {
+//   const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+//   const rigidbody = getComponent(entity, RigidBodyComponent)
+//   if (!rigidbody) return
+//   const cameraPosition = cameraTransform.position
+//   rigidbody.body.setTranslation(cameraPosition, true)
+// }
 
 /**
  * Rotates the avatar
@@ -130,28 +171,25 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
  *     as this is done via the webxr camera automatically
  */
 export const avatarApplyRotation = (entity: Entity) => {
-  const isInVR = getControlMode() === 'attached'
-  if (!isInVR) {
-    if (hasComponent(entity, AvatarHeadDecapComponent)) {
-      rotateBodyTowardsCameraDirection(entity)
-    } else {
-      rotateBodyTowardsVector(entity, getComponent(entity, RigidBodyComponent).linearVelocity)
-    }
+  if (hasComponent(entity, AvatarHeadDecapComponent)) {
+    rotateBodyTowardsCameraDirection(entity)
+  } else {
+    rotateBodyTowardsVector(entity, getComponent(entity, RigidBodyComponent).linearVelocity)
   }
 }
 
 /**
  * Avatar movement via velocity spring and collider velocity
  */
-export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaternion) => {
+export const avatarApplyMovement = (entity: Entity, forwardOrientation: Quaternion) => {
   const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
-  const isInVR = getControlMode() === 'attached'
+  const xrAttached = getXRAvatarControlMode() === 'attached'
 
   // always walk in VR
   controller.currentSpeed =
-    controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
+    controller.isWalking || xrAttached ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
 
   controller.velocitySimulator.target.copy(controller.localMovementDirection)
   controller.velocitySimulator.simulate(timeStep * (controller.isInAir ? 0.2 : 1))
@@ -179,7 +217,16 @@ export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaterni
   }
 
   if (hasComponent(entity, NetworkObjectAuthorityTag)) {
-    rigidBody.body.setLinvel(currentVelocity, true)
+    if (currentVelocity.lengthSq() < 0.0001) {
+      rigidBody.body.setLinvel(currentVelocity, true)
+      updateReferenceSpace(Engine.instance.currentWorld.localClientEntity)
+    } else if (xrAttached) {
+      const position = _vec.copy(rigidBody.position)
+      const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
+      position.x = cameraPosition.x
+      position.z = cameraPosition.z
+      // rigidBody.body.setTranslation(position, true)
+    }
   }
 }
 
@@ -237,11 +284,11 @@ export const updateReferenceSpace = (entity: Entity) => {
   const viewerPose = Engine.instance.xrFrame?.getViewerPose(xrState.originReferenceSpace.value!)
   const refSpace = xrState.originReferenceSpace.value
 
-  if (getControlMode() === 'attached' && refSpace && viewerPose) {
+  if (getXRAvatarControlMode() === 'attached' && refSpace && viewerPose) {
     const avatarTransform = getComponent(entity, TransformComponent)
     const rig = getComponent(entity, AvatarRigComponent)
 
-    const avatarHeadLock = getAvatarHeadLock()
+    const avatarHeadLock = getXRAvatarHeadLock()
 
     if (avatarHeadLock && rig) {
       rig.rig.Head.getWorldPosition(_vec)

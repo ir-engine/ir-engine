@@ -21,7 +21,7 @@ import {
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { getControlMode } from '../../../xr/XRState'
+import { getXRAvatarControlMode } from '../../../xr/XRState'
 import { CallbackComponent, setCallback } from '../../components/CallbackComponent'
 import { ColliderComponent } from '../../components/ColliderComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'

@@ -22,7 +22,7 @@ import {
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { getControlMode, XRAction, XRState } from './XRState'
+import { getXRAvatarControlMode, XRAction, XRState } from './XRState'
 
 const skyboxQuery = defineQuery([SkyboxComponent])
 
@@ -136,7 +136,7 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   if (!entity) return
 
   if (action.active) {
-    if (getControlMode() === 'attached') {
+    if (getXRAvatarControlMode() === 'attached') {
       if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
     }
   }

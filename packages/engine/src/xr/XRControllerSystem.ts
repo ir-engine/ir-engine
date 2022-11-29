@@ -53,7 +53,7 @@ import {
   XRHandComponent,
   XRPointerComponent
 } from './XRComponents'
-import { getControlMode, XRAction, XRState } from './XRState'
+import { getXRAvatarControlMode, XRAction, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -339,7 +339,7 @@ const updateInputSourceEntities = () => {
     const xrState = getState(XRState)
     dispatchAction(
       WorldNetworkAction.avatarIKTargets({
-        head: !!(getControlMode() === 'attached' ? true : xrState.viewerInputSourceEntity.value),
+        head: !!(getXRAvatarControlMode() === 'attached' ? true : xrState.viewerInputSourceEntity.value),
         leftHand: !!xrState.leftControllerEntity.value,
         rightHand: !!xrState.rightControllerEntity.value
       })

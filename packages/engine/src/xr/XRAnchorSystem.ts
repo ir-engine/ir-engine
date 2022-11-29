@@ -55,7 +55,7 @@ import {
   XRHitTestComponent,
   XRPointerComponent
 } from './XRComponents'
-import { getControlMode, getPreferredControllerEntity, XRAction, XRReceptors, XRState } from './XRState'
+import { getXRAvatarControlMode, getXRPreferredControllerEntity, XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
 const _vecScale = new Vector3()
@@ -102,7 +102,7 @@ const _ray = new Ray()
 
 /** AR placement for immersive session */
 export const getNonImmersiveHitTestTransform = (world = Engine.instance.currentWorld) => {
-  const preferredController = getPreferredControllerEntity()
+  const preferredController = getXRPreferredControllerEntity()
   if (!preferredController) return
 
   const { position, rotation } = getComponent(preferredController, LocalTransformComponent)
@@ -162,7 +162,7 @@ let lastSwipeValue = null! as null | number
 export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const xrState = getState(XRState)
 
-  const controlMode = getControlMode()
+  const controlMode = getXRAvatarControlMode()
 
   const hitLocalTransform =
     controlMode === 'attached' ? getNonImmersiveHitTestTransform(world) : getImmersiveHitTestTransform(world)
