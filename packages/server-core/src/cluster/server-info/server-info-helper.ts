@@ -51,13 +51,13 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
       await populateInstanceServerType(app, instancePods.pods)
       serverInfo.push(instancePods)
 
-      const analyticsPods = await getPodsData(
-        `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=analytics`,
-        'analytics',
-        'Analytics',
+      const taskPods = await getPodsData(
+        `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=taskserver`,
+        'task',
+        'Task',
         app
       )
-      serverInfo.push(analyticsPods)
+      serverInfo.push(taskPods)
     }
 
     // if (app.k8AgonesClient) {

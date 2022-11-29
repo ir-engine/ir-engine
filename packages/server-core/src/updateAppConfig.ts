@@ -31,7 +31,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const promises: any[] = []
 
-  const analyticsSetting = sequelizeClient.define('analyticsSetting', {
+  const taskServerSetting = sequelizeClient.define('taskServerSetting', {
     port: {
       type: DataTypes.STRING,
       allowNull: true
@@ -41,24 +41,24 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
-  const analyticsSettingPromise = analyticsSetting
+  const taskServerSettingPromise = taskServerSetting
     .findAll()
-    .then(([dbAnalytics]) => {
-      const dbAnalyticsConfig = dbAnalytics && {
-        port: dbAnalytics.port,
-        processInterval: dbAnalytics.processInterval
+    .then(([dbTaskServer]) => {
+      const dbTaskServerConfig = dbTaskServer && {
+        port: dbTaskServer.port,
+        processInterval: dbTaskServer.processInterval
       }
-      if (dbAnalyticsConfig) {
-        appConfig.analytics = {
-          ...appConfig.analytics,
-          ...dbAnalyticsConfig
+      if (dbTaskServerConfig) {
+        appConfig.taskserver = {
+          ...appConfig.taskserver,
+          ...dbTaskServerConfig
         }
       }
     })
     .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read analyticsSetting: ${e.message}`)
+      logger.error(e, `[updateAppConfig]: Failed to read taskServerSetting: ${e.message}`)
     })
-  promises.push(analyticsSettingPromise)
+  promises.push(taskServerSettingPromise)
 
   const authenticationSetting = sequelizeClient.define('authentication', {
     service: {
