@@ -224,7 +224,6 @@ export default async function TransformSystem(world: World) {
     // if transform order is dirty, sort by reference depth
     // Note: cyclic references will cause undefined behavior
     const { transformsNeedSorting } = getState(EngineState)
-    const transformEntities = transformQuery()
 
     let needsSorting = transformsNeedSorting.value
 
@@ -267,11 +266,11 @@ export default async function TransformSystem(world: World) {
 
     const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirty)
     const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
-    const dirtyTransformEntities = transformEntities.filter(isDirty)
+    const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
 
     for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
-    for (const entity of dirtyTransformEntities) computeTransformMatrix(entity, world)
+    for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity, world)
     for (const entity of dirtyRigidbodyEntities) teleportRigidbody(entity)
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
