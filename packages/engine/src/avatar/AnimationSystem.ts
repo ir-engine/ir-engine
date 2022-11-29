@@ -1,30 +1,28 @@
-import { Bone, Euler, MathUtils, Vector3 } from 'three'
+import { Not } from 'bitecs'
+import { Euler } from 'three'
 
 import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
-import { updateAnimationGraph } from './animation/AnimationGraph'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { AnimationManager } from './AnimationManager'
+import AvatarAnimationSystem from './AvatarAnimationSystem'
 import AvatarHandAnimationSystem from './AvatarHandAnimationSystem'
-import AvatarIKTargetSystem from './AvatarIKTargetSystem'
 import { AnimationComponent } from './components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
+import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
-const _vector3 = new Vector3()
 
 export function animationActionReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
@@ -46,25 +44,13 @@ export function animationActionReceptor(
 export default async function AnimationSystem(world: World) {
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
-  const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-  const movingAvatarAnimationQuery = defineQuery([
-    AnimationComponent,
-    AvatarAnimationComponent,
-    AvatarRigComponent,
-    VisibleComponent
-  ])
-  const avatarAnimationQuery = defineQuery([
-    AnimationComponent,
-    AvatarAnimationComponent,
-    AvatarRigComponent,
-    VisibleComponent
-  ])
+  const animationQuery = defineQuery([AnimationComponent, VisibleComponent, Not(AvatarHeadIKComponent)])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
 
   const execute = () => {
-    const { deltaSeconds: delta } = world
+    const { deltaSeconds } = world
 
     for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
 
@@ -72,11 +58,11 @@ export default async function AnimationSystem(world: World) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
       const mutableTransform = getComponent(entity, TransformComponent)
 
-      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
+      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * deltaSeconds)
       // store rotation before interpolation
       euler1YXZ.setFromQuaternion(mutableTransform.rotation)
       // lerp to desired rotation
-      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
+      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * deltaSeconds)
 
       euler2YXZ.setFromQuaternion(mutableTransform.rotation)
       // use axis locks - yes this is correct, the axis order is weird because quaternions
@@ -99,64 +85,8 @@ export default async function AnimationSystem(world: World) {
 
     for (const entity of animationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
-      const modifiedDelta = delta * animationComponent.animationSpeed
+      const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
-    }
-
-    /** Apply motion to velocity controlled animations */
-    for (const entity of movingAvatarAnimationQuery(world)) {
-      const animationComponent = getComponent(entity, AnimationComponent)
-      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-      const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
-      const deltaTime = delta * animationComponent.animationSpeed
-
-      if (rigidbodyComponent) {
-        // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
-        avatarAnimationComponent.locomotion.x = 0
-        avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
-        // lerp animated forward animation to smoothly animate to a stop
-        avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-          avatarAnimationComponent.locomotion.z || 0,
-          _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-          10 * deltaTime
-        )
-      } else {
-        avatarAnimationComponent.locomotion.setScalar(0)
-      }
-
-      updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
-    }
-
-    /**
-     * Apply retargeting
-     */
-    for (const entity of avatarAnimationQuery(world)) {
-      const animationComponent = getComponent(entity, AnimationComponent)
-      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-      const rootBone = animationComponent.mixer.getRoot() as Bone
-      const avatarRigComponent = getComponent(entity, AvatarRigComponent)
-      const rig = avatarRigComponent.rig
-
-      rootBone.traverse((bone: Bone) => {
-        if (!bone.isBone) return
-
-        const targetBone = rig[bone.name]
-        if (!targetBone) {
-          return
-        }
-
-        targetBone.quaternion.copy(bone.quaternion)
-
-        // Only copy the root position
-        if (targetBone === rig.Hips) {
-          targetBone.position.copy(bone.position)
-          targetBone.position.y *= avatarAnimationComponent.rootYRatio
-        }
-      })
-
-      // TODO: Find a more elegant way to handle root motion
-      const rootPos = AnimationManager.instance._defaultRootBone.position
-      rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
     }
   }
 
@@ -164,8 +94,6 @@ export default async function AnimationSystem(world: World) {
     removeQuery(world, desiredTransformQuery)
     removeQuery(world, tweenQuery)
     removeQuery(world, animationQuery)
-    removeQuery(world, movingAvatarAnimationQuery)
-    removeQuery(world, avatarAnimationQuery)
     removeActionQueue(avatarAnimationQueue)
   }
 
@@ -173,7 +101,7 @@ export default async function AnimationSystem(world: World) {
     execute,
     cleanup,
     subsystems: [
-      () => Promise.resolve({ default: AvatarIKTargetSystem }),
+      () => Promise.resolve({ default: AvatarAnimationSystem }),
       () => Promise.resolve({ default: AvatarHandAnimationSystem })
     ]
   }

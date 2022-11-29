@@ -23,7 +23,7 @@ import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
-const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 : 5000 // TODO set to 0 after next bitECS update
+export const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 : 5000 // TODO set to 0 after next bitECS update
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()

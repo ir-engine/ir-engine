@@ -33,7 +33,6 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       generateBVH: false,
-      matrixAutoUpdate: false,
       scene: undefined as undefined | Scene
     }
   },
@@ -41,8 +40,7 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      generateBVH: component.generateBVH.value,
-      matrixAutoUpdate: component.matrixAutoUpdate.value
+      generateBVH: component.generateBVH.value
     }
   },
 
@@ -51,8 +49,6 @@ export const ModelComponent = defineComponent({
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
-    if (typeof json.matrixAutoUpdate === 'boolean' && json.matrixAutoUpdate !== component.matrixAutoUpdate.value)
-      component.matrixAutoUpdate.set(json.matrixAutoUpdate)
   },
 
   onRemove: (entity, component) => {

@@ -47,7 +47,7 @@ const removeShaderFromObject = (entity: Entity) => {
     object.traverse((obj: Mesh<any, Material & ScenePlacementMaterialType>) => {
       if (obj.material) {
         const userData = obj.material.userData
-        if (userData.ScenePlacement) {
+        if (userData?.ScenePlacement) {
           obj.material.transparent = userData.ScenePlacement.previouslyTransparent
           obj.material.opacity = userData.ScenePlacement.previousOpacity
           delete userData.ScenePlacement
