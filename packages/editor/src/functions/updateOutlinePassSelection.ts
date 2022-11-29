@@ -18,13 +18,14 @@ export const updateOutlinePassSelection = (): void => {
     const isUuid = typeof parentEnt === 'string'
     const group = isUuid
       ? [obj3dFromUuid(parentEnt)]
-      : getOptionalComponent(parentEntities[i] as Entity, GroupComponent)!
-    for (const obj3d of group)
-      obj3d?.traverse((child: any) => {
-        if (child.isMesh || child.isLine || child.isSprite || child.isPoints) {
-          meshes.push(child)
-        }
-      })
+      : getOptionalComponent(parentEntities[i] as Entity, GroupComponent)
+    if (group)
+      for (const obj3d of group)
+        obj3d?.traverse((child: any) => {
+          if (child.isMesh || child.isLine || child.isSprite || child.isPoints) {
+            meshes.push(child)
+          }
+        })
   }
 
   EngineRenderer.instance.effectComposer[Effects.OutlineEffect].selection.set(meshes)

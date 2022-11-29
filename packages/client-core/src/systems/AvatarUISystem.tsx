@@ -10,7 +10,12 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  removeQuery,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
@@ -25,7 +30,7 @@ import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupCom
 import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { XRUIComponent, XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -68,6 +73,7 @@ export default async function AvatarUISystem(world: World) {
     Not(NetworkObjectOwnedTag)
   ])
   const AvatarContextMenuUI = createAvatarContextMenuView()
+  setComponent(AvatarContextMenuUI.entity, XRUIInteractableComponent)
 
   const _vector3 = new Vector3()
 

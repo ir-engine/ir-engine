@@ -14,7 +14,7 @@ import { EditorHistoryAction } from '../services/EditorHistory'
 import { accessEditorState, EditorAction, TaskStatus } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
-import { initializeScene } from './sceneRenderFunctions'
+import { initializeScene, SceneState } from './sceneRenderFunctions'
 
 /**
  * Gets a list of projects installed
@@ -40,7 +40,11 @@ export async function runPreprojectLoadTasks(): Promise<void> {
   if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
     dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.IN_PROGRESS }))
 
-    await Promise.all([ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.loadDefaultAnimations()])
+    await Promise.all([
+      ErrorIcon.load(),
+      SceneState.transformGizmo.load(),
+      AnimationManager.instance.loadDefaultAnimations()
+    ])
 
     dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.COMPLETED }))
   }

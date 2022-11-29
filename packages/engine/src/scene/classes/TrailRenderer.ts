@@ -79,7 +79,8 @@ const BaseVertexVars = [
   'uniform vec4 tailColor;',
 
   'varying vec4 vColor;',
-  '#include <logdepthbuf_pars_vertex>'
+  '#include <logdepthbuf_pars_vertex>',
+  LogarithmicDepthBufferMaterialChunk
 ].join('\n')
 
 // const TexturedVertexVars = [BaseVertexVars, 'varying vec2 vUV;', 'uniform float dragTexture;'].join('\n')
@@ -102,10 +103,9 @@ const BaseVertexShader = [
   BaseVertexVars,
 
   'void main() { ',
-  LogarithmicDepthBufferMaterialChunk,
   VertexShaderCore,
   'gl_Position = projectionMatrix * viewMatrix * realPosition;',
-
+  '#include <logdepthbuf_vertex>',
   '}'
 ].join('\n')
 
@@ -193,7 +193,7 @@ class TrailRenderer extends Mesh {
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
 
-      transparent: false,
+      transparent: true,
       // alphaTest: 0.5,
 
       // blending: CustomBlending,
@@ -201,8 +201,8 @@ class TrailRenderer extends Mesh {
       // blendDst: OneMinusSrcAlphaFactor,
       // blendEquation: AddEquation,
 
-      // depthTest: true,
-      // depthWrite: false,
+      depthTest: true,
+      depthWrite: false,
 
       side: DoubleSide
     })
