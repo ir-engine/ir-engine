@@ -36,7 +36,7 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
   const distanceMultiplier = isMobile ? 0.5 : 1
 
   const execute = () => {
-    accumulator += getState(EngineState).fixedDeltaSeconds.value
+    accumulator += world.deltaSeconds
 
     if (accumulator > 0.1) {
       accumulator = 0

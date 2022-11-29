@@ -121,6 +121,7 @@ export default async function AvatarLoadingSystem(world: World) {
       }
 
       const group = new Group()
+      group.name = `loading-effect-group-${entity}`
 
       const pillar = new Object3D()
       pillar.name = 'pillar_obj'

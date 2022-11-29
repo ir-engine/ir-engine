@@ -33,6 +33,7 @@ import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarInputSchema } from '../AvatarInputSchema'
@@ -89,6 +90,9 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
   addComponent(entity, NameComponent, 'avatar_' + userId)
 
   addComponent(entity, VisibleComponent, true)
+
+  setComponent(entity, DistanceFromCameraComponent)
+  setComponent(entity, FrustumCullCameraComponent)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),

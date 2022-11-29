@@ -132,9 +132,6 @@ export const parseGLTFModel = (entity: Entity) => {
   if (!model.scene) return
   const scene = model.scene
   scene.updateMatrixWorld(true)
-  scene.traverse((child) => {
-    child.matrixAutoUpdate = model.matrixAutoUpdate
-  })
 
   // always parse components first
   parseObjectComponentsFromGLTF(entity, scene)

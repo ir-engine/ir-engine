@@ -128,7 +128,6 @@ export class CSM {
       this.sourceLight = light
       for (let i = 0; i < this.cascades; i++) {
         light = light?.clone()
-        light.matrixAutoUpdate = true
         light.target = light.target.clone()
         light.castShadow = true
         light.visible = true

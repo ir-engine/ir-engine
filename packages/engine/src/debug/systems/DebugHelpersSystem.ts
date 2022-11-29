@@ -130,6 +130,7 @@ export default async function DebugHelpersSystem(world: World) {
        */
       for (const entity of directionalLightQuery.enter()) {
         const helper = new EditorDirectionalLightHelper(getComponent(entity, DirectionalLightComponent).light)
+        helper.name = `directional-light-helper-${entity}`
         helper.visible = true
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -163,6 +164,7 @@ export default async function DebugHelpersSystem(world: World) {
        */
       for (const entity of pointLightQuery.enter()) {
         const helper = new Object3D()
+        helper.name = `pointlight-helper-${entity}`
 
         const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
         const rangeBall = new Mesh(
@@ -189,6 +191,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of spotLightQuery.enter()) {
         const helper = new Object3D()
+        helper.name = `spotlight-helper-${entity}`
 
         const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
         const cone = new Mesh(
@@ -226,6 +229,7 @@ export default async function DebugHelpersSystem(world: World) {
       for (const entity of scenePreviewCameraSelectQuery.enter()) {
         const scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
         const helper = new CameraHelper(scenePreviewCamera)
+        helper.name = `scene-preview-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         editorHelpers.set(entity, helper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -243,6 +247,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of audioHelper.enter()) {
         const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
+        helper.name = `audio-helper-${entity}`
         helper.material.map = AUDIO_HELPER_TEXTURE
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -261,6 +266,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of envMapBakeQuery.enter()) {
         const helper = new Object3D()
+        helper.name = `envmap-bake-helper-${entity}`
 
         helper.userData.centerBall = new Mesh(
           new SphereGeometry(0.75),
@@ -296,6 +302,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of mountPointQuery.enter()) {
         const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
+        helper.name = `mount-point-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
         editorHelpers.set(entity, helper)
@@ -316,6 +323,7 @@ export default async function DebugHelpersSystem(world: World) {
           new CylinderGeometry(0.25, 0.25, 0.1, 6, 1, false, (30 * Math.PI) / 180),
           new MeshBasicMaterial({ color: 0x2b59c3 })
         )
+        helper.name = `portal-helper-${entity}`
 
         const spawnDirection = new Mesh(
           new ConeGeometry(0.05, 0.5, 4, 1, false, Math.PI / 4),
@@ -350,6 +358,7 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of spawnPointQuery.enter()) {
         const helper = spawnPointHelperModel.clone()
+        helper.name = `spawn-point-helper-${entity}`
         const helperBox = new BoxHelper(new Mesh(new BoxGeometry(1, 0, 1)), 0xffffff)
         helper.userData.helperBox = helperBox
         helper.add(helperBox)
@@ -378,6 +387,7 @@ export default async function DebugHelpersSystem(world: World) {
       for (const entity of splineQuery.enter()) {
         const spline = getComponent(entity, SplineComponent)
         const helper = new Spline()
+        helper.name = `spline-helper-${entity}`
         helper.init(spline.splinePositions)
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -414,6 +424,7 @@ export default async function DebugHelpersSystem(world: World) {
         anim.rig.Hips
       ) {
         const helper = new SkeletonHelper(anim.rig.Hips)
+        helper.name = `skeleton-helper-${entity}`
         Engine.instance.currentWorld.scene.add(helper)
         helpersByEntity.skeletonHelpers.set(entity, helper)
       }
@@ -458,6 +469,7 @@ export default async function DebugHelpersSystem(world: World) {
     for (const entity of boundingBoxQuery.enter()) {
       const boundingBox = getComponent(entity, BoundingBoxComponent)
       const helper = new Box3Helper(boundingBox.box)
+      helper.name = `bounding-box-helper-${entity}`
       setObjectLayers(helper, ObjectLayers.NodeHelper)
       helpersByEntity.box.set(entity, helper)
       Engine.instance.currentWorld.scene.add(helper)
@@ -484,6 +496,7 @@ export default async function DebugHelpersSystem(world: World) {
 
           if (!helpersByEntity.positionalAudioHelper.has(entity)) {
             const helper = new PositionalAudioHelper(audioNodes)
+            helper.name = `positional-audio-helper-${entity}`
             // helper.visible = false
             helpersByEntity.positionalAudioHelper.set(entity, helper)
             Engine.instance.currentWorld.scene.add(helper)
@@ -493,6 +506,17 @@ export default async function DebugHelpersSystem(world: World) {
           audioNodes.panner && helper?.update()
           helper?.position.copy(getComponent(entity, TransformComponent).position)
         }
+    }
+
+    if (debugEnabled) {
+      for (const [entity, helper] of editorHelpers) {
+        helper.updateMatrixWorld(true)
+      }
+      for (const helpers of Object.values(helpersByEntity)) {
+        for (const [entity, helper] of helpers) {
+          helper.updateMatrixWorld(true)
+        }
+      }
     }
   }
 

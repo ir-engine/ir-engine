@@ -5,11 +5,18 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { PointerObject, XRPointerComponent } from '../../xr/XRComponents'
 import { xrInputSourcesMap } from '../../xr/XRControllerSystem'
@@ -26,6 +33,7 @@ export default async function XRUISystem(world: World) {
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent])
+  const xruiQuery = defineQuery([XRUIComponent])
   const pointerQuery = defineQuery([XRPointerComponent])
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
@@ -157,6 +165,14 @@ export default async function XRUISystem(world: World) {
       xrui.update()
     }
 
+    /** @todo remove this once XRUI no longer forces it internally */
+    for (const entity of xruiQuery()) {
+      const xrui = getComponent(entity, XRUIComponent)
+      const visible = hasComponent(entity, VisibleComponent)
+      xrui.matrixWorldAutoUpdate = visible
+      xrui.matrixAutoUpdate = visible
+    }
+
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.currentWorld.camera.projectionMatrix)
     // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
     // xrui.layoutSystem.update(world.delta, world.elapsedTime)
@@ -167,6 +183,7 @@ export default async function XRUISystem(world: World) {
     document.body.removeEventListener('contextmenu', redirectDOMEvent)
     document.body.removeEventListener('dblclick', redirectDOMEvent)
     removeQuery(world, visibleXruiQuery)
+    removeQuery(world, xruiQuery)
     removeQuery(world, pointerQuery)
   }
 

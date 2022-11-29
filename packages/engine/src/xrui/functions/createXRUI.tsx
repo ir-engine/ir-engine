@@ -44,6 +44,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   container.raycaster.layers.enableAll()
 
   const root = new Group()
+  root.name = containerElement.id
   root.add(container)
   setTransformComponent(entity)
   addObjectToGroup(entity, root)

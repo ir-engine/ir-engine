@@ -37,7 +37,7 @@ export default function () {
     },
     {
       uuid: 'xre.engine.SceneObjectDynamicLoadSystem',
-      type: SystemUpdateType.FIXED_LATE,
+      type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: SceneObjectDynamicLoadSystem })
     },
     {
