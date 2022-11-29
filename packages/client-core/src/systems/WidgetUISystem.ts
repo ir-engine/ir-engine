@@ -13,7 +13,8 @@ import {
   addComponent,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
@@ -25,7 +26,7 @@ import {
 } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRControllerComponent } from '@xrengine/engine/src/xr/XRComponents'
 import { getPreferredControllerEntity } from '@xrengine/engine/src/xr/XRState'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { XRUIComponent, XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { addActionReceptor, createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
@@ -54,6 +55,7 @@ export const WidgetInput = {
 }
 export default async function WidgetSystem(world: World) {
   const widgetMenuUI = createWidgetButtonsView()
+  setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
   removeComponent(widgetMenuUI.entity, VisibleComponent)
 
   addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
