@@ -72,19 +72,14 @@ export default class TransformGizmo extends Object3D {
   selectedAxisObj?: MeshWithAxisInfo
   hoveredAxis: MeshWithAxisInfo
 
-  static async load() {
-    if (gizmoGltf) return Promise.resolve(gizmoGltf)
-    gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH, { ignoreDisposeGeometry: true })
-    return gizmoGltf
-  }
-
   constructor() {
     super()
-    if (!gizmoGltf) {
-      throw new Error('TransformGizmo must be loaded before it can be used. Await TransformGizmo.load()')
-    }
-
     this.name = 'TransformGizmo'
+  }
+
+  async load() {
+    gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH, { ignoreDisposeGeometry: true })
+
     this.model = cloneObject3D(gizmoGltf.scene)
     this.add(this.model)
     this.selectionColor = new Color().setRGB(1, 1, 1)
@@ -248,7 +243,7 @@ export default class TransformGizmo extends Object3D {
     this.rotateControls.visible = false
     this.scaleControls.visible = false
 
-    this.transformMode = TransformMode.Disabled
+    if (!this.transformMode) this.transformMode = TransformMode.Disabled
 
     this.model.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
       if (obj.isMesh) {
@@ -267,6 +262,8 @@ export default class TransformGizmo extends Object3D {
         obj.renderOrder = 100
       }
     })
+
+    this.setTransformMode(this.transformMode)
   }
 
   get selectedAxis() {
@@ -279,6 +276,7 @@ export default class TransformGizmo extends Object3D {
 
   setTransformMode(transformMode: TransformModeType): void {
     this.transformMode = transformMode
+    if (!gizmoGltf) return
     this.translateControls.visible = false
     this.rotateControls.visible = false
     this.scaleControls.visible = false

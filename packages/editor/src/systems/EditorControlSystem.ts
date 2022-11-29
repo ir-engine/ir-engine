@@ -179,13 +179,13 @@ export default async function EditorControlSystem(world: World) {
     selectedEntities = selectionState.selectedEntities.value
     const gizmoObj = getComponent(SceneState.gizmoEntity, TransformGizmoComponent).gizmo
 
-    transformModeChanged = transformMode === editorHelperState.transformMode.value
+    transformModeChanged = transformMode !== editorHelperState.transformMode.value
     transformMode = editorHelperState.transformMode.value
 
-    transformPivotChanged = transformPivot === editorHelperState.transformPivot.value
+    transformPivotChanged = transformPivot !== editorHelperState.transformPivot.value
     transformPivot = editorHelperState.transformPivot.value
 
-    transformSpaceChanged = transformSpace === editorHelperState.transformSpace.value
+    transformSpaceChanged = transformSpace !== editorHelperState.transformSpace.value
     transformSpace = editorHelperState.transformSpace.value
 
     if (!gizmoObj) return
@@ -551,7 +551,8 @@ export default async function EditorControlSystem(world: World) {
 
     const selecting = world.inputState.has(MouseInput.LeftButton)
     const zoom = world.inputState.get(MouseInput.MouseScroll)?.value?.[0]
-    const focusPosition = world.inputState.has(MouseInput.LeftButtonDoubleClick)
+    const focusPosition =
+      world.inputState.get(MouseInput.LeftButtonDoubleClick)?.lifecycleState === LifecycleValue.Started
     const orbiting = selecting && !dragging
     const panning = world.inputState.has(MouseInput.MiddleButton)
 

@@ -61,7 +61,7 @@ void main() {
 const GRID_INCREAMENT = 1.5
 
 export default class InfiniteGridHelper extends Mesh {
-  static instance: InfiniteGridHelper
+  static instance: InfiniteGridHelper = new InfiniteGridHelper()
   plane: Plane
   intersectionPointWorld: Vector3
   intersection: any
