@@ -96,6 +96,7 @@ export const setRigidBodyType = (entity: Entity, type: RigidBodyType) => {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const oldTypeTag = getTagComponentForRigidBody(rigidbody.body.bodyType())
   removeComponent(entity, oldTypeTag)
+  rigidbody.body.setBodyType(type)
   const typeTag = getTagComponentForRigidBody(type)
   setComponent(entity, typeTag)
 }
