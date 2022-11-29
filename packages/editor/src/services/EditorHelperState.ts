@@ -55,7 +55,7 @@ const EditorHelperState = defineState({
       }, [state.transformMode])
 
       useEffect(() => {
-        InfiniteGridHelper.instance.setSize(state.translationSnap.value)
+        InfiniteGridHelper.instance?.setSize(state.translationSnap.value)
       }, [state.translationSnap])
 
       return null
