@@ -173,11 +173,11 @@ const instanceserver = {
 }
 
 /**
- * Analytics generator
+ * Task server generator
  */
-const analytics = {
-  port: process.env.ANALYTICS_PORT!,
-  processInterval: process.env.ANALYTICS_PROCESS_INTERVAL_SECONDS!
+const taskserver = {
+  port: process.env.TASKSERVER_PORT!,
+  processInterval: process.env.TASKSERVER_PROCESS_INTERVAL_SECONDS!
 }
 
 /**
@@ -355,7 +355,6 @@ const ipfs = {
  */
 const config = {
   deployStage: process.env.DEPLOY_STAGE!,
-  analytics,
   authentication,
   aws,
   chargebee,
@@ -366,6 +365,7 @@ const config = {
   instanceserver,
   ipfs,
   server,
+  taskserver,
   redis,
   scopes,
   blockchain,

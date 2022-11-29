@@ -14,13 +14,13 @@ vendor/
 packages/**/node_modules
 package-lock.json
 packages/**/package-lock.json
-packages/analytics
 packages/bot
 packages/client
 packages/client-core
 packages/editor
 packages/instanceserver
 packages/ops
+packages/taskserver
 packages/test
 
 

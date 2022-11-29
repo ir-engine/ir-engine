@@ -1,10 +1,10 @@
 version: '3.8'
 services:
-  analytics:
-    image: ${LABEL}-analytics
+  taskserver:
+    image: ${LABEL}-taskserver
     build:
       context: ../
-      dockerfile: ./dockerfiles/analytics/Dockerfile-analytics
+      dockerfile: ./dockerfiles/taskserver/Dockerfile-taskserver
   api:
     image: ${LABEL}-api
     build:

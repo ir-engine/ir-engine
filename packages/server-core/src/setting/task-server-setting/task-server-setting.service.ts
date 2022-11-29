@@ -1,12 +1,12 @@
 import { Application } from '../../../declarations'
 import { updateAppConfig } from '../../updateAppConfig'
-import { Analytics } from './analytics.class'
-import hooks from './analytics.hooks'
-import createModel from './analytics.model'
+import { TaskServerSetting } from './task-server-setting.class'
+import hooks from './task-server-setting.hooks'
+import createModel from './task-server-setting.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    'analytics-setting': Analytics
+    'task-server-setting': TaskServerSetting
   }
 }
 
@@ -17,9 +17,9 @@ export default (app: Application): void => {
     multi: true
   }
 
-  const event = new Analytics(options, app)
-  app.use('analytics-setting', event)
-  const service = app.service('analytics-setting')
+  const event = new TaskServerSetting(options, app)
+  app.use('task-server-setting', event)
+  const service = app.service('task-server-setting')
   service.hooks(hooks)
 
   service.on('patched', () => {
