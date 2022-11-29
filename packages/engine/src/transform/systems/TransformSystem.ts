@@ -216,6 +216,8 @@ export default async function TransformSystem(world: World) {
   const invFilterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
     !filterCleanNonSleepingDynamicRigidbodies(entity)
 
+  let sortedTransformEntities = [] as Entity[]
+
   const execute = () => {
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
 
@@ -223,10 +225,24 @@ export default async function TransformSystem(world: World) {
     // Note: cyclic references will cause undefined behavior
     const { transformsNeedSorting } = getState(EngineState)
     const transformEntities = transformQuery()
-    if (transformsNeedSorting.value) {
+
+    let needsSorting = transformsNeedSorting.value
+
+    for (const entity of transformQuery.enter()) {
+      sortedTransformEntities.push(entity)
+      needsSorting = true
+    }
+
+    for (const entity of transformQuery.exit()) {
+      const idx = sortedTransformEntities.indexOf(entity)
+      idx > -1 && sortedTransformEntities.splice(idx, 1)
+      needsSorting = true
+    }
+
+    if (needsSorting) {
       transformDepths.clear()
-      for (const entity of transformEntities) updateTransformDepth(entity)
-      insertionSort(transformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
+      for (const entity of sortedTransformEntities) updateTransformDepth(entity)
+      insertionSort(sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
       transformsNeedSorting.set(false)
     }
 
