@@ -250,7 +250,7 @@ export default async function EditorControlSystem(world: World) {
       }
     }
     const cursorPositionInput = world.inputState.get(MouseInput.MousePosition)
-    if (cursorPositionInput) cursorPosition.set(cursorPositionInput.value[0], cursorPositionInput[1])
+    if (cursorPositionInput) cursorPosition.set(cursorPositionInput.value[0], cursorPositionInput.value[1])
 
     const isGrabbing = transformMode === TransformMode.Grab || transformMode === TransformMode.Placement
     const selectStartAndNoGrabbing =

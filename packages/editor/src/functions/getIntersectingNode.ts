@@ -35,7 +35,7 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
     const parentNode = getParentEntity(obj)
     if (!parentNode) continue //skip obj3ds that are not children of EntityNodes
     if (!obj.entity && parentNode && !selected.has(parentNode.entity)) {
-      ;[result.node] = getEntityNodeArrayFromEntities([parentNode.entity])
+      result.node = getEntityNodeArrayFromEntities([parentNode.entity])[0]
       result.obj3d = getComponent(parentNode.entity, GroupComponent)[0] as Object3DWithEntity
       return result
     }
