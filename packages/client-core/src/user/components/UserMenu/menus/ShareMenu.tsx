@@ -167,7 +167,7 @@ const ShareMenu = (props: Props): JSX.Element => {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Button
             className={styles.friendsBtn}
-            sx={{ marginLeft: '40px' }}
+            sx={{ marginLeft: '40px !important' }}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onClick={() => window.open(questShareLink, '_blank')}
