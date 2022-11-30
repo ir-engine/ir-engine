@@ -256,7 +256,6 @@ export default async function AvatarAnimationSystem(world: World) {
      */
     for (const entity of headIKEntities) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
-      ik.target.updateMatrix()
       ik.target.updateMatrixWorld(true)
       const rig = getComponent(entity, AvatarRigComponent).rig
       ik.target.getWorldDirection(_vec).multiplyScalar(-1)
@@ -270,7 +269,6 @@ export default async function AvatarAnimationSystem(world: World) {
       const { rig } = getComponent(entity, AvatarRigComponent)
 
       const ik = getComponent(entity, AvatarLeftHandIKComponent)
-      ik.target.updateMatrix()
       ik.target.updateMatrixWorld(true)
 
       // Arms should not be straight for the solver to work properly
@@ -306,7 +304,6 @@ export default async function AvatarAnimationSystem(world: World) {
       const { rig } = getComponent(entity, AvatarRigComponent)
 
       const ik = getComponent(entity, AvatarRightHandIKComponent)
-      ik.target.updateMatrix()
       ik.target.updateMatrixWorld(true)
 
       if (!ik.target.position.equals(V_000)) {

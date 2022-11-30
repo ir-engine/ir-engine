@@ -846,7 +846,7 @@
       font-weight: normal;
     }
 
-    .copyField {
+    .textField {
       width: 100%;
       color: var(--textColor);
 
@@ -872,29 +872,18 @@
       }
     }
 
-    .emailField {
-      margin-top: 30px;
-      width: 100%;
+    .friendsBtn {
+      height: 35px;
+      font-size: 14px;
+      width: 250px;
+      max-width: 100%;
+      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
       color: var(--textColor);
+      border-radius: 20px;
+      margin: 15px 5px 20px;
 
-      input {
-        color: var(--textColor);
-        border-color: var(--inputOutline);
-      }
-
-      :global(.MuiOutlinedInput-root) {
-        fieldset {
-          border-color: var(--inputOutline);
-        }
-      }
-
-      :global(.MuiInputAdornment-root) {
-        color: var(--textColor);
-        cursor: pointer;
-
-        &:hover {
-          opacity: 0.8;
-        }
+      &:hover {
+        opacity: 0.8;
       }
     }
 
@@ -908,21 +897,6 @@
         background: var(--primaryHighlight);
         color: #fff;
         text-transform: capitalize;
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-
-      .friendsBtn {
-        height: 35px;
-        font-size: 14px;
-        width: 250px;
-        max-width: 100%;
-        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-        color: var(--textColor);
-        border-radius: 20px;
-        margin: 15px 5px 20px;
 
         &:hover {
           opacity: 0.8;
@@ -2649,4 +2623,8 @@
   border: 1px solid var(--buttonOutlined);
   border-radius: 8px;
   box-shadow: 0 0 10px var(--buttonOutlined);
+}
+
+.mt1p {
+  margin-top: 10px;
 }

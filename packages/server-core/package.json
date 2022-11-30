@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "1.0.0-rc6",
+  "version": "1.0.0-rc7",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -52,9 +52,9 @@
     "@gltf-transform/extensions": "^2.4.1",
     "@gltf-transform/functions": "^2.4.1",
     "@kubernetes/client-node": "^0.16.2",
-    "@xrengine/common": "^1.0.0-rc6",
-    "@xrengine/engine": "^1.0.0-rc6",
-    "@xrengine/matchmaking": "^1.0.0-rc6",
+    "@xrengine/common": "^1.0.0-rc7",
+    "@xrengine/engine": "^1.0.0-rc7",
+    "@xrengine/matchmaking": "^1.0.0-rc7",
     "app-root-path": "3.0.0",
     "aws-sdk": "2.1113.0",
     "bent": "^7.3.0",

@@ -26,7 +26,7 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { XRState } from '../xr/XRState'
+import { XRAction, XRState } from '../xr/XRState'
 import { createTransitionState } from '../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
@@ -143,6 +143,8 @@ export default async function AvatarTeleportSystem(world: World) {
         fadeBackInAccumulator = -1
         teleportAvatar(world.localClientEntity, guideCursor.position)
         dispatchAction(CameraActions.fadeToBlack({ in: false }))
+        dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
+        dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
       }
     }
     for (const entity of avatarTeleportQuery.exit(world)) {
