@@ -4,7 +4,14 @@ import { Quaternion, Vector3 } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
-import { createMappedComponent, defineComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import {
+  createMappedComponent,
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 
 const { f64 } = Types
 const Vector3Schema = { x: f64, y: f64, z: f64 }
@@ -12,12 +19,11 @@ const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
 const SCHEMA = {
   previousPosition: Vector3Schema,
   previousRotation: QuaternionSchema,
-  previousLinearVelocity: Vector3Schema,
-  previousAngularVelocity: Vector3Schema,
   position: Vector3Schema,
   rotation: QuaternionSchema,
   linearVelocity: Vector3Schema,
-  angularVelocity: Vector3Schema
+  angularVelocity: Vector3Schema,
+  scale: Vector3Schema
 }
 
 export const RigidBodyComponent = defineComponent({
@@ -29,12 +35,11 @@ export const RigidBodyComponent = defineComponent({
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
       previousRotation: proxifyQuaternion(this.previousRotation, entity),
-      previousLinearVelocity: proxifyVector3(this.previousLinearVelocity, entity),
-      previousAngularVelocity: proxifyVector3(this.previousAngularVelocity, entity),
       position: proxifyVector3(this.position, entity),
       rotation: proxifyQuaternion(this.rotation, entity),
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
-      angularVelocity: proxifyVector3(this.angularVelocity, entity)
+      angularVelocity: proxifyVector3(this.angularVelocity, entity),
+      scale: proxifyVector3(this.scale, entity)
     }
   },
 
@@ -85,4 +90,13 @@ export const getTagComponentForRigidBody = (type: RigidBodyType): RigidBodyTypes
     case RigidBodyType.KinematicVelocityBased:
       return RigidBodyKinematicVelocityBasedTagComponent
   }
+}
+
+export const setRigidBodyType = (entity: Entity, type: RigidBodyType) => {
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const oldTypeTag = getTagComponentForRigidBody(rigidbody.body.bodyType())
+  removeComponent(entity, oldTypeTag)
+  rigidbody.body.setBodyType(type)
+  const typeTag = getTagComponentForRigidBody(type)
+  setComponent(entity, typeTag)
 }

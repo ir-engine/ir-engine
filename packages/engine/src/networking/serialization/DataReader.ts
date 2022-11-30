@@ -2,6 +2,7 @@ import { TypedArray } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -9,14 +10,14 @@ import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../ava
 import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
 import { expand, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
@@ -184,14 +185,12 @@ export const readBodyRotation = readCompressedRotation(RigidBodyComponent.rotati
 export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
 export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
 
-export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Set<Entity>) => {
+export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Record<Entity, true>) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
-  if (entity) {
-    dirtyTransforms.add(entity)
-  }
+  dirtyTransforms[entity] = true
 }
 
 export const readRigidBody = (v: ViewCursor, entity: Entity) => {
@@ -293,27 +292,30 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   // if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
 }
 
-export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserId: UserId) => {
+export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserID: UserId) => {
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, world, fromUserId)
+      readEntity(v, world, fromUserID)
     }
   }
 }
 
 export const readMetadata = (v: ViewCursor, world: World) => {
   const userIndex = readUint32(v)
+  const peerIndex = readUint32(v)
   const fixedTick = readUint32(v)
-  // if (userIndex === world.userIdToUserIndex.get(world.worldNetwork.hostId)! && !world.worldNetwork.isHosting) world.fixedTick = fixedTick
-  return userIndex
+  // if (userIndex === world.peerIDToUserIndex.get(world.worldNetwork.hostId)! && !world.worldNetwork.isHosting) world.fixedTick = fixedTick
+  return { userIndex, peerIndex }
 }
 
 export const createDataReader = () => {
   return (world: World, network: Network, packet: ArrayBuffer) => {
     const view = createViewCursor(packet)
-    const userIndex = readMetadata(view, world)
-    const fromUserId = network.userIndexToUserId.get(userIndex)
-    if (fromUserId) readEntities(view, world, packet.byteLength, fromUserId)
+    const { userIndex, peerIndex } = readMetadata(view, world)
+    const fromUserID = network.userIndexToUserID.get(userIndex)
+    const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
+    const isLoopback = fromPeerID && fromPeerID === network.peerID
+    if (fromUserID && !isLoopback) readEntities(view, world, packet.byteLength, fromUserID)
   }
 }

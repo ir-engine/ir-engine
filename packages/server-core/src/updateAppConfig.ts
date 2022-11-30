@@ -18,49 +18,6 @@ const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
-//TODO: Environment variables that can be refreshed at runtime
-export const refreshAppConfig = async (): Promise<void> => {
-  const sequelizeClient = new Sequelize({
-    ...(db as any),
-    define: {
-      freezeTableName: true
-    },
-    logging: false
-  }) as any
-  await sequelizeClient.sync()
-
-  const promises: any[] = []
-
-  const serverSetting = sequelizeClient.define('serverSetting', {
-    gaTrackingId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    gitPem: {
-      type: DataTypes.STRING(2048),
-      allowNull: true
-    }
-  })
-
-  const serverSettingPromise = serverSetting
-    .findAll()
-    .then(([dbServer]) => {
-      const dbServerConfig = dbServer && {
-        gaTrackingId: dbServer.gaTrackingId,
-        gitPem: dbServer.gitPem
-      }
-      appConfig.server = {
-        ...appConfig.server,
-        ...dbServerConfig
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
-    })
-  promises.push(serverSettingPromise)
-  await Promise.all(promises)
-}
-
 export const updateAppConfig = async (): Promise<void> => {
   if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
   const sequelizeClient = new Sequelize({
@@ -74,7 +31,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const promises: any[] = []
 
-  const analyticsSetting = sequelizeClient.define('analyticsSetting', {
+  const taskServerSetting = sequelizeClient.define('taskServerSetting', {
     port: {
       type: DataTypes.STRING,
       allowNull: true
@@ -84,24 +41,24 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
-  const analyticsSettingPromise = analyticsSetting
+  const taskServerSettingPromise = taskServerSetting
     .findAll()
-    .then(([dbAnalytics]) => {
-      const dbAnalyticsConfig = dbAnalytics && {
-        port: dbAnalytics.port,
-        processInterval: dbAnalytics.processInterval
+    .then(([dbTaskServer]) => {
+      const dbTaskServerConfig = dbTaskServer && {
+        port: dbTaskServer.port,
+        processInterval: dbTaskServer.processInterval
       }
-      if (dbAnalyticsConfig) {
-        appConfig.analytics = {
-          ...appConfig.analytics,
-          ...dbAnalyticsConfig
+      if (dbTaskServerConfig) {
+        appConfig.taskserver = {
+          ...appConfig.taskserver,
+          ...dbTaskServerConfig
         }
       }
     })
     .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read analyticsSetting: ${e.message}`)
+      logger.error(e, `[updateAppConfig]: Failed to read taskServerSetting: ${e.message}`)
     })
-  promises.push(analyticsSettingPromise)
+  promises.push(taskServerSettingPromise)
 
   const authenticationSetting = sequelizeClient.define('authentication', {
     service: {

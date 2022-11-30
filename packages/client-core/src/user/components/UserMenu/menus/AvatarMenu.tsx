@@ -8,7 +8,6 @@ import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSyste
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getState } from '@xrengine/hyperflux'
 
 import { Check, Close, Delete, NavigateBefore, NavigateNext, PersonAdd } from '@mui/icons-material'
@@ -101,8 +100,7 @@ const AvatarMenu = (props: Props) => {
   const loadNextAvatars = (e) => {
     e.preventDefault()
     if ((page + 1) * imgPerPage >= avatarState.total.value) return
-    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
-      AvatarService.fetchAvatarList(false, 'increment')
+    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length) AvatarService.fetchAvatarList('increment')
     setPage(page + 1)
   }
   const loadPreviousAvatars = (e) => {
@@ -120,7 +118,7 @@ const AvatarMenu = (props: Props) => {
 
   const closeMenu = (e) => {
     e.preventDefault()
-    props.changeActiveMenu(null)
+    props.changeActiveMenu(Views.Closed)
   }
 
   const openAvatarSelectMenu = (e) => {

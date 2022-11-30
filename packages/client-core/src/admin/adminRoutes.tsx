@@ -11,7 +11,7 @@ import PrivateRoute from '../Private'
 import AdminSystem from '../systems/AdminSystem'
 import { useAuthState } from '../user/services/AuthService'
 import LoadingView from './common/LoadingView'
-import analytic from './components/Analytics'
+import analytics from './components/Analytics'
 import avatars from './components/Avatars'
 import benchmarking from './components/Benchmarking'
 import botSetting from './components/Bots'
@@ -112,7 +112,7 @@ const ProtectedRoutes = () => {
             {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
             {allowedRoutes.user && <PrivateRoute exact path="/admin/users" component={users} />}
             <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />
-            <PrivateRoute path="/admin" component={analytic} />
+            <PrivateRoute path="/admin" component={analytics} />
           </Switch>
         )}
       </Suspense>

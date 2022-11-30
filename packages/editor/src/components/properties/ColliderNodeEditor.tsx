@@ -12,13 +12,12 @@ import { supportedColliderShapes } from '@xrengine/engine/src/scene/functions/lo
 
 import PanToolIcon from '@mui/icons-material/PanTool'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 const bodyTypeOptions = Object.entries(RigidBodyType)
   .filter(([value]) => (value as string).length > 1)
@@ -78,24 +77,16 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       props.onEnter = colliderComponent.onEnter ?? ''
       props.onExit = colliderComponent.onExit ?? ''
     }
-    setPropertyOnSelectionEntities({
-      component: ColliderComponent,
-      properties: [props]
-    })
+    updateProperties(ColliderComponent, props)
   }
 
   const triggerProps = () => {
     //function to handle the changes in target
     const onChangeTarget = (target) => {
-      setPropertyOnSelectionEntities({
-        component: ColliderComponent,
-        properties: [
-          {
-            target: target === 'Self' ? '' : target,
-            onEnter: '',
-            onExit: ''
-          }
-        ]
+      updateProperties(ColliderComponent, {
+        target: target === 'Self' ? '' : target,
+        onEnter: '',
+        onExit: ''
       })
     }
 

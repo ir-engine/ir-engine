@@ -5,7 +5,7 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AnimationManager } from '../AnimationManager'
 import { AvatarSettings } from '../AvatarControllerSystem'
@@ -46,13 +46,14 @@ export function createAvatarAnimationGraph(
 ): AnimationGraph {
   if (!mixer) return null!
 
-  const isOwnedEntity = hasComponent(entity, NetworkObjectOwnedTag)
-
   const graph: AnimationGraph = {
     states: {},
     transitionRules: {},
     currentState: null!,
-    stateChanged: isOwnedEntity ? dispatchStateChange : null!
+    stateChanged: (name) => {
+      hasComponent(entity, NetworkObjectAuthorityTag) &&
+        dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params: {} }))
+    }
   }
 
   // Initialize all the states
@@ -277,7 +278,7 @@ export function createAvatarAnimationGraph(
 
   const movementTransitionRule = vectorLengthTransitionRule(locomotion, 0.001)
 
-  if (isOwnedEntity) {
+  if (hasComponent(entity, NetworkObjectOwnedTag)) {
     graph.transitionRules[AvatarStates.LOCOMOTION] = [
       // Jump
       {
@@ -383,11 +384,6 @@ export function createAvatarAnimationGraph(
   enterAnimationState(graph.currentState)
 
   return graph
-}
-
-function dispatchStateChange(name: string, graph: AnimationGraph): void {
-  const params = {}
-  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }))
 }
 
 export function changeAvatarAnimationState(entity: Entity, newStateName: string): void {

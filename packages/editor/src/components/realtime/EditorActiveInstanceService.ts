@@ -13,6 +13,7 @@ import { accessEditorState } from '../../services/EditorServices'
 export type ActiveInstance = {
   id: string
   location: string
+  currentUsers: number
   // todo: assignedAt so we can sort by most recent?
 }
 

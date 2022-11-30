@@ -8,6 +8,7 @@ describe('updateKeyVal', () => {
 
     const add = updateKeyVal(
       map.get.bind(map),
+      // @ts-ignore
       map.set.bind(map),
       (value: number, addend: number) => {
         return value + addend

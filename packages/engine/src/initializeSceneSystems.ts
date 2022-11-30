@@ -28,7 +28,7 @@ export const initializeSceneSystems = async () => {
       type: SystemUpdateType.FIXED,
       systemLoader: () => Promise.resolve({ default: AvatarSystem })
     },
-    /** @todo fix equippable implementation */
+    /** @todo fix equippable implementation #3947 */
     // {
     //   uuid: 'xre.engine.EquippableSystem',
     //   type: SystemUpdateType.FIXED_LATE,

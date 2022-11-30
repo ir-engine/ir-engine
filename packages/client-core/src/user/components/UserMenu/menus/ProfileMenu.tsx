@@ -220,7 +220,7 @@ const ProfileMenu = ({
   }
 
   const handleLogout = async (e) => {
-    if (changeActiveMenu) changeActiveMenu(null)
+    if (changeActiveMenu) changeActiveMenu(Views.Closed)
     else if (onClose) onClose()
     setShowUserId(false)
     setShowApiKey(false)
@@ -237,7 +237,7 @@ const ProfileMenu = ({
    * some in-engine action, makes a payment, etc).
    */
   async function handleIssueCredentialClick() {
-    /** @todo temporarily disabled for vite upgrade */
+    /** @todo temporarily disabled for vite upgrade #6453 */
     // const signedVp = await requestVcForEvent('EnteredVolumeEvent')
     // console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
     // const webCredentialType = 'VerifiablePresentation'

@@ -49,7 +49,9 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
   const parent = new Group()
+  parent.name = 'model-parent'
   const root = new Group()
+  root.name = 'model-root'
   root.add(scene)
   parent.add(root)
   parent.userData = scene.userData
@@ -77,6 +79,9 @@ export const loadAvatarForUser = async (
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect.value
 ) => {
+  if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
+    return
+
   if (loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) {
       getComponent(entity, AvatarControllerComponent).movementEnabled = false
@@ -112,7 +117,7 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
   const parent = await loadAvatarModelAsset(avatarURL)
   if (!parent) return
   setupAvatarModel(entity)(parent)
-  animateModel(entity)
+  // animateModel(entity)
   return parent
 }
 
@@ -269,6 +274,7 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
   hipBone.updateWorldMatrix(false, true)
 
   const group = new Group()
+  group.name = 'skinned-mesh-group'
   const skinnedMesh = new SkinnedMesh()
   const skeleton = new Skeleton(bones)
   skinnedMesh.bind(skeleton)

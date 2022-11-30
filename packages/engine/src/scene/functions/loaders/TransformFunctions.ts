@@ -5,12 +5,14 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getComponentState,
   getOptionalComponent,
   hasComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  setLocalTransformComponent,
   setTransformComponent,
   TransformComponent,
   TransformComponentType
@@ -31,9 +33,7 @@ export const deserializeTransform: ComponentDeserializeFunction = (entity: Entit
 
   const localTransform = getOptionalComponent(entity, LocalTransformComponent)
   if (localTransform) {
-    localTransform.position.copy(props.position)
-    localTransform.rotation.copy(props.rotation)
-    localTransform.scale.copy(props.scale)
+    setLocalTransformComponent(entity, localTransform.parentEntity, props.position, props.rotation, props.scale)
   }
 }
 

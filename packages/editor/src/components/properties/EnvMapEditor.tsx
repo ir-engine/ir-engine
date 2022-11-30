@@ -8,7 +8,6 @@ import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/comp
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { deserializeEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import FolderInput from '../inputs/FolderInput'
@@ -16,7 +15,7 @@ import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -45,10 +44,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
     if (directory !== envmapComponent.envMapSourceURL) {
-      setPropertyOnSelectionEntities({
-        component: EnvmapComponent,
-        properties: [{ envMapSourceURL: directory }]
-      })
+      updateProperties(EnvmapComponent, { envMapSourceURL: directory })
     }
   }, [])
 

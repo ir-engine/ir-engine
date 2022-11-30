@@ -11,7 +11,6 @@ import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../../../physics
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES } from '../../components/ColliderComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializeCollider, parseColliderProperties, serializeCollider } from './ColliderFunctions'
 
 describe('ColliderFunctions', () => {
@@ -41,7 +40,7 @@ describe('ColliderFunctions', () => {
   //   })
   //   it('creates Object3d Component', () => {
   //     deserializeCollider(entity, sceneComponentData)
-  //     assert(getComponent(entity, Object3DComponent)?.value)
+  //     assert(getComponent(entity, GroupComponent)?.value)
   //   })
   // })
   // describe('serializeBoxCollider()', () => {

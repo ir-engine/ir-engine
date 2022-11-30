@@ -5,5 +5,5 @@ export interface ServiceTypes {
 
 }
 
-// TODO: fix sequlize typings for this
+// TODO: fix sequlize typings for this #3826
 export interface Models {}

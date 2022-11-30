@@ -33,13 +33,12 @@ import {
   removeEntityNodeRecursively,
   updateRootNodeUuid
 } from '../../ecs/functions/EntityTree'
-import { initSystems } from '../../ecs/functions/SystemFunctions'
+import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
 import { ModelComponent, SCENE_COMPONENT_MODEL } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
@@ -181,25 +180,31 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentWorld
   getState(EngineState).sceneLoading.set(true)
 
-  /** get systems that have changed */
-  const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
-  const systemsToLoad = sceneSystems.filter(
-    (systemToLoad) =>
-      !Object.values(world.pipelines)
-        .flat()
-        .find((s) => s.uuid === systemToLoad.uuid)
-  )
-  const systemsToUnload = Object.keys(world.pipelines).map((p) =>
-    world.pipelines[p].filter((loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid))
-  )
+  const systemsToLoad = [] as SystemModuleType<any>[]
 
-  /** 1. unload old systems */
-  await Promise.all(systemsToUnload.flat().map((system) => system.cleanup()))
-  for (const pipeline of systemsToUnload) {
-    for (const system of pipeline) {
-      /** @todo run cleanup hook for this system */
-      const i = pipeline.indexOf(system)
-      pipeline.splice(i, 1)
+  if (!Engine.instance.isEditor) {
+    /** get systems that have changed */
+    const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
+    systemsToLoad.push(
+      ...sceneSystems.filter(
+        (systemToLoad) =>
+          !Object.values(world.pipelines)
+            .flat()
+            .find((s) => s.uuid === systemToLoad.uuid)
+      )
+    )
+    const systemsToUnload = Object.keys(world.pipelines).map((p) =>
+      world.pipelines[p].filter((loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid))
+    )
+
+    /** 1. unload old systems */
+    await Promise.all(systemsToUnload.flat().map((system) => system.cleanup()))
+    for (const pipeline of systemsToUnload) {
+      for (const system of pipeline) {
+        /** @todo run cleanup hook for this system */
+        const i = pipeline.indexOf(system)
+        pipeline.splice(i, 1)
+      }
     }
   }
 

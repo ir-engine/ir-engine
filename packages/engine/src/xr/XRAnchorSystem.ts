@@ -47,7 +47,7 @@ import {
   setTransformComponent,
   TransformComponent
 } from '../transform/components/TransformComponent'
-import { updateEntityTransform } from '../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import {
   InputSourceComponent,
   XRAnchorComponent,
@@ -130,7 +130,7 @@ export const getImmersiveHitTestTransform = (world = Engine.instance.currentWorl
 
   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
 
-  updateEntityTransform(viewerHitTestEntity)
+  computeTransformMatrix(viewerHitTestEntity)
 
   /** Swipe to rotate */
   const viewerInputSourceEntity = xrState.viewerInputSourceEntity.value
@@ -206,17 +206,22 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
   smoothedSceneScale.lerp(targetScaleVector, lerpAlpha)
 
-  /*
-  Set the world origin based on the scene anchor
-  */
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-  worldOriginTransform.matrix.compose(
+  updateWorldOrigin(
+    world,
     smoothedViewerHitResultPose.position,
     smoothedViewerHitResultPose.rotation,
-    _vecScale.setScalar(1)
+    smoothedSceneScale
   )
+}
+
+/*
+    Set the world origin
+  */
+export const updateWorldOrigin = (world: World, position: Vector3, rotation: Quaternion, scale?: Vector3) => {
+  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+  worldOriginTransform.matrix.compose(position, rotation, _vecScale.setScalar(1))
   worldOriginTransform.matrix.invert()
-  worldOriginTransform.matrix.scale(smoothedSceneScale)
+  if (scale) worldOriginTransform.matrix.scale(scale)
   worldOriginTransform.matrix.decompose(
     worldOriginTransform.position,
     worldOriginTransform.rotation,
@@ -264,6 +269,7 @@ export default async function XRAnchorSystem(world: World) {
   pinConeMesh.position.setY(0.05)
   pinConeMesh.rotateX(Math.PI)
   const worldOriginPinpointAnchor = new Group()
+  worldOriginPinpointAnchor.name = 'world-origin-pinpoint-anchor'
   worldOriginPinpointAnchor.add(pinSphereMesh, pinConeMesh)
 
   const xrViewerHitTestMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))

@@ -474,16 +474,14 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                 />
               </div>
               <section className={styles.settingSection}>
-                <div className={styles.row}>
+                <div
+                  className={styles.row}
+                  onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
+                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                >
                   <div className={styles.settingHeader}>{t('user:usermenu.setting.other-audio-setting')}</div>
-                  <IconButton
-                    className={styles.collapseBtn}
-                    aria-label="expand"
-                    size="small"
-                    onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
-                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  >
+                  <IconButton className={styles.collapseBtn} aria-label="expand" size="small">
                     {openOtherAudioSettings ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                   </IconButton>
                 </div>

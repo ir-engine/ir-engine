@@ -4,16 +4,16 @@ import { Network } from '../classes/Network'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 
 export async function validateNetworkObjects(world: World, network: Network): Promise<void> {
-  for (const [userId, client] of network.peers) {
-    if (userId === Engine.instance.userId) continue
+  for (const [peerID, client] of network.peers) {
+    if (client.userId === Engine.instance.userId) continue
     // Validate that user has phoned home recently
     if (Date.now() - client.lastSeenTs > 30000) {
-      console.log('Removing client ', userId, ' due to inactivity')
+      console.log('Removing client ', peerID, ' due to inactivity')
 
-      NetworkPeerFunctions.destroyPeer(network, userId, world)
+      NetworkPeerFunctions.destroyPeer(network, peerID, world)
       network.updatePeers()
 
-      console.log('Disconnected Client:', client.userId)
+      console.log('Disconnected Client:', peerID)
       if (client?.instanceRecvTransport) {
         console.log('Closing instanceRecvTransport')
         await client.instanceRecvTransport.close()
@@ -35,7 +35,7 @@ export async function validateNetworkObjects(world: World, network: Network): Pr
         console.log('Closed channelSendTransport')
       }
 
-      console.log('Removed transports for', userId)
+      console.log('Removed transports for', peerID)
     }
   }
 }

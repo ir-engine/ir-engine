@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "1.0.0-rc6",
+  "version": "1.0.0-rc7",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -47,9 +47,9 @@
     "@mui/styled-engine-sc": "5.10.0",
     "@mui/styles": "5.9.3",
     "@mui/x-date-pickers": "5.0.0-beta.4",
-    "@xrengine/common": "^1.0.0-rc6",
-    "@xrengine/engine": "^1.0.0-rc6",
-    "@xrengine/hyperflux": "^1.0.0-rc6",
+    "@xrengine/common": "^1.0.0-rc7",
+    "@xrengine/engine": "^1.0.0-rc7",
+    "@xrengine/hyperflux": "^1.0.0-rc7",
     "apexcharts": "^3.28.3",
     "axios": "0.26.1",
     "classnames": "2.3.1",

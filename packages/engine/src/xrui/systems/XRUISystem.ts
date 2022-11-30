@@ -5,16 +5,24 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { PointerObject, XRPointerComponent } from '../../xr/XRComponents'
 import { xrInputSourcesMap } from '../../xr/XRControllerSystem'
 import { XRUIManager } from '../classes/XRUIManager'
-import { XRUIComponent } from '../components/XRUIComponent'
+import { XRUIComponent, XRUIInteractableComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
 
 export default async function XRUISystem(world: World) {
@@ -26,7 +34,12 @@ export default async function XRUISystem(world: World) {
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent])
+  const visibleInteractableXRUIQuery = defineQuery([XRUIInteractableComponent, XRUIComponent, VisibleComponent])
+  const xruiQuery = defineQuery([XRUIComponent])
   const pointerQuery = defineQuery([XRPointerComponent])
+
+  // todo - hoist to hyperflux state
+  const maxXruiPointerDistanceSqr = 3 * 3
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
   xrui.WebLayerModule.WebLayerManager.initialize(renderer)
@@ -131,23 +144,34 @@ export default async function XRUISystem(world: World) {
     if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
 
-    const xruiEntities = visibleXruiQuery()
+    const interactableXRUIEntities = visibleInteractableXRUIQuery()
+
+    let isCloseToVisibleXRUI = false
+
+    for (const entity of interactableXRUIEntities) {
+      if (
+        hasComponent(entity, DistanceFromCameraComponent) &&
+        DistanceFromCameraComponent.squaredDistance[entity] < maxXruiPointerDistanceSqr
+      )
+        isCloseToVisibleXRUI = true
+    }
 
     /** do intersection tests */
     for (const source of world.inputSources) {
       const controllerEntity = xrInputSourcesMap.get(source)
       if (!controllerEntity) continue
-      const controller = getComponent(controllerEntity, XRPointerComponent).pointer
+      const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
+      pointer.material.visible = isCloseToVisibleXRUI
 
       if (source.targetRayMode === 'tracked-pointer') {
         const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
-        updateControllerRayInteraction(controller, xruiEntities)
-        if (input?.data?.has(GrabInput)) updateClickEventsForController(controller, input.data.get(GrabInput)!)
+        updateControllerRayInteraction(pointer, interactableXRUIEntities)
+        if (input?.data?.has(GrabInput)) updateClickEventsForController(pointer, input.data.get(GrabInput)!)
       }
 
       if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze')
         if (input?.data?.has(BaseInput.PRIMARY))
-          updateClickEventsForController(controller, input.data.get(BaseInput.PRIMARY)!)
+          updateClickEventsForController(pointer, input.data.get(BaseInput.PRIMARY)!)
     }
 
     /** only update visible XRUI */
@@ -155,6 +179,14 @@ export default async function XRUISystem(world: World) {
     for (const entity of visibleXruiQuery()) {
       const xrui = getComponent(entity, XRUIComponent)
       xrui.update()
+    }
+
+    /** @todo remove this once XRUI no longer forces it internally */
+    for (const entity of xruiQuery()) {
+      const xrui = getComponent(entity, XRUIComponent)
+      const visible = hasComponent(entity, VisibleComponent)
+      xrui.matrixWorldAutoUpdate = visible
+      xrui.matrixAutoUpdate = visible
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.currentWorld.camera.projectionMatrix)
@@ -167,6 +199,7 @@ export default async function XRUISystem(world: World) {
     document.body.removeEventListener('contextmenu', redirectDOMEvent)
     document.body.removeEventListener('dblclick', redirectDOMEvent)
     removeQuery(world, visibleXruiQuery)
+    removeQuery(world, xruiQuery)
     removeQuery(world, pointerQuery)
   }
 

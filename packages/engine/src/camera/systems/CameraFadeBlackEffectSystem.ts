@@ -25,8 +25,10 @@ export default async function CameraFadeBlackEffectSystem(world: World) {
     }
   })
   const mesh = new Mesh(geometry, material)
+  mesh.name = 'Camera Fade Transition'
   world.camera.add(mesh)
   mesh.visible = false
+  mesh.layers.disableAll()
   const transition = createTransitionState(0.25, 'OUT')
 
   const fadeActionQueue = createActionQueue(CameraActions.fadeToBlack.matches)

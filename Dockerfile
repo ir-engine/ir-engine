@@ -10,7 +10,6 @@ RUN npm install -g npm lerna cross-env rimraf --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
-COPY packages/analytics/package.json ./packages/analytics/
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/common/package.json ./packages/common/
@@ -22,6 +21,7 @@ COPY packages/engine/package.json ./packages/engine/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
+COPY packages/taskserver/package.json ./packages/taskserver/
 COPY packages/projects/package.json ./packages/projects/
 COPY project-package-jsons ./
 
@@ -39,8 +39,8 @@ ARG MYSQL_PORT
 ARG MYSQL_USER
 ARG MYSQL_PASSWORD
 ARG MYSQL_DATABASE
-ARG VITE_CLIENT_HOST
-ARG VITE_CLIENT_PORT
+ARG VITE_APP_HOST
+ARG VITE_APP_PORT
 ARG VITE_SERVER_HOST
 ARG VITE_SERVER_PORT
 ARG VITE_FILE_SERVER
@@ -57,8 +57,8 @@ ENV MYSQL_PORT=$MYSQL_PORT
 ENV MYSQL_USER=$MYSQL_USER
 ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
 ENV MYSQL_DATABASE=$MYSQL_DATABASE
-ENV VITE_CLIENT_HOST=$VITE_CLIENT_HOST
-ENV VITE_CLIENT_PORT=$VITE_CLIENT_PORT
+ENV VITE_APP_HOST=$VITE_APP_HOST
+ENV VITE_APP_PORT=$VITE_APP_PORT
 ENV VITE_SERVER_HOST=$VITE_SERVER_HOST
 ENV VITE_SERVER_PORT=$VITE_SERVER_PORT
 ENV VITE_FILE_SERVER=$VITE_FILE_SERVER

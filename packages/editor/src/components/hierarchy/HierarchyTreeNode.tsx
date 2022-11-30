@@ -21,10 +21,9 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
-import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
@@ -80,7 +79,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     ? getComponent(node.entityNode.entity, NameComponent)
     : ''
 
-  const errors = useOptionalComponent(node.entityNode.entity, ErrorComponent)
+  const errors = node.entityNode ? useOptionalComponent(node.entityNode.entity, ErrorComponent) : undefined
   const firstError = errors?.keys[0]
 
   const onClickToggle = useCallback(
@@ -205,12 +204,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         }
       }
       if (parentNode) {
-        executeCommandWithHistory({
-          type: EditorCommands.REPARENT,
-          affectedNodes: [item.value],
-          parents: [parentNode],
-          befores: beforeNode ? [beforeNode] : undefined
-        })
+        EditorControlFunctions.reparentObject([item.value], [parentNode], beforeNode ? [beforeNode] : [])
       }
     }
   }

@@ -1,15 +1,14 @@
 import { useTheme as styledUseTheme } from 'styled-components'
 
 import { createTheme } from '@mui/material/styles'
-import { borderColor } from '@mui/system'
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: 'rgb(81, 81, 255)'
+      main: 'rgba(128, 128, 128, 50%)'
     },
     secondary: {
-      main: 'rgb(255, 214, 0)'
+      main: 'rgba(128, 128, 128, 50%)'
     }
   },
   components: {
@@ -365,7 +364,7 @@ const theme = createTheme({
           fontSize: 16,
           color: 'var(--textColor)'
         },
-        //@ts-ignore // TODO
+        //@ts-ignore
         label: {
           textTransform: 'capitalize'
         },

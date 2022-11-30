@@ -6,6 +6,8 @@ export const clientSeed = {
     {
       logo: process.env.APP_LOGO,
       title: process.env.APP_TITLE,
+      shortTitle: process.env.APP_TITLE,
+      startPath: '/',
       releaseName: process.env.RELEASE_NAME || 'local',
       siteDescription: process.env.SITE_DESC,
       url:
@@ -27,7 +29,10 @@ export const clientSeed = {
       ]),
       themeSettings: JSON.stringify(defaultThemeSettings),
       themeModes: JSON.stringify(defaultThemeModes),
-      key8thWall: process.env.VITE_8TH_WALL
+      key8thWall: process.env.VITE_8TH_WALL,
+      homepageLinkButtonEnabled: false,
+      homepageLinkButtonRedirect: '',
+      homepageLinkButtonText: ''
     }
   ]
 }

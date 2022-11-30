@@ -4,7 +4,6 @@ import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { Object3D } from 'three'
 
 import { EntityTree, EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { useHookEffect } from '@xrengine/hyperflux'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import { ControlledStringInput } from './StringInput'

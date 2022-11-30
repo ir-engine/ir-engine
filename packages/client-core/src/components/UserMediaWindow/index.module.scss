@@ -166,7 +166,7 @@
       margin: 0 5px;
 
       &.mediaOn {
-        color: lightseagreen !important;
+        color: var(--primaryHighlight) !important;
       }
 
       &.mediaOff {

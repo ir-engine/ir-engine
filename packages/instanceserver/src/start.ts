@@ -48,7 +48,7 @@ const onSocket = async (app: Application, socket: Socket) => {
   if (!getEngineState().joinedWorld.value) {
     await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
   }
-  setupSocketFunctions(app.transport, socket)
+  setupSocketFunctions(app.network, socket)
 }
 
 export const instanceServerPipe = pipe(

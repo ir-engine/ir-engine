@@ -15,6 +15,7 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
 import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -108,15 +109,16 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     const node = createEntityNode(e, mesh.uuid as EntityUUID)
     addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
 
-    addComponent(e, NameComponent, {
-      name: mesh.userData['xrengine.entity'] ?? mesh.uuid
-    })
+    addComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
     // setTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
     setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
+    computeLocalTransformMatrix(entity)
+    computeTransformMatrix(entity)
+
     addObjectToGroup(e, mesh)
     addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
     createObjectEntityFromGLTF(e, mesh)
@@ -130,9 +132,6 @@ export const parseGLTFModel = (entity: Entity) => {
   if (!model.scene) return
   const scene = model.scene
   scene.updateMatrixWorld(true)
-  scene.traverse((child) => {
-    child.matrixAutoUpdate = model.matrixAutoUpdate
-  })
 
   // always parse components first
   parseObjectComponentsFromGLTF(entity, scene)

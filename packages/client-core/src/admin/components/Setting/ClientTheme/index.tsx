@@ -72,6 +72,8 @@ const ClientTheme = () => {
       {
         logo: clientSetting?.logo,
         title: clientSetting?.title,
+        shortTitle: clientSetting?.shortTitle,
+        startPath: clientSetting?.startPath,
         icon192px: clientSetting?.icon192px,
         icon512px: clientSetting?.icon512px,
         favicon16px: clientSetting?.favicon16px,
@@ -84,7 +86,10 @@ const ClientTheme = () => {
         appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
         themeSettings: JSON.stringify(newThemeSettings),
         themeModes: JSON.stringify(newThemeModes),
-        key8thWall: clientSetting?.key8thWall
+        key8thWall: clientSetting?.key8thWall,
+        homepageLinkButtonEnabled: clientSetting?.homepageLinkButtonEnabled,
+        homepageLinkButtonRedirect: clientSetting?.homepageLinkButtonRedirect,
+        homepageLinkButtonText: clientSetting?.homepageLinkButtonText
       },
       id
     )

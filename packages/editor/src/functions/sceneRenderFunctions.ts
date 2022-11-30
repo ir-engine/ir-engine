@@ -19,12 +19,10 @@ import { LocalTransformComponent } from '@xrengine/engine/src/transform/componen
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
-import { ActionSets, EditorMapping } from '../controls/input-mappings'
-import { initInputEvents } from '../controls/InputEvents'
+import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
-import { addInputActionMapping } from './parseInputActionMapping'
 
 export type DefaultExportOptionsType = {
   shouldCombineMeshes: boolean
@@ -46,7 +44,7 @@ type SceneStateType = {
 
 export const SceneState: SceneStateType = {
   isInitialized: false,
-  transformGizmo: null!,
+  transformGizmo: new TransformGizmo(),
   gizmoEntity: null!,
   editorEntity: null!
 }
@@ -62,13 +60,15 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   await updateSceneFromJSON(sceneData)
   await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
 
+  dispatchAction(EditorHistoryAction.clearHistory({}))
+
   const camera = world.camera
   const localTransform = getComponent(world.cameraEntity, LocalTransformComponent)
   camera.position.set(0, 5, 10)
   camera.lookAt(new Vector3())
   localTransform.position.copy(camera.position)
   localTransform.rotation.copy(camera.quaternion)
-  world.dirtyTransforms.add(world.cameraEntity)
+  world.dirtyTransforms[world.cameraEntity] = true
 
   world.camera.layers.enable(ObjectLayers.Scene)
   world.camera.layers.enable(ObjectLayers.NodeHelper)
@@ -84,8 +84,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
     cursorDeltaY: 0,
     focusedObjects: []
   })
-
-  SceneState.transformGizmo = new TransformGizmo()
 
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
   SceneState.editorEntity = createEditorEntity()
@@ -108,10 +106,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
  */
 export async function initializeRenderer(): Promise<void> {
   try {
-    initInputEvents()
-
-    addInputActionMapping(ActionSets.EDITOR, EditorMapping)
-
     dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
 
     accessEngineRendererState().automatic.set(false)
@@ -175,7 +169,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
   if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
-    ;(Engine.instance.currentWorld.scene as any).entity = useWorld().entityTree.rootNode.entity
+    ;(Engine.instance.currentWorld.scene as any).entity = Engine.instance.currentWorld.entityTree.rootNode.entity
   }
 
   const clonedScene = serializeForGLTFExport(Engine.instance.currentWorld.scene)

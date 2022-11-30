@@ -53,7 +53,9 @@ export class AudioEffectPlayer {
     }
   }
 
-  play = (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
+  play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
+    await Promise.resolve()
+
     if (!this.#els.length) return
 
     if (!this.bufferMap[sound]) {
@@ -115,7 +117,7 @@ export default async function MediaSystem(world: World) {
 
   world.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_MEDIA, props: {} }, // todo: add sample volumetric
+    { name: SCENE_COMPONENT_MEDIA, props: {} },
     { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} },
     { name: SCENE_COMPONENT_VOLUMETRIC, props: {} }
   ])

@@ -1,10 +1,9 @@
 import classNames from 'classnames'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { useHookEffect } from '@xrengine/hyperflux'
 
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import Button from '@mui/material/Button'
@@ -39,6 +38,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
 
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
+  const engineCommit = adminProjectState.builderInfo.engineCommit
 
   const projectUpdateStatus = useProjectUpdateState()
 
@@ -68,7 +68,9 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     })
     return {
       value: el.tag,
-      label: `Engine Version ${el.engineVersion} -- Commit ${el.commitSHA.slice(0, 8)} -- Pushed ${pushedDate}`
+      label: `${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
+        el.engineVersion
+      } -- Commit ${el.commitSHA.slice(0, 8)} -- Pushed ${pushedDate}`
     }
   })
 
@@ -105,13 +107,18 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     setProjectsToUpdate(newProjects)
   }
 
-  useHookEffect(() => {
+  useEffect(() => {
     const invalidProjects =
       Object.keys(projectUpdateStatus.value)
         .map((projectName) => projectUpdateStatus[projectName]?.submitDisabled.value)
         .indexOf(true) > -1
     setSubmitDisabled(selectedTag?.length === 0 || invalidProjects)
   }, [selectedTag, projectUpdateStatus])
+
+  useEffect(() => {
+    const matchingTag = builderTags.find((tag) => tag.tag === engineCommit.value)
+    if (open && engineCommit.value && matchingTag && selectedTag.length === 0) setSelectedTag(engineCommit.value)
+  }, [open, engineCommit.value, builderTags])
 
   return (
     <DrawerView open={open} onClose={handleClose}>

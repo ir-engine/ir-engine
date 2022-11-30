@@ -6,6 +6,7 @@ import _ from 'lodash'
 import path from 'path'
 import Sequelize, { Op } from 'sequelize'
 
+import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
 import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
 import { ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectTagInterface } from '@xrengine/common/src/interfaces/ProjectTagInterface'
@@ -15,11 +16,14 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
-import { getOctokitForChecking, getUserOrgs } from './github-helper'
+import { getOctokitForChecking } from './github-helper'
 import { ProjectParams } from './project.class'
 
-const publicECRRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/([\w\d\s\-_]+)$/
-const privateECRRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/([\w\d\s\-_]+)$/
+export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
+export const publicECRRepoRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/([a-z0-9\-_\\]+)$/
+export const publicECRTagRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/[a-z0-9\-_\\]+:([\w\d\s\-_.]+?)$/
+export const privateECRRepoRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/([a-z0-9\-_\\]+)$/
+export const privateECRTagRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/[a-z0-9\-_\\]+:([\w\d\s\-_.]+)$/
 
 interface GitHubFile {
   status: number
@@ -170,10 +174,16 @@ export const onProjectEvent = async (
   app: Application,
   projectName: string,
   hookPath: string,
-  eventType: keyof ProjectEventHooks
+  eventType: keyof ProjectEventHooks,
+  ...args
 ) => {
   const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
-  if (typeof hooks[eventType] === 'function') await hooks[eventType](app)
+  if (typeof hooks[eventType] === 'function') {
+    if (args && args.length > 0) {
+      return await hooks[eventType](app, ...args)
+    }
+    return await hooks[eventType](app)
+  }
 }
 
 export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {
@@ -571,14 +581,14 @@ export const getTags = async (
   }
 }
 
-export const findBuilderTags = async () => {
-  const builderRepo = process.env.BUILDER_REPOSITORY || ''
-  const publicECRExec = publicECRRegex.exec(builderRepo)
-  const privateECRExec = privateECRRegex.exec(builderRepo)
+export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
+  const builderRepo = (process.env.BUILDER_REPOSITORY as string) || ''
+  const publicECRExec = publicECRRepoRegex.exec(builderRepo)
+  const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
     const ecr = new AWS.ECRPUBLIC({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET,
+      accessKeyId: process.env.AWS_ACCESS_KEY as string,
+      secretAccessKey: process.env.AWS_SECRET as string,
       region: 'us-east-1'
     })
     const result = await ecr
@@ -593,7 +603,7 @@ export const findBuilderTags = async () => {
       )
       .sort((a, b) => b.imagePushedAt!.getTime() - a!.imagePushedAt!.getTime())
       .map((imageDetails) => {
-        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))
+        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
         const tagSplit = tag ? tag.split('_') : ''
         return {
           tag,
@@ -604,8 +614,8 @@ export const findBuilderTags = async () => {
       })
   } else if (privateECRExec) {
     const ecr = new AWS.ECR({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET,
+      accessKeyId: process.env.AWS_ACCESS_KEY as string,
+      secretAccessKey: process.env.AWS_SECRET as string,
       region: privateECRExec[1]
     })
     const result = await ecr
@@ -620,7 +630,7 @@ export const findBuilderTags = async () => {
       )
       .sort((a, b) => b.imagePushedAt!.getTime() - a.imagePushedAt!.getTime())
       .map((imageDetails) => {
-        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))
+        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
         const tagSplit = tag ? tag.split('_') : ''
         return {
           tag,
@@ -632,19 +642,24 @@ export const findBuilderTags = async () => {
   } else {
     const repoSplit = builderRepo.split('/')
     const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
-    const repo = repoSplit.length === 1 ? repoSplit[0] : repoSplit[1]
-    const result = await axios.get(
-      `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
-    )
-    return result.data.results.map((imageDetails) => {
-      const tag = imageDetails.name
-      const tagSplit = tag.split('_')
-      return {
-        tag,
-        commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
-        engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
-        pushedAt: new Date(imageDetails.tag_last_pushed).toJSON()
-      }
-    })
+    const repo = repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'xrengine-builder' : repoSplit[0]) : repoSplit[1]
+    try {
+      const result = await axios.get(
+        `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
+      )
+      return result.data.results.map((imageDetails) => {
+        const tag = imageDetails.name
+        const tagSplit = tag.split('_')
+        return {
+          tag,
+          commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
+          engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
+          pushedAt: new Date(imageDetails.tag_last_pushed).toJSON()
+        }
+      })
+    } catch (e) {
+      console.error(e)
+      return []
+    }
   }
 }

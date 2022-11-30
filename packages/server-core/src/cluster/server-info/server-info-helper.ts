@@ -51,13 +51,13 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
       await populateInstanceServerType(app, instancePods.pods)
       serverInfo.push(instancePods)
 
-      const analyticsPods = await getPodsData(
-        `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=analytics`,
-        'analytics',
-        'Analytics',
+      const taskPods = await getPodsData(
+        `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=taskserver`,
+        'task',
+        'Task',
         app
       )
-      serverInfo.push(analyticsPods)
+      serverInfo.push(taskPods)
     }
 
     // if (app.k8AgonesClient) {
@@ -88,7 +88,13 @@ export const removePod = async (app: Application, podName: string): Promise<Serv
   }
 }
 
-const getPodsData = async (labelSelector: string, id: string, label: string, app: Application, nameFilter?: string) => {
+export const getPodsData = async (
+  labelSelector: string,
+  id: string,
+  label: string,
+  app: Application,
+  nameFilter?: string
+) => {
   let pods: ServerPodInfo[] = []
 
   try {

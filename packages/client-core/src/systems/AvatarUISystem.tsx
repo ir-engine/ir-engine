@@ -10,12 +10,17 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  removeQuery,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { Physics, RaycastArgs } from '@xrengine/engine/src/physics/classes/Physics'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
@@ -25,7 +30,7 @@ import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupCom
 import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { XRUIComponent, XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -68,6 +73,7 @@ export default async function AvatarUISystem(world: World) {
     Not(NetworkObjectOwnedTag)
   ])
   const AvatarContextMenuUI = createAvatarContextMenuView()
+  setComponent(AvatarContextMenuUI.entity, XRUIInteractableComponent)
 
   const _vector3 = new Vector3()
 
@@ -144,6 +150,7 @@ export default async function AvatarUISystem(world: World) {
       const transition = createTransitionState(1, 'IN')
       AvatarUITransitions.set(userEntity, transition)
       const root = new Group()
+      root.name = `avatar-ui-root-${userEntity}`
       ui.state.videoPreviewMesh.value.position.y += 0.3
       ui.state.videoPreviewMesh.value.visible = false
       root.add(ui.state.videoPreviewMesh.value)
@@ -183,7 +190,8 @@ export default async function AvatarUISystem(world: World) {
         if (immersiveMedia && videoPreviewTimer === 0) {
           const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
           const consumer = world.mediaNetwork!.consumers.find(
-            (consumer) => consumer._appData.peerId === ownerId && consumer._appData.mediaTag === 'cam-video'
+            (consumer) =>
+              consumer.appData.peerID === world.mediaNetwork.peerID && consumer.appData.mediaTag === 'cam-video'
           ) as Consumer
           const paused = consumer && (consumer as any).producerPaused
           if (videoPreviewMesh.material.map) {

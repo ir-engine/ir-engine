@@ -1,10 +1,10 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export default function traverseEarlyOut(
   node: EntityTreeNode,
   cb: (node: EntityTreeNode) => boolean,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree
 ): boolean {
   let stopTravel = cb(node)
 

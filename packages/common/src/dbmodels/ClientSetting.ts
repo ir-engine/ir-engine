@@ -2,6 +2,8 @@ export interface ClientSettingInterface {
   id: string
   logo: string
   title: string
+  shortTitle: string
+  startPath: string
   url: string
   releaseName: string
   siteDescription: string
@@ -17,4 +19,7 @@ export interface ClientSettingInterface {
   themeSettings: string
   themeModes: string
   key8thWall: string
+  homepageLinkButtonEnabled: boolean
+  homepageLinkButtonRedirect: string
+  homepageLinkButtonText: string
 }

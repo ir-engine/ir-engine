@@ -23,7 +23,7 @@
     pointer-events: auto;
 
     &.on {
-      background: var(--purpleButtonColor);
+      background: var(--primaryHighlight);
     }
 
     > svg {

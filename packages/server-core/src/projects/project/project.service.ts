@@ -9,6 +9,7 @@ import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
 import logger from '@xrengine/common/src/logger'
 
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -25,6 +26,7 @@ import {
   getTags,
   updateBuilder
 } from './project-helper'
+import { dockerHubRegex, privateECRTagRegex, publicECRTagRegex } from './project-helper'
 import { Project, ProjectParams, ProjectParamsClient } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
@@ -62,8 +64,8 @@ declare module '@xrengine/common/declarations' {
     'project-builder-tags': {
       find: ReturnType<typeof projectBuilderTagsGet>
     }
-    'builder-version': {
-      get: ReturnType<typeof builderVersionGet>
+    'builder-info': {
+      get: ReturnType<typeof builderInfoGet>
     }
   }
   interface Models {
@@ -130,8 +132,41 @@ export const projectBuilderTagsGet = () => async () => {
   return findBuilderTags()
 }
 
-export const builderVersionGet = () => async () => {
-  return getEnginePackageJson().version
+export const builderInfoGet = (app: Application) => async () => {
+  const returned = {
+    engineVersion: getEnginePackageJson().version || '',
+    engineCommit: ''
+  }
+  if (app.k8DefaultClient) {
+    const builderDeployment = await app.k8AppsClient.listNamespacedDeployment(
+      'default',
+      'false',
+      false,
+      undefined,
+      undefined,
+      `app.kubernetes.io/instance=${config.server.releaseName}-builder`
+    )
+    const builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
+      (container) => container.name === 'xrengine-builder'
+    )
+    if (builderContainer) {
+      const image = builderContainer.image
+      if (image && typeof image === 'string') {
+        const dockerHubRegexExec = dockerHubRegex.exec(image)
+        const publicECRRegexExec = publicECRTagRegex.exec(image)
+        const privateECRRegexExec = privateECRTagRegex.exec(image)
+        returned.engineCommit =
+          dockerHubRegexExec && !publicECRRegexExec
+            ? dockerHubRegexExec[1]
+            : publicECRRegexExec
+            ? publicECRRegexExec[1]
+            : privateECRRegexExec
+            ? privateECRRegexExec[0]
+            : ''
+      }
+    }
+  }
+  return returned
 }
 
 export default (app: Application): void => {
@@ -145,8 +180,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  // TODO: move these to sub-methods of 'project' service
 
   app.use('projects', {
     find: getProjectsList
@@ -244,11 +277,11 @@ export default (app: Application): void => {
     }
   })
 
-  app.use('builder-version', {
-    get: builderVersionGet()
+  app.use('builder-info', {
+    get: builderInfoGet(app)
   })
 
-  app.service('builder-version').hooks({
+  app.service('builder-info').hooks({
     before: {
       get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
     }

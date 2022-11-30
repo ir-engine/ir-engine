@@ -39,6 +39,7 @@ export const initializeControllerModel = async (entity: Entity) => {
   handMesh = SkeletonUtils.clone(handMesh)
 
   const controller = new Group()
+  controller.name = `controller-model-${entity}`
   addObjectToGroup(entity, controller)
 
   if (controller.userData.mesh) {
@@ -68,6 +69,7 @@ export const initializeHandModel = async (entity: Entity) => {
   let handMesh = gltf?.scene?.children[0]
 
   const controller = new Group()
+  controller.name = `controller-hand-model-${entity}`
   addObjectToGroup(entity, controller)
 
   if (controller.userData.mesh) {

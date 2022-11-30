@@ -20,7 +20,6 @@ import {
   SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
 } from '../../components/AmbientLightComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeAmbientLight: ComponentDeserializeFunction = (
   entity: Entity,

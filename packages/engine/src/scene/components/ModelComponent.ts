@@ -22,7 +22,7 @@ import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { MediaComponent } from './MediaComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
@@ -33,7 +33,6 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       generateBVH: false,
-      matrixAutoUpdate: false,
       scene: undefined as undefined | Scene
     }
   },
@@ -41,8 +40,7 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      generateBVH: component.generateBVH.value,
-      matrixAutoUpdate: component.matrixAutoUpdate.value
+      generateBVH: component.generateBVH.value
     }
   },
 
@@ -51,8 +49,6 @@ export const ModelComponent = defineComponent({
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
-    if (typeof json.matrixAutoUpdate === 'boolean' && json.matrixAutoUpdate !== component.matrixAutoUpdate.value)
-      component.matrixAutoUpdate.set(json.matrixAutoUpdate)
   },
 
   onRemove: (entity, component) => {
@@ -73,10 +69,11 @@ function ModelReactor({ root }: EntityReactorProps) {
   if (!hasComponent(entity, ModelComponent)) throw root.stop()
 
   const modelComponent = useComponent(entity, ModelComponent)
+  const groupComponent = useOptionalComponent(entity, GroupComponent)
+  const model = modelComponent.value
 
   // update src
   useEffect(() => {
-    const model = modelComponent.value
     if (model.src === model.scene?.userData?.src) return
 
     const loadModel = async () => {
@@ -92,39 +89,31 @@ function ModelReactor({ root }: EntityReactorProps) {
             }
           }
         }
+        if (!model.src) return
         const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)
         let scene: Scene
-        switch (/\.[\d\s\w]+$/.exec(model.src)?.[0]) {
+        const fileExtension = /\.[\d\s\w]+$/.exec(model.src)?.[0]
+        switch (fileExtension) {
           case '.glb':
           case '.gltf':
-            const gltf = (await AssetLoader.loadAsync(model.src, {
-              ignoreDisposeGeometry: model.generateBVH,
-              uuid
-            })) as GLTF
-            scene = gltf.scene as Scene
-            break
           case '.fbx':
           case '.usdz':
-            scene = (await AssetLoader.loadAsync(model.src, { ignoreDisposeGeometry: model.generateBVH, uuid })).scene
+            scene = (
+              await AssetLoader.loadAsync(model.src, {
+                ignoreDisposeGeometry: model.generateBVH,
+                uuid
+              })
+            ).scene as Scene
             break
           default:
-            scene = new Object3D() as Scene
-            break
+            throw new Error(`Model type '${fileExtension}' not supported`)
         }
 
         if (!entityExists(Engine.instance.currentWorld, entity)) return
-
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
         modelComponent.scene.set(scene)
-        addObjectToGroup(entity, scene)
-        setBoundingBoxComponent(entity)
-        parseGLTFModel(entity)
-
-        if (model.generateBVH) {
-          scene.traverse(generateMeshBVH)
-        }
       } catch (err) {
         console.error(err)
         addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
@@ -137,9 +126,15 @@ function ModelReactor({ root }: EntityReactorProps) {
   // update scene
   useEffect(() => {
     const scene = modelComponent.scene.value
-    if (!scene) return
+    if (!scene || groupComponent?.value?.find((group: any) => group === scene)) return
 
     addObjectToGroup(entity, scene)
+    parseGLTFModel(entity)
+
+    if (model.generateBVH) {
+      scene.traverse(generateMeshBVH)
+    }
+    setBoundingBoxComponent(entity)
     enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
     removeComponent(entity, SceneAssetPendingTagComponent)
 

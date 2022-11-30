@@ -79,6 +79,7 @@ export class World {
     setTransformComponent(this.originEntity)
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
+    this.origin.name = 'world-origin'
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')
@@ -87,8 +88,12 @@ export class World {
     setTransformComponent(this.cameraEntity)
     setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
-    /** @todo */
-    // this.scene.matrixAutoUpdate = false
+    this.camera.matrixAutoUpdate = false
+    this.camera.matrixWorldAutoUpdate = false
+
+    this.scene.matrixAutoUpdate = false
+    this.scene.matrixWorldAutoUpdate = false
+
     this.scene.layers.set(ObjectLayers.Scene)
   }
 
@@ -194,7 +199,7 @@ export class World {
       coneOuterGain: 0
     },
     renderSettings: {
-      LODs: DEFAULT_LOD_DISTANCES,
+      LODs: { ...DEFAULT_LOD_DISTANCES },
       csm: true,
       toneMapping: LinearToneMapping as ToneMapping,
       toneMappingExposure: 0.8,
@@ -242,13 +247,18 @@ export class World {
   }
 
   /**
+   *
+   */
+  priorityAvatarEntities: Set<Entity>
+
+  /**
    * The local client entity
    */
   get localClientEntity() {
     return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
   }
 
-  dirtyTransforms = new Set<Entity>()
+  readonly dirtyTransforms = {} as Record<Entity, true>
 
   inputState = new Map<InputAlias, InputValue>()
   prevInputState = new Map<InputAlias, InputValue>()
