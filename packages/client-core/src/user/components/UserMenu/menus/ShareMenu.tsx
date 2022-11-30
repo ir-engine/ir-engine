@@ -16,9 +16,9 @@ import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
+import { OculusIcon } from '../../../../common/components/Icons/OculusIcon'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
-import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
@@ -140,6 +140,15 @@ const ShareMenu = (props: Props): JSX.Element => {
       refLink
     })
 
+  // Ref: https://developer.oculus.com/documentation/web/web-launch
+  let questShareLink = new URL('https://oculus.com/open_url/')
+  questShareLink.searchParams.set('url', shareLink)
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
+  }
+
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
@@ -176,8 +185,36 @@ const ShareMenu = (props: Props): JSX.Element => {
         <div className={styles.QRContainer}>
           <QRCodeSVG height={176} width={200} value={shareLink} />
         </div>
+
+        <Typography variant="h1" className={styles.panelHeader}>
+          {t('user:usermenu.share.shareQuest')}
+          <OculusIcon sx={{ fill: 'black', width: '36px', height: '36px', margin: '0 0 0 -10px' }} />
+        </Typography>
         <TextField
-          className={styles.copyField}
+          className={styles.textField}
+          size="small"
+          variant="outlined"
+          value={questShareLink}
+          disabled={true}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment
+                position="end"
+                onClick={() => copyToClipboard(questShareLink.toString())}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              >
+                <FileCopy />
+              </InputAdornment>
+            )
+          }}
+        />
+
+        <Typography variant="h1" className={`${styles.panelHeader} ${styles.mt1p}`}>
+          {t('user:usermenu.share.shareDirect')}
+        </Typography>
+        <TextField
+          className={styles.textField}
           size="small"
           variant="outlined"
           value={shareLink}
@@ -196,8 +233,12 @@ const ShareMenu = (props: Props): JSX.Element => {
             )
           }}
         />
+
+        <Typography variant="h1" className={`${styles.panelHeader} ${styles.mt1p}`}>
+          {t('user:usermenu.share.shareInvite')}
+        </Typography>
         <TextField
-          className={styles.emailField}
+          className={styles.textField}
           size="small"
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"

@@ -846,7 +846,7 @@
       font-weight: normal;
     }
 
-    .copyField {
+    .textField {
       width: 100%;
       color: var(--textColor);
 
@@ -854,32 +854,6 @@
         color: var(--textColor);
         border-color: var(--inputOutline);
         -webkit-text-fill-color: var(--textColor);
-      }
-
-      :global(.MuiOutlinedInput-root) {
-        fieldset {
-          border-color: var(--inputOutline);
-        }
-      }
-
-      :global(.MuiInputAdornment-root) {
-        color: var(--textColor);
-        cursor: pointer;
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-    }
-
-    .emailField {
-      margin-top: 30px;
-      width: 100%;
-      color: var(--textColor);
-
-      input {
-        color: var(--textColor);
-        border-color: var(--inputOutline);
       }
 
       :global(.MuiOutlinedInput-root) {
@@ -2649,4 +2623,8 @@
   border: 1px solid var(--buttonOutlined);
   border-radius: 8px;
   box-shadow: 0 0 10px var(--buttonOutlined);
+}
+
+.mt1p {
+  margin-top: 10px;
 }
