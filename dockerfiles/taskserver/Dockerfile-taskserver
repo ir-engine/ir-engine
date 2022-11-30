@@ -6,7 +6,7 @@ FROM root-builder as builder
 WORKDIR /app
 
 # to make use of caching, copy only package files and install dependencies
-COPY packages/analytics/package.json ./packages/analytics/
+COPY packages/taskserver/package.json ./packages/taskserver/
 
 ARG NODE_ENV
 RUN npm install --loglevel notice --legacy-peer-deps

@@ -4,7 +4,14 @@ import { Quaternion, Vector3 } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
-import { createMappedComponent, defineComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import {
+  createMappedComponent,
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 
 const { f64 } = Types
 const Vector3Schema = { x: f64, y: f64, z: f64 }
@@ -83,4 +90,13 @@ export const getTagComponentForRigidBody = (type: RigidBodyType): RigidBodyTypes
     case RigidBodyType.KinematicVelocityBased:
       return RigidBodyKinematicVelocityBasedTagComponent
   }
+}
+
+export const setRigidBodyType = (entity: Entity, type: RigidBodyType) => {
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const oldTypeTag = getTagComponentForRigidBody(rigidbody.body.bodyType())
+  removeComponent(entity, oldTypeTag)
+  rigidbody.body.setBodyType(type)
+  const typeTag = getTagComponentForRigidBody(type)
+  setComponent(entity, typeTag)
 }

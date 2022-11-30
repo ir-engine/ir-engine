@@ -1,4 +1,5 @@
 import { useHookstate } from '@hookstate/core'
+import { useEffect } from 'react'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
@@ -11,41 +12,25 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { defineAction, defineState, dispatchAction, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState, startReactor, syncStateWithLocalStorage } from '@xrengine/hyperflux'
 
-import { EditorHelperKeys } from '../constants/EditorHelperKeys'
 import { SceneState } from '../functions/sceneRenderFunctions'
-
-type EditorHelperStateType = {
-  isPlayModeEnabled: boolean
-  isFlyModeEnabled: boolean
-  transformMode: TransformModeType
-  transformModeOnCancel: TransformModeType
-  transformPivot: TransformPivotType
-  transformSpace: TransformSpace
-  snapMode: SnapModeType
-  translationSnap: number
-  rotationSnap: number
-  scaleSnap: number
-  isGenerateThumbnailsEnabled: boolean
-}
 
 const EditorHelperState = defineState({
   name: 'EditorHelperState',
-  initial: () =>
-    ({
-      isPlayModeEnabled: false,
-      isFlyModeEnabled: false,
-      transformMode: TransformMode.Translate,
-      transformModeOnCancel: TransformMode.Translate,
-      transformSpace: TransformSpace.World,
-      transformPivot: TransformPivot.Selection,
-      snapMode: SnapMode.Grid,
-      translationSnap: 0.5,
-      rotationSnap: 10,
-      scaleSnap: 0.1,
-      isGenerateThumbnailsEnabled: true
-    } as EditorHelperStateType),
+  initial: () => ({
+    isPlayModeEnabled: false,
+    isFlyModeEnabled: false,
+    transformMode: TransformMode.Translate as TransformModeType,
+    transformModeOnCancel: TransformMode.Translate as TransformModeType,
+    transformSpace: TransformSpace.World as TransformSpace,
+    transformPivot: TransformPivot.Selection as TransformPivotType,
+    snapMode: SnapMode.Grid as SnapModeType,
+    translationSnap: 0.5,
+    rotationSnap: 10,
+    scaleSnap: 0.1,
+    isGenerateThumbnailsEnabled: true
+  }),
   onCreate: () => {
     syncStateWithLocalStorage(EditorHelperState, [
       'isPlayModeEnabled',
@@ -60,58 +45,59 @@ const EditorHelperState = defineState({
       'scaleSnap',
       'isGenerateThumbnailsEnabled'
     ])
+
+    /** @todo move this to EditorHelperServiceSystem when the receptor is moved over */
+    startReactor(() => {
+      const state = useHookstate(getState(EditorHelperState))
+
+      useEffect(() => {
+        SceneState.transformGizmo.setTransformMode(state.transformMode.value)
+      }, [state.transformMode])
+
+      useEffect(() => {
+        InfiniteGridHelper.instance?.setSize(state.translationSnap.value)
+      }, [state.translationSnap])
+
+      return null
+    })
   }
 })
-
-function updateHelpers(): void {
-  const state = getState(EditorHelperState)
-  SceneState.transformGizmo.setTransformMode(state.transformMode.value)
-  InfiniteGridHelper.instance.setSize(state.translationSnap.value)
-}
 
 export const EditorHelperServiceReceptor = (action): any => {
   const s = getState(EditorHelperState)
   matches(action)
     .when(EditorHelperAction.changedPlayMode.matches, (action) => {
-      return s.merge({ isPlayModeEnabled: action.isPlayModeEnabled })
+      s.isPlayModeEnabled.set(action.isPlayModeEnabled)
     })
     .when(EditorHelperAction.changedFlyMode.matches, (action) => {
-      return s.merge({ isFlyModeEnabled: action.isFlyModeEnabled })
+      s.isFlyModeEnabled.set(action.isFlyModeEnabled)
     })
     .when(EditorHelperAction.changedTransformMode.matches, (action) => {
-      s.merge({ transformMode: action.mode })
-      return s
+      s.transformMode.set(action.mode)
     })
     .when(EditorHelperAction.changeTransformModeOnCancel.matches, (action) => {
-      return s.merge({ transformModeOnCancel: action.mode })
+      s.transformModeOnCancel.set(action.mode)
     })
     .when(EditorHelperAction.changedTransformSpaceMode.matches, (action) => {
-      s.merge({ transformSpace: action.transformSpace })
-      return s
+      s.transformSpace.set(action.transformSpace)
     })
     .when(EditorHelperAction.changedTransformPivotMode.matches, (action) => {
-      s.merge({ transformPivot: action.transformPivot })
-      return s
+      s.transformPivot.set(action.transformPivot)
     })
     .when(EditorHelperAction.changedSnapMode.matches, (action) => {
-      s.merge({ snapMode: action.snapMode })
-      return s
+      s.snapMode.set(action.snapMode)
     })
     .when(EditorHelperAction.changeTranslationSnap.matches, (action) => {
-      s.merge({ translationSnap: action.translationSnap })
-      return s
+      s.translationSnap.set(action.translationSnap)
     })
     .when(EditorHelperAction.changeRotationSnap.matches, (action) => {
-      s.merge({ rotationSnap: action.rotationSnap })
-      return s
+      s.rotationSnap.set(action.rotationSnap)
     })
     .when(EditorHelperAction.changeScaleSnap.matches, (action) => {
-      s.merge({ scaleSnap: action.scaleSnap })
-      return s
+      s.scaleSnap.set(action.scaleSnap)
     })
     .when(EditorHelperAction.changedGenerateThumbnails.matches, (action) => {
-      s.merge({ isGenerateThumbnailsEnabled: action.isGenerateThumbnailsEnabled })
-      return s
+      s.isGenerateThumbnailsEnabled.set(action.isGenerateThumbnailsEnabled)
     })
 }
 

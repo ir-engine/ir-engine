@@ -3,17 +3,15 @@ import type { Application as ExpressFeathers } from '@feathersjs/express'
 import '@feathersjs/transport-commons'
 
 import * as k8s from '@kubernetes/client-node'
-import type SocketIO from 'socket.io'
 
 import { ServiceTypes } from '@xrengine/common/declarations'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerNetwork'
 
 export const ServerMode = {
   API: 'API' as const,
   Instance: 'Instance' as const,
-  Analytics: 'Analytics' as const
+  Task: 'Task' as const
 }
 
 export type ServerTypeMode = typeof ServerMode[keyof typeof ServerMode]

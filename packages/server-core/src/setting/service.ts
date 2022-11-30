@@ -1,4 +1,3 @@
-import Analytics from './analytics-setting/analytics.service'
 import Authentication from './authentication-setting/authentication.service'
 import Aws from './aws-setting/aws-setting.service'
 import Chargebee from './chargebee-setting/chargebee-setting.service'
@@ -9,6 +8,7 @@ import InstanceServer from './instance-server-setting/instance-server-setting.se
 import ProjectSetting from './project-setting/project-setting.service'
 import RedisSetting from './redis-setting/redis-setting.service'
 import ServerSetting from './server-setting/server-setting.service'
+import TaskServer from './task-server-setting/task-server-setting.service'
 
 export default [
   ServerSetting,
@@ -20,6 +20,6 @@ export default [
   Chargebee,
   Coil,
   RedisSetting,
-  Analytics,
+  TaskServer,
   ProjectSetting
 ]

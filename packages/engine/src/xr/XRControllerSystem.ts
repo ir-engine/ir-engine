@@ -202,7 +202,6 @@ const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpac
   const world = Engine.instance.currentWorld
   setLocalTransformComponent(entity, world.originEntity)
 
-  // controller.targetRay = targetRay
   setComponent(entity, XRControllerComponent, {
     targetRaySpace,
     handedness: inputSource.handedness,

@@ -6,12 +6,13 @@ import { Group } from 'three'
 
 import { isNode } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentState } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getComponentState, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
@@ -49,6 +50,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   setTransformComponent(entity)
   addObjectToGroup(entity, root)
   setObjectLayers(container, ObjectLayers.UI)
+  setComponent(entity, DistanceFromCameraComponent)
   addComponent(entity, XRUIComponent, container)
   addComponent(entity, VisibleComponent, true)
 
