@@ -181,7 +181,7 @@ const ShareMenu = (props: Props): JSX.Element => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onClick={() => copyToClipboard(questShareLink.toString())}
           >
-            <FileCopy sx={{ width: '18px' }} />
+            <FileCopy sx={{ width: '18px', ml: '5px' }} />
           </IconButton>
         </Box>
 
