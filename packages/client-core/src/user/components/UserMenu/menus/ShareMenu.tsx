@@ -188,7 +188,7 @@ const ShareMenu = (props: Props): JSX.Element => {
 
         <Typography variant="h1" className={styles.panelHeader}>
           {t('user:usermenu.share.shareQuest')}
-          <OculusIcon sx={{ fill: 'black', width: '36px', height: '36px', margin: '0 0 0 -10px' }} />
+          <OculusIcon sx={{ fill: 'black', width: '36px', height: '36px', marginBottom: '-12px' }} />
         </Typography>
         <TextField
           className={styles.textField}
