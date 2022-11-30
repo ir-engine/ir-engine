@@ -9,6 +9,8 @@ import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFe
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 
 import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
+import { IconButton } from '@mui/material'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -16,9 +18,9 @@ import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
+import { OculusIcon } from '../../../../common/components/Icons/OculusIcon'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
-import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
@@ -140,6 +142,15 @@ const ShareMenu = (props: Props): JSX.Element => {
       refLink
     })
 
+  // Ref: https://developer.oculus.com/documentation/web/web-launch
+  let questShareLink = new URL('https://oculus.com/open_url/')
+  questShareLink.searchParams.set('url', shareLink)
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
+  }
+
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
@@ -148,36 +159,63 @@ const ShareMenu = (props: Props): JSX.Element => {
             {engineState.shareTitle.value}
           </Typography>
         ) : (
-          <>
-            <Typography variant="h1" className={styles.panelHeader}>
-              {t('user:usermenu.share.title')}
-            </Typography>
-            <FormControlLabel
-              classes={{
-                label: styles.label,
-                root: styles.formRoot
-              }}
-              control={
-                <Checkbox
-                  className={styles.checkboxMode}
-                  icon={<CheckBoxOutlineBlank fontSize="small" />}
-                  checkedIcon={<CheckBox fontSize="small" />}
-                  name="checked"
-                  color="primary"
-                  onChange={toggleSpectatorMode}
-                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                />
-              }
-              label={t('user:usermenu.share.lbl-spectator-mode')}
-            />
-          </>
+          <Typography variant="h1" className={styles.panelHeader}>
+            {t('user:usermenu.share.title')}
+          </Typography>
         )}
+
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Button
+            className={styles.friendsBtn}
+            sx={{ marginLeft: '40px !important' }}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onClick={() => window.open(questShareLink, '_blank')}
+          >
+            {t('user:usermenu.share.shareQuest')}
+            <OculusIcon sx={{ fill: 'var(--textColor)', width: '36px', height: '36px' }} />
+          </Button>
+          <IconButton
+            sx={{ width: '35px !important', color: 'var(--textColor)', marginTop: '-5px' }}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onClick={() => copyToClipboard(questShareLink.toString())}
+          >
+            <FileCopy sx={{ width: '18px', ml: '5px' }} />
+          </IconButton>
+        </Box>
+
         <div className={styles.QRContainer}>
           <QRCodeSVG height={176} width={200} value={shareLink} />
         </div>
+
+        {!engineState.shareTitle.value && (
+          <FormControlLabel
+            classes={{
+              label: styles.label,
+              root: styles.formRoot
+            }}
+            control={
+              <Checkbox
+                className={styles.checkboxMode}
+                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                checkedIcon={<CheckBox fontSize="small" />}
+                name="checked"
+                color="primary"
+                onChange={toggleSpectatorMode}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              />
+            }
+            label={t('user:usermenu.share.lbl-spectator-mode')}
+          />
+        )}
+
+        <Typography variant="h1" className={styles.panelHeader}>
+          {t('user:usermenu.share.shareDirect')}
+        </Typography>
         <TextField
-          className={styles.copyField}
+          className={styles.textField}
           size="small"
           variant="outlined"
           value={shareLink}
@@ -196,8 +234,12 @@ const ShareMenu = (props: Props): JSX.Element => {
             )
           }}
         />
+
+        <Typography variant="h1" className={`${styles.panelHeader} ${styles.mt1p}`}>
+          {t('user:usermenu.share.shareInvite')}
+        </Typography>
         <TextField
-          className={styles.emailField}
+          className={styles.textField}
           size="small"
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
