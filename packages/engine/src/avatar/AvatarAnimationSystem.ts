@@ -1,10 +1,12 @@
+import { useEffect } from 'react'
 import { Bone, MathUtils, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
-import { getState } from '@xrengine/hyperflux'
+import { defineState, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
+import { isHMD } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import {
@@ -44,6 +46,13 @@ import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
 
+export const AvatarAnimationState = defineState({
+  name: 'AvatarAnimationState',
+  initial: {
+    accumulationBudget: isHMD ? 2 : 5
+  }
+})
+
 const _vector3 = new Vector3()
 const _vec = new Vector3()
 const _rotXneg60 = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 1.5)
@@ -70,8 +79,20 @@ export default async function AvatarAnimationSystem(world: World) {
   ])
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 
+  const reactor = startReactor(() => {
+    const state = useHookstate(getState(AvatarAnimationState))
+
+    useEffect(() => {
+      priorityQueue.accumulationBudget = state.accumulationBudget.value
+    }, [state.accumulationBudget])
+
+    return null
+  })
+
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
-  const priorityQueue = createPriorityQueue(avatarAnimationQuery(), { accumulationBudget: 5 })
+  const priorityQueue = createPriorityQueue(avatarAnimationQuery(), {
+    accumulationBudget: getState(AvatarAnimationState).accumulationBudget.value
+  })
 
   world.priorityAvatarEntities = priorityQueue.priorityEntities
   const filterPriorityEntities = (entity: Entity) =>
@@ -90,6 +111,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const execute = () => {
     const { localClientEntity, elapsedSeconds, deltaSeconds } = world
+    console.log(priorityQueue.accumulationBudget)
 
     const inAttachedControlMode = getControlMode() === 'attached'
 
