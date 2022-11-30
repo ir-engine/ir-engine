@@ -9,6 +9,8 @@ import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFe
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 
 import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
+import { IconButton } from '@mui/material'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -157,60 +159,58 @@ const ShareMenu = (props: Props): JSX.Element => {
             {engineState.shareTitle.value}
           </Typography>
         ) : (
-          <>
-            <Typography variant="h1" className={styles.panelHeader}>
-              {t('user:usermenu.share.title')}
-            </Typography>
-            <FormControlLabel
-              classes={{
-                label: styles.label,
-                root: styles.formRoot
-              }}
-              control={
-                <Checkbox
-                  className={styles.checkboxMode}
-                  icon={<CheckBoxOutlineBlank fontSize="small" />}
-                  checkedIcon={<CheckBox fontSize="small" />}
-                  name="checked"
-                  color="primary"
-                  onChange={toggleSpectatorMode}
-                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                />
-              }
-              label={t('user:usermenu.share.lbl-spectator-mode')}
-            />
-          </>
+          <Typography variant="h1" className={styles.panelHeader}>
+            {t('user:usermenu.share.title')}
+          </Typography>
         )}
+
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Button
+            className={styles.friendsBtn}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onClick={() => window.open(questShareLink, '_blank')}
+          >
+            {t('user:usermenu.share.shareQuest')}
+            <OculusIcon sx={{ fill: 'var(--textColor)', width: '36px', height: '36px' }} />
+          </Button>
+          <IconButton
+            sx={{ width: '35px !important', color: 'var(--textColor)', marginTop: '-5px' }}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onClick={() => copyToClipboard(questShareLink.toString())}
+          >
+            <FileCopy sx={{ width: '18px' }} />
+          </IconButton>
+        </Box>
+
         <div className={styles.QRContainer}>
           <QRCodeSVG height={176} width={200} value={shareLink} />
         </div>
 
-        <Typography variant="h1" className={styles.panelHeader}>
-          {t('user:usermenu.share.shareQuest')}
-          <OculusIcon sx={{ fill: 'black', width: '36px', height: '36px', marginBottom: '-12px' }} />
-        </Typography>
-        <TextField
-          className={styles.textField}
-          size="small"
-          variant="outlined"
-          value={questShareLink}
-          disabled={true}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment
-                position="end"
-                onClick={() => copyToClipboard(questShareLink.toString())}
+        {!engineState.shareTitle.value && (
+          <FormControlLabel
+            classes={{
+              label: styles.label,
+              root: styles.formRoot
+            }}
+            control={
+              <Checkbox
+                className={styles.checkboxMode}
+                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                checkedIcon={<CheckBox fontSize="small" />}
+                name="checked"
+                color="primary"
+                onChange={toggleSpectatorMode}
                 onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              >
-                <FileCopy />
-              </InputAdornment>
-            )
-          }}
-        />
+              />
+            }
+            label={t('user:usermenu.share.lbl-spectator-mode')}
+          />
+        )}
 
-        <Typography variant="h1" className={`${styles.panelHeader} ${styles.mt1p}`}>
+        <Typography variant="h1" className={styles.panelHeader}>
           {t('user:usermenu.share.shareDirect')}
         </Typography>
         <TextField
