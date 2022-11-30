@@ -65,6 +65,8 @@ export function setupLeftHandIK(entity: Entity) {
   leftHint.name = `ik-left-hint-${entity}`
   const leftOffset = new Object3D()
   leftOffset.name = `ik-left-offset-${entity}`
+  leftOffset.updateMatrix()
+  leftOffset.updateMatrixWorld(true)
 
   const rig = getComponent(entity, AvatarRigComponent)
 
@@ -76,6 +78,8 @@ export function setupLeftHandIK(entity: Entity) {
     _vec.subVectors(_vec, leftHint.position).normalize()
     leftHint.position.add(_vec)
     rig.rig.LeftShoulder.attach(leftHint)
+    leftHint.updateMatrix()
+    leftHint.updateMatrixWorld(true)
   }
 
   const target = new Object3D()
@@ -110,6 +114,8 @@ export function setupRightHandIK(entity: Entity) {
   const rig = getComponent(entity, AvatarRigComponent)
 
   rightOffset.rotation.set(-Math.PI * 0.5, 0, 0)
+  rightOffset.updateMatrix()
+  rightOffset.updateMatrixWorld(true)
 
   if (isClient) {
     rig.rig.RightShoulder.getWorldPosition(rightHint.position)
@@ -117,6 +123,8 @@ export function setupRightHandIK(entity: Entity) {
     _vec.subVectors(_vec, rightHint.position).normalize()
     rightHint.position.add(_vec)
     rig.rig.RightShoulder.attach(rightHint)
+    rightHint.updateMatrix()
+    rightHint.updateMatrixWorld(true)
   }
 
   const target = new Object3D()
