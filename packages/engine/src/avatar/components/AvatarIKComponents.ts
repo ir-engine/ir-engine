@@ -66,7 +66,7 @@ export const AvatarHeadIKComponent = createMappedComponent<AvatarHeadIKComponent
  */
 export type AvatarHandsIKComponentType = {
   target: Object3D
-  hint: Object3D | null
+  hint: Object3D
   targetOffset: Object3D
   targetPosWeight: number
   targetRotWeight: number

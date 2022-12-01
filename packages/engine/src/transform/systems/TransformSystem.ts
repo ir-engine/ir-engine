@@ -1,5 +1,5 @@
 import { entityExists } from 'bitecs'
-import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
@@ -155,6 +155,17 @@ export default async function TransformSystem(world: World) {
     deserialize: deserializeTransform,
     serialize: serializeTransform
   })
+
+  /** override Skeleton.update, as it is called inside  */
+  const skeletonUpdate = Skeleton.prototype.update
+
+  function noop() {}
+
+  function iterateSkeletons(skinnedMesh: SkinnedMesh) {
+    if (skinnedMesh.isSkinnedMesh) {
+      skinnedMesh.skeleton.update()
+    }
+  }
 
   const _frustum = new Frustum()
   const _projScreenMatrix = new Matrix4()
@@ -315,6 +326,13 @@ export default async function TransformSystem(world: World) {
           )
       }
     }
+
+    Skeleton.prototype.update = skeletonUpdate
+    for (const entity of world.priorityAvatarEntities) {
+      const group = getComponent(entity, GroupComponent)
+      for (const obj of group) obj.traverse(iterateSkeletons)
+    }
+    Skeleton.prototype.update = noop
   }
 
   const cleanup = async () => {
@@ -328,6 +346,7 @@ export default async function TransformSystem(world: World) {
     removeQuery(world, dynamicBoundingBoxQuery)
     removeQuery(world, distanceFromLocalClientQuery)
     removeQuery(world, distanceFromCameraQuery)
+    Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }

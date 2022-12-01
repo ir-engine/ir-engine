@@ -1,17 +1,30 @@
-import { clamp } from 'lodash'
-import { Bone, MathUtils, Quaternion, Vector3 } from 'three'
+import { useEffect } from 'react'
+import { Bone, MathUtils, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
+import { defineState, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
+import { isHMD } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery
+} from '../ecs/functions/ComponentFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../scene/components/GroupComponent'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
+import {
+  compareDistance,
+  DistanceFromCameraComponent,
+  FrustumCullCameraComponent
+} from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRControllerComponent } from '../xr/XRComponents'
@@ -24,10 +37,21 @@ import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './components/AvatarIKComponents'
+import {
+  AvatarIKTargetsComponent,
+  AvatarLeftHandIKComponent,
+  AvatarRightHandIKComponent
+} from './components/AvatarIKComponents'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
+
+export const AvatarAnimationState = defineState({
+  name: 'AvatarAnimationState',
+  initial: {
+    accumulationBudget: isHMD ? 2 : 5
+  }
+})
 
 const _vector3 = new Vector3()
 const _vec = new Vector3()
@@ -35,23 +59,19 @@ const _rotXneg60 = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math
 const _rotY90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2)
 const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
 
-// todo
-// function noop() {}
-
-// function iterateSkeletons(skinnedMesh: SkinnedMesh) {
-//   if (skinnedMesh.isSkinnedMesh) {
-//     skinnedMesh.skeleton.update()
-//   }
-// }
-
 export default async function AvatarAnimationSystem(world: World) {
-  const leftHandQuery = defineQuery([AvatarLeftHandIKComponent, AvatarRigComponent])
-  const rightHandQuery = defineQuery([AvatarRightHandIKComponent, AvatarRigComponent])
-  const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarRigComponent])
-  const localHeadIKQuery = defineQuery([AvatarHeadIKComponent, AvatarControllerComponent])
-  const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
-  const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarRigComponent])
+  const leftHandQuery = defineQuery([VisibleComponent, AvatarLeftHandIKComponent, AvatarRigComponent])
+  const rightHandQuery = defineQuery([VisibleComponent, AvatarRightHandIKComponent, AvatarRigComponent])
+  const headIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarRigComponent])
+  const localHeadIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarControllerComponent])
+  const headDecapQuery = defineQuery([VisibleComponent, AvatarHeadDecapComponent])
+  const armsTwistCorrectionQuery = defineQuery([
+    VisibleComponent,
+    AvatarArmsTwistCorrectionComponent,
+    AvatarRigComponent
+  ])
   const loopAnimationQuery = defineQuery([
+    VisibleComponent,
     LoopAnimationComponent,
     AnimationComponent,
     AvatarAnimationComponent,
@@ -59,41 +79,128 @@ export default async function AvatarAnimationSystem(world: World) {
   ])
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 
-  /** override Skeleton.update, as it is called inside  */
-  // const skeletonUpdate = Skeleton.prototype.update
+  const reactor = startReactor(() => {
+    const state = useHookstate(getState(AvatarAnimationState))
 
-  const maxSqrDistance = 25 * 25
+    useEffect(() => {
+      priorityQueue.accumulationBudget = state.accumulationBudget.value
+    }, [state.accumulationBudget])
+
+    return null
+  })
+
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
-  const minAccumulationRate = 0.01
-  const maxAccumulationRate = 0.1
-  const priorityQueue = createPriorityQueue(avatarAnimationQuery(), { priorityThreshold: maxAccumulationRate })
+  const priorityQueue = createPriorityQueue(avatarAnimationQuery(), {
+    accumulationBudget: getState(AvatarAnimationState).accumulationBudget.value
+  })
 
   world.priorityAvatarEntities = priorityQueue.priorityEntities
-  const filterPriorityEntities = (entity: Entity) => world.priorityAvatarEntities.has(entity)
+  const filterPriorityEntities = (entity: Entity) =>
+    world.priorityAvatarEntities.has(entity) || entity === world.localClientEntity
 
   const xrState = getState(XRState)
+  const filterFrustumCulledEntities = (entity: Entity) =>
+    !(
+      DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr &&
+      FrustumCullCameraComponent.isCulled[entity]
+    )
+
+  let avatarSortAccumulator = 0
+
+  let sortedTransformEntities = [] as Entity[]
 
   const execute = () => {
     const { localClientEntity, elapsedSeconds, deltaSeconds } = world
     const inAttachedControlMode = getXRAvatarControlMode() === 'attached'
 
-    for (const entity of avatarAnimationQuery()) {
-      /**
-       * if outside of frustum, priority get set to 0 otherwise
-       * whatever your distance is, gets mapped linearly to your priority
-       */
-      const sqrDistance = DistanceFromCameraComponent.squaredDistance[entity]
-      // min distance to ensure entities that might be overlapping the camera are not frustum culled
-      if (sqrDistance > minimumFrustumCullDistanceSqr && FrustumCullCameraComponent.isCulled[entity]) {
-        priorityQueue.setPriority(entity, 0)
-      } else {
-        const accumulation = clamp(
-          (maxSqrDistance / sqrDistance) * deltaSeconds,
-          minAccumulationRate,
-          maxAccumulationRate
-        )
-        priorityQueue.addPriority(entity, accumulation)
+    /** Update controller pose input sources from WebXR into the ECS */
+    if (hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
+      /** Head */
+      if (inAttachedControlMode && hasComponent(localClientEntity, AvatarHeadIKComponent)) {
+        const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
+        ik.target.quaternion.copy(world.camera.quaternion)
+        ik.target.position.copy(world.camera.position)
       }
+
+      /** Left Hand */
+      const leftControllerEntity = xrState.leftControllerEntity.value
+      if (leftControllerEntity && hasComponent(localClientEntity, AvatarLeftHandIKComponent)) {
+        const ik = getComponent(localClientEntity, AvatarLeftHandIKComponent)
+        const controller = getComponent(leftControllerEntity, XRControllerComponent)
+        if (controller.hand) {
+          const { position, rotation } = getComponent(controller.hand, TransformComponent)
+          ik.target.position.copy(position)
+          ik.target.quaternion.copy(rotation).multiply(_rotYneg90)
+        } else if (controller.grip) {
+          const { position, rotation } = getComponent(controller.grip, TransformComponent)
+          ik.target.position.copy(position)
+          /**
+           * Since the hand has Z- forward in the grip space,
+           *    which is roughly 60 degrees rotated from the arm's forward,
+           *    apply a rotation to get the correct hand orientation
+           */
+          ik.target.quaternion.copy(rotation).multiply(_rotXneg60)
+        } else {
+          const { position, rotation } = getComponent(leftControllerEntity, TransformComponent)
+          ik.target.position.copy(position)
+          ik.target.quaternion.copy(rotation)
+        }
+      }
+
+      /** Right Hand */
+      const rightControllerEntity = xrState.rightControllerEntity.value
+      if (rightControllerEntity && hasComponent(localClientEntity, AvatarRightHandIKComponent)) {
+        const ik = getComponent(localClientEntity, AvatarRightHandIKComponent)
+        const controller = getComponent(rightControllerEntity, XRControllerComponent)
+        if (controller.hand) {
+          const { position, rotation } = getComponent(controller.hand, TransformComponent)
+          ik.target.position.copy(position)
+          ik.target.quaternion.copy(rotation).multiply(_rotY90)
+        } else if (controller.grip) {
+          const { position, rotation } = getComponent(controller.grip, TransformComponent)
+          ik.target.position.copy(position)
+          /**
+           * Since the hand has Z- forward in the grip space,
+           *    which is roughly 60 degrees rotated from the arm's forward,
+           *    apply a rotation to get the correct hand orientation
+           */
+          ik.target.quaternion.copy(rotation).multiply(_rotXneg60)
+        } else {
+          const { position, rotation } = getComponent(rightControllerEntity, TransformComponent)
+          ik.target.position.copy(position)
+          ik.target.quaternion.copy(rotation)
+        }
+      }
+    }
+
+    let needsSorting = false
+    avatarSortAccumulator += deltaSeconds
+    if (avatarSortAccumulator > 1) {
+      needsSorting = true
+      avatarSortAccumulator = 0
+    }
+
+    for (const entity of avatarAnimationQuery.enter()) {
+      sortedTransformEntities.push(entity)
+      needsSorting = true
+    }
+
+    for (const entity of avatarAnimationQuery.exit()) {
+      const idx = sortedTransformEntities.indexOf(entity)
+      idx > -1 && sortedTransformEntities.splice(idx, 1)
+      needsSorting = true
+    }
+
+    if (needsSorting) {
+      insertionSort(sortedTransformEntities, compareDistance)
+    }
+
+    const filteredSortedTransformEntities = sortedTransformEntities.filter(filterFrustumCulledEntities)
+
+    for (let i = 0; i < filteredSortedTransformEntities.length; i++) {
+      const entity = filteredSortedTransformEntities[i]
+      const accumulation = Math.min(Math.exp(1 / (i + 1)) / 3, 1)
+      priorityQueue.addPriority(entity, accumulation * accumulation)
     }
 
     priorityQueue.update()
@@ -169,11 +276,6 @@ export default async function AvatarAnimationSystem(world: World) {
      */
     for (const entity of headIKEntities) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
-      if (inAttachedControlMode && entity === localClientEntity) {
-        ik.target.quaternion.copy(world.camera.quaternion)
-        ik.target.position.copy(world.camera.position)
-      }
-      ik.target.updateMatrix()
       ik.target.updateMatrixWorld(true)
       const rig = getComponent(entity, AvatarRigComponent).rig
       ik.target.getWorldDirection(_vec).multiplyScalar(-1)
@@ -187,31 +289,6 @@ export default async function AvatarAnimationSystem(world: World) {
       const { rig } = getComponent(entity, AvatarRigComponent)
 
       const ik = getComponent(entity, AvatarLeftHandIKComponent)
-      if (entity === localClientEntity) {
-        const leftControllerEntity = xrState.leftControllerEntity.value
-        if (leftControllerEntity) {
-          const controller = getComponent(leftControllerEntity, XRControllerComponent)
-          if (controller.hand) {
-            const { position, rotation } = getComponent(controller.hand, TransformComponent)
-            ik.target.position.copy(position)
-            ik.target.quaternion.copy(rotation).multiply(_rotYneg90)
-          } else if (controller.grip) {
-            const { position, rotation } = getComponent(controller.grip, TransformComponent)
-            ik.target.position.copy(position)
-            /**
-             * Since the hand has Z- forward in the grip space,
-             *    which is roughly 60 degrees rotated from the arm's forward,
-             *    apply a rotation to get the correct hand orientation
-             */
-            ik.target.quaternion.copy(rotation).multiply(_rotXneg60)
-          } else {
-            const { position, rotation } = getComponent(leftControllerEntity, TransformComponent)
-            ik.target.position.copy(position)
-            ik.target.quaternion.copy(rotation)
-          }
-        }
-      }
-      ik.target.updateMatrix()
       ik.target.updateMatrixWorld(true)
 
       // Arms should not be straight for the solver to work properly
@@ -247,32 +324,6 @@ export default async function AvatarAnimationSystem(world: World) {
       const { rig } = getComponent(entity, AvatarRigComponent)
 
       const ik = getComponent(entity, AvatarRightHandIKComponent)
-
-      if (entity === localClientEntity) {
-        const rightControllerEntity = xrState.rightControllerEntity.value
-        if (rightControllerEntity) {
-          const controller = getComponent(rightControllerEntity, XRControllerComponent)
-          if (controller.hand) {
-            const { position, rotation } = getComponent(controller.hand, TransformComponent)
-            ik.target.position.copy(position)
-            ik.target.quaternion.copy(rotation).multiply(_rotY90)
-          } else if (controller.grip) {
-            const { position, rotation } = getComponent(controller.grip, TransformComponent)
-            ik.target.position.copy(position)
-            /**
-             * Since the hand has Z- forward in the grip space,
-             *    which is roughly 60 degrees rotated from the arm's forward,
-             *    apply a rotation to get the correct hand orientation
-             */
-            ik.target.quaternion.copy(rotation).multiply(_rotXneg60)
-          } else {
-            const { position, rotation } = getComponent(rightControllerEntity, TransformComponent)
-            ik.target.position.copy(position)
-            ik.target.quaternion.copy(rotation)
-          }
-        }
-      }
-      ik.target.updateMatrix()
       ik.target.updateMatrixWorld(true)
 
       if (!ik.target.position.equals(V_000)) {
@@ -333,16 +384,7 @@ export default async function AvatarAnimationSystem(world: World) {
     /**
      * Update threejs skeleton manually
      *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
-     * @todo this causes significant visual artefacts
      */
-
-    // Skeleton.prototype.update = skeletonUpdate
-    // for (const entity of world.priorityAvatarEntities) {
-    //   const group = getComponent(entity, GroupComponent)
-    //   for (const obj of group)
-    //     obj.traverse(iterateSkeletons)
-    // }
-    // Skeleton.prototype.update = noop
   }
 
   const cleanup = async () => {
@@ -353,7 +395,6 @@ export default async function AvatarAnimationSystem(world: World) {
     removeQuery(world, headIKQuery)
     removeQuery(world, armsTwistCorrectionQuery)
     removeQuery(world, avatarAnimationQuery)
-    // Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }

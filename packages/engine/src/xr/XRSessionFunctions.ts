@@ -35,7 +35,7 @@ export const requestXRSession = createHookableFunction(
     const xrState = getState(XRState)
     const xrManager = EngineRenderer.instance.xrManager
 
-    if (xrState.requestingSession.value) return
+    if (xrState.requestingSession.value || xrState.sessionActive.value) return
     try {
       const sessionInit = {
         optionalFeatures: [
