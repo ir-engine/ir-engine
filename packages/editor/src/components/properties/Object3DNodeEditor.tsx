@@ -9,7 +9,8 @@ import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
 import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { MaterialLibraryState } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
@@ -48,6 +49,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   console.log(props)
   const scene: Scene = Engine.instance.currentWorld.scene
   const selectionState = accessSelectionState()
+  const materialLibrary = getMaterialLibrary()
   const obj3d: Object3D = props.node as any
   const mesh = obj3d as Mesh
   const instancedMesh = obj3d as InstancedMesh
@@ -263,11 +265,11 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                 <MaterialInput
                   value={materials[currentMaterialId.value].uuid}
                   onChange={(nuId) => {
-                    if (MaterialLibraryState.materials.has(nuId)) {
+                    if (!!materialLibrary.materials[nuId].value) {
                       if (Array.isArray(mesh.material)) {
-                        mesh.material[currentMaterialId.value] = MaterialLibraryState.materials.get(nuId)!.material
+                        mesh.material[currentMaterialId.value] = materialFromId(nuId).material
                       } else {
-                        mesh.material = MaterialLibraryState.materials.get(nuId)!.material
+                        mesh.material = materialFromId(nuId).material
                         mesh.material.needsUpdate = true
                       }
                     }

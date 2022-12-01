@@ -4,7 +4,7 @@ import {
   extractDefaults,
   materialToDefaultArgs
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+import { getMaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -52,7 +52,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       uuid: material.uuid,
       name: material.name,
       prototype:
-        MaterialLibraryState.materials.get(material.uuid)?.prototype ?? material.userData.type ?? material.type,
+        getMaterialLibrary().materials[material.uuid].value?.prototype ?? material.userData.type ?? material.type,
       args: { ...result }
     }
     this.writer.extensionsUsed[this.name] = true
