@@ -9,7 +9,7 @@ import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
 import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { MaterialLibraryState } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
@@ -263,11 +263,11 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                 <MaterialInput
                   value={materials[currentMaterialId.value].uuid}
                   onChange={(nuId) => {
-                    if (MaterialLibrary.materials.has(nuId)) {
+                    if (MaterialLibraryState.materials.has(nuId)) {
                       if (Array.isArray(mesh.material)) {
-                        mesh.material[currentMaterialId.value] = MaterialLibrary.materials.get(nuId)!.material
+                        mesh.material[currentMaterialId.value] = MaterialLibraryState.materials.get(nuId)!.material
                       } else {
-                        mesh.material = MaterialLibrary.materials.get(nuId)!.material
+                        mesh.material = MaterialLibraryState.materials.get(nuId)!.material
                         mesh.material.needsUpdate = true
                       }
                     }

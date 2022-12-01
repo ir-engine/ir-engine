@@ -29,8 +29,8 @@ import {
   reparentEntityNode,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { MaterialLibraryState } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '@xrengine/engine/src/scene/components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
@@ -144,7 +144,7 @@ const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => 
 
 function _getMaterial(node: string, materialId: string) {
   let material: Material | undefined
-  if (MaterialLibrary.materials.has(node)) {
+  if (MaterialLibraryState.materials.has(node)) {
     material = materialFromId(node).material
   } else {
     const mesh = obj3dFromUuid(node) as Mesh

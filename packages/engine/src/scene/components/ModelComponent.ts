@@ -16,7 +16,7 @@ import {
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
-import { removeMaterialSource } from '../../renderer/materials/functions/Utilities'
+import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'

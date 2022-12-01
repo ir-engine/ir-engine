@@ -1,16 +1,40 @@
+import { createActionQueue } from '@xrengine/hyperflux'
+
 import { World } from '../../../ecs/classes/World'
 import { defineQuery, removeQuery } from '../../../ecs/functions/ComponentFunctions'
 import { MaterialComponent } from '../components/MaterialComponent'
 import { MaterialPrototypeComponent } from '../components/MaterialPrototypeComponent'
-import { initializeMaterialLibrary, MaterialLibrary } from '../MaterialLibrary'
+import { registerMaterial, registerMaterialPrototype } from '../functions/MaterialLibraryFunctions'
+import {
+  initializeMaterialLibrary,
+  MaterialLibraryActions,
+  MaterialLibraryState,
+  useMaterialLibrary
+} from '../MaterialLibrary'
 
 export default async function MaterialLibrarySystem(world: World) {
-  initializeMaterialLibrary()
-  const cleanup = async () => {
-    // todo, to make extensible only clear those initialized in initializeMaterialLibrary
-    MaterialLibrary.materials.clear()
-    MaterialLibrary.prototypes.clear()
+  const registerMaterialQueue = createActionQueue(MaterialLibraryActions.RegisterMaterial.matches)
+  const registerPrototypeQueue = createActionQueue(MaterialLibraryActions.RegisterPrototype.matches)
+  let initialized = false
+  const execute = () => {
+    if (!initialized) {
+      initializeMaterialLibrary()
+      initialized = true
+    }
+    registerPrototypeQueue().map((action) => {
+      registerMaterialPrototype(action.$prototype)
+    })
+    registerMaterialQueue().map((action) => {
+      registerMaterial(action.material, action.src)
+    })
   }
 
-  return { execute: () => {}, cleanup }
+  const cleanup = async () => {
+    const materialLibrary = useMaterialLibrary()
+    // todo, to make extensible only clear those initialized in initializeMaterialLibrary
+    materialLibrary.materials.set({})
+    materialLibrary.prototypes.set({})
+  }
+
+  return { execute, cleanup }
 }

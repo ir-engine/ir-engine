@@ -13,9 +13,9 @@ import {
   hashMaterialSource,
   materialFromId,
   registerMaterial
-} from '@xrengine/engine/src/renderer/materials/functions/Utilities'
-import { MaterialLibrary, MaterialLibraryActions } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, removeActionQueue, useHookstate, useState } from '@xrengine/hyperflux'
+} from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { useMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { createActionQueue, getState, removeActionQueue, useState } from '@xrengine/hyperflux'
 
 import { Divider, Grid, Stack } from '@mui/material'
 
@@ -32,10 +32,15 @@ export default function MaterialLibraryPanel() {
   const { t } = useTranslation()
   const editorState = useEditorState()
   const selectionState = useSelectionState()
+  const materialLibrary = useMaterialLibrary()
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
-  const nodeChanges = useHookstate(0)
-  const srcs = useHookstate([...MaterialLibrary.sources.values()])
-  const collapsedNodes = useHookstate(
+  const nodeChanges = useState(0)
+
+  const createSrcs = useCallback(() => Object.values(materialLibrary.sources.value), [materialLibrary.sources])
+  const srcs = useState(createSrcs())
+  useEffect(srcs.set.bind({}, createSrcs), [materialLibrary.sources])
+
+  const collapsedNodes = useState(
     new Set<string>(srcs.value.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE)))
   )
   const createNodes = useCallback((): MaterialLibraryEntryType[] => {
@@ -56,7 +61,7 @@ export default function MaterialLibraryPanel() {
         ...(isCollapsed
           ? []
           : srcComp.entries
-              .filter((uuid) => MaterialLibrary.materials.has(uuid))
+              .filter((uuid) => !!materialLibrary.materials[uuid].value)
               .map((uuid) => {
                 return {
                   uuid,
@@ -71,13 +76,14 @@ export default function MaterialLibraryPanel() {
       ]
     })
     return result
-  }, [nodeChanges, srcs])
+  }, [nodeChanges, srcs, selectionState.selectedEntities])
 
-  const nodes = useHookstate(createNodes())
+  const nodes = useState(createNodes())
 
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
     if (!editorState.lockPropertiesPanel.get()) {
       EditorControlFunctions.replaceSelection([entryId(node.entry, node.type)])
+      selectionState.objectChangeCounter.set(selectionState.objectChangeCounter.value + 1)
     }
   }, [])
 
@@ -98,9 +104,8 @@ export default function MaterialLibraryPanel() {
   }, [])
 
   useEffect(() => {
-    srcs.set([...MaterialLibrary.sources.values()])
     nodes.set(createNodes())
-  }, [nodeChanges, selectionState.selectedEntities])
+  }, [nodeChanges, selectionState.selectedEntities, srcs])
 
   return (
     <>
@@ -142,7 +147,7 @@ export default function MaterialLibraryPanel() {
                 const projectName = editorState.projectName.value!
                 const materials = selectionState.selectedEntities
                   .filter(
-                    (selected) => typeof selected.value === 'string' && MaterialLibrary.materials.has(selected.value)
+                    (selected) => typeof selected.value === 'string' && !!materialLibrary.materials[selected.value]
                   )
                   .map((selected) => materialFromId(selected.value as string))
                 const libraryName = 'material-test.gltf'

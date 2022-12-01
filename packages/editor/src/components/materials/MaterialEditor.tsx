@@ -11,8 +11,8 @@ import {
   materialFromId,
   materialToDefaultArgs,
   prototypeFromId
-} from '@xrengine/engine/src/renderer/materials/functions/Utilities'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+} from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary, MaterialLibraryState } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { useState } from '@xrengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
@@ -25,7 +25,7 @@ import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 
-export default function MaterialEditor({ material }: { ['material']: Material }) {
+export default function MaterialEditor({ material, ...rest }: { ['material']: Material }) {
   if (material === undefined) return <></>
   const materialComponent = useState(materialFromId(material.uuid))
   const prototypeComponent = useState(prototypeFromId(materialComponent.prototype.value))
@@ -69,8 +69,9 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     return result
   }, [materialComponent])
 */
+  const materialLibrary = getMaterialLibrary()
   const prototypes = useState(
-    [...MaterialLibrary.prototypes.values()].map((prototype) => ({
+    Object.values(materialLibrary.prototypes.value).map((prototype) => ({
       label: prototype.prototypeId,
       value: prototype.prototypeId
     }))
@@ -97,7 +98,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   }, [materialComponent.prototype, materialComponent.material])
 
   return (
-    <Fragment>
+    <div {...rest}>
       <InputGroup name="Name" label="Name">
         <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
       </InputGroup>
@@ -176,6 +177,6 @@ export default function MaterialEditor({ material }: { ['material']: Material })
           Bake
         </Button>
       }
-    </Fragment>
+    </div>
   )
 }

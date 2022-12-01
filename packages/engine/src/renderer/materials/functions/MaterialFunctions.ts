@@ -4,10 +4,10 @@ import multiLogger from '@xrengine/common/src/logger'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import iterateObject3D from '../../../scene/util/iterateObject3D'
-import { MaterialLibrary } from '../MaterialLibrary'
+import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function dedupMaterials() {
-  const materialTable = [...MaterialLibrary.materials.entries()]
+  const materialTable = [...MaterialLibraryState.materials.entries()]
   materialTable.map(([uuid, materialComponent], i) => {
     for (let j = 0; j < i; j++) {
       const [uuid2, materialComponent2] = materialTable[j]
