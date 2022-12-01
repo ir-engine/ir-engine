@@ -551,18 +551,6 @@
   }
 }
 
-.switchField {
-  :global {
-    .MuiFormControlLabel-label {
-      color: var(--textColor);
-    }
-
-    .MuiFormControlLabel-label.Mui-disabled {
-      color: var(--textColor);
-    }
-  }
-}
-
 .popover {
   width: 300px;
   padding: 20px;

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 
 import { Box, Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import InputSwitch from '../../common/InputSwitch'
 import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
 import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
 import styles from '../../styles/settings.module.scss'

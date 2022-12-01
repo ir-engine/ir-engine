@@ -7,7 +7,7 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import { SxProps, Theme } from '@mui/material/styles'
 import Switch from '@mui/material/Switch'
 
-import styles from '../styles/admin.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   className?: string

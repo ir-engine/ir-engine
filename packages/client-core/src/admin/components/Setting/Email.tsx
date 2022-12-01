@@ -2,13 +2,13 @@ import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 
 import { Box, Button, Grid, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import InputSwitch from '../../common/InputSwitch'
 import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
 import styles from '../../styles/settings.module.scss'
 

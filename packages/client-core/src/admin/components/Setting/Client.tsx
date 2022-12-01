@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 
 import AddIcon from '@mui/icons-material/Add'
@@ -10,7 +11,6 @@ import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
 import Tooltip from '@mui/material/Tooltip'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import InputSwitch from '../../common/InputSwitch'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/settings.module.scss'
 
