@@ -26,7 +26,7 @@ import FaceIcon from '@mui/icons-material/Face'
 import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
-import { VrIcon } from '../../common/components/Icons/Vricon'
+import { VrIcon } from '../../common/components/Icons/VrIcon'
 import {
   startFaceTracking,
   startLipsyncTracking,
