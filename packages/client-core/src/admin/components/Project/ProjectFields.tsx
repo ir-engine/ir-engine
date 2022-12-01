@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectTagInterface } from '@xrengine/common/src/interfaces/ProjectTagInterface'
@@ -19,7 +20,6 @@ import Tooltip from '@mui/material/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import LoadingView from '../../common/LoadingView'
 import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 

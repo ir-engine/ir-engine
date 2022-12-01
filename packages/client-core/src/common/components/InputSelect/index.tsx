@@ -59,7 +59,7 @@ const InputSelect = ({
       <Box sx={{ display: 'flex' }}>
         <FormControl
           variant="outlined"
-          className={className ?? commonStyles.inputField}
+          className={`${className ?? ''} ${commonStyles.inputField}`}
           error={!!error}
           disabled={disabled}
           size="small"
@@ -92,7 +92,7 @@ const InputSelect = ({
                 onPointerUp={onPointerUp}
               >
                 <em>
-                  {t('admin:components.common.select')} {label}
+                  {t('common:components.select')} {label}
                 </em>
               </MenuItem>
             )}

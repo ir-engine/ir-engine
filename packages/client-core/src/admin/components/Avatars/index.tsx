@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+
 import DeleteIcon from '@mui/icons-material/Delete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 
-import ConfirmDialog from '../../common/ConfirmDialog'
 import Search from '../../common/Search'
 import { AdminAvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'

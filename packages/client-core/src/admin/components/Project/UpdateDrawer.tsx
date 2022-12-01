@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
@@ -16,7 +17,6 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
-import LoadingView from '../../common/LoadingView'
 import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 import ProjectFields from './ProjectFields'

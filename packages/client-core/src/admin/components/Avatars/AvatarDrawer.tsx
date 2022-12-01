@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
@@ -40,9 +42,7 @@ import { resetAnimationLogic } from '../../../user/components/Panel3D/helperFunc
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'
-import ConfirmDialog from '../../common/ConfirmDialog'
 import DrawerView from '../../common/DrawerView'
-import LoadingView from '../../common/LoadingView'
 import { AdminAvatarActions, useAdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 

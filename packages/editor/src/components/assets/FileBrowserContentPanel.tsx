@@ -2,8 +2,8 @@ import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/admin/common/ConfirmDialog'
-import LoadingView from '@xrengine/client-core/src/admin/common/LoadingView'
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import {
   FileBrowserService,
   FileBrowserServiceReceptor,

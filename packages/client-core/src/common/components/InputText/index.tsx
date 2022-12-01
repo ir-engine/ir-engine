@@ -46,7 +46,7 @@ const InputText = ({
 }: Props) => {
   const { t } = useTranslation()
 
-  placeholder = placeholder ? placeholder : `${t('admin:components.common.enter')} ${label}`
+  placeholder = placeholder ? placeholder : `${t('common:components.enter')} ${label}`
   placeholder = disabled ? undefined : placeholder
 
   return (

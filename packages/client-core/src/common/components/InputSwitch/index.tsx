@@ -23,7 +23,7 @@ const InputSwitch = ({ className, name, label, checked, disabled, sx, onChange }
   return (
     <Box sx={sx}>
       <FormControlLabel
-        className={className ?? styles.switchField}
+        className={`${className ?? ''} ${styles.switchField}`}
         label={capitalizeFirstLetter(label)}
         control={<Switch name={name} checked={checked} disabled={disabled} onChange={onChange} />}
       />
