@@ -1,12 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
 import { ThemeOptions } from '@xrengine/common/src/interfaces/ClientSetting'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
 import { Divider, Grid } from '@mui/material'
 
-import InputRadio from '../../../common/InputRadio'
 import { InputMenuItem } from '../../../common/InputSelect'
 import SketchColorPicker from '../../../common/SketchColorPicker'
 import styles from '../../../styles/settings.module.scss'

@@ -53,7 +53,7 @@ const InputText = ({
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
       <FormControl
         variant="outlined"
-        className={className ?? styles.inputField}
+        className={`${className ?? ''} ${styles.inputField}`}
         error={!!error}
         disabled={disabled}
         focused={true}

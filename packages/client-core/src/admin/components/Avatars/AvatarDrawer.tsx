@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
@@ -41,7 +42,6 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'
 import ConfirmDialog from '../../common/ConfirmDialog'
 import DrawerView from '../../common/DrawerView'
-import InputRadio from '../../common/InputRadio'
 import LoadingView from '../../common/LoadingView'
 import { AdminAvatarActions, useAdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'

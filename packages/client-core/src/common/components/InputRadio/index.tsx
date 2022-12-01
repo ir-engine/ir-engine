@@ -9,8 +9,8 @@ import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import { SxProps, Theme } from '@mui/material/styles'
 
-import styles from '../styles/admin.module.scss'
-import { InputMenuItem } from './InputSelect'
+import { InputMenuItem } from '../../../admin/common/InputSelect'
+import styles from './index.module.scss'
 
 interface Props {
   className?: string
@@ -28,7 +28,7 @@ const InputRadio = ({ className, name, label, value, options, error, disabled, s
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
       <FormControl
-        className={className ?? styles.radioField}
+        className={`${className ?? ''} ${styles.radioField}`}
         error={error ? true : false}
         disabled={disabled}
         sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
