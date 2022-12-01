@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@xrengine/client-core/src/common/components/InputText'
+
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
@@ -9,7 +11,6 @@ import Tooltip from '@mui/material/Tooltip'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import InputSwitch from '../../common/InputSwitch'
-import InputText from '../../common/InputText'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/settings.module.scss'
 

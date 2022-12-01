@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { InviteInterface } from '@xrengine/common/src/interfaces/Invite'
 
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
@@ -23,7 +24,6 @@ import { NotificationService } from '../../../common/services/NotificationServic
 import { emailRegex, phoneRegex } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
-import InputText from '../../common/InputText'
 import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
 import { AdminInviteService } from '../../services/InviteService'
 import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import { CreateEditUser, UserInterface } from '@xrengine/common/src/interfaces/User'
 
@@ -27,7 +28,6 @@ import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete, { AutoCompleteData } from '../../common/AutoComplete'
 import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
-import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminAvatarService, useAdminAvatarState } from '../../services/AvatarService'
 import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'

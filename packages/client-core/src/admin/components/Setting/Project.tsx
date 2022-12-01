@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
 
 import { Box, Button, Grid, Typography } from '@mui/material'
@@ -8,7 +9,6 @@ import { Box, Button, Grid, Typography } from '@mui/material'
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
-import InputText from '../../common/InputText'
 import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
 

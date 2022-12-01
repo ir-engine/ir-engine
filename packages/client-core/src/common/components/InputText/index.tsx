@@ -9,7 +9,7 @@ import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material/styles'
 
-import styles from '../styles/admin.module.scss'
+import styles from '../common.module.scss'
 
 interface Props {
   className?: string
