@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -9,7 +11,6 @@ import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import { SxProps, Theme } from '@mui/material/styles'
 
-import { InputMenuItem } from '../../../admin/common/InputSelect'
 import styles from './index.module.scss'
 
 interface Props {

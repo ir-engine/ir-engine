@@ -2,6 +2,7 @@ import { useState } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 
 import Button from '@mui/material/Button'
@@ -11,7 +12,6 @@ import DialogTitle from '@mui/material/DialogTitle'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
-import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { InstanceserverService } from '../../services/InstanceserverService'
 import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'

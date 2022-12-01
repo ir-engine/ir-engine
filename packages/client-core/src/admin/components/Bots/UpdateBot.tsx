@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
@@ -16,7 +17,6 @@ import IconButton from '@mui/material/IconButton'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'

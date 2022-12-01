@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { LocationFetched } from '@xrengine/common/src/interfaces/Location'
 
@@ -13,7 +14,6 @@ import Grid from '@mui/material/Grid'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
-import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'

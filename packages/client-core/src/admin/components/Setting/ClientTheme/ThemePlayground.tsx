@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+
 import MenuIcon from '@mui/icons-material/Menu'
 import SettingIcon from '@mui/icons-material/Settings'
 import {
@@ -27,7 +29,6 @@ import {
 } from '@mui/material'
 
 import DrawerView from '../../../common/DrawerView'
-import { InputMenuItem } from '../../../common/InputSelect'
 import styles from '../../../styles/settings.module.scss'
 
 /*
