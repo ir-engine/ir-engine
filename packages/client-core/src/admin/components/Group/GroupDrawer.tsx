@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import AutoComplete, { AutoCompleteData } from '@xrengine/client-core/src/common/components/AutoComplete'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { CreateGroup, Group, GroupScope } from '@xrengine/common/src/interfaces/Group'
 
@@ -16,7 +17,6 @@ import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AutoComplete, { AutoCompleteData } from '../../common/AutoComplete'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminGroupService } from '../../services/GroupService'
