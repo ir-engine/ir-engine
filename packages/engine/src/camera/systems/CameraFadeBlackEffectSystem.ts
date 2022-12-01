@@ -3,6 +3,7 @@ import { Color, Mesh, PlaneGeometry, ShaderMaterial } from 'three'
 import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { World } from '../../ecs/classes/World'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { CameraActions } from '../CameraState'
 
@@ -25,8 +26,10 @@ export default async function CameraFadeBlackEffectSystem(world: World) {
     }
   })
   const mesh = new Mesh(geometry, material)
+  mesh.name = 'Camera Fade Transition'
   world.camera.add(mesh)
   mesh.visible = false
+  mesh.layers.set(ObjectLayers.Camera)
   const transition = createTransitionState(0.25, 'OUT')
 
   const fadeActionQueue = createActionQueue(CameraActions.fadeToBlack.matches)
@@ -38,6 +41,7 @@ export default async function CameraFadeBlackEffectSystem(world: World) {
     transition.update(world.deltaSeconds, (alpha) => {
       material.uniforms.intensity.value = alpha
       mesh.visible = alpha > 0
+      mesh.updateMatrixWorld()
     })
   }
 

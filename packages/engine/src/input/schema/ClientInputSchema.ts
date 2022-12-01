@@ -448,7 +448,7 @@ export const handleMouseButton = (event: MouseEvent): void => {
   if (mousedown) {
     const now = Date.now()
     if (button === MouseInput.LeftButton) {
-      if (now - lastLeftClickDown < 500 && now - lastLeftClickDown > 50)
+      if (now - lastLeftClickDown < 200 && now - lastLeftClickDown > 50)
         Engine.instance.currentWorld.inputState.set(MouseInput.LeftButtonDoubleClick, {
           type: InputType.BUTTON,
           value: [BinaryValue.ON],
@@ -458,7 +458,7 @@ export const handleMouseButton = (event: MouseEvent): void => {
     }
 
     if (button === MouseInput.RightButton) {
-      if (now - lastRightClickDown < 500 && now - lastRightClickDown > 50)
+      if (now - lastRightClickDown < 200 && now - lastRightClickDown > 50)
         Engine.instance.currentWorld.inputState.set(MouseInput.RightButtonDoubleClick, {
           type: InputType.BUTTON,
           value: [BinaryValue.ON],

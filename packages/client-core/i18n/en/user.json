@@ -152,7 +152,10 @@
       "mobileTitle": "View this Item in AR on your Mobile Device",
       "linkCopied": "Link copied to clipboard.",
       "friends": "Friends",
-      "party": "Party"
+      "party": "Party",
+      "shareQuest": "Share to Quest",
+      "shareDirect": "Share Direct Link",
+      "shareInvite": "Share by Invite"
     },
     "party": {
       "title": "Party",

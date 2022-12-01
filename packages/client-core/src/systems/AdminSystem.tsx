@@ -19,10 +19,6 @@ import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services
 import { AdminServerInfoActions, AdminServerInfoReceptors } from '../admin/services/ServerInfoService'
 import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
 import { AdminRedisSettingActions, RedisSettingReceptors } from '../admin/services/Setting/AdminRedisSettingService'
-import {
-  AdminAnalyticsSettingActions,
-  AnalyticsSettingReceptors
-} from '../admin/services/Setting/AnalyticsSettingsService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
 import {
@@ -38,11 +34,15 @@ import {
 } from '../admin/services/Setting/InstanceServerSettingService'
 import { AdminProjectSettingsActions, ProjectSettingReceptors } from '../admin/services/Setting/ProjectSettingService'
 import { AdminServerSettingActions, ServerSettingReceptors } from '../admin/services/Setting/ServerSettingService'
+import {
+  AdminTaskServerSettingActions,
+  TaskServerSettingReceptors
+} from '../admin/services/Setting/TaskServerSettingsService'
 import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
 import { AdminUserActions, AdminUserReceptors } from '../admin/services/UserService'
 
 export default async function AdminSystem(world: World) {
-  const fetchedAnalyticsQueue = createActionQueue(AdminAnalyticsSettingActions.fetchedAnalytics.matches)
+  const fetchedTaskServersQueue = createActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
   const fetchServerInfoRequestedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
   const fetchServerInfoRetrievedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRetrieved.matches)
   const serverInfoPodRemovedQueue = createActionQueue(AdminServerInfoActions.serverInfoPodRemoved.matches)
@@ -129,7 +129,7 @@ export default async function AdminSystem(world: World) {
   // const clientSettingPatchedQueue = createActionQueue(ClientSettingActions.clientSettingPatched.matches)
 
   const execute = () => {
-    for (const action of fetchedAnalyticsQueue()) AnalyticsSettingReceptors.fetchedAnalyticsReceptor(action)
+    for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
     for (const action of fetchServerInfoRequestedQueue())
       AdminServerInfoReceptors.fetchServerInfoRequestedReceptor(action)
     for (const action of fetchServerInfoRetrievedQueue())
@@ -223,7 +223,7 @@ export default async function AdminSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeActionQueue(fetchedAnalyticsQueue)
+    removeActionQueue(fetchedTaskServersQueue)
     removeActionQueue(fetchServerInfoRequestedQueue)
     removeActionQueue(fetchServerInfoRetrievedQueue)
     removeActionQueue(redisSettingRetrievedQueue)

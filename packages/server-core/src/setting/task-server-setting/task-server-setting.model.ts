@@ -1,12 +1,12 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { AnalyticsSettingInterface } from '@xrengine/common/src/dbmodels/AnalyticsSetting'
+import { TaskServerSettingInterface } from '@xrengine/common/src/dbmodels/TaskServerSetting'
 
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Analytics = sequelizeClient.define<Model<AnalyticsSettingInterface>>('analyticsSetting', {
+  const taskServerSetting = sequelizeClient.define<Model<TaskServerSettingInterface>>('taskServerSetting', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
@@ -22,5 +22,5 @@ export default (app: Application) => {
       allowNull: true
     }
   })
-  return Analytics
+  return taskServerSetting
 }

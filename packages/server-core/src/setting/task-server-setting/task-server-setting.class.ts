@@ -1,12 +1,12 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { SettingAnalytics as SettingAnalyticsInterface } from '@xrengine/common/src/interfaces/SettingAnalytics'
+import { TaskServerSetting as TaskServerSettingInterface } from '@xrengine/common/src/interfaces/TaskServerSetting'
 
 import { Application } from '../../../declarations'
 
-export type SettingAnalyticsDataType = SettingAnalyticsInterface
+export type TaskServerSettingDataType = TaskServerSettingInterface
 
-export class Analytics<T = SettingAnalyticsDataType> extends Service<T> {
+export class TaskServerSetting<T = TaskServerSettingDataType> extends Service<T> {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {

@@ -249,7 +249,7 @@ export class World {
   /**
    *
    */
-  priorityAvatarEntities: Set<Entity>
+  priorityAvatarEntities: Set<Entity> = new Set()
 
   /**
    * The local client entity
