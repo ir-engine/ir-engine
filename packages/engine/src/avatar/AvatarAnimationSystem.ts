@@ -111,7 +111,6 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const execute = () => {
     const { localClientEntity, elapsedSeconds, deltaSeconds } = world
-    console.log(priorityQueue.accumulationBudget)
 
     const inAttachedControlMode = getControlMode() === 'attached'
 
