@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
+import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@xrengine/common/src/constants/AvatarConstants'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import {
@@ -22,9 +25,6 @@ import Typography from '@mui/material/Typography'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
-import InputRadio from '../../common/InputRadio'
-import InputSelect, { InputMenuItem } from '../../common/InputSelect'
-import InputText from '../../common/InputText'
 import { ResourceService, useAdminResourceState } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
 

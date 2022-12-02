@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { AdminBot, BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
 
 import { Edit } from '@mui/icons-material'
@@ -16,7 +17,6 @@ import Typography from '@mui/material/Typography'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import ConfirmDialog from '../../common/ConfirmDialog'
 import { AdminBotCommandService, useAdminBotCommandState } from '../../services/BotsCommand'
 import { AdminBotService, useAdminBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'

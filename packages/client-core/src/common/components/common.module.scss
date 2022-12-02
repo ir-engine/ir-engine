@@ -1,0 +1,53 @@
+.inputField {
+  background: var(--inputBackground);
+
+  /**
+  * This below style is added to fix background issues with chrome autofill.
+  * https://github.com/XRFoundation/XREngine/pull/6448#pullrequestreview-1018811200
+  * https://stackoverflow.com/a/14205976/2077741
+  */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--inputBackground) inset !important;
+  }
+
+  :global {
+    .MuiInputLabel-formControl,
+    .MuiInputLabel-root {
+      -webkit-text-fill-color: var(--textColor);
+      color: var(--textColor);
+      transform-origin: top left;
+      -webkit-transform: translate(14px, -9px) scale(0.75);
+      -ms-transform: translate(14px, -9px) scale(0.75);
+      transform: translate(14px, -9px) scale(0.75);
+      position: absolute;
+      padding-left: 5px;
+      padding-right: 5px;
+      max-width: fit-content;
+      font-size: 16px;
+      margin-left: -5px;
+      margin-bottom: 7px;
+    }
+
+    .MuiSvgIcon-root,
+    .MuiInputBase-input {
+      -webkit-text-fill-color: var(--textColor);
+      color: var(--textColor);
+    }
+
+    .MuiOutlinedInput-notchedOutline {
+      border-color: var(--inputOutline) !important;
+
+      legend {
+        visibility: visible;
+        max-width: fit-content;
+      }
+    }
+
+    input:placeholder-shown {
+      font-style: italic;
+    }
+  }
+}

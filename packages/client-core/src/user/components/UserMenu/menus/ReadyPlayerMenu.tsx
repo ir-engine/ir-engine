@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -12,7 +13,6 @@ import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/Compone
 
 import { ArrowBack, Check } from '@mui/icons-material'
 
-import LoadingView from '../../../../admin/common/LoadingView'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
 import { resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'

@@ -2,7 +2,7 @@ import { createState, useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
+import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/VrIcon'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'

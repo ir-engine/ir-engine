@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
 
@@ -19,7 +20,6 @@ import { NotificationService } from '../../../common/services/NotificationServic
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
-import InputText from '../../common/InputText'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {

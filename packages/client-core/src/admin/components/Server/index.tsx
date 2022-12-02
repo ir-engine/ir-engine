@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { ServerInfoInterface } from '@xrengine/common/src/interfaces/ServerInfo'
 
 import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
 
-import LoadingView from '../../common/LoadingView'
 import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
 import styles from '../../styles/admin.module.scss'
 import ServerTable from './ServerTable'

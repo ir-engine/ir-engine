@@ -6,7 +6,7 @@ import { AutocompleteGetTagProps, useAutocomplete } from '@mui/base/Autocomplete
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 
-import styles from '../styles/autocomplete.module.scss'
+import styles from './index.module.scss'
 
 interface TagProps extends ReturnType<AutocompleteGetTagProps> {
   label: string
