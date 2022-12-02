@@ -68,6 +68,7 @@ export const getEngineState = () => getState(EngineState)
 export const useEngineState = () => useState(getEngineState())
 
 export class EngineActions {
+  /** @deprecated */
   static buttonClicked = defineAction({
     type: 'xre.engine.Engine.PRIMARY_BUTTON_CLICKED' as const,
     clicked: matches.boolean,

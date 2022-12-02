@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { SkinnedMesh } from 'three'
+import { SkinnedMesh, Vector2, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { dispatchAction, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
@@ -76,82 +76,6 @@ const setAvatarExpression: InputBehaviorType = (entity: Entity, inputKey: InputA
 }
 
 const vrAxisLookSensitivity = 0.025
-
-const moveLeftController: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const avatarController = getComponent(entity, AvatarControllerComponent)
-  const cameraEntity = avatarController.cameraEntity
-  const followCamera = getOptionalComponent(cameraEntity, FollowCameraComponent)
-
-  const cameraSettings = getState(CameraSettings)
-
-  if (followCamera) {
-    const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
-    if (target)
-      setTargetCameraRotation(
-        cameraEntity,
-        target.phi - inputValue.value[1] * cameraSettings.cameraRotationSpeed.value,
-        target.theta - inputValue.value[0] * cameraSettings.cameraRotationSpeed.value,
-        0.1
-      )
-    return
-  }
-
-  // if vr, rotate the avatar
-  if (getControlMode() === 'attached') {
-    if (getState(AvatarInputSettingsState).controlScheme.value === 'AvatarMovementScheme_Teleport') {
-      moveAvatarWithTeleport(entity, inputValue.value[1], inputKey === BaseInput.PRIMARY_MOVE_LEFT ? 'left' : 'right')
-
-      if (
-        inputValue.lifecycleState === LifecycleValue.Started &&
-        Math.abs(inputValue.value[0]) > 0.01 &&
-        Math.abs(inputValue.value[1]) < 0.1
-      )
-        rotateAvatar(entity, (Math.PI / 6) * (inputValue.value[0] > 0 ? -1 : 1)) // 30 degrees
-    } else if (inputValue.value[0] !== 0) {
-      rotateAvatar(entity, -inputValue.value[0] * vrAxisLookSensitivity)
-    }
-  }
-}
-
-const moveRightController: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const controller = getComponent(entity, AvatarControllerComponent)
-  if (inputValue.type === InputType.TWODIM) {
-    controller.localMovementDirection.x = inputValue.value[0]
-    controller.localMovementDirection.z = inputValue.value[1]
-  } else if (inputValue.type === InputType.THREEDIM) {
-    // TODO: check if this mapping correct
-    controller.localMovementDirection.z = inputValue.value[2]
-    controller.localMovementDirection.x = inputValue.value[0]
-  }
-
-  // if vr, rotate the avatar
-  if (getControlMode() === 'attached') {
-    if (getState(AvatarInputSettingsState).controlScheme.value === 'AvatarMovementScheme_Teleport') {
-      moveAvatarWithTeleport(entity, inputValue.value[1], inputKey === BaseInput.PRIMARY_MOVE_LEFT ? 'left' : 'right')
-
-      if (
-        inputValue.lifecycleState === LifecycleValue.Started &&
-        Math.abs(inputValue.value[0]) > 0.01 &&
-        Math.abs(inputValue.value[1]) < 0.1
-      )
-        rotateAvatar(entity, (Math.PI / 6) * (inputValue.value[0] > 0 ? -1 : 1)) // 30 degrees
-    }
-  }
-}
-
-export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputValue): void => {
-  if (inputValue.lifecycleState === LifecycleValue.Started)
-    dispatchAction(EngineActions.buttonClicked({ clicked: true, button: BaseInput.PRIMARY }))
-  if (inputValue.lifecycleState === LifecycleValue.Ended)
-    dispatchAction(EngineActions.buttonClicked({ clicked: false, button: BaseInput.PRIMARY }))
-}
-
-export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, inputValue) => {
-  if (inputValue.lifecycleState === LifecycleValue.Started)
-    dispatchAction(EngineActions.buttonClicked({ clicked: true, button: BaseInput.SECONDARY }))
-  if (inputValue.lifecycleState === LifecycleValue.Ended)
-    dispatchAction(EngineActions.buttonClicked({ clicked: false, button: BaseInput.SECONDARY }))
-}
 
 export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
@@ -246,12 +170,6 @@ export const createBehaviorMap = () => {
   map.set(CameraInput.Happy, setAvatarExpression)
   map.set(CameraInput.Sad, setAvatarExpression)
 
-  map.set(BaseInput.PRIMARY_MOVE_LEFT, moveLeftController)
-  map.set(BaseInput.PRIMARY_MOVE_RIGHT, moveRightController)
-
-  map.set(BaseInput.PRIMARY, handlePrimaryButton)
-  map.set(BaseInput.SECONDARY, handleSecondaryButton)
-
   map.set(PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE, handlePhysicsDebugEvent)
   map.set(PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG, handlePhysicsDebugEvent)
 
@@ -265,20 +183,18 @@ export const AvatarInputSchema: InputSchema = {
 
 export default async function AvatarInputSystem(world: World) {
   const keyState = getState(ButtonInputState)
-
-  const inputQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
-
   const interactState = getState(InteractState)
+  const avatarInputSettingsState = getState(AvatarInputSettingsState)
+  const cameraSettings = getState(CameraSettings)
 
   const reactor = startReactor(() => {
     const keys = useHookstate(keyState)
 
     useEffect(() => {
-      if (keys.ShiftLeft?.value)
-        for (const entity of inputQuery()) {
-          const controller = getComponent(entity, AvatarControllerComponent)
-          controller.isWalking = !controller.isWalking
-        }
+      if (keys.ShiftLeft?.value) {
+        const controller = getComponent(world.localClientEntity, AvatarControllerComponent)
+        controller.isWalking = !controller.isWalking
+      }
     }, [keys.ShiftLeft])
 
     useEffect(() => {
@@ -317,21 +233,91 @@ export default async function AvatarInputSystem(world: World) {
     return null
   })
 
+  const movementDelta = new Vector3()
+  const lastMovementDelta = new Vector3()
+
+  const lastLookDelta = new Vector2()
+
   const execute = () => {
+    const { inputSources, localClientEntity } = world
+    if (!localClientEntity) return
+
     const keys = keyState.value
 
-    for (const entity of inputQuery()) {
-      const controller = getComponent(entity, AvatarControllerComponent)
-      controller.localMovementDirection.x = (keys.KeyA ? -1 : 0) + (keys.KeyD ? 1 : 0)
-      controller.localMovementDirection.y = keys.Space ? 1 : 0
-      controller.localMovementDirection.z = (keys.KeyW ? -1 : 0) + (keys.KeyS ? 1 : 0)
-      controller.localMovementDirection.normalize()
+    /** keyboard input */
+    const keyDeltaX = (keys.KeyA ? -1 : 0) + (keys.KeyD ? 1 : 0)
+    const keyDeltaY = keys.Space ? 1 : 0
+    const keyDeltaZ = (keys.KeyW ? -1 : 0) + (keys.KeyS ? 1 : 0)
+
+    movementDelta.set(keyDeltaX, keyDeltaY, keyDeltaZ)
+
+    const cameraAttached = getControlMode() === 'attached'
+    const teleporting =
+      cameraAttached && avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
+    const preferredHand = avatarInputSettingsState.preferredHand.value
+
+    /** override keyboard input with XR axes input */
+    for (const inputSource of inputSources) {
+      if (inputSource.gamepad?.mapping === 'xr-standard') {
+        const axes = inputSource.gamepad!.axes
+        if (axes.length <= 2) {
+          movementDelta.x = Math.abs(axes[0]) > 0.05 ? axes[0] : 0
+          movementDelta.z = Math.abs(axes[1]) > 0.05 ? axes[1] : 0
+        }
+        if (axes.length >= 4) {
+          movementDelta.x = Math.abs(axes[2]) > 0.05 ? axes[2] : 0
+          movementDelta.z = Math.abs(axes[3]) > 0.05 ? axes[3] : 0
+        }
+        if (teleporting) {
+          moveAvatarWithTeleport(localClientEntity, movementDelta.y, inputSource.handedness)
+          if (
+            Math.abs(lastMovementDelta.y) < 0.1 &&
+            Math.abs(movementDelta.x) > 0.01 &&
+            Math.abs(movementDelta.y) < 0.1
+          )
+            rotateAvatar(localClientEntity, (Math.PI / 6) * (movementDelta.x > 0 ? -1 : 1)) // 30 degrees
+        } else {
+          /** preferred hand rotates */
+          if (preferredHand === inputSource.handedness)
+            rotateAvatar(localClientEntity, -movementDelta.x * vrAxisLookSensitivity)
+        }
+      }
     }
+
+    const controller = getComponent(localClientEntity, AvatarControllerComponent)
+    controller.localMovementDirection.copy(movementDelta).normalize()
+
+    /** Mouse screen grab camera rotation input */
+    for (const inputSource of inputSources) {
+      if ((inputSource.gamepad?.mapping as any) === 'dom') {
+        const axes = inputSource.gamepad!.axes
+
+        const cameraEntity = controller.cameraEntity
+        const followCamera = getOptionalComponent(cameraEntity, FollowCameraComponent)
+
+        const mouseClicked = keys.MouseLeftClick
+
+        if (followCamera && mouseClicked) {
+          const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
+          if (target) {
+            setTargetCameraRotation(
+              cameraEntity,
+              target.phi - (axes[1] - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
+              target.theta - (axes[0] - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
+              0.1
+            )
+          }
+        }
+
+        lastLookDelta.set(axes[0], axes[1])
+      }
+    }
+
+    lastMovementDelta.copy(movementDelta)
   }
 
   const cleanup = () => {
     reactor.stop()
-    removeQuery(world, inputQuery)
   }
 
   return { execute, cleanup }

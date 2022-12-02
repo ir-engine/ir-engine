@@ -1,7 +1,15 @@
 import { defineState } from '@xrengine/hyperflux'
 
 export type ButtonTypes =
-  /** DOM Keycodes */
+  /** Mouse */
+  | 'MouseLeftClick'
+  | 'MouseMiddleClick'
+  | 'MouseRightClick'
+  | 'MouseLeftDoubleClick'
+  | 'MouseMiddleDoubleClick'
+  | 'MouseRightDoubleClick'
+
+  /** Keyboard */
   | 'Backspace' // 8 backspace
   | 'Tab' // 9 tab
   | 'Enter' // 13 enter
@@ -111,6 +119,7 @@ export type ButtonTypes =
   | 'Backslash' // 220 back slash
   | 'BracketRight' // 221 close bracket
   | 'Quote' // 222 single quote
+
   /** WebXR Aliases */
   | 'LeftTrigger' // 0
   | 'LeftBumper' // 1

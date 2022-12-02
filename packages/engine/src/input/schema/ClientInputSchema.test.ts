@@ -226,10 +226,6 @@ describe('clientInputSchema', () => {
     )
     assert(Engine.instance.currentWorld.inputState.get(MouseInput.LeftButton)?.lifecycleState === LifecycleValue.Ended)
     assert(
-      Engine.instance.currentWorld.inputState.get(MouseInput.MouseClickDownTransformRotation)?.lifecycleState ===
-        LifecycleValue.Ended
-    )
-    assert(
       Engine.instance.currentWorld.inputState.get(MouseInput.MouseClickDownMovement)?.lifecycleState ===
         LifecycleValue.Ended
     )

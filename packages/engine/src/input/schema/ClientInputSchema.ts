@@ -492,11 +492,6 @@ export const handleMouseButton = (event: MouseEvent): void => {
       value: mousePosition,
       lifecycleState: LifecycleValue.Ended
     })
-    Engine.instance.currentWorld.inputState.set(MouseInput.MouseClickDownTransformRotation, {
-      type: InputType.TWODIM,
-      value: mousePosition,
-      lifecycleState: LifecycleValue.Ended
-    })
     Engine.instance.currentWorld.inputState.set(MouseInput.MouseClickDownMovement, {
       type: InputType.TWODIM,
       value: [0, 0],
@@ -622,18 +617,6 @@ export const handleMouseLeave = (event: MouseEvent): void => {
     const value = Engine.instance.currentWorld.inputState.get(MouseInput.MouseClickDownPosition)?.value as number[]
     if (value[0] !== 0 || value[1] !== 0) {
       Engine.instance.currentWorld.inputState.set(MouseInput.MouseClickDownPosition, {
-        type: InputType.TWODIM,
-        value: [0, 0],
-        lifecycleState: LifecycleValue.Ended
-      })
-    }
-  }
-
-  if (Engine.instance.currentWorld.inputState.has(MouseInput.MouseClickDownTransformRotation)) {
-    const value = Engine.instance.currentWorld.inputState.get(MouseInput.MouseClickDownTransformRotation)
-      ?.value as number[]
-    if (value[0] !== 0 || value[1] !== 0) {
-      Engine.instance.currentWorld.inputState.set(MouseInput.MouseClickDownTransformRotation, {
         type: InputType.TWODIM,
         value: [0, 0],
         lifecycleState: LifecycleValue.Ended

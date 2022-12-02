@@ -1,8 +1,6 @@
 import {
   AdditiveBlending,
   AxesHelper,
-  BoxGeometry,
-  BufferAttribute,
   BufferGeometry,
   Float32BufferAttribute,
   Group,
@@ -11,14 +9,11 @@ import {
   Mesh,
   MeshBasicMaterial,
   RingGeometry,
-  SphereGeometry,
-  XRGripSpace
+  SphereGeometry
 } from 'three'
 
-import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { BinaryValue } from '../common/enums/BinaryValue'
-import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
@@ -30,9 +25,6 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
-import { GamepadAxis } from '../input/enums/InputEnums'
-import { InputType } from '../input/enums/InputType'
-import { GamepadMapping } from '../input/functions/GamepadInput'
 import { ButtonInputState } from '../input/InputState'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
@@ -41,11 +33,7 @@ import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  TransformComponent
-} from '../transform/components/TransformComponent'
+import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import {
   InputSourceComponent,
   PointerObject,
@@ -54,7 +42,7 @@ import {
   XRHandComponent,
   XRPointerComponent
 } from './XRComponents'
-import { getControlMode, XRAction, XRState } from './XRState'
+import { getControlMode, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -139,9 +127,6 @@ const updateInputSource = (entity: Entity, space: XRSpace, referenceSpace: XRRef
   transform.rotation.copy(pose.transform.orientation as any)
 }
 
-let leftTriggerPressed = false
-let rightTriggerPressed = false
-
 const ButtonAlias = {
   left: {
     0: 'LeftTrigger',
@@ -161,8 +146,6 @@ const ButtonAlias = {
   }
 }
 
-const buttonsPressed = new Array<boolean>(6).fill(false)
-
 export function updateGamepadInput(source: XRInputSource) {
   const state = getState(ButtonInputState)
 
@@ -173,9 +156,8 @@ export function updateGamepadInput(source: XRInputSource) {
       for (let i = 0; i < buttons.length; i++) {
         const buttonMapping = mapping[i]
         const button = buttons[i]
-        if (buttonsPressed[i] !== button.pressed) {
+        if (state[buttonMapping].value !== button.pressed) {
           state[buttonMapping].set(button.pressed)
-          buttonsPressed[i] = button.pressed
         }
       }
     }

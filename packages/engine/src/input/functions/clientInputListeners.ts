@@ -3,7 +3,8 @@ import { getState, none } from '@xrengine/hyperflux'
 import { isClient } from '../../common/functions/isClient'
 import { World } from '../../ecs/classes/World'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { ButtonInputState } from '../InputState'
+import { BaseInput } from '../enums/BaseInput'
+import { ButtonInputState, ButtonTypes } from '../InputState'
 import {
   handleContextMenu,
   handleMouseButton,
@@ -15,7 +16,8 @@ import {
   handleTouchGamepadButton,
   handleTouchMove,
   handleVisibilityChange,
-  handleWindowFocus
+  handleWindowFocus,
+  normalizeMouseCoordinates
 } from '../schema/ClientInputSchema'
 import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
 import normalizeWheel from './normalizeWheel'
@@ -67,11 +69,66 @@ export const addClientInputListeners = (world: World) => {
 
   addListener(canvas, 'contextmenu', handleContextMenu)
 
-  addListener(canvas, 'mousemove', handleMouseMovement)
-  addListener(canvas, 'mouseup', handleMouseButton)
-  addListener(canvas, 'mousedown', handleMouseButton)
-  addListener(canvas, 'mouseleave', handleMouseLeave)
-  // addListener(canvas, 'wheel', handleMouseWheel, { passive: true, capture: true })
+  let lastLeftClickDown = 0
+  let lastMiddleClickDown = 0
+  let lastRightClickDown = 0
+
+  const keyState = getState(ButtonInputState)
+
+  const handleMouseClick = (event: MouseEvent) => {
+    const down = event.type === 'mousedown'
+
+    let button: ButtonTypes = 'MouseLeftClick'
+    if (event.button === 1) button = 'MouseMiddleClick'
+    else if (event.button === 2) button = 'MouseRightClick'
+
+    if (down) keyState[button].set(true)
+    else keyState[button].set(none)
+
+    if (down) {
+      const now = Date.now()
+      if (button === 'MouseLeftClick') {
+        if (now - lastLeftClickDown < 200 && now - lastLeftClickDown > 50) keyState['MouseLeftDoubleClick'].set(true)
+        lastLeftClickDown = now
+      }
+
+      if (button === 'MouseMiddleClick') {
+        if (now - lastMiddleClickDown < 200 && now - lastMiddleClickDown > 50)
+          keyState['MouseMiddleDoubleClick'].set(true)
+        lastMiddleClickDown = now
+      }
+
+      if (button === 'MouseRightClick') {
+        if (now - lastRightClickDown < 200 && now - lastRightClickDown > 50) keyState['MouseRightDoubleClick'].set(true)
+        lastRightClickDown = now
+      }
+    } else {
+      if (button === 'MouseLeftClick' && keyState['MouseLeftDoubleClick'].value)
+        keyState['MouseLeftDoubleClick'].set(none)
+
+      if (button === 'MouseMiddleClick' && keyState['MouseMiddleDoubleClick'].value)
+        keyState['MouseMiddleDoubleClick'].set(none)
+
+      if (button === 'MouseRightClick' && keyState['MouseRightDoubleClick'].value)
+        keyState['MouseRightDoubleClick'].set(none)
+    }
+  }
+
+  const handleMouseMove = (event: MouseEvent) => {
+    for (const inputSource of world.inputSources) {
+      const gamepad = inputSource.gamepad
+      if ((gamepad?.mapping as any) === 'dom') {
+        const axes = gamepad!.axes as number[]
+        axes[0] = (event.clientX / window.innerWidth) * 2 - 1
+        axes[1] = (event.clientY / window.innerHeight) * -2 + 1
+      }
+    }
+  }
+
+  addListener(canvas, 'mousemove', handleMouseMove)
+  addListener(canvas, 'mouseup', handleMouseClick)
+  addListener(canvas, 'mousedown', handleMouseClick)
+  addListener(canvas, 'mouseleave', handleMouseClick)
 
   addListener(
     canvas,
@@ -103,8 +160,6 @@ export const addClientInputListeners = (world: World) => {
   addListener(window, 'gamepadconnected', handleGamepadConnected)
   addListener(window, 'gamepaddisconnected', handleGamepadDisconnected)
 
-  const keyState = getState(ButtonInputState)
-
   /** new */
   const onKeyEvent = (event: KeyboardEvent) => {
     const element = event.target as HTMLElement
@@ -117,31 +172,27 @@ export const addClientInputListeners = (world: World) => {
     if (down) keyState[code].set(true)
     else keyState[code].set(none)
   }
-
   addListener(document, 'keyup', onKeyEvent)
   addListener(document, 'keydown', onKeyEvent)
-  addListener(
-    canvas,
-    'wheel',
-    (event: WheelEvent) => {
-      for (const inputSource of world.inputSources) {
-        const gamepad = inputSource.gamepad
-        if ((gamepad?.mapping as any) === 'dom') {
-          const axes = gamepad!.axes as number[]
-          const normalizedValues = normalizeWheel(event)
-          if (normalizedValues.spinX) {
-            const value = normalizedValues.spinX + Math.random() * 0.000001
-            axes[3] += Math.sign(value)
-          }
-          if (normalizedValues.spinY) {
-            const value = normalizedValues.spinY + Math.random() * 0.000001
-            axes[4] += Math.sign(value)
-          }
+
+  const onWheelEvent = (event: WheelEvent) => {
+    for (const inputSource of world.inputSources) {
+      const gamepad = inputSource.gamepad
+      if ((gamepad?.mapping as any) === 'dom') {
+        const axes = gamepad!.axes as number[]
+        const normalizedValues = normalizeWheel(event)
+        if (normalizedValues.spinX) {
+          const value = normalizedValues.spinX + Math.random() * 0.000001
+          axes[3] += Math.sign(value)
+        }
+        if (normalizedValues.spinY) {
+          const value = normalizedValues.spinY + Math.random() * 0.000001
+          axes[4] += Math.sign(value)
         }
       }
-    },
-    { passive: true, capture: true }
-  )
+    }
+  }
+  addListener(canvas, 'wheel', onWheelEvent, { passive: true, capture: true })
 }
 
 export const removeClientInputListeners = () => {
