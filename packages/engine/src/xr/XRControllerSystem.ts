@@ -33,6 +33,7 @@ import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { GamepadMapping } from '../input/functions/GamepadInput'
+import { ButtonInputState } from '../input/InputState'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -138,49 +139,45 @@ const updateInputSource = (entity: Entity, space: XRSpace, referenceSpace: XRRef
   transform.rotation.copy(pose.transform.orientation as any)
 }
 
+let leftTriggerPressed = false
+let rightTriggerPressed = false
+
+const ButtonAlias = {
+  left: {
+    0: 'LeftTrigger',
+    1: 'LeftBumper',
+    2: 'LeftPad',
+    3: 'LeftStick',
+    4: 'ButtonX',
+    5: 'ButtonY'
+  },
+  right: {
+    0: 'RightTrigger',
+    1: 'RightBumper',
+    2: 'RightPad',
+    3: 'RightStick',
+    4: 'ButtonA',
+    5: 'ButtonB'
+  }
+}
+
+const buttonsPressed = new Array<boolean>(6).fill(false)
+
 export function updateGamepadInput(source: XRInputSource) {
+  const state = getState(ButtonInputState)
+
   if (source.gamepad?.mapping === 'xr-standard') {
-    const mapping = GamepadMapping['xr-standard'][source.handedness]
-
-    source.gamepad.buttons.forEach((button, index) => {
-      // TODO : support button.touched and button.value
-      const prev = Engine.instance.currentWorld.prevInputState.has(mapping[index])
-      Engine.instance.currentWorld.inputState.set(mapping[index], {
-        type: InputType.BUTTON,
-        value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-        lifecycleState:
-          prev && prev === button.pressed
-            ? LifecycleValue.Unchanged
-            : button.pressed
-            ? LifecycleValue.Started
-            : LifecycleValue.Ended
-      })
-    })
-
-    // TODO: we shouldn't be modifying input data here, deadzone should be handled elsewhere
-    const inputData = [...source.gamepad.axes]
-    for (let i = 0; i < inputData.length; i++) {
-      if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
-    }
-
-    // NOTE: we are inverting input here, as the avatar model is flipped 180 degrees. when that is solved, uninvert these gamepad inputs
-    if (inputData.length >= 2) {
-      const Touchpad = source.handedness === 'left' ? GamepadAxis.LTouchpad : GamepadAxis.RTouchpad
-
-      Engine.instance.currentWorld.inputState.set(Touchpad, {
-        type: InputType.TWODIM,
-        value: [inputData[0], inputData[1]],
-        lifecycleState: LifecycleValue.Started // TODO
-      })
-    }
-
-    if (inputData.length >= 4) {
-      const Thumbstick = source.handedness === 'left' ? GamepadAxis.LThumbstick : GamepadAxis.RThumbstick
-      Engine.instance.currentWorld.inputState.set(Thumbstick, {
-        type: InputType.TWODIM,
-        value: [inputData[2], inputData[3]],
-        lifecycleState: LifecycleValue.Started // TODO
-      })
+    const mapping = ButtonAlias[source.handedness]
+    const buttons = source.gamepad?.buttons
+    if (buttons) {
+      for (let i = 0; i < buttons.length; i++) {
+        const buttonMapping = mapping[i]
+        const button = buttons[i]
+        if (buttonsPressed[i] !== button.pressed) {
+          state[buttonMapping].set(button.pressed)
+          buttonsPressed[i] = button.pressed
+        }
+      }
     }
   }
 }
@@ -364,16 +361,18 @@ export default async function XRControllerSystem(world: World) {
     targetRaySpace,
     gripSpace: undefined,
     gamepad: {
-      axes: [],
-      buttons: [],
+      // 0 is screen x, 1 is screen y, 2 is scroll delta x, 3 is scroll delta y
+      // 4 & 5 is touch 1 x & y, 6 & 7 is touch 2 x & y, etc..
+      axes: new Array(255).fill(0),
+      buttons: new Array(255).fill(0),
       connected: true,
       hapticActuators: [],
       id: '',
       index: 0,
-      mapping: 'ethereal' as any,
+      mapping: 'dom' as any, // todo - what should this be?
       timestamp: Date.now()
     },
-    profiles: ['ethereal'],
+    profiles: [],
     hand: undefined
   }
   const defaultInputSourceArray = [defaultInputSource] as XRInputSourceArray

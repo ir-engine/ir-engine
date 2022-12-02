@@ -4,3 +4,5 @@ export const LifecycleValue = {
   Changed: 'Changed' as const,
   Unchanged: 'Unchanged' as const
 }
+
+export type LifecycleValueType = typeof LifecycleValue[keyof typeof LifecycleValue]

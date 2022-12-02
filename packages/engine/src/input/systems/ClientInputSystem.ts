@@ -137,7 +137,7 @@ export const processInputComponentData = (entity: Entity) => {
 export default async function ClientInputSystem(world: World) {
   const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])
 
-  addClientInputListeners()
+  addClientInputListeners(world)
   world.pointerScreenRaycaster.layers.enableAll()
 
   const execute = () => {

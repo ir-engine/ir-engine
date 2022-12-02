@@ -1,8 +1,11 @@
+import { getState, none } from '@xrengine/hyperflux'
+
 import { isClient } from '../../common/functions/isClient'
+import { World } from '../../ecs/classes/World'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { ButtonInputState } from '../InputState'
 import {
   handleContextMenu,
-  handleKey,
   handleMouseButton,
   handleMouseLeave,
   handleMouseMovement,
@@ -15,6 +18,7 @@ import {
   handleWindowFocus
 } from '../schema/ClientInputSchema'
 import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
+import normalizeWheel from './normalizeWheel'
 
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
 
@@ -29,7 +33,7 @@ interface ListenerBindingData {
 
 const boundListeners: ListenerBindingData[] = []
 
-export const addClientInputListeners = () => {
+export const addClientInputListeners = (world: World) => {
   if (!isClient) return
   const canvas = EngineRenderer.instance.canvas
 
@@ -67,7 +71,7 @@ export const addClientInputListeners = () => {
   addListener(canvas, 'mouseup', handleMouseButton)
   addListener(canvas, 'mousedown', handleMouseButton)
   addListener(canvas, 'mouseleave', handleMouseLeave)
-  addListener(canvas, 'wheel', handleMouseWheel, { passive: true, capture: true })
+  // addListener(canvas, 'wheel', handleMouseWheel, { passive: true, capture: true })
 
   addListener(
     canvas,
@@ -85,12 +89,8 @@ export const addClientInputListeners = () => {
   addListener(canvas, 'touchcancel', handleTouch, { passive: true })
   addListener(canvas, 'touchmove', handleTouchMove, { passive: true })
 
-  addListener(document, 'keyup', handleKey)
-  addListener(document, 'keydown', handleKey)
-
-  addListener(document, 'keyup', (event: KeyboardEvent) => {})
-
-  addListener(document, 'keydown', (event: KeyboardEvent) => {})
+  // addListener(document, 'keyup', handleKey)
+  // addListener(document, 'keydown', handleKey)
 
   addListener(window, 'focus', handleWindowFocus)
   addListener(window, 'blur', handleWindowFocus)
@@ -102,6 +102,46 @@ export const addClientInputListeners = () => {
 
   addListener(window, 'gamepadconnected', handleGamepadConnected)
   addListener(window, 'gamepaddisconnected', handleGamepadDisconnected)
+
+  const keyState = getState(ButtonInputState)
+
+  /** new */
+  const onKeyEvent = (event: KeyboardEvent) => {
+    const element = event.target as HTMLElement
+    // Сheck which excludes the possibility of controlling the avatar when typing in a text field
+    if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') return
+
+    const code = event.code
+    const down = event.type === 'keydown'
+
+    if (down) keyState[code].set(true)
+    else keyState[code].set(none)
+  }
+
+  addListener(document, 'keyup', onKeyEvent)
+  addListener(document, 'keydown', onKeyEvent)
+  addListener(
+    canvas,
+    'wheel',
+    (event: WheelEvent) => {
+      for (const inputSource of world.inputSources) {
+        const gamepad = inputSource.gamepad
+        if ((gamepad?.mapping as any) === 'dom') {
+          const axes = gamepad!.axes as number[]
+          const normalizedValues = normalizeWheel(event)
+          if (normalizedValues.spinX) {
+            const value = normalizedValues.spinX + Math.random() * 0.000001
+            axes[3] += Math.sign(value)
+          }
+          if (normalizedValues.spinY) {
+            const value = normalizedValues.spinY + Math.random() * 0.000001
+            axes[4] += Math.sign(value)
+          }
+        }
+      }
+    },
+    { passive: true, capture: true }
+  )
 }
 
 export const removeClientInputListeners = () => {

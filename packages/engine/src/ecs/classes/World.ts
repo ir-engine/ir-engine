@@ -24,6 +24,7 @@ import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
+import { LifecycleValueType } from '../../common/enums/LifecycleValue'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -260,7 +261,9 @@ export class World {
 
   readonly dirtyTransforms = {} as Record<Entity, true>
 
+  /** @deprecated */
   inputState = new Map<InputAlias, InputValue>()
+  /** @deprecated */
   prevInputState = new Map<InputAlias, InputValue>()
 
   inputSources: XRInputSourceArray = []

@@ -1,7 +1,15 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
+import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  createActionQueue,
+  dispatchAction,
+  getState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@xrengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { isClient } from '../../common/functions/isClient'
@@ -17,6 +25,8 @@ import {
   removeComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { ButtonInputState } from '../../input/InputState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   RigidBodyComponent,
@@ -29,7 +39,7 @@ import { EquippableComponent, SCENE_COMPONENT_EQUIPPABLE } from '../components/E
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
-import { changeHand, equipEntity, getAttachmentPoint, getParity } from '../functions/equippableFunctions'
+import { changeHand, equipEntity, getAttachmentPoint, getParity, unequipEntity } from '../functions/equippableFunctions'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
 
@@ -156,7 +166,25 @@ export default async function EquippableSystem(world: World) {
   const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
 
   const equipperQuery = defineQuery([EquipperComponent])
+  const equipperInputQuery = defineQuery([LocalInputTagComponent, EquipperComponent])
   const equippableQuery = defineQuery([EquippableComponent])
+
+  const keyState = getState(ButtonInputState)
+
+  const reactor = startReactor(() => {
+    const keys = useHookstate(keyState)
+
+    useEffect(() => {
+      if (keys.KeyU?.value)
+        for (const entity of equipperInputQuery()) {
+          const equipper = getComponent(entity, EquipperComponent)
+          if (!equipper.equippedEntity) return
+          unequipEntity(entity)
+        }
+    }, [keys.KeyU])
+
+    return null
+  })
 
   const execute = () => {
     for (const action of interactedActionQueue()) {
