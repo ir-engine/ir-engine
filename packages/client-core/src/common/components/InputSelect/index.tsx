@@ -32,6 +32,7 @@ interface Props {
 export interface InputMenuItem {
   value: string
   label: React.ReactNode
+  disabled?: boolean
 }
 
 const InputSelect = ({
@@ -59,7 +60,7 @@ const InputSelect = ({
       <Box sx={{ display: 'flex' }}>
         <FormControl
           variant="outlined"
-          className={`${className ?? ''} ${commonStyles.inputField}`}
+          className={`${commonStyles.inputField} ${className ?? ''}`}
           error={!!error}
           disabled={disabled}
           size="small"

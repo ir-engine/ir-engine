@@ -29,7 +29,7 @@ const InputRadio = ({ className, name, label, value, options, error, disabled, s
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
       <FormControl
-        className={`${className ?? ''} ${styles.radioField}`}
+        className={`${styles.radioField} ${className ?? ''}`}
         error={error ? true : false}
         disabled={disabled}
         sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}

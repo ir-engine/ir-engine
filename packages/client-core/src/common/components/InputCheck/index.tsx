@@ -19,7 +19,7 @@ interface Props {
 const InputRadio = ({ checked, className, disabled, label, name, sx, onChange }: Props) => {
   return (
     <FormControlLabel
-      className={`${className ?? ''} ${styles.checkbox}`}
+      className={`${styles.checkbox} ${className ?? ''}`}
       control={
         <Checkbox
           name={name}

@@ -1,25 +1,23 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import Menu from '@xrengine/client-core/src/common/components/Menu'
+import Tabs from '@xrengine/client-core/src/common/components/Tabs'
 import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
-import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarInputSettingsAction,
   AvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -39,8 +37,6 @@ import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Slider from '@mui/material/Slider'
 import Switch from '@mui/material/Switch'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 
 import { useClientSettingState } from '../../../../admin/services/Setting/ClientSettingService'
@@ -163,8 +159,16 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: event.target.value as any }))
   }
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleTabChange = (newValue: string) => {
     setSelectedTab(newValue)
+  }
+
+  const settingTabs = [{ value: 'general', label: t('user:usermenu.setting.general') }]
+  if (showWorldSettings) {
+    settingTabs.push(
+      { value: 'audio', label: t('user:usermenu.setting.audio') },
+      { value: 'graphics', label: t('user:usermenu.setting.graphics') }
+    )
   }
 
   return (
@@ -172,13 +176,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       open
       showBackButton
       isPopover={isPopover}
-      header={
-        <Tabs className={styles.tabsPanel} value={selectedTab} onChange={handleTabChange} variant="fullWidth">
-          <Tab value="general" label={t('user:usermenu.setting.general')} />
-          {showWorldSettings && <Tab value="audio" label={t('user:usermenu.setting.audio')} />}
-          {showWorldSettings && <Tab value="graphics" label={t('user:usermenu.setting.graphics')} />}
-        </Tabs>
-      }
+      header={<Tabs value={selectedTab} items={settingTabs} onChange={handleTabChange} />}
       onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
       onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
     >

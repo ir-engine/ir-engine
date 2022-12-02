@@ -28,7 +28,7 @@ const Button = ({ autoFocus, children, className, disabled, endIcon, startIcon, 
   return (
     <MUIButton
       autoFocus={autoFocus}
-      className={`${className ?? ''} ${baseStyle}`}
+      className={`${baseStyle} ${className ?? ''}`}
       disabled={disabled}
       endIcon={endIcon}
       startIcon={startIcon}

@@ -17,7 +17,7 @@ interface Props {
 const IconButton = ({ children, className, disabled, size, sx, onClick }: Props) => {
   return (
     <MUIIconButton
-      className={`${className ?? ''} ${styles.iconButton}`}
+      className={`${styles.iconButton} ${className ?? ''}`}
       disabled={disabled}
       size={size}
       sx={sx}

@@ -13,7 +13,7 @@ interface Props {
 
 const Button = ({ children, className, sx, variant }: Props) => {
   return (
-    <Typography className={`${className ?? ''}`} sx={sx} variant={variant}>
+    <Typography className={className} sx={sx} variant={variant}>
       {children}
     </Typography>
   )
