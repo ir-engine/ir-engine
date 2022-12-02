@@ -25,8 +25,19 @@ const SCHEMA = {
   angularVelocity: Vector3Schema,
   scale: Vector3Schema
 }
+// TODO can this be inferred from the above or vice versa?
+interface RigidBodyComponentType {
+  previousPosition: Vector3
+  previousRotation: Quaternion
+  position: Vector3
+  rotation: Quaternion
+  linearVelocity: Vector3
+  angularVelocity: Vector3
+  scale: Vector3
+  body: RigidBody
+}
 
-export const RigidBodyComponent = defineComponent({
+export const RigidBodyComponent = defineComponent<RigidBodyComponentType>({
   name: 'RigidBodyComponent',
   schema: SCHEMA,
 
