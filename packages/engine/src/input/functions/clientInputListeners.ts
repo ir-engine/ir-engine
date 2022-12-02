@@ -3,30 +3,14 @@ import { getState, none } from '@xrengine/hyperflux'
 import { isClient } from '../../common/functions/isClient'
 import { World } from '../../ecs/classes/World'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { BaseInput } from '../enums/BaseInput'
 import { ButtonInputState, ButtonTypes } from '../InputState'
-import {
-  handleContextMenu,
-  handleMouseButton,
-  handleMouseLeave,
-  handleMouseMovement,
-  handleMouseWheel,
-  handleTouch,
-  handleTouchDirectionalPad,
-  handleTouchGamepadButton,
-  handleTouchMove,
-  handleVisibilityChange,
-  handleWindowFocus,
-  normalizeMouseCoordinates
-} from '../schema/ClientInputSchema'
-import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
+import { handleTouch, handleTouchMove } from '../schema/ClientInputSchema'
 import normalizeWheel from './normalizeWheel'
-
-const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
 
 function preventDefault(e) {
   e.preventDefault()
 }
+
 interface ListenerBindingData {
   domElement: any
   eventName: string
@@ -67,50 +51,51 @@ export const addClientInputListeners = (world: World) => {
 
   addListener(document, 'gesturestart', preventDefault)
 
-  addListener(canvas, 'contextmenu', handleContextMenu)
+  addListener(canvas, 'contextmenu', preventDefault)
 
-  let lastLeftClickDown = 0
-  let lastMiddleClickDown = 0
-  let lastRightClickDown = 0
+  let lastPrimaryClickDown = 0
+  let lastAuxiliaryClickDown = 0
+  let lastSecondaryClickDown = 0
 
   const keyState = getState(ButtonInputState)
 
   const handleMouseClick = (event: MouseEvent) => {
-    const down = event.type === 'mousedown'
+    const down = event.type === 'pointerdown'
 
-    let button: ButtonTypes = 'MouseLeftClick'
-    if (event.button === 1) button = 'MouseMiddleClick'
-    else if (event.button === 2) button = 'MouseRightClick'
+    let button: ButtonTypes = 'PrimaryClick'
+    if (event.button === 1) button = 'AuxiliaryClick'
+    else if (event.button === 2) button = 'SecondaryClick'
 
     if (down) keyState[button].set(true)
     else keyState[button].set(none)
 
     if (down) {
       const now = Date.now()
-      if (button === 'MouseLeftClick') {
-        if (now - lastLeftClickDown < 200 && now - lastLeftClickDown > 50) keyState['MouseLeftDoubleClick'].set(true)
-        lastLeftClickDown = now
+      if (button === 'PrimaryClick') {
+        if (now - lastPrimaryClickDown < 200 && now - lastPrimaryClickDown > 50)
+          keyState['PrimaryDoubleClick'].set(true)
+        lastPrimaryClickDown = now
       }
 
-      if (button === 'MouseMiddleClick') {
-        if (now - lastMiddleClickDown < 200 && now - lastMiddleClickDown > 50)
-          keyState['MouseMiddleDoubleClick'].set(true)
-        lastMiddleClickDown = now
+      if (button === 'AuxiliaryClick') {
+        if (now - lastAuxiliaryClickDown < 200 && now - lastAuxiliaryClickDown > 50)
+          keyState['AuxiliaryDoubleClick'].set(true)
+        lastAuxiliaryClickDown = now
       }
 
-      if (button === 'MouseRightClick') {
-        if (now - lastRightClickDown < 200 && now - lastRightClickDown > 50) keyState['MouseRightDoubleClick'].set(true)
-        lastRightClickDown = now
+      if (button === 'SecondaryClick') {
+        if (now - lastSecondaryClickDown < 200 && now - lastSecondaryClickDown > 50)
+          keyState['SecondaryDoubleClick'].set(true)
+        lastSecondaryClickDown = now
       }
     } else {
-      if (button === 'MouseLeftClick' && keyState['MouseLeftDoubleClick'].value)
-        keyState['MouseLeftDoubleClick'].set(none)
+      if (button === 'PrimaryClick' && keyState['PrimaryDoubleClick'].value) keyState['PrimaryDoubleClick'].set(none)
 
-      if (button === 'MouseMiddleClick' && keyState['MouseMiddleDoubleClick'].value)
-        keyState['MouseMiddleDoubleClick'].set(none)
+      if (button === 'SecondaryClick' && keyState['SecondaryDoubleClick'].value)
+        keyState['SecondaryDoubleClick'].set(none)
 
-      if (button === 'MouseRightClick' && keyState['MouseRightDoubleClick'].value)
-        keyState['MouseRightDoubleClick'].set(none)
+      if (button === 'AuxiliaryClick' && keyState['AuxiliaryDoubleClick'].value)
+        keyState['AuxiliaryDoubleClick'].set(none)
     }
   }
 
@@ -125,40 +110,49 @@ export const addClientInputListeners = (world: World) => {
     }
   }
 
-  addListener(canvas, 'mousemove', handleMouseMove)
-  addListener(canvas, 'mouseup', handleMouseClick)
-  addListener(canvas, 'mousedown', handleMouseClick)
-  addListener(canvas, 'mouseleave', handleMouseClick)
-
-  addListener(
-    canvas,
-    'touchstart',
-    (e: TouchEvent) => {
-      handleTouch(e)
-      handleTouchMove(e)
-    },
-    {
-      passive: true,
-      capture: true
+  const handleTouchMove = (event: TouchEvent) => {
+    const touch = event.touches[0]
+    for (const inputSource of world.inputSources) {
+      const gamepad = inputSource.gamepad
+      if ((gamepad?.mapping as any) === 'dom') {
+        const axes = gamepad!.axes as number[]
+        axes[0] = (touch.clientX / window.innerWidth) * 2 - 1
+        axes[1] = (touch.clientY / window.innerHeight) * -2 + 1
+      }
     }
-  )
-  addListener(canvas, 'touchend', handleTouch, { passive: true })
-  addListener(canvas, 'touchcancel', handleTouch, { passive: true })
-  addListener(canvas, 'touchmove', handleTouchMove, { passive: true })
+  }
+
+  addListener(window, 'touchmove', handleTouchMove, { passive: true, capture: true })
+  addListener(window, 'mousemove', handleMouseMove, { passive: true, capture: true })
+  addListener(canvas, 'pointerup', handleMouseClick)
+  addListener(canvas, 'pointerdown', handleMouseClick)
+
+  // addListener(
+  //   canvas,
+  //   'touchstart',
+  //   (e: TouchEvent) => {
+  //     handleTouch(e)
+  //     handleTouchMove(e)
+  //   },
+  //   {
+  //     passive: true,
+  //     capture: true
+  //   }
+  // )
 
   // addListener(document, 'keyup', handleKey)
   // addListener(document, 'keydown', handleKey)
+  const clearKeyState = () => {
+    keyState.set({} as any)
+  }
+  addListener(window, 'focus', clearKeyState)
+  addListener(window, 'blur', clearKeyState)
 
-  addListener(window, 'focus', handleWindowFocus)
-  addListener(window, 'blur', handleWindowFocus)
+  const handleVisibilityChange = (event: Event) => {
+    if (document.visibilityState === 'hidden') clearKeyState()
+  }
 
   addListener(document, 'visibilitychange', handleVisibilityChange)
-  addListener(document, 'touchstickmove', handleTouchDirectionalPad)
-  addListener(document, 'touchgamepadbuttondown', handleTouchGamepadButton)
-  addListener(document, 'touchgamepadbuttonup', handleTouchGamepadButton)
-
-  addListener(window, 'gamepadconnected', handleGamepadConnected)
-  addListener(window, 'gamepaddisconnected', handleGamepadDisconnected)
 
   /** new */
   const onKeyEvent = (event: KeyboardEvent) => {

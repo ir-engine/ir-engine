@@ -10,7 +10,6 @@ import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
 import { BaseInput } from '../enums/BaseInput'
 import { InputType } from '../enums/InputType'
 import { addClientInputListeners, removeClientInputListeners } from '../functions/clientInputListeners'
-import { handleGamepads } from '../functions/GamepadInput'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
 
@@ -141,10 +140,6 @@ export default async function ClientInputSystem(world: World) {
   world.pointerScreenRaycaster.layers.enableAll()
 
   const execute = () => {
-    if (!EngineRenderer.instance?.xrSession) {
-      handleGamepads()
-    }
-
     processEngineInputState(world)
 
     // copy client input state to input component

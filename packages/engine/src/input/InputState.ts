@@ -2,12 +2,12 @@ import { defineState } from '@xrengine/hyperflux'
 
 export type ButtonTypes =
   /** Mouse */
-  | 'MouseLeftClick'
-  | 'MouseMiddleClick'
-  | 'MouseRightClick'
-  | 'MouseLeftDoubleClick'
-  | 'MouseMiddleDoubleClick'
-  | 'MouseRightDoubleClick'
+  | 'PrimaryClick'
+  | 'AuxiliaryClick'
+  | 'SecondaryClick'
+  | 'PrimaryDoubleClick'
+  | 'AuxiliaryDoubleClick'
+  | 'SecondaryDoubleClick'
 
   /** Keyboard */
   | 'Backspace' // 8 backspace

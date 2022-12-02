@@ -571,20 +571,6 @@ export const handleWindowFocus = (event: FocusEvent) => {
   })
 }
 
-export const handleVisibilityChange = (event: Event) => {
-  if (document.visibilityState === 'hidden') {
-    Engine.instance.currentWorld.inputState.forEach((value, key) => {
-      if (value.type === InputType.BUTTON && value.value[0] === BinaryValue.ON) {
-        Engine.instance.currentWorld.inputState.set(key, {
-          type: InputType.BUTTON,
-          value: [BinaryValue.OFF],
-          lifecycleState: LifecycleValue.Ended
-        })
-      }
-    })
-  }
-}
-
 /**
  * Called when context menu is opened
  *

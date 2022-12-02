@@ -237,6 +237,7 @@ export default async function AvatarInputSystem(world: World) {
   const lastMovementDelta = new Vector3()
 
   const lastLookDelta = new Vector2()
+  let isClicked = false
 
   const execute = () => {
     const { inputSources, localClientEntity } = world
@@ -286,6 +287,7 @@ export default async function AvatarInputSystem(world: World) {
 
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
     controller.localMovementDirection.copy(movementDelta).normalize()
+    const mouseClicked = keys.PrimaryClick
 
     /** Mouse screen grab camera rotation input */
     for (const inputSource of inputSources) {
@@ -295,7 +297,7 @@ export default async function AvatarInputSystem(world: World) {
         const cameraEntity = controller.cameraEntity
         const followCamera = getOptionalComponent(cameraEntity, FollowCameraComponent)
 
-        const mouseClicked = keys.MouseLeftClick
+        if (!isClicked && mouseClicked) lastLookDelta.set(axes[0], axes[1])
 
         if (followCamera && mouseClicked) {
           const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
@@ -313,6 +315,7 @@ export default async function AvatarInputSystem(world: World) {
       }
     }
 
+    isClicked = !!mouseClicked
     lastMovementDelta.copy(movementDelta)
   }
 
