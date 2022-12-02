@@ -230,19 +230,6 @@
   color: var(--textColor);
 }
 
-.selectPaper {
-  background: var(--inputBackground);
-  color: var(--textColor);
-
-  svg {
-    color: var(--textColor) !important;
-  }
-
-  &:global(.Mui-selected) {
-    background: var(--dropdownMenuSelectedBackground);
-  }
-}
-
 .paperDialog {
   background: var(--popupBackground) !important;
   color: var(--textColor);
@@ -375,20 +362,6 @@
 
 .scopeButtons {
   display: flex;
-}
-
-.menuItem {
-  &:hover {
-    background: var(--dropdownMenuHoverBackground);
-  }
-
-  &:global(.Mui-selected) {
-    background: var(--dropdownMenuSelectedBackground);
-
-    &:hover {
-      background: var(--dropdownMenuSelectedBackground);
-    }
-  }
 }
 
 .analyticsPaper {
@@ -578,30 +551,6 @@
   }
 }
 
-.switchField {
-  :global {
-    .MuiFormControlLabel-label {
-      color: var(--textColor);
-    }
-
-    .MuiFormControlLabel-label.Mui-disabled {
-      color: var(--textColor);
-    }
-  }
-}
-
-.radioField {
-  :global {
-    .MuiFormLabel-root {
-      color: var(--textColor);
-    }
-
-    .MuiSvgIcon-root {
-      color: var(--textColor);
-    }
-  }
-}
-
 .popover {
   width: 300px;
   padding: 20px;
@@ -619,21 +568,6 @@
 
 .orangeColor {
   color: orange;
-}
-
-.dialog {
-  background-color: var(--popupBackground);
-  color: var(--textColor);
-
-  :global {
-    .MuiDialogContentText-root {
-      color: var(--textColor);
-    }
-
-    .MuiDialogContent-root {
-      padding-bottom: 10px;
-    }
-  }
 }
 
 .selectedTab {

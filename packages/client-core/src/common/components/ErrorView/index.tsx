@@ -1,9 +1,11 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+
+import Button from '@xrengine/client-core/src/common/components/Button'
 
 import CachedOutlinedIcon from '@mui/icons-material/CachedOutlined'
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import { Variant } from '@mui/material/styles/createTypography'
 import Typography from '@mui/material/Typography'
 
@@ -19,6 +21,8 @@ interface Props {
 }
 
 const ErrorView = ({ error, detail, retryText, variant, bodyVariant, onRetry }: Props) => {
+  const { t } = useTranslation()
+
   if (!variant) {
     variant = 'h6'
   }
@@ -47,14 +51,8 @@ const ErrorView = ({ error, detail, retryText, variant, bodyVariant, onRetry }: 
         </Typography>
       )}
       {onRetry && (
-        <Button
-          color="primary"
-          variant="contained"
-          startIcon={<CachedOutlinedIcon />}
-          sx={{ marginTop: 1, background: 'var(--purplePinkGradient)', ':hover': { opacity: 0.8 } }}
-          onClick={onRetry}
-        >
-          {retryText ? retryText : 'Retry'}
+        <Button type="outlined" startIcon={<CachedOutlinedIcon />} sx={{ marginTop: 1 }} onClick={onRetry}>
+          {retryText ? retryText : t('common:components.retry')}
         </Button>
       )}
     </Box>

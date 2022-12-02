@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
@@ -27,7 +28,6 @@ import Paper from '@mui/material/Paper'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
-import LoadingView from '../../../../admin/common/LoadingView'
 import { useAuthState } from '../../../services/AuthService'
 import { AVATAR_PAGE_LIMIT, AvatarService, AvatarState } from '../../../services/AvatarService'
 import { resetAnimationLogic } from '../../Panel3D/helperFunctions'
