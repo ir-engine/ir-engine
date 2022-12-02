@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import UIDialog from '../Dialog'
+import UIDialog from '../UIDialog'
 
 interface Props {
   pageTitle?: string

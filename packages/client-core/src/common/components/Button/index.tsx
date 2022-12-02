@@ -14,7 +14,7 @@ interface Props {
   startIcon?: React.ReactNode
   sx?: SxProps<Theme>
   type?: 'outlined' | 'gradient'
-  onClick: () => void
+  onClick?: () => void
 }
 
 const Button = ({ autoFocus, children, className, disabled, endIcon, startIcon, sx, type, onClick }: Props) => {
