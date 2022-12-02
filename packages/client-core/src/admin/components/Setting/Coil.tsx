@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@xrengine/client-core/src/common/components/InputText'
+
 import { Box, Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import InputText from '../../common/InputText'
 import { AdminCoilSettingService, useCoilSettingState } from '../../services/Setting/CoilSettingService'
 import styles from '../../styles/settings.module.scss'
 

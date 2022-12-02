@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 
 import Box from '@mui/material/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
 import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../services/PartyService'

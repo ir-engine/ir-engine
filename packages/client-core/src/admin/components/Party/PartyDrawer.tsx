@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 
 import Button from '@mui/material/Button'
@@ -11,8 +13,6 @@ import DialogTitle from '@mui/material/DialogTitle'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
-import InputSelect, { InputMenuItem } from '../../common/InputSelect'
-import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminInstanceService } from '../../services/InstanceService'
 import { useAdminInstanceState } from '../../services/InstanceService'

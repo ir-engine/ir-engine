@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import adminStyles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
+import inputRadioStyles from '@xrengine/client-core/src/common/components/InputRadio/index.module.scss'
 import { InstanceService } from '@xrengine/client-core/src/common/services/InstanceService'
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import menuStyles from '@xrengine/client-core/src/user/components/UserMenu/index.module.scss'
@@ -109,7 +109,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
 
           <hr className="divider" />
 
-          <FormControl className={adminStyles.radioField} fullWidth>
+          <FormControl className={inputRadioStyles.radioField} fullWidth>
             <RadioGroup value={source} onChange={handleSourceChange}>
               <FormControlLabel
                 value="create"
