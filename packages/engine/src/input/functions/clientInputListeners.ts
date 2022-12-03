@@ -104,14 +104,11 @@ export const addClientInputListeners = (world: World) => {
     if (keyState['PrimaryClick'].value) keyState['PrimaryMove'].set(true)
     if (keyState['SecondaryClick'].value) keyState['SecondaryMove'].set(true)
     if (keyState['AuxiliaryClick'].value) keyState['AuxiliaryMove'].set(true)
-    for (const inputSource of world.inputSources) {
-      const gamepad = inputSource.gamepad
-      if ((gamepad?.mapping as any) === 'dom') {
-        const axes = gamepad!.axes as number[]
-        axes[0] = (event.clientX / window.innerWidth) * 2 - 1
-        axes[1] = (event.clientY / window.innerHeight) * -2 + 1
-      }
-    }
+    world.pointerState.position.set(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      (event.clientY / window.innerHeight) * -2 + 1
+    )
+    world.pointerState.lastPosition.copy(world.pointerState.position)
   }
 
   const handleTouchMove = (event: TouchEvent) => {
@@ -119,14 +116,11 @@ export const addClientInputListeners = (world: World) => {
     if (keyState['SecondaryClick'].value) keyState['SecondaryMove'].set(true)
     if (keyState['AuxiliaryClick'].value) keyState['AuxiliaryMove'].set(true)
     const touch = event.touches[0]
-    for (const inputSource of world.inputSources) {
-      const gamepad = inputSource.gamepad
-      if ((gamepad?.mapping as any) === 'dom') {
-        const axes = gamepad!.axes as number[]
-        axes[0] = (touch.clientX / window.innerWidth) * 2 - 1
-        axes[1] = (touch.clientY / window.innerHeight) * -2 + 1
-      }
-    }
+    world.pointerState.position.set(
+      (touch.clientX / window.innerWidth) * 2 - 1,
+      (touch.clientY / window.innerHeight) * -2 + 1
+    )
+    world.pointerState.lastPosition.copy(world.pointerState.position)
   }
 
   addListener(window, 'touchmove', handleTouchMove, { passive: true, capture: true })
@@ -164,21 +158,11 @@ export const addClientInputListeners = (world: World) => {
   addListener(document, 'keydown', onKeyEvent)
 
   const onWheelEvent = (event: WheelEvent) => {
-    for (const inputSource of world.inputSources) {
-      const gamepad = inputSource.gamepad
-      if ((gamepad?.mapping as any) === 'dom') {
-        const axes = gamepad!.axes as number[]
-        const normalizedValues = normalizeWheel(event)
-        if (normalizedValues.spinX) {
-          const value = normalizedValues.spinX + Math.random() * 0.000001
-          axes[3] += Math.sign(value)
-        }
-        if (normalizedValues.spinY) {
-          const value = normalizedValues.spinY + Math.random() * 0.000001
-          axes[4] += Math.sign(value)
-        }
-      }
-    }
+    const normalizedValues = normalizeWheel(event)
+    const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
+    const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
+    world.pointerState.scroll.set(x, y)
+    world.pointerState.lastScroll.copy(world.pointerState.scroll)
   }
   addListener(canvas, 'wheel', onWheelEvent, { passive: true, capture: true })
 }

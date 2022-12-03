@@ -335,30 +335,6 @@ export default async function XRControllerSystem(world: World) {
   const gripQuery = defineQuery([XRControllerGripComponent])
   const handQuery = defineQuery([XRHandComponent])
 
-  const targetRaySpace = {} as XRSpace
-
-  const defaultInputSource = {
-    handedness: 'none',
-    targetRayMode: 'screen',
-    targetRaySpace,
-    gripSpace: undefined,
-    gamepad: {
-      // 0 is screen x, 1 is screen y, 2 is scroll delta x, 3 is scroll delta y
-      // 4 & 5 is touch 1 x & y, 6 & 7 is touch 2 x & y, etc..
-      axes: new Array(255).fill(0),
-      buttons: new Array(255).fill(0),
-      connected: true,
-      hapticActuators: [],
-      id: '',
-      index: 0,
-      mapping: 'dom' as any, // todo - what should this be?
-      timestamp: Date.now()
-    },
-    profiles: [],
-    hand: undefined
-  }
-  const defaultInputSourceArray = [defaultInputSource] as XRInputSourceArray
-
   const execute = () => {
     updateInputSourceEntities()
 
@@ -384,10 +360,6 @@ export default async function XRControllerSystem(world: World) {
       }
 
       world.inputSources = session.inputSources
-    } else {
-      world.inputSources = defaultInputSourceArray
-      const inputSource = defaultInputSource
-      inputSource.gamepad.timestamp = Date.now()
     }
   }
 

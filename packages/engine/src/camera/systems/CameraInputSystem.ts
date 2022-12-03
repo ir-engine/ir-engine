@@ -179,39 +179,33 @@ export default async function CameraInputSystem(world: World) {
     const inputEntities = inputQuery()
     const mouseMoved = keys.PrimaryMove
 
-    for (const inputSource of inputSources) {
-      if ((inputSource.gamepad?.mapping as any) === 'dom') {
-        const axes = inputSource.gamepad!.axes
+    for (const entity of inputEntities) {
+      const avatarController = getComponent(entity, AvatarControllerComponent)
+      const cameraEntity = avatarController.cameraEntity
+      const target =
+        getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ??
+        getOptionalComponent(cameraEntity, FollowCameraComponent)
+      if (!target) continue
 
-        for (const entity of inputEntities) {
-          const avatarController = getComponent(entity, AvatarControllerComponent)
-          const cameraEntity = avatarController.cameraEntity
-          const target =
-            getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ??
-            getOptionalComponent(cameraEntity, FollowCameraComponent)
-          if (!target) continue
+      if (!lastMouseMoved && mouseMoved) lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
 
-          if (!lastMouseMoved && mouseMoved) lastLookDelta.set(axes[0], axes[1])
+      const keyDelta = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0)
+      target.theta += 100 * deltaSeconds * keyDelta
+      setTargetCameraRotation(cameraEntity, target.phi, target.theta)
 
-          const keyDelta = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0)
-          target.theta += 100 * deltaSeconds * keyDelta
-          setTargetCameraRotation(cameraEntity, target.phi, target.theta)
-
-          if (mouseMoved) {
-            setTargetCameraRotation(
-              cameraEntity,
-              target.phi - (axes[1] - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
-              target.theta - (axes[0] - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
-              0.1
-            )
-          }
-
-          throttleHandleCameraZoom(cameraEntity, axes[4])
-        }
-
-        lastLookDelta.set(axes[0], axes[1])
+      if (mouseMoved) {
+        setTargetCameraRotation(
+          cameraEntity,
+          target.phi - (world.pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
+          target.theta - (world.pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
+          0.1
+        )
       }
+
+      throttleHandleCameraZoom(cameraEntity, world.pointerState.scroll.y)
     }
+
+    lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
 
     lastMouseMoved = !!mouseMoved
   }

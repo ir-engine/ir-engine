@@ -10,7 +10,9 @@ import {
   Scene,
   Shader,
   ShadowMapType,
-  ToneMapping
+  ToneMapping,
+  Vector2,
+  Vector3
 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
@@ -262,6 +264,12 @@ export class World {
   readonly dirtyTransforms = {} as Record<Entity, true>
 
   inputSources: XRInputSourceArray = []
+  pointerState = {
+    position: new Vector2(),
+    lastPosition: new Vector2(),
+    scroll: new Vector2(),
+    lastScroll: new Vector2()
+  }
 
   reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()
 
