@@ -18,6 +18,7 @@ import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { WebcamInputComponent } from '../../input/components/WebcamInputComponent'
 import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -93,6 +94,14 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
 
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
+
+  setComponent(entity, WebcamInputComponent, {
+    expressionValue: 0,
+    expressionIndex: 0,
+    pucker: 0,
+    widen: 0,
+    open: 0
+  })
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),

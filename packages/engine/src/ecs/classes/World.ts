@@ -261,11 +261,6 @@ export class World {
 
   readonly dirtyTransforms = {} as Record<Entity, true>
 
-  /** @deprecated */
-  inputState = new Map<InputAlias, InputValue>()
-  /** @deprecated */
-  prevInputState = new Map<InputAlias, InputValue>()
-
   inputSources: XRInputSourceArray = []
 
   reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()

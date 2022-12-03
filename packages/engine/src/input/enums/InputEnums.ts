@@ -1,3 +1,4 @@
+/** @deprecated */
 export enum MouseInput {
   LeftButton = 'MouseInput_LeftButton',
   MiddleButton = 'MouseInput_MiddleButton',
@@ -10,7 +11,7 @@ export enum MouseInput {
   MouseScroll = 'MouseInput_MouseScroll',
   MouseClickDownMovement = 'MouseInput_MouseClickDownMovement'
 }
-
+/** @deprecated */
 export enum TouchInputs {
   Touch = 'TouchInputs_Touch',
   DoubleTouch = 'TouchInputs_DoubleTouch',
@@ -25,14 +26,14 @@ export enum TouchInputs {
   SwipeDown = 'TouchInputs_SwipeDown',
   Scale = 'TouchInputs_Scale'
 }
-
+/** @deprecated */
 export enum GamepadAxis {
   LTouchpad = 'GamepadAxis_LeftTouchpad',
   RTouchpad = 'GamepadAxis_RightTouchpad',
   LThumbstick = 'GamepadAxis_LeftThumbstick',
   RThumbstick = 'GamepadAxis_RightThumbstick'
 }
-
+/** @deprecated */
 export enum GamepadButtons {
   A = 'GamepadButtons_A',
   B = 'GamepadButtons_B',
@@ -53,7 +54,7 @@ export enum GamepadButtons {
   DPad3 = 'GamepadButtons_DPad3',
   DPad4 = 'GamepadButtons_DPad4'
 }
-
+/** @deprecated */
 export enum CameraInput {
   Neutral = 'CameraInput_Neutral',
   Angry = 'CameraInput_Angry',
