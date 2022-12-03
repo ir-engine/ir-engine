@@ -60,7 +60,7 @@ export const addClientInputListeners = (world: World) => {
   const keyState = getState(ButtonInputState)
 
   const handleMouseClick = (event: MouseEvent) => {
-    const down = event.type === 'pointerdown'
+    const down = event.type === 'mousedown' || event.type === 'touchstart'
 
     let button: ButtonTypes = 'PrimaryClick'
     if (event.button === 1) button = 'AuxiliaryClick'
@@ -90,16 +90,22 @@ export const addClientInputListeners = (world: World) => {
       }
     } else {
       if (button === 'PrimaryClick' && keyState['PrimaryDoubleClick'].value) keyState['PrimaryDoubleClick'].set(none)
+      if (button === 'PrimaryClick' && keyState['PrimaryMove'].value) keyState['PrimaryMove'].set(none)
 
       if (button === 'SecondaryClick' && keyState['SecondaryDoubleClick'].value)
         keyState['SecondaryDoubleClick'].set(none)
+      if (button === 'SecondaryClick' && keyState['SecondaryMove'].value) keyState['SecondaryMove'].set(none)
 
       if (button === 'AuxiliaryClick' && keyState['AuxiliaryDoubleClick'].value)
         keyState['AuxiliaryDoubleClick'].set(none)
+      if (button === 'AuxiliaryClick' && keyState['AuxiliaryMove'].value) keyState['AuxiliaryMove'].set(none)
     }
   }
 
   const handleMouseMove = (event: MouseEvent) => {
+    if (keyState['PrimaryClick'].value) keyState['PrimaryMove'].set(true)
+    if (keyState['SecondaryClick'].value) keyState['SecondaryMove'].set(true)
+    if (keyState['AuxiliaryClick'].value) keyState['AuxiliaryMove'].set(true)
     for (const inputSource of world.inputSources) {
       const gamepad = inputSource.gamepad
       if ((gamepad?.mapping as any) === 'dom') {
@@ -111,6 +117,9 @@ export const addClientInputListeners = (world: World) => {
   }
 
   const handleTouchMove = (event: TouchEvent) => {
+    if (keyState['PrimaryClick'].value) keyState['PrimaryMove'].set(true)
+    if (keyState['SecondaryClick'].value) keyState['SecondaryMove'].set(true)
+    if (keyState['AuxiliaryClick'].value) keyState['AuxiliaryMove'].set(true)
     const touch = event.touches[0]
     for (const inputSource of world.inputSources) {
       const gamepad = inputSource.gamepad
@@ -124,8 +133,10 @@ export const addClientInputListeners = (world: World) => {
 
   addListener(window, 'touchmove', handleTouchMove, { passive: true, capture: true })
   addListener(window, 'mousemove', handleMouseMove, { passive: true, capture: true })
-  addListener(canvas, 'pointerup', handleMouseClick)
-  addListener(canvas, 'pointerdown', handleMouseClick)
+  addListener(canvas, 'mouseup', handleMouseClick)
+  addListener(canvas, 'mousedown', handleMouseClick)
+  addListener(canvas, 'touchstart', handleMouseClick)
+  addListener(canvas, 'touchend', handleMouseClick)
 
   // addListener(
   //   canvas,
