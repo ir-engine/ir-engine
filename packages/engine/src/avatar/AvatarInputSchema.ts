@@ -75,25 +75,6 @@ const setAvatarExpression: InputBehaviorType = (entity: Entity, inputKey: InputA
   }
 }
 
-const vrAxisLookSensitivity = 0.025
-
-export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  if (inputValue.lifecycleState !== LifecycleValue.Ended) return
-  if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
-    dispatchAction(
-      WorldNetworkAction.spawnDebugPhysicsObject({
-        config: boxDynamicConfig // Any custom config can be provided here
-      })
-    )
-  } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchAction(
-      EngineRendererAction.setDebug({
-        debugEnable: !accessEngineRendererState().debugEnable.value
-      })
-    )
-  }
-}
-
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
@@ -150,17 +131,6 @@ export const createAvatarInput = () => {
   map.set('ArrowLeft', BaseInput.CAMERA_ROTATE_LEFT)
   map.set('ArrowRight', BaseInput.CAMERA_ROTATE_RIGHT)
 
-  map.set(CameraInput.Neutral, CameraInput.Neutral)
-  map.set(CameraInput.Angry, CameraInput.Angry)
-  map.set(CameraInput.Disgusted, CameraInput.Disgusted)
-  map.set(CameraInput.Fearful, CameraInput.Fearful)
-  map.set(CameraInput.Happy, CameraInput.Happy)
-  map.set(CameraInput.Surprised, CameraInput.Surprised)
-  map.set(CameraInput.Sad, CameraInput.Sad)
-  map.set(CameraInput.Pucker, CameraInput.Pucker)
-  map.set(CameraInput.Widen, CameraInput.Widen)
-  map.set(CameraInput.Open, CameraInput.Open)
-
   return map
 }
 
@@ -169,9 +139,6 @@ export const createBehaviorMap = () => {
 
   map.set(CameraInput.Happy, setAvatarExpression)
   map.set(CameraInput.Sad, setAvatarExpression)
-
-  map.set(PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE, handlePhysicsDebugEvent)
-  map.set(PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG, handlePhysicsDebugEvent)
 
   return map
 }
@@ -185,7 +152,6 @@ export default async function AvatarInputSystem(world: World) {
   const keyState = getState(ButtonInputState)
   const interactState = getState(InteractState)
   const avatarInputSettingsState = getState(AvatarInputSettingsState)
-  const cameraSettings = getState(CameraSettings)
 
   const reactor = startReactor(() => {
     const keys = useHookstate(keyState)
@@ -230,14 +196,35 @@ export default async function AvatarInputSystem(world: World) {
       }
     }, [keys.RightTrigger])
 
+    if (isDev) {
+      useEffect(() => {
+        if (keys.KeyO?.value) {
+          dispatchAction(
+            WorldNetworkAction.spawnDebugPhysicsObject({
+              config: boxDynamicConfig
+            })
+          )
+        }
+      }, [keys.KeyO])
+
+      useEffect(() => {
+        if (keys.KeyP?.value) {
+          dispatchAction(
+            EngineRendererAction.setDebug({
+              debugEnable: !accessEngineRendererState().debugEnable.value
+            })
+          )
+        }
+      }, [keys.KeyP])
+    }
+
     return null
   })
 
   const movementDelta = new Vector3()
   const lastMovementDelta = new Vector3()
-
-  const lastLookDelta = new Vector2()
-  let lastMouseMoved = false
+  let isVRRotatingLeft = false
+  let isVRRotatingRight = false
 
   const execute = () => {
     const { inputSources, localClientEntity } = world
@@ -246,7 +233,7 @@ export default async function AvatarInputSystem(world: World) {
     const keys = keyState.value
 
     /** keyboard input */
-    const keyDeltaX = (keys.KeyA ? -1 : 0) + (keys.KeyD ? 1 : 0)
+    const keyDeltaX = (keys.KeyA ? -1 : 0) + (keys.KeyD ? 1 : 0) + (keys.ArrowUp ? -1 : 0) + (keys.ArrowDown ? 1 : 0)
     const keyDeltaY = keys.Space ? 1 : 0
     const keyDeltaZ = (keys.KeyW ? -1 : 0) + (keys.KeyS ? 1 : 0)
 
@@ -261,60 +248,49 @@ export default async function AvatarInputSystem(world: World) {
     for (const inputSource of inputSources) {
       if (inputSource.gamepad?.mapping === 'xr-standard') {
         const axes = inputSource.gamepad!.axes
-        if (axes.length <= 2) {
-          movementDelta.x = Math.abs(axes[0]) > 0.05 ? axes[0] : 0
-          movementDelta.z = Math.abs(axes[1]) > 0.05 ? axes[1] : 0
+
+        let xDelta = 0
+        let yDelta = 0
+        /** @todo do we want to sum these inputs up? */
+        if (axes.length === 2) {
+          xDelta += Math.abs(axes[0]) > 0.05 ? axes[0] : 0
+          yDelta += Math.abs(axes[1]) > 0.05 ? axes[1] : 0
         }
         if (axes.length >= 4) {
-          movementDelta.x = Math.abs(axes[2]) > 0.05 ? axes[2] : 0
-          movementDelta.z = Math.abs(axes[3]) > 0.05 ? axes[3] : 0
+          xDelta += Math.abs(axes[2]) > 0.05 ? axes[2] : 0
+          yDelta += Math.abs(axes[3]) > 0.05 ? axes[3] : 0
         }
+
         if (teleporting) {
-          moveAvatarWithTeleport(localClientEntity, movementDelta.y, inputSource.handedness)
-          if (
-            Math.abs(lastMovementDelta.y) < 0.1 &&
-            Math.abs(movementDelta.x) > 0.01 &&
-            Math.abs(movementDelta.y) < 0.1
-          )
-            rotateAvatar(localClientEntity, (Math.PI / 6) * (movementDelta.x > 0 ? -1 : 1)) // 30 degrees
+          moveAvatarWithTeleport(localClientEntity, yDelta, inputSource.handedness)
+
+          const canRotate = Math.abs(xDelta) > 0.1 && Math.abs(yDelta) < 0.1
+
+          if (canRotate) {
+            if (
+              (inputSource.handedness === 'left' && !isVRRotatingLeft) ||
+              (inputSource.handedness === 'right' && !isVRRotatingRight)
+            )
+              rotateAvatar(localClientEntity, (Math.PI / 6) * (xDelta > 0 ? -1 : 1)) // 30 degrees
+          }
+          if (inputSource.handedness === 'left') isVRRotatingLeft = canRotate
+          else isVRRotatingRight = canRotate
+
+          movementDelta.x = xDelta
+          movementDelta.z = yDelta
         } else {
           /** preferred hand rotates */
-          if (preferredHand === inputSource.handedness)
-            rotateAvatar(localClientEntity, -movementDelta.x * vrAxisLookSensitivity)
+          if (preferredHand === inputSource.handedness) rotateAvatar(localClientEntity, -xDelta * world.deltaSeconds)
+          else movementDelta.z += yDelta
         }
       }
     }
 
-    const controller = getComponent(localClientEntity, AvatarControllerComponent)
-    controller.localMovementDirection.copy(movementDelta).normalize()
-    const mouseMoved = keys.PrimaryMove
-
-    /** Mouse screen grab camera rotation input */
-    for (const inputSource of inputSources) {
-      if ((inputSource.gamepad?.mapping as any) === 'dom') {
-        const axes = inputSource.gamepad!.axes
-
-        const cameraEntity = controller.cameraEntity
-        const followCamera = getOptionalComponent(cameraEntity, FollowCameraComponent)
-
-        if (!lastMouseMoved && mouseMoved) lastLookDelta.set(axes[0], axes[1])
-
-        if (followCamera && mouseMoved) {
-          const target = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
-          if (target) {
-            setTargetCameraRotation(
-              cameraEntity,
-              target.phi - (axes[1] - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
-              target.theta - (axes[0] - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
-              0.1
-            )
-          }
-        }
-        lastLookDelta.set(axes[0], axes[1])
-      }
+    if (!teleporting) {
+      const controller = getComponent(localClientEntity, AvatarControllerComponent)
+      controller.localMovementDirection.copy(movementDelta).normalize()
     }
 
-    lastMouseMoved = !!mouseMoved
     lastMovementDelta.copy(movementDelta)
   }
 

@@ -1,5 +1,6 @@
 import { clamp } from 'lodash'
 import { useEffect } from 'react'
+import { Vector2 } from 'three'
 
 import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
@@ -24,6 +25,7 @@ import { ButtonInputState } from '../../input/InputState'
 import { InputBehaviorType } from '../../input/interfaces/InputSchema'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { InputAlias } from '../../input/types/InputAlias'
+import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { CameraMode } from '../types/CameraMode'
@@ -102,33 +104,9 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
   followComponent.zoomLevel = nextZoomLevel
 }
 
-export const setCameraRotation: InputBehaviorType = (
-  entity: Entity,
-  inputKey: InputAlias,
-  inputValue: InputValue
-): void => {
-  const { deltaSeconds: delta } = Engine.instance.currentWorld
-
-  const cameraEntity = Engine.instance.currentWorld.cameraEntity
-  const followComponent = getComponent(cameraEntity, FollowCameraComponent) as ComponentType<
-    typeof FollowCameraComponent
-  >
-
-  if (!followComponent) return
-
-  switch (inputKey) {
-    case BaseInput.CAMERA_ROTATE_LEFT:
-      followComponent.theta += 100 * delta
-      break
-    case BaseInput.CAMERA_ROTATE_RIGHT:
-      followComponent.theta -= 100 * delta
-      break
-  }
-  setTargetCameraRotation(cameraEntity, followComponent.phi, followComponent.theta)
-}
-
 export default async function CameraInputSystem(world: World) {
   const keyState = getState(ButtonInputState)
+  const cameraSettings = getState(CameraSettings)
 
   const inputQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
 
@@ -187,24 +165,55 @@ export default async function CameraInputSystem(world: World) {
     return null
   })
 
+  const lastLookDelta = new Vector2()
+  let lastMouseMoved = false
+
   const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
 
   const execute = () => {
-    const { inputSources } = world
+    const { inputSources, localClientEntity, deltaSeconds } = world
+    if (!localClientEntity) return
+
+    const keys = keyState.value
 
     const inputEntities = inputQuery()
+    const mouseMoved = keys.PrimaryMove
 
     for (const inputSource of inputSources) {
-      const gamepad = inputSource.gamepad
-      if ((gamepad?.mapping as any) === 'dom') {
+      if ((inputSource.gamepad?.mapping as any) === 'dom') {
+        const axes = inputSource.gamepad!.axes
+
         for (const entity of inputEntities) {
           const avatarController = getComponent(entity, AvatarControllerComponent)
           const cameraEntity = avatarController.cameraEntity
-          const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
-          if (followComponent) throttleHandleCameraZoom(cameraEntity, gamepad!.axes[4])
+          const target =
+            getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ??
+            getOptionalComponent(cameraEntity, FollowCameraComponent)
+          if (!target) continue
+
+          if (!lastMouseMoved && mouseMoved) lastLookDelta.set(axes[0], axes[1])
+
+          const keyDelta = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0)
+          target.theta += 100 * deltaSeconds * keyDelta
+          setTargetCameraRotation(cameraEntity, target.phi, target.theta)
+
+          if (mouseMoved) {
+            setTargetCameraRotation(
+              cameraEntity,
+              target.phi - (axes[1] - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
+              target.theta - (axes[0] - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
+              0.1
+            )
+          }
+
+          throttleHandleCameraZoom(cameraEntity, axes[4])
         }
+
+        lastLookDelta.set(axes[0], axes[1])
       }
     }
+
+    lastMouseMoved = !!mouseMoved
   }
 
   const cleanup = () => {

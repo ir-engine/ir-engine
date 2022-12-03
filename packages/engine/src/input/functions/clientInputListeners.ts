@@ -4,7 +4,6 @@ import { isClient } from '../../common/functions/isClient'
 import { World } from '../../ecs/classes/World'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ButtonInputState, ButtonTypes } from '../InputState'
-import { handleTouch, handleTouchMove } from '../schema/ClientInputSchema'
 import normalizeWheel from './normalizeWheel'
 
 function preventDefault(e) {
@@ -50,7 +49,6 @@ export const addClientInputListeners = (world: World) => {
   }
 
   addListener(document, 'gesturestart', preventDefault)
-
   addListener(canvas, 'contextmenu', preventDefault)
 
   let lastPrimaryClickDown = 0
@@ -138,21 +136,6 @@ export const addClientInputListeners = (world: World) => {
   addListener(canvas, 'touchstart', handleMouseClick)
   addListener(canvas, 'touchend', handleMouseClick)
 
-  // addListener(
-  //   canvas,
-  //   'touchstart',
-  //   (e: TouchEvent) => {
-  //     handleTouch(e)
-  //     handleTouchMove(e)
-  //   },
-  //   {
-  //     passive: true,
-  //     capture: true
-  //   }
-  // )
-
-  // addListener(document, 'keyup', handleKey)
-  // addListener(document, 'keydown', handleKey)
   const clearKeyState = () => {
     keyState.set({} as any)
   }
