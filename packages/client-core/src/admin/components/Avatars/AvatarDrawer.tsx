@@ -18,7 +18,6 @@ import {
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -38,7 +37,7 @@ import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
+import { loadAvatarForPreview, resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'

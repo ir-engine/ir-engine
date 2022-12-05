@@ -8,14 +8,13 @@ import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constant
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { ArrowBack, Check } from '@mui/icons-material'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
-import { resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'
+import { loadAvatarForPreview, resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
 import { Views } from '../util'
