@@ -1,4 +1,12 @@
 {
+  "components": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "select": "Select",
+    "enter": "Enter",
+    "processing": "Processing",
+    "retry": "Retry"
+  },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
   },

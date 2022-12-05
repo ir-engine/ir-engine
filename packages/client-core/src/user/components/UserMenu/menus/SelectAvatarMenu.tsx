@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getState, useHookstate } from '@xrengine/hyperflux'
@@ -27,10 +27,9 @@ import Paper from '@mui/material/Paper'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
-import LoadingView from '../../../../admin/common/LoadingView'
 import { useAuthState } from '../../../services/AuthService'
 import { AVATAR_PAGE_LIMIT, AvatarService, AvatarState } from '../../../services/AvatarService'
-import { resetAnimationLogic } from '../../Panel3D/helperFunctions'
+import { loadAvatarForPreview, resetAnimationLogic } from '../../Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
 import { Views } from '../util'
@@ -80,8 +79,10 @@ const SelectAvatarMenu = (props: Props) => {
       camera.value.position.z = 0.6
     }
     setAvatarLoading(false)
-    avatar.name = 'avatar'
-    scene.value.add(avatar)
+    if (avatar) {
+      avatar.name = 'avatar'
+      scene.value.add(avatar)
+    }
   }
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {

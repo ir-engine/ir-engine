@@ -10,10 +10,12 @@ import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 const initialize3D = () => {
   const camera = new PerspectiveCamera(60, 1, 0.25, 20)
   camera.position.set(0, 1.75, 0.5)
+  camera.layers.set(ObjectLayers.Panel)
 
   const scene = new Scene()
 
@@ -29,6 +31,9 @@ const initialize3D = () => {
   scene.add(frontLight)
   scene.add(frontLight.target)
   scene.add(hemi)
+  scene.traverse((obj) => {
+    obj.layers.set(ObjectLayers.Panel)
+  })
   const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.outputEncoding = sRGBEncoding

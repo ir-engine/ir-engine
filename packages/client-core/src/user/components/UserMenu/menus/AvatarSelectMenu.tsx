@@ -16,7 +16,6 @@ import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
@@ -30,7 +29,7 @@ import Tabs from '@mui/material/Tabs'
 
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AvatarService } from '../../../services/AvatarService'
-import { resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'
+import { loadAvatarForPreview, resetAnimationLogic, validate } from '../../Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
 import { Views } from '../util'
@@ -209,13 +208,14 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
     const avatarBlob = activeSourceType ? selectedFile : selectedAvatarlUrl
 
     if (thumbnailBlob == null) {
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         const canvas = document.createElement('canvas')
         ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.value.domElement, 0, 0)
         canvas.toBlob((blob) => {
           AvatarService.createAvatar(avatarBlob, blob!, avatarName, false)
+          resolve()
         })
       })
     } else {

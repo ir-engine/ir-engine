@@ -44,7 +44,7 @@ export function animationActionReceptor(
 export default async function AnimationSystem(world: World) {
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
-  const animationQuery = defineQuery([AnimationComponent, VisibleComponent, Not(AvatarHeadIKComponent)])
+  const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()

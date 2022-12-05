@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
@@ -42,7 +43,6 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 
-import InputSelect, { InputMenuItem } from '../../../../admin/common/InputSelect'
 import { useClientSettingState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
 import styles from '../index.module.scss'
