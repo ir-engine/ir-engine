@@ -163,7 +163,7 @@ export default async function AvatarInputSystem(world: World) {
     lastMovementDelta.copy(movementDelta)
   }
 
-  const cleanup = () => {
+  const cleanup = async () => {
     reactor.stop()
   }
 

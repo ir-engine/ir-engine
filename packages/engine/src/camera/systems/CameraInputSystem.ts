@@ -204,7 +204,7 @@ export default async function CameraInputSystem(world: World) {
     lastMouseMoved = !!mouseMoved
   }
 
-  const cleanup = () => {
+  const cleanup = async () => {
     reactor.stop()
     removeQuery(world, inputQuery)
   }
