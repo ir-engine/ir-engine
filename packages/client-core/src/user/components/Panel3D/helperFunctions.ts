@@ -4,11 +4,14 @@ import { AnimationMixer, Box3, Camera, Mesh, Object3D, Scene, Vector3, WebGLRend
 import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { loadAvatarModelAsset, setupAvatarModel } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addObjectToGroup, removeGroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
-export const validate = (obj: Mesh, renderer: WebGLRenderer, scene: Scene, camera: Camera) => {
+export const validate = (obj: Object3D, renderer: WebGLRenderer, scene: Scene, camera: Camera) => {
   const objBoundingBox = new Box3().setFromObject(obj)
   let maxBB = new Vector3(2, 3, 2)
 
@@ -51,4 +54,18 @@ export const resetAnimationLogic = (entity: Entity) => {
     locomotion: new Vector3()
   })
   setComponent(entity, VisibleComponent, true)
+}
+
+export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
+  const parent = await loadAvatarModelAsset(avatarURL)
+  if (!parent) return
+  setupAvatarModel(entity)(parent)
+  removeGroupComponent(entity)
+  addObjectToGroup(entity, parent)
+  parent.traverse((obj: Object3D) => {
+    obj.layers.set(ObjectLayers.Panel)
+  })
+  parent.removeFromParent()
+  // animateModel(entity)
+  return parent
 }
