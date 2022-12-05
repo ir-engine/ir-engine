@@ -1,0 +1,13 @@
+.checkbox {
+  color: var(--textColor);
+  -webkit-text-fill-color: var(--text-Color);
+
+  .checkedCheckbox {
+    color: var(--iconButtonColor);
+  }
+
+  [class*="Mui-disabled"] {
+    opacity: 0.38;
+    color: var(--textColor) !important;
+  }
+}

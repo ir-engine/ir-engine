@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import multiLogger from '@xrengine/common/src/logger'
 
 import CloseIcon from '@mui/icons-material/Close'
@@ -10,8 +12,6 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 
-import InputSelect, { InputMenuItem } from '../../common/InputSelect'
-import LoadingView from '../../common/LoadingView'
 import { useServerInfoState } from '../../services/ServerInfoService'
 import { ServerLogsService, useServerLogsState } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'

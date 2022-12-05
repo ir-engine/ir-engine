@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import Box from '@mui/material/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { resourceColumns, ResourceData } from '../../common/variables/resource'
 import { RESOURCE_PAGE_LIMIT, ResourceService, useAdminResourceState } from '../../services/ResourceService'

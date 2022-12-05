@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -13,7 +14,6 @@ import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
 import ListItemText from '@mui/material/ListItemText'
 
 import styles from '../styles/admin.module.scss'
-import InputText from './InputText'
 
 interface Props {
   command: BotCommands

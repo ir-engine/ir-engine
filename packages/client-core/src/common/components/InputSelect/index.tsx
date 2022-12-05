@@ -11,7 +11,8 @@ import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import { SxProps, Theme } from '@mui/material/styles'
 
-import styles from '../styles/admin.module.scss'
+import commonStyles from '../common.module.scss'
+import styles from './index.module.scss'
 
 interface Props {
   className?: string
@@ -30,7 +31,7 @@ interface Props {
 
 export interface InputMenuItem {
   value: string
-  label: string
+  label: React.ReactNode
 }
 
 const InputSelect = ({
@@ -58,7 +59,7 @@ const InputSelect = ({
       <Box sx={{ display: 'flex' }}>
         <FormControl
           variant="outlined"
-          className={className ?? styles.inputField}
+          className={`${className ?? ''} ${commonStyles.inputField}`}
           error={!!error}
           disabled={disabled}
           size="small"
@@ -91,7 +92,7 @@ const InputSelect = ({
                 onPointerUp={onPointerUp}
               >
                 <em>
-                  {t('admin:components.common.select')} {label}
+                  {t('common:components.select')} {label}
                 </em>
               </MenuItem>
             )}

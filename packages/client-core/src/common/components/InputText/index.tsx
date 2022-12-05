@@ -9,7 +9,7 @@ import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material/styles'
 
-import styles from '../styles/admin.module.scss'
+import commonStyles from '../common.module.scss'
 
 interface Props {
   className?: string
@@ -46,14 +46,14 @@ const InputText = ({
 }: Props) => {
   const { t } = useTranslation()
 
-  placeholder = placeholder ? placeholder : `${t('admin:components.common.enter')} ${label}`
+  placeholder = placeholder ? placeholder : `${t('common:components.enter')} ${label}`
   placeholder = disabled ? undefined : placeholder
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
       <FormControl
         variant="outlined"
-        className={className ?? styles.inputField}
+        className={`${className ?? ''} ${commonStyles.inputField}`}
         error={!!error}
         disabled={disabled}
         focused={true}
