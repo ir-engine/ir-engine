@@ -76,9 +76,6 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
         thumbnails.set(nuThumbs)
         loadingData.set(false)
       })
-    return () => {
-      clearThumbs()
-    }
   }, [materialComponent.prototype, materialComponent.material])
 
   return (
@@ -146,7 +143,7 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
         defaults={loadingData.get() ? {} : prototypeComponent.arguments.value}
         thumbnails={thumbnails.value}
       />
-      {
+      {/*
         <Button
           onClick={async () => {
             bakeToVertices(
@@ -160,8 +157,7 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
           }}
         >
           Bake
-        </Button>
-      }
+        </Button>*/}
     </div>
   )
 }

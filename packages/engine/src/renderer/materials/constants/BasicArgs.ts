@@ -67,7 +67,7 @@ export const DisplacementMapArgs = {
 export const EmissiveMapArgs = {
   emissive: ColorArg,
   emissiveMap: TextureArg,
-  emissiveIntensity: { ...FloatArg, default: 1 }
+  emissiveIntensity: { ...FloatArg, default: 0 }
 }
 
 export const EnvMapArgs = {

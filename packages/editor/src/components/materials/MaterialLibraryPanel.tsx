@@ -40,9 +40,12 @@ export default function MaterialLibraryPanel() {
   const srcs = useState(createSrcs())
   useEffect(srcs.set.bind({}, createSrcs), [materialLibrary.sources])
 
-  const collapsedNodes = useState(
-    new Set<string>(srcs.value.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE)))
+  const collapsedSrcs = useCallback(
+    () => new Set<string>(srcs.value.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE))),
+    [srcs]
   )
+
+  const collapsedNodes = useState(collapsedSrcs())
   const createNodes = useCallback((): MaterialLibraryEntryType[] => {
     const result = srcs.value.flatMap((srcComp) => {
       const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)

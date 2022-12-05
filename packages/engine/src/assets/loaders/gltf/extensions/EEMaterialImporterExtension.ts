@@ -45,7 +45,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
           case undefined:
             break
           case 'texture':
-            if ((v as Texture)?.isTexture) {
+            if (!!v) {
               await parser.assignTexture(materialParams, k, v)
             }
             break
