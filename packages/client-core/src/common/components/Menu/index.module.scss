@@ -1,4 +1,4 @@
-.dialog {
+.menu {
   background-color: var(--popupBackground);
   color: var(--textColor);
 
@@ -11,6 +11,10 @@
       padding-bottom: 10px;
     }
   }
+}
+
+.popover {
+  width: 600px;
 }
 
 .dialogTitle {

@@ -6,11 +6,11 @@ import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
+import Box from '@mui/material/Box'
 import { default as MUIDialog } from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import Popover from '@mui/material/Popover'
 import { Breakpoint } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
@@ -23,7 +23,6 @@ interface Props {
   header?: React.ReactNode
   isPopover?: boolean
   maxWidth?: Breakpoint | false
-  popoverAnchor?: Element
   showBackButton?: boolean
   showCloseButton?: boolean
   showDefaultActions?: boolean
@@ -40,7 +39,6 @@ const Menu = ({
   header,
   isPopover,
   maxWidth,
-  popoverAnchor,
   showBackButton,
   showCloseButton,
   showDefaultActions,
@@ -86,24 +84,11 @@ const Menu = ({
   )
 
   if (isPopover) {
-    return (
-      <Popover
-        open={open}
-        anchorEl={popoverAnchor}
-        onClose={onClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-      >
-        {dialogContent}
-      </Popover>
-    )
+    return <Box className={`${styles.menu} ${styles.popover}`}>{dialogContent}</Box>
   }
 
   return (
-    <MUIDialog open={open} maxWidth={maxWidth} fullWidth PaperProps={{ className: styles.dialog }} onClose={onClose}>
+    <MUIDialog open={open} maxWidth={maxWidth} fullWidth PaperProps={{ className: styles.menu }} onClose={onClose}>
       {dialogContent}
     </MUIDialog>
   )
