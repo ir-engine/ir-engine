@@ -109,8 +109,7 @@ export default async function AvatarInputSystem(world: World) {
     movementDelta.set(keyDeltaX, keyDeltaY, keyDeltaZ)
 
     const cameraAttached = getControlMode() === 'attached'
-    const teleporting =
-      cameraAttached && avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
+    const teleporting = avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
     const preferredHand = avatarInputSettingsState.preferredHand.value
 
     /** override keyboard input with XR axes input */
@@ -122,8 +121,6 @@ export default async function AvatarInputSystem(world: World) {
         let yDelta = 0
         /** @todo do we want to sum these inputs up? */
         if (axes.length <= 2) {
-          console.log(axes[0])
-          console.log(axes[1])
           xDelta += Math.abs(axes[0]) > 0.05 ? axes[0] : 0
           yDelta += Math.abs(axes[1]) > 0.05 ? axes[1] : 0
         }
@@ -132,7 +129,7 @@ export default async function AvatarInputSystem(world: World) {
           yDelta += Math.abs(axes[3]) > 0.05 ? axes[3] : 0
         }
 
-        if (teleporting) {
+        if (cameraAttached && teleporting) {
           moveAvatarWithTeleport(localClientEntity, yDelta, inputSource.handedness)
 
           const canRotate = Math.abs(xDelta) > 0.1 && Math.abs(yDelta) < 0.1
@@ -151,8 +148,18 @@ export default async function AvatarInputSystem(world: World) {
           movementDelta.z = yDelta
         } else {
           /** preferred hand rotates */
-          if (preferredHand === inputSource.handedness) rotateAvatar(localClientEntity, -xDelta * world.deltaSeconds)
-          else movementDelta.z += yDelta
+          if (preferredHand === inputSource.handedness) {
+            rotateAvatar(localClientEntity, -xDelta * world.deltaSeconds)
+
+            /** mobile/detatched avatar right thumbstick movement */
+            if (!cameraAttached) {
+              movementDelta.x = xDelta
+              movementDelta.z += yDelta
+            }
+          } else {
+            /** if other hand */
+            movementDelta.z += yDelta
+          }
         }
       }
     }
