@@ -31,15 +31,26 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
   const prototypeComponent = useState(prototypeFromId(materialComponent.prototype.value))
   const loadingData = useState(false)
 
+  const selectionState = accessSelectionState()
+
+  const materialLibrary = getMaterialLibrary()
+  const prototypes = useState(
+    Object.values(materialLibrary.prototypes.value).map((prototype) => ({
+      label: prototype.prototypeId,
+      value: prototype.prototypeId
+    }))
+  )
+  const thumbnails = useState<Record<string, string>>({})
+
   const createThumbnails = useCallback(async () => {
-    const result = new Map<string, string>()
+    const result = {} as Record<string, string>
     await Promise.allSettled(
       Object.entries(material).map(([k, field]: [string, Texture]) => {
         if (field?.isTexture) {
           try {
             return createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }).then(
               (src) => {
-                result.set(k, src as string)
+                result[k] = src as string
               }
             )
           } catch (e) {
@@ -51,37 +62,10 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
     return result
   }, [materialComponent.parameters, materialComponent.material.uuid, materialComponent.prototype])
 
-  const selectionState = accessSelectionState()
-  /*
-  const createDefaults = useCallback(async () => {
-    thumbnails.promised && (await thumbnails.promise)
-    const result = materialToDefaultArgs(material)!
-    const thumbs = thumbnails.value
-    Object.entries(material).map(([k, v]) => {
-      if ((v as Texture)?.isTexture && thumbs.has(k)) {
-        result[k] = { type: 'texture', preview: thumbs.get(k)! }
-      } else if ((v as Color)?.isColor) {
-        result[k] = { type: 'color' }
-      } else if (typeof v === 'number') {
-        result[k] = { type: 'float' }
-      }
-    })
-    return result
-  }, [materialComponent])
-*/
-  const materialLibrary = getMaterialLibrary()
-  const prototypes = useState(
-    Object.values(materialLibrary.prototypes.value).map((prototype) => ({
-      label: prototype.prototypeId,
-      value: prototype.prototypeId
-    }))
-  )
-  const thumbnails = useState(new Map<string, string>())
-
   const clearThumbs = async () => {
     thumbnails.promised && (await thumbnails.promise)
-    ;[...thumbnails.value.values()].map(URL.revokeObjectURL)
-    thumbnails.value.clear()
+    Object.values(thumbnails.value).map(URL.revokeObjectURL)
+    thumbnails.set({})
   }
 
   useEffect(() => {
@@ -160,6 +144,7 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
           materialComponent.parameters[k].set(prop)
         }}
         defaults={loadingData.get() ? {} : prototypeComponent.arguments.value}
+        thumbnails={thumbnails.value}
       />
       {
         <Button
