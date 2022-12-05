@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
@@ -7,18 +7,15 @@ import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/co
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
-import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
+  AvatarControllerType,
   AvatarInputSettingsAction,
-  AvatarInputSettingsState
+  AvatarInputSettingsState,
+  AvatarMovementScheme
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -148,7 +145,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       firstRender.current = false
       return
     }
-    updateMap()
+    /** @todo switch handdedness */
   }, [avatarInputState.invertRotationAndMoveSticks])
 
   const handleChangeControlType = (event: SelectChangeEvent) => {

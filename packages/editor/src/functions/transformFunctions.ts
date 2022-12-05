@@ -19,7 +19,6 @@ import { accessSelectionState } from '../services/SelectionServices'
 import { SceneState } from './sceneRenderFunctions'
 
 export const setTransformMode = (mode: TransformModeType): void => {
-  console.trace('setTransformMode', mode)
   if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
     let stop = false
     const selectedEntities = accessSelectionState().selectedEntities.value

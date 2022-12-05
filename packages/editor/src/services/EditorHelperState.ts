@@ -16,7 +16,7 @@ import { defineAction, defineState, getState, startReactor, syncStateWithLocalSt
 
 import { SceneState } from '../functions/sceneRenderFunctions'
 
-const EditorHelperState = defineState({
+export const EditorHelperState = defineState({
   name: 'EditorHelperState',
   initial: () => ({
     isPlayModeEnabled: false,

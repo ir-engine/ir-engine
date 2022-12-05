@@ -11,8 +11,7 @@ import {
   Shader,
   ShadowMapType,
   ToneMapping,
-  Vector2,
-  Vector3
+  Vector2
 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
@@ -26,11 +25,8 @@ import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
-import { LifecycleValueType } from '../../common/enums/LifecycleValue'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { InputAlias } from '../../input/types/InputAlias'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -267,6 +263,7 @@ export class World {
   pointerState = {
     position: new Vector2(),
     lastPosition: new Vector2(),
+    movement: new Vector2(),
     scroll: new Vector2(),
     lastScroll: new Vector2()
   }

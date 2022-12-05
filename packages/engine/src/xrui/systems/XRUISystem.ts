@@ -1,26 +1,20 @@
 import { WebContainer3D } from '@etherealjs/web-layer/three'
+import { useEffect } from 'react'
 import { Color, Object3D, Ray } from 'three'
 
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeQuery
-} from '../../ecs/functions/ComponentFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
-import { InputValue } from '../../input/interfaces/InputValue'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { ButtonInputState } from '../../input/InputState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { PointerObject, XRPointerComponent } from '../../xr/XRComponents'
 import { xrInputSourcesMap } from '../../xr/XRControllerSystem'
+import { XRState } from '../../xr/XRState'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent, XRUIInteractableComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
@@ -112,8 +106,7 @@ export default async function XRUISystem(world: World) {
     }
   }
 
-  const updateClickEventsForController = (controller: PointerObject, inputValue: InputValue) => {
-    if (inputValue.lifecycleState !== LifecycleValue.Started) return
+  const updateClickEventsForController = (controller: PointerObject) => {
     if (controller.cursor?.visible) {
       const hit = controller.lastHit
       if (hit && hit.intersection.object.visible) {
@@ -128,9 +121,32 @@ export default async function XRUISystem(world: World) {
   document.body.addEventListener('contextmenu', redirectDOMEvent)
   document.body.addEventListener('dblclick', redirectDOMEvent)
 
-  const execute = () => {
-    const input = getOptionalComponent(world.localClientEntity, InputComponent)
+  const buttonInputState = getState(ButtonInputState)
+  const xrState = getState(XRState)
 
+  const reactor = startReactor(() => {
+    const inputState = useHookstate(buttonInputState)
+
+    useEffect(() => {
+      if (inputState.LeftTrigger?.value && xrState.leftControllerEntity.value) {
+        const controllerEntity = xrState.leftControllerEntity.value
+        const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
+        updateClickEventsForController(pointer)
+      }
+    }, [inputState.LeftTrigger])
+
+    useEffect(() => {
+      if (inputState.RightTrigger?.value && xrState.rightControllerEntity.value) {
+        const controllerEntity = xrState.rightControllerEntity.value
+        const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
+        updateClickEventsForController(pointer)
+      }
+    }, [inputState.RightTrigger])
+
+    return null
+  })
+
+  const execute = () => {
     const xrFrame = Engine.instance.xrFrame
 
     /** Update the objects to use for intersection tests */
@@ -164,14 +180,8 @@ export default async function XRUISystem(world: World) {
       pointer.material.visible = isCloseToVisibleXRUI
 
       if (source.targetRayMode === 'tracked-pointer') {
-        const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
         updateControllerRayInteraction(pointer, interactableXRUIEntities)
-        if (input?.data?.has(GrabInput)) updateClickEventsForController(pointer, input.data.get(GrabInput)!)
       }
-
-      if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze')
-        if (input?.data?.has(BaseInput.PRIMARY))
-          updateClickEventsForController(pointer, input.data.get(BaseInput.PRIMARY)!)
     }
 
     /** only update visible XRUI */
@@ -201,6 +211,7 @@ export default async function XRUISystem(world: World) {
     removeQuery(world, visibleXruiQuery)
     removeQuery(world, xruiQuery)
     removeQuery(world, pointerQuery)
+    reactor.stop()
   }
 
   return { execute, cleanup }

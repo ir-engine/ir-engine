@@ -1,9 +1,6 @@
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
-import { ParityValue } from '../../common/enums/ParityValue'
-import { isMobile } from '../../common/functions/isMobile'
-import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
+import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
 import { InputAlias } from '../../input/types/InputAlias'
 import { Entity } from './Entity'
 
@@ -146,7 +143,7 @@ export class EngineActions {
   static interactedWithObject = defineAction({
     type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity.optional(),
-    parityValue: matches.string as Validator<unknown, typeof ParityValue[keyof typeof ParityValue]>
+    handedness: matches.string as Validator<unknown, XRHandedness>
   })
 
   /**

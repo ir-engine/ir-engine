@@ -4,13 +4,10 @@ import { Vector3 } from 'three'
 import { isDev } from '@xrengine/common/src/config'
 import { dispatchAction, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
-import { ParityValue } from '../common/enums/ParityValue'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { ButtonInputState } from '../input/InputState'
-import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
-import { InputAlias } from '../input/types/InputAlias'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
@@ -19,21 +16,6 @@ import { getControlMode } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { moveAvatarWithTeleport, rotateAvatar } from './functions/moveAvatar'
 import { AvatarInputSettingsState } from './state/AvatarInputSettingsState'
-
-export const createAvatarInput = () => {
-  const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
-  return map
-}
-
-export const createBehaviorMap = () => {
-  const map = new Map<InputAlias, InputBehaviorType>()
-  return map
-}
-
-export const AvatarInputSchema: InputSchema = {
-  inputMap: createAvatarInput(),
-  behaviorMap: createBehaviorMap()
-}
 
 export default async function AvatarInputSystem(world: World) {
   const keyState = getState(ButtonInputState)
@@ -44,40 +26,40 @@ export default async function AvatarInputSystem(world: World) {
     const keys = useHookstate(keyState)
 
     useEffect(() => {
-      if (keys.ShiftLeft?.value) {
+      if (keys.value.ShiftLeft && world.localClientEntity) {
         const controller = getComponent(world.localClientEntity, AvatarControllerComponent)
         controller.isWalking = !controller.isWalking
       }
     }, [keys.ShiftLeft])
 
     useEffect(() => {
-      if (keys.KeyE?.value) {
+      if (keys.value.KeyE && world.localClientEntity) {
         dispatchAction(
           EngineActions.interactedWithObject({
             targetEntity: interactState.available[0].value,
-            parityValue: ParityValue.NONE
+            handedness: 'none'
           })
         )
       }
     }, [keys.KeyE])
 
     useEffect(() => {
-      if (keys.LeftTrigger?.value) {
+      if (keys.value.LeftTrigger && world.localClientEntity) {
         dispatchAction(
           EngineActions.interactedWithObject({
             targetEntity: interactState.available[0].value,
-            parityValue: ParityValue.LEFT
+            handedness: 'left'
           })
         )
       }
     }, [keys.LeftTrigger])
 
     useEffect(() => {
-      if (keys.RightTrigger?.value) {
+      if (keys.value.RightTrigger && world.localClientEntity) {
         dispatchAction(
           EngineActions.interactedWithObject({
             targetEntity: interactState.available[0].value,
-            parityValue: ParityValue.RIGHT
+            handedness: 'right'
           })
         )
       }
@@ -85,7 +67,7 @@ export default async function AvatarInputSystem(world: World) {
 
     if (isDev) {
       useEffect(() => {
-        if (keys.KeyO?.value) {
+        if (keys.value.KeyO && world.localClientEntity) {
           dispatchAction(
             WorldNetworkAction.spawnDebugPhysicsObject({
               config: boxDynamicConfig
@@ -95,7 +77,7 @@ export default async function AvatarInputSystem(world: World) {
       }, [keys.KeyO])
 
       useEffect(() => {
-        if (keys.KeyP?.value) {
+        if (keys.value.KeyP && world.localClientEntity) {
           dispatchAction(
             EngineRendererAction.setDebug({
               debugEnable: !accessEngineRendererState().debugEnable.value

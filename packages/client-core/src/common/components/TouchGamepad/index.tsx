@@ -4,7 +4,7 @@ import { Joystick } from 'react-joystick-component'
 
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
-import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
+import { ButtonTypes } from '@xrengine/engine/src/input/InputState'
 import { InteractState } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
 import { getState } from '@xrengine/hyperflux'
 
@@ -13,7 +13,7 @@ import TouchAppIcon from '@mui/icons-material/TouchApp'
 import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
 
-const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
+const triggerButton = (button: ButtonTypes, pressed: boolean): void => {
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
   const event = new CustomEvent(eventType, { detail: { button } })
   document.dispatchEvent(event)
@@ -33,7 +33,7 @@ const normalizeValues = (val) => {
 const handleMove = (e) => {
   const event = new CustomEvent('touchstickmove', {
     detail: {
-      stick: GamepadAxis.RThumbstick,
+      stick: 'RightStick',
       value: { x: normalizeValues(-e.x), y: normalizeValues(e.y), angleRad: 0 }
     }
   })
@@ -42,14 +42,14 @@ const handleMove = (e) => {
 
 const handleStop = () => {
   const event = new CustomEvent('touchstickmove', {
-    detail: { stick: GamepadAxis.RThumbstick, value: { x: 0, y: 0, angleRad: 0 } }
+    detail: { stick: 'RightStick', value: { x: 0, y: 0, angleRad: 0 } }
   })
   document.dispatchEvent(event)
 }
 
-const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
+const buttonsConfig: Array<{ button: ButtonTypes; label: string }> = [
   {
-    button: GamepadButtons.A,
+    button: 'ButtonA',
     label: 'A'
   }
 ]

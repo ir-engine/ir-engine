@@ -38,8 +38,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { EquippableComponent, SCENE_COMPONENT_EQUIPPABLE } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
-import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
-import { changeHand, equipEntity, getAttachmentPoint, getParity, unequipEntity } from '../functions/equippableFunctions'
+import { changeHand, equipEntity, unequipEntity } from '../functions/equippableFunctions'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
 
@@ -88,7 +87,7 @@ export function transferAuthorityOfObjectReceptor(
         },
         equip: !hasComponent(equippableEntity, EquippedComponent),
         // todo, pass attachment point through actions somehow
-        attachmentPoint: EquippableAttachmentPoint.RIGHT_HAND
+        attachmentPoint: 'right'
       })
     )
   }
@@ -103,7 +102,7 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
   const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
 
-  const target = getHandTarget(equipperEntity, getParity(attachmentPoint))!
+  const target = getHandTarget(equipperEntity, attachmentPoint ?? 'left')!
   const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
 
   target.getWorldPosition(equippableTransform.position)
@@ -197,14 +196,13 @@ export default async function EquippableSystem(world: World) {
       if (equipperComponent?.equippedEntity) {
         const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
         const attachmentPoint = equippedComponent.attachmentPoint
-        const currentParity = getParity(attachmentPoint)
-        if (currentParity !== action.parityValue) {
-          changeHand(avatarEntity, getAttachmentPoint(action.parityValue))
+        if (attachmentPoint !== action.handedness) {
+          changeHand(avatarEntity, action.handedness)
         } else {
           // drop(entity, inputKey, inputValue)
         }
       } else {
-        equipEntity(avatarEntity, action.targetEntity!)
+        equipEntity(avatarEntity, action.targetEntity!, 'none')
       }
     }
 
