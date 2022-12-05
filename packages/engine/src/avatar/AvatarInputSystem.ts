@@ -153,7 +153,7 @@ export default async function AvatarInputSystem(world: World) {
 
             /** mobile/detatched avatar right thumbstick movement */
             if (!cameraAttached) {
-              movementDelta.x = xDelta
+              movementDelta.x += xDelta
               movementDelta.z += yDelta
             }
           } else {
