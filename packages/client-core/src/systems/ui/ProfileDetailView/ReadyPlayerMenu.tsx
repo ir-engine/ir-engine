@@ -68,6 +68,7 @@ const ReadyPlayerMenu = () => {
         if (assetType) {
           resetAnimationLogic(entity.value)
           loadAvatarForPreview(entity.value, url).then((obj) => {
+            if (!obj) return
             obj.name = 'avatar'
             scene.value.add(obj)
             const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)

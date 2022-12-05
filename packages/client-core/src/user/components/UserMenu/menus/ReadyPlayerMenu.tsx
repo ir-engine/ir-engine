@@ -81,6 +81,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
           resetAnimationLogic(entity.value)
           const obj = await loadAvatarForPreview(entity.value, url)
+          if (!obj) return
           obj.name = 'avatar'
           scene.value.add(obj)
 

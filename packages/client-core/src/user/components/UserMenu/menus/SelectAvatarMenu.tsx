@@ -79,8 +79,10 @@ const SelectAvatarMenu = (props: Props) => {
       camera.value.position.z = 0.6
     }
     setAvatarLoading(false)
-    avatar.name = 'avatar'
-    scene.value.add(avatar)
+    if (avatar) {
+      avatar.name = 'avatar'
+      scene.value.add(avatar)
+    }
   }
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {

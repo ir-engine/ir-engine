@@ -19,10 +19,12 @@ export const ModelPreviewPanel = (props) => {
     const loadModel = async () => {
       try {
         const model = await loadAvatarModelAsset(url)
-        model.name = 'avatar'
-        const result = scene.value.getObjectByName(model.name)
-        if (result) scene.value.remove(result)
-        scene.value.add(model)
+        if (model) {
+          model.name = 'avatar'
+          const result = scene.value.getObjectByName(model.name)
+          if (result) scene.value.remove(result)
+          scene.value.add(model)
+        }
         setLoading(false)
       } catch (err) {
         setLoading(false)

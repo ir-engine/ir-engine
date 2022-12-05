@@ -15,7 +15,6 @@ import {
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
@@ -24,7 +23,7 @@ import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 
 import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
 
-import { validate } from '../../../user/components/Panel3D/helperFunctions'
+import { loadAvatarForPreview, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { AvatarService } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
