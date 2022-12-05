@@ -1,6 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import Button from '@xrengine/client-core/src/common/components/Button'
+import IconButton from '@xrengine/client-core/src/common/components/IconButton'
+
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
 import { default as MUIDialog } from '@mui/material/Dialog'
@@ -11,8 +14,6 @@ import Popover from '@mui/material/Popover'
 import { Breakpoint } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
-import Button from '../Button'
-import IconButton from '../IconButton'
 import styles from './index.module.scss'
 
 interface Props {
@@ -57,21 +58,13 @@ const Menu = ({
   const dialogContent = (
     <>
       <DialogTitle className={styles.dialogTitle}>
-        {showBackButton && (
-          <IconButton sx={{ mr: 1 }} onClick={onBack}>
-            <ArrowBack />
-          </IconButton>
-        )}
+        {showBackButton && <IconButton icon={<ArrowBack />} sx={{ mr: 1 }} onClick={onBack} />}
 
         {title && <Typography variant="h6">{title}</Typography>}
 
         {header}
 
-        {showCloseButton && (
-          <IconButton sx={{ ml: 1 }} onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        )}
+        {showCloseButton && <IconButton icon={<CloseIcon />} sx={{ ml: 1 }} onClick={onClose} />}
       </DialogTitle>
 
       <DialogContent>{children}</DialogContent>

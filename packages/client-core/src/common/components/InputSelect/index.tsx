@@ -11,6 +11,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import { SxProps, Theme } from '@mui/material/styles'
 
+import { handleSoundEffect } from '../../utils'
 import commonStyles from '../common.module.scss'
 import styles from './index.module.scss'
 
@@ -25,8 +26,6 @@ interface Props {
   endControl?: React.ReactNode
   sx?: SxProps<Theme>
   onChange?: (e: any) => void
-  onPointerEnter?: (e: any) => void
-  onPointerUp?: (e: any) => void
 }
 
 export interface InputMenuItem {
@@ -35,20 +34,7 @@ export interface InputMenuItem {
   disabled?: boolean
 }
 
-const InputSelect = ({
-  className,
-  name,
-  label,
-  value,
-  menu,
-  error,
-  disabled,
-  endControl,
-  sx,
-  onChange,
-  onPointerEnter,
-  onPointerUp
-}: Props) => {
+const InputSelect = ({ className, name, label, value, menu, error, disabled, endControl, sx, onChange }: Props) => {
   const { t } = useTranslation()
 
   if (!disabled) {
@@ -79,8 +65,8 @@ const InputSelect = ({
             displayEmpty
             MenuProps={{ classes: { paper: styles.selectPaper } }}
             onChange={onChange}
-            onPointerEnter={onPointerEnter}
-            onPointerUp={onPointerUp}
+            onPointerUp={handleSoundEffect}
+            onPointerEnter={handleSoundEffect}
           >
             {!disabled && (
               <MenuItem
@@ -89,8 +75,6 @@ const InputSelect = ({
                 classes={{
                   root: styles.menuItem
                 }}
-                onPointerEnter={onPointerEnter}
-                onPointerUp={onPointerUp}
               >
                 <em>
                   {t('common:components.select')} {label}
@@ -104,8 +88,8 @@ const InputSelect = ({
                 classes={{
                   root: styles.menuItem
                 }}
-                onPointerEnter={onPointerEnter}
-                onPointerUp={onPointerUp}
+                onPointerUp={handleSoundEffect}
+                onPointerEnter={handleSoundEffect}
               >
                 {el.label}
               </MenuItem>

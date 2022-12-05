@@ -4,6 +4,7 @@ import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { SxProps, Theme } from '@mui/material/styles'
 
+import { handleSoundEffect } from '../../utils'
 import styles from './index.module.scss'
 
 interface Props {
@@ -30,6 +31,8 @@ const InputRadio = ({ checked, className, disabled, label, name, sx, onChange }:
           disabled={disabled}
           sx={sx}
           onChange={onChange}
+          onPointerUp={handleSoundEffect}
+          onPointerEnter={handleSoundEffect}
         />
       }
       label={label}

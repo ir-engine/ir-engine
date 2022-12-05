@@ -11,6 +11,7 @@ import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import { SxProps, Theme } from '@mui/material/styles'
 
+import { handleSoundEffect } from '../../utils'
 import styles from './index.module.scss'
 
 interface Props {
@@ -37,7 +38,12 @@ const InputRadio = ({ className, name, label, value, options, error, disabled, s
         <FormLabel sx={{ mt: 0.5, mr: 5 }}>{label}</FormLabel>
         <RadioGroup name={name} value={value} onChange={onChange} row>
           {options.map((el, index) => (
-            <FormControlLabel key={index} value={el.value} control={<Radio />} label={el.label} />
+            <FormControlLabel
+              key={index}
+              value={el.value}
+              control={<Radio onPointerUp={handleSoundEffect} onPointerEnter={handleSoundEffect} />}
+              label={el.label}
+            />
           ))}
         </RadioGroup>
       </FormControl>

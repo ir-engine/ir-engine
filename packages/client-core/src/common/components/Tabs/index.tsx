@@ -13,11 +13,10 @@ interface Props {
   items?: InputMenuItem[]
   value?: string
   sx?: SxProps<Theme>
-  disableSoundEffects?: boolean
   onChange?: (value: string) => void
 }
 
-const Tabs = ({ className, items, value, sx, disableSoundEffects, onChange }: Props) => {
+const Tabs = ({ className, items, value, sx, onChange }: Props) => {
   return (
     <MUITabs
       className={`${styles.tabs} ${className ?? ''}`}
@@ -27,12 +26,7 @@ const Tabs = ({ className, items, value, sx, disableSoundEffects, onChange }: Pr
       onChange={(_e, value) => onChange && onChange(value)}
     >
       {items?.map((item) => (
-        <Tab
-          value={item.value}
-          label={item.label}
-          onPointerUp={() => handleSoundEffect(disableSoundEffects)}
-          onPointerEnter={() => handleSoundEffect(disableSoundEffects)}
-        />
+        <Tab value={item.value} label={item.label} onPointerUp={handleSoundEffect} onPointerEnter={handleSoundEffect} />
       ))}
     </MUITabs>
   )

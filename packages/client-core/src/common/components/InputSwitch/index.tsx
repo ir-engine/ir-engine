@@ -7,6 +7,7 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import { SxProps, Theme } from '@mui/material/styles'
 import Switch from '@mui/material/Switch'
 
+import { handleSoundEffect } from '../../utils'
 import styles from './index.module.scss'
 
 interface Props {
@@ -25,7 +26,16 @@ const InputSwitch = ({ className, name, label, checked, disabled, sx, onChange }
       <FormControlLabel
         className={`${styles.switchField} ${className ?? ''}`}
         label={capitalizeFirstLetter(label)}
-        control={<Switch name={name} checked={checked} disabled={disabled} onChange={onChange} />}
+        control={
+          <Switch
+            name={name}
+            checked={checked}
+            disabled={disabled}
+            onChange={onChange}
+            onPointerUp={handleSoundEffect}
+            onPointerEnter={handleSoundEffect}
+          />
+        }
       />
     </Box>
   )
