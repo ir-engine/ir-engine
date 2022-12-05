@@ -140,8 +140,9 @@ export function removeMaterialSource(src: MaterialSource): boolean {
       toDelete.material.dispose()
       materialLibrary.materials[matId].set(none)
     })
-    materialLibrary.sources[srcId].set(none)
     dispatchAction(MaterialLibraryActions.RemoveSource({ src: srcComp.src }))
+    materialLibrary.sources[srcId].set(none)
+
     return true
   } else return false
 }

@@ -71,7 +71,7 @@ function ModelReactor({ root }: EntityReactorProps) {
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
-
+  const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   // update src
   useEffect(() => {
     if (model.src === model.scene?.userData?.src) return
@@ -90,7 +90,9 @@ function ModelReactor({ root }: EntityReactorProps) {
           }
         }
         if (!model.src) return
-        const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
+        if (!nodeMap.has(entity)) return
+
+        const uuid = nodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)
         let scene: Scene
         const fileExtension = /\.[\d\s\w]+$/.exec(model.src)?.[0]
