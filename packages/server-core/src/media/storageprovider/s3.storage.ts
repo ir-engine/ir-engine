@@ -34,7 +34,7 @@ export class S3Provider implements StorageProviderInterface {
     endpoint: config.aws.s3.endpoint,
     region: config.aws.s3.region,
     s3ForcePathStyle: true,
-    maxRetries: 1
+    maxRetries: 5
   })
 
   /**
