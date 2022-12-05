@@ -128,6 +128,21 @@ export const addClientInputListeners = (world: World) => {
   addListener(canvas, 'touchstart', handleMouseClick)
   addListener(canvas, 'touchend', handleMouseClick)
 
+  const handleTouchDirectionalPad = (event: CustomEvent): void => {
+    const { stick, value }: { stick: 'StickLeft' | 'StickRight'; value: { x: number; y: number } } = event.detail
+    if (!stick) {
+      return
+    }
+
+    const index = stick === 'StickLeft' ? 0 : 1
+
+    const axes = world.inputSources[index].gamepad!.axes as number[]
+
+    axes[0] = value.x
+    axes[1] = value.y
+  }
+  addListener(document, 'touchstickmove', handleTouchDirectionalPad)
+
   const clearKeyState = () => {
     keyState.set({} as any)
   }

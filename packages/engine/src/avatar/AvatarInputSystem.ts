@@ -121,7 +121,9 @@ export default async function AvatarInputSystem(world: World) {
         let xDelta = 0
         let yDelta = 0
         /** @todo do we want to sum these inputs up? */
-        if (axes.length === 2) {
+        if (axes.length <= 2) {
+          console.log(axes[0])
+          console.log(axes[1])
           xDelta += Math.abs(axes[0]) > 0.05 ? axes[0] : 0
           yDelta += Math.abs(axes[1]) > 0.05 ? axes[1] : 0
         }
