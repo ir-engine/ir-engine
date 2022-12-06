@@ -1,25 +1,21 @@
-import React, { Fragment, useCallback, useEffect } from 'react'
-import { BufferAttribute, Color, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, Texture } from 'three'
+import React, { useCallback, useEffect } from 'react'
+import { Material, Texture } from 'three'
 
 import styles from '@xrengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
 import {
   changeMaterialPrototype,
   materialFromId,
-  materialToDefaultArgs,
   prototypeFromId
 } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary, MaterialLibraryState } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { useMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { useState } from '@xrengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { accessSelectionState } from '../../services/SelectionServices'
-import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
@@ -30,16 +26,12 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
   const materialComponent = useState(materialFromId(material.uuid))
   const prototypeComponent = useState(prototypeFromId(materialComponent.prototype.value))
   const loadingData = useState(false)
-
   const selectionState = accessSelectionState()
-
-  const materialLibrary = getMaterialLibrary()
-  const prototypes = useState(
-    Object.values(materialLibrary.prototypes.value).map((prototype) => ({
-      label: prototype.prototypeId,
-      value: prototype.prototypeId
-    }))
-  )
+  const materialLibrary = useMaterialLibrary()
+  const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
+    label: prototype.prototypeId,
+    value: prototype.prototypeId
+  }))
   const thumbnails = useState<Record<string, string>>({})
 
   const createThumbnails = useCallback(async () => {
@@ -108,7 +100,7 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
         <InputGroup name="Prototype" label="Prototype">
           <SelectInput
             value={materialComponent.prototype.value}
-            options={prototypes.value}
+            options={prototypes}
             onChange={(protoId) => {
               const nuMat = changeMaterialPrototype(material, protoId)
               materialComponent.set(materialFromId(nuMat!.uuid))
