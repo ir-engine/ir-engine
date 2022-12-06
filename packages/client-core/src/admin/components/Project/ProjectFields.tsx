@@ -41,7 +41,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
           name: 'tempProject',
           thumbnail: '',
           repositoryPath: '',
-          needsRebuild: false
+          needsRebuild: false,
+          commitSHA: '',
+          commitDate: new Date()
         }
 
   useEffect(() => {
