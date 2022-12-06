@@ -290,7 +290,7 @@ export default async function XRControllerSystem(world: World) {
   const targetRaySpace = {} as XRSpace
 
   const screenInputSource = {
-    handedness: 'left',
+    handedness: 'none',
     targetRayMode: 'screen',
     targetRaySpace,
     gripSpace: undefined,

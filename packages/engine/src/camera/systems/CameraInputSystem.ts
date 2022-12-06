@@ -148,6 +148,9 @@ export default async function CameraInputSystem(world: World) {
     }
   }
 
+  const lastLookDelta = new Vector2()
+  let lastMouseMoved = false
+
   const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
 
   const execute = () => {
@@ -160,7 +163,7 @@ export default async function CameraInputSystem(world: World) {
     if (keys.KeyC?.clicked) onKeyC()
 
     const inputEntities = inputQuery()
-    const mouseMoved = world.pointerState.movement.lengthSq() > 0
+    const mouseMoved = world.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
 
     for (const entity of inputEntities) {
       const avatarController = getComponent(entity, AvatarControllerComponent)
@@ -170,21 +173,27 @@ export default async function CameraInputSystem(world: World) {
         getOptionalComponent(cameraEntity, FollowCameraComponent)
       if (!target) continue
 
-      const keyDelta = (keys.ArrowLeft?.pressed ? -1 : 0) + (keys.ArrowRight?.pressed ? 1 : 0)
+      if (!lastMouseMoved && mouseMoved) lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
+
+      const keyDelta = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0)
       target.theta += 100 * deltaSeconds * keyDelta
       setTargetCameraRotation(cameraEntity, target.phi, target.theta)
 
-      if (mouseMoved && keys.PrimaryClick?.pressed) {
+      if (mouseMoved) {
         setTargetCameraRotation(
           cameraEntity,
-          target.phi - world.pointerState.movement.y * cameraSettings.cameraRotationSpeed.value,
-          target.theta - world.pointerState.movement.x * cameraSettings.cameraRotationSpeed.value,
+          target.phi - (world.pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
+          target.theta - (world.pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
           0.1
         )
       }
 
       throttleHandleCameraZoom(cameraEntity, world.pointerState.scroll.y)
     }
+
+    lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
+
+    lastMouseMoved = !!mouseMoved
   }
 
   const cleanup = async () => {
