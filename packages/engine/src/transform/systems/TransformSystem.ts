@@ -18,7 +18,12 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyKinematicPositionBasedTagComponent,
+  RigidBodyKinematicVelocityBasedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
@@ -275,7 +280,12 @@ export default async function TransformSystem(world: World) {
       if (makeDirty) world.dirtyTransforms[entity] = true
     }
 
-    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirty)
+    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirty).filter(
+      (entity) =>
+        //exclude kinematic bodies which are updated in the Physics System
+        !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
+        !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
+    )
     const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
     const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)

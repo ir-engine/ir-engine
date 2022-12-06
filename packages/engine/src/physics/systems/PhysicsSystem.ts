@@ -32,7 +32,12 @@ import {
 } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../components/RigidBodyComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyFixedTagComponent,
+  RigidBodyKinematicPositionBasedTagComponent,
+  RigidBodyKinematicVelocityBasedTagComponent
+} from '../components/RigidBodyComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 // Receptor
@@ -77,6 +82,17 @@ export default async function PhysicsSystem(world: World) {
   const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
   const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
   const collisionQuery = defineQuery([CollisionComponent])
+
+  const kinematicPositionBodyQuery = defineQuery([
+    RigidBodyComponent,
+    RigidBodyKinematicPositionBasedTagComponent,
+    TransformComponent
+  ])
+  const kinematicVelocityBodyQuery = defineQuery([
+    RigidBodyComponent,
+    RigidBodyKinematicVelocityBasedTagComponent,
+    TransformComponent
+  ])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
@@ -134,8 +150,31 @@ export default async function PhysicsSystem(world: World) {
 
     // step physics world
     const substeps = engineState.physicsSubsteps.value
-    world.physicsWorld.timestep = engineState.fixedDeltaSeconds.value / substeps
+    const timestep = engineState.fixedDeltaSeconds.value / substeps
+    world.physicsWorld.timestep = timestep
+    const timestepMultiplier = 50
+    /*const maxDistance = 0.5
+    const maxDistanceSq = maxDistance * maxDistance*/
+    const kinematicBodies = [
+      ...kinematicPositionBodyQuery(),
+      ...kinematicVelocityBodyQuery()
+    ] /*.filter(kinematicBodyEntity => {
+      const transformComponent = getComponent(kinematicBodyEntity, TransformComponent)
+      const rigidbodyComponent = getComponent(kinematicBodyEntity, RigidBodyComponent)
+      const movementDistance = rigidbodyComponent.position.distanceToSquared(transformComponent.position)
+      const result = movementDistance < maxDistanceSq
+      return result
+    })*/
+
     for (let i = 0; i < substeps; i++) {
+      for (const kinematicBodyEntity of kinematicBodies) {
+        const rigidbodyComponent = getComponent(kinematicBodyEntity, RigidBodyComponent)
+        const transformComponent = getComponent(kinematicBodyEntity, TransformComponent)
+        rigidbodyComponent.position.lerp(transformComponent.position, timestep * timestepMultiplier)
+        rigidbodyComponent.rotation.slerp(transformComponent.rotation, timestep * timestepMultiplier)
+        rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
+        rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
+      }
       world.physicsWorld.step(world.physicsCollisionEventQueue)
       world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
       world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
