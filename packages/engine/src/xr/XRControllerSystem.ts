@@ -50,6 +50,7 @@ import {
   PointerObject,
   XRControllerComponent,
   XRControllerGripComponent,
+  XRHand,
   XRHandComponent,
   XRPointerComponent
 } from './XRComponents'
@@ -78,55 +79,6 @@ const createUICursor = () => {
   const geometry = new SphereGeometry(0.01, 16, 16)
   const material = new MeshBasicMaterial({ color: 0xffffff })
   return new Mesh(geometry, material)
-}
-
-const updateHand = (entity: Entity, referenceSpace: XRReferenceSpace) => {
-  const frame = Engine.instance.xrFrame!
-
-  // detect support for joints
-  if (!frame.getJointPose) return
-
-  const handComponent = getComponent(entity, XRHandComponent)
-  const { hand, joints, group } = handComponent
-
-  for (const inputjoint of hand.values()) {
-    const jointPose = frame.getJointPose(inputjoint, referenceSpace)
-
-    if (joints[inputjoint.jointName] === undefined) {
-      const joint = new Group() as Group & { jointRadius: number | undefined }
-      joints[inputjoint.jointName] = joint
-      group.add(joint)
-    }
-
-    const joint = joints[inputjoint.jointName]
-
-    if (jointPose) {
-      joint.matrix.fromArray(jointPose.transform.matrix)
-      joint.matrix.decompose(joint.position, joint.quaternion, joint.scale)
-      joint.jointRadius = jointPose.radius
-    }
-
-    joint.visible = jointPose !== null
-  }
-
-  /** The IK system uses the wrist joint as the hand target, so set the world transform to be where the wrist is */
-  const wrist = joints['wrist']
-  const transform = getComponent(entity, LocalTransformComponent)
-  transform.position.copy(wrist.position)
-  transform.rotation.copy(wrist.quaternion)
-
-  const indexTip = joints['index-finger-tip']
-  const thumbTip = joints['thumb-tip']
-  const distance = indexTip.position.distanceTo(thumbTip.position)
-
-  const distanceToPinch = 0.02
-  const threshold = 0.005
-
-  if (handComponent.pinching && distance > distanceToPinch + threshold) {
-    handComponent.pinching = false
-  } else if (!handComponent.pinching && distance <= distanceToPinch - threshold) {
-    handComponent.pinching = true
-  }
 }
 
 const updateInputSource = (entity: Entity, space: XRSpace, referenceSpace: XRReferenceSpace) => {
@@ -187,7 +139,7 @@ export function updateGamepadInput(source: XRInputSource) {
 
 const addInputSourceEntity = (inputSource: XRInputSource, targetRaySpace: XRSpace) => {
   const xrState = getState(XRState)
-
+  console.log('[XRControllerSystem]: found input source', inputSource)
   const entity = createEntity()
   const handednessLabel =
     inputSource.handedness === 'none' ? '' : inputSource.handedness === 'left' ? ' Left' : ' Right'
@@ -252,6 +204,7 @@ const addHandInputSource = (inputSource: XRInputSource, hand: XRHand) => {
 const removeInputSourceEntity = (inputSource: XRInputSource) => {
   const xrState = getState(XRState)
   if (!xrInputSourcesMap.has(inputSource)) return
+  console.log('[XRControllerSystem]: lost input source', inputSource)
   if (inputSource.targetRayMode === 'screen') xrState.viewerInputSourceEntity.set(UndefinedEntity)
   if (inputSource.handedness === 'left') xrState.leftControllerEntity.set(UndefinedEntity)
   if (inputSource.handedness === 'right') xrState.rightControllerEntity.set(UndefinedEntity)
@@ -272,7 +225,6 @@ const removeInputSourceEntity = (inputSource: XRInputSource) => {
 
 const updateInputSourceEntities = () => {
   const inputSources = Engine.instance.xrFrame?.session ? Engine.instance.xrFrame.session.inputSources : []
-  const existingInputSources = xrInputSourcesMap
   let changed = false
   for (const inputSource of inputSources) {
     let targetRaySpace = inputSource.targetRaySpace
@@ -285,7 +237,7 @@ const updateInputSourceEntities = () => {
       gripSpace = null!
     }
 
-    if (targetRaySpace && !existingInputSources.has(inputSource)) {
+    if (targetRaySpace && !xrInputSourcesMap.has(inputSource)) {
       addInputSourceEntity(inputSource, targetRaySpace)
       changed = true
     }
@@ -300,7 +252,7 @@ const updateInputSourceEntities = () => {
     }
 
     if (hand && !controller.hand) {
-      const handEntity = addHandInputSource(inputSource, hand)
+      const handEntity = addHandInputSource(inputSource, hand as any as XRHand) /** typescript typing is incorrect */
       getComponentState(controllerEntity, XRControllerComponent).hand.set(handEntity)
       changed = true
     }
@@ -320,7 +272,7 @@ const updateInputSourceEntities = () => {
     }
   }
 
-  for (const [inputSource] of existingInputSources) {
+  for (const [inputSource] of xrInputSourcesMap) {
     let includes = false
     for (const source of inputSources) {
       if (source === inputSource) {
@@ -373,10 +325,6 @@ export default async function XRControllerSystem(world: World) {
           const { gripSpace } = getComponent(entity, XRControllerGripComponent)
           updateInputSource(entity, gripSpace, referenceSpace)
         }
-
-        // for (const entity of handQuery()) {
-        //   updateHand(entity, referenceSpace)
-        // }
       }
 
       world.inputSources = session.inputSources
