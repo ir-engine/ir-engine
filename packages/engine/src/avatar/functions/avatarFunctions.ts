@@ -71,7 +71,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
     // Enable shadow for avatars
     obj.castShadow = true
   })
-  return SkeletonUtils.clone(parent)
+  return SkeletonUtils.clone(parent) as Object3D
 }
 
 export const loadAvatarForUser = async (
@@ -97,6 +97,7 @@ export const loadAvatarForUser = async (
 
   removeComponent(entity, AvatarPendingComponent)
 
+  if (!parent) return
   setupAvatarForUser(entity, parent)
 
   if (isClient && loadingEffect) {
@@ -111,14 +112,6 @@ export const loadAvatarForUser = async (
   }
 
   dispatchAction(EngineActions.avatarModelChanged({ entity }))
-}
-
-export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
-  const parent = await loadAvatarModelAsset(avatarURL)
-  if (!parent) return
-  setupAvatarModel(entity)(parent)
-  // animateModel(entity)
-  return parent
 }
 
 export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
