@@ -153,18 +153,7 @@ export default async function PhysicsSystem(world: World) {
     const timestep = engineState.fixedDeltaSeconds.value / substeps
     world.physicsWorld.timestep = timestep
     const timestepMultiplier = 50
-    /*const maxDistance = 0.5
-    const maxDistanceSq = maxDistance * maxDistance*/
-    const kinematicBodies = [
-      ...kinematicPositionBodyQuery(),
-      ...kinematicVelocityBodyQuery()
-    ] /*.filter(kinematicBodyEntity => {
-      const transformComponent = getComponent(kinematicBodyEntity, TransformComponent)
-      const rigidbodyComponent = getComponent(kinematicBodyEntity, RigidBodyComponent)
-      const movementDistance = rigidbodyComponent.position.distanceToSquared(transformComponent.position)
-      const result = movementDistance < maxDistanceSq
-      return result
-    })*/
+    const kinematicBodies = [...kinematicPositionBodyQuery(), ...kinematicVelocityBodyQuery()]
 
     for (let i = 0; i < substeps; i++) {
       for (const kinematicBodyEntity of kinematicBodies) {
