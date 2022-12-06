@@ -66,7 +66,7 @@ export const toggleTransformPivot = () => {
   const pivots = Object.keys(TransformPivot)
   const nextIndex = (pivots.indexOf(accessEditorHelperState().transformPivot.value) + 1) % pivots.length
 
-  dispatchAction(EditorHelperAction.changedTransformPivotMode(TransformPivot[pivots[nextIndex]]))
+  dispatchAction(EditorHelperAction.changedTransformPivotMode({ transformPivot: TransformPivot[pivots[nextIndex]] }))
 }
 
 export const setTransformSpace = (transformSpace: TransformSpace) => {
