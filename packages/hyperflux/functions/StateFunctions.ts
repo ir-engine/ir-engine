@@ -10,7 +10,7 @@ const logger = multiLogger.child({ component: 'hyperflux:State' })
 
 export const NO_PROXY = { noproxy: true }
 
-type StateDefinition<S> = {
+export type StateDefinition<S> = {
   name: string
   initial: SetInitialStateAction<S>
   onCreate?: (store: HyperStore, state: State<S>) => void

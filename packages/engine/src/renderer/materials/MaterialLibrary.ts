@@ -1,6 +1,7 @@
+import { Material } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineAction } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, StateDefinition, useState } from '@xrengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
@@ -14,21 +15,37 @@ import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMa
 import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './constants/material-prototypes/ShadowMaterial.mat'
-import { registerMaterialPrototype } from './functions/Utilities'
+import { registerMaterialPrototype } from './functions/MaterialLibraryFunctions'
 
 export type MaterialLibraryType = {
-  prototypes: Map<string, MaterialPrototypeComponentType>
-  materials: Map<string, MaterialComponentType>
-  sources: Map<string, MaterialSourceComponentType>
+  prototypes: Record<string, MaterialPrototypeComponentType>
+  materials: Record<string, MaterialComponentType>
+  sources: Record<string, MaterialSourceComponentType>
 }
 
-export const MaterialLibrary: MaterialLibraryType = {
-  prototypes: new Map(),
-  materials: new Map(),
-  sources: new Map()
-}
+export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = defineState({
+  name: 'MaterialLibraryState',
+  initial: {
+    prototypes: {},
+    materials: {},
+    sources: {}
+  } as MaterialLibraryType
+})
+
+export const getMaterialLibrary = () => getState(MaterialLibraryState)
+
+export const useMaterialLibrary = () => useState(getMaterialLibrary())
 
 export const MaterialLibraryActions = {
+  RegisterMaterial: defineAction({
+    type: 'xre.assets.MaterialLibrary.REGISTER_MATERIAL',
+    material: matches.object as Validator<unknown, Material>,
+    src: matches.object as Validator<unknown, MaterialSource>
+  }),
+  RegisterPrototype: defineAction({
+    type: 'xre.assets.MaterialLibrary.REGISTER_PROTOTYPE',
+    $prototype: matches.object as Validator<unknown, MaterialPrototypeComponentType>
+  }),
   RemoveSource: defineAction({
     type: 'xre.assets.MaterialLibrary.REMOVE_SOURCE',
     src: matches.object as Validator<unknown, MaterialSource>
