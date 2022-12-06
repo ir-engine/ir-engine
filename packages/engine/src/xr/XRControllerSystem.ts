@@ -25,7 +25,6 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
-import { ButtonInputState } from '../input/InputState'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -98,9 +97,7 @@ const ButtonAlias = {
   }
 }
 
-export function updateGamepadInput(source: XRInputSource) {
-  const state = getState(ButtonInputState)
-
+export function updateGamepadInput(world: World, source: XRInputSource) {
   if (source.gamepad?.mapping === 'xr-standard') {
     const mapping = ButtonAlias[source.handedness]
     const buttons = source.gamepad?.buttons
@@ -108,9 +105,7 @@ export function updateGamepadInput(source: XRInputSource) {
       for (let i = 0; i < buttons.length; i++) {
         const buttonMapping = mapping[i]
         const button = buttons[i]
-        if (state[buttonMapping].value !== button.pressed) {
-          state[buttonMapping].set(button.pressed)
-        }
+        world.buttons[buttonMapping] = button
       }
     }
   }
@@ -288,7 +283,7 @@ export default async function XRControllerSystem(world: World) {
 
   const targetRaySpace = {} as XRSpace
 
-  const leftInputSource = {
+  const screenInputSource = {
     handedness: 'left',
     targetRayMode: 'screen',
     targetRaySpace,
@@ -306,32 +301,14 @@ export default async function XRControllerSystem(world: World) {
     profiles: [],
     hand: undefined
   }
-  const rightInputSource = {
-    handedness: 'right',
-    targetRayMode: 'screen',
-    targetRaySpace,
-    gripSpace: undefined,
-    gamepad: {
-      axes: new Array(2).fill(0),
-      buttons: [],
-      connected: true,
-      hapticActuators: [],
-      id: '',
-      index: 0,
-      mapping: 'xr-standard',
-      timestamp: Date.now()
-    },
-    profiles: [],
-    hand: undefined
-  }
-  const defaultInputSourceArray = [leftInputSource, rightInputSource] as XRInputSourceArray
+  const defaultInputSourceArray = [screenInputSource] as XRInputSourceArray
 
   const execute = () => {
     updateInputSourceEntities()
 
     if (Engine.instance.xrFrame) {
       const session = Engine.instance.xrFrame.session
-      for (const source of session.inputSources) updateGamepadInput(source)
+      for (const source of session.inputSources) updateGamepadInput(world, source)
 
       const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
       if (referenceSpace) {
@@ -350,8 +327,7 @@ export default async function XRControllerSystem(world: World) {
     } else {
       world.inputSources = defaultInputSourceArray
       const now = Date.now()
-      leftInputSource.gamepad.timestamp = now
-      rightInputSource.gamepad.timestamp = now
+      screenInputSource.gamepad.timestamp = now
     }
   }
 

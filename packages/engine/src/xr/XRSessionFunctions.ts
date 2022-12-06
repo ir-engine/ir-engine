@@ -3,7 +3,7 @@ import { dispatchAction, getState, none } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { ButtonInputState } from '../input/InputState'
+import { ButtonInputStateType } from '../input/InputState'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { matches } from './../common/functions/MatchesUtils'
@@ -136,17 +136,15 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {}
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   EngineRenderer.instance.renderer.domElement.style.display = 'none'
 
-  const state = getState(ButtonInputState)
-
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
    * This gets piped into the input system as a TouchInput.Touch
    */
   EngineRenderer.instance.xrSession.addEventListener('selectstart', () => {
-    state.PrimaryClick.set(true)
+    ;(world.buttons as ButtonInputStateType).PrimaryClick = { clicked: true }
   })
   EngineRenderer.instance.xrSession.addEventListener('selectend', (inputSource) => {
-    state.PrimaryClick.set(none)
+    ;(world.buttons as ButtonInputStateType).PrimaryClick!.released = true
   })
 
   world.scene.background = null

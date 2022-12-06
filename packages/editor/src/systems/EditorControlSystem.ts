@@ -28,7 +28,6 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { ButtonInputState, createButtonListener } from '@xrengine/engine/src/input/InputState'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
@@ -113,138 +112,89 @@ export default async function EditorControlSystem(world: World) {
   let transformSpaceChanged = false
   let dragging = false
 
-  let isPrimaryClicking = false
-
-  const buttonInputState = getState(ButtonInputState)
-
-  const onKeyQ = (pressed: boolean) => {
-    if (pressed) {
-      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
-      EditorControlFunctions.rotateAround(
-        nodes,
-        V_010,
-        editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
-        SceneState.transformGizmo.position
-      )
-    }
+  const onKeyQ = () => {
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    EditorControlFunctions.rotateAround(
+      nodes,
+      V_010,
+      editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+      SceneState.transformGizmo.position
+    )
   }
 
-  const onKeyE = (pressed: boolean) => {
-    if (pressed) {
-      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
-      EditorControlFunctions.rotateAround(
-        nodes,
-        V_010,
-        -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
-        SceneState.transformGizmo.position
-      )
-    }
+  const onKeyE = () => {
+    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    EditorControlFunctions.rotateAround(
+      nodes,
+      V_010,
+      -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+      SceneState.transformGizmo.position
+    )
   }
 
-  const onKeyG = (pressed: boolean) => {
-    if (pressed) {
-      if (transformMode === TransformMode.Grab || transformMode === TransformMode.Placement) {
-        cancelGrabOrPlacement()
-        EditorControlFunctions.replaceSelection([])
-      }
-      if (selectedEntities.length > 0) {
-        setTransformMode(TransformMode.Grab)
-      }
-    }
-  }
-
-  const onEscape = (pressed: boolean) => {
-    if (pressed) {
+  const onKeyG = () => {
+    if (transformMode === TransformMode.Grab || transformMode === TransformMode.Placement) {
       cancelGrabOrPlacement()
       EditorControlFunctions.replaceSelection([])
     }
-  }
-
-  const onKeyF = (pressed: boolean) => {
-    if (pressed) {
-      cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
-      cameraComponent.refocus = true
+    if (selectedEntities.length > 0) {
+      setTransformMode(TransformMode.Grab)
     }
   }
 
-  const onKeyT = (pressed: boolean) => {
-    if (pressed) setTransformMode(TransformMode.Translate)
+  const onEscape = () => {
+    cancelGrabOrPlacement()
+    EditorControlFunctions.replaceSelection([])
   }
 
-  const onKeyR = (pressed: boolean) => {
-    if (pressed) setTransformMode(TransformMode.Rotate)
+  const onKeyF = () => {
+    cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
+    cameraComponent.refocus = true
   }
 
-  const onKeyY = (pressed: boolean) => {
-    if (pressed) setTransformMode(TransformMode.Scale)
+  const onKeyT = () => {
+    setTransformMode(TransformMode.Translate)
   }
 
-  const onKeyC = (pressed: boolean) => {
-    if (pressed) toggleSnapMode()
+  const onKeyR = () => {
+    setTransformMode(TransformMode.Rotate)
   }
 
-  const onKeyX = (pressed: boolean) => {
-    if (pressed) toggleTransformPivot()
+  const onKeyY = () => {
+    setTransformMode(TransformMode.Scale)
   }
 
-  const onKeyZ = (pressed: boolean) => {
-    if (pressed) {
-      if (buttonInputState.value.ControlLeft) {
-        if (buttonInputState.value.ShiftLeft) {
-          dispatchAction(EditorHistoryAction.redo({ count: 1 }))
-        } else {
-          dispatchAction(EditorHistoryAction.undo({ count: 1 }))
-        }
+  const onKeyC = () => {
+    toggleSnapMode()
+  }
+
+  const onKeyX = () => {
+    toggleTransformPivot()
+  }
+
+  const onKeyZ = () => {
+    if (world.buttons.ControlLeft?.pressed) {
+      if (world.buttons.ShiftLeft?.pressed) {
+        dispatchAction(EditorHistoryAction.redo({ count: 1 }))
       } else {
-        toggleTransformSpace()
+        dispatchAction(EditorHistoryAction.undo({ count: 1 }))
       }
+    } else {
+      toggleTransformSpace()
     }
   }
 
-  const onEqual = (pressed: boolean) => {
-    if (pressed) InfiniteGridHelper.instance.incrementGridHeight()
+  const onEqual = () => {
+    InfiniteGridHelper.instance.incrementGridHeight()
   }
 
-  const onMinus = (pressed: boolean) => {
-    if (pressed) InfiniteGridHelper.instance.decrementGridHeight()
+  const onMinus = () => {
+    InfiniteGridHelper.instance.decrementGridHeight()
   }
 
-  const onDelete = (pressed: boolean) => {
-    if (pressed)
-      EditorControlFunctions.removeObject(
-        getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
-      )
+  const onDelete = () => {
+    EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value))
   }
-
-  const onPrimaryDoubleClick = (pressed: boolean) => {
-    if (pressed) {
-      raycasterResults.length = 0
-      const cursorPosition = world.pointerState.position
-      const result = getIntersectingNodeOnScreen(raycaster, cursorPosition, raycasterResults)
-      if (result?.node) {
-        cameraComponent.focusedObjects = [result.node]
-        cameraComponent.refocus = true
-      }
-    }
-  }
-
-  const buttonInputListeners = [
-    createButtonListener('KeyQ', onKeyQ),
-    createButtonListener('KeyE', onKeyE),
-    createButtonListener('KeyG', onKeyG),
-    createButtonListener('Escape', onEscape),
-    createButtonListener('KeyF', onKeyF),
-    createButtonListener('KeyT', onKeyT),
-    createButtonListener('KeyR', onKeyR),
-    createButtonListener('KeyY', onKeyY),
-    createButtonListener('KeyC', onKeyC),
-    createButtonListener('KeyX', onKeyX),
-    createButtonListener('KeyZ', onKeyZ),
-    createButtonListener('Equal', onEqual),
-    createButtonListener('Minus', onMinus),
-    createButtonListener('Delete', onDelete),
-    createButtonListener('PrimaryDoubleClick', onPrimaryDoubleClick)
-  ]
 
   const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], excludeLayers?: Layers): void => {
     if (
@@ -322,7 +272,7 @@ export default async function EditorControlSystem(world: World) {
 
     if (!gizmoObj) return
 
-    const inputState = buttonInputState.value
+    const inputState = world.buttons
 
     if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
       if (hasComponent(SceneState.gizmoEntity, VisibleComponent))
@@ -387,9 +337,8 @@ export default async function EditorControlSystem(world: World) {
 
     const isGrabbing = transformMode === TransformMode.Grab || transformMode === TransformMode.Placement
 
-    const isPrimaryClickDown = !isPrimaryClicking && inputState.PrimaryClick
-    const isPrimaryClickUp = isPrimaryClicking && !inputState.PrimaryClick
-    isPrimaryClicking = !!inputState.PrimaryClick
+    const isPrimaryClickDown = inputState.PrimaryClick?.clicked
+    const isPrimaryClickUp = inputState.PrimaryClick?.released
 
     const selectStartAndNoGrabbing = isPrimaryClickDown && !isGrabbing
 
@@ -411,7 +360,7 @@ export default async function EditorControlSystem(world: World) {
       gizmoObj.highlightHoveredAxis(cursorPosition)
     }
 
-    const modifier = isMacOS ? inputState.MetaLeft : inputState.ControlLeft
+    const modifier = isMacOS ? inputState.MetaLeft?.pressed : inputState.ControlLeft?.pressed
     const shouldSnap = (editorHelperState.snapMode.value === SnapMode.Grid) === !modifier
 
     if (dragging || isGrabbing) {
@@ -585,7 +534,7 @@ export default async function EditorControlSystem(world: World) {
 
     selectionCounter = selectionState.selectionCounter.value
     cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
-    const shift = inputState.ShiftLeft
+    const shift = inputState.ShiftLeft?.pressed
 
     if (isPrimaryClickUp) {
       if (transformMode === TransformMode.Grab) {
@@ -618,11 +567,24 @@ export default async function EditorControlSystem(world: World) {
 
     if (editorHelperState.isFlyModeEnabled.value) return
 
-    for (const inputListener of buttonInputListeners) inputListener(inputState)
+    if (inputState.KeyQ?.clicked) onKeyQ()
+    if (inputState.KeyE?.clicked) onKeyE()
+    if (inputState.KeyG?.clicked) onKeyG()
+    if (inputState.Escape?.clicked) onEscape()
+    if (inputState.KeyF?.clicked) onKeyF()
+    if (inputState.KeyT?.clicked) onKeyT()
+    if (inputState.KeyR?.clicked) onKeyR()
+    if (inputState.KeyY?.clicked) onKeyY()
+    if (inputState.KeyC?.clicked) onKeyC()
+    if (inputState.KeyX?.clicked) onKeyX()
+    if (inputState.KeyZ?.clicked) onKeyZ()
+    if (inputState.Equal?.clicked) onEqual()
+    if (inputState.Minus?.clicked) onMinus()
+    if (inputState.Delete?.clicked) onDelete()
 
-    const selecting = inputState.PrimaryClick && !dragging
+    const selecting = inputState.PrimaryClick?.pressed && !dragging
     const zoom = world.pointerState.scroll.y
-    const panning = inputState.AuxiliaryClick
+    const panning = inputState.AuxiliaryClick?.pressed
 
     if (selecting) {
       cameraComponent.isOrbiting = true

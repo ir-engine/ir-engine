@@ -1,18 +1,10 @@
 import { defineState } from '@xrengine/hyperflux'
 
-import { World } from '../ecs/classes/World'
-
 export type ButtonTypes =
   /** Mouse */
   | 'PrimaryClick'
   | 'AuxiliaryClick'
   | 'SecondaryClick'
-  | 'PrimaryMove'
-  | 'AuxiliaryMove'
-  | 'SecondaryMove'
-  | 'PrimaryDoubleClick'
-  | 'AuxiliaryDoubleClick'
-  | 'SecondaryDoubleClick'
 
   /** Keyboard */
   | 'Backspace' // 8 backspace
@@ -139,19 +131,15 @@ export type ButtonTypes =
   | 'ButtonA' // 4
   | 'ButtonB' // 5
 
-export type ButtonInputStateType = Record<ButtonTypes, boolean | undefined>
-
-export const ButtonInputState = defineState({
-  name: 'ButtonInputState',
-  initial: {} as ButtonInputStateType
-})
-
-export type ButtonInputCallback = (pressed: boolean | undefined) => void
-
-export const createButtonListener = (key: ButtonTypes, callback: ButtonInputCallback) => {
-  let keydown = false
-  return (keyState: ButtonInputStateType) => {
-    if (keydown !== keyState[key]) callback(keyState[key])
-    keydown = !!keyState[key]
-  }
-}
+export type ButtonInputStateType = Partial<
+  Record<
+    ButtonTypes,
+    {
+      clicked?: boolean
+      released?: boolean
+      pressed?: boolean
+      touched?: boolean
+      value?: number
+    }
+  >
+>

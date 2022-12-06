@@ -1,14 +1,12 @@
 import { WebContainer3D } from '@etherealjs/web-layer/three'
-import { useEffect } from 'react'
 import { Color, Object3D, Ray } from 'three'
 
-import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { ButtonInputState, createButtonListener } from '../../input/InputState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
@@ -123,32 +121,26 @@ export default async function XRUISystem(world: World) {
 
   const xrState = getState(XRState)
 
-  const onLeftTrigger = (pressed: boolean) => {
-    if (pressed && xrState.leftControllerEntity.value) {
+  const onLeftTrigger = () => {
+    if (xrState.leftControllerEntity.value) {
       const controllerEntity = xrState.leftControllerEntity.value
       const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
       updateClickEventsForController(pointer)
     }
   }
 
-  const onRightTrigger = (pressed: boolean) => {
-    if (pressed && xrState.rightControllerEntity.value) {
+  const onRightTrigger = () => {
+    if (xrState.rightControllerEntity.value) {
       const controllerEntity = xrState.rightControllerEntity.value
       const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
       updateClickEventsForController(pointer)
     }
   }
 
-  const buttonInputListeners = [
-    createButtonListener('LeftTrigger', onLeftTrigger),
-    createButtonListener('RightTrigger', onRightTrigger)
-  ]
-
-  const keyState = getState(ButtonInputState)
-
   const execute = () => {
-    const keys = keyState.value
-    for (const inputListener of buttonInputListeners) inputListener(keys)
+    const keys = world.buttons
+    if (keys.LeftTrigger?.clicked) onLeftTrigger()
+    if (keys.RightTrigger?.clicked) onRightTrigger()
 
     const xrFrame = Engine.instance.xrFrame
 

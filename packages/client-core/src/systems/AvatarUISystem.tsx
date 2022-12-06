@@ -17,7 +17,6 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { ButtonInputState, createButtonListener } from '@xrengine/engine/src/input/InputState'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
@@ -80,11 +79,9 @@ export default async function AvatarUISystem(world: World) {
 
   const applyingVideo = new Map()
 
-  const buttonInputState = getState(ButtonInputState)
-
   /** XRUI Clickaway */
-  const onPrimaryClick = (pressed: boolean) => {
-    if (pressed && AvatarContextMenuUI.state.id.value !== '') {
+  const onPrimaryClick = () => {
+    if (AvatarContextMenuUI.state.id.value !== '') {
       const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent)
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (!hit) {
@@ -94,50 +91,42 @@ export default async function AvatarUISystem(world: World) {
     }
   }
 
-  const onSecondaryClick = (pressed: boolean) => {
-    if (pressed) {
-      const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
-      const raycastComponentData = {
-        type: SceneQueryType.Closest,
-        origin: new Vector3(),
-        direction: new Vector3(),
-        maxDistance: 20,
-        groups: interactionGroups
-      } as RaycastArgs
+  const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
+  const raycastComponentData = {
+    type: SceneQueryType.Closest,
+    origin: new Vector3(),
+    direction: new Vector3(),
+    maxDistance: 20,
+    groups: interactionGroups
+  } as RaycastArgs
 
-      const hits = Physics.castRayFromCamera(
-        Engine.instance.currentWorld.camera,
-        world.pointerState.position,
-        Engine.instance.currentWorld.physicsWorld,
-        raycastComponentData
-      )
+  const onSecondaryClick = () => {
+    const hits = Physics.castRayFromCamera(
+      Engine.instance.currentWorld.camera,
+      world.pointerState.position,
+      Engine.instance.currentWorld.physicsWorld,
+      raycastComponentData
+    )
 
-      if (hits.length) {
-        const hit = hits[0]
-        const hitEntity = (hit.body?.userData as any)?.entity as Entity
-        if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
-          const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
-          AvatarContextMenuUI.state.id.set(userId)
-          setVisibleComponent(AvatarContextMenuUI.entity, true)
-          return
-        }
+    if (hits.length) {
+      const hit = hits[0]
+      const hitEntity = (hit.body?.userData as any)?.entity as Entity
+      if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
+        const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
+        AvatarContextMenuUI.state.id.set(userId)
+        setVisibleComponent(AvatarContextMenuUI.entity, true)
+        return
       }
-
-      AvatarContextMenuUI.state.id.set('')
     }
+
+    AvatarContextMenuUI.state.id.set('')
   }
 
-  const buttonInputListeners = [
-    createButtonListener('PrimaryClick', onPrimaryClick),
-    createButtonListener('SecondaryClick', onSecondaryClick)
-  ]
-
-  const keyState = getState(ButtonInputState)
-
   const execute = () => {
-    const keys = keyState.value
+    const keys = world.buttons
 
-    for (const inputListener of buttonInputListeners) inputListener(keys)
+    if (keys.PrimaryClick?.clicked) onPrimaryClick()
+    if (keys.PrimaryClick?.clicked) onSecondaryClick()
 
     videoPreviewTimer += world.deltaSeconds
     if (videoPreviewTimer > 1) videoPreviewTimer = 0

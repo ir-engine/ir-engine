@@ -1,7 +1,6 @@
 import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ButtonInputState } from '@xrengine/engine/src/input/InputState'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { getControlMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -18,7 +17,6 @@ export function createAnchorWidget(world: World) {
   removeComponent(ui.entity, VisibleComponent)
   setComponent(ui.entity, XRUIInteractableComponent)
   const xrState = getState(XRState)
-  const buttonInputState = getState(ButtonInputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const widget: Widget = {
@@ -40,8 +38,8 @@ export function createAnchorWidget(world: World) {
       if (!xrState.scenePlacementMode.value) return
       const buttonInput =
         avatarInputSettings.preferredHand.value === 'left'
-          ? buttonInputState.ButtonX.value
-          : buttonInputState.ButtonA.value
+          ? world.buttons.ButtonX?.clicked
+          : world.buttons.ButtonA?.clicked
       if (buttonInput) {
         dispatchAction(
           XRAction.changePlacementMode({

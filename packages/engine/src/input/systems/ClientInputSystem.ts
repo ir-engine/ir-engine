@@ -1,10 +1,8 @@
-import { getState, none } from '@xrengine/hyperflux'
-
 import { isClient } from '../../common/functions/isClient'
 import { World } from '../../ecs/classes/World'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonInputState, ButtonTypes } from '../InputState'
+import { ButtonInputStateType, ButtonTypes } from '../InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -51,12 +49,6 @@ export const addClientInputListeners = (world: World) => {
   addListener(document, 'gesturestart', preventDefault)
   addListener(canvas, 'contextmenu', preventDefault)
 
-  let lastPrimaryClickDown = 0
-  let lastAuxiliaryClickDown = 0
-  let lastSecondaryClickDown = 0
-
-  const keyState = getState(ButtonInputState)
-
   const handleMouseClick = (event: MouseEvent) => {
     const down = event.type === 'mousedown' || event.type === 'touchstart'
 
@@ -64,46 +56,13 @@ export const addClientInputListeners = (world: World) => {
     if (event.button === 1) button = 'AuxiliaryClick'
     else if (event.button === 2) button = 'SecondaryClick'
 
-    if (down) keyState[button].set(true)
-    else keyState[button].set(none)
+    const state = world.buttons as ButtonInputStateType
 
-    if (down) {
-      const now = Date.now()
-      if (button === 'PrimaryClick') {
-        if (now - lastPrimaryClickDown < 200 && now - lastPrimaryClickDown > 50)
-          keyState['PrimaryDoubleClick'].set(true)
-        lastPrimaryClickDown = now
-      }
-
-      if (button === 'AuxiliaryClick') {
-        if (now - lastAuxiliaryClickDown < 200 && now - lastAuxiliaryClickDown > 50)
-          keyState['AuxiliaryDoubleClick'].set(true)
-        lastAuxiliaryClickDown = now
-      }
-
-      if (button === 'SecondaryClick') {
-        if (now - lastSecondaryClickDown < 200 && now - lastSecondaryClickDown > 50)
-          keyState['SecondaryDoubleClick'].set(true)
-        lastSecondaryClickDown = now
-      }
-    } else {
-      if (button === 'PrimaryClick' && keyState['PrimaryDoubleClick'].value) keyState['PrimaryDoubleClick'].set(none)
-      if (button === 'PrimaryClick' && keyState['PrimaryMove'].value) keyState['PrimaryMove'].set(none)
-
-      if (button === 'SecondaryClick' && keyState['SecondaryDoubleClick'].value)
-        keyState['SecondaryDoubleClick'].set(none)
-      if (button === 'SecondaryClick' && keyState['SecondaryMove'].value) keyState['SecondaryMove'].set(none)
-
-      if (button === 'AuxiliaryClick' && keyState['AuxiliaryDoubleClick'].value)
-        keyState['AuxiliaryDoubleClick'].set(none)
-      if (button === 'AuxiliaryClick' && keyState['AuxiliaryMove'].value) keyState['AuxiliaryMove'].set(none)
-    }
+    if (down) state[button] = { clicked: true }
+    else state[button]!.released = true
   }
 
   const handleMouseMove = (event: MouseEvent) => {
-    if (keyState['PrimaryClick'].value) keyState['PrimaryMove'].set(true)
-    if (keyState['SecondaryClick'].value) keyState['SecondaryMove'].set(true)
-    if (keyState['AuxiliaryClick'].value) keyState['AuxiliaryMove'].set(true)
     world.pointerState.position.set(
       (event.clientX / window.innerWidth) * 2 - 1,
       (event.clientY / window.innerHeight) * -2 + 1
@@ -111,9 +70,6 @@ export const addClientInputListeners = (world: World) => {
   }
 
   const handleTouchMove = (event: TouchEvent) => {
-    if (keyState['PrimaryClick'].value) keyState['PrimaryMove'].set(true)
-    if (keyState['SecondaryClick'].value) keyState['SecondaryMove'].set(true)
-    if (keyState['AuxiliaryClick'].value) keyState['AuxiliaryMove'].set(true)
     const touch = event.touches[0]
     world.pointerState.position.set(
       (touch.clientX / window.innerWidth) * 2 - 1,
@@ -134,7 +90,7 @@ export const addClientInputListeners = (world: World) => {
       return
     }
 
-    const index = stick === 'StickLeft' ? 0 : 1
+    const index = world.inputSources.length === 1 || stick === 'StickLeft' ? 0 : 1
 
     const axes = world.inputSources[index].gamepad!.axes as number[]
 
@@ -144,7 +100,14 @@ export const addClientInputListeners = (world: World) => {
   addListener(document, 'touchstickmove', handleTouchDirectionalPad)
 
   const clearKeyState = () => {
-    keyState.set({} as any)
+    const state = world.buttons as ButtonInputStateType
+    const activeKeys = Object.entries(state)
+
+    for (const [key, val] of activeKeys) {
+      if (val.released && val.pressed) {
+        world.buttons[key].released = true
+      }
+    }
   }
   addListener(window, 'focus', clearKeyState)
   addListener(window, 'blur', clearKeyState)
@@ -164,8 +127,8 @@ export const addClientInputListeners = (world: World) => {
     const code = event.code
     const down = event.type === 'keydown'
 
-    if (down) keyState[code].set(true)
-    else keyState[code].set(none)
+    if (down) world.buttons[code] = { clicked: true }
+    else world.buttons[code] = { released: true }
   }
   addListener(document, 'keyup', onKeyEvent)
   addListener(document, 'keydown', onKeyEvent)
@@ -196,7 +159,34 @@ export default async function ClientInputSystem(world: World) {
   addClientInputListeners(world)
   world.pointerScreenRaycaster.layers.enableAll()
 
+  const clicked = new Set()
+  const released = new Set()
+
   const execute = () => {
+    const activeKeys = Object.entries(world.buttons as ButtonInputStateType)
+
+    /** use maps to allow us to keep track of state across frames */
+    for (const [key, val] of activeKeys) {
+      const isClicked = clicked.has(key)
+      if (isClicked) {
+        val.pressed = true
+        val.clicked = false
+        clicked.delete(key)
+      }
+      if (val.clicked && !isClicked) {
+        clicked.add(key)
+      }
+      const isReleased = released.has(key)
+      if (isReleased) {
+        delete world.buttons[key]
+        released.delete(key)
+      }
+      if (val.released && !isReleased) {
+        val.pressed = false
+        released.add(key)
+      }
+    }
+
     world.pointerScreenRaycaster.setFromCamera(world.pointerState.position, world.camera)
 
     world.pointerState.movement.subVectors(world.pointerState.position, world.pointerState.lastPosition)

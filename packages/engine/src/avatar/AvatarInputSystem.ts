@@ -6,7 +6,6 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { ButtonInputState, createButtonListener } from '../input/InputState'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
@@ -17,29 +16,27 @@ import { moveAvatarWithTeleport, rotateAvatar } from './functions/moveAvatar'
 import { AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 export default async function AvatarInputSystem(world: World) {
-  const keyState = getState(ButtonInputState)
   const interactState = getState(InteractState)
   const avatarInputSettingsState = getState(AvatarInputSettingsState)
 
-  const onShiftLeft = (pressed) => {
-    if (pressed && world.localClientEntity) {
+  const onShiftLeft = () => {
+    if (world.localClientEntity) {
       const controller = getComponent(world.localClientEntity, AvatarControllerComponent)
       controller.isWalking = !controller.isWalking
     }
   }
 
-  const onKeyE = (pressed) => {
-    if (pressed)
-      dispatchAction(
-        EngineActions.interactedWithObject({
-          targetEntity: interactState.available[0].value,
-          handedness: 'none'
-        })
-      )
+  const onKeyE = () => {
+    dispatchAction(
+      EngineActions.interactedWithObject({
+        targetEntity: interactState.available[0].value,
+        handedness: 'none'
+      })
+    )
   }
 
-  const onLeftTrigger = (pressed) => {
-    if (pressed && world.localClientEntity) {
+  const onLeftTrigger = () => {
+    if (world.localClientEntity) {
       dispatchAction(
         EngineActions.interactedWithObject({
           targetEntity: interactState.available[0].value,
@@ -49,8 +46,8 @@ export default async function AvatarInputSystem(world: World) {
     }
   }
 
-  const onRightTrigger = (pressed) => {
-    if (pressed && world.localClientEntity) {
+  const onRightTrigger = () => {
+    if (world.localClientEntity) {
       dispatchAction(
         EngineActions.interactedWithObject({
           targetEntity: interactState.available[0].value,
@@ -60,8 +57,8 @@ export default async function AvatarInputSystem(world: World) {
     }
   }
 
-  const onKeyO = (pressed) => {
-    if (pressed && world.localClientEntity) {
+  const onKeyO = () => {
+    if (world.localClientEntity) {
       dispatchAction(
         WorldNetworkAction.spawnDebugPhysicsObject({
           config: boxDynamicConfig
@@ -70,25 +67,14 @@ export default async function AvatarInputSystem(world: World) {
     }
   }
 
-  const onKeyP = (pressed) => {
-    if (pressed && world.localClientEntity) {
+  const onKeyP = () => {
+    if (world.localClientEntity) {
       dispatchAction(
         EngineRendererAction.setDebug({
           debugEnable: !accessEngineRendererState().debugEnable.value
         })
       )
     }
-  }
-
-  const buttonInputListeners = [
-    createButtonListener('ShiftLeft', onShiftLeft),
-    createButtonListener('KeyE', onKeyE),
-    createButtonListener('LeftTrigger', onLeftTrigger),
-    createButtonListener('RightTrigger', onRightTrigger)
-  ]
-
-  if (isDev) {
-    buttonInputListeners.push(createButtonListener('KeyO', onKeyO), createButtonListener('KeyP', onKeyP))
   }
 
   const movementDelta = new Vector3()
@@ -100,18 +86,32 @@ export default async function AvatarInputSystem(world: World) {
     const { inputSources, localClientEntity } = world
     if (!localClientEntity) return
 
-    const keys = keyState.value
-    for (const inputListener of buttonInputListeners) inputListener(keys)
+    const keys = world.buttons
+
+    if (keys.ShiftLeft?.clicked) onShiftLeft()
+    if (keys.KeyE?.clicked) onKeyE()
+    if (keys.LeftTrigger?.clicked) onLeftTrigger()
+    if (keys.RightTrigger?.clicked) onRightTrigger()
+
+    if (isDev) {
+      if (keys.KeyO?.clicked) onKeyO()
+      if (keys.KeyP?.clicked) onKeyP()
+    }
 
     /** keyboard input */
-    const keyDeltaX = (keys.KeyA ? -1 : 0) + (keys.KeyD ? 1 : 0) + (keys.ArrowUp ? -1 : 0) + (keys.ArrowDown ? 1 : 0)
-    const keyDeltaY = keys.Space ? 1 : 0
-    const keyDeltaZ = (keys.KeyW ? -1 : 0) + (keys.KeyS ? 1 : 0)
+    const keyDeltaX =
+      (keys.KeyA?.pressed ? -1 : 0) +
+      (keys.KeyD?.pressed ? 1 : 0) +
+      (keys.ArrowUp?.pressed ? -1 : 0) +
+      (keys.ArrowDown?.pressed ? 1 : 0)
+    const keyDeltaY = keys.Space?.pressed ? 1 : 0
+    const keyDeltaZ = (keys.KeyW?.pressed ? -1 : 0) + (keys.KeyS?.pressed ? 1 : 0)
 
     movementDelta.set(keyDeltaX, keyDeltaY, keyDeltaZ)
 
     const cameraAttached = getControlMode() === 'attached'
-    const teleporting = avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
+    const teleporting =
+      cameraAttached && avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
     const preferredHand = avatarInputSettingsState.preferredHand.value
 
     /** override keyboard input with XR axes input */
@@ -131,7 +131,7 @@ export default async function AvatarInputSystem(world: World) {
           yDelta += Math.abs(axes[3]) > 0.05 ? axes[3] : 0
         }
 
-        if (cameraAttached && teleporting) {
+        if (teleporting) {
           moveAvatarWithTeleport(localClientEntity, yDelta, inputSource.handedness)
 
           const canRotate = Math.abs(xDelta) > 0.1 && Math.abs(yDelta) < 0.1
@@ -150,7 +150,7 @@ export default async function AvatarInputSystem(world: World) {
           movementDelta.z = yDelta
         } else {
           /** preferred hand rotates */
-          if (preferredHand === inputSource.handedness) {
+          if (preferredHand === inputSource.handedness || inputSource.handedness === 'none') {
             rotateAvatar(localClientEntity, -xDelta * world.deltaSeconds)
 
             /** mobile/detatched avatar right thumbstick movement */

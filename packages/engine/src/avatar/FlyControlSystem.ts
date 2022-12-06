@@ -6,7 +6,6 @@ import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs
 import { getState } from '@xrengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
-import { ButtonInputState } from '../input/InputState'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import { FlyControlComponent } from './components/FlyControlComponent'
 
@@ -24,14 +23,13 @@ export default async function FlyControlSystem(world: World) {
   const worldScale = new Vector3(1, 1, 1)
   const candidateWorldQuat = new Quaternion()
 
-  const buttonInputState = getState(ButtonInputState)
-
   const execute = () => {
+    if (!world.buttons.SecondaryClick?.pressed && !world.buttons.PrimaryClick?.pressed) return
     for (const entity of flyControlQuery()) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
       const camera = Engine.instance.currentWorld.camera
 
-      const inputState = buttonInputState.value
+      const inputState = world.buttons
 
       const mouseMovement = world.pointerState.movement
 
@@ -73,13 +71,13 @@ export default async function FlyControlSystem(world: World) {
       camera.matrix.multiplyMatrices(parentInverse, camera.matrixWorld)
       camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
 
-      const lateralMovement = (inputState.KeyD ? 1 : 0) + (inputState.KeyA ? -1 : 0)
-      const forwardMovement = (inputState.KeyS ? 1 : 0) + (inputState.KeyW ? -1 : 0)
-      const upwardMovement = (inputState.KeyE ? 1 : 0) + (inputState.KeyQ ? -1 : 0)
+      const lateralMovement = (inputState.KeyD?.pressed ? 1 : 0) + (inputState.KeyA?.pressed ? -1 : 0)
+      const forwardMovement = (inputState.KeyS?.pressed ? 1 : 0) + (inputState.KeyW?.pressed ? -1 : 0)
+      const upwardMovement = (inputState.KeyE?.pressed ? 1 : 0) + (inputState.KeyQ?.pressed ? -1 : 0)
 
       // translate
       direction.set(lateralMovement, 0, forwardMovement)
-      const boostSpeed = inputState.ShiftLeft ? flyControlComponent.boostSpeed : 1
+      const boostSpeed = inputState.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
       const speed = world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
       if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)

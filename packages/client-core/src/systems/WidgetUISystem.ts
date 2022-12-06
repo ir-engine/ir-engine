@@ -14,7 +14,6 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { ButtonInputState, createButtonListener } from '@xrengine/engine/src/input/InputState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import {
@@ -104,13 +103,9 @@ export default async function WidgetSystem(world: World) {
     }
   }
 
-  const onEscape = (pressed: boolean) => {
-    if (pressed) toggleWidgetsMenu()
+  const onEscape = () => {
+    toggleWidgetsMenu()
   }
-
-  const buttonInputListeners = [createButtonListener('ButtonX', onEscape), createButtonListener('Escape', onEscape)]
-
-  const keyState = getState(ButtonInputState)
 
   addActionReceptor(WidgetAppServiceReceptor)
 
@@ -119,8 +114,9 @@ export default async function WidgetSystem(world: World) {
   const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
 
   const execute = () => {
-    const keys = keyState.value
-    for (const inputListener of buttonInputListeners) inputListener(keys)
+    const keys = world.buttons
+    if (keys.ButtonX?.clicked) onEscape()
+    if (keys.Escape?.clicked) onEscape()
 
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
