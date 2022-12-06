@@ -180,7 +180,7 @@
       "controls": "Controls",
       "lbl-control-type": "Controller Type",
       "lbl-control-scheme": "Control Scheme",
-      "lbl-preferred-Hand": "Preferred Hand",
+      "lbl-preferred-hand": "Preferred Hand",
       "lbl-resolution": "Resolution",
       "lbl-shadow": "Shadows",
       "lbl-pp": "Post Processing",

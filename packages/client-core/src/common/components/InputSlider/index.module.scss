@@ -1,0 +1,23 @@
+.slider {
+  flex: 1;
+}
+
+@media (min-width: 600px) {
+  .label {
+    flex: 0.4;
+  }
+}
+
+:global(.MuiSlider-root) {
+  &.slider {
+    color: var(--iconButtonSelectedBackground);
+    margin: 0 10px;
+  }
+
+  :global(.MuiSlider-thumb) {
+    background: var(--iconButtonColor);
+    border: var(--iconButtonColor);
+    width: 16px;
+    height: 16px;
+  }
+}
