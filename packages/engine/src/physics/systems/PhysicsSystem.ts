@@ -3,14 +3,11 @@ import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
@@ -60,6 +57,15 @@ export function teleportObjectReceptor(
 
 export const PhysicsPrefabs = {
   collider: 'collider' as const
+}
+
+export function smoothKinematicBody(entity: Entity, alpha: number) {
+  const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+  const transformComponent = getComponent(entity, TransformComponent)
+  rigidbodyComponent.position.lerp(transformComponent.position, alpha)
+  rigidbodyComponent.rotation.slerp(transformComponent.rotation, alpha)
+  rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
+  rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
 }
 
 export default async function PhysicsSystem(world: World) {
@@ -152,18 +158,11 @@ export default async function PhysicsSystem(world: World) {
     const substeps = engineState.physicsSubsteps.value
     const timestep = engineState.fixedDeltaSeconds.value / substeps
     world.physicsWorld.timestep = timestep
-    const timestepMultiplier = 50
-    const kinematicBodies = [...kinematicPositionBodyQuery(), ...kinematicVelocityBodyQuery()]
-
+    const smoothAlpha = 50 * timestep
     for (let i = 0; i < substeps; i++) {
-      for (const kinematicBodyEntity of kinematicBodies) {
-        const rigidbodyComponent = getComponent(kinematicBodyEntity, RigidBodyComponent)
-        const transformComponent = getComponent(kinematicBodyEntity, TransformComponent)
-        rigidbodyComponent.position.lerp(transformComponent.position, timestep * timestepMultiplier)
-        rigidbodyComponent.rotation.slerp(transformComponent.rotation, timestep * timestepMultiplier)
-        rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
-        rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
-      }
+      // smooth kinematic pose changes
+      for (const entity of kinematicPositionBodyQuery()) smoothKinematicBody(entity, smoothAlpha)
+      for (const entity of kinematicVelocityBodyQuery()) smoothKinematicBody(entity, smoothAlpha)
       world.physicsWorld.step(world.physicsCollisionEventQueue)
       world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
       world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
