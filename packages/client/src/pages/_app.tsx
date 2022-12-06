@@ -30,7 +30,7 @@ import {
   useCoilSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@xrengine/client-core/src/API'
-import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
+import UIDialog from '@xrengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
   AppThemeState,
