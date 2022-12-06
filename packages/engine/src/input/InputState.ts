@@ -1,5 +1,7 @@
 import { defineState } from '@xrengine/hyperflux'
 
+import { World } from '../ecs/classes/World'
+
 export type ButtonTypes =
   /** Mouse */
   | 'PrimaryClick'
@@ -143,3 +145,13 @@ export const ButtonInputState = defineState({
   name: 'ButtonInputState',
   initial: {} as ButtonInputStateType
 })
+
+export type ButtonInputCallback = (pressed: boolean | undefined) => void
+
+export const createButtonListener = (key: ButtonTypes, callback: ButtonInputCallback) => {
+  let keydown = false
+  return (keyState: ButtonInputStateType) => {
+    if (keydown !== keyState[key]) callback(keyState[key])
+    keydown = !!keyState[key]
+  }
+}

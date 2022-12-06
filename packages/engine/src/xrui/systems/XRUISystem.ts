@@ -8,7 +8,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { ButtonInputState } from '../../input/InputState'
+import { ButtonInputState, createButtonListener } from '../../input/InputState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
@@ -121,32 +121,35 @@ export default async function XRUISystem(world: World) {
   document.body.addEventListener('contextmenu', redirectDOMEvent)
   document.body.addEventListener('dblclick', redirectDOMEvent)
 
-  const buttonInputState = getState(ButtonInputState)
   const xrState = getState(XRState)
 
-  const reactor = startReactor(() => {
-    const inputState = useHookstate(buttonInputState)
+  const onLeftTrigger = (pressed: boolean) => {
+    if (pressed && xrState.leftControllerEntity.value) {
+      const controllerEntity = xrState.leftControllerEntity.value
+      const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
+      updateClickEventsForController(pointer)
+    }
+  }
 
-    useEffect(() => {
-      if (inputState.LeftTrigger?.value && xrState.leftControllerEntity.value) {
-        const controllerEntity = xrState.leftControllerEntity.value
-        const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
-        updateClickEventsForController(pointer)
-      }
-    }, [inputState.LeftTrigger])
+  const onRightTrigger = (pressed: boolean) => {
+    if (pressed && xrState.rightControllerEntity.value) {
+      const controllerEntity = xrState.rightControllerEntity.value
+      const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
+      updateClickEventsForController(pointer)
+    }
+  }
 
-    useEffect(() => {
-      if (inputState.RightTrigger?.value && xrState.rightControllerEntity.value) {
-        const controllerEntity = xrState.rightControllerEntity.value
-        const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
-        updateClickEventsForController(pointer)
-      }
-    }, [inputState.RightTrigger])
+  const buttonInputListeners = [
+    createButtonListener('LeftTrigger', onLeftTrigger),
+    createButtonListener('RightTrigger', onRightTrigger)
+  ]
 
-    return null
-  })
+  const keyState = getState(ButtonInputState)
 
   const execute = () => {
+    const keys = keyState.value
+    for (const inputListener of buttonInputListeners) inputListener(keys)
+
     const xrFrame = Engine.instance.xrFrame
 
     /** Update the objects to use for intersection tests */
@@ -211,7 +214,6 @@ export default async function XRUISystem(world: World) {
     removeQuery(world, visibleXruiQuery)
     removeQuery(world, xruiQuery)
     removeQuery(world, pointerQuery)
-    reactor.stop()
   }
 
   return { execute, cleanup }

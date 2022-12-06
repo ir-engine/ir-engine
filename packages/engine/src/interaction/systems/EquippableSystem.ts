@@ -26,7 +26,7 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { ButtonInputState } from '../../input/InputState'
+import { ButtonInputState, createButtonListener } from '../../input/InputState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   RigidBodyComponent,
@@ -168,24 +168,23 @@ export default async function EquippableSystem(world: World) {
   const equipperInputQuery = defineQuery([LocalInputTagComponent, EquipperComponent])
   const equippableQuery = defineQuery([EquippableComponent])
 
+  const onKeyU = (pressed: boolean) => {
+    if (pressed)
+      for (const entity of equipperInputQuery()) {
+        const equipper = getComponent(entity, EquipperComponent)
+        if (!equipper.equippedEntity) return
+        unequipEntity(entity)
+      }
+  }
+
+  const buttonInputListeners = [createButtonListener('KeyU', onKeyU)]
+
   const keyState = getState(ButtonInputState)
 
-  const reactor = startReactor(() => {
-    const keys = useHookstate(keyState)
-
-    useEffect(() => {
-      if (keys.KeyU?.value)
-        for (const entity of equipperInputQuery()) {
-          const equipper = getComponent(entity, EquipperComponent)
-          if (!equipper.equippedEntity) return
-          unequipEntity(entity)
-        }
-    }, [keys.KeyU])
-
-    return null
-  })
-
   const execute = () => {
+    const keys = keyState.value
+    for (const inputListener of buttonInputListeners) inputListener(keys)
+
     for (const action of interactedActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
       if (!hasComponent(action.targetEntity!, EquippableComponent)) continue

@@ -1,7 +1,6 @@
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
-import { InputAlias } from '../../input/types/InputAlias'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -65,13 +64,6 @@ export const getEngineState = () => getState(EngineState)
 export const useEngineState = () => useState(getEngineState())
 
 export class EngineActions {
-  /** @deprecated */
-  static buttonClicked = defineAction({
-    type: 'xre.engine.Engine.PRIMARY_BUTTON_CLICKED' as const,
-    clicked: matches.boolean,
-    button: matches.string as Validator<any, InputAlias>
-  })
-
   static setTeleporting = defineAction({
     type: 'xre.engine.Engine.SET_TELEPORTING' as const,
     isTeleporting: matches.boolean

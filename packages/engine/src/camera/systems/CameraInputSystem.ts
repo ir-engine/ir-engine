@@ -18,7 +18,7 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { ButtonInputState } from '../../input/InputState'
+import { ButtonInputState, createButtonListener } from '../../input/InputState'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -104,60 +104,60 @@ export default async function CameraInputSystem(world: World) {
 
   const inputQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
 
-  const reactor = startReactor(() => {
-    const keys = useHookstate(keyState)
-
-    useEffect(() => {
-      if (keys.KeyV?.value)
-        for (const entity of inputQuery()) {
-          const avatarController = getComponent(entity, AvatarControllerComponent)
-          const cameraEntity = avatarController.cameraEntity
-          const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
-          if (followComponent)
-            switch (followComponent.mode) {
-              case CameraMode.FirstPerson:
-                switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
-                break
-              case CameraMode.ShoulderCam:
-                switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
-                followComponent.distance = followComponent.minDistance + 1
-                break
-              case CameraMode.ThirdPerson:
-                switchCameraMode(entity, { cameraMode: CameraMode.TopDown })
-                break
-              case CameraMode.TopDown:
-                switchCameraMode(entity, { cameraMode: CameraMode.FirstPerson })
-                break
-              default:
-                break
-            }
-        }
-    }, [keys.KeyV])
-
-    useEffect(() => {
-      if (keys.KeyF?.value)
-        for (const entity of inputQuery()) {
-          const avatarController = getComponent(entity, AvatarControllerComponent)
-          const cameraEntity = avatarController.cameraEntity
-          const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
-          if (followComponent && followComponent.mode !== CameraMode.FirstPerson) {
-            followComponent.locked = !followComponent.locked
+  const onKeyV = (pressed) => {
+    if (pressed)
+      for (const entity of inputQuery()) {
+        const avatarController = getComponent(entity, AvatarControllerComponent)
+        const cameraEntity = avatarController.cameraEntity
+        const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
+        if (followComponent)
+          switch (followComponent.mode) {
+            case CameraMode.FirstPerson:
+              switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
+              break
+            case CameraMode.ShoulderCam:
+              switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
+              followComponent.distance = followComponent.minDistance + 1
+              break
+            case CameraMode.ThirdPerson:
+              switchCameraMode(entity, { cameraMode: CameraMode.TopDown })
+              break
+            case CameraMode.TopDown:
+              switchCameraMode(entity, { cameraMode: CameraMode.FirstPerson })
+              break
+            default:
+              break
           }
-        }
-    }, [keys.KeyF])
+      }
+  }
 
-    useEffect(() => {
-      if (keys.KeyC?.value)
-        for (const entity of inputQuery()) {
-          const avatarController = getComponent(entity, AvatarControllerComponent)
-          const cameraEntity = avatarController.cameraEntity
-          const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
-          if (followComponent) followComponent.shoulderSide = !followComponent.shoulderSide
+  const onKeyF = (pressed) => {
+    if (pressed)
+      for (const entity of inputQuery()) {
+        const avatarController = getComponent(entity, AvatarControllerComponent)
+        const cameraEntity = avatarController.cameraEntity
+        const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
+        if (followComponent && followComponent.mode !== CameraMode.FirstPerson) {
+          followComponent.locked = !followComponent.locked
         }
-    }, [keys.KeyC])
+      }
+  }
 
-    return null
-  })
+  const onKeyC = (pressed) => {
+    if (pressed)
+      for (const entity of inputQuery()) {
+        const avatarController = getComponent(entity, AvatarControllerComponent)
+        const cameraEntity = avatarController.cameraEntity
+        const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
+        if (followComponent) followComponent.shoulderSide = !followComponent.shoulderSide
+      }
+  }
+
+  const buttonInputListeners = [
+    createButtonListener('KeyV', onKeyV),
+    createButtonListener('KeyF', onKeyF),
+    createButtonListener('KeyC', onKeyC)
+  ]
 
   const lastLookDelta = new Vector2()
   let lastMouseMoved = false
@@ -169,6 +169,8 @@ export default async function CameraInputSystem(world: World) {
     if (!localClientEntity) return
 
     const keys = keyState.value
+
+    for (const inputListener of buttonInputListeners) inputListener(keys)
 
     const inputEntities = inputQuery()
     const mouseMoved = keys.PrimaryMove
@@ -205,7 +207,6 @@ export default async function CameraInputSystem(world: World) {
   }
 
   const cleanup = async () => {
-    reactor.stop()
     removeQuery(world, inputQuery)
   }
 

@@ -27,6 +27,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { ButtonInputCallback, ButtonTypes } from '../../input/InputState'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -260,6 +261,7 @@ export class World {
   readonly dirtyTransforms = {} as Record<Entity, true>
 
   inputSources: XRInputSourceArray = []
+
   pointerState = {
     position: new Vector2(),
     lastPosition: new Vector2(),

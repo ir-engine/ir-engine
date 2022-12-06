@@ -17,7 +17,7 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { ButtonInputState } from '@xrengine/engine/src/input/InputState'
+import { ButtonInputState, createButtonListener } from '@xrengine/engine/src/input/InputState'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
@@ -82,58 +82,63 @@ export default async function AvatarUISystem(world: World) {
 
   const buttonInputState = getState(ButtonInputState)
 
-  const reactor = startReactor(() => {
-    const inputState = useHookstate(buttonInputState)
-
-    /** XRUI Clickaway */
-    useEffect(() => {
-      if (inputState.PrimaryClick?.value && AvatarContextMenuUI.state.id.value !== '') {
-        const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent)
-        const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
-        if (!hit) {
-          AvatarContextMenuUI.state.id.set('')
-          setVisibleComponent(AvatarContextMenuUI.entity, false)
-        }
-      }
-    }, [inputState.PrimaryClick])
-
-    useEffect(() => {
-      if (inputState.SecondaryClick?.value) {
-        const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
-        const raycastComponentData = {
-          type: SceneQueryType.Closest,
-          origin: new Vector3(),
-          direction: new Vector3(),
-          maxDistance: 20,
-          groups: interactionGroups
-        } as RaycastArgs
-
-        const hits = Physics.castRayFromCamera(
-          Engine.instance.currentWorld.camera,
-          world.pointerState.position,
-          Engine.instance.currentWorld.physicsWorld,
-          raycastComponentData
-        )
-
-        if (hits.length) {
-          const hit = hits[0]
-          const hitEntity = (hit.body?.userData as any)?.entity as Entity
-          if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
-            const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
-            AvatarContextMenuUI.state.id.set(userId)
-            setVisibleComponent(AvatarContextMenuUI.entity, true)
-            return
-          }
-        }
-
+  /** XRUI Clickaway */
+  const onPrimaryClick = (pressed: boolean) => {
+    if (pressed && AvatarContextMenuUI.state.id.value !== '') {
+      const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent)
+      const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
+      if (!hit) {
         AvatarContextMenuUI.state.id.set('')
+        setVisibleComponent(AvatarContextMenuUI.entity, false)
       }
-    }, [inputState.SecondaryClick])
+    }
+  }
 
-    return null
-  })
+  const onSecondaryClick = (pressed: boolean) => {
+    if (pressed) {
+      const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
+      const raycastComponentData = {
+        type: SceneQueryType.Closest,
+        origin: new Vector3(),
+        direction: new Vector3(),
+        maxDistance: 20,
+        groups: interactionGroups
+      } as RaycastArgs
+
+      const hits = Physics.castRayFromCamera(
+        Engine.instance.currentWorld.camera,
+        world.pointerState.position,
+        Engine.instance.currentWorld.physicsWorld,
+        raycastComponentData
+      )
+
+      if (hits.length) {
+        const hit = hits[0]
+        const hitEntity = (hit.body?.userData as any)?.entity as Entity
+        if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
+          const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
+          AvatarContextMenuUI.state.id.set(userId)
+          setVisibleComponent(AvatarContextMenuUI.entity, true)
+          return
+        }
+      }
+
+      AvatarContextMenuUI.state.id.set('')
+    }
+  }
+
+  const buttonInputListeners = [
+    createButtonListener('PrimaryClick', onPrimaryClick),
+    createButtonListener('SecondaryClick', onSecondaryClick)
+  ]
+
+  const keyState = getState(ButtonInputState)
 
   const execute = () => {
+    const keys = keyState.value
+
+    for (const inputListener of buttonInputListeners) inputListener(keys)
+
     videoPreviewTimer += world.deltaSeconds
     if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
@@ -246,7 +251,6 @@ export default async function AvatarUISystem(world: World) {
   const cleanup = async () => {
     removeEntity(AvatarContextMenuUI.entity)
     removeQuery(world, userQuery)
-    reactor.stop()
   }
 
   return { execute, cleanup }

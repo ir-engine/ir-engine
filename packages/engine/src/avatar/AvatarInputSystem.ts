@@ -1,13 +1,12 @@
-import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
-import { dispatchAction, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { ButtonInputState } from '../input/InputState'
+import { ButtonInputState, createButtonListener } from '../input/InputState'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
@@ -22,73 +21,75 @@ export default async function AvatarInputSystem(world: World) {
   const interactState = getState(InteractState)
   const avatarInputSettingsState = getState(AvatarInputSettingsState)
 
-  const reactor = startReactor(() => {
-    const keys = useHookstate(keyState)
-
-    useEffect(() => {
-      if (keys.value.ShiftLeft && world.localClientEntity) {
-        const controller = getComponent(world.localClientEntity, AvatarControllerComponent)
-        controller.isWalking = !controller.isWalking
-      }
-    }, [keys.ShiftLeft])
-
-    useEffect(() => {
-      if (keys.value.KeyE && world.localClientEntity) {
-        dispatchAction(
-          EngineActions.interactedWithObject({
-            targetEntity: interactState.available[0].value,
-            handedness: 'none'
-          })
-        )
-      }
-    }, [keys.KeyE])
-
-    useEffect(() => {
-      if (keys.value.LeftTrigger && world.localClientEntity) {
-        dispatchAction(
-          EngineActions.interactedWithObject({
-            targetEntity: interactState.available[0].value,
-            handedness: 'left'
-          })
-        )
-      }
-    }, [keys.LeftTrigger])
-
-    useEffect(() => {
-      if (keys.value.RightTrigger && world.localClientEntity) {
-        dispatchAction(
-          EngineActions.interactedWithObject({
-            targetEntity: interactState.available[0].value,
-            handedness: 'right'
-          })
-        )
-      }
-    }, [keys.RightTrigger])
-
-    if (isDev) {
-      useEffect(() => {
-        if (keys.value.KeyO && world.localClientEntity) {
-          dispatchAction(
-            WorldNetworkAction.spawnDebugPhysicsObject({
-              config: boxDynamicConfig
-            })
-          )
-        }
-      }, [keys.KeyO])
-
-      useEffect(() => {
-        if (keys.value.KeyP && world.localClientEntity) {
-          dispatchAction(
-            EngineRendererAction.setDebug({
-              debugEnable: !accessEngineRendererState().debugEnable.value
-            })
-          )
-        }
-      }, [keys.KeyP])
+  const onShiftLeft = (pressed) => {
+    if (pressed && world.localClientEntity) {
+      const controller = getComponent(world.localClientEntity, AvatarControllerComponent)
+      controller.isWalking = !controller.isWalking
     }
+  }
 
-    return null
-  })
+  const onKeyE = (pressed) => {
+    if (pressed)
+      dispatchAction(
+        EngineActions.interactedWithObject({
+          targetEntity: interactState.available[0].value,
+          handedness: 'none'
+        })
+      )
+  }
+
+  const onLeftTrigger = (pressed) => {
+    if (pressed && world.localClientEntity) {
+      dispatchAction(
+        EngineActions.interactedWithObject({
+          targetEntity: interactState.available[0].value,
+          handedness: 'left'
+        })
+      )
+    }
+  }
+
+  const onRightTrigger = (pressed) => {
+    if (pressed && world.localClientEntity) {
+      dispatchAction(
+        EngineActions.interactedWithObject({
+          targetEntity: interactState.available[0].value,
+          handedness: 'right'
+        })
+      )
+    }
+  }
+
+  const onKeyO = (pressed) => {
+    if (pressed && world.localClientEntity) {
+      dispatchAction(
+        WorldNetworkAction.spawnDebugPhysicsObject({
+          config: boxDynamicConfig
+        })
+      )
+    }
+  }
+
+  const onKeyP = (pressed) => {
+    if (pressed && world.localClientEntity) {
+      dispatchAction(
+        EngineRendererAction.setDebug({
+          debugEnable: !accessEngineRendererState().debugEnable.value
+        })
+      )
+    }
+  }
+
+  const buttonInputListeners = [
+    createButtonListener('ShiftLeft', onShiftLeft),
+    createButtonListener('KeyE', onKeyE),
+    createButtonListener('LeftTrigger', onLeftTrigger),
+    createButtonListener('RightTrigger', onRightTrigger)
+  ]
+
+  if (isDev) {
+    buttonInputListeners.push(createButtonListener('KeyO', onKeyO), createButtonListener('KeyP', onKeyP))
+  }
 
   const movementDelta = new Vector3()
   const lastMovementDelta = new Vector3()
@@ -100,6 +101,7 @@ export default async function AvatarInputSystem(world: World) {
     if (!localClientEntity) return
 
     const keys = keyState.value
+    for (const inputListener of buttonInputListeners) inputListener(keys)
 
     /** keyboard input */
     const keyDeltaX = (keys.KeyA ? -1 : 0) + (keys.KeyD ? 1 : 0) + (keys.ArrowUp ? -1 : 0) + (keys.ArrowDown ? 1 : 0)
@@ -172,9 +174,7 @@ export default async function AvatarInputSystem(world: World) {
     lastMovementDelta.copy(movementDelta)
   }
 
-  const cleanup = async () => {
-    reactor.stop()
-  }
+  const cleanup = async () => {}
 
   return { execute, cleanup }
 }

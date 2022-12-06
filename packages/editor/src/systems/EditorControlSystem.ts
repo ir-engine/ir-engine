@@ -28,7 +28,7 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { ButtonInputState } from '@xrengine/engine/src/input/InputState'
+import { ButtonInputState, createButtonListener } from '@xrengine/engine/src/input/InputState'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
@@ -117,145 +117,134 @@ export default async function EditorControlSystem(world: World) {
 
   const buttonInputState = getState(ButtonInputState)
 
-  const reactor = startReactor(() => {
-    const inputState = useHookstate(buttonInputState)
+  const onKeyQ = (pressed: boolean) => {
+    if (pressed) {
+      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+      EditorControlFunctions.rotateAround(
+        nodes,
+        V_010,
+        editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+        SceneState.transformGizmo.position
+      )
+    }
+  }
 
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyQ) {
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
-        EditorControlFunctions.rotateAround(
-          nodes,
-          V_010,
-          editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
-          SceneState.transformGizmo.position
-        )
-      }
-    }, [inputState.KeyQ])
+  const onKeyE = (pressed: boolean) => {
+    if (pressed) {
+      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+      EditorControlFunctions.rotateAround(
+        nodes,
+        V_010,
+        -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+        SceneState.transformGizmo.position
+      )
+    }
+  }
 
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyE) {
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
-        EditorControlFunctions.rotateAround(
-          nodes,
-          V_010,
-          -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
-          SceneState.transformGizmo.position
-        )
-      }
-    }, [inputState.KeyE])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyG) {
-        if (transformMode === TransformMode.Grab || transformMode === TransformMode.Placement) {
-          cancelGrabOrPlacement()
-          EditorControlFunctions.replaceSelection([])
-        }
-        if (selectedEntities.length > 0) {
-          setTransformMode(TransformMode.Grab)
-        }
-      }
-    }, [inputState.KeyG])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.Escape) {
+  const onKeyG = (pressed: boolean) => {
+    if (pressed) {
+      if (transformMode === TransformMode.Grab || transformMode === TransformMode.Placement) {
         cancelGrabOrPlacement()
         EditorControlFunctions.replaceSelection([])
       }
-    }, [inputState.Escape])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyZ) {
-        if (inputState.value.ControlLeft) {
-          if (inputState.value.ShiftLeft) {
-            dispatchAction(EditorHistoryAction.redo({ count: 1 }))
-          } else {
-            dispatchAction(EditorHistoryAction.undo({ count: 1 }))
-          }
-        }
+      if (selectedEntities.length > 0) {
+        setTransformMode(TransformMode.Grab)
       }
-    }, [inputState.KeyZ])
+    }
+  }
 
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyF) {
-        cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
+  const onEscape = (pressed: boolean) => {
+    if (pressed) {
+      cancelGrabOrPlacement()
+      EditorControlFunctions.replaceSelection([])
+    }
+  }
+
+  const onKeyF = (pressed: boolean) => {
+    if (pressed) {
+      cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
+      cameraComponent.refocus = true
+    }
+  }
+
+  const onKeyT = (pressed: boolean) => {
+    if (pressed) setTransformMode(TransformMode.Translate)
+  }
+
+  const onKeyR = (pressed: boolean) => {
+    if (pressed) setTransformMode(TransformMode.Rotate)
+  }
+
+  const onKeyY = (pressed: boolean) => {
+    if (pressed) setTransformMode(TransformMode.Scale)
+  }
+
+  const onKeyC = (pressed: boolean) => {
+    if (pressed) toggleSnapMode()
+  }
+
+  const onKeyX = (pressed: boolean) => {
+    if (pressed) toggleTransformPivot()
+  }
+
+  const onKeyZ = (pressed: boolean) => {
+    if (pressed) {
+      if (buttonInputState.value.ControlLeft) {
+        if (buttonInputState.value.ShiftLeft) {
+          dispatchAction(EditorHistoryAction.redo({ count: 1 }))
+        } else {
+          dispatchAction(EditorHistoryAction.undo({ count: 1 }))
+        }
+      } else {
+        toggleTransformSpace()
+      }
+    }
+  }
+
+  const onEqual = (pressed: boolean) => {
+    if (pressed) InfiniteGridHelper.instance.incrementGridHeight()
+  }
+
+  const onMinus = (pressed: boolean) => {
+    if (pressed) InfiniteGridHelper.instance.decrementGridHeight()
+  }
+
+  const onDelete = (pressed: boolean) => {
+    if (pressed)
+      EditorControlFunctions.removeObject(
+        getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+      )
+  }
+
+  const onPrimaryDoubleClick = (pressed: boolean) => {
+    if (pressed) {
+      raycasterResults.length = 0
+      const cursorPosition = world.pointerState.position
+      const result = getIntersectingNodeOnScreen(raycaster, cursorPosition, raycasterResults)
+      if (result?.node) {
+        cameraComponent.focusedObjects = [result.node]
         cameraComponent.refocus = true
       }
-    }, [inputState.KeyF])
+    }
+  }
 
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyT) setTransformMode(TransformMode.Translate)
-    }, [inputState.KeyT])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyR) setTransformMode(TransformMode.Rotate)
-    }, [inputState.KeyR])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyY) setTransformMode(TransformMode.Scale)
-    }, [inputState.KeyY])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyC) toggleSnapMode()
-    }, [inputState.KeyC])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyX) toggleTransformPivot()
-    }, [inputState.KeyX])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.KeyZ) toggleTransformSpace()
-    }, [inputState.KeyZ])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.Equal) InfiniteGridHelper.instance.incrementGridHeight()
-    }, [inputState.Equal])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.Minus) InfiniteGridHelper.instance.decrementGridHeight()
-    }, [inputState.Minus])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.Delete)
-        EditorControlFunctions.removeObject(
-          getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
-        )
-    }, [inputState.Delete])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.PrimaryDoubleClick) {
-        raycasterResults.length = 0
-        const cursorPosition = world.pointerState.position
-        const result = getIntersectingNodeOnScreen(raycaster, cursorPosition, raycasterResults)
-        if (result?.node) {
-          cameraComponent.focusedObjects = [result.node]
-          cameraComponent.refocus = true
-        }
-      }
-    }, [inputState.PrimaryDoubleClick])
-
-    useEffect(() => {
-      if (editorHelperState.isFlyModeEnabled.value) return
-      if (inputState.value.Minus) InfiniteGridHelper.instance.decrementGridHeight()
-    }, [inputState.Minus])
-
-    return null
-  })
+  const buttonInputListeners = [
+    createButtonListener('KeyQ', onKeyQ),
+    createButtonListener('KeyE', onKeyE),
+    createButtonListener('KeyG', onKeyG),
+    createButtonListener('Escape', onEscape),
+    createButtonListener('KeyF', onKeyF),
+    createButtonListener('KeyT', onKeyT),
+    createButtonListener('KeyR', onKeyR),
+    createButtonListener('KeyY', onKeyY),
+    createButtonListener('KeyC', onKeyC),
+    createButtonListener('KeyX', onKeyX),
+    createButtonListener('KeyZ', onKeyZ),
+    createButtonListener('Equal', onEqual),
+    createButtonListener('Minus', onMinus),
+    createButtonListener('Delete', onDelete),
+    createButtonListener('PrimaryDoubleClick', onPrimaryDoubleClick)
+  ]
 
   const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], excludeLayers?: Layers): void => {
     if (
@@ -402,7 +391,7 @@ export default async function EditorControlSystem(world: World) {
     const isPrimaryClickUp = isPrimaryClicking && !inputState.PrimaryClick
     isPrimaryClicking = !!inputState.PrimaryClick
 
-    const selectStartAndNoGrabbing = isPrimaryClickDown && !isGrabbing && !editorHelperState.isFlyModeEnabled.value
+    const selectStartAndNoGrabbing = isPrimaryClickDown && !isGrabbing
 
     if (selectStartAndNoGrabbing) {
       selectStartPosition.copy(cursorPosition)
@@ -629,6 +618,8 @@ export default async function EditorControlSystem(world: World) {
 
     if (editorHelperState.isFlyModeEnabled.value) return
 
+    for (const inputListener of buttonInputListeners) inputListener(inputState)
+
     const selecting = inputState.PrimaryClick && !dragging
     const zoom = world.pointerState.scroll.y
     const panning = inputState.AuxiliaryClick
@@ -654,7 +645,6 @@ export default async function EditorControlSystem(world: World) {
 
   const cleanup = async () => {
     removeQuery(world, editorControlQuery)
-    reactor.stop()
   }
 
   return {
