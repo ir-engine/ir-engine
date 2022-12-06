@@ -23,6 +23,7 @@ interface Props {
   header?: React.ReactNode
   isPopover?: boolean
   maxWidth?: Breakpoint | false
+  popoverWidthPx?: number
   showBackButton?: boolean
   showCloseButton?: boolean
   showDefaultActions?: boolean
@@ -39,6 +40,7 @@ const Menu = ({
   header,
   isPopover,
   maxWidth,
+  popoverWidthPx,
   showBackButton,
   showCloseButton,
   showDefaultActions,
@@ -55,15 +57,17 @@ const Menu = ({
 
   const dialogContent = (
     <>
-      <DialogTitle className={styles.dialogTitle}>
-        {showBackButton && <IconButton icon={<ArrowBack />} sx={{ mr: 1 }} onClick={onBack} />}
+      {(showBackButton || title || header || showCloseButton) && (
+        <DialogTitle className={styles.dialogTitle}>
+          {showBackButton && <IconButton icon={<ArrowBack />} sx={{ mr: 1 }} onClick={onBack} />}
 
-        {title && <Typography variant="h6">{title}</Typography>}
+          {title && <Typography variant="h6">{title}</Typography>}
 
-        {header}
+          {header}
 
-        {showCloseButton && <IconButton icon={<CloseIcon />} sx={{ ml: 1 }} onClick={onClose} />}
-      </DialogTitle>
+          {showCloseButton && <IconButton icon={<CloseIcon />} sx={{ ml: 1 }} onClick={onClose} />}
+        </DialogTitle>
+      )}
 
       <DialogContent>{children}</DialogContent>
 
@@ -84,7 +88,14 @@ const Menu = ({
   )
 
   if (isPopover) {
-    return <Box className={`${styles.menu} ${styles.popover}`}>{dialogContent}</Box>
+    return (
+      <Box
+        className={styles.menu}
+        sx={{ width: `${popoverWidthPx ?? 600}px`, borderRadius: isPopover ? 'auto' : '4px' }}
+      >
+        {dialogContent}
+      </Box>
+    )
   }
 
   return (

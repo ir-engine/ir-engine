@@ -211,6 +211,7 @@
       "lbl-profile": "Profile",
       "lbl-settings": "Settings",
       "lbl-username": "Username",
+      "usernameError": "Invalid username",
       "update-msg": "Username updated",
       "inviteCode": "Invite Code",
       "youAreAn": "You are an",
@@ -251,7 +252,7 @@
       "userIcon": {
         "lbl-name": "Your name",
         "lbl-update": "Update",
-        "userId": "User id",
+        "userId": "User ID",
         "ph-uploadImg": "Upload Product Image",
         "lbl-selectAcvatar": "Select Avatar",
         "lbl-submit": "Submit"
@@ -273,7 +274,10 @@
         "finalDeleteText": "Deleting your account cannot be undone!",
         "finalDeleteCancel": "Cancel",
         "finalDeleteConfirm": "Delete my account"
-      }
+      },
+      "userIdCopied": "User ID copied",
+      "apiKeyCopied": "API Key copied",
+      "refreshApiKey": "Refresh API Key"
     },
     "oauth": {
       "authenticating": "Authenticating...",

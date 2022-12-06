@@ -17,6 +17,7 @@ interface Props {
   children?: React.ReactNode
   className?: string
   disabled?: boolean
+  disableRipple?: boolean
   endIcon?: React.ReactNode
   open?: boolean
   startIcon?: React.ReactNode
@@ -25,7 +26,19 @@ interface Props {
   onClick?: () => void
 }
 
-const Button = ({ autoFocus, children, className, disabled, endIcon, open, startIcon, sx, type, onClick }: Props) => {
+const Button = ({
+  autoFocus,
+  children,
+  className,
+  disabled,
+  disableRipple,
+  endIcon,
+  open,
+  startIcon,
+  sx,
+  type,
+  onClick
+}: Props) => {
   if (type === 'expander') {
     return (
       <Box
@@ -58,6 +71,7 @@ const Button = ({ autoFocus, children, className, disabled, endIcon, open, start
       onClick={onClick}
       onPointerUp={handleSoundEffect}
       onPointerEnter={handleSoundEffect}
+      disableRipple={disableRipple}
     >
       {children}
     </MUIButton>

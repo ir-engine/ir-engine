@@ -91,10 +91,18 @@ export const HomePage = (): any => {
               `}
             </style>
             {selectedMenu === Views.Profile && (
-              <ProfileMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+              <ProfileMenu
+                isPopover
+                popoverWidthPx={400}
+                changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
+              />
             )}
             {selectedMenu === Views.Settings && (
-              <SettingMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+              <SettingMenu
+                isPopover
+                popoverWidthPx={400}
+                changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
+              />
             )}
           </div>
         </div>
