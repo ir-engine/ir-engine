@@ -177,7 +177,7 @@ export default async function EquippableSystem(world: World) {
 
   const execute = () => {
     const keys = world.buttons
-    if (keys.KeyU?.clicked) onKeyU()
+    if (keys.KeyU?.down) onKeyU()
 
     for (const action of interactedActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue

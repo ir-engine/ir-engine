@@ -37,9 +37,7 @@ export function createAnchorWidget(world: World) {
       if (!isImmersive) return
       if (!xrState.scenePlacementMode.value) return
       const buttonInput =
-        avatarInputSettings.preferredHand.value === 'left'
-          ? world.buttons.ButtonX?.clicked
-          : world.buttons.ButtonA?.clicked
+        avatarInputSettings.preferredHand.value === 'left' ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
       if (buttonInput) {
         dispatchAction(
           XRAction.changePlacementMode({

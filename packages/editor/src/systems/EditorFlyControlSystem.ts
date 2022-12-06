@@ -47,8 +47,8 @@ export default async function FlyControlSystem(world: World) {
 
   const execute = () => {
     const keys = world.buttons
-    if (keys.SecondaryClick?.clicked) onSecondaryClick()
-    if (keys.SecondaryClick?.released) onSecondaryReleased()
+    if (keys.SecondaryClick?.down) onSecondaryClick()
+    if (keys.SecondaryClick?.up) onSecondaryReleased()
   }
 
   const cleanup = async () => {}

@@ -1,5 +1,3 @@
-import { defineState } from '@xrengine/hyperflux'
-
 export type ButtonTypes =
   /** Mouse */
   | 'PrimaryClick'
@@ -131,15 +129,24 @@ export type ButtonTypes =
   | 'ButtonA' // 4
   | 'ButtonB' // 5
 
-export type ButtonInputStateType = Partial<
-  Record<
-    ButtonTypes,
-    {
-      clicked?: boolean
-      released?: boolean
-      pressed?: boolean
-      touched?: boolean
-      value?: number
-    }
-  >
->
+type ButtonType = {
+  down: boolean
+  pressed: boolean
+  touched: boolean
+  up: boolean
+  value: number
+}
+
+export type ButtonInputStateType = Partial<Record<ButtonTypes, ButtonType>>
+
+export const DefaultBooleanButtonArgs = Object.freeze({ down: true, pressed: true, touched: true, value: 1 })
+
+export const createInitialButtonState = (initial: Readonly<Partial<ButtonType>> = DefaultBooleanButtonArgs) => {
+  return {
+    down: initial.down ?? true,
+    pressed: initial.pressed ?? true,
+    touched: initial.touched ?? true,
+    up: initial.up ?? false,
+    value: initial.value ?? 1
+  }
+}

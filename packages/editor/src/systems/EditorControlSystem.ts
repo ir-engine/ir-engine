@@ -337,8 +337,8 @@ export default async function EditorControlSystem(world: World) {
 
     const isGrabbing = transformMode === TransformMode.Grab || transformMode === TransformMode.Placement
 
-    const isPrimaryClickDown = inputState.PrimaryClick?.clicked
-    const isPrimaryClickUp = inputState.PrimaryClick?.released
+    const isPrimaryClickDown = inputState.PrimaryClick?.down
+    const isPrimaryClickUp = inputState.PrimaryClick?.up
 
     const selectStartAndNoGrabbing = isPrimaryClickDown && !isGrabbing
 
@@ -567,20 +567,20 @@ export default async function EditorControlSystem(world: World) {
 
     if (editorHelperState.isFlyModeEnabled.value) return
 
-    if (inputState.KeyQ?.clicked) onKeyQ()
-    if (inputState.KeyE?.clicked) onKeyE()
-    if (inputState.KeyG?.clicked) onKeyG()
-    if (inputState.Escape?.clicked) onEscape()
-    if (inputState.KeyF?.clicked) onKeyF()
-    if (inputState.KeyT?.clicked) onKeyT()
-    if (inputState.KeyR?.clicked) onKeyR()
-    if (inputState.KeyY?.clicked) onKeyY()
-    if (inputState.KeyC?.clicked) onKeyC()
-    if (inputState.KeyX?.clicked) onKeyX()
-    if (inputState.KeyZ?.clicked) onKeyZ()
-    if (inputState.Equal?.clicked) onEqual()
-    if (inputState.Minus?.clicked) onMinus()
-    if (inputState.Delete?.clicked) onDelete()
+    if (inputState.KeyQ?.down) onKeyQ()
+    if (inputState.KeyE?.down) onKeyE()
+    if (inputState.KeyG?.down) onKeyG()
+    if (inputState.Escape?.down) onEscape()
+    if (inputState.KeyF?.down) onKeyF()
+    if (inputState.KeyT?.down) onKeyT()
+    if (inputState.KeyR?.down) onKeyR()
+    if (inputState.KeyY?.down) onKeyY()
+    if (inputState.KeyC?.down) onKeyC()
+    if (inputState.KeyX?.down) onKeyX()
+    if (inputState.KeyZ?.down) onKeyZ()
+    if (inputState.Equal?.down) onEqual()
+    if (inputState.Minus?.down) onMinus()
+    if (inputState.Delete?.down) onDelete()
 
     const selecting = inputState.PrimaryClick?.pressed && !dragging
     const zoom = world.pointerState.scroll.y

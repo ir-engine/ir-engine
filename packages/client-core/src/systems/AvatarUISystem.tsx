@@ -125,8 +125,8 @@ export default async function AvatarUISystem(world: World) {
   const execute = () => {
     const keys = world.buttons
 
-    if (keys.PrimaryClick?.clicked) onPrimaryClick()
-    if (keys.PrimaryClick?.clicked) onSecondaryClick()
+    if (keys.PrimaryClick?.down) onPrimaryClick()
+    if (keys.PrimaryClick?.down) onSecondaryClick()
 
     videoPreviewTimer += world.deltaSeconds
     if (videoPreviewTimer > 1) videoPreviewTimer = 0

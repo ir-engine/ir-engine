@@ -158,9 +158,9 @@ export default async function CameraInputSystem(world: World) {
     if (!localClientEntity) return
 
     const keys = world.buttons
-    if (keys.KeyV?.clicked) onKeyV()
-    if (keys.KeyF?.clicked) onKeyF()
-    if (keys.KeyC?.clicked) onKeyC()
+    if (keys.KeyV?.down) onKeyV()
+    if (keys.KeyF?.down) onKeyF()
+    if (keys.KeyC?.down) onKeyC()
 
     const inputEntities = inputQuery()
     const mouseMoved = world.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed

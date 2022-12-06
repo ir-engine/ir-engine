@@ -115,8 +115,8 @@ export default async function WidgetSystem(world: World) {
 
   const execute = () => {
     const keys = world.buttons
-    if (keys.ButtonX?.clicked) onEscape()
-    if (keys.Escape?.clicked) onEscape()
+    if (keys.ButtonX?.down) onEscape()
+    if (keys.Escape?.down) onEscape()
 
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!

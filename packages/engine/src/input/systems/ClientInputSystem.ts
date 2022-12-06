@@ -2,7 +2,7 @@ import { isClient } from '../../common/functions/isClient'
 import { World } from '../../ecs/classes/World'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonInputStateType, ButtonTypes } from '../InputState'
+import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -58,8 +58,8 @@ export const addClientInputListeners = (world: World) => {
 
     const state = world.buttons as ButtonInputStateType
 
-    if (down) state[button] = { clicked: true }
-    else state[button]!.released = true
+    if (down) state[button] = createInitialButtonState()
+    else state[button]!.up = true
   }
 
   const handleMouseMove = (event: MouseEvent) => {
@@ -104,7 +104,7 @@ export const addClientInputListeners = (world: World) => {
     const activeKeys = Object.entries(state)
 
     for (const [key, val] of activeKeys) {
-      if (val.released && val.pressed) {
+      if (val.up && val.pressed) {
         world.buttons[key].released = true
       }
     }
@@ -127,8 +127,8 @@ export const addClientInputListeners = (world: World) => {
     const code = event.code
     const down = event.type === 'keydown'
 
-    if (down) world.buttons[code] = { clicked: true }
-    else world.buttons[code] = { released: true }
+    if (down) world.buttons[code] = createInitialButtonState()
+    else world.buttons[code].released = true
   }
   addListener(document, 'keyup', onKeyEvent)
   addListener(document, 'keydown', onKeyEvent)
@@ -159,31 +159,31 @@ export default async function ClientInputSystem(world: World) {
   addClientInputListeners(world)
   world.pointerScreenRaycaster.layers.enableAll()
 
-  const clicked = new Set()
-  const released = new Set()
+  /** sets to keep track of up & down changes */
+  const down = new Set()
+  const up = new Set()
 
   const execute = () => {
     const activeKeys = Object.entries(world.buttons as ButtonInputStateType)
 
     /** use maps to allow us to keep track of state across frames */
     for (const [key, val] of activeKeys) {
-      const isClicked = clicked.has(key)
-      if (isClicked) {
-        val.pressed = true
-        val.clicked = false
-        clicked.delete(key)
+      const isDown = down.has(key)
+      if (isDown) {
+        val.down = false
+        down.delete(key)
       }
-      if (val.clicked && !isClicked) {
-        clicked.add(key)
+      if (val.down && !isDown) {
+        down.add(key)
       }
-      const isReleased = released.has(key)
-      if (isReleased) {
+      const isUp = up.has(key)
+      if (isUp) {
         delete world.buttons[key]
-        released.delete(key)
+        up.delete(key)
       }
-      if (val.released && !isReleased) {
+      if (val.up && !isUp) {
         val.pressed = false
-        released.add(key)
+        up.add(key)
       }
     }
 

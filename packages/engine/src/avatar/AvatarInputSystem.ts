@@ -88,14 +88,14 @@ export default async function AvatarInputSystem(world: World) {
 
     const keys = world.buttons
 
-    if (keys.ShiftLeft?.clicked) onShiftLeft()
-    if (keys.KeyE?.clicked) onKeyE()
-    if (keys.LeftTrigger?.clicked) onLeftTrigger()
-    if (keys.RightTrigger?.clicked) onRightTrigger()
+    if (keys.ShiftLeft?.down) onShiftLeft()
+    if (keys.KeyE?.down) onKeyE()
+    if (keys.LeftTrigger?.down) onLeftTrigger()
+    if (keys.RightTrigger?.down) onRightTrigger()
 
     if (isDev) {
-      if (keys.KeyO?.clicked) onKeyO()
-      if (keys.KeyP?.clicked) onKeyP()
+      if (keys.KeyO?.down) onKeyO()
+      if (keys.KeyP?.down) onKeyP()
     }
 
     /** keyboard input */

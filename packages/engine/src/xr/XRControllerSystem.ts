@@ -3,7 +3,6 @@ import {
   AxesHelper,
   BufferGeometry,
   Float32BufferAttribute,
-  Group,
   Line,
   LineBasicMaterial,
   Mesh,
@@ -25,6 +24,7 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
+import { createInitialButtonState } from '../input/InputState'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -105,12 +105,15 @@ export function updateGamepadInput(world: World, source: XRInputSource) {
       for (let i = 0; i < buttons.length; i++) {
         const buttonMapping = mapping[i]
         const button = buttons[i]
-        if (!world.buttons[buttonMapping] && button.pressed) {
-          world.buttons[buttonMapping] = { clicked: true }
-        } else if (button.pressed) {
-          world.buttons[buttonMapping] = { pressed: button.pressed, touched: button.touched, value: button.value }
+        if (!world.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          world.buttons[buttonMapping] = createInitialButtonState(button)
+        }
+        if (world.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          world.buttons[buttonMapping].pressed = button.pressed
+          world.buttons[buttonMapping].touched = button.touched
+          world.buttons[buttonMapping].value = button.value
         } else if (world.buttons[buttonMapping]) {
-          world.buttons[buttonMapping].released = true
+          world.buttons[buttonMapping].up = true
         }
       }
     }

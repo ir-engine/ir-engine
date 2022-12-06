@@ -139,8 +139,8 @@ export default async function XRUISystem(world: World) {
 
   const execute = () => {
     const keys = world.buttons
-    if (keys.LeftTrigger?.clicked) onLeftTrigger()
-    if (keys.RightTrigger?.clicked) onRightTrigger()
+    if (keys.LeftTrigger?.down) onLeftTrigger()
+    if (keys.RightTrigger?.down) onRightTrigger()
 
     const xrFrame = Engine.instance.xrFrame
 

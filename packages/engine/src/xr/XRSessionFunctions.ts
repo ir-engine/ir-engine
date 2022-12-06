@@ -3,7 +3,7 @@ import { dispatchAction, getState, none } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { ButtonInputStateType } from '../input/InputState'
+import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { matches } from './../common/functions/MatchesUtils'
@@ -141,10 +141,10 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
    * This gets piped into the input system as a TouchInput.Touch
    */
   EngineRenderer.instance.xrSession.addEventListener('selectstart', () => {
-    ;(world.buttons as ButtonInputStateType).PrimaryClick = { clicked: true }
+    ;(world.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   EngineRenderer.instance.xrSession.addEventListener('selectend', (inputSource) => {
-    ;(world.buttons as ButtonInputStateType).PrimaryClick!.released = true
+    ;(world.buttons as ButtonInputStateType).PrimaryClick!.up = true
   })
 
   world.scene.background = null
