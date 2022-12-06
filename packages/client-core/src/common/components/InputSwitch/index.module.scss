@@ -1,7 +1,7 @@
 .switchField {
   :global {
     .Mui-checked .MuiSwitch-thumb {
-      color: var(--dropdownMenuSelectedBackground);
+      color: var(--iconButtonColor);
     }
 
     .Mui-checked .MuiSwitch-track {
