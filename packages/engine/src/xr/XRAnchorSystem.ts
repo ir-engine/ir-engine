@@ -14,13 +14,12 @@ import {
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { V_001, V_010 } from '../common/constants/MathConstants'
+import { V_010 } from '../common/constants/MathConstants'
 import { extractRotationAboutAxis } from '../common/functions/MathFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
@@ -30,12 +29,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import {
-  addObjectToGroup,
-  GroupComponent,
-  removeGroupComponent,
-  removeObjectFromGroup
-} from '../scene/components/GroupComponent'
+import { addObjectToGroup, GroupComponent, removeGroupComponent } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import {
@@ -45,13 +39,8 @@ import {
   TransformComponent
 } from '../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
-import {
-  InputSourceComponent,
-  XRAnchorComponent,
-  XRControllerComponent,
-  XRHitTestComponent,
-  XRPointerComponent
-} from './XRComponents'
+import { updateWorldOrigin } from '../transform/updateWorldOrigin'
+import { InputSourceComponent, XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { getControlMode, getPreferredControllerEntity, XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
@@ -208,21 +197,6 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
     smoothedViewerHitResultPose.position,
     smoothedViewerHitResultPose.rotation,
     smoothedSceneScale
-  )
-}
-
-/*
-    Set the world origin
-  */
-export const updateWorldOrigin = (world: World, position: Vector3, rotation: Quaternion, scale?: Vector3) => {
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-  worldOriginTransform.matrix.compose(position, rotation, _vecScale.setScalar(1))
-  worldOriginTransform.matrix.invert()
-  if (scale) worldOriginTransform.matrix.scale(scale)
-  worldOriginTransform.matrix.decompose(
-    worldOriginTransform.position,
-    worldOriginTransform.rotation,
-    worldOriginTransform.scale
   )
 }
 

@@ -1,5 +1,5 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -10,7 +10,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   ComponentType,
   getComponent,
   hasComponent,
@@ -23,12 +22,9 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { updateWorldOrigin } from '../../xr/XRAnchorSystem'
-import { getAvatarHeadLock, getControlMode, XRState } from '../../xr/XRState'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { getControlMode } from '../../xr/XRState'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
-import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -37,10 +33,8 @@ import { AvatarInputSettingsState, AvatarMovementScheme } from '../state/AvatarI
 import { avatarRadius } from './spawnAvatarReceptor'
 
 const _vec = new Vector3()
-const _vec2 = new Vector3()
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
-const quat180y = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 
@@ -104,6 +98,9 @@ export const updateAvatarControllerOnGround = (entity: Entity) => {
 //   moveAvatarWithVelocity(entity)
 // }
 
+const cameraDirection = new Vector3()
+const forwardOrientation = new Quaternion()
+
 /**
  * Moves the avatar with velocity controls
  * @param entity
@@ -116,8 +113,8 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
   }
 
   const camera = Engine.instance.currentWorld.camera
-  const cameraDirection = camera.getWorldDirection(_vec).setY(0).normalize()
-  const forwardOrientation = _quat.setFromUnitVectors(AvatarDirection.Forward, cameraDirection)
+  camera.getWorldDirection(cameraDirection).setY(0).normalize()
+  forwardOrientation.setFromUnitVectors(AvatarDirection.Forward, cameraDirection)
 
   avatarApplyVelocity(entity, forwardOrientation)
   avatarApplyRotation(entity)
@@ -223,54 +220,6 @@ export const moveAvatarWithTeleport = (entity: Entity, magnitude: number, side: 
     setComponent(entity, AvatarTeleportComponent, { side })
   } else if (magnitude === 0.0) {
     removeComponent(entity, AvatarTeleportComponent)
-  }
-}
-
-const quat = new Quaternion()
-const _vec3 = new Vector3()
-
-/**
- * Updates the WebXR reference space, effectively moving the world to be in alignment with where the viewer should be seeing it.
- * @param entity
- */
-export const updateReferenceSpace = (entity: Entity) => {
-  const xrState = getState(XRState)
-  const viewerPose = Engine.instance.xrFrame?.getViewerPose(xrState.originReferenceSpace.value!)
-  const refSpace = xrState.originReferenceSpace.value
-  const world = Engine.instance.currentWorld
-
-  if (getControlMode() === 'attached' && refSpace && viewerPose) {
-    // const rigidBody = getComponent(entity, RigidBodyComponent)
-    // rigidBody.position.sub(xrState.viewerPositionDelta.value)
-    /** get rotation about Y axis */
-    // rigidBody.rotation.multiply(xrState.viewerPositionDelta.value)
-    // rigidBody.body.setTranslation(rigidBody.position, true)
-
-    const avatarTransform = getComponent(entity, TransformComponent)
-    // avatarTransform.position.copy(rigidBody.position)
-
-    const rig = getComponent(entity, AvatarRigComponent)
-
-    const avatarHeadLock = getAvatarHeadLock()
-
-    if (avatarHeadLock && rig) {
-      rig.rig.Head.getWorldPosition(_vec)
-      _vec.y += 0.14
-      _vec.y -= viewerPose.transform.position.y
-      const headOffset = _vec2.set(0, 0, 0.1).applyQuaternion(avatarTransform.rotation)
-      _vec.add(headOffset)
-    } else {
-      _vec.copy(avatarTransform.position)
-    }
-
-    // rotate 180 degrees as physics looks down +z, and webxr looks down -z
-    quat.copy(avatarTransform.rotation).multiply(quat180y)
-    const xrRigidTransform = new XRRigidTransform(_vec, quat)
-    updateWorldOrigin(
-      world,
-      _vec.copy(xrRigidTransform.inverse.position as any),
-      quat.copy(xrRigidTransform.inverse.orientation as any)
-    )
   }
 }
 

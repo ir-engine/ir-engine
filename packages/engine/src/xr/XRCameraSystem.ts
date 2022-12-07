@@ -1,13 +1,11 @@
-import { Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
-
-import { getState } from '@xrengine/hyperflux'
+import { Matrix4, PerspectiveCamera } from 'three'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { XRState } from './XRState'
+import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 
 const updateXRCameraTransform = (camera: PerspectiveCamera, originMatrix: Matrix4) => {
   camera.matrixWorld.multiplyMatrices(originMatrix, camera.matrix)
@@ -16,7 +14,7 @@ const updateXRCameraTransform = (camera: PerspectiveCamera, originMatrix: Matrix
 
 export const updateXRInput = (world = Engine.instance.currentWorld) => {
   const xrManager = EngineRenderer.instance.xrManager
-  const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+  const camera = world.camera as PerspectiveCamera
 
   /*
    * Updates the XR camera to the camera position, including updating it's world matrix
@@ -36,9 +34,12 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
    * xr cameras also have to have their world transforms updated relative to the origin, as these are used for actual rendering
    */
   const originTransform = getComponent(world.originEntity, TransformComponent)
-  const cameraXR = EngineRenderer.instance.xrManager.getCamera()
+  const cameraXR = xrManager.getCamera()
   updateXRCameraTransform(cameraXR, originTransform.matrix)
   for (const camera of cameraXR.cameras) updateXRCameraTransform(camera, originTransform.matrix)
+
+  /** compute transform matricies with new information */
+  computeTransformMatrix(world.cameraEntity, world)
 }
 
 /**
@@ -47,19 +48,19 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
  * @returns
  */
 export default async function XRCameraSystem(world: World) {
-  const cameraLastPosition = new Vector3()
-  const cameraLastRotation = new Quaternion()
-  const _quat = new Quaternion()
+  // const cameraLastPosition = new Vector3()
+  // const cameraLastRotation = new Quaternion()
+  // const _quat = new Quaternion()
 
-  const xrState = getState(XRState)
+  // const xrState = getState(XRState)
 
   const execute = () => {
     if (!EngineRenderer.instance.xrSession) return
 
-    const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+    // const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
 
-    cameraLastPosition.copy(cameraLocalTransform.position)
-    cameraLastRotation.copy(cameraLocalTransform.rotation)
+    // cameraLastPosition.copy(cameraLocalTransform.position)
+    // cameraLastRotation.copy(cameraLocalTransform.rotation)
 
     updateXRInput(world)
 
@@ -69,12 +70,12 @@ export default async function XRCameraSystem(world: World) {
     xrCamera.layers.mask = camera.layers.mask
     for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
-    xrState.viewerPositionDelta.value.subVectors(cameraLocalTransform.position, cameraLastPosition)
-    // console.log(cameraLocalTransform.position.x, cameraLocalTransform.position.y, cameraLocalTransform.position.z, cameraLastPosition.x, cameraLastPosition.y, cameraLastPosition.z)
-    xrState.viewerRotationDelta.value.multiplyQuaternions(
-      _quat.copy(cameraLocalTransform.rotation).invert(),
-      cameraLastRotation
-    )
+    // xrState.viewerPositionDelta.value.subVectors(cameraLocalTransform.position, cameraLastPosition)
+    // // console.log(cameraLocalTransform.position.x, cameraLocalTransform.position.y, cameraLocalTransform.position.z, cameraLastPosition.x, cameraLastPosition.y, cameraLastPosition.z)
+    // xrState.viewerRotationDelta.value.multiplyQuaternions(
+    //   _quat.copy(cameraLocalTransform.rotation).invert(),
+    //   cameraLastRotation
+    // )
   }
 
   const cleanup = async () => {}

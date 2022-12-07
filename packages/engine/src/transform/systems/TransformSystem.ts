@@ -4,7 +4,6 @@ import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from '
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -40,6 +39,7 @@ import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
 } from '../components/TransformComponent'
+import { updateWorldOriginToAttachedAvatar } from '../updateWorldOrigin'
 
 const transformQuery = defineQuery([TransformComponent])
 const localTransformQuery = defineQuery([LocalTransformComponent])
@@ -337,7 +337,7 @@ export default async function TransformSystem(world: World) {
           )
       }
 
-      updateReferenceSpace(world.localClientEntity)
+      updateWorldOriginToAttachedAvatar(world)
     }
 
     Skeleton.prototype.update = skeletonUpdate
