@@ -19,10 +19,11 @@ interface Props {
   disabled?: boolean
   disableRipple?: boolean
   endIcon?: React.ReactNode
+  id?: string
   open?: boolean
   startIcon?: React.ReactNode
   sx?: SxProps<Theme>
-  type?: 'outlined' | 'gradient' | 'expander'
+  type?: 'outlined' | 'gradient' | 'gradientRounded' | 'expander'
   onClick?: () => void
 }
 
@@ -33,6 +34,7 @@ const Button = ({
   disabled,
   disableRipple,
   endIcon,
+  id,
   open,
   startIcon,
   sx,
@@ -42,6 +44,7 @@ const Button = ({
   if (type === 'expander') {
     return (
       <Box
+        id={id}
         sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', ...sx }}
         onClick={onClick}
         onPointerUp={handleSoundEffect}
@@ -58,6 +61,8 @@ const Button = ({
     baseStyle = styles.outlinedButton
   } else if (type === 'gradient') {
     baseStyle = styles.gradientButton
+  } else if (type === 'gradientRounded') {
+    baseStyle = `${styles.gradientButton} ${styles.roundedButton}`
   }
 
   return (
@@ -65,13 +70,14 @@ const Button = ({
       autoFocus={autoFocus}
       className={`${baseStyle} ${className ?? ''}`}
       disabled={disabled}
+      disableRipple={disableRipple}
       endIcon={endIcon}
+      id={id}
       startIcon={startIcon}
       sx={sx}
       onClick={onClick}
       onPointerUp={handleSoundEffect}
       onPointerEnter={handleSoundEffect}
-      disableRipple={disableRipple}
     >
       {children}
     </MUIButton>

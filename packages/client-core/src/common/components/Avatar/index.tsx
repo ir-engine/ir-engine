@@ -10,15 +10,16 @@ import styles from './index.module.scss'
 
 interface Props {
   className?: string
+  id?: string
   imageSrc?: string
   showChangeButton?: boolean
   sx?: SxProps<Theme>
   onClick?: () => void
 }
 
-const Avatar = ({ className, imageSrc, showChangeButton, sx, onClick }: Props) => {
+const Avatar = ({ className, id, imageSrc, showChangeButton, sx, onClick }: Props) => {
   return (
-    <Box className={`${styles.avatarBlock} ${className}`} sx={sx}>
+    <Box className={`${styles.avatarBlock} ${className}`} id={id} sx={sx}>
       <img src={imageSrc} crossOrigin="anonymous" />
       {showChangeButton && (
         <IconButton

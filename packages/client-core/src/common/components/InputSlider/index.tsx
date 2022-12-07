@@ -11,18 +11,19 @@ import styles from './index.module.scss'
 
 interface Props {
   className?: string
-  name?: string
-  label?: string
   icon?: React.ReactNode
-  value?: number
+  id?: string
+  label?: string
   max?: number
   min?: number
+  name?: string
   step?: number
   sx?: SxProps<Theme>
+  value?: number
   onChange?: (value: number) => void
 }
 
-const InputSlider = ({ className, name, label, icon, value, max, min, step, sx, onChange }: Props) => {
+const InputSlider = ({ className, icon, id, label, max, min, name, step, sx, value, onChange }: Props) => {
   return (
     <Box className={className} sx={{ display: 'flex', alignItems: 'center', mt: 1, mb: 1, ...sx }}>
       {icon}
@@ -32,12 +33,13 @@ const InputSlider = ({ className, name, label, icon, value, max, min, step, sx, 
       </Text>
 
       <Slider
-        name={name}
         className={styles.slider}
-        value={value}
+        id={id}
         max={max}
         min={min}
+        name={name}
         step={step}
+        value={value}
         onChange={(_, value: number) => onChange && onChange(value)}
         onPointerUp={handleSoundEffect}
         onPointerEnter={handleSoundEffect}

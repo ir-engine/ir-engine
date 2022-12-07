@@ -14,13 +14,23 @@ import styles from './index.module.scss'
 
 interface Props {
   open: boolean
-  description: string | JSX.Element
+  description: React.ReactNode
   processing?: boolean
+  submitButtonText?: string
+  closeButtonText?: string
   onClose: () => void
   onSubmit: () => void
 }
 
-const ConfirmDialog = ({ open, description, processing, onClose, onSubmit }: Props) => {
+const ConfirmDialog = ({
+  open,
+  closeButtonText,
+  description,
+  processing,
+  submitButtonText,
+  onClose,
+  onSubmit
+}: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -35,10 +45,10 @@ const ConfirmDialog = ({ open, description, processing, onClose, onSubmit }: Pro
       {!processing && (
         <DialogActions>
           <Button type="outlined" onClick={onClose}>
-            {t('common:components.cancel')}
+            {closeButtonText ?? t('common:components.cancel')}
           </Button>
           <Button type="gradient" autoFocus onClick={onSubmit}>
-            {t('common:components.confirm')}
+            {submitButtonText ?? t('common:components.confirm')}
           </Button>
         </DialogActions>
       )}

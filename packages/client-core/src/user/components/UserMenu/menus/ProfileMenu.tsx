@@ -6,6 +6,8 @@ import { useLocation } from 'react-router-dom'
 
 import Avatar from '@xrengine/client-core/src/common/components/Avatar'
 import Button from '@xrengine/client-core/src/common/components/Button'
+import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import { DiscordIcon } from '@xrengine/client-core/src/common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '@xrengine/client-core/src/common/components/Icons/FacebookIcon'
@@ -14,10 +16,10 @@ import { LinkedInIcon } from '@xrengine/client-core/src/common/components/Icons/
 import { TwitterIcon } from '@xrengine/client-core/src/common/components/Icons/TwitterIcon'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import Menu from '@xrengine/client-core/src/common/components/Menu'
+import Text from '@xrengine/client-core/src/common/components/Text'
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 // import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
@@ -29,8 +31,6 @@ import SendIcon from '@mui/icons-material/Send'
 import SettingsIcon from '@mui/icons-material/Settings'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
-import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 
 import { useAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
@@ -71,9 +71,8 @@ const ProfileMenu = ({
   const [errorUsername, setErrorUsername] = useState('')
   const [showUserId, setShowUserId] = useState(false)
   const [showApiKey, setShowApiKey] = useState(false)
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
-  const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [authState, setAuthState] = useState(initialAuthState)
 
   const authSettingState = useAuthSettingState()
@@ -224,7 +223,7 @@ const ProfileMenu = ({
     AuthService.removeUserOAuth(e.currentTarget.id)
   }
 
-  const handleLogout = async (e) => {
+  const handleLogout = async () => {
     if (changeActiveMenu) changeActiveMenu(Views.Closed)
     else if (onClose) onClose()
     setShowUserId(false)
@@ -377,58 +376,31 @@ const ProfileMenu = ({
           />
 
           <Box className={styles.profileDetails}>
-            <h2>
+            <Text variant="body2">
               {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-              <span id="user-role">{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
-            </h2>
-            <Tooltip
-              title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
-              placement="left"
-            >
-              <h2
-                className={styles.showUserId}
-                id="show-user-id"
-                onClick={() => setShowUserId(!showUserId)}
-                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              >
-                {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
-              </h2>
-            </Tooltip>
+              <span className={commonStyles.bold}>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
+            </Text>
+
+            {selfUser?.inviteCode.value && (
+              <Text mt={1} variant="body2">
+                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
+              </Text>
+            )}
+
+            <Text id="show-user-id" mt={1} variant="body2" onClick={() => setShowUserId(!showUserId)}>
+              {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
+            </Text>
 
             {selfUser?.apiKey?.id && (
-              <Tooltip
-                title={showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
-                placement="left"
-              >
-                <h2
-                  className={styles.showUserId}
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                >
-                  {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
-                </h2>
-              </Tooltip>
+              <Text variant="body2" mt={1} onClick={() => setShowApiKey(!showApiKey)}>
+                {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
+              </Text>
             )}
 
             {!isGuest && (
-              <h4>
-                <div
-                  className={styles.logout}
-                  onClick={handleLogout}
-                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                >
-                  {t('user:usermenu.profile.logout')}
-                </div>
-              </h4>
-            )}
-
-            {selfUser?.inviteCode.value && (
-              <h2>
-                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
-              </h2>
+              <Text variant="body2" mt={1} onClick={handleLogout}>
+                {t('user:usermenu.profile.logout')}
+              </Text>
             )}
           </Box>
 
@@ -520,43 +492,45 @@ const ProfileMenu = ({
                 />
 
                 {loading && (
-                  <div className={styles.container}>
+                  <Box display="flex" justifyContent="center">
                     <CircularProgress size={30} />
-                  </div>
+                  </Box>
                 )}
               </>
             )}
 
             {isGuest && enableWalletLogin && (
               <>
-                <Typography variant="h1" className={styles.textBlock}>
+                <Text align="center" variant="body2" mb={1} mt={2}>
                   {t('user:usermenu.profile.or')}
-                </Typography>
+                </Text>
 
                 {enableWalletLogin && (
-                  <div>
-                    <Button className={styles.walletBtn} onClick={() => handleWalletLoginClick()}>
+                  <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+                    <Button type="gradientRounded" onClick={() => handleWalletLoginClick()}>
                       {t('user:usermenu.profile.loginWithXRWallet')}
                     </Button>
 
-                    <Button className={styles.walletBtn} onClick={() => handleIssueCredentialClick()}>
-                      Issue a VC
-                    </Button>
+                    <Box display={'flex'} columnGap={2} alignItems={'center'}>
+                      <Button type="gradientRounded" onClick={() => handleIssueCredentialClick()}>
+                        {t('user:usermenu.profile.issueVC')}
+                      </Button>
 
-                    <Button className={styles.walletBtn} onClick={() => handleRequestCredentialClick()}>
-                      Request a VC
-                    </Button>
-                  </div>
+                      <Button type="gradientRounded" onClick={() => handleRequestCredentialClick()}>
+                        {t('user:usermenu.profile.requestVC')}
+                      </Button>
+                    </Box>
+                  </Box>
                 )}
               </>
             )}
 
             {enableSocial && (
-              <section className={styles.socialBlock}>
+              <>
                 {selfUser?.isGuest.value && (
-                  <Typography variant="h1" className={styles.panelHeader}>
+                  <Text align="center" variant="body2" mb={1} mt={2}>
                     {t('user:usermenu.profile.addSocial')}
-                  </Typography>
+                  </Text>
                 )}
 
                 <div className={styles.socialContainer}>
@@ -601,9 +575,9 @@ const ProfileMenu = ({
                 </div>
 
                 {!selfUser?.isGuest.value && removeSocial && (
-                  <Typography variant="h3" className={styles.textBlock}>
+                  <Text align="center" variant="body2" mb={1} mt={2}>
                     {t('user:usermenu.profile.removeSocial')}
-                  </Typography>
+                  </Text>
                 )}
 
                 <div className={styles.socialContainer}>
@@ -636,70 +610,45 @@ const ProfileMenu = ({
                     />
                   )}
                   {authState?.twitter && oauthConnectedState.twitter && (
-                    <IconButton id="twitter" icon={<TwitterIcon />} onClick={handleRemoveOAuthServiceClick} />
+                    <IconButton
+                      id="twitter"
+                      icon={<TwitterIcon viewBox="0 0 40 40" />}
+                      onClick={handleRemoveOAuthServiceClick}
+                    />
                   )}
                   {authState?.github && oauthConnectedState.github && (
                     <IconButton id="github" icon={<GitHubIcon />} onClick={handleRemoveOAuthServiceClick} />
                   )}
                 </div>
-              </section>
+              </>
             )}
 
-            <section className={styles.deletePanel}>
-              {
-                <div>
-                  {!isGuest && (
-                    <h2
-                      className={styles.deleteAccount}
-                      id="delete-account"
-                      onClick={() => {
-                        setDeleteControlsOpen(!deleteControlsOpen)
-                        setConfirmDeleteOpen(false)
-                      }}
-                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    >
-                      {t('user:usermenu.profile.delete.deleteAccount')}
-                    </h2>
-                  )}
-                  {deleteControlsOpen && !confirmDeleteOpen && (
-                    <div className={styles.deleteContainer}>
-                      <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
-                      <Button className={styles.deleteCancelButton} onClick={() => setDeleteControlsOpen(false)}>
-                        {t('user:usermenu.profile.delete.deleteControlsCancel')}
-                      </Button>
-                      <Button
-                        className={styles.deleteConfirmButton}
-                        onClick={() => {
-                          setDeleteControlsOpen(false)
-                          setConfirmDeleteOpen(true)
-                        }}
-                      >
-                        {t('user:usermenu.profile.delete.deleteControlsConfirm')}
-                      </Button>
-                    </div>
-                  )}
-                  {confirmDeleteOpen && (
-                    <div className={styles.deleteContainer}>
-                      <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.finalDeleteText')}</h3>
-                      <Button
-                        className={styles.deleteConfirmButton}
-                        onClick={() => {
-                          AuthService.removeUser(userId)
-                          AuthService.logoutUser()
-                          setConfirmDeleteOpen(false)
-                        }}
-                      >
-                        {t('user:usermenu.profile.delete.finalDeleteConfirm')}
-                      </Button>
-                      <Button className={styles.deleteCancelButton} onClick={() => setConfirmDeleteOpen(false)}>
-                        {t('user:usermenu.profile.delete.finalDeleteCancel')}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              }
-            </section>
+            {!isGuest && (
+              <Text id="delete-account" mb={1} variant="body2" onClick={() => setShowDeleteAccount(true)}>
+                {t('user:usermenu.profile.delete.deleteAccount')}
+              </Text>
+            )}
+
+            {showDeleteAccount && (
+              <ConfirmDialog
+                open
+                description={
+                  <>
+                    <Text variant="body2">{t('user:usermenu.profile.delete.deleteControlsText')}</Text>
+                    <Text variant="body2" color="red" mt={2}>
+                      {t('user:usermenu.profile.delete.finalDeleteText')}
+                    </Text>
+                  </>
+                }
+                submitButtonText={t('user:usermenu.profile.delete.finalDeleteConfirm')}
+                onClose={() => setShowDeleteAccount(false)}
+                onSubmit={() => {
+                  AuthService.removeUser(userId)
+                  AuthService.logoutUser()
+                  setShowDeleteAccount(false)
+                }}
+              />
+            )}
           </>
         )}
       </div>

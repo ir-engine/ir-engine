@@ -71,19 +71,21 @@ const Menu = ({
 
       <DialogContent>{children}</DialogContent>
 
-      <DialogActions>
-        {showDefaultActions && (
-          <>
-            <Button type="outlined" onClick={onClose}>
-              {t('common:components.cancel')}
-            </Button>
-            <Button type="gradient" autoFocus onClick={onSubmit}>
-              {t('common:components.confirm')}
-            </Button>
-          </>
-        )}
-        {actions}
-      </DialogActions>
+      {(showDefaultActions || actions) && (
+        <DialogActions>
+          {showDefaultActions && (
+            <>
+              <Button type="outlined" onClick={onClose}>
+                {t('common:components.cancel')}
+              </Button>
+              <Button type="gradient" autoFocus onClick={onSubmit}>
+                {t('common:components.confirm')}
+              </Button>
+            </>
+          )}
+          {actions}
+        </DialogActions>
+      )}
     </>
   )
 
