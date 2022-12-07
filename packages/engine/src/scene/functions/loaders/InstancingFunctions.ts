@@ -43,7 +43,7 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { getEntityTreeNodeByUUID, iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
-import { formatMaterialArgs } from '../../../renderer/materials/functions/Utilities'
+import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { setCallback } from '../../components/CallbackComponent'
 import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'

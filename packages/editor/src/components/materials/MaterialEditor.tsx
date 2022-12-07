@@ -1,45 +1,48 @@
-import React, { Fragment, useCallback, useEffect } from 'react'
-import { BufferAttribute, Color, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, Texture } from 'three'
+import React, { useCallback, useEffect } from 'react'
+import { Material, Texture } from 'three'
 
 import styles from '@xrengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
 import {
   changeMaterialPrototype,
   materialFromId,
-  materialToDefaultArgs,
   prototypeFromId
-} from '@xrengine/engine/src/renderer/materials/functions/Utilities'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+} from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { useMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { useState } from '@xrengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { accessSelectionState } from '../../services/SelectionServices'
-import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 
-export default function MaterialEditor({ material }: { ['material']: Material }) {
+export default function MaterialEditor({ material, ...rest }: { ['material']: Material }) {
   if (material === undefined) return <></>
   const materialComponent = useState(materialFromId(material.uuid))
   const prototypeComponent = useState(prototypeFromId(materialComponent.prototype.value))
   const loadingData = useState(false)
+  const selectionState = accessSelectionState()
+  const materialLibrary = useMaterialLibrary()
+  const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
+    label: prototype.prototypeId,
+    value: prototype.prototypeId
+  }))
+  const thumbnails = useState<Record<string, string>>({})
 
   const createThumbnails = useCallback(async () => {
-    const result = new Map<string, string>()
+    const result = {} as Record<string, string>
     await Promise.allSettled(
       Object.entries(material).map(([k, field]: [string, Texture]) => {
         if (field?.isTexture) {
           try {
             return createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }).then(
               (src) => {
-                result.set(k, src as string)
+                result[k] = src as string
               }
             )
           } catch (e) {
@@ -51,36 +54,10 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     return result
   }, [materialComponent.parameters, materialComponent.material.uuid, materialComponent.prototype])
 
-  const selectionState = accessSelectionState()
-  /*
-  const createDefaults = useCallback(async () => {
-    thumbnails.promised && (await thumbnails.promise)
-    const result = materialToDefaultArgs(material)!
-    const thumbs = thumbnails.value
-    Object.entries(material).map(([k, v]) => {
-      if ((v as Texture)?.isTexture && thumbs.has(k)) {
-        result[k] = { type: 'texture', preview: thumbs.get(k)! }
-      } else if ((v as Color)?.isColor) {
-        result[k] = { type: 'color' }
-      } else if (typeof v === 'number') {
-        result[k] = { type: 'float' }
-      }
-    })
-    return result
-  }, [materialComponent])
-*/
-  const prototypes = useState(
-    [...MaterialLibrary.prototypes.values()].map((prototype) => ({
-      label: prototype.prototypeId,
-      value: prototype.prototypeId
-    }))
-  )
-  const thumbnails = useState(new Map<string, string>())
-
   const clearThumbs = async () => {
     thumbnails.promised && (await thumbnails.promise)
-    ;[...thumbnails.value.values()].map(URL.revokeObjectURL)
-    thumbnails.value.clear()
+    Object.values(thumbnails.value).map(URL.revokeObjectURL)
+    thumbnails.set({})
   }
 
   useEffect(() => {
@@ -91,13 +68,10 @@ export default function MaterialEditor({ material }: { ['material']: Material })
         thumbnails.set(nuThumbs)
         loadingData.set(false)
       })
-    return () => {
-      clearThumbs()
-    }
   }, [materialComponent.prototype, materialComponent.material])
 
   return (
-    <Fragment>
+    <div {...rest}>
       <InputGroup name="Name" label="Name">
         <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
       </InputGroup>
@@ -126,7 +100,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
         <InputGroup name="Prototype" label="Prototype">
           <SelectInput
             value={materialComponent.prototype.value}
-            options={prototypes.value}
+            options={prototypes}
             onChange={(protoId) => {
               const nuMat = changeMaterialPrototype(material, protoId)
               materialComponent.set(materialFromId(nuMat!.uuid))
@@ -159,8 +133,9 @@ export default function MaterialEditor({ material }: { ['material']: Material })
           materialComponent.parameters[k].set(prop)
         }}
         defaults={loadingData.get() ? {} : prototypeComponent.arguments.value}
+        thumbnails={thumbnails.value}
       />
-      {
+      {/*
         <Button
           onClick={async () => {
             bakeToVertices(
@@ -174,8 +149,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
           }}
         >
           Bake
-        </Button>
-      }
-    </Fragment>
+        </Button>*/}
+    </div>
   )
 }

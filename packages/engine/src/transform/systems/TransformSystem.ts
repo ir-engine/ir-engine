@@ -18,7 +18,12 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyKinematicPositionBasedTagComponent,
+  RigidBodyKinematicVelocityBasedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
@@ -218,6 +223,10 @@ export default async function TransformSystem(world: World) {
   }
 
   const isDirty = (entity: Entity) => world.dirtyTransforms[entity]
+  const isDirtyNonKinematic = (entity: Entity) =>
+    world.dirtyTransforms[entity] &&
+    !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
+    !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
   const filterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
     !world.dirtyTransforms[entity] &&
@@ -275,13 +284,15 @@ export default async function TransformSystem(world: World) {
       if (makeDirty) world.dirtyTransforms[entity] = true
     }
 
-    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirty)
+    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirtyNonKinematic)
     const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
     const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
 
     for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
     for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity, world)
+
+    // exclude teleporting kinematic bodies, which are updated in the Physics System
     for (const entity of dirtyRigidbodyEntities) teleportRigidbody(entity)
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 

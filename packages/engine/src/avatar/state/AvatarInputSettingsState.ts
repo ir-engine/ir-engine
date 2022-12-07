@@ -2,7 +2,16 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/XRUserSettings'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { AvatarControllerType, AvatarMovementScheme } from '../../input/enums/InputEnums'
+export const AvatarMovementScheme = {
+  Linear: 'AvatarMovementScheme_Linear' as const,
+  Teleport: 'AvatarMovementScheme_Teleport' as const
+}
+
+export const AvatarControllerType = {
+  None: 'AvatarControllerType_None' as const,
+  XRHands: 'AvatarControllerType_XRHands' as const,
+  OculusQuest: 'AvatarControllerType_OculusQuest' as const
+}
 
 export const AvatarInputSettingsState = defineState({
   name: 'AvatarInputSettingsState',

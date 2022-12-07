@@ -2,11 +2,12 @@ import { MeshBasicMaterial as Basic } from 'three'
 
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
-import { AoMapArgs, BasicArgs, EnvMapArgs, LightMapArgs } from '../BasicArgs'
+import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../BasicArgs'
 import { TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   ...BasicArgs,
+  ...EmissiveMapArgs,
   ...LightMapArgs,
   ...AoMapArgs,
   ...EnvMapArgs,

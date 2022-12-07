@@ -4,7 +4,6 @@ import { Object3D } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
-import { removeClientInputListeners } from '../../input/functions/clientInputListeners'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
@@ -19,8 +18,6 @@ import { unloadSystems } from './SystemFunctions'
 
 /** Reset the engine and remove everything from memory. */
 export function dispose() {
-  removeClientInputListeners()
-
   Engine.instance.engineTimer?.clear()
   Engine.instance.engineTimer = null!
   console.log('RESETTING ENGINE')
@@ -66,8 +63,6 @@ export function dispose() {
   }
 
   dispatchAction(EngineActions.initializeEngine({ initialised: false }))
-  Engine.instance.currentWorld.inputState.clear()
-  Engine.instance.currentWorld.prevInputState.clear()
 }
 
 const sceneQuery = defineQuery([SceneObjectComponent])

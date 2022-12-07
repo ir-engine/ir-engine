@@ -1,7 +1,6 @@
 import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { getXRAvatarControlMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -38,9 +37,7 @@ export function createAnchorWidget(world: World) {
       if (!isImmersive) return
       if (!xrState.scenePlacementMode.value) return
       const buttonInput =
-        avatarInputSettings.preferredHand.value === 'left'
-          ? world.inputState.get(GamepadButtons.X)
-          : world.inputState.get(GamepadButtons.A)
+        avatarInputSettings.preferredHand.value === 'left' ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
       if (buttonInput) {
         dispatchAction(
           XRAction.changePlacementMode({

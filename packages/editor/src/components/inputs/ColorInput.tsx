@@ -113,7 +113,7 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
   const open = Boolean(anchorEl)
 
   //initializing hexColor by getting hexString
-  const hexColor = '#' + value.getHexString()
+  const hexColor = typeof value.getHexString === 'function' ? '#' + value.getHexString() : '#000'
 
   //creating view for ColorInput
   return (

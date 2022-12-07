@@ -1,11 +1,11 @@
-import { Matrix3, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getState } from '@xrengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
-import { MouseInput } from '../input/enums/InputEnums'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import { FlyControlComponent } from './components/FlyControlComponent'
 
@@ -24,11 +24,14 @@ export default async function FlyControlSystem(world: World) {
   const candidateWorldQuat = new Quaternion()
 
   const execute = () => {
+    if (!world.buttons.SecondaryClick?.pressed && !world.buttons.PrimaryClick?.pressed) return
     for (const entity of flyControlQuery()) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
       const camera = Engine.instance.currentWorld.camera
 
-      const mouseMovement = world.inputState.get(MouseInput.MouseClickDownMovement)?.value ?? [0, 0]
+      const inputState = world.buttons
+
+      const mouseMovement = world.pointerState.movement
 
       camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
 
@@ -36,7 +39,7 @@ export default async function FlyControlSystem(world: World) {
       candidateWorldQuat.multiplyQuaternions(
         quat.setFromAxisAngle(
           tempVec3.set(1, 0, 0).applyQuaternion(worldQuat),
-          mouseMovement[1] * flyControlComponent.lookSensitivity
+          mouseMovement.y * flyControlComponent.lookSensitivity
         ),
         worldQuat
       )
@@ -60,7 +63,7 @@ export default async function FlyControlSystem(world: World) {
       camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
       // rotate about the world y axis
       candidateWorldQuat.multiplyQuaternions(
-        quat.setFromAxisAngle(V_010, -mouseMovement[0] * flyControlComponent.lookSensitivity),
+        quat.setFromAxisAngle(V_010, -mouseMovement.x * flyControlComponent.lookSensitivity),
         worldQuat
       )
 
@@ -68,16 +71,13 @@ export default async function FlyControlSystem(world: World) {
       camera.matrix.multiplyMatrices(parentInverse, camera.matrixWorld)
       camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
 
-      const lateralMovement =
-        (world.inputState.get('KeyD')?.value[0] ?? 0) - (world.inputState.get('KeyA')?.value[0] ?? 0)
-      const forwardMovement =
-        (world.inputState.get('KeyS')?.value[0] ?? 0) - (world.inputState.get('KeyW')?.value[0] ?? 0)
-      const upwardMovement =
-        (world.inputState.get('KeyQ')?.value[0] ?? 0) - (world.inputState.get('KeyE')?.value[0] ?? 0)
+      const lateralMovement = (inputState.KeyD?.pressed ? 1 : 0) + (inputState.KeyA?.pressed ? -1 : 0)
+      const forwardMovement = (inputState.KeyS?.pressed ? 1 : 0) + (inputState.KeyW?.pressed ? -1 : 0)
+      const upwardMovement = (inputState.KeyE?.pressed ? 1 : 0) + (inputState.KeyQ?.pressed ? -1 : 0)
 
       // translate
       direction.set(lateralMovement, 0, forwardMovement)
-      const boostSpeed = world.inputState.has('ShiftLeft') ? flyControlComponent.boostSpeed : 1
+      const boostSpeed = inputState.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
       const speed = world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
       if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)

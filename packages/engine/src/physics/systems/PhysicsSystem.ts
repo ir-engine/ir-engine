@@ -3,14 +3,11 @@ import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
@@ -32,7 +29,12 @@ import {
 } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../components/RigidBodyComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyFixedTagComponent,
+  RigidBodyKinematicPositionBasedTagComponent,
+  RigidBodyKinematicVelocityBasedTagComponent
+} from '../components/RigidBodyComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 // Receptor
@@ -57,6 +59,15 @@ export const PhysicsPrefabs = {
   collider: 'collider' as const
 }
 
+export function smoothKinematicBody(entity: Entity, alpha: number) {
+  const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+  const transformComponent = getComponent(entity, TransformComponent)
+  rigidbodyComponent.position.lerp(transformComponent.position, alpha)
+  rigidbodyComponent.rotation.fastSlerp(transformComponent.rotation, alpha)
+  rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
+  rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
+}
+
 export default async function PhysicsSystem(world: World) {
   world.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
@@ -77,6 +88,17 @@ export default async function PhysicsSystem(world: World) {
   const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
   const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
   const collisionQuery = defineQuery([CollisionComponent])
+
+  const kinematicPositionBodyQuery = defineQuery([
+    RigidBodyComponent,
+    RigidBodyKinematicPositionBasedTagComponent,
+    TransformComponent
+  ])
+  const kinematicVelocityBodyQuery = defineQuery([
+    RigidBodyComponent,
+    RigidBodyKinematicVelocityBasedTagComponent,
+    TransformComponent
+  ])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
@@ -134,8 +156,16 @@ export default async function PhysicsSystem(world: World) {
 
     // step physics world
     const substeps = engineState.physicsSubsteps.value
-    world.physicsWorld.timestep = engineState.fixedDeltaSeconds.value / substeps
+    const timestep = engineState.fixedDeltaSeconds.value / substeps
+    world.physicsWorld.timestep = timestep
+    const smoothnessMultiplier = 50
+    const smoothAlpha = smoothnessMultiplier * timestep
+    const kinematicPositionEntities = kinematicPositionBodyQuery()
+    const kinematicVelocityEntities = kinematicVelocityBodyQuery()
     for (let i = 0; i < substeps; i++) {
+      // smooth kinematic pose changes
+      for (const entity of kinematicPositionEntities) smoothKinematicBody(entity, smoothAlpha)
+      for (const entity of kinematicVelocityEntities) smoothKinematicBody(entity, smoothAlpha)
       world.physicsWorld.step(world.physicsCollisionEventQueue)
       world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
       world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)

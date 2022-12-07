@@ -1,0 +1,19 @@
+.tabs {
+  width: 100%;
+  min-height: auto;
+
+  button {
+    color: var(--textColor);
+    opacity: 1;
+    min-height: 35px;
+  }
+
+  :global(.Mui-selected) {
+    color: var(--textColor);
+    opacity: 1 !important;
+  }
+
+  :global(.MuiTabs-indicator) {
+    background: var(--iconButtonBackground);
+  }
+}

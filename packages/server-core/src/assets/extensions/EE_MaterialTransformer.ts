@@ -10,7 +10,7 @@ import {
   WriterContext
 } from '@gltf-transform/core'
 
-import { prototypeFromId } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { prototypeFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { initializeMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 
 const EXTENSION_NAME = 'EE_material'

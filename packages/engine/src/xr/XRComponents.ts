@@ -213,6 +213,9 @@ export const XRControllerGripComponent = defineComponent({
   }
 })
 
+/** typescript has incorrect typings */
+export type XRHand = Map<XRHandJoint, XRJointSpace>
+
 export const XRHandComponent = defineComponent({
   name: 'XRHand',
   onInit: (entity) => {
@@ -223,7 +226,6 @@ export const XRHandComponent = defineComponent({
       hand: null! as XRHand,
       group,
       handedness: null! as XRHandedness,
-      joints: {} as { [name: string]: Group & { jointRadius: number | undefined } },
       pinching: false
     }
   },

@@ -8,7 +8,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode, getEntityTreeNodeByUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useEditorState } from '../../services/EditorServices'
@@ -58,7 +58,7 @@ export const PropertiesPanelContainer = () => {
   useEffect(() => {
     forceUpdate()
   }, [selectionState.objectChangeCounter])
-
+  const materialLibrary = getMaterialLibrary()
   //rendering editor views for customization of element properties
   let content
   const world = Engine.instance.currentWorld
@@ -69,12 +69,14 @@ export const PropertiesPanelContainer = () => {
     : selectedEntities[selectedEntities.length - 1]
   const isMaterial =
     typeof nodeEntity === 'string' &&
-    (MaterialLibrary.materials.has(nodeEntity) ||
-      [...MaterialLibrary.materials.values()].map(({ material }) => material.uuid).includes(nodeEntity))
+    (!!materialLibrary.materials[nodeEntity].value ||
+      Object.values(materialLibrary.materials.value)
+        .map(({ material }) => material.uuid)
+        .includes(nodeEntity))
   const isObject3D = typeof nodeEntity === 'string' && !isMaterial
   const node = isMaterial
-    ? MaterialLibrary.materials.get(nodeEntity as string) ??
-      [...MaterialLibrary.materials.values()].find(({ material }) => material.uuid === nodeEntity)
+    ? materialLibrary.materials[nodeEntity as string].value ??
+      Object.values(materialLibrary.materials.value).find(({ material }) => material.uuid === nodeEntity)
     : isObject3D
     ? world.scene.getObjectByProperty('uuid', nodeEntity as string)
     : world.entityTree.entityNodeMap.get(nodeEntity as Entity)
@@ -90,7 +92,7 @@ export const PropertiesPanelContainer = () => {
   } else if (isMaterial) {
     content = (
       <StyledNodeEditor>
-        <MaterialEditor material={(node as MaterialComponentType).material} />
+        <MaterialEditor key={`${nodeEntity}-MaterialEditor`} material={(node as MaterialComponentType).material} />
       </StyledNodeEditor>
     )
   } else {

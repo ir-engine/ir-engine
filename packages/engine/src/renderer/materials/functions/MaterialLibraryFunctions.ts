@@ -1,6 +1,6 @@
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState, none } from '@xrengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -8,7 +8,7 @@ import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
-import { MaterialLibrary, MaterialLibraryActions } from '../MaterialLibrary'
+import { getMaterialLibrary, MaterialLibraryActions } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -54,13 +54,15 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
 }
 
 export function materialFromId(matId: string): MaterialComponentType {
-  const material = MaterialLibrary.materials.get(matId)
+  const materialLibrary = getMaterialLibrary()
+  const material = materialLibrary.materials[matId].get({ noproxy: true })
   if (!material) throw new MaterialNotFoundError('could not find Material with ID ' + matId)
   return material
 }
 
 export function prototypeFromId(protoId: string): MaterialPrototypeComponentType {
-  const prototype = MaterialLibrary.prototypes.get(protoId)
+  const materialLibrary = getMaterialLibrary()
+  const prototype = materialLibrary.prototypes[protoId].get({ noproxy: true })
   if (!prototype) throw new Error('could not find Material Prototype for ID ' + protoId)
   return prototype
 }
@@ -112,43 +114,52 @@ export function hashMaterialSource(src: MaterialSource): string {
 }
 
 export function addMaterialSource(src: MaterialSource): boolean {
+  const materialLibrary = getMaterialLibrary()
   const srcId = hashMaterialSource(src)
-  if (!MaterialLibrary.sources.has(srcId)) {
-    MaterialLibrary.sources.set(srcId, { src, entries: [] })
+  if (!materialLibrary.sources[srcId].value) {
+    materialLibrary.sources[srcId].set({ src, entries: [] })
     return true
   } else return false
 }
 
 export function getSourceMaterials(src: MaterialSource): string[] | undefined {
-  return MaterialLibrary.sources.get(hashMaterialSource(src))?.entries
+  const materialLibrary = getMaterialLibrary()
+  return materialLibrary.sources[hashMaterialSource(src)].value?.entries
 }
 
 export function removeMaterialSource(src: MaterialSource): boolean {
+  const materialLibrary = getMaterialLibrary()
   const srcId = hashMaterialSource(src)
-  if (MaterialLibrary.sources.has(srcId)) {
-    const srcComp = MaterialLibrary.sources.get(srcId)!
+  if (materialLibrary.sources[srcId]) {
+    const srcComp = materialLibrary.sources[srcId].value
     srcComp.entries.map((matId) => {
       const toDelete = materialFromId(matId)
       Object.values(toDelete.parameters)
         .filter((val) => (val as Texture)?.isTexture)
         .map((val: Texture) => val.dispose())
       toDelete.material.dispose()
-      MaterialLibrary.materials.delete(matId)
+      materialLibrary.materials[matId].set(none)
     })
-    MaterialLibrary.sources.delete(srcId)
     dispatchAction(MaterialLibraryActions.RemoveSource({ src: srcComp.src }))
+    materialLibrary.sources[srcId].set(none)
+
     return true
   } else return false
 }
 
 export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
+  const materialLibrary = getMaterialLibrary()
   const prototype = prototypeFromId(material.userData.type ?? material.type)
   addMaterialSource(src)
   const srcMats = getSourceMaterials(src)!
-  !srcMats.includes(material.uuid) && srcMats.push(material.uuid)
+  !srcMats.includes(material.uuid) &&
+    materialLibrary.sources[hashMaterialSource(src)].entries.set([
+      ...materialLibrary.sources[hashMaterialSource(src)].entries.value,
+      material.uuid
+    ])
   const parameters =
     params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
-  MaterialLibrary.materials.set(material.uuid, {
+  materialLibrary.materials[material.uuid].set({
     material,
     parameters,
     prototype: prototype.prototypeId,
@@ -157,7 +168,8 @@ export function registerMaterial(material: Material, src: MaterialSource, params
 }
 
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
-  if (MaterialLibrary.prototypes.has(prototype.prototypeId)) {
+  const materialLibrary = getMaterialLibrary()
+  if (!!materialLibrary.prototypes[prototype.prototypeId].value) {
     console.warn(
       'overwriting existing material prototype!\nnew:',
       prototype.prototypeId,
@@ -165,7 +177,7 @@ export function registerMaterialPrototype(prototype: MaterialPrototypeComponentT
       prototypeFromId(prototype.prototypeId)
     )
   }
-  MaterialLibrary.prototypes.set(prototype.prototypeId, prototype)
+  materialLibrary.prototypes[prototype.prototypeId].set(prototype)
 }
 
 export function materialsFromSource(src: MaterialSource) {

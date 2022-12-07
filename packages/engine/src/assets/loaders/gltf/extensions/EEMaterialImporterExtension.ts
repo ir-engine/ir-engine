@@ -1,12 +1,14 @@
 import { Color, Material, Texture } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import {
   materialIdToDefaultArgs,
   materialIdToFactory,
   protoIdToFactory,
   prototypeFromId
-} from '../../../../renderer/materials/functions/Utilities'
-import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
+} from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary, MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
 import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
@@ -34,7 +36,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
     const extension: EEMaterialExtensionType = materialDef.extensions[this.name]
-    const defaultArgs = MaterialLibrary.materials.has(extension.uuid)
+    const defaultArgs = getMaterialLibrary().materials[extension.uuid].value
       ? materialIdToDefaultArgs(extension.uuid)!
       : prototypeFromId(extension.prototype).arguments
     return Promise.all(
@@ -43,7 +45,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
           case undefined:
             break
           case 'texture':
-            if ((v as Texture)?.isTexture) {
+            if (!!v) {
               await parser.assignTexture(materialParams, k, v)
             }
             break

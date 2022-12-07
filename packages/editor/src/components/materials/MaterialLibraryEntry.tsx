@@ -10,7 +10,7 @@ import {
 } from '@xrengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
 import { MaterialSourceComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
 import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
-import { entryId, hashMaterialSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { entryId, hashMaterialSource } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
