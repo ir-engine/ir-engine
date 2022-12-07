@@ -1,3 +1,4 @@
+import { Matrix4, Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
 import { defineState, getState } from '@xrengine/hyperflux'
@@ -28,7 +29,7 @@ export const XRState = defineState({
      * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
     avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
-    avatarHeadLock: 'auto' as 'auto' | true | false,
+    avatarHeadLock: false as 'auto' | true | false,
     /** origin is always 0,0,0 */
     originReferenceSpace: null as XRReferenceSpace | null,
     viewerReferenceSpace: null as XRReferenceSpace | null,
@@ -42,7 +43,9 @@ export const XRState = defineState({
     lightEstimator: null! as XREstimatedLight,
     viewerInputSourceEntity: 0 as Entity,
     leftControllerEntity: 0 as Entity,
-    rightControllerEntity: 0 as Entity
+    rightControllerEntity: 0 as Entity,
+    viewerPositionDelta: new Vector3(),
+    viewerRotationDelta: new Quaternion()
   })
 })
 

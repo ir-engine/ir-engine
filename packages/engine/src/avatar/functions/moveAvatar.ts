@@ -1,5 +1,5 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -25,6 +25,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { updateWorldOrigin } from '../../xr/XRAnchorSystem'
 import { getAvatarHeadLock, getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -143,7 +144,7 @@ export const avatarApplyRotation = (entity: Entity) => {
  * Avatar movement via velocity spring and collider velocity
  */
 export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaternion) => {
-  const controller = getComponent(entity, AvatarControllerComponent) as ComponentType<typeof AvatarControllerComponent>
+  const controller = getComponent(entity, AvatarControllerComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
   const isInVR = getControlMode() === 'attached'
@@ -226,6 +227,7 @@ export const moveAvatarWithTeleport = (entity: Entity, magnitude: number, side: 
 }
 
 const quat = new Quaternion()
+const _vec3 = new Vector3()
 
 /**
  * Updates the WebXR reference space, effectively moving the world to be in alignment with where the viewer should be seeing it.
@@ -235,9 +237,18 @@ export const updateReferenceSpace = (entity: Entity) => {
   const xrState = getState(XRState)
   const viewerPose = Engine.instance.xrFrame?.getViewerPose(xrState.originReferenceSpace.value!)
   const refSpace = xrState.originReferenceSpace.value
+  const world = Engine.instance.currentWorld
 
   if (getControlMode() === 'attached' && refSpace && viewerPose) {
+    // const rigidBody = getComponent(entity, RigidBodyComponent)
+    // rigidBody.position.sub(xrState.viewerPositionDelta.value)
+    /** get rotation about Y axis */
+    // rigidBody.rotation.multiply(xrState.viewerPositionDelta.value)
+    // rigidBody.body.setTranslation(rigidBody.position, true)
+
     const avatarTransform = getComponent(entity, TransformComponent)
+    // avatarTransform.position.copy(rigidBody.position)
+
     const rig = getComponent(entity, AvatarRigComponent)
 
     const avatarHeadLock = getAvatarHeadLock()
@@ -255,8 +266,11 @@ export const updateReferenceSpace = (entity: Entity) => {
     // rotate 180 degrees as physics looks down +z, and webxr looks down -z
     quat.copy(avatarTransform.rotation).multiply(quat180y)
     const xrRigidTransform = new XRRigidTransform(_vec, quat)
-    const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
-    EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
+    updateWorldOrigin(
+      world,
+      _vec.copy(xrRigidTransform.inverse.position as any),
+      quat.copy(xrRigidTransform.inverse.orientation as any)
+    )
   }
 }
 

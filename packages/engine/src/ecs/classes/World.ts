@@ -2,14 +2,20 @@ import { EventQueue } from '@dimforge/rapier3d-compat'
 import { State } from '@hookstate/core'
 import * as bitecs from 'bitecs'
 import {
+  AxesHelper,
+  BoxGeometry,
   Group,
   LinearToneMapping,
+  Mesh,
+  MeshNormalMaterial,
+  MeshStandardMaterial,
   Object3D,
   PCFSoftShadowMap,
   Raycaster,
   Scene,
   Shader,
   ShadowMapType,
+  SphereGeometry,
   ToneMapping,
   Vector2
 } from 'three'
@@ -80,6 +86,7 @@ export class World {
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
     this.origin.name = 'world-origin'
+    this.origin.add(new Mesh(new BoxGeometry(), new MeshNormalMaterial()))
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')
