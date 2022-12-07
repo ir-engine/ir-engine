@@ -2,6 +2,7 @@ import { createHookableFunction } from '@xrengine/common/src/utils/createHookabl
 import { dispatchAction, getState, none } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
+import { updateReferenceSpace } from '../avatar/functions/moveAvatar'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
@@ -65,12 +66,11 @@ export const requestXRSession = createHookableFunction(
       await xrManager.setSession(xrSession)
 
       xrState.sessionActive.set(true)
+      xrState.sessionMode.set(mode)
+      xrManager.setFoveation(1)
 
       const referenceSpace = xrManager.getReferenceSpace()
       xrState.originReferenceSpace.set(referenceSpace)
-
-      xrManager.setFoveation(1)
-      xrState.sessionMode.set(mode)
 
       const world = Engine.instance.currentWorld
 
@@ -131,7 +131,9 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const setupVRSession = (world = Engine.instance.currentWorld) => {}
+export const setupVRSession = (world = Engine.instance.currentWorld) => {
+  updateReferenceSpace(Engine.instance.currentWorld.localClientEntity)
+}
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   EngineRenderer.instance.renderer.domElement.style.display = 'none'

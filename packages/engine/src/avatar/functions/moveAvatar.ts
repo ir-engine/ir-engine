@@ -216,7 +216,7 @@ export const avatarApplyMovement = (entity: Entity, forwardOrientation: Quaterni
   }
 
   if (hasComponent(entity, NetworkObjectAuthorityTag)) {
-    if (currentVelocity.lengthSq() < 0.0001) {
+    if (currentVelocity.lengthSq() > 0.0001) {
       rigidBody.body.setLinvel(currentVelocity, true)
       updateReferenceSpace(Engine.instance.currentWorld.localClientEntity)
     } else if (xrAttached) {
@@ -224,7 +224,7 @@ export const avatarApplyMovement = (entity: Entity, forwardOrientation: Quaterni
       const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
       position.x = cameraPosition.x
       position.z = cameraPosition.z
-      // rigidBody.body.setTranslation(position, true)
+      rigidBody.body.setTranslation(position, true)
     }
   }
 }
@@ -280,16 +280,16 @@ const quat = new Quaternion()
  */
 export const updateReferenceSpace = (entity: Entity) => {
   const xrState = getState(XRState)
-  const viewerPose = Engine.instance.xrFrame?.getViewerPose(xrState.originReferenceSpace.value!)
   const refSpace = xrState.originReferenceSpace.value
 
-  if (getXRAvatarControlMode() === 'attached' && refSpace && viewerPose) {
+  if (getXRAvatarControlMode() === 'attached' && refSpace) {
     const avatarTransform = getComponent(entity, TransformComponent)
     const rig = getComponent(entity, AvatarRigComponent)
+    const viewerPose = Engine.instance.xrFrame?.getViewerPose(xrState.originReferenceSpace.value!)
 
     const avatarHeadLock = getXRAvatarHeadLock()
 
-    if (avatarHeadLock && rig) {
+    if (avatarHeadLock && rig && viewerPose) {
       rig.rig.Head.getWorldPosition(_vec)
       _vec.y += 0.14
       _vec.y -= viewerPose.transform.position.y
