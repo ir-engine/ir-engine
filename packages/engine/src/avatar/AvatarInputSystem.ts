@@ -10,7 +10,7 @@ import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { getControlMode } from '../xr/XRState'
+import { getXRAvatarControlMode } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { moveAvatarWithTeleport, rotateAvatar } from './functions/moveAvatar'
 import { AvatarInputSettingsState } from './state/AvatarInputSettingsState'
@@ -109,7 +109,7 @@ export default async function AvatarInputSystem(world: World) {
 
     movementDelta.set(keyDeltaX, keyDeltaY, keyDeltaZ)
 
-    const cameraAttached = getControlMode() === 'attached'
+    const cameraAttached = getXRAvatarControlMode() === 'attached'
     const teleporting =
       cameraAttached && avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
     const preferredHand = avatarInputSettingsState.preferredHand.value
