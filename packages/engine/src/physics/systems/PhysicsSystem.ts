@@ -63,7 +63,7 @@ export function smoothKinematicBody(entity: Entity, alpha: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
   const transformComponent = getComponent(entity, TransformComponent)
   rigidbodyComponent.position.lerp(transformComponent.position, alpha)
-  rigidbodyComponent.rotation.slerp(transformComponent.rotation, alpha)
+  rigidbodyComponent.rotation.fastSlerp(transformComponent.rotation, alpha)
   rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
   rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
 }
