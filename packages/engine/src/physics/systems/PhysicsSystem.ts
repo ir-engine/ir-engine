@@ -158,11 +158,14 @@ export default async function PhysicsSystem(world: World) {
     const substeps = engineState.physicsSubsteps.value
     const timestep = engineState.fixedDeltaSeconds.value / substeps
     world.physicsWorld.timestep = timestep
-    const smoothAlpha = 50 * timestep
+    const smoothnessMultiplier = 50
+    const smoothAlpha = smoothnessMultiplier * timestep
+    const kinematicPositionEntities = kinematicPositionBodyQuery()
+    const kinematicVelocityEntities = kinematicVelocityBodyQuery()
     for (let i = 0; i < substeps; i++) {
       // smooth kinematic pose changes
-      for (const entity of kinematicPositionBodyQuery()) smoothKinematicBody(entity, smoothAlpha)
-      for (const entity of kinematicVelocityBodyQuery()) smoothKinematicBody(entity, smoothAlpha)
+      for (const entity of kinematicPositionEntities) smoothKinematicBody(entity, smoothAlpha)
+      for (const entity of kinematicVelocityEntities) smoothKinematicBody(entity, smoothAlpha)
       world.physicsWorld.step(world.physicsCollisionEventQueue)
       world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
       world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
