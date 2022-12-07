@@ -184,15 +184,17 @@ export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaterni
     const world = Engine.instance.currentWorld
     const xrState = getState(XRState)
 
-    const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-    cameraAvatarDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value).setY(0).negate()
-    cameraXZ.copy(cameraTransform.position).setY(0)
-    rigidBody.body.setTranslation(cameraXZ, true)
+    // const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
 
-    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    cameraAvatarDifference.add(worldOriginTransform.position)
+    // cameraAvatarDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value).setY(0)
+    // cameraXZ.copy(cameraTransform.position).setY(0)
+    // rigidBody.position.copy(cameraXZ)
+    // console.log(cameraXZ)
+    // rigidBody.body.setTranslation(rigidBody.position, true)
+    // const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+    // cameraAvatarDifference.add(worldOriginTransform.position)
 
-    updateWorldOrigin(world, cameraAvatarDifference, worldOriginTransform.rotation)
+    // updateWorldOrigin(world, cameraAvatarDifference, worldOriginTransform.rotation)
   }
 
   if (hasComponent(entity, NetworkObjectAuthorityTag)) {

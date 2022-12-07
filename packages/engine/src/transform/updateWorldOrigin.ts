@@ -7,6 +7,7 @@ import { V_010, V_111 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { getAvatarHeadLock, getControlMode, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 
@@ -14,6 +15,9 @@ const quat = new Quaternion()
 const _vec = new Vector3()
 const _vec2 = new Vector3()
 const quat180y = new Quaternion().setFromAxisAngle(V_010, Math.PI)
+
+const cameraXZ = new Vector3()
+const cameraAvatarDifference = new Vector3()
 
 /**
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
@@ -26,7 +30,14 @@ export const updateWorldOriginToAttachedAvatar = (world: World) => {
 
   if (getControlMode() === 'attached' && refSpace && viewerPose) {
     const entity = world.localClientEntity
+    const rigidBody = getComponent(entity, RigidBodyComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
+
+    // const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+    // cameraAvatarDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value).setY(0)
+    // rigidBody.position.add(cameraAvatarDifference)
+    // console.log(cameraAvatarDifference)
+    // rigidBody.body.setTranslation(rigidBody.position, true)
 
     const rig = getComponent(entity, AvatarRigComponent)
 
