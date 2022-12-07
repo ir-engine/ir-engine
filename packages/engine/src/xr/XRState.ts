@@ -44,8 +44,7 @@ export const XRState = defineState({
     viewerInputSourceEntity: 0 as Entity,
     leftControllerEntity: 0 as Entity,
     rightControllerEntity: 0 as Entity,
-    viewerPositionDelta: new Vector3(),
-    viewerRotationDelta: new Quaternion()
+    previousCameraPosition: new Vector3()
   })
 })
 

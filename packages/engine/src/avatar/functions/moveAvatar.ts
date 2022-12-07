@@ -23,7 +23,8 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getControlMode } from '../../xr/XRState'
+import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
+import { getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -137,6 +138,9 @@ export const avatarApplyRotation = (entity: Entity) => {
   }
 }
 
+const cameraXZ = new Vector3()
+const cameraAvatarDifference = new Vector3()
+
 /**
  * Avatar movement via velocity spring and collider velocity
  */
@@ -173,6 +177,22 @@ export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaterni
     } else if (controller.isJumping) {
       controller.isJumping = false
     }
+  }
+
+  /** move avatar XZ to camera XZ when in attached mode */
+  if (isInVR) {
+    const world = Engine.instance.currentWorld
+    const xrState = getState(XRState)
+
+    const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+    cameraAvatarDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value).setY(0).negate()
+    cameraXZ.copy(cameraTransform.position).setY(0)
+    rigidBody.body.setTranslation(cameraXZ, true)
+
+    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+    cameraAvatarDifference.add(worldOriginTransform.position)
+
+    updateWorldOrigin(world, cameraAvatarDifference, worldOriginTransform.rotation)
   }
 
   if (hasComponent(entity, NetworkObjectAuthorityTag)) {

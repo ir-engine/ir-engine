@@ -26,14 +26,7 @@ export const updateWorldOriginToAttachedAvatar = (world: World) => {
 
   if (getControlMode() === 'attached' && refSpace && viewerPose) {
     const entity = world.localClientEntity
-    // const rigidBody = getComponent(entity, RigidBodyComponent)
-    // rigidBody.position.sub(xrState.viewerPositionDelta.value)
-    /** get rotation about Y axis */
-    // rigidBody.rotation.multiply(xrState.viewerPositionDelta.value)
-    // rigidBody.body.setTranslation(rigidBody.position, true)
-
     const avatarTransform = getComponent(entity, TransformComponent)
-    // avatarTransform.position.copy(rigidBody.position)
 
     const rig = getComponent(entity, AvatarRigComponent)
 
