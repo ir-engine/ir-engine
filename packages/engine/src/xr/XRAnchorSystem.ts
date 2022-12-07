@@ -29,9 +29,6 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { InputComponent } from '../input/components/InputComponent'
-import { BaseInput } from '../input/enums/BaseInput'
-import { TouchInputs } from '../input/enums/InputEnums'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import {
   addObjectToGroup,

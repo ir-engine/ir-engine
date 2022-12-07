@@ -1,3 +1,4 @@
+import CameraInputSystem from './camera/systems/CameraInputSystem'
 import CameraSystem from './camera/systems/CameraSystem'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import ClientInputSystem from './input/systems/ClientInputSystem'
@@ -10,6 +11,11 @@ import XRUISystem from './xrui/systems/XRUISystem'
 
 export default function () {
   return [
+    {
+      uuid: 'xre.engine.CameraInputSystem',
+      type: SystemUpdateType.UPDATE,
+      systemLoader: () => Promise.resolve({ default: CameraInputSystem })
+    },
     {
       uuid: 'xre.engine.CameraSystem',
       type: SystemUpdateType.UPDATE,

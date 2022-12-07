@@ -12,12 +12,14 @@ import TexturePreviewInput from './TexturePreviewInput'
 export default function ParameterInput({
   entity,
   values,
+  onChange,
   defaults,
-  onChange
+  thumbnails
 }: {
   entity: string
   values: Object
   defaults?: Object
+  thumbnails?: Record<string, string>
   onChange: (k: string) => (v) => void
 }) {
   function setArgsProp(k) {
@@ -67,8 +69,8 @@ export default function ParameterInput({
                 case 'color':
                   return <ColorInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'texture':
-                  if (parms.preview)
-                    return <TexturePreviewInput preview={parms.preview} value={values[k]} onChange={setArgsProp(k)} />
+                  if (thumbnails?.[k])
+                    return <TexturePreviewInput preview={thumbnails[k]} value={values[k]} onChange={setArgsProp(k)} />
                   else return <TexturePreviewInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'vec2':
                 case 'vec3':

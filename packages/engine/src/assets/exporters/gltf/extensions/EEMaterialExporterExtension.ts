@@ -1,7 +1,10 @@
 import { CubeTexture, Material, Texture } from 'three'
 
-import { extractDefaults, materialToDefaultArgs } from '../../../../renderer/materials/functions/Utilities'
-import { MaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
+import {
+  extractDefaults,
+  materialToDefaultArgs
+} from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -48,7 +51,8 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     materialDef.extensions[this.name] = {
       uuid: material.uuid,
       name: material.name,
-      prototype: MaterialLibrary.materials.get(material.uuid)?.prototype ?? material.userData.type ?? material.type,
+      prototype:
+        getMaterialLibrary().materials[material.uuid].value?.prototype ?? material.userData.type ?? material.type,
       args: { ...result }
     }
     this.writer.extensionsUsed[this.name] = true

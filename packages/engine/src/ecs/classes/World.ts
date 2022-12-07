@@ -10,7 +10,8 @@ import {
   Scene,
   Shader,
   ShadowMapType,
-  ToneMapping
+  ToneMapping,
+  Vector2
 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
@@ -26,8 +27,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { InputAlias } from '../../input/types/InputAlias'
+import { ButtonInputStateType } from '../../input/InputState'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -260,10 +260,17 @@ export class World {
 
   readonly dirtyTransforms = {} as Record<Entity, true>
 
-  inputState = new Map<InputAlias, InputValue>()
-  prevInputState = new Map<InputAlias, InputValue>()
-
   inputSources: XRInputSourceArray = []
+
+  pointerState = {
+    position: new Vector2(),
+    lastPosition: new Vector2(),
+    movement: new Vector2(),
+    scroll: new Vector2(),
+    lastScroll: new Vector2()
+  }
+
+  buttons = {} as Readonly<ButtonInputStateType>
 
   reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()
 

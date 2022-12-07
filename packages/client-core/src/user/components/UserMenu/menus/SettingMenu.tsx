@@ -13,14 +13,14 @@ import { AuthService, useAuthState } from '@xrengine/client-core/src/user/servic
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
-import { updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import {
+  AvatarControllerType,
   AvatarInputSettingsAction,
-  AvatarInputSettingsState
+  AvatarInputSettingsState,
+  AvatarMovementScheme
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
@@ -101,7 +101,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover, popoverWidthPx }: Props): JS
       firstRender.current = false
       return
     }
-    updateMap()
+    /** @todo switch handdedness */
   }, [avatarInputState.invertRotationAndMoveSticks])
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
