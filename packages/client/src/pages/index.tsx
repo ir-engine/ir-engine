@@ -11,7 +11,7 @@ import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menu
 import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import config from '@xrengine/common/src/config'
 
-import { Button } from '@mui/material'
+import { Box, Button } from '@mui/material'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 
@@ -76,10 +76,10 @@ export const HomePage = (): any => {
               </Button>
             )}
           </div>
-          <div className="form-container">
+          <Box sx={{ flex: 1 }}>
             <style>
               {`
-                [class*=menuPanel] {
+                [class*=menu] {
                     position: unset;
                     bottom: 0px;
                     top: 0px;
@@ -91,20 +91,12 @@ export const HomePage = (): any => {
               `}
             </style>
             {selectedMenu === Views.Profile && (
-              <ProfileMenu
-                isPopover
-                popoverWidthPx={400}
-                changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
-              />
+              <ProfileMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
             )}
             {selectedMenu === Views.Settings && (
-              <SettingMenu
-                isPopover
-                popoverWidthPx={400}
-                changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
-              />
+              <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
             )}
-          </div>
+          </Box>
         </div>
         <div className="link-container">
           <div className="link-block">

@@ -39,11 +39,10 @@ const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
 interface Props {
   isPopover?: boolean
-  popoverWidthPx?: number
   changeActiveMenu?: (type: string | null) => void
 }
 
-const SettingMenu = ({ changeActiveMenu, isPopover, popoverWidthPx }: Props): JSX.Element => {
+const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
   const audioState = useAudioState()
@@ -158,7 +157,6 @@ const SettingMenu = ({ changeActiveMenu, isPopover, popoverWidthPx }: Props): JS
       open
       showBackButton
       isPopover={isPopover}
-      popoverWidthPx={popoverWidthPx}
       header={<Tabs value={selectedTab} items={settingTabs} onChange={handleTabChange} />}
       onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
       onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}

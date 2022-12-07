@@ -46,19 +46,11 @@ interface Props {
   hideLogin?: boolean
   allowAvatarChange?: boolean
   isPopover?: boolean
-  popoverWidthPx?: number
   changeActiveMenu?: (type: string | null) => void
   onClose?: () => void
 }
 
-const ProfileMenu = ({
-  hideLogin,
-  allowAvatarChange,
-  isPopover,
-  popoverWidthPx,
-  changeActiveMenu,
-  onClose
-}: Props): JSX.Element => {
+const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -361,12 +353,7 @@ const ProfileMenu = ({
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
-    <Menu
-      open
-      isPopover={isPopover}
-      popoverWidthPx={popoverWidthPx}
-      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
-    >
+    <Menu open isPopover={isPopover} onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
       <div className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar

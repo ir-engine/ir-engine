@@ -4,6 +4,8 @@ import { useClientSettingState } from '@xrengine/client-core/src/admin/services/
 import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
 import RoomMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/RoomMenu'
 
+import Box from '@mui/material/Box'
+
 export const RoomPage = (): any => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
@@ -37,10 +39,10 @@ export const RoomPage = (): any => {
         </div>
       </nav>
       <div className="main-section">
-        <div className="form-container">
+        <Box sx={{ flex: 1 }}>
           <style>
             {`
-                [class*=menuPanel] {
+                [class*=menu] {
                     position: unset;
                     bottom: 0px;
                     top: 0px;
@@ -52,7 +54,7 @@ export const RoomPage = (): any => {
               `}
           </style>
           <RoomMenu />
-        </div>
+        </Box>
       </div>
     </div>
   )

@@ -11,7 +11,7 @@ import { default as MUIDialog } from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { Breakpoint } from '@mui/material/styles'
+import { Breakpoint, SxProps, Theme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 import styles from './index.module.scss'
@@ -23,10 +23,10 @@ interface Props {
   header?: React.ReactNode
   isPopover?: boolean
   maxWidth?: Breakpoint | false
-  popoverWidthPx?: number
   showBackButton?: boolean
   showCloseButton?: boolean
   showDefaultActions?: boolean
+  sx?: SxProps<Theme>
   title?: string
   onBack?: () => void
   onClose?: () => void
@@ -40,10 +40,10 @@ const Menu = ({
   header,
   isPopover,
   maxWidth,
-  popoverWidthPx,
   showBackButton,
   showCloseButton,
   showDefaultActions,
+  sx,
   title,
   onBack,
   onClose,
@@ -91,10 +91,7 @@ const Menu = ({
 
   if (isPopover) {
     return (
-      <Box
-        className={styles.menu}
-        sx={{ width: `${popoverWidthPx ?? 600}px`, borderRadius: isPopover ? 'auto' : '4px' }}
-      >
+      <Box className={styles.menu} sx={{ width: '100%', ...sx }}>
         {dialogContent}
       </Box>
     )

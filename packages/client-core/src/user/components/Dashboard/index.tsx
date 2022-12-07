@@ -5,7 +5,7 @@ import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menu
 
 import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
 import { Person } from '@mui/icons-material'
-import { Popover } from '@mui/material'
+import { Box, Popover } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import CssBaseline from '@mui/material/CssBaseline'
 import Drawer from '@mui/material/Drawer'
@@ -97,19 +97,21 @@ const Dashboard = ({ children }: Props) => {
                     classes={{ paper: styles.profilePaper }}
                     onClose={handleClose}
                   >
-                    {selectedMenu === Views.Profile && (
-                      <ProfileMenu
-                        isPopover
-                        onClose={handleClose}
-                        changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
-                      />
-                    )}
-                    {selectedMenu === Views.Settings && (
-                      <SettingMenu
-                        isPopover
-                        changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
-                      />
-                    )}
+                    <Box sx={{ width: '600px' }}>
+                      {selectedMenu === Views.Profile && (
+                        <ProfileMenu
+                          isPopover
+                          onClose={handleClose}
+                          changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
+                        />
+                      )}
+                      {selectedMenu === Views.Settings && (
+                        <SettingMenu
+                          isPopover
+                          changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
+                        />
+                      )}
+                    </Box>
                   </Popover>
                 </>
               )}
