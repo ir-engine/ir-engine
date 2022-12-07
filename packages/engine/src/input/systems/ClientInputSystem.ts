@@ -105,7 +105,7 @@ export const addClientInputListeners = (world: World) => {
 
     for (const [key, val] of activeKeys) {
       if (val.up && val.pressed) {
-        world.buttons[key].released = true
+        world.buttons[key].up = true
       }
     }
   }
@@ -128,7 +128,7 @@ export const addClientInputListeners = (world: World) => {
     const down = event.type === 'keydown'
 
     if (down) world.buttons[code] = createInitialButtonState()
-    else world.buttons[code].released = true
+    else world.buttons[code].up = true
   }
   addListener(document, 'keyup', onKeyEvent)
   addListener(document, 'keydown', onKeyEvent)
@@ -172,16 +172,14 @@ export default async function ClientInputSystem(world: World) {
       if (isDown) {
         val.down = false
         down.delete(key)
-      }
-      if (val.down && !isDown) {
+      } else if (val.down && !isDown) {
         down.add(key)
       }
       const isUp = up.has(key)
       if (isUp) {
         delete world.buttons[key]
         up.delete(key)
-      }
-      if (val.up && !isUp) {
+      } else if (val.up && !isUp) {
         val.pressed = false
         up.add(key)
       }
