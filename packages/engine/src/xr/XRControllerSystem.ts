@@ -1,24 +1,18 @@
 import {
   AdditiveBlending,
   AxesHelper,
-  BoxGeometry,
-  BufferAttribute,
   BufferGeometry,
   Float32BufferAttribute,
-  Group,
   Line,
   LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   RingGeometry,
-  SphereGeometry,
-  XRGripSpace
+  SphereGeometry
 } from 'three'
 
-import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { BinaryValue } from '../common/enums/BinaryValue'
-import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
@@ -30,9 +24,7 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
-import { GamepadAxis } from '../input/enums/InputEnums'
-import { InputType } from '../input/enums/InputType'
-import { GamepadMapping } from '../input/functions/GamepadInput'
+import { createInitialButtonState } from '../input/InputState'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -40,11 +32,7 @@ import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  TransformComponent
-} from '../transform/components/TransformComponent'
+import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import {
   InputSourceComponent,
   PointerObject,
@@ -54,7 +42,7 @@ import {
   XRHandComponent,
   XRPointerComponent
 } from './XRComponents'
-import { getControlMode, XRAction, XRState } from './XRState'
+import { getControlMode, XRState } from './XRState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -90,49 +78,44 @@ const updateInputSource = (entity: Entity, space: XRSpace, referenceSpace: XRRef
   transform.rotation.copy(pose.transform.orientation as any)
 }
 
-export function updateGamepadInput(source: XRInputSource) {
+const ButtonAlias = {
+  left: {
+    0: 'LeftTrigger',
+    1: 'LeftBumper',
+    2: 'LeftPad',
+    3: 'LeftStick',
+    4: 'ButtonX',
+    5: 'ButtonY'
+  },
+  right: {
+    0: 'RightTrigger',
+    1: 'RightBumper',
+    2: 'RightPad',
+    3: 'RightStick',
+    4: 'ButtonA',
+    5: 'ButtonB'
+  }
+}
+
+export function updateGamepadInput(world: World, source: XRInputSource) {
   if (source.gamepad?.mapping === 'xr-standard') {
-    const mapping = GamepadMapping['xr-standard'][source.handedness]
-
-    source.gamepad.buttons.forEach((button, index) => {
-      // TODO : support button.touched and button.value
-      const prev = Engine.instance.currentWorld.prevInputState.has(mapping[index])
-      Engine.instance.currentWorld.inputState.set(mapping[index], {
-        type: InputType.BUTTON,
-        value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-        lifecycleState:
-          prev && prev === button.pressed
-            ? LifecycleValue.Unchanged
-            : button.pressed
-            ? LifecycleValue.Started
-            : LifecycleValue.Ended
-      })
-    })
-
-    // TODO: we shouldn't be modifying input data here, deadzone should be handled elsewhere
-    const inputData = [...source.gamepad.axes]
-    for (let i = 0; i < inputData.length; i++) {
-      if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
-    }
-
-    // NOTE: we are inverting input here, as the avatar model is flipped 180 degrees. when that is solved, uninvert these gamepad inputs
-    if (inputData.length >= 2) {
-      const Touchpad = source.handedness === 'left' ? GamepadAxis.LTouchpad : GamepadAxis.RTouchpad
-
-      Engine.instance.currentWorld.inputState.set(Touchpad, {
-        type: InputType.TWODIM,
-        value: [inputData[0], inputData[1]],
-        lifecycleState: LifecycleValue.Started // TODO
-      })
-    }
-
-    if (inputData.length >= 4) {
-      const Thumbstick = source.handedness === 'left' ? GamepadAxis.LThumbstick : GamepadAxis.RThumbstick
-      Engine.instance.currentWorld.inputState.set(Thumbstick, {
-        type: InputType.TWODIM,
-        value: [inputData[2], inputData[3]],
-        lifecycleState: LifecycleValue.Started // TODO
-      })
+    const mapping = ButtonAlias[source.handedness]
+    const buttons = source.gamepad?.buttons
+    if (buttons) {
+      for (let i = 0; i < buttons.length; i++) {
+        const buttonMapping = mapping[i]
+        const button = buttons[i]
+        if (!world.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          world.buttons[buttonMapping] = createInitialButtonState(button)
+        }
+        if (world.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          world.buttons[buttonMapping].pressed = button.pressed
+          world.buttons[buttonMapping].touched = button.touched
+          world.buttons[buttonMapping].value = button.value
+        } else if (world.buttons[buttonMapping]) {
+          world.buttons[buttonMapping].up = true
+        }
+      }
     }
   }
 }
@@ -307,12 +290,34 @@ export default async function XRControllerSystem(world: World) {
   const gripQuery = defineQuery([XRControllerGripComponent])
   const handQuery = defineQuery([XRHandComponent])
 
+  const targetRaySpace = {} as XRSpace
+
+  const screenInputSource = {
+    handedness: 'none',
+    targetRayMode: 'screen',
+    targetRaySpace,
+    gripSpace: undefined,
+    gamepad: {
+      axes: new Array(2).fill(0),
+      buttons: [],
+      connected: true,
+      hapticActuators: [],
+      id: '',
+      index: 0,
+      mapping: 'xr-standard',
+      timestamp: Date.now()
+    },
+    profiles: [],
+    hand: undefined
+  }
+  const defaultInputSourceArray = [screenInputSource] as XRInputSourceArray
+
   const execute = () => {
     updateInputSourceEntities()
 
     if (Engine.instance.xrFrame) {
       const session = Engine.instance.xrFrame.session
-      for (const source of session.inputSources) updateGamepadInput(source)
+      for (const source of session.inputSources) updateGamepadInput(world, source)
 
       const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
       if (referenceSpace) {
@@ -329,7 +334,9 @@ export default async function XRControllerSystem(world: World) {
 
       world.inputSources = session.inputSources
     } else {
-      world.inputSources = []
+      world.inputSources = defaultInputSourceArray
+      const now = Date.now()
+      screenInputSource.gamepad.timestamp = now
     }
   }
 

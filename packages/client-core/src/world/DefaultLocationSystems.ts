@@ -1,5 +1,6 @@
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 
+import WebcamInputSystem from '../media/webcam/WebcamInput'
 import AvatarUISystem from '../systems/AvatarUISystem'
 import LoadingUISystem from '../systems/LoadingUISystem'
 import PortalLoadSystem from '../systems/PortalLoadSystem'
@@ -37,5 +38,10 @@ export const DefaultLocationSystems: SystemModuleType<any>[] = [
     uuid: 'xre.client.core.UpdateNearbyUsersSystem',
     type: 'FIXED',
     systemLoader: () => Promise.resolve({ default: UpdateNearbyUsersSystem })
+  },
+  {
+    uuid: 'xre.client.core.WebcamInputSystem',
+    type: 'UPDATE_EARLY',
+    systemLoader: () => Promise.resolve({ default: WebcamInputSystem })
   }
 ]

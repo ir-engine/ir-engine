@@ -1,13 +1,13 @@
 import { Not } from 'bitecs'
 import { Consumer } from 'mediasoup-client/lib/Consumer'
-import { Group, Matrix4, Vector2, Vector3 } from 'three'
+import { useEffect } from 'react'
+import { Group, Matrix4, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { easeOutElastic } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
@@ -17,8 +17,6 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
-import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
@@ -32,7 +30,7 @@ import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyS
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent, XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
-import { createActionQueue } from '@xrengine/hyperflux'
+import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
@@ -81,9 +79,9 @@ export default async function AvatarUISystem(world: World) {
 
   const applyingVideo = new Map()
 
-  const handleAvatarClick = (action: ReturnType<typeof EngineActions.buttonClicked>) => {
-    /** clickaway */
-    if (AvatarContextMenuUI.state.id.value !== '' && !action.clicked && action.button === BaseInput.PRIMARY) {
+  /** XRUI Clickaway */
+  const onPrimaryClick = () => {
+    if (AvatarContextMenuUI.state.id.value !== '') {
       const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent)
       const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (!hit) {
@@ -91,27 +89,21 @@ export default async function AvatarUISystem(world: World) {
         setVisibleComponent(AvatarContextMenuUI.entity, false)
       }
     }
+  }
 
-    /** only handle avatar click if right clicking and when lifting button */
-    if (action.button !== BaseInput.SECONDARY || action.clicked === true) return
+  const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
+  const raycastComponentData = {
+    type: SceneQueryType.Closest,
+    origin: new Vector3(),
+    direction: new Vector3(),
+    maxDistance: 20,
+    groups: interactionGroups
+  } as RaycastArgs
 
-    const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
-    const raycastComponentData = {
-      type: SceneQueryType.Closest,
-      origin: new Vector3(),
-      direction: new Vector3(),
-      maxDistance: 20,
-      groups: interactionGroups
-    } as RaycastArgs
-
-    const input = getComponent(world.localClientEntity, InputComponent)
-    const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value!
-
-    const coords = new Vector2(screenXY[0], screenXY[1])
-
+  const onSecondaryClick = () => {
     const hits = Physics.castRayFromCamera(
       Engine.instance.currentWorld.camera,
-      coords,
+      world.pointerState.position,
       Engine.instance.currentWorld.physicsWorld,
       raycastComponentData
     )
@@ -130,15 +122,16 @@ export default async function AvatarUISystem(world: World) {
     AvatarContextMenuUI.state.id.set('')
   }
 
-  const primaryButtonClickActionQueue = createActionQueue(EngineActions.buttonClicked.matches)
-
   const execute = () => {
+    const keys = world.buttons
+
+    if (keys.PrimaryClick?.down) onPrimaryClick()
+    if (keys.PrimaryClick?.down) onSecondaryClick()
+
     videoPreviewTimer += world.deltaSeconds
     if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
     const immersiveMedia = shouldUseImmersiveMedia()
-
-    for (const action of primaryButtonClickActionQueue()) handleAvatarClick(action)
 
     for (const userEntity of userQuery.enter()) {
       if (AvatarUI.has(userEntity)) {

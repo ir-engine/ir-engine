@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { Bone, Object3D } from 'three'
 
-import { ParityValue } from '../../common/enums/ParityValue'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   createMappedComponent,
@@ -100,20 +99,20 @@ export const AvatarIKTargetsComponent = createMappedComponent<AvatarIKTargetsTyp
  * @param hand which hand to get
  * @returns {Vector3}
  */
-export const getHandTarget = (entity: Entity, hand: ParityValue = ParityValue.NONE): Object3D | null => {
+export const getHandTarget = (entity: Entity, hand: XRHandedness): Object3D | null => {
   switch (hand) {
-    case ParityValue.LEFT:
+    case 'left':
       if (hasComponent(entity, AvatarLeftHandIKComponent))
         return getComponent(entity, AvatarLeftHandIKComponent).target as Object3D
       if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.LeftHand as Bone
       break
-    case ParityValue.RIGHT:
+    case 'right':
       if (hasComponent(entity, AvatarRightHandIKComponent))
         return getComponent(entity, AvatarRightHandIKComponent).target as Object3D
       if (hasComponent(entity, AvatarRigComponent))
         return getComponent(entity, AvatarRigComponent).rig.RightHand as Bone
       break
-    case ParityValue.NONE:
+    case 'none':
       if (hasComponent(entity, AvatarHeadIKComponent))
         return getComponent(entity, AvatarHeadIKComponent).target as Object3D
       if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.Head as Bone

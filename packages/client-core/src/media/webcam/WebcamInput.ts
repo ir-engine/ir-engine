@@ -1,13 +1,21 @@
+import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
 import * as Comlink from 'comlink'
+import { SkinnedMesh } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
-import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
-import { CameraInput } from '@xrengine/engine/src/input/enums/InputEnums'
-import { InputType } from '@xrengine/engine/src/input/enums/InputType'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { WebcamInputComponent } from '@xrengine/engine/src/input/components/WebcamInputComponent'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 
 import { MediaStreams } from '../../transports/MediaStreams'
 // @ts-ignore
@@ -68,19 +76,12 @@ export const startFaceTracking = async () => {
   faceVideo.play()
 }
 
-const nameToInputValue = {
-  angry: CameraInput.Angry,
-  disgusted: CameraInput.Disgusted,
-  fearful: CameraInput.Fearful,
-  happy: CameraInput.Happy,
-  neutral: CameraInput.Neutral,
-  sad: CameraInput.Sad,
-  surprised: CameraInput.Surprised
-}
+let prevExp = ''
 
-let prevExp: string = ''
+export async function faceToInput(detection: { detection: FaceDetection; expressions: FaceExpressions }) {
+  if (!hasComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)) return
+  const webcampInput = getComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)
 
-export async function faceToInput(detection) {
   if (detection !== undefined && detection.expressions !== undefined) {
     for (const expression in detection.expressions) {
       if (prevExp !== expression && detection.expressions[expression] >= EXPRESSION_THRESHOLD) {
@@ -89,26 +90,18 @@ export async function faceToInput(detection) {
             ' ' +
             (detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression])
         )
+
         prevExp = expression
-        /*const user = useAuthState().user
-        await sendChatMessage({
-          targetObjectId: user.instanceId.value,
-          targetObjectType: 'instance',
-          text: '[emotions]' + prevExp
-        })*/
-        if (hasComponent(Engine.instance.currentWorld.localClientEntity, WebCamInputComponent)) {
-          getComponent(Engine.instance.currentWorld.localClientEntity, WebCamInputComponent).emotions.push(prevExp)
-        }
         console.log('emotions|' + Engine.instance.currentWorld.localClientEntity + '|' + prevExp)
       }
       // If the detected value of the expression is more than 1/3rd-ish of total, record it
       // This should allow up to 3 expressions but usually 1-2
-      const inputKey = nameToInputValue[expression]
-      Engine.instance.currentWorld.inputState.set(inputKey, {
-        type: InputType.ONEDIM,
-        value: [detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression]],
-        lifecycleState: LifecycleValue.Changed
-      })
+      const inputIndex = expressionByIndex.findIndex((exp) => exp === expression)!
+      const aboveThreshold = detection.expressions[expression] < EXPRESSION_THRESHOLD
+      if (aboveThreshold) {
+        webcampInput.expressionIndex = inputIndex
+        webcampInput.expressionValue = detection.expressions[expression]
+      }
     }
   }
 }
@@ -148,7 +141,7 @@ export const startLipsyncTracking = () => {
   audioProcessor.connect(audioContext.destination)
 
   audioProcessor.onaudioprocess = () => {
-    if (!lipsyncTracking) return
+    if (!lipsyncTracking || !hasComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)) return
     // bincount returns array which is half the FFT_SIZE
     spectrum = new Float32Array(userSpeechAnalyzer.frequencyBinCount)
     // Populate frequency data for computing frequency intensities
@@ -186,39 +179,11 @@ export const startLipsyncTracking = () => {
     const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
     const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
 
-    lipToInput(pucker, widen, open)
+    const webcampInput = getComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)
+    webcampInput.pucker = pucker
+    webcampInput.widen = widen
+    webcampInput.open = open
   }
-}
-
-export const lipToInput = (pucker: number, widen: number, open: number) => {
-  if (pucker > 0.2)
-    Engine.instance.currentWorld.inputState.set(nameToInputValue['pucker'], {
-      type: InputType.ONEDIM,
-      value: [pucker],
-      lifecycleState: LifecycleValue.Changed
-    })
-  else if (Engine.instance.currentWorld.inputState.has(nameToInputValue['pucker']))
-    Engine.instance.currentWorld.inputState.delete(nameToInputValue['pucker'])
-
-  // Calculate lips widing and apply as input
-  if (widen > 0.2)
-    Engine.instance.currentWorld.inputState.set(nameToInputValue['widen'], {
-      type: InputType.ONEDIM,
-      value: [widen],
-      lifecycleState: LifecycleValue.Changed
-    })
-  else if (Engine.instance.currentWorld.inputState.has(nameToInputValue['widen']))
-    Engine.instance.currentWorld.inputState.delete(nameToInputValue['widen'])
-
-  // Calculate mouth opening and apply as input
-  if (open > 0.2)
-    Engine.instance.currentWorld.inputState.set(nameToInputValue['open'], {
-      type: InputType.ONEDIM,
-      value: [open],
-      lifecycleState: LifecycleValue.Changed
-    })
-  else if (Engine.instance.currentWorld.inputState.has(nameToInputValue['open']))
-    Engine.instance.currentWorld.inputState.delete(nameToInputValue['open'])
 }
 
 function getRMS(spectrum) {
@@ -238,4 +203,65 @@ function getSensitivityMap(spectrum) {
     stPSD[i] = sensitivity_threshold + (spectrum[i] + 20) / 140
   }
   return stPSD
+}
+
+const morphNameByInput = {
+  neutral: 'None',
+  angry: 'Frown',
+  disgusted: 'Frown',
+  fearful: 'Frown',
+  happy: 'Smile',
+  surprised: 'Frown',
+  sad: 'Frown',
+  pucker: 'None',
+  widen: 'Frown',
+  open: 'Happy'
+}
+
+const expressionByIndex = Object.keys(morphNameByInput)
+const morphNameByIndex = Object.values(morphNameByInput)
+
+const setAvatarExpression = (entity: Entity): void => {
+  const group = getComponent(entity, GroupComponent)
+  const webcamInput = getComponent(entity, WebcamInputComponent)
+  let body
+  for (const obj of group)
+    obj.traverse((obj: SkinnedMesh) => {
+      if (!body && obj.morphTargetDictionary) body = obj
+    })
+
+  if (!body?.isMesh || !body?.morphTargetDictionary) {
+    console.warn('[Avatar Emotions]: This avatar does not support expressive visemes.')
+    return
+  }
+
+  const morphValue = webcamInput.expressionValue
+  const morphName = morphNameByIndex[webcamInput.expressionIndex]
+  const morphIndex = body.morphTargetDictionary[morphName]
+  console.log(body.morphTargetDictionary)
+
+  if (typeof morphIndex !== 'number') {
+    console.warn('[Avatar Emotions]: This avatar does not support the', morphName, ' expression.')
+    return
+  }
+
+  // console.warn(inputKey + ": " + morphName + ":" + morphIndex + " = " + morphValue)
+  if (morphName && morphValue !== null) {
+    if (typeof morphValue === 'number') {
+      body.morphTargetInfluences![morphIndex] = morphValue // 0.0 - 1.0
+    }
+  }
+}
+
+/** @todo - this is broken - need to define the API */
+export default async function WebcamInputSystem(world: World) {
+  const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
+
+  const execute = () => {
+    // for (const entity of webcamQuery()) setAvatarExpression(entity)
+  }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
 }
