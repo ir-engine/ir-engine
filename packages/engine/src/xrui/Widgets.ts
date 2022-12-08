@@ -43,6 +43,7 @@ export const registerWidget = (world: World, xruiEntity: Entity, widget: Widget)
   const id = `${widget.label}-${xruiEntity}`
   dispatchAction(WidgetAppActions.registerWidget({ id }))
   world.widgets.set(id, widget)
+  return id
 }
 
 export const Widgets = {
