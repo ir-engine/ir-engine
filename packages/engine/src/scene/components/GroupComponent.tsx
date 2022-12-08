@@ -1,3 +1,5 @@
+import * as bitECS from 'bitecs'
+import React from 'react'
 import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
 
 import { none } from '@xrengine/hyperflux'
@@ -17,8 +19,11 @@ import {
   getComponentState,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
@@ -91,3 +96,27 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
 }
 
 export const SCENE_COMPONENT_GROUP = 'group'
+
+type GroupReactorProps = {
+  entity: Entity
+  obj: Object3D
+}
+
+export const createGroupQueryReactor = (
+  GroupChildReactor: React.FC<GroupReactorProps>,
+  components: (bitECS.Component | bitECS.QueryModifier)[] = []
+) =>
+  startQueryReactor([GroupComponent, ...components], function (props) {
+    const entity = props.root.entity
+    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+
+    const groupComponent = useOptionalComponent(entity, GroupComponent)
+
+    return (
+      <>
+        {groupComponent?.value?.map((obj, i) => (
+          <GroupChildReactor key={obj.uuid + i} entity={entity} obj={obj} />
+        ))}
+      </>
+    )
+  })

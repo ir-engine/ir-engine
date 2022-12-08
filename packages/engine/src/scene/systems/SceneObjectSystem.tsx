@@ -24,7 +24,7 @@ import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
+import { createGroupQueryReactor, GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
@@ -123,20 +123,7 @@ export default async function SceneObjectSystem(world: World) {
   /**
    * Group Reactor - responds to any changes in the
    */
-  const groupReactor = startQueryReactor([GroupComponent], function (props) {
-    const entity = props.root.entity
-    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
-
-    const groupComponent = useOptionalComponent(entity, GroupComponent)
-
-    return (
-      <>
-        {groupComponent?.value?.map((obj, i) => (
-          <GroupChildReactor key={obj.uuid + i} entity={entity} obj={obj} />
-        ))}
-      </>
-    )
-  })
+  const groupReactor = createGroupQueryReactor(GroupChildReactor)
 
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
@@ -165,6 +152,8 @@ export default async function SceneObjectSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, groupQuery)
     removeQuery(world, updatableQuery)
+    reactorSystem.stop()
+    groupReactor.stop()
   }
 
   const subsystems = [() => Promise.resolve({ default: FogSystem })]
