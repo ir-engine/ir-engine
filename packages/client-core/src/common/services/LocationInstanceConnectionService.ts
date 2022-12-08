@@ -232,8 +232,8 @@ export const LocationInstanceConnectionService = {
   connectToServer: async (instanceId: string) => {
     dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
     const network = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
-    logger.info({ socket: !!network.socket, transport: network }, 'Connect To World Server')
-    if (network.socket) {
+    logger.info({ primus: !!network.primus, transport: network }, 'Connect To World Server')
+    if (network.primus) {
       leaveNetwork(network, false)
     }
     const { ipAddress, port, locationId, roomCode } =

@@ -1,15 +1,15 @@
+// Do not delete json and urlencoded, they are used even if some IDEs show them as unused
 import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
 import { feathers } from '@feathersjs/feathers'
-import socketio from '@feathersjs/socketio'
 import * as k8s from '@kubernetes/client-node'
 import compress from 'compression'
 import cors from 'cors'
 import { EventEmitter } from 'events'
+// Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
-import { Socket } from 'socket.io'
 
 import { isDev } from '@xrengine/common/src/config'
 import { pipe } from '@xrengine/common/src/utils/pipe'
@@ -24,6 +24,7 @@ import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
 import services from './services'
 import authentication from './user/authentication'
+import primus from './util/primus'
 
 require('fix-esm').register()
 
@@ -55,8 +56,8 @@ export const configureOpenAPI = () => (app: Application) => {
   return app
 }
 
-export const configureSocketIO =
-  (instanceserver = false, onSocket = (app: Application, socket: Socket) => {}) =>
+export const configurePrimus =
+  (instanceserver = false) =>
   (app: Application) => {
     const origin = [
       'https://' + appConfig.server.clientHost,
@@ -65,22 +66,19 @@ export const configureSocketIO =
     ]
     if (!instanceserver) origin.push('https://localhost:3001')
     app.configure(
-      socketio(
+      primus(
+        instanceserver,
         {
-          serveClient: false,
-          cors: {
-            origin,
-            methods: ['OPTIONS', 'GET', 'POST'],
-            allowedHeaders: '*',
-            preflightContinue: instanceserver,
-            credentials: true
-          }
+          transformer: 'websockets',
+          origins: origin,
+          methods: ['OPTIONS', 'GET', 'POST'],
+          headers: '*',
+          credentials: true
         },
-        (io) => {
-          io.use((socket, next) => {
-            ;(socket as any).feathers.socketQuery = socket.handshake.query
-            ;(socket as any).socketQuery = socket.handshake.query
-            onSocket(app, socket as any)
+        (primus) => {
+          primus.use((message, socket, next) => {
+            ;(message as any).feathers.socketQuery = message.query
+            ;(message as any).socketQuery = message.query
             next()
           })
         }
@@ -118,7 +116,7 @@ export const configureK8s = () => (app: Application) => {
   return app
 }
 
-export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configureRedis(), configureK8s()) as (
+export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureRedis(), configureK8s()) as (
   app: Application
 ) => Application
 
