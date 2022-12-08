@@ -83,7 +83,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
     >
       {user && user.id && (
         <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
-          <Avatar imageSrc={getAvatarURLForUser(userAvatarDetails, user.id)} size={150} />
+          <Avatar imageSrc={getAvatarURLForUser(userAvatarDetails, user.id)} size={150} sx={{ margin: '0 auto' }} />
 
           <Text variant="h6" align="center" mt={2} mb={1}>
             {user.name}
