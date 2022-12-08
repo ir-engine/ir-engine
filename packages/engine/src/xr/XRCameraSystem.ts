@@ -56,7 +56,7 @@ export default async function XRCameraSystem(world: World) {
   const execute = () => {
     if (!EngineRenderer.instance.xrSession) return
 
-    const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+    const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
     xrState.previousCameraPosition.value.copy(cameraTransform.position)
 
     updateXRInput(world)

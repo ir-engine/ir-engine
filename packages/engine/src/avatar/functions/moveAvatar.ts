@@ -22,7 +22,7 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
@@ -139,7 +139,7 @@ export const avatarApplyRotation = (entity: Entity) => {
 }
 
 const cameraXZ = new Vector3()
-const cameraAvatarDifference = new Vector3()
+const cameraDifference = new Vector3()
 
 /**
  * Avatar movement via velocity spring and collider velocity
@@ -178,23 +178,16 @@ export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaterni
       controller.isJumping = false
     }
   }
+  const xrState = getState(XRState)
 
-  /** move avatar XZ to camera XZ when in attached mode */
+  /** move avatar with camera when in attached mode */
   if (isInVR) {
     const world = Engine.instance.currentWorld
-    const xrState = getState(XRState)
 
-    // const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-
-    // cameraAvatarDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value).setY(0)
-    // cameraXZ.copy(cameraTransform.position).setY(0)
-    // rigidBody.position.copy(cameraXZ)
-    // console.log(cameraXZ)
-    // rigidBody.body.setTranslation(rigidBody.position, true)
-    // const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    // cameraAvatarDifference.add(worldOriginTransform.position)
-
-    // updateWorldOrigin(world, cameraAvatarDifference, worldOriginTransform.rotation)
+    const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+    cameraDifference.copy(cameraLocalTransform.position).sub(xrState.previousCameraPosition.value)
+    rigidBody.position.add(cameraDifference)
+    rigidBody.body.setTranslation(rigidBody.position, true)
   }
 
   if (hasComponent(entity, NetworkObjectAuthorityTag)) {

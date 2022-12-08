@@ -177,6 +177,19 @@ export default async function TransformSystem(world: World) {
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
+  const originChildEntities = new Set<Entity>()
+
+  /** get list of entities that are children of the world origin */
+  const updateOriginChildEntities = (entity: Entity) => {
+    const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
+    const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
+
+    if (referenceEntity && (originChildEntities.has(referenceEntity) || referenceEntity === world.originEntity))
+      originChildEntities.add(referenceEntity)
+    if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === world.originEntity))
+      originChildEntities.add(parentEntity)
+  }
+
   const transformDepths = new Map<Entity, number>()
 
   const updateTransformDepth = (entity: Entity) => {
@@ -243,6 +256,10 @@ export default async function TransformSystem(world: World) {
 
     // if transform order is dirty, sort by reference depth
     // Note: cyclic references will cause undefined behavior
+
+    /**
+     * 1 - Sort transforms if needed
+     */
     const { transformsNeedSorting } = getState(EngineState)
 
     let needsSorting = transformsNeedSorting.value
@@ -261,10 +278,24 @@ export default async function TransformSystem(world: World) {
     if (needsSorting) {
       transformDepths.clear()
       for (const entity of sortedTransformEntities) updateTransformDepth(entity)
+      for (const entity of sortedTransformEntities) updateOriginChildEntities(entity)
       insertionSort(sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
       transformsNeedSorting.set(false)
     }
 
+    /**
+     * 2 - Update avatar entity and world origin reference space
+     */
+    if (entityExists(world, world.localClientEntity)) {
+      if (world.dirtyTransforms[world.localClientEntity]) {
+        computeTransformMatrix(world.localClientEntity, world)
+      }
+      updateWorldOriginToAttachedAvatar(world)
+    }
+
+    /**
+     * 3 - Update scene entities (entities not children of the world origin)
+     */
     const allRigidbodyEntities = rigidbodyTransformQuery()
     const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingDynamicRigidbodies)
     const invCleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingDynamicRigidbodies)
@@ -336,10 +367,10 @@ export default async function TransformSystem(world: World) {
             localClientPosition
           )
       }
-
-      updateWorldOriginToAttachedAvatar(world)
     }
 
+    /** Update skeletons - override threejs so we can take advantage of priority avatars optimization */
+    // @todo - maybe optimize this if prototype manipulation is slow
     Skeleton.prototype.update = skeletonUpdate
     for (const entity of world.priorityAvatarEntities) {
       const group = getComponent(entity, GroupComponent)
