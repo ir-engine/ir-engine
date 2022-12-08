@@ -11,7 +11,7 @@ import { default as MUIDialog } from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { Breakpoint } from '@mui/material/styles'
+import { Breakpoint, SxProps, Theme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 import styles from './index.module.scss'
@@ -26,6 +26,7 @@ interface Props {
   showBackButton?: boolean
   showCloseButton?: boolean
   showDefaultActions?: boolean
+  sx?: SxProps<Theme>
   title?: string
   onBack?: () => void
   onClose?: () => void
@@ -42,6 +43,7 @@ const Menu = ({
   showBackButton,
   showCloseButton,
   showDefaultActions,
+  sx,
   title,
   onBack,
   onClose,
@@ -55,36 +57,44 @@ const Menu = ({
 
   const dialogContent = (
     <>
-      <DialogTitle className={styles.dialogTitle}>
-        {showBackButton && <IconButton icon={<ArrowBack />} sx={{ mr: 1 }} onClick={onBack} />}
+      {(showBackButton || title || header || showCloseButton) && (
+        <DialogTitle className={styles.dialogTitle}>
+          {showBackButton && <IconButton icon={<ArrowBack />} sx={{ mr: 1 }} onClick={onBack} />}
 
-        {title && <Typography variant="h6">{title}</Typography>}
+          {title && <Typography variant="h6">{title}</Typography>}
 
-        {header}
+          {header}
 
-        {showCloseButton && <IconButton icon={<CloseIcon />} sx={{ ml: 1 }} onClick={onClose} />}
-      </DialogTitle>
+          {showCloseButton && <IconButton icon={<CloseIcon />} sx={{ ml: 1 }} onClick={onClose} />}
+        </DialogTitle>
+      )}
 
       <DialogContent>{children}</DialogContent>
 
-      <DialogActions>
-        {showDefaultActions && (
-          <>
-            <Button type="outlined" onClick={onClose}>
-              {t('common:components.cancel')}
-            </Button>
-            <Button type="gradient" autoFocus onClick={onSubmit}>
-              {t('common:components.confirm')}
-            </Button>
-          </>
-        )}
-        {actions}
-      </DialogActions>
+      {(showDefaultActions || actions) && (
+        <DialogActions>
+          {showDefaultActions && (
+            <>
+              <Button type="outlined" onClick={onClose}>
+                {t('common:components.cancel')}
+              </Button>
+              <Button type="gradient" autoFocus onClick={onSubmit}>
+                {t('common:components.confirm')}
+              </Button>
+            </>
+          )}
+          {actions}
+        </DialogActions>
+      )}
     </>
   )
 
   if (isPopover) {
-    return <Box className={`${styles.menu} ${styles.popover}`}>{dialogContent}</Box>
+    return (
+      <Box className={styles.menu} sx={{ width: '100%', ...sx }}>
+        {dialogContent}
+      </Box>
+    )
   }
 
   return (

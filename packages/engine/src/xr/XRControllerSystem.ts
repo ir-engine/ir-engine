@@ -106,7 +106,7 @@ export function updateGamepadInput(world: World, source: XRInputSource) {
         const buttonMapping = mapping[i]
         const button = buttons[i]
         if (!world.buttons[buttonMapping] && (button.pressed || button.touched)) {
-          world.buttons[buttonMapping] = createInitialButtonState(button)
+          world.buttons[buttonMapping] = createInitialButtonState({ ...button, down: button.pressed })
         }
         if (world.buttons[buttonMapping] && (button.pressed || button.touched)) {
           world.buttons[buttonMapping].pressed = button.pressed

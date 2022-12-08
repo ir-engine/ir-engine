@@ -5,14 +5,15 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { getControlMode } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { moveAvatarWithTeleport, rotateAvatar } from './functions/moveAvatar'
+import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
+import { rotateAvatar } from './functions/moveAvatar'
 import { AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 export default async function AvatarInputSystem(world: World) {
@@ -114,6 +115,8 @@ export default async function AvatarInputSystem(world: World) {
       cameraAttached && avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
     const preferredHand = avatarInputSettingsState.preferredHand.value
 
+    let teleport = null as null | XRHandedness
+
     /** override keyboard input with XR axes input */
     for (const inputSource of inputSources) {
       if (inputSource.gamepad?.mapping === 'xr-standard') {
@@ -132,7 +135,9 @@ export default async function AvatarInputSystem(world: World) {
         }
 
         if (teleporting) {
-          moveAvatarWithTeleport(localClientEntity, yDelta, inputSource.handedness)
+          if (yDelta < -0.75 && !teleport) {
+            teleport = inputSource.handedness
+          }
 
           const canRotate = Math.abs(xDelta) > 0.1 && Math.abs(yDelta) < 0.1
 
@@ -166,7 +171,13 @@ export default async function AvatarInputSystem(world: World) {
       }
     }
 
-    if (!teleporting) {
+    if (teleporting) {
+      if (teleport) {
+        setComponent(localClientEntity, AvatarTeleportComponent, { side: teleport })
+      } else {
+        removeComponent(localClientEntity, AvatarTeleportComponent)
+      }
+    } else {
       const controller = getComponent(localClientEntity, AvatarControllerComponent)
       controller.localMovementDirection.copy(movementDelta).normalize()
     }

@@ -14,7 +14,6 @@ import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/co
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import {
-  AvatarControllerType,
   AvatarInputSettingsAction,
   AvatarInputSettingsState,
   AvatarMovementScheme

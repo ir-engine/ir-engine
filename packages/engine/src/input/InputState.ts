@@ -143,7 +143,7 @@ export const DefaultBooleanButtonArgs = Object.freeze({ down: true, pressed: tru
 
 export const createInitialButtonState = (initial: Readonly<Partial<ButtonType>> = DefaultBooleanButtonArgs) => {
   return {
-    down: initial.down ?? true,
+    down: initial.down ?? initial.pressed ?? false,
     pressed: initial.pressed ?? true,
     touched: initial.touched ?? true,
     up: initial.up ?? false,

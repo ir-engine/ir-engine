@@ -234,18 +234,6 @@ export const avatarStepOverObstacles = (entity: Entity, forwardOrientation: Quat
 }
 
 /**
- * Moves the avatar with teleport controls
- * @param entity
- */
-export const moveAvatarWithTeleport = (entity: Entity, magnitude: number, side: XRHandedness) => {
-  if (magnitude < -0.75 && !hasComponent(entity, AvatarTeleportComponent)) {
-    setComponent(entity, AvatarTeleportComponent, { side })
-  } else if (magnitude === 0.0) {
-    removeComponent(entity, AvatarTeleportComponent)
-  }
-}
-
-/**
  * Rotates the avatar's rigidbody around the Y axis by a given entity
  * @param entity
  * @param angle
