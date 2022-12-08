@@ -1,5 +1,7 @@
 import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
 
+import { none } from '@xrengine/hyperflux'
+
 import {
   proxifyQuaternion,
   proxifyQuaternionWithDirty,
@@ -12,6 +14,7 @@ import {
   addComponent,
   defineComponent,
   getComponent,
+  getComponentState,
   hasComponent,
   removeComponent,
   setComponent
@@ -45,7 +48,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
-  getComponent(entity, GroupComponent).push(obj)
+  getComponentState(entity, GroupComponent).merge([obj])
 
   const transform = getComponent(entity, TransformComponent)
   const world = Engine.instance.currentWorld
@@ -78,7 +81,9 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
 
   if (hasComponent(entity, GroupComponent)) {
     const group = getComponent(entity, GroupComponent)
-    if (group.includes(obj)) group.splice(group.indexOf(obj), 1)
+    if (group.includes(obj)) {
+      getComponentState(entity, GroupComponent)[group.indexOf(obj)].set(none)
+    }
     if (!group.length) removeComponent(entity, GroupComponent)
   }
 

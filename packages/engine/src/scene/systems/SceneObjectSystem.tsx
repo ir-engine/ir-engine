@@ -1,8 +1,16 @@
 import { Not } from 'bitecs'
-import { useEffect } from 'react'
-import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
+import React, { useEffect } from 'react'
+import {
+  Color,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial
+} from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getState, State, useHookstate } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
@@ -10,11 +18,13 @@ import { isClient } from '../../common/functions/isClient'
 import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
+  getOptionalComponentState,
   hasComponent,
   removeQuery,
   useComponent,
@@ -81,79 +91,58 @@ export default async function SceneObjectSystem(world: World) {
               }
           })
       }
-    }, [])
+    }, [getOptionalComponentState(entity, GroupComponent)])
 
     return null
   })
 
-  const addedToGroup = (obj) => {
-    const material = obj.material
-    if (typeof material !== 'undefined') {
-      material.dithering = true
-      if (obj.material?.userData && obj.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(obj)
-    }
+  function GroupChildReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
+    const { entity, obj } = props
+
+    const groupComponent = useOptionalComponent(entity, GroupComponent)
+    const shadowComponent = useOptionalComponent(entity, ShadowComponent)
+
+    useEffect(() => {
+      const mesh = obj as any as Mesh<any, any>
+      const material = mesh.material
+      if (typeof material !== 'undefined') {
+        material.dithering = true
+        if (mesh.material?.userData && mesh.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(mesh)
+      }
+
+      return () => {
+        const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
+        for (const layer of layers) {
+          if (layer.has(mesh)) layer.delete(mesh)
+        }
+      }
+    }, [])
+
+    useEffect(() => {
+      const shadow = shadowComponent?.value
+      obj.castShadow = !!shadow?.cast
+      obj.receiveShadow = !!shadow?.receive
+    }, [shadowComponent])
+
+    return null
   }
 
   /**
-   * Group Reactor System
-   * responds to any changes in the
+   * Group Reactor - responds to any changes in the
    */
-  const groupReactorSystem = startQueryReactor([GroupComponent], function (props) {
+  const groupReactor = startQueryReactor([GroupComponent], function (props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
     const groupComponent = useOptionalComponent(entity, GroupComponent)
-    const visibleComponent = useOptionalComponent(entity, VisibleComponent)
-    const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-    const _groups = useHookstate([] as Object3DWithEntity[])
 
-    useEffect(() => {
-      const length = groupComponent?.value?.length ?? 0
-      const addedGroup = length > _groups.value.length
-      const removedGroup = length < _groups.value.length
-
-      if (addedGroup && groupComponent?.value) {
-        for (const obj of groupComponent.value) {
-          if (!_groups.value.includes(obj)) {
-            addedToGroup(obj)
-          }
-        }
-      }
-
-      if (removedGroup) {
-        const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
-        for (const obj of _groups.value) {
-          if (!groupComponent?.value.includes(obj)) {
-            for (const layer of layers) {
-              if (layer.has(obj)) layer.delete(obj)
-            }
-          }
-        }
-      }
-
-      groupComponent?.value ? _groups.set([...groupComponent.value]) : _groups.set([])
-
-      return () => {
-        const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
-        for (const obj of _groups.value) {
-          for (const layer of layers) {
-            if (layer.has(obj)) layer.delete(obj)
-          }
-        }
-      }
-    }, [groupComponent])
-
-    useEffect(() => {
-      if (groupComponent?.value) {
-        if (shadowComponent?.value)
-          for (const obj of groupComponent.value) {
-            obj.castShadow = shadowComponent.cast.value
-            obj.receiveShadow = shadowComponent.receive.value
-          }
-      }
-    }, [shadowComponent, groupComponent])
-
-    return null
+    return (
+      <>
+        {groupComponent?.value?.map((obj) => (
+          <GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+        ))}
+      </>
+    )
   })
 
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
