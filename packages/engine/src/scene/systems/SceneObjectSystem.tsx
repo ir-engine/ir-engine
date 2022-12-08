@@ -1,16 +1,7 @@
-import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
-import {
-  Color,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  MeshPhongMaterial,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial
-} from 'three'
+import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
 
-import { getState, State, useHookstate } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
@@ -27,13 +18,11 @@ import {
   getOptionalComponentState,
   hasComponent,
   removeQuery,
-  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { XRState } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
@@ -68,7 +57,7 @@ export default async function SceneObjectSystem(world: World) {
   const groupQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
+  const reactorSystem = startQueryReactor([GroupComponent, VisibleComponent], function (props) {
     const entity = props.root.entity
 
     useEffect(() => {
@@ -99,16 +88,20 @@ export default async function SceneObjectSystem(world: World) {
   function GroupChildReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
     const { entity, obj } = props
 
-    const groupComponent = useOptionalComponent(entity, GroupComponent)
     const shadowComponent = useOptionalComponent(entity, ShadowComponent)
 
     useEffect(() => {
       const mesh = obj as any as Mesh<any, any>
-      const material = mesh.material
-      if (typeof material !== 'undefined') {
-        material.dithering = true
-        if (mesh.material?.userData && mesh.receiveShadow) EngineRenderer.instance.csm?.setupMaterial(mesh)
-      }
+      mesh.traverse((child: Mesh<any, any>) => {
+        const material = child.material
+        if (material) {
+          material.dithering = true
+          if (material.userData && shadowComponent?.value?.receive) {
+            /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
+            EngineRenderer.instance.csm?.setupMaterial(child)
+          }
+        }
+      })
 
       return () => {
         const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
@@ -138,8 +131,8 @@ export default async function SceneObjectSystem(world: World) {
 
     return (
       <>
-        {groupComponent?.value?.map((obj) => (
-          <GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+        {groupComponent?.value?.map((obj, i) => (
+          <GroupChildReactor key={obj.uuid + i} entity={entity} obj={obj} />
         ))}
       </>
     )

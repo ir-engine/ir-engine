@@ -128,7 +128,7 @@ export const addClientInputListeners = (world: World) => {
     const down = event.type === 'keydown'
 
     if (down) world.buttons[code] = createInitialButtonState()
-    else world.buttons[code].up = true
+    else if (world.buttons[code]) world.buttons[code].up = true
   }
   addListener(document, 'keyup', onKeyEvent)
   addListener(document, 'keydown', onKeyEvent)

@@ -4,7 +4,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent, getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type TransformComponentType = {
   position: Vector3
@@ -37,7 +37,7 @@ export const LocalTransformComponent = createMappedComponent<LocalTransformCompo
 globalThis.TransformComponent = TransformComponent
 
 /**
- * Sets the transform component and local transform component, defaulting parent to the root scene node.
+ * Sets the transform component.
  * Used for objects that exist as part of the world - such as avatars and scene objects
  * @param entity
  * @param parentEntity
@@ -46,25 +46,38 @@ globalThis.TransformComponent = TransformComponent
  * @param scale
  * @returns
  */
-export function setTransformComponent(
-  entity: Entity,
-  position = new Vector3(),
-  rotation = new Quaternion(),
-  scale = new Vector3(1, 1, 1)
-) {
+export function setTransformComponent(entity: Entity, position?: Vector3, rotation?: Quaternion, scale?: Vector3) {
   const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
-  setComponent(entity, TransformComponent, {
-    position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms, position),
-    rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms, rotation),
-    scale: proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, scale),
-    matrix: new Matrix4(),
-    matrixInverse: new Matrix4()
-  })
-  TransformComponent.mapState[entity].set(TransformComponent.map[entity])
+  if (hasComponent(entity, TransformComponent)) {
+    const existingTransform = getComponent(entity, TransformComponent)
+    if (position) existingTransform.position.copy(position)
+    if (rotation) existingTransform.rotation.copy(rotation)
+    if (scale) existingTransform.scale.copy(scale)
+  } else {
+    setComponent(entity, TransformComponent, {
+      position: proxifyVector3WithDirty(
+        TransformComponent.position,
+        entity,
+        dirtyTransforms,
+        position ?? new Vector3()
+      ),
+      rotation: proxifyQuaternionWithDirty(
+        TransformComponent.rotation,
+        entity,
+        dirtyTransforms,
+        rotation ?? new Quaternion()
+      ),
+      scale: proxifyVector3WithDirty(TransformComponent.scale, entity, dirtyTransforms, scale ?? new Vector3(1, 1, 1)),
+      matrix: new Matrix4(),
+      matrixInverse: new Matrix4()
+    })
+    TransformComponent.mapState[entity].set(TransformComponent.map[entity])
+  }
 }
 
 /**
  * Sets the local transform component. This is used to calculate relative transforms.
+ * Used for objects that exist as part of a specific coordinate system - such as avatars and scene objects
  * @param entity
  * @param parentEntity
  * @param position

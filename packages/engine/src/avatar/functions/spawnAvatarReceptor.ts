@@ -1,5 +1,5 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Group, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -64,20 +64,10 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
   const transform = getComponent(entity, TransformComponent)
 
-  // The visuals group is centered for easy actor tilting
-  const tiltContainer = new Group()
-  tiltContainer.name = 'Actor (tiltContainer)' + entity
-  // tiltContainer.position.setY(defaultAvatarHalfHeight)
-
-  // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
-  const modelContainer = new Group()
-  modelContainer.name = 'Actor (modelContainer)' + entity
-  tiltContainer.add(modelContainer)
-
   addComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
-    modelContainer
+    model: null
   })
 
   addComponent(entity, NameComponent, 'avatar_' + userId)
@@ -96,7 +86,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
   })
 
   addComponent(entity, AnimationComponent, {
-    mixer: new AnimationMixer(modelContainer),
+    mixer: new AnimationMixer(new Object3D()),
     animations: [] as AnimationClip[],
     animationSpeed: 1
   })
@@ -116,9 +106,6 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     leftHand: false,
     rightHand: false
   })
-
-  addObjectToGroup(entity, tiltContainer)
-  setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   addComponent(entity, SpawnPoseComponent, {
     position: new Vector3().copy(transform.position),
