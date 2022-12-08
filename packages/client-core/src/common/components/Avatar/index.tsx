@@ -9,6 +9,7 @@ import { SxProps, Theme } from '@mui/material/styles'
 import styles from './index.module.scss'
 
 interface Props {
+  alt?: string
   className?: string
   id?: string
   imageSrc?: string
@@ -18,7 +19,7 @@ interface Props {
   onChange?: () => void
 }
 
-const Avatar = ({ className, id, imageSrc, showChangeButton, size, sx, onChange }: Props) => {
+const Avatar = ({ alt, className, id, imageSrc, showChangeButton, size, sx, onChange }: Props) => {
   if (!size) {
     size = 80
   }
@@ -29,7 +30,7 @@ const Avatar = ({ className, id, imageSrc, showChangeButton, size, sx, onChange 
       id={id}
       sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
     >
-      <img src={imageSrc} crossOrigin="anonymous" />
+      <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
       {showChangeButton && (
         <IconButton
           className={styles.avatarBtn}
