@@ -55,3 +55,8 @@
 .bold {
   font-weight: bold;
 }
+
+.chip {
+  color: var(--textColor);
+  border-color: var(--textColor);
+}

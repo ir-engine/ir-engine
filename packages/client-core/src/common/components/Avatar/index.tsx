@@ -13,20 +13,29 @@ interface Props {
   id?: string
   imageSrc?: string
   showChangeButton?: boolean
+  size?: number
   sx?: SxProps<Theme>
-  onClick?: () => void
+  onChange?: () => void
 }
 
-const Avatar = ({ className, id, imageSrc, showChangeButton, sx, onClick }: Props) => {
+const Avatar = ({ className, id, imageSrc, showChangeButton, size, sx, onChange }: Props) => {
+  if (!size) {
+    size = 80
+  }
+
   return (
-    <Box className={`${styles.avatarBlock} ${className}`} id={id} sx={sx}>
+    <Box
+      className={`${styles.avatarBlock} ${className}`}
+      id={id}
+      sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
+    >
       <img src={imageSrc} crossOrigin="anonymous" />
       {showChangeButton && (
         <IconButton
           className={styles.avatarBtn}
           disableRipple
           icon={<CreateIcon sx={{ fontSize: '20px' }} />}
-          onClick={onClick}
+          onClick={onChange}
         />
       )}
     </Box>

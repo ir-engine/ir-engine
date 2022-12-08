@@ -20,6 +20,7 @@ interface Props {
   open: boolean
   actions?: React.ReactNode
   children?: React.ReactNode
+  contentMargin?: string | number
   header?: React.ReactNode
   isPopover?: boolean
   maxWidth?: Breakpoint | false
@@ -37,6 +38,7 @@ const Menu = ({
   open,
   actions,
   children,
+  contentMargin,
   header,
   isPopover,
   maxWidth,
@@ -69,7 +71,7 @@ const Menu = ({
         </DialogTitle>
       )}
 
-      <DialogContent>{children}</DialogContent>
+      <DialogContent sx={{ margin: contentMargin }}>{children}</DialogContent>
 
       {(showDefaultActions || actions) && (
         <DialogActions>

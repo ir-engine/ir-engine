@@ -1,10 +1,10 @@
 .avatarBlock {
-  width: 80px;
-  height: 80px;
-  box-shadow: 0 2px 18px 0 #11111159;
+  filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
   border-radius: 50%;
-  background: white;
+  margin: 0 auto;
   position: relative;
+  background-color: var(--popupBackground);
+  border: 3px solid var(--iconButtonSelectedBackground);
 
   img {
     width: 100%;

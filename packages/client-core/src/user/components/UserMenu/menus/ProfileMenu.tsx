@@ -359,7 +359,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
           <Avatar
             imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
             showChangeButton={allowAvatarChange && changeActiveMenu ? true : false}
-            onClick={() => changeActiveMenu && changeActiveMenu(Views.AvatarSelect)}
+            onChange={() => changeActiveMenu && changeActiveMenu(Views.AvatarSelect)}
           />
 
           <Box className={styles.profileDetails}>
