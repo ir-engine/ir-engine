@@ -17,14 +17,15 @@ import styles from './index.module.scss'
 
 interface Props {
   className?: string
-  name?: string
-  label?: string
-  value?: unknown
-  menu: InputMenuItem[]
-  error?: string
   disabled?: boolean
   endControl?: React.ReactNode
+  error?: string
+  id?: string
+  label?: string
+  menu: InputMenuItem[]
+  name?: string
   sx?: SxProps<Theme>
+  value?: unknown
   onChange?: (e: any) => void
 }
 
@@ -34,7 +35,7 @@ export interface InputMenuItem {
   disabled?: boolean
 }
 
-const InputSelect = ({ className, name, label, value, menu, error, disabled, endControl, sx, onChange }: Props) => {
+const InputSelect = ({ className, disabled, endControl, error, id, label, menu, name, sx, value, onChange }: Props) => {
   const { t } = useTranslation()
 
   if (!disabled) {
@@ -55,14 +56,15 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
           <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
           <Select
-            name={name}
-            value={value}
-            label={capitalizeFirstLetter(label)}
             disabled={disabled}
+            displayEmpty
+            fullWidth
+            id={id}
+            label={capitalizeFirstLetter(label)}
+            name={name}
             size={'small'}
             sx={{ opacity: disabled ? 0.38 : 1 }}
-            fullWidth
-            displayEmpty
+            value={value}
             MenuProps={{ classes: { paper: styles.selectPaper } }}
             onChange={onChange}
             onPointerUp={handleSoundEffect}

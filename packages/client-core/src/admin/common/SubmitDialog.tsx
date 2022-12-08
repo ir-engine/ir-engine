@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -48,27 +49,25 @@ const FormDialog = () => {
         </DialogActions>
       </Dialog>
       {!open && (
-        <div className="form-container">
-          <style>
-            {`
-                [class*=menuPanel] {
-                    position: absolute;
-                    top: 50%;
-                    right: 50%;
-                    left: auto;
-                    transform: translate(50%,-50%);Profile
-                    margin: 0;
-                    pointer-events: auto;
-                  }
-                `}
-          </style>
-          {selectedMenu === Views.Profile && (
-            <ProfileMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
-          )}
-          {selectedMenu === Views.Settings && (
-            <SettingMenu changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
-          )}
-        </div>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
+            alignItems: 'center',
+            position: 'absolute'
+          }}
+        >
+          <Box sx={{ width: '50%' }}>
+            {selectedMenu === Views.Profile && (
+              <ProfileMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+            )}
+            {selectedMenu === Views.Settings && (
+              <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+            )}
+          </Box>
+        </Box>
       )}
     </div>
   )

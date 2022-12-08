@@ -12,15 +12,16 @@ import styles from './index.module.scss'
 
 interface Props {
   className?: string
-  name?: string
-  label?: string
   checked?: boolean
   disabled?: boolean
+  id?: string
+  label?: string
+  name?: string
   sx?: SxProps<Theme>
   onChange?: (e: any) => void
 }
 
-const InputSwitch = ({ className, name, label, checked, disabled, sx, onChange }: Props) => {
+const InputSwitch = ({ className, checked, disabled, id, label, name, sx, onChange }: Props) => {
   return (
     <Box sx={sx}>
       <FormControlLabel
@@ -31,6 +32,7 @@ const InputSwitch = ({ className, name, label, checked, disabled, sx, onChange }
             name={name}
             checked={checked}
             disabled={disabled}
+            id={id}
             onChange={onChange}
             onPointerUp={handleSoundEffect}
             onPointerEnter={handleSoundEffect}
