@@ -67,6 +67,7 @@ export const configurePrimus =
     if (!instanceserver) origin.push('https://localhost:3001')
     app.configure(
       primus(
+        instanceserver,
         {
           transformer: 'websockets',
           origins: origin,
