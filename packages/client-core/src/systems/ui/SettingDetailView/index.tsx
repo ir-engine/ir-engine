@@ -63,11 +63,11 @@ const SettingDetailView = () => {
     const avatar = getComponent(entity, AvatarComponent)
     if (!avatar) return
     if (showAvatar) {
-      if (avatar.model.visible) return
-      avatar.model.visible = showAvatar
+      if (avatar.model!.visible) return
+      avatar.model!.visible = showAvatar
     } else {
-      if (!avatar.model.visible) return
-      avatar.model.visible = showAvatar
+      if (!avatar.model!.visible) return
+      avatar.model!.visible = showAvatar
     }
   }, [showAvatar])
 
