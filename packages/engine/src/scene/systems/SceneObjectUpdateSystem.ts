@@ -398,7 +398,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     serialize: serializeSpline
   })
 
-  const cameraQuery = defineQuery([CameraComponent])
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
@@ -430,7 +429,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
       }
     }
 
-    for (const entity of cameraQuery.enter()) addObjectToGroup(entity, getComponent(entity, CameraComponent).camera)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
@@ -566,7 +564,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     world.sceneComponentRegistry.delete(SplineComponent.name)
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
 
-    removeQuery(world, cameraQuery)
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)
     removeQuery(world, sceneEnvmapQuery)

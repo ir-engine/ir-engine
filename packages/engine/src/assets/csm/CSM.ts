@@ -304,6 +304,7 @@ export class CSM {
 
   setupMaterial(mesh: Mesh): void {
     const material = mesh.material as Material
+    if (!material.userData) material.userData = {}
     if (material.userData.IGNORE_CSM || material.userData.CSMPlugin) return
     material.defines = material.defines || {}
     material.defines.USE_CSM = 1
@@ -319,7 +320,8 @@ export class CSM {
     material.userData.CSMPlugin = {
       id: OBCType.CSM,
       compile: function (shader: ShaderType) {
-        if (!self.camera) return
+        if (shaders.has(material)) return
+        console.log(material)
         const far = Math.min(self.camera.far, self.maxFar)
         self.getExtendedBreaks(breaksVec2)
 
@@ -333,7 +335,7 @@ export class CSM {
 
     addOBCPlugin(material, material.userData.CSMPlugin)
 
-    shaders.set(material, null!)
+    shaders.delete(material)
   }
 
   updateUniforms(): void {
