@@ -86,7 +86,6 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   Interpolate the remaining time after the fixed pipeline is complete.
   See https://gafferongames.com/post/fix_your_timestep/#the-final-touch
   */
-
   const previousPositionX = RigidBodyComponent.previousPosition.x[entity]
   const previousPositionY = RigidBodyComponent.previousPosition.y[entity]
   const previousPositionZ = RigidBodyComponent.previousPosition.z[entity]
@@ -112,6 +111,22 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   TransformComponent.rotation.w[entity] = previousRotationW + (rotationW - previousRotationW) * alpha
 
   Engine.instance.currentWorld.dirtyTransforms[entity] = true
+}
+
+const lerpTransformFromRigidbodyWithLocalTransform = (entity: Entity, alpha: number) => {
+  const transform = getComponent(entity, TransformComponent)
+  const localTransform = getOptionalComponent(entity, LocalTransformComponent)
+
+  lerpTransformFromRigidbody(entity, alpha)
+
+  transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+
+  if (localTransform) {
+    const parentTransform = getOptionalComponent(localTransform.parentEntity, TransformComponent) || transform
+    localTransform.matrix.multiplyMatrices(parentTransform.matrixInverse, transform.matrix)
+    localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+    updateTransformFromLocalTransform(entity)
+  }
 }
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
@@ -263,7 +278,7 @@ export default async function TransformSystem(world: World) {
     // lerp clean dynamic rigidbody entities (make them dirty)
     const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
     const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
-    for (const entity of cleanDynamicRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
+    for (const entity of cleanDynamicRigidbodyEntities) lerpTransformFromRigidbodyWithLocalTransform(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
     for (const entity of transformQuery()) {
