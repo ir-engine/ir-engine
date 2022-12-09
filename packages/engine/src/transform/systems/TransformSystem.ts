@@ -1,4 +1,4 @@
-import { entityExists } from 'bitecs'
+import { entityExists, Not } from 'bitecs'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
@@ -42,7 +42,7 @@ import {
 } from '../components/TransformComponent'
 
 const transformQuery = defineQuery([TransformComponent])
-const localTransformQuery = defineQuery([LocalTransformComponent])
+const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
 const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
@@ -121,10 +121,11 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const localTransform = getOptionalComponent(entity, LocalTransformComponent)
+  const isDynamicRigidbody = hasComponent(entity, RigidBodyDynamicTagComponent)
   const parentTransform = localTransform?.parentEntity
     ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
     : undefined
-  if (!localTransform || !parentTransform) return false
+  if (!localTransform || !parentTransform || isDynamicRigidbody) return false
   const transform = getComponent(entity, TransformComponent)
   transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
   transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
@@ -285,11 +286,11 @@ export default async function TransformSystem(world: World) {
     }
 
     const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirtyNonKinematic)
-    const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
+    const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
     const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
 
-    for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
+    for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
     for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity, world)
 
     // exclude teleporting kinematic bodies, which are updated in the Physics System
