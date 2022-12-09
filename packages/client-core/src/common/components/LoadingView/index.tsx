@@ -13,9 +13,10 @@ interface Props {
   titleColor?: string
   sx?: SxProps<Theme>
   fullHeight?: boolean
+  flexDirection?: string
 }
 
-const LoadingView = ({ className, title, variant, titleColor, sx, fullHeight = true }: Props) => {
+const LoadingView = ({ className, title, variant, titleColor, sx, fullHeight = true, flexDirection }: Props) => {
   if (!variant) {
     variant = 'h6'
   }

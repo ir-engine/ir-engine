@@ -1,0 +1,146 @@
+.root {
+  color: var(--textColor);
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+  border: 1px solid var(--inputBackground);
+  background-color: var(--inputBackground);
+  border-radius: 4px;
+  padding: 5px;
+  display: flex;
+  flex-wrap: wrap;
+
+  input {
+    background-color: var(--inputBackground);
+    color: var(--textColor);
+    height: 30px;
+    box-sizing: border-box;
+    padding: 4px 6px;
+    width: 0;
+    min-width: 30px;
+    flex-grow: 1;
+    border: 0;
+    margin: 0;
+    outline: 0;
+    z-index: 1;
+  }
+
+  :global {
+    .MuiOutlinedInput-notchedOutline {
+      position: absolute;
+      border-color: var(--inputOutline) !important;
+      border-radius: 4px;
+      border-style: solid;
+      border-width: 1px;
+      width: 100%;
+      top: -10px;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 0;
+
+      legend {
+        visibility: visible;
+        font-size: 12px;
+        margin-left: 8px;
+        padding: 0 5px;
+        max-width: fit-content;
+      }
+    }
+
+    .MuiOutlinedInput-notchedOutline.disabled {
+      border-color: rgb(var(--inputOutlineRgb) 0.38) !important;
+    }
+  }
+}
+
+.listbox {
+  margin: 2px 0 0;
+  padding: 0;
+  position: absolute;
+  list-style: none;
+  background-color: var(--inputBackground);
+  color: var(--textColor);
+  overflow: auto;
+  max-height: 30vh;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  z-index: 1;
+
+  & li {
+    padding: 5px 12px;
+    display: flex;
+    cursor: pointer;
+
+    & span {
+      flex-grow: 1;
+    }
+
+    & svg {
+      color: transparent;
+    }
+  }
+
+  & li[aria-selected="true"] {
+    background-color: var(--dropdownMenuHoverBackground);
+    font-weight: 600;
+
+    & svg {
+      color: var(--textColor);
+    }
+  }
+
+  & li[data-focus="true"] {
+    background-color: var(--dropdownMenuHoverBackground) !important;
+    cursor: pointer;
+
+    & svg {
+      color: var(--textColor);
+    }
+  }
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  margin: 2px;
+  line-height: 22px;
+  background-color: var(--panelBackground);
+  border: 1px solid var(--panelBackground);
+  border-radius: 2px;
+  box-sizing: content-box;
+  padding: 0 4px 0 10px;
+  outline: 0;
+  overflow: hidden;
+  color: var(--textColor);
+  z-index: 1;
+
+  span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  svg {
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--textColor);
+  }
+}
+
+.clearButton {
+  padding-top: 0;
+  padding-bottom: 0;
+  color: white;
+
+  &:hover {
+    color: var(--red);
+  }
+}
