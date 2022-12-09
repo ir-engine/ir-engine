@@ -61,10 +61,7 @@ export default async function SceneObjectSystem(world: World) {
   const groupQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  function setupObject(
-    obj: Object3DWithEntity,
-    shadowComponent: ReturnType<typeof useOptionalComponent<typeof ShadowComponent>>
-  ) {
+  function setupObject(obj: Object3DWithEntity) {
     const mesh = obj as any as Mesh<any, any>
     mesh.traverse((child: Mesh<any, any>) => {
       if (child.material) {
@@ -90,8 +87,7 @@ export default async function SceneObjectSystem(world: World) {
     const shadowComponent = useOptionalComponent(entity, ShadowComponent)
 
     useEffect(() => {
-      setupObject(obj, shadowComponent)
-
+      setupObject(obj)
       return () => {
         const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
         for (const layer of layers) {
