@@ -13,7 +13,6 @@ import {
   ComponentType,
   defineQuery,
   getComponent,
-  getOptionalComponentState,
   hasComponent,
   removeQuery,
   useOptionalComponent
@@ -110,7 +109,6 @@ export default async function PositionalAudioSystem(world: World) {
     [PositionalAudioComponent, TransformComponent],
     function (props) {
       const entity = props.root.entity
-      if (!hasComponent(entity, PositionalAudioComponent)) throw props.root.stop()
 
       const mediaElement = useOptionalComponent(entity, MediaElementComponent)
       const panner = useHookstate(null as ReturnType<typeof addPannerNode> | null)
@@ -129,6 +127,8 @@ export default async function PositionalAudioSystem(world: World) {
           }
         }
       }, [mediaElement])
+
+      if (!hasComponent(entity, PositionalAudioComponent)) throw props.root.stop()
 
       return null
     }
