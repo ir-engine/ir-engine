@@ -7,9 +7,7 @@ import { startReactor, useHookstate } from '@xrengine/hyperflux'
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { World } from '../../ecs/classes/World'
-import { getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
-import { GroupComponent } from '../components/GroupComponent'
+import { GroupReactorProps, startGroupQueryReactor } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { FogType } from '../constants/FogType'
@@ -29,7 +27,7 @@ const getFogPlugin = (world: World): PluginType => {
 }
 
 export default async function FogSystem(world: World) {
-  const reactor = startReactor(() => {
+  const fogStateReactor = startReactor(() => {
     const fog = useHookstate(world.sceneMetadata.fog)
 
     useEffect(() => {
@@ -108,45 +106,47 @@ export default async function FogSystem(world: World) {
     return null
   })
 
-  reactor.run()
+  function addFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
+    if (!obj.material || !obj.material.fog || obj.material.userData.fogPlugin) return
+    obj.material.userData.fogPlugin = getFogPlugin(world)
+    addOBCPlugin(obj.material, obj.material.userData.fogPlugin)
+    obj.material.needsUpdate = true
+  }
 
-  const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
-    const entity = props.root.entity
-    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+  function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
+    if (!obj.material?.userData?.fogPlugin) return
+    removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
+    delete obj.material.userData.fogPlugin
+    // material.needsUpdate is not working. Therefore have to invalidate the cache manually
+    const key = Math.random()
+    obj.material.customProgramCacheKey = () => key.toString()
+  }
 
+  function FogGroupReactor({ obj }: GroupReactorProps) {
     const type = useHookstate(world.sceneMetadata.fog.type)
 
     useEffect(() => {
       const customShader =
         world.sceneMetadata.fog.type.value === FogType.Brownian || world.sceneMetadata.fog.type.value === FogType.Height
-      for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
-        if (customShader) {
-          object.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
-            if (!obj.material || !obj.material.fog || obj.material.userData.fogPlugin) return
-            obj.material.userData.fogPlugin = getFogPlugin(world)
-            addOBCPlugin(obj.material, obj.material.userData.fogPlugin)
-            obj.material.needsUpdate = true
-          })
-        } else {
-          /** remove fog shader */
-          object.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
-            if (!obj.material?.userData?.fogPlugin) return
-            removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
-            delete obj.material.userData.fogPlugin
-            // material.needsUpdate is not working. Therefore have to invalidate the cache manually
-            const key = Math.random()
-            obj.material.customProgramCacheKey = () => key.toString()
-          })
-          world.fogShaders = []
-        }
+      if (customShader) {
+        obj.traverse(addFogShaderPlugin)
+      } else {
+        obj.traverse(removeFogShaderPlugin)
+        world.fogShaders = []
+      }
     }, [type])
 
     return null
-  })
+  }
+
+  const fogGroupQueryReactor = startGroupQueryReactor(FogGroupReactor, [Not(SceneTagComponent), VisibleComponent])
 
   const execute = () => {}
 
-  const cleanup = async () => {}
+  const cleanup = async () => {
+    fogGroupQueryReactor.stop()
+    fogStateReactor.stop()
+  }
 
   return { execute, cleanup }
 }

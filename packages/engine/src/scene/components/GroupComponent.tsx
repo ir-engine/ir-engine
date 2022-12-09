@@ -51,6 +51,8 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
+  if (getComponent(entity, GroupComponent).includes(obj))
+    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
   getComponentState(entity, GroupComponent).merge([obj])
@@ -88,6 +90,8 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
     const group = getComponent(entity, GroupComponent)
     if (group.includes(obj)) {
       getComponentState(entity, GroupComponent)[group.indexOf(obj)].set(none)
+    } else {
+      console.warn('[removeObjectFromGroup]: Tried to remove an obejct from a group it is not in', entity, object)
     }
     if (!group.length) removeComponent(entity, GroupComponent)
   }
@@ -97,12 +101,12 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
 
 export const SCENE_COMPONENT_GROUP = 'group'
 
-type GroupReactorProps = {
+export type GroupReactorProps = {
   entity: Entity
-  obj: Object3D
+  obj: Object3DWithEntity
 }
 
-export const createGroupQueryReactor = (
+export const startGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
   components: (bitECS.Component | bitECS.QueryModifier)[] = []
 ) =>
@@ -115,7 +119,7 @@ export const createGroupQueryReactor = (
     return (
       <>
         {groupComponent?.value?.map((obj, i) => (
-          <GroupChildReactor key={obj.uuid + i} entity={entity} obj={obj} />
+          <GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
         ))}
       </>
     )

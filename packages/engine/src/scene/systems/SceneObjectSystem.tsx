@@ -24,9 +24,9 @@ import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { createGroupQueryReactor, GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
+import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
-import { ShadowComponent } from '../components/ShadowComponent'
+import { ShadowComponent, ShadowComponentType } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import FogSystem from './FogSystem'
@@ -57,33 +57,32 @@ export default async function SceneObjectSystem(world: World) {
   const groupQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  const reactorSystem = startQueryReactor([GroupComponent, VisibleComponent], function (props) {
-    const entity = props.root.entity
+  function setupObject(
+    obj: Object3DWithEntity,
+    shadowComponent: ReturnType<typeof useOptionalComponent<typeof ShadowComponent>>
+  ) {
+    const mesh = obj as any as Mesh<any, any>
+    mesh.traverse((child: Mesh<any, any>) => {
+      if (child.material) {
+        if (ExpensiveMaterials.has(child.material.constructor)) {
+          const prevMaterial = child.material
+          const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+          prevMaterial.dispose()
+          child.material = new MeshBasicMaterial().copy(prevMaterial)
+          child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
+          child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
-    useEffect(() => {
-      /** ensure that hmd has no heavy materials */
-      if (isHMD) {
-        // this code seems to have a race condition where a small percentage of the time, materials end up being fully transparent
-        for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
-          object.traverse((obj: Mesh<any, any>) => {
-            if (obj.material)
-              if (ExpensiveMaterials.has(obj.material.constructor)) {
-                const prevMaterial = obj.material
-                const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-                prevMaterial.dispose()
-                obj.material = new MeshBasicMaterial().copy(prevMaterial)
-                obj.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
-                obj.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
-
-                // todo: find out why leaving the envMap makes basic & lambert materials transparent here
-                obj.material.envMap = null
-              }
-          })
+          // todo: find out why leaving the envMap makes basic & lambert materials transparent here
+          child.material.envMap = null
+        }
+        child.material.dithering = true
+        if (child.material.userData && shadowComponent?.value?.receive) {
+          /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
+          EngineRenderer.instance.csm?.setupMaterial(child)
+        }
       }
-    }, [getOptionalComponentState(entity, GroupComponent)])
-
-    return null
-  })
+    })
+  }
 
   function GroupChildReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
     const { entity, obj } = props
@@ -91,22 +90,12 @@ export default async function SceneObjectSystem(world: World) {
     const shadowComponent = useOptionalComponent(entity, ShadowComponent)
 
     useEffect(() => {
-      const mesh = obj as any as Mesh<any, any>
-      mesh.traverse((child: Mesh<any, any>) => {
-        const material = child.material
-        if (material) {
-          material.dithering = true
-          if (material.userData && shadowComponent?.value?.receive) {
-            /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
-            EngineRenderer.instance.csm?.setupMaterial(child)
-          }
-        }
-      })
+      setupObject(obj, shadowComponent)
 
       return () => {
         const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
         for (const layer of layers) {
-          if (layer.has(mesh)) layer.delete(mesh)
+          if (layer.has(obj)) layer.delete(obj)
         }
       }
     }, [])
@@ -123,7 +112,7 @@ export default async function SceneObjectSystem(world: World) {
   /**
    * Group Reactor - responds to any changes in the
    */
-  const groupReactor = createGroupQueryReactor(GroupChildReactor)
+  const groupReactor = startGroupQueryReactor(GroupChildReactor)
 
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
@@ -152,7 +141,6 @@ export default async function SceneObjectSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, groupQuery)
     removeQuery(world, updatableQuery)
-    reactorSystem.stop()
     groupReactor.stop()
   }
 

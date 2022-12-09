@@ -20,7 +20,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { GroupComponent } from '../scene/components/GroupComponent'
+import { GroupComponent, startGroupQueryReactor } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
@@ -244,25 +244,23 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
   let depthSupported = false
 
-  const reactorSystem = startQueryReactor([GroupComponent, Not(SceneTagComponent), VisibleComponent], function (props) {
-    const entity = props.root.entity
-    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+  const depthOcclusionReactor = startGroupQueryReactor(
+    function ({ obj }) {
+      const depthDataTexture = useHookstate(xrState.depthDataTexture)
 
-    const depthDataTexture = useHookstate(xrState.depthDataTexture)
+      useEffect(() => {
+        const mesh = obj as any as Mesh<any, Material>
+        if (mesh.material) {
+          if (depthDataTexture && depthSupported)
+            XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value!)
+          else XRDepthOcclusion.removeDepthOBCPlugin(mesh.material)
+        }
+      }, [depthDataTexture])
 
-    useEffect(() => {
-      for (const object of getOptionalComponent(entity, GroupComponent) ?? [])
-        object.traverse((obj: Mesh<any, Material>) => {
-          if (obj.material) {
-            if (depthDataTexture && depthSupported)
-              XRDepthOcclusion.addDepthOBCPlugin(obj.material, depthDataTexture.value!)
-            else XRDepthOcclusion.removeDepthOBCPlugin(obj.material)
-          }
-        })
-    }, [depthDataTexture])
-
-    return null
-  })
+      return null
+    },
+    [Not(SceneTagComponent), VisibleComponent]
+  )
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
@@ -289,6 +287,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, groupQuery)
     removeActionQueue(xrSessionChangedQueue)
+    depthOcclusionReactor.stop()
   }
 
   return { execute, cleanup }
