@@ -2395,15 +2395,6 @@
   padding: 15px 10px;
 }
 
-.QRContainer {
-  background: #fff;
-  padding: 25px 0;
-  margin: 0 auto 20px;
-  border-radius: 10px;
-  width: 250px;
-  text-align: center;
-}
-
 .title {
   font-size: 14px;
   font-weight: bold;
@@ -2586,14 +2577,47 @@
   }
 }
 
+.row {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
 .tutorialImage {
   background: #1b1b1b;
   border-radius: 4px;
   width: 100%;
 }
 
-.row {
-  display: flex;
+.QRContainer {
+  background: #fff;
+  padding: 25px 0;
+  margin: 0 auto 20px;
+  border-radius: 10px;
+  width: 250px;
+  text-align: center;
+}
+
+.shareQuest {
+  display: table;
   align-items: center;
-  margin-top: 5px;
+  margin: auto;
+  margin-bottom: 10px;
+
+  .shareQuestButton {
+    margin-left: 35px;
+    margin-right: 5px;
+    min-width: 250px;
+  }
+
+  @media (max-width: 500px) {
+    display: flex;
+
+    .shareQuestButton {
+      flex: 1;
+      margin-left: auto;
+      margin-right: 5px;
+      min-width: auto;
+    }
+  }
 }

@@ -155,7 +155,10 @@
       "party": "Party",
       "shareQuest": "Share to Quest",
       "shareDirect": "Share Direct Link",
-      "shareInvite": "Share by Invite"
+      "shareInvite": "Share by Invite",
+      "shareTitle": "AR/VR World | Ethereal Engine",
+      "shareDescription": "Check out AR/VR world on Ethereal Engine",
+      "shareFailed": "Error during sharing"
     },
     "party": {
       "title": "Party",

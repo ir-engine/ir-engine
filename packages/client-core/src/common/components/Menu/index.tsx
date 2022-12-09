@@ -63,7 +63,11 @@ const Menu = ({
         <DialogTitle className={styles.dialogTitle}>
           {showBackButton && <IconButton icon={<ArrowBack />} sx={{ mr: 1 }} onClick={onBack} />}
 
-          {title && <Typography variant="h6">{title}</Typography>}
+          {title && (
+            <Typography variant="h6" sx={{ ml: showBackButton ? undefined : 1.5 }}>
+              {title}
+            </Typography>
+          )}
 
           {header}
 

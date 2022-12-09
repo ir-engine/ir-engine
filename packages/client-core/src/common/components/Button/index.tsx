@@ -19,11 +19,12 @@ interface Props {
   disabled?: boolean
   disableRipple?: boolean
   endIcon?: React.ReactNode
+  fullWidth?: boolean
   id?: string
   open?: boolean
   startIcon?: React.ReactNode
   sx?: SxProps<Theme>
-  type?: 'outlined' | 'gradient' | 'gradientRounded' | 'expander'
+  type?: 'outlined' | 'gradient' | 'gradientRounded' | 'solid' | 'solidRounded' | 'expander'
   onClick?: () => void
 }
 
@@ -34,6 +35,7 @@ const Button = ({
   disabled,
   disableRipple,
   endIcon,
+  fullWidth,
   id,
   open,
   startIcon,
@@ -59,10 +61,14 @@ const Button = ({
   let baseStyle = ''
   if (type === 'outlined') {
     baseStyle = styles.outlinedButton
-  } else if (type === 'gradient') {
+  } else if (type === 'gradient' || type === 'gradientRounded') {
     baseStyle = styles.gradientButton
-  } else if (type === 'gradientRounded') {
-    baseStyle = `${styles.gradientButton} ${styles.roundedButton}`
+  } else if (type === 'solid' || type === 'solidRounded') {
+    baseStyle = styles.solidButton
+  }
+
+  if (type === 'gradientRounded' || type === 'solidRounded') {
+    baseStyle = `${baseStyle} ${styles.roundedButton}`
   }
 
   return (
@@ -74,7 +80,7 @@ const Button = ({
       endIcon={endIcon}
       id={id}
       startIcon={startIcon}
-      sx={sx}
+      sx={{ width: fullWidth ? '100%' : 'auto', ...sx }}
       onClick={onClick}
       onPointerUp={handleSoundEffect}
       onPointerEnter={handleSoundEffect}

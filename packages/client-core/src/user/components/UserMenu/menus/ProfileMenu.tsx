@@ -493,12 +493,12 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                 </Text>
 
                 {enableWalletLogin && (
-                  <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+                  <Box display="flex" flexDirection="column" alignItems="center">
                     <Button type="gradientRounded" onClick={() => handleWalletLoginClick()}>
                       {t('user:usermenu.profile.loginWithXRWallet')}
                     </Button>
 
-                    <Box display={'flex'} columnGap={2} alignItems={'center'}>
+                    <Box display="flex" columnGap={2} alignItems="center">
                       <Button type="gradientRounded" onClick={() => handleIssueCredentialClick()}>
                         {t('user:usermenu.profile.issueVC')}
                       </Button>

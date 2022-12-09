@@ -1,25 +1,4 @@
-.gradientButton {
-  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-  color: var(--buttonTextColor) !important;
-  font-size: 14px;
-
-  &.forceVaporwave {
-    background: linear-gradient(90deg, #5236ff, #c20560);
-    color: #fff !important;
-  }
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-  }
-}
-
-.outlinedButton {
-  background: transparent;
-  border: solid 1px var(--buttonOutlined);
+@mixin base-button() {
   color: var(--buttonTextColor) !important;
   font-size: 14px;
 
@@ -30,6 +9,29 @@
   &:disabled {
     opacity: 0.5;
   }
+}
+
+.gradientButton {
+  @include base-button;
+
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.outlinedButton {
+  @include base-button;
+
+  background: transparent;
+  border: solid 1px var(--buttonOutlined);
+}
+
+.solidButton {
+  @include base-button;
+
+  background-color: var(--buttonFilled) !important;
 }
 
 .roundedButton {
