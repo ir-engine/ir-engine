@@ -65,15 +65,21 @@ export default async function XRScenePlacementShader(world: World) {
       useEffect(() => {
         const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value
         if (useShader) {
-          addShaderToObject(obj)
+          obj.traverse(addShaderToObject)
         } else {
-          removeShaderFromObject(obj)
+          obj.traverse(removeShaderFromObject)
         }
       }, [scenePlacementMode, sessionActive])
 
+      useEffect(() => {
+        return () => {
+          obj.traverse(removeShaderFromObject)
+        }
+      }, [])
+
       return null
     },
-    [Not(SceneTagComponent), VisibleComponent]
+    [VisibleComponent]
   )
 
   const execute = () => {}

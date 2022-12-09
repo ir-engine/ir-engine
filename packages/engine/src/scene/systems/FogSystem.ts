@@ -120,6 +120,8 @@ export default async function FogSystem(world: World) {
     // material.needsUpdate is not working. Therefore have to invalidate the cache manually
     const key = Math.random()
     obj.material.customProgramCacheKey = () => key.toString()
+    const shader = (obj.material as any).shader // todo add typings somehow
+    world.fogShaders.splice(world.fogShaders.indexOf(shader), 1)
   }
 
   function FogGroupReactor({ obj }: GroupReactorProps) {
@@ -132,9 +134,14 @@ export default async function FogSystem(world: World) {
         obj.traverse(addFogShaderPlugin)
       } else {
         obj.traverse(removeFogShaderPlugin)
-        world.fogShaders = []
       }
     }, [type])
+
+    useEffect(() => {
+      return () => {
+        obj.traverse(removeFogShaderPlugin)
+      }
+    }, [])
 
     return null
   }

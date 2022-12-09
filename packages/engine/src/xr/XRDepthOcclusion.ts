@@ -252,10 +252,19 @@ export default async function XRDepthOcclusionSystem(world: World) {
         const mesh = obj as any as Mesh<any, Material>
         if (mesh.material) {
           if (depthDataTexture && depthSupported)
-            XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value!)
-          else XRDepthOcclusion.removeDepthOBCPlugin(mesh.material)
+            mesh.traverse((o: Mesh<any, Material>) =>
+              XRDepthOcclusion.addDepthOBCPlugin(o.material, depthDataTexture.value!)
+            )
+          else mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
         }
       }, [depthDataTexture])
+
+      useEffect(() => {
+        return () => {
+          const mesh = obj as any as Mesh<any, Material>
+          mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
+        }
+      }, [])
 
       return null
     },

@@ -1,5 +1,13 @@
 import React, { useEffect } from 'react'
-import { Color, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
+import {
+  Color,
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial
+} from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -64,7 +72,7 @@ export default async function SceneObjectSystem(world: World) {
     const mesh = obj as any as Mesh<any, any>
     mesh.traverse((child: Mesh<any, any>) => {
       if (child.material) {
-        if (ExpensiveMaterials.has(child.material.constructor)) {
+        if (isHMD && ExpensiveMaterials.has(child.material.constructor)) {
           const prevMaterial = child.material
           const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
           prevMaterial.dispose()
@@ -76,10 +84,6 @@ export default async function SceneObjectSystem(world: World) {
           child.material.envMap = null
         }
         child.material.dithering = true
-        if (child.material.userData && shadowComponent?.value?.receive) {
-          /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
-          EngineRenderer.instance.csm?.setupMaterial(child)
-        }
       }
     })
   }
@@ -102,8 +106,16 @@ export default async function SceneObjectSystem(world: World) {
 
     useEffect(() => {
       const shadow = shadowComponent?.value
-      obj.castShadow = !!shadow?.cast
-      obj.receiveShadow = !!shadow?.receive
+      obj.traverse((child: Mesh<any, Material>) => {
+        if (child.material) {
+          child.castShadow = !!shadow?.cast
+          child.receiveShadow = !!shadow?.receive
+          if (child.receiveShadow && child.material.userData) {
+            /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
+            EngineRenderer.instance.csm?.setupMaterial(child)
+          }
+        }
+      })
     }, [shadowComponent])
 
     return null
