@@ -54,6 +54,7 @@ const batchingnormalVertex = `
 
 const batchingVertex = `
 #ifdef BATCHING
+  //transformed = vec4( transformed, 1.0 ).xyz;
 	transformed = ( batchingMatrix * vec4( transformed, 1.0 ) ).xyz;
 #endif
 `
@@ -79,11 +80,10 @@ class BatchedMesh extends Mesh {
   _matricesArray: Float32Array | null
   _matricesTexture: DataTexture | null
   _matricesTextureSize: number | null
-  frustomCulled: boolean
   _customUniforms: Record<string, { value: any }>
 
   constructor(maxGeometryCount, maxVertexCount, maxIndexCount = maxVertexCount * 2, material) {
-    super(new BufferGeometry(), material)
+    super(new BufferGeometry(), material.clone())
 
     this._vertexStarts = []
     this._vertexCounts = []
@@ -111,7 +111,7 @@ class BatchedMesh extends Mesh {
     this._matricesTextureSize = null
 
     // @TODO: Calculate the entire binding box and make frustomCulled true
-    this.frustomCulled = false
+    this.frustumCulled = false
 
     this._customUniforms = {
       batchingTexture: { value: null },
@@ -153,11 +153,9 @@ class BatchedMesh extends Mesh {
     material.onBeforeCompile = function onBeforeCompile(parameters, renderer) {
       // Is this replacement stable across any materials?
       parameters.vertexShader = parameters.vertexShader
+        .replace('#include <morphcolor_vertex>', '#include <morphcolor_vertex>\n' + batchingbaseVertex)
         .replace('#include <skinning_pars_vertex>', '#include <skinning_pars_vertex>\n' + batchingParsVertex)
-        .replace(
-          '#include <skinnormal_vertex>',
-          '#include <skinnormal_vertex>\n' + batchingbaseVertex + batchingnormalVertex
-        )
+        .replace('#include <skinnormal_vertex>', '#include <skinnormal_vertex>\n' + batchingnormalVertex)
         .replace('#include <skinning_vertex>', '#include <skinning_vertex>\n' + batchingVertex)
 
       for (const uniformName in customUniforms) {
@@ -167,11 +165,15 @@ class BatchedMesh extends Mesh {
       // for debug
       // console.log( parameters.vertexShader, parameters.uniforms );
 
-      currentOnBeforeCompile.call(this, parameters, renderer)
+      //currentOnBeforeCompile.call(this, parameters, renderer)
     }
-
+    material.customProgramCacheKey = () =>
+      Object.entries(customUniforms)
+        .map(([k, v]) => (k + v.value) as string)
+        .reduce((x, y) => x + y)
     material.defines = material.defines || {}
     material.defines.BATCHING = false
+    material.needsUpdate = true
   }
 
   getGeometryCount() {
@@ -396,7 +398,10 @@ export function convertToBatchedMesh(meshes: Mesh[]) {
   const totalIndices = meshes.map((mesh) => mesh.geometry.index!.count).reduce((x, y) => x + y)
   const material = meshes[0].material
   const result = new BatchedMesh(numMeshes, totalVertices, totalIndices, material)
-  meshes.map((mesh) => result.applyGeometry(mesh.geometry))
+  meshes.map((mesh) => {
+    const geoId = result.applyGeometry(mesh.geometry)
+    result.setMatrixAt(geoId, mesh.matrixWorld.clone())
+  })
   return result
 }
 
