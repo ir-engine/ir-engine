@@ -13,6 +13,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
+  hasComponent,
   removeQuery,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -112,10 +113,12 @@ export default async function AvatarUISystem(world: World) {
       const hit = hits[0]
       const hitEntity = (hit.body?.userData as any)?.entity as Entity
       if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
-        const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
-        AvatarContextMenuUI.state.id.set(userId)
-        setVisibleComponent(AvatarContextMenuUI.entity, true)
-        return
+        if (hasComponent(hitEntity, NetworkObjectComponent)) {
+          const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
+          AvatarContextMenuUI.state.id.set(userId)
+          setVisibleComponent(AvatarContextMenuUI.entity, true)
+          return // successful hit
+        }
       }
     }
 
