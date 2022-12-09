@@ -4,12 +4,7 @@ import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
 
 import { none } from '@xrengine/hyperflux'
 
-import {
-  proxifyQuaternion,
-  proxifyQuaternionWithDirty,
-  proxifyVector3,
-  proxifyVector3WithDirty
-} from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -19,10 +14,8 @@ import {
   getComponentState,
   hasComponent,
   removeComponent,
-  setComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 

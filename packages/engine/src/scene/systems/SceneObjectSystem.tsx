@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   Color,
   Material,
@@ -22,19 +22,15 @@ import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
-  getOptionalComponent,
-  getOptionalComponentState,
   hasComponent,
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../components/GroupComponent'
-import { SceneTagComponent } from '../components/SceneTagComponent'
-import { ShadowComponent, ShadowComponentType } from '../components/ShadowComponent'
+import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import FogSystem from './FogSystem'

@@ -1,15 +1,10 @@
-import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Material, Mesh } from 'three'
 
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
-import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../ecs/functions/SystemFunctions'
-import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../scene/components/GroupComponent'
-import { SceneTagComponent } from '../scene/components/SceneTagComponent'
+import { Object3DWithEntity, startGroupQueryReactor } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { XRState } from './XRState'
 

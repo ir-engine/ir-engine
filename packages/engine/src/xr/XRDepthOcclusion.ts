@@ -11,15 +11,7 @@ import { createActionQueue, getState, removeActionQueue, useHookstate } from '@x
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeQuery
-} from '../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../ecs/functions/SystemFunctions'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { defineQuery, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent, startGroupQueryReactor } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
