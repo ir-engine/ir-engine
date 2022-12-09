@@ -14,6 +14,7 @@ import {
   MeshToonMaterial,
   PointsMaterial,
   RawShaderMaterial,
+  Shader,
   ShaderMaterial,
   ShadowMaterial,
   SpriteMaterial
@@ -31,6 +32,7 @@ export type PluginObjectType = {
 export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCompile
 
 export type CustomMaterial = Material & {
+  shader: Shader
   plugins?: PluginType[]
   _onBeforeCompile: typeof Material.prototype.onBeforeCompile
   onBeforeCompile: PluginType
@@ -150,6 +152,7 @@ export function overrideOnBeforeCompile() {
 
     ;(Material.prototype as any)._onBeforeCompile = function (shader, renderer) {
       if (!this.plugins) return
+      if (!this.shader) this.shader = shader
 
       for (let i = 0, l = this.plugins.length; i < l; i++) {
         const plugin = this.plugins[i]

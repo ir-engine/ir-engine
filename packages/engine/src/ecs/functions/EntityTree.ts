@@ -75,7 +75,6 @@ export function initializeEntityTree(world = Engine.instance.currentWorld): void
   setComponent(world.sceneEntity, VisibleComponent, true)
   setComponent(world.sceneEntity, SceneTagComponent, true)
   setTransformComponent(world.sceneEntity)
-  // addObjectToGroup(world.sceneEntity, world.scene)
 
   world.entityTree = {
     rootNode: createEntityNode(world.sceneEntity),
