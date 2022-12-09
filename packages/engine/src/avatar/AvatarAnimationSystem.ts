@@ -7,6 +7,7 @@ import { defineState, getState, startReactor, useHookstate } from '@xrengine/hyp
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { isHMD } from '../common/functions/isMobile'
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import {
@@ -18,6 +19,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import {
@@ -27,7 +29,7 @@ import {
 } from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
-import { XRControllerComponent } from '../xr/XRComponents'
+import { XRControllerComponent, XRHandComponent } from '../xr/XRComponents'
 import { getControlMode, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -55,7 +57,7 @@ export const AvatarAnimationState = defineState({
 
 const _vector3 = new Vector3()
 const _vec = new Vector3()
-const _rotXneg60 = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 1.5)
+const _rotXneg30 = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI * 0.3)
 const _rotY90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2)
 const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
 
@@ -111,6 +113,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const execute = () => {
     const { localClientEntity, elapsedSeconds, deltaSeconds } = world
+    const xrFrame = Engine.instance.xrFrame!
 
     const inAttachedControlMode = getControlMode() === 'attached'
 
@@ -128,19 +131,24 @@ export default async function AvatarAnimationSystem(world: World) {
       if (leftControllerEntity && hasComponent(localClientEntity, AvatarLeftHandIKComponent)) {
         const ik = getComponent(localClientEntity, AvatarLeftHandIKComponent)
         const controller = getComponent(leftControllerEntity, XRControllerComponent)
-        if (controller.hand) {
-          const { position, rotation } = getComponent(controller.hand, TransformComponent)
-          ik.target.position.copy(position)
-          ik.target.quaternion.copy(rotation).multiply(_rotYneg90)
+        /** detect hand joint pose support */
+        if (controller.hand && xrFrame.getJointPose) {
+          const { hand } = getComponent(controller.hand, XRHandComponent)
+          const wrist = hand.get('wrist')
+          if (wrist && xrFrame.getJointPose) {
+            const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+            const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
+            if (jointPose) {
+              ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
+              ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
+              ik.target.quaternion.multiply(_rotYneg90) // @todo look into this
+            }
+          }
         } else if (controller.grip) {
-          const { position, rotation } = getComponent(controller.grip, TransformComponent)
+          const controllerTransform = getComponent(leftControllerEntity, TransformComponent)
+          const { position } = getComponent(controller.grip, TransformComponent)
           ik.target.position.copy(position)
-          /**
-           * Since the hand has Z- forward in the grip space,
-           *    which is roughly 60 degrees rotated from the arm's forward,
-           *    apply a rotation to get the correct hand orientation
-           */
-          ik.target.quaternion.copy(rotation).multiply(_rotXneg60)
+          ik.target.quaternion.copy(controllerTransform.rotation)
         } else {
           const { position, rotation } = getComponent(leftControllerEntity, TransformComponent)
           ik.target.position.copy(position)
@@ -154,18 +162,22 @@ export default async function AvatarAnimationSystem(world: World) {
         const ik = getComponent(localClientEntity, AvatarRightHandIKComponent)
         const controller = getComponent(rightControllerEntity, XRControllerComponent)
         if (controller.hand) {
-          const { position, rotation } = getComponent(controller.hand, TransformComponent)
-          ik.target.position.copy(position)
-          ik.target.quaternion.copy(rotation).multiply(_rotY90)
+          const { hand } = getComponent(controller.hand, XRHandComponent)
+          const wrist = hand.get('wrist')
+          if (wrist && xrFrame.getJointPose) {
+            const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+            const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
+            if (jointPose) {
+              ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
+              ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
+              ik.target.quaternion.multiply(_rotY90) // @todo look into this
+            }
+          }
         } else if (controller.grip) {
-          const { position, rotation } = getComponent(controller.grip, TransformComponent)
+          const controllerTransform = getComponent(rightControllerEntity, TransformComponent)
+          const { position } = getComponent(controller.grip, TransformComponent)
           ik.target.position.copy(position)
-          /**
-           * Since the hand has Z- forward in the grip space,
-           *    which is roughly 60 degrees rotated from the arm's forward,
-           *    apply a rotation to get the correct hand orientation
-           */
-          ik.target.quaternion.copy(rotation).multiply(_rotXneg60)
+          ik.target.quaternion.copy(controllerTransform.rotation)
         } else {
           const { position, rotation } = getComponent(rightControllerEntity, TransformComponent)
           ik.target.position.copy(position)
@@ -396,6 +408,7 @@ export default async function AvatarAnimationSystem(world: World) {
     removeQuery(world, headIKQuery)
     removeQuery(world, armsTwistCorrectionQuery)
     removeQuery(world, avatarAnimationQuery)
+    reactor.stop()
   }
 
   return { execute, cleanup }

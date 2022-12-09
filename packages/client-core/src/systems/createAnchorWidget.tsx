@@ -1,13 +1,13 @@
 import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { getControlMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import AnchorIcon from '@mui/icons-material/Anchor'
 
@@ -20,13 +20,15 @@ export function createAnchorWidget(world: World) {
   const xrState = getState(XRState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
+  const widgetState = getState(WidgetAppState)
+
+  const xrSessionQueue = createActionQueue(XRAction.sessionChanged.matches)
+
   const widget: Widget = {
     ui,
     label: 'World Anchor',
     icon: AnchorIcon,
     onOpen: () => {
-      /** todo, actually disable the widget instead of just not dispatching the action */
-      if (xrState.sessionMode.value !== 'immersive-ar') return
       dispatchAction(
         XRAction.changePlacementMode({
           active: true
@@ -34,13 +36,16 @@ export function createAnchorWidget(world: World) {
       )
     },
     system: () => {
+      for (const action of xrSessionQueue()) {
+        const widgetEnabled = xrState.sessionMode.value === 'immersive-ar'
+        if (widgetState.widgets[id].enabled.value !== widgetEnabled)
+          dispatchAction(WidgetAppActions.enableWidget({ id, enabled: widgetEnabled }))
+      }
       const isImmersive = getControlMode() === 'attached'
       if (!isImmersive) return
       if (!xrState.scenePlacementMode.value) return
       const buttonInput =
-        avatarInputSettings.preferredHand.value === 'left'
-          ? world.inputState.get(GamepadButtons.X)
-          : world.inputState.get(GamepadButtons.A)
+        avatarInputSettings.preferredHand.value === 'left' ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
       if (buttonInput) {
         dispatchAction(
           XRAction.changePlacementMode({
@@ -48,7 +53,11 @@ export function createAnchorWidget(world: World) {
           })
         )
       }
+    },
+    cleanup: async () => {
+      removeActionQueue(xrSessionQueue)
     }
   }
-  Widgets.registerWidget(world, ui.entity, widget)
+
+  const id = Widgets.registerWidget(world, ui.entity, widget)
 }

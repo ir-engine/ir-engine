@@ -11,43 +11,31 @@ import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import { SxProps, Theme } from '@mui/material/styles'
 
+import { handleSoundEffect } from '../../utils'
 import commonStyles from '../common.module.scss'
 import styles from './index.module.scss'
 
 interface Props {
   className?: string
-  name?: string
-  label?: string
-  value?: unknown
-  menu: InputMenuItem[]
-  error?: string
   disabled?: boolean
   endControl?: React.ReactNode
+  error?: string
+  id?: string
+  label?: string
+  menu: InputMenuItem[]
+  name?: string
   sx?: SxProps<Theme>
+  value?: unknown
   onChange?: (e: any) => void
-  onPointerEnter?: (e: any) => void
-  onPointerUp?: (e: any) => void
 }
 
 export interface InputMenuItem {
   value: string
   label: React.ReactNode
+  disabled?: boolean
 }
 
-const InputSelect = ({
-  className,
-  name,
-  label,
-  value,
-  menu,
-  error,
-  disabled,
-  endControl,
-  sx,
-  onChange,
-  onPointerEnter,
-  onPointerUp
-}: Props) => {
+const InputSelect = ({ className, disabled, endControl, error, id, label, menu, name, sx, value, onChange }: Props) => {
   const { t } = useTranslation()
 
   if (!disabled) {
@@ -59,7 +47,7 @@ const InputSelect = ({
       <Box sx={{ display: 'flex' }}>
         <FormControl
           variant="outlined"
-          className={`${className ?? ''} ${commonStyles.inputField}`}
+          className={`${commonStyles.inputField} ${className ?? ''}`}
           error={!!error}
           disabled={disabled}
           size="small"
@@ -68,18 +56,19 @@ const InputSelect = ({
           <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
           <Select
-            name={name}
-            value={value}
-            label={capitalizeFirstLetter(label)}
             disabled={disabled}
+            displayEmpty
+            fullWidth
+            id={id}
+            label={capitalizeFirstLetter(label)}
+            name={name}
             size={'small'}
             sx={{ opacity: disabled ? 0.38 : 1 }}
-            fullWidth
-            displayEmpty
+            value={value}
             MenuProps={{ classes: { paper: styles.selectPaper } }}
             onChange={onChange}
-            onPointerEnter={onPointerEnter}
-            onPointerUp={onPointerUp}
+            onPointerUp={handleSoundEffect}
+            onPointerEnter={handleSoundEffect}
           >
             {!disabled && (
               <MenuItem
@@ -88,8 +77,6 @@ const InputSelect = ({
                 classes={{
                   root: styles.menuItem
                 }}
-                onPointerEnter={onPointerEnter}
-                onPointerUp={onPointerUp}
               >
                 <em>
                   {t('common:components.select')} {label}
@@ -103,8 +90,8 @@ const InputSelect = ({
                 classes={{
                   root: styles.menuItem
                 }}
-                onPointerEnter={onPointerEnter}
-                onPointerUp={onPointerUp}
+                onPointerUp={handleSoundEffect}
+                onPointerEnter={handleSoundEffect}
               >
                 {el.label}
               </MenuItem>

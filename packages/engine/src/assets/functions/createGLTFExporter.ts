@@ -11,7 +11,7 @@ export default function createGLTFExporter() {
   const exporter = new GLTFExporter()
 
   const extensions = [
-    LightmapExporterExtension,
+    //LightmapExporterExtension,
     GPUInstancingExporterExtension,
     BasisuExporterExtension,
     EEMaterialExporterExtension,

@@ -19,7 +19,6 @@ import { accessSelectionState } from '../services/SelectionServices'
 import { SceneState } from './sceneRenderFunctions'
 
 export const setTransformMode = (mode: TransformModeType): void => {
-  console.trace('setTransformMode', mode)
   if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
     let stop = false
     const selectedEntities = accessSelectionState().selectedEntities.value
@@ -67,7 +66,7 @@ export const toggleTransformPivot = () => {
   const pivots = Object.keys(TransformPivot)
   const nextIndex = (pivots.indexOf(accessEditorHelperState().transformPivot.value) + 1) % pivots.length
 
-  dispatchAction(EditorHelperAction.changedTransformPivotMode(TransformPivot[pivots[nextIndex]]))
+  dispatchAction(EditorHelperAction.changedTransformPivotMode({ transformPivot: TransformPivot[pivots[nextIndex]] }))
 }
 
 export const setTransformSpace = (transformSpace: TransformSpace) => {

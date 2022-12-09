@@ -4,16 +4,15 @@ import { useTranslation } from 'react-i18next'
 
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
-import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
+  AvatarControllerType,
   AvatarInputSettingsAction,
-  AvatarInputSettingsState
+  AvatarInputSettingsState,
+  AvatarMovementScheme
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
@@ -77,7 +76,7 @@ const SettingDetailView = () => {
       firstRender.current = false
       return
     }
-    updateMap()
+    /** @todo - switch handedness */
   }, [avatarInputState.invertRotationAndMoveSticks])
 
   const setUserSettings = (newSetting: any): void => {

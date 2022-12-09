@@ -1,12 +1,9 @@
+import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import config from '@xrengine/common/src/config'
 import { isDev } from '@xrengine/common/src/config'
-import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
-import { V_001, V_010, V_100 } from '@xrengine/engine/src/common/constants/MathConstants'
-import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
+import { V_001, V_010 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
@@ -17,7 +14,6 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import {
@@ -26,10 +22,17 @@ import {
 } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRControllerComponent } from '@xrengine/engine/src/xr/XRComponents'
 import { getPreferredControllerEntity } from '@xrengine/engine/src/xr/XRState'
-import { XRUIComponent, XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { addActionReceptor, createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  createActionQueue,
+  dispatchAction,
+  getState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@xrengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
@@ -100,14 +103,9 @@ export default async function WidgetSystem(world: World) {
     }
   }
 
-  AvatarInputSchema.inputMap.set(GamepadButtons.X, WidgetInput.TOGGLE_MENU_BUTTONS)
-  // add escape key for local testing until we migrate fully with new interface story #6425
-  if (isDev && !isHMD) AvatarInputSchema.inputMap.set('Escape', WidgetInput.TOGGLE_MENU_BUTTONS)
-
-  AvatarInputSchema.behaviorMap.set(WidgetInput.TOGGLE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
-    if (inputValue.lifecycleState !== LifecycleValue.Started) return
+  const onEscape = () => {
     toggleWidgetsMenu()
-  })
+  }
 
   addActionReceptor(WidgetAppServiceReceptor)
 
@@ -116,6 +114,10 @@ export default async function WidgetSystem(world: World) {
   const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
 
   const execute = () => {
+    const keys = world.buttons
+    if (keys.ButtonX?.down) onEscape()
+    if (keys.Escape?.down) onEscape()
+
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       setVisibleComponent(widget.ui.entity, action.shown)
@@ -164,11 +166,6 @@ export default async function WidgetSystem(world: World) {
   const cleanup = async () => {
     removeActionQueue(showWidgetQueue)
     removeEntity(widgetMenuUI.entity)
-    if (AvatarInputSchema.inputMap.get(GamepadButtons.X) === WidgetInput.TOGGLE_MENU_BUTTONS)
-      AvatarInputSchema.inputMap.delete(GamepadButtons.X)
-    if (AvatarInputSchema.inputMap.get('Escape') === WidgetInput.TOGGLE_MENU_BUTTONS)
-      AvatarInputSchema.inputMap.delete('Escape')
-    AvatarInputSchema.behaviorMap.delete(WidgetInput.TOGGLE_MENU_BUTTONS)
   }
 
   return { execute, cleanup }

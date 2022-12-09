@@ -180,7 +180,7 @@
       "controls": "Controls",
       "lbl-control-type": "Controller Type",
       "lbl-control-scheme": "Control Scheme",
-      "lbl-preferred-Hand": "Preferred Hand",
+      "lbl-preferred-hand": "Preferred Hand",
       "lbl-resolution": "Resolution",
       "lbl-shadow": "Shadows",
       "lbl-pp": "Post Processing",
@@ -211,6 +211,7 @@
       "lbl-profile": "Profile",
       "lbl-settings": "Settings",
       "lbl-username": "Username",
+      "usernameError": "Invalid username",
       "update-msg": "Username updated",
       "inviteCode": "Invite Code",
       "youAreAn": "You are an",
@@ -221,9 +222,9 @@
       "hideApiKey": "Hide API key",
       "apiKey": "API key",
       "logout": "Log out",
-      "connectPhone": "Connect your phone number",
-      "connectEmail": "Connect your email",
-      "connectPhoneEmail": "Connect your email or phone number",
+      "connectPhone": "Connect your Phone Number",
+      "connectEmail": "Connect your Email",
+      "connectPhoneEmail": "Connect your Email or Phone Number",
       "or": "Or",
       "lbl-wallet": "Login with Wallet",
       "ph-email": "Email",
@@ -234,8 +235,10 @@
       "emailError": "Invalid email address",
       "useReadyPlayerMe": "Use Ready Player Me",
       "loginWithXRWallet": "Login with XR Wallet",
-      "addSocial": "Connect your social logins",
-      "removeSocial": "Remove Social",
+      "issueVC": "Issue a VC",
+      "requestVC": "Request a VC",
+      "addSocial": "Connect your Social Logins",
+      "removeSocial": "Remove Social Logins",
       "connections": {
         "title": "Connections",
         "ipError": "Can not remove active Identity Provider",
@@ -251,7 +254,7 @@
       "userIcon": {
         "lbl-name": "Your name",
         "lbl-update": "Update",
-        "userId": "User id",
+        "userId": "User ID",
         "ph-uploadImg": "Upload Product Image",
         "lbl-selectAcvatar": "Select Avatar",
         "lbl-submit": "Submit"
@@ -273,7 +276,10 @@
         "finalDeleteText": "Deleting your account cannot be undone!",
         "finalDeleteCancel": "Cancel",
         "finalDeleteConfirm": "Delete my account"
-      }
+      },
+      "userIdCopied": "User ID copied",
+      "apiKeyCopied": "API Key copied",
+      "refreshApiKey": "Refresh API Key"
     },
     "oauth": {
       "authenticating": "Authenticating...",

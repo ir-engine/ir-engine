@@ -19,6 +19,74 @@ Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
 }
 
+const opmu = 1.90110745351730037
+const u = new Float32Array(8)
+const v = new Float32Array(8)
+const bT = new Float32Array(8)
+const bD = new Float32Array(8)
+
+for (let i = 0; i < 7; ++i) {
+  const s = i + 1.0
+  const t = 2.0 * s + 1.0
+  u[i] = 1.0 / (s * t)
+  v[i] = s / t
+}
+
+u[7] = opmu / (8.0 * 17.0)
+v[7] = (opmu * 8.0) / 17.0
+
+/**
+ * Computes the spherical linear interpolation or extrapolation at t using the provided quaternions.
+ * This implementation is faster than {@link Quaternion#slerp}, but is only accurate up to 10<sup>-6</sup>.
+ *
+ * @param {Quaternion} target The value corresponding to t at 1.0.
+ * @param {number} t The point along t at which to interpolate.
+ * @returns {Quaternion} Returns the quaternion being
+ */
+
+const fastSlerp = function (target: Quaternion, t: number) {
+  let x = this.x * target.x + this.y * target.y + this.z * target.z + this.w * target.w
+
+  let sign
+  if (x >= 0) {
+    sign = 1.0
+  } else {
+    sign = -1.0
+    x = -x
+  }
+
+  const xm1 = x - 1.0
+  const d = 1.0 - t
+  const sqrT = t * t
+  const sqrD = d * d
+
+  for (let i = 7; i >= 0; --i) {
+    bT[i] = (u[i] * sqrT - v[i]) * xm1
+    bD[i] = (u[i] * sqrD - v[i]) * xm1
+  }
+
+  const cT =
+    sign *
+    t *
+    (1.0 +
+      bT[0] *
+        (1.0 + bT[1] * (1.0 + bT[2] * (1.0 + bT[3] * (1.0 + bT[4] * (1.0 + bT[5] * (1.0 + bT[6] * (1.0 + bT[7]))))))))
+  const cD =
+    d *
+    (1.0 +
+      bD[0] *
+        (1.0 + bD[1] * (1.0 + bD[2] * (1.0 + bD[3] * (1.0 + bD[4] * (1.0 + bD[5] * (1.0 + bD[6] * (1.0 + bD[7]))))))))
+
+  this.x = target.x * cT + this.x * cD
+  this.y = target.y * cT + this.y * cD
+  this.z = target.z * cT + this.z * cD
+  this.w = target.w * cT + this.w * cD
+
+  return this
+}
+
+Quaternion.prototype.fastSlerp = fastSlerp
+
 //@ts-ignore
 Euler.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, order: this._order }
@@ -31,6 +99,12 @@ BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 declare module 'three/src/core/Object3D' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
+  }
+}
+
+declare module 'three/src/math/Quaternion' {
+  export interface Quaternion {
+    fastSlerp: typeof fastSlerp
   }
 }
 

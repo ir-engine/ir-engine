@@ -17,7 +17,6 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -33,7 +32,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarTeleportComponent } from '../components/AvatarTeleportComponent'
-import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
+import { AvatarInputSettingsState, AvatarMovementScheme } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './spawnAvatarReceptor'
 
 const _vec = new Vector3()
@@ -211,18 +210,6 @@ export const avatarStepOverObstacles = (entity: Entity, forwardOrientation: Quat
         rigidBody.body.setTranslation(pos, true)
       }
     }
-  }
-}
-
-/**
- * Moves the avatar with teleport controls
- * @param entity
- */
-export const moveAvatarWithTeleport = (entity: Entity, magnitude: number, side: 'left' | 'right') => {
-  if (magnitude < -0.75 && !hasComponent(entity, AvatarTeleportComponent)) {
-    setComponent(entity, AvatarTeleportComponent, { side })
-  } else if (magnitude === 0.0) {
-    removeComponent(entity, AvatarTeleportComponent)
   }
 }
 

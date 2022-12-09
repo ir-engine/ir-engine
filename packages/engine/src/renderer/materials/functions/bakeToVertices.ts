@@ -14,7 +14,7 @@ import {
 
 import createReadableTexture from '../../../assets/functions/createReadableTexture'
 import { Engine } from '../../../ecs/classes/Engine'
-import { changeMaterialPrototype } from './Utilities'
+import { changeMaterialPrototype } from './MaterialLibraryFunctions'
 
 export default async function bakeToVertices<T extends Material>(
   material: T,
@@ -81,9 +81,6 @@ export default async function bakeToVertices<T extends Material>(
     pending.push(samples)
   })
   await Promise.all(pending)
-  /*material.vertexColors = true
-  material.defines!['USE_COLOR'] = ''
-  material.needsUpdate = true*/
   const nuMat = changeMaterialPrototype(material, nuPrototype)
   if (nuMat) {
     nuMat.vertexColors = true

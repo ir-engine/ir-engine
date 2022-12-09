@@ -1,25 +1,15 @@
-import { AnimationMixer, Group, LoopOnce, Object3D } from 'three'
+import { AnimationMixer, Group, LoopOnce } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import {
-  AvatarHeadIKComponent,
-  AvatarLeftHandIKComponent,
-  AvatarRightHandIKComponent
-} from '../avatar/components/AvatarIKComponents'
-import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { ParityValue } from '../common/enums/ParityValue'
-import { Engine } from '../ecs/classes/Engine'
+import { AvatarControllerType, AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { AssetLoader } from './../assets/classes/AssetLoader'
 import { SkeletonUtils } from './../avatar/SkeletonUtils'
 import { Entity } from './../ecs/classes/Entity'
-import { getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
-import { AvatarControllerType } from './../input/enums/InputEnums'
+import { getComponent } from './../ecs/functions/ComponentFunctions'
 import { XRControllerGripComponent, XRHandComponent } from './XRComponents'
 import { XRHandMeshModel } from './XRHandMeshModel'
-import { XRState } from './XRState'
 
 export const initializeControllerModel = async (entity: Entity) => {
   const avatarInputState = getState(AvatarInputSettingsState)
