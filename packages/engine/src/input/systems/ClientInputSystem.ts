@@ -159,32 +159,7 @@ export default async function ClientInputSystem(world: World) {
   addClientInputListeners(world)
   world.pointerScreenRaycaster.layers.enableAll()
 
-  /** sets to keep track of up & down changes */
-  const down = new Set()
-  const up = new Set()
-
   const execute = () => {
-    const activeKeys = Object.entries(world.buttons as ButtonInputStateType)
-
-    /** use maps to allow us to keep track of state across frames */
-    for (const [key, val] of activeKeys) {
-      const isDown = down.has(key)
-      if (isDown) {
-        val.down = false
-        down.delete(key)
-      } else if (val.down && !isDown) {
-        down.add(key)
-      }
-      const isUp = up.has(key)
-      if (isUp) {
-        delete world.buttons[key]
-        up.delete(key)
-      } else if (val.up && !isUp) {
-        val.pressed = false
-        up.add(key)
-      }
-    }
-
     world.pointerScreenRaycaster.setFromCamera(world.pointerState.position, world.camera)
 
     world.pointerState.movement.subVectors(world.pointerState.position, world.pointerState.lastPosition)

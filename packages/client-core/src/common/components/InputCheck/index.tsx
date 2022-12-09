@@ -15,6 +15,7 @@ interface Props {
   className?: string
   disabled?: boolean
   icon?: React.ReactNode
+  id?: string
   label?: string
   name?: string
   sx?: SxProps<Theme>
@@ -22,7 +23,7 @@ interface Props {
   onChange?: (checked: boolean) => void
 }
 
-const InputCheck = ({ checked, className, disabled, icon, label, name, sx, type, onChange }: Props) => {
+const InputCheck = ({ checked, className, disabled, icon, id, label, name, sx, type, onChange }: Props) => {
   if (type === 'wide') {
     return (
       <Box className={className} sx={{ display: 'flex', alignItems: 'center', mt: 1, mb: 1, ...sx }}>
@@ -39,6 +40,7 @@ const InputCheck = ({ checked, className, disabled, icon, label, name, sx, type,
           color="primary"
           checked={checked}
           disabled={disabled}
+          id={id}
           sx={sx}
           onChange={(_event, checked) => onChange && onChange(checked)}
           onPointerUp={handleSoundEffect}
