@@ -13,7 +13,7 @@ import {
 } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
-import { AvatarDirection } from '../common/constants/Axis3D'
+import { ObjectDirection } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import {
@@ -51,7 +51,7 @@ const lightOpacity = (y, r) => {
 const downwardGroundRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
-  direction: AvatarDirection.Down,
+  direction: ObjectDirection.Down,
   maxDistance: 10,
   groups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
 } as RaycastArgs

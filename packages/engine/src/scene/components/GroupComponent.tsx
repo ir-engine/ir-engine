@@ -1,21 +1,22 @@
+import * as bitECS from 'bitecs'
+import React from 'react'
 import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
 
-import {
-  proxifyQuaternion,
-  proxifyQuaternionWithDirty,
-  proxifyVector3,
-  proxifyVector3WithDirty
-} from '../../common/proxies/createThreejsProxy'
+import { none } from '@xrengine/hyperflux'
+
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   defineComponent,
   getComponent,
+  getComponentState,
   hasComponent,
   removeComponent,
-  setComponent
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
@@ -43,9 +44,11 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
+  if (getComponent(entity, GroupComponent).includes(obj))
+    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
-  getComponent(entity, GroupComponent).push(obj)
+  getComponentState(entity, GroupComponent).merge([obj])
 
   const transform = getComponent(entity, TransformComponent)
   const world = Engine.instance.currentWorld
@@ -78,7 +81,11 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
 
   if (hasComponent(entity, GroupComponent)) {
     const group = getComponent(entity, GroupComponent)
-    if (group.includes(obj)) group.splice(group.indexOf(obj), 1)
+    if (group.includes(obj)) {
+      getComponentState(entity, GroupComponent)[group.indexOf(obj)].set(none)
+    } else {
+      console.warn('[removeObjectFromGroup]: Tried to remove an obejct from a group it is not in', entity, object)
+    }
     if (!group.length) removeComponent(entity, GroupComponent)
   }
 
@@ -86,3 +93,27 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
 }
 
 export const SCENE_COMPONENT_GROUP = 'group'
+
+export type GroupReactorProps = {
+  entity: Entity
+  obj: Object3DWithEntity
+}
+
+export const startGroupQueryReactor = (
+  GroupChildReactor: React.FC<GroupReactorProps>,
+  components: (bitECS.Component | bitECS.QueryModifier)[] = []
+) =>
+  startQueryReactor([GroupComponent, ...components], function (props) {
+    const entity = props.root.entity
+    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+
+    const groupComponent = useOptionalComponent(entity, GroupComponent)
+
+    return (
+      <>
+        {groupComponent?.value?.map((obj, i) => (
+          <GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+        ))}
+      </>
+    )
+  })

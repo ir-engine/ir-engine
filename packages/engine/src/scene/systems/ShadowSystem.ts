@@ -5,11 +5,19 @@ import { getState } from '@xrengine/hyperflux'
 import { CSM } from '../../assets/csm/CSM'
 import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
 
 export default async function ShadowSystem(world: World) {
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
@@ -20,12 +28,14 @@ export default async function ShadowSystem(world: World) {
     if (world.fixedTick % 50 === 0) return
 
     let activeDirectionalLight = null as DirectionalLight | null
+    let activeDirectionalLightEntity = UndefinedEntity as Entity
 
     if (getState(XRState).isEstimatingLight.value)
       activeDirectionalLight = getState(XRState).lightEstimator.value.directionalLight
     else
       for (const entity of directionalLightQuery()) {
         const component = getComponent(entity, DirectionalLightComponent)
+        activeDirectionalLightEntity = entity
         if (component.useInCSM) activeDirectionalLight = component.light
       }
 
@@ -41,6 +51,8 @@ export default async function ShadowSystem(world: World) {
           parent: Engine.instance.currentWorld.scene
         })
 
+      if (activeDirectionalLightEntity && hasComponent(activeDirectionalLightEntity, VisibleComponent))
+        removeComponent(activeDirectionalLightEntity, VisibleComponent)
       activeDirectionalLight.visible = false
       lastActiveDirectionLight = activeDirectionalLight
 

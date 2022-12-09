@@ -76,12 +76,14 @@ export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
     fiber: fiberRoot,
     isRunning: false,
     run() {
+      if (reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
         ReactorReconciler.updateContainer(<Reactor root={reactorRoot} />, fiberRoot, null, () => resolve())
       })
     },
     stop() {
+      if (!reactorRoot.isRunning) return Promise.resolve()
       return Promise.resolve().then(() => {
         ReactorReconciler.updateContainer(null, fiberRoot, null, () => {})
         reactorRoot.isRunning = false
