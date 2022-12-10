@@ -248,7 +248,7 @@ export class World {
   /**
    *
    */
-  priorityAvatarEntities: Set<Entity> = new Set()
+  priorityAvatarEntities: ReadonlySet<Entity> = new Set()
 
   /**
    * The local client entity
