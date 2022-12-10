@@ -104,13 +104,14 @@ export const addClientInputListeners = (world: World) => {
     const activeKeys = Object.entries(state)
 
     for (const [key, val] of activeKeys) {
-      if (val.up && val.pressed) {
+      if (!val.up && val.pressed) {
         world.buttons[key].up = true
       }
     }
   }
   addListener(window, 'focus', clearKeyState)
   addListener(window, 'blur', clearKeyState)
+  addListener(canvas, 'mouseleave', clearKeyState)
 
   const handleVisibilityChange = (event: Event) => {
     if (document.visibilityState === 'hidden') clearKeyState()
