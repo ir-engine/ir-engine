@@ -54,7 +54,6 @@ const batchingnormalVertex = `
 
 const batchingVertex = `
 #ifdef BATCHING
-  //transformed = vec4( transformed, 1.0 ).xyz;
 	transformed = ( batchingMatrix * vec4( transformed, 1.0 ) ).xyz;
 #endif
 `
@@ -161,9 +160,6 @@ class BatchedMesh extends Mesh {
       for (const uniformName in customUniforms) {
         parameters.uniforms[uniformName] = customUniforms[uniformName]
       }
-
-      // for debug
-      // console.log( parameters.vertexShader, parameters.uniforms );
 
       //currentOnBeforeCompile.call(this, parameters, renderer)
     }
@@ -400,7 +396,7 @@ export function convertToBatchedMesh(meshes: Mesh[]) {
   const result = new BatchedMesh(numMeshes, totalVertices, totalIndices, material)
   meshes.map((mesh) => {
     const geoId = result.applyGeometry(mesh.geometry)
-    result.setMatrixAt(geoId, mesh.matrixWorld.clone())
+    result.setMatrixAt(geoId, mesh.matrixWorld)
   })
   return result
 }
