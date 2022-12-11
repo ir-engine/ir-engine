@@ -566,6 +566,20 @@
   color: var(--iconButtonColor);
 }
 
+.commitContents {
+  display: flex;
+  align-items: center;
+
+  & > :last-child {
+    height: 0.75em;
+
+    &:hover {
+      cursor: pointer;
+      color: var(--orange);
+    }
+  }
+}
+
 .orangeColor {
   color: orange;
 }

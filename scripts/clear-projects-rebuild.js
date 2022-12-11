@@ -56,6 +56,9 @@ cli.main(async () => {
       },
       needsRebuild: {
         type: Sequelize.DataTypes.BOOLEAN
+      },
+      commitSHA: {
+        type: Sequelize.DataTypes.STRING
       }
     })
 
