@@ -1,24 +1,35 @@
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { ObjectDirection } from '../common/constants/Axis3D'
+import { V_010 } from '../common/constants/MathConstants'
+import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { getControlMode } from '../xr/XRState'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { getControlMode, XRState } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
-import { rotateAvatar } from './functions/moveAvatar'
+import {
+  avatarApplyRotation,
+  calculateAvatarDisplacementFromGamepad,
+  rotateAvatar,
+  updateAvatarControllerOnGround
+} from './functions/moveAvatar'
 import { AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 export default async function AvatarInputSystem(world: World) {
   const interactState = getState(InteractState)
   const avatarInputSettingsState = getState(AvatarInputSettingsState)
+  const xrState = getState(XRState)
 
   const onShiftLeft = () => {
     if (world.localClientEntity) {
@@ -78,6 +89,12 @@ export default async function AvatarInputSystem(world: World) {
     }
   }
 
+  const cameraDirection = new Vector3()
+  const forwardOrientation = new Quaternion()
+  const gamepadMovementDisplacement = new Vector3()
+  const desiredAvatarTranslation = new Vector3()
+
+  const cameraDifference = new Vector3()
   const movementDelta = new Vector3()
   const lastMovementDelta = new Vector3()
   let isVRRotatingLeft = false
@@ -99,18 +116,33 @@ export default async function AvatarInputSystem(world: World) {
       if (keys.KeyP?.down) onKeyP()
     }
 
+    const cameraAttached = getControlMode() === 'attached'
+
+    /**
+     * Move avatar with camera viewer pose when in attached mode
+     */
+    if (cameraAttached) {
+      const rigidBody = getComponent(localClientEntity, RigidBodyComponent)
+      const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+      cameraDifference.copy(cameraLocalTransform.position).sub(xrState.previousCameraPosition.value)
+      rigidBody.position.add(cameraDifference)
+      rigidBody.body.setTranslation(rigidBody.position, true)
+    }
+
+    /**
+     * Move avatar with controls
+     */
+
     /** keyboard input */
     const keyDeltaX =
       (keys.KeyA?.pressed ? -1 : 0) +
       (keys.KeyD?.pressed ? 1 : 0) +
       (keys.ArrowUp?.pressed ? -1 : 0) +
       (keys.ArrowDown?.pressed ? 1 : 0)
-    const keyDeltaY = keys.Space?.pressed ? 1 : 0
     const keyDeltaZ = (keys.KeyW?.pressed ? -1 : 0) + (keys.KeyS?.pressed ? 1 : 0)
 
-    movementDelta.set(keyDeltaX, keyDeltaY, keyDeltaZ)
+    movementDelta.set(keyDeltaX, 0, keyDeltaZ)
 
-    const cameraAttached = getControlMode() === 'attached'
     const teleporting =
       cameraAttached && avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
     const preferredHand = avatarInputSettingsState.preferredHand.value
@@ -178,8 +210,61 @@ export default async function AvatarInputSystem(world: World) {
         removeComponent(localClientEntity, AvatarTeleportComponent)
       }
     } else {
+      // updateAvatarControllerOnGround(localClientEntity)
+      const rigidbody = getComponent(localClientEntity, RigidBodyComponent)
       const controller = getComponent(localClientEntity, AvatarControllerComponent)
-      controller.localMovementDirection.copy(movementDelta).normalize()
+      /** @todo put y in a separate data structure */
+      controller.gamepadMovementDirection.copy(movementDelta).normalize()
+      /** smooth XZ input */
+      const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
+      controller.gamepadMovementSmoothed.lerp(controller.gamepadMovementDirection, lerpAlpha)
+
+      /** Apply vertical input velocity such that it is not normalized against XZ movement */
+      const isJumping = !!keys.Space?.pressed
+
+      /** Apply gamepad rotational input to rigidbody */
+      avatarApplyRotation(localClientEntity)
+
+      /** calculate the avatar's displacement via a spring based on it's gamepad movement input  */
+      calculateAvatarDisplacementFromGamepad(world, localClientEntity, gamepadMovementDisplacement, isJumping)
+      desiredAvatarTranslation.copy(gamepadMovementDisplacement)
+
+      /** When in attached camera mode, avatar movement should correspond to physical device movement */
+      if (cameraAttached) {
+        /**
+         * @todo #7328 we need a function to explicitly calculate transforms relative to the
+         *   origin entity (or any entity), without making assumptions about hierarchy.
+         *
+         * ex:   `getTransformRelativeTo(world.cameraEntity, world.originEntity)`
+         */
+        const cameraTransformRelativeToOrigin = getComponent(world.cameraEntity, LocalTransformComponent)
+        cameraDifference.copy(cameraTransformRelativeToOrigin.position).sub(xrState.previousCameraPosition.value)
+        desiredAvatarTranslation.add(cameraDifference)
+      }
+
+      // console.log(desiredAvatarTranslation)
+
+      /** Use a kinematic character controller to calculate computed movement */
+      controller.controller.computeColliderMovement(controller.bodyCollider, desiredAvatarTranslation) //  , 0, controller.bodyCollider.collisionGroups())
+      const correctedMovement = controller.controller.computedMovement()
+
+      let hasGroundCollision = false
+
+      /** Process avatar movement collision events */
+      for (let i = 0; i < controller.controller.numComputedCollisions(); i++) {
+        const collision = controller.controller.computedCollision(i)
+        console.log(collision)
+        if (collision) {
+          const angle = V_010.angleTo(collision.normal1 as Vector3)
+          console.log(angle)
+          hasGroundCollision = true
+        }
+      }
+
+      // console.log(hasGroundCollision)
+
+      const transform = getComponent(localClientEntity, TransformComponent)
+      transform.position.add(correctedMovement as Vector3)
     }
 
     lastMovementDelta.copy(movementDelta)

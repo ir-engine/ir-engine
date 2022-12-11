@@ -1,4 +1,10 @@
-import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import {
+  Collider,
+  ColliderDesc,
+  KinematicCharacterController,
+  RigidBody,
+  RigidBodyDesc
+} from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -143,7 +149,7 @@ export const createAvatarCollider = (entity: Entity): Collider => {
 }
 
 const createAvatarRigidBody = (entity: Entity): RigidBody => {
-  const rigidBodyDesc = RigidBodyDesc.dynamic()
+  const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
   const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [])
   // rigidBody.setGravityScale(0.0, true)
   rigidBody.lockRotations(true, true)
@@ -155,7 +161,8 @@ export const createAvatarController = (entity: Entity) => {
   const avatarComponent = getComponent(entity, AvatarComponent)
 
   // offset so rigidboyd has feet at spawn position
-  const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
+  const springSimulator = new VectorSpringSimulator(60, 10, 0.8)
+
   if (!hasComponent(entity, AvatarControllerComponent)) {
     getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
     createAvatarRigidBody(entity)
@@ -166,9 +173,9 @@ export const createAvatarController = (entity: Entity) => {
       isJumping: false,
       isWalking: false,
       isInAir: false,
-      localMovementDirection: new Vector3(),
-      velocitySimulator,
-      currentSpeed: 0,
+      gamepadMovementDirection: new Vector3(),
+      gamepadMovementSmoothed: new Vector3(),
+      gamepadYVelocity: 0,
       speedVelocity: { value: 0 },
       lastPosition: new Vector3() //.copy(rigidBody.translation() as Vector3)
     })
@@ -176,6 +183,10 @@ export const createAvatarController = (entity: Entity) => {
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
+  avatarControllerComponent.controller = Physics.createCharacterController(
+    Engine.instance.currentWorld.physicsWorld,
+    {}
+  )
 
   addComponent(entity, CollisionComponent, new Map())
 }

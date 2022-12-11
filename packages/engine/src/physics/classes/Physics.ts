@@ -268,6 +268,25 @@ function createColliderAndAttachToRigidBody(world: World, colliderDesc: Collider
   return world.createCollider(colliderDesc, rigidBody)
 }
 
+function createCharacterController(
+  world: World,
+  {
+    offset = 0.01,
+    maxSlopeClimbAngle = (45 * Math.PI) / 180,
+    minSlopeSlideAngle = (30 * Math.PI) / 180,
+    autoStep = { maxHeight: 0.5, minWidth: 0.2, stepOverDynamic: true },
+    enableSnapToGround = false as number | false
+  }
+) {
+  const characterController = world.createCharacterController(offset)
+  characterController.setMaxSlopeClimbAngle(maxSlopeClimbAngle)
+  characterController.setMinSlopeSlideAngle(minSlopeSlideAngle)
+  if (autoStep) characterController.enableAutostep(autoStep.maxHeight, autoStep.minWidth, autoStep.stepOverDynamic)
+  if (enableSnapToGround) characterController.enableSnapToGround(enableSnapToGround)
+  else characterController.disableSnapToGround()
+  return characterController
+}
+
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
   const rigidBody = getComponent(entity, RigidBodyComponent).body
   const numColliders = rigidBody.numColliders()
@@ -469,6 +488,7 @@ export const Physics = {
   createColliderDesc,
   applyDescToCollider,
   createRigidBodyForGroup,
+  createCharacterController,
   createColliderAndAttachToRigidBody,
   removeCollidersFromRigidBody,
   removeRigidBody,

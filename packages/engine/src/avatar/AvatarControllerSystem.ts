@@ -28,16 +28,16 @@ import { setTransformComponent, TransformComponent } from '../transform/componen
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
-import { moveAvatarWithVelocity, updateAvatarControllerOnGround } from './functions/moveAvatar'
+import { updateAvatarControllerOnGround } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
-import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
+import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 /**
  * TODO: convert this to hyperflux state #7262
  */
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
-  // Speeds are same as animation's root motion
+  // Speeds are same as animation's root motion - in meters per second
   walkSpeed = 1.6762927669761485
   runSpeed = 3.769894125544925 * 1.5
   jumpHeight = 6
@@ -92,7 +92,7 @@ export default async function AvatarControllerSystem(world: World) {
 
     if (hasComponent(controlledEntity, AvatarControllerComponent)) {
       const controller = getComponent(controlledEntity, AvatarControllerComponent)
-      updateAvatarControllerOnGround(controlledEntity)
+      // updateAvatarControllerOnGround(controlledEntity)
       if (controller.movementEnabled) {
         /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
          *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
@@ -101,7 +101,7 @@ export default async function AvatarControllerSystem(world: World) {
         if (
           !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
           world.worldNetwork &&
-          controller.localMovementDirection.lengthSq() > 0.1
+          controller.gamepadMovementDirection.lengthSq() > 0.1
         ) {
           const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
           dispatchAction(
@@ -113,7 +113,6 @@ export default async function AvatarControllerSystem(world: World) {
           )
           setComponent(controlledEntity, NetworkObjectAuthorityTag)
         }
-        moveAvatarWithVelocity(controlledEntity)
       }
 
       const rigidbody = getComponent(controlledEntity, RigidBodyComponent)

@@ -9,6 +9,7 @@ import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
 import {
   ComponentType,
   getComponent,
@@ -79,6 +80,7 @@ export const updateAvatarControllerOnGround = (entity: Entity) => {
 
   for (const otherCollider of collidersInContactWithFeet) {
     physicsWorld.contactPair(controller.bodyCollider, otherCollider, (manifold, flipped) => {
+      console.log(manifold)
       if (manifold.numContacts() > 0) {
         _vec.copy(manifold.normal() as Vector3)
         if (!flipped) _vec.normalize().negate()
@@ -96,31 +98,8 @@ export const updateAvatarControllerOnGround = (entity: Entity) => {
 //   /** teleport controls handled in AvatarInputSchema */
 //   if (getControlMode() === 'attached' && avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) return
 
-//   moveAvatarWithVelocity(entity)
+//   moveAvatar(entity)
 // }
-
-const cameraDirection = new Vector3()
-const forwardOrientation = new Quaternion()
-
-/**
- * Moves the avatar with velocity controls
- * @param entity
- */
-export const moveAvatarWithVelocity = (entity: Entity) => {
-  const isInVR = getControlMode() === 'attached'
-  const avatarInputState = getState(AvatarInputSettingsState)
-  if (isInVR && avatarInputState.controlScheme.value !== AvatarMovementScheme.Linear) {
-    return
-  }
-
-  const camera = Engine.instance.currentWorld.camera
-  camera.getWorldDirection(cameraDirection).setY(0).normalize()
-  forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
-
-  avatarApplyVelocity(entity, forwardOrientation)
-  avatarApplyRotation(entity)
-  avatarStepOverObstacles(entity, forwardOrientation)
-}
 
 /**
  * Rotates the avatar
@@ -138,92 +117,52 @@ export const avatarApplyRotation = (entity: Entity) => {
   }
 }
 
-const cameraXZ = new Vector3()
-const cameraDifference = new Vector3()
+const cameraDirection = new Vector3()
+const forwardOrientation = new Quaternion()
 
 /**
  * Avatar movement via velocity spring and collider velocity
  */
-export const avatarApplyVelocity = (entity: Entity, forwardOrientation: Quaternion) => {
+export const calculateAvatarDisplacementFromGamepad = (
+  world: World,
+  entity: Entity,
+  outDisplacement: Vector3,
+  isJumping: boolean
+) => {
+  const camera = world.camera
+  camera.getWorldDirection(cameraDirection).setY(0).normalize()
+  forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
+
   const controller = getComponent(entity, AvatarControllerComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  const timeStep = getState(EngineState).fixedDeltaSeconds.value
   const isInVR = getControlMode() === 'attached'
 
+  const deltaSeconds = world.deltaSeconds
+
   // always walk in VR
-  controller.currentSpeed =
+  const currentSpeed =
     controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
 
-  controller.velocitySimulator.target.copy(controller.localMovementDirection)
-  controller.velocitySimulator.simulate(timeStep * (controller.isInAir ? 0.2 : 1))
-  const velocitySpringDirection = controller.velocitySimulator.position
-
-  const prevVelocity = rigidBody.body.linvel()
-  const currentVelocity = _vec
-    .copy(velocitySpringDirection)
-    .multiplyScalar(controller.currentSpeed)
+  /** Multiple spring scale by speed and apply forward orientation */
+  outDisplacement
+    .copy(controller.gamepadMovementSmoothed)
+    .multiplyScalar(currentSpeed * deltaSeconds)
     .applyQuaternion(forwardOrientation)
-    .setComponent(1, prevVelocity.y)
 
   if (controller.isInAir) {
     // apply gravity to avatar velocity
-    currentVelocity.y = prevVelocity.y - 9.81 * timeStep
+    controller.gamepadYVelocity -= 9.81 * deltaSeconds
   } else {
-    currentVelocity.y = 0
-    if (controller.localMovementDirection.y > 0 && !controller.isJumping) {
+    controller.gamepadYVelocity = 0
+    if (isJumping && !controller.isJumping) {
       // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
-      currentVelocity.y = Math.sqrt(2 * AvatarSettings.instance.jumpHeight * 9.81)
+      controller.gamepadYVelocity = Math.sqrt(2 * AvatarSettings.instance.jumpHeight * 9.81)
       controller.isJumping = true
     } else if (controller.isJumping) {
       controller.isJumping = false
     }
   }
-  const xrState = getState(XRState)
 
-  /** move avatar with camera when in attached mode */
-  if (isInVR) {
-    const world = Engine.instance.currentWorld
-
-    const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
-    cameraDifference.copy(cameraLocalTransform.position).sub(xrState.previousCameraPosition.value)
-    rigidBody.position.add(cameraDifference)
-    rigidBody.body.setTranslation(rigidBody.position, true)
-  }
-
-  if (hasComponent(entity, NetworkObjectAuthorityTag)) {
-    rigidBody.body.setLinvel(currentVelocity, true)
-  }
-}
-
-export const avatarStepOverObstacles = (entity: Entity, forwardOrientation: Quaternion) => {
-  const transform = getComponent(entity, TransformComponent)
-  const controller = getComponent(entity, AvatarControllerComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-
-  const velocitySpringDirection = controller.velocitySimulator.position
-  /**
-   * Step over small obstacles
-   */
-  const xzVelocity = _vec.copy(velocitySpringDirection).setY(0)
-  const xzVelocitySqrMagnitude = xzVelocity.lengthSq()
-  if (xzVelocitySqrMagnitude > minimumStepSpeed) {
-    // TODO this can be improved by using a shapeCast with a plane instead of a line
-    // set the raycast position to the egde of the bottom of the cylindical portion of the capsule collider in the direction of motion
-    avatarStepRaycast.origin
-      .copy(transform.position)
-      .add(xzVelocity.normalize().multiplyScalar(expandedAvatarRadius).applyQuaternion(forwardOrientation))
-    avatarStepRaycast.origin.y += stepLowerBound + stepHeight
-    const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, avatarStepRaycast)
-    if (hits.length && hits[0].collider !== controller.bodyCollider) {
-      _vec.copy(hits[0].normal as Vector3)
-      const angle = _vec.angleTo(V_010)
-      if (angle < stepAngle) {
-        const pos = rigidBody.body.translation()
-        pos.y += stepHeight - hits[0].distance
-        rigidBody.body.setTranslation(pos, true)
-      }
-    }
-  }
+  outDisplacement.y = controller.gamepadYVelocity * deltaSeconds
 }
 
 /**
