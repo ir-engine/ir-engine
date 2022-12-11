@@ -27,35 +27,35 @@ const MocksystemLoader = async () => {
 }
 
 describe('FixedPipelineSystem', () => {
-  // it('can run multiple fixed ticks to catch up to elapsed time', async () => {
-  //   createEngine()
-  //   setupEngineActionSystems()
-  //   const world = Engine.instance.currentWorld
+  it.skip('can run multiple fixed ticks to catch up to elapsed time', async () => {
+    createEngine()
+    setupEngineActionSystems()
+    const world = Engine.instance.currentWorld
 
-  //   const injectedSystems = [
-  //     {
-  //       uuid: 'Mock',
-  //       systemLoader: () => MocksystemLoader(),
-  //       type: SystemUpdateType.FIXED
-  //     }
-  //   ]
-  //   await initSystems(world, injectedSystems)
+    const injectedSystems = [
+      {
+        uuid: 'Mock',
+        systemLoader: () => MocksystemLoader(),
+        type: SystemUpdateType.FIXED
+      }
+    ]
+    await initSystems(world, injectedSystems)
 
-  //   const mockState = getState(MockState)
+    const mockState = getState(MockState)
 
-  //   assert.equal(world.elapsedSeconds, 0)
-  //   assert.equal(world.fixedElapsedSeconds, 0)
-  //   assert.equal(world.fixedTick, 0)
-  //   assert.equal(mockState.count.value, 0)
+    assert.equal(world.elapsedSeconds, 0)
+    assert.equal(world.fixedElapsedSeconds, 0)
+    assert.equal(world.fixedTick, 0)
+    assert.equal(mockState.count.value, 0)
 
-  //   const ticks = 3
-  //   const deltaSeconds = ticks / 60
-  //   world.execute(world.startTime + 1000 * deltaSeconds)
-  //   assert.equal(world.elapsedSeconds, deltaSeconds)
-  //   assert.equal(world.fixedElapsedSeconds, deltaSeconds)
-  //   assert.equal(world.fixedTick, ticks)
-  //   assert.equal(mockState.count.value, ticks)
-  // })
+    const ticks = 3
+    const deltaSeconds = ticks / 60
+    world.execute(world.startTime + 1000 * deltaSeconds)
+    assert.equal(world.elapsedSeconds, deltaSeconds)
+    assert.equal(world.fixedElapsedSeconds, deltaSeconds)
+    assert.equal(world.fixedTick, ticks)
+    assert.equal(mockState.count.value, ticks)
+  })
 
   it('can skip fixed ticks to catch up to elapsed time', async () => {
     createEngine()
