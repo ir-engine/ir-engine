@@ -17,6 +17,9 @@ export const updateShadowMap = (disable?: boolean) => {
   Engine.instance.currentWorld.scene.traverse((node: DirectionalLight) => {
     if (node.isDirectionalLight && node.shadow) {
       node.shadow.map?.dispose()
+      node.shadow.map = null as any
+      node.shadow.camera.updateProjectionMatrix()
+      node.shadow.needsUpdate = true
     }
   })
 }
