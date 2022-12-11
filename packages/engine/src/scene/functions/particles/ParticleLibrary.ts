@@ -1,4 +1,5 @@
 import { Group } from 'three'
+
 import Dust, { DefaultArgs as DustDefaultArgs } from './library/Dust'
 import { ParticleSystem } from './ParticleTypes'
 

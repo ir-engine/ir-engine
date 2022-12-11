@@ -4,6 +4,4 @@ export type ParticleSystem = {
   addRenderer: (spriteRenderer: any) => void
 }
 
-export type ParticleEmitter = {
-
-}
+export type ParticleEmitter = {}

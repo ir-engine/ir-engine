@@ -35,6 +35,7 @@ import {
   TextureArg,
   Vec2Arg
 } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
+
 import { ParticleSystem } from '../ParticleTypes'
 
 export const DefaultArgs = {

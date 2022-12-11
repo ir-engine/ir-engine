@@ -10,12 +10,10 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import {
-  getComponent,
-  setComponent
-} from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../../ecs/functions/EntityFunctions'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import {
   ParticleEmitterComponent,
   ParticleEmitterComponentType,
@@ -23,7 +21,6 @@ import {
 } from '../../components/ParticleEmitterComponent'
 import { ParticleSystemActions } from '../../systems/ParticleSystem'
 import { DefaultArguments, ParticleLibrary } from '../particles/ParticleLibrary'
-import { addObjectToGroup } from '../../components/GroupComponent'
 import { ParticleSystem } from '../particles/ParticleTypes'
 
 export const disposeParticleSystem = (entity: Entity) => {
