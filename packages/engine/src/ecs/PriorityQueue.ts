@@ -1,47 +1,45 @@
-import Heap from 'heap-js'
+import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 
 import { Entity } from './classes/Entity'
-import { INITIAL_COMPONENT_SIZE } from './functions/ComponentFunctions'
 
-export const createPriorityQueue = (entities: Entity[], args: { accumulationBudget: number }) => {
-  const priorities = new Float64Array(INITIAL_COMPONENT_SIZE)
-  const accumulation = new Float64Array(INITIAL_COMPONENT_SIZE)
-
-  const comparison = (a, b) => priorities[b] - priorities[a]
-  const heap = new Heap<Entity>(comparison)
-
-  heap.init(entities)
-
-  const priorityEntities = new Set<Entity>()
-
-  const popFunc = (entity: Entity) => {
-    const priority = priorities[entity]
-    if (priority > 1) {
-      priorities[entity] = 0
-      priorityEntities.add(heap.pop()!)
+export const createPriorityQueue = (args: { accumulationBudget: number }) => {
+  const accumulatingPriorities = new Map<
+    Entity,
+    {
+      normalizedPriority: number
+      accumulatedPriority: number
     }
-  }
+  >()
+
+  const priorityEntites = new Set<Entity>()
 
   let totalAccumulation = 0
 
   const queue = {
-    heap,
-    setPriority: (entity: Entity, priority: number) => {
-      priorities[entity] = priority
+    accumulatingPriorities: accumulatingPriorities as DeepReadonly<typeof accumulatingPriorities>,
+    removeEntity: (entity: Entity) => {
+      accumulatingPriorities.delete(entity)
     },
     addPriority: (entity: Entity, priority: number) => {
-      accumulation[entity] = priority
+      if (!accumulatingPriorities.has(entity))
+        accumulatingPriorities.set(entity, { normalizedPriority: 0, accumulatedPriority: 0 })
+      const item = accumulatingPriorities.get(entity)!
+      item.accumulatedPriority += priority
       totalAccumulation += priority
     },
     update: () => {
-      for (const entity of entities)
-        priorities[entity] += (accumulation[entity] * queue.accumulationBudget) / totalAccumulation
+      priorityEntites.clear()
+      for (const [entity, item] of accumulatingPriorities) {
+        item.normalizedPriority += (item.accumulatedPriority * queue.accumulationBudget) / totalAccumulation
+        item.accumulatedPriority = 0
+        if (item.normalizedPriority >= 1) {
+          priorityEntites.add(entity)
+          queue.removeEntity(entity)
+        }
+      }
       totalAccumulation = 0
-      priorityEntities.clear()
-      heap.init(entities)
-      heap.toArray().filter(popFunc)
     },
-    priorityEntities,
+    priorityEntities: priorityEntites as ReadonlySet<Entity>,
     accumulationBudget: args.accumulationBudget
   }
 

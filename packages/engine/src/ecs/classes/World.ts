@@ -92,7 +92,6 @@ export class World {
     addComponent(this.cameraEntity, NameComponent, 'camera')
     addComponent(this.cameraEntity, CameraComponent)
     addComponent(this.cameraEntity, VisibleComponent, true)
-    setTransformComponent(this.cameraEntity)
     setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
     this.camera.matrixAutoUpdate = false
@@ -256,7 +255,7 @@ export class World {
   /**
    *
    */
-  priorityAvatarEntities: Set<Entity> = new Set()
+  priorityAvatarEntities: ReadonlySet<Entity> = new Set()
 
   /**
    * The local client entity

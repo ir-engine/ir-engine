@@ -99,18 +99,17 @@ export const addClientInputListeners = (world: World) => {
   }
   addListener(document, 'touchstickmove', handleTouchDirectionalPad)
 
+  const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
   const clearKeyState = () => {
     const state = world.buttons as ButtonInputStateType
-    const activeKeys = Object.entries(state)
-
-    for (const [key, val] of activeKeys) {
-      if (val.up && val.pressed) {
-        world.buttons[key].up = true
-      }
+    for (const button of pointerButtons) {
+      const val = state[button]
+      if (!val?.up && val?.pressed) state[button].up = true
     }
   }
   addListener(window, 'focus', clearKeyState)
   addListener(window, 'blur', clearKeyState)
+  addListener(canvas, 'mouseleave', clearKeyState)
 
   const handleVisibilityChange = (event: Event) => {
     if (document.visibilityState === 'hidden') clearKeyState()
@@ -128,7 +127,7 @@ export const addClientInputListeners = (world: World) => {
     const down = event.type === 'keydown'
 
     if (down) world.buttons[code] = createInitialButtonState()
-    else world.buttons[code].up = true
+    else if (world.buttons[code]) world.buttons[code].up = true
   }
   addListener(document, 'keyup', onKeyEvent)
   addListener(document, 'keydown', onKeyEvent)

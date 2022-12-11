@@ -3,7 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
-import { AvatarDirection } from '../../common/constants/Axis3D'
+import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
@@ -54,7 +54,7 @@ const minimumStepSpeed = 0.1
 const avatarStepRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
-  direction: AvatarDirection.Down,
+  direction: ObjectDirection.Down,
   maxDistance: stepHeight,
   groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
 }
@@ -115,7 +115,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
 
   const camera = Engine.instance.currentWorld.camera
   camera.getWorldDirection(cameraDirection).setY(0).normalize()
-  forwardOrientation.setFromUnitVectors(AvatarDirection.Forward, cameraDirection)
+  forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
 
   avatarApplyVelocity(entity, forwardOrientation)
   avatarApplyRotation(entity)

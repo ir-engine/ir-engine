@@ -13,7 +13,7 @@ import {
 } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
-import { AvatarDirection } from '../common/constants/Axis3D'
+import { ObjectDirection } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import {
@@ -33,6 +33,7 @@ import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { setupObject } from '../scene/systems/SceneObjectSystem'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -51,7 +52,7 @@ const lightOpacity = (y, r) => {
 const downwardGroundRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
-  direction: AvatarDirection.Down,
+  direction: ObjectDirection.Down,
   maxDistance: 10,
   groups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
 } as RaycastArgs
@@ -228,12 +229,14 @@ export default async function AvatarLoadingSystem(world: World) {
         const avatarGroup = getComponent(effectComponent.sourceEntity, GroupComponent)
 
         effectComponent.originMaterials.forEach(({ id, material }) => {
-          for (const avatarObject of avatarGroup)
+          for (const avatarObject of avatarGroup) {
             avatarObject.traverse((obj) => {
               if (obj.uuid === id) {
                 obj['material'] = material
               }
             })
+            setupObject(avatarObject)
+          }
         })
 
         setComponent(entity, TweenComponent, {

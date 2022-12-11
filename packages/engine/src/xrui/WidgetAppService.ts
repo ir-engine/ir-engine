@@ -4,12 +4,7 @@ import { none } from '@xrengine/hyperflux/functions/StateFunctions'
 import { matches } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
 
-type WidgetState = {
-  [id: string]: {
-    enabled: boolean
-    visible: boolean
-  }
-}
+type WidgetState = Record<string, { enabled: boolean; visible: boolean }>
 
 export const WidgetAppState = defineState({
   name: 'WidgetAppState',
@@ -46,7 +41,12 @@ export const WidgetAppServiceReceptor = (action) => {
     })
     .when(WidgetAppActions.showWidget.matches, (action) => {
       // if opening or closing a widget, close or open the main menu
-      s.widgetsMenuOpen.set(!action.shown)
+      if (action.shown) {
+        s.widgetsMenuOpen.set(false)
+      }
+      if (action.openWidgetMenu && !action.shown) {
+        s.widgetsMenuOpen.set(true)
+      }
       return s.widgets[action.id].merge({
         visible: action.shown
       })
@@ -100,6 +100,7 @@ export class WidgetAppActions {
   static showWidget = defineAction({
     type: 'xre.xrui.WidgetAppActions.SHOW_WIDGET' as const,
     id: matches.string,
-    shown: matches.boolean
+    shown: matches.boolean,
+    openWidgetMenu: matches.boolean.optional()
   })
 }

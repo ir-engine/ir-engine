@@ -8,7 +8,7 @@ import {
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
-import { AvatarDirection } from '../../common/constants/Axis3D'
+import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -200,7 +200,7 @@ describe('Physics', () => {
     const raycastComponentData = {
       type: SceneQueryType.Closest,
       origin: new Vector3().set(0, 0, 0),
-      direction: AvatarDirection.Left,
+      direction: ObjectDirection.Left,
       maxDistance: 20,
       groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
     }
