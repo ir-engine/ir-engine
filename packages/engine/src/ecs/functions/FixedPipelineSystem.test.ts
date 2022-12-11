@@ -27,7 +27,7 @@ const MocksystemLoader = async () => {
 }
 
 describe('FixedPipelineSystem', () => {
-  it('can run multiple fixed ticks to catch up to elapsed time', async () => {
+  it.skip('can run multiple fixed ticks to catch up to elapsed time', async () => {
     createEngine()
     setupEngineActionSystems()
     const world = Engine.instance.currentWorld
