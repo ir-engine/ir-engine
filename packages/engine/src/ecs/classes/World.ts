@@ -296,17 +296,6 @@ export class World {
   } as { [pipeline: string]: SystemInstance[] }
 
   /**
-   * Entities mapped by name
-   * @deprecated use entitiesByName
-   */
-  get namedEntities() {
-    return new Map(Object.entries(this.entitiesByName.value))
-  }
-
-  entitiesByName = createState({} as Record<string, Entity>)
-  entitiesByUuid = createState({} as Record<string, Entity>)
-
-  /**
    * Network object query
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
