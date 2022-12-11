@@ -1,13 +1,12 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { createActionQueue, defineAction, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
-import { Group } from 'three'
 
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { GroupComponent, removeGroupComponent, removeObjectFromGroup } from '../components/GroupComponent'
+import { GroupComponent, removeGroupComponent } from '../components/GroupComponent'
 import {
   ParticleEmitterComponent,
   SCENE_COMPONENT_PARTICLE_EMITTER,
@@ -16,9 +15,7 @@ import {
 import {
   deserializeParticleEmitter,
   initializeParticleSystem,
-  serializeParticleEmitter,
-  updateParticleEmitter
-} from '../functions/loaders/ParticleEmitterFunctions'
+  serializeParticleEmitter} from '../functions/loaders/ParticleEmitterFunctions'
 import { ParticleSystem } from '../functions/particles/ParticleTypes'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
@@ -76,14 +73,6 @@ export default async function ParticleSystem(world: World) {
   }
 
   const execute = () => {
-    /**
-     * Scene Loaders
-     */
-    const dt = world.deltaSeconds
-
-    /**
-     * Effect handler
-     */
     for (const action of creatingQueue()) {
       const entity = action.entity
       if (mutices.has(entity)) continue
@@ -100,18 +89,20 @@ export default async function ParticleSystem(world: World) {
 
     for (const { entity } of destroyingQueue()) {
       if (!mutices.has(entity)) continue
-      systemTable.get(entity)?.destroy()
+      const system = systemTable.get(entity)
+      if (system) system.destroy()
       systemTable.delete(entity)
       mutices.delete(entity)
     }
 
     particleQuery.exit().map(clearSystem)
 
+    const dt = world.deltaSeconds
     for (const entity of particleGroupQuery()) {
       const group = getComponent(entity, GroupComponent)
       for (const obj of group) obj.updateMatrixWorld(true)
-      const system = systemTable.get(entity)!
-      system?.update(dt)
+      const system = systemTable.get(entity)
+      if (system) system.update(dt)
     }
   }
 
