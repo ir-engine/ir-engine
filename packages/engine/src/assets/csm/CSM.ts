@@ -128,7 +128,6 @@ export class CSM {
       this.sourceLight = light
       for (let i = 0; i < this.cascades; i++) {
         const lightClone = light.clone()
-        lightClone.target = light.target.clone()
         lightClone.castShadow = true
         lightClone.visible = true
         this.parent.add(lightClone, lightClone.target)

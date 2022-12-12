@@ -4,6 +4,7 @@ import { DirectionalLight, Group, PerspectiveCamera } from 'three'
 import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { CSM } from '../../assets/csm/CSM'
+import CSMHelper from '../../assets/csm/CSMHelper'
 import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
@@ -14,19 +15,13 @@ import {
   hasComponent,
   removeComponent,
   removeQuery,
-  setComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
-import { addObjectToGroup } from '../components/GroupComponent'
-import { NameComponent } from '../components/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '../components/VisibleComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
 
 export default async function ShadowSystem(world: World) {
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
@@ -35,13 +30,17 @@ export default async function ShadowSystem(world: World) {
 
   const xrState = getState(XRState)
   const renderState = getState(EngineRendererState)
+  // let helper
+
+  const csmGroup = new Group()
+  csmGroup.name = 'CSM-group'
+  Engine.instance.currentWorld.scene.add(csmGroup)
 
   const csmReactor = startReactor(() => {
     const lightEstimator = useHookstate(xrState.isEstimatingLight)
     const directionalLights = useQuery(directionalLightQuery)
 
     useEffect(() => {
-      console.log(lightEstimator.value, directionalLights)
       let activeDirectionalLight = null as DirectionalLight | null
       let activeDirectionalLightEntity = UndefinedEntity as Entity
 
@@ -61,12 +60,15 @@ export default async function ShadowSystem(world: World) {
         Engine.instance.currentWorld.sceneMetadata.renderSettings.csm.value
 
       if (useCSM && activeDirectionalLight) {
-        if (!EngineRenderer.instance.csm)
+        if (!EngineRenderer.instance.csm) {
           EngineRenderer.instance.csm = new CSM({
             camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
-            parent: Engine.instance.currentWorld.scene,
+            parent: csmGroup,
             light: activeDirectionalLight
           })
+          // helper = new CSMHelper(EngineRenderer.instance.csm)
+          // Engine.instance.currentWorld.scene.add(helper)
+        }
 
         if (activeDirectionalLightEntity && hasComponent(activeDirectionalLightEntity, VisibleComponent))
           removeComponent(activeDirectionalLightEntity, VisibleComponent)
@@ -99,6 +101,7 @@ export default async function ShadowSystem(world: World) {
     if (!EngineRenderer.instance.csm) return
     EngineRenderer.instance.csm.sourceLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
     if (renderState.qualityLevel.value > 0) EngineRenderer.instance.csm.update()
+    // if (helper) helper.update()
   }
 
   const cleanup = async () => {
