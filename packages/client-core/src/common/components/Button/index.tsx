@@ -25,6 +25,7 @@ interface Props {
   startIcon?: React.ReactNode
   sx?: SxProps<Theme>
   type?: 'outlined' | 'gradient' | 'gradientRounded' | 'solid' | 'solidRounded' | 'expander'
+  width?: string
   onClick?: () => void
 }
 
@@ -41,6 +42,7 @@ const Button = ({
   startIcon,
   sx,
   type,
+  width,
   onClick
 }: Props) => {
   if (type === 'expander') {
@@ -80,7 +82,7 @@ const Button = ({
       endIcon={endIcon}
       id={id}
       startIcon={startIcon}
-      sx={{ width: fullWidth ? '100%' : 'auto', ...sx }}
+      sx={{ width: width ? width : fullWidth ? '100%' : 'auto', ...sx }}
       onClick={onClick}
       onPointerUp={handleSoundEffect}
       onPointerEnter={handleSoundEffect}

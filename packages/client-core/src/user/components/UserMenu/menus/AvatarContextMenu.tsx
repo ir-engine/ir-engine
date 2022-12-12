@@ -77,6 +77,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
     <Menu
       open
       contentMargin={onBack ? '-50px 0 0' : undefined}
+      maxWidth="xs"
       showBackButton={onBack ? true : false}
       onBack={onBack}
       onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
@@ -93,7 +94,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
             partyOwner?.userId != null &&
             partyOwner.userId === authState.user.id?.value &&
             user.partyId !== partyState.party?.id?.value && (
-              <Button type="gradientRounded" onClick={inviteToParty}>
+              <Button type="gradientRounded" width="70%" onClick={inviteToParty}>
                 {t('user:personMenu.inviteToParty')}
               </Button>
             )}
@@ -101,6 +102,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
           {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
             <Button
               type="gradientRounded"
+              width="70%"
               onClick={() => {
                 FriendService.requestFriend(selfId, user.id)
                 changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
@@ -113,6 +115,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
           {isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
             <Button
               type="gradientRounded"
+              width="70%"
               onClick={() => {
                 FriendService.unfriend(selfId, user.id)
                 changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
@@ -134,6 +137,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
 
               <Button
                 type="gradientRounded"
+                width="70%"
                 onClick={() => {
                   FriendService.acceptFriend(selfId, user.id)
                   changeActiveMenu(Views.Friends)
@@ -144,6 +148,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
 
               <Button
                 type="gradientRounded"
+                width="70%"
                 onClick={() => {
                   FriendService.declineFriend(selfId, user.id)
                   changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
@@ -166,6 +171,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
 
               <Button
                 type="gradientRounded"
+                width="70%"
                 onClick={() => {
                   FriendService.unfriend(selfId, user.id)
                   changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
@@ -176,13 +182,14 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
             </>
           )}
 
-          <Button type="gradientRounded" onClick={handleMute}>
+          <Button type="gradientRounded" width="70%" onClick={handleMute}>
             {t('user:personMenu.mute')}
           </Button>
 
           {!isBlocked && !isBlocking && (
             <Button
               type="gradientRounded"
+              width="70%"
               onClick={() => {
                 FriendService.blockUser(selfId, user.id)
                 changeActiveMenu(Views.Friends, { defaultSelectedTab: 'blocked' })
@@ -195,6 +202,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
           {isBlocking && (
             <Button
               type="gradientRounded"
+              width="70%"
               onClick={() => {
                 FriendService.unblockUser(selfId, user.id)
                 changeActiveMenu(Views.Friends)
