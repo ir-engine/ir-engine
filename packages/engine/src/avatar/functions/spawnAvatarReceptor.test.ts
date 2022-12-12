@@ -46,7 +46,6 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarComponent))
     assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
-    assert(hasComponent(entity, GroupComponent))
     assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, LocalInputTagComponent))
