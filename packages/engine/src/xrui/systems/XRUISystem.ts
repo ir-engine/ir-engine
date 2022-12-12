@@ -199,7 +199,6 @@ export default async function XRUISystem(world: World) {
 
     /** do intersection tests */
     for (const inputSource of world.inputSources) {
-      console.log(pointers)
       if (!pointers.has(inputSource)) {
         const pointer = createPointer(inputSource)
         const cursor = createUICursor()
