@@ -97,7 +97,7 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
       onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
       onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
     >
-      <div className={styles.menuContent}>
+      <Box className={styles.menuContent}>
         {displayList.map((value) => (
           <Box key={value.id} display="flex" alignItems="center" m={2} gap={1.5}>
             <Avatar alt={value.name} imageSrc={getAvatarURLForUser(userAvatarDetails, value.id)} size={50} />
@@ -154,7 +154,7 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
             {t('user:friends.noUsers')}
           </Text>
         )}
-      </div>
+      </Box>
     </Menu>
   )
 }

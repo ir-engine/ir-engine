@@ -354,7 +354,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
 
   return (
     <Menu open isPopover={isPopover} onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
-      <div className={styles.menuContent}>
+      <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
@@ -638,7 +638,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
             )}
           </>
         )}
-      </div>
+      </Box>
     </Menu>
   )
 }

@@ -163,7 +163,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
       title={engineState.shareTitle.value ? engineState.shareTitle.value : t('user:usermenu.share.title')}
       onClose={() => changeActiveMenu(Views.Closed)}
     >
-      <div className={styles.menuContent}>
+      <Box className={styles.menuContent}>
         <Box className={styles.shareQuest}>
           <Button
             className={styles.shareQuestButton}
@@ -224,7 +224,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
             {t('user:usermenu.share.friends')}
           </Button>
         </Box>
-      </div>
+      </Box>
     </Menu>
   )
 }

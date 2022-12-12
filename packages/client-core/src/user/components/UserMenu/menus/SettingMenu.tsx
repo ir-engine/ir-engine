@@ -161,7 +161,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
       onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
     >
-      <div className={styles.menuContent}>
+      <Box className={styles.menuContent}>
         {selectedTab === 'general' && selfUser && (
           <>
             <Text align="center" variant="body1" mb={2} mt={1}>
@@ -446,7 +446,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             </Grid>
           </>
         )}
-      </div>
+      </Box>
     </Menu>
   )
 }

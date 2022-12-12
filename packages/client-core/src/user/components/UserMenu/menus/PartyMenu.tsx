@@ -1,10 +1,10 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import Avatar from '@xrengine/client-core/src/common/components/Avatar'
 import Button from '@xrengine/client-core/src/common/components/Button'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import { OculusIcon } from '@xrengine/client-core/src/common/components/Icons/OculusIcon'
-import InputCheck from '@xrengine/client-core/src/common/components/InputCheck'
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+import { CrownIcon } from '@xrengine/client-core/src/common/components/Icons/CrownIcon'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import Menu from '@xrengine/client-core/src/common/components/Menu'
 import Text from '@xrengine/client-core/src/common/components/Text'
@@ -18,8 +18,8 @@ import Box from '@mui/material/Box'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../../social/services/PartyService'
 import { useAuthState } from '../../../services/AuthService'
+import styles from '../index.module.scss'
 import { Views } from '../util'
-import styles from './PartyMenu.module.scss'
 
 export const usePartyMenuHooks = () => {
   const [token, setToken] = React.useState('')
@@ -112,180 +112,106 @@ const PartyMenu = ({ changeActiveMenu }: Props): JSX.Element => {
 
   const renderCreate = () => {
     return (
-      <Box className={styles.menuContent}>
-        <Text align="center" mt={4} variant="body2">
-          {t('user:usermenu.party.createPartyText')}
-        </Text>
+      <Text align="center" flex={1} mt={4} variant="body2">
+        {t('user:usermenu.party.createPartyText')}
+      </Text>
+    )
+  }
 
-        <Button className={styles.create} onClick={createParty}>
+  const renderUser = () => {
+    return partyState.party.partyUsers.value?.map((user, i) => {
+      return (
+        <Box key={i} display="flex" alignItems="center" mb={2} gap={1}>
+          <Avatar imageSrc={user.user.static_resources && user.user.static_resources[0].url} size={50} />
+
+          <Text>{user.user.name}</Text>
+
+          <CrownIcon sx={{ height: '22px', width: '22px', mt: -0.5 }} />
+
+          <Box flex={1} />
+
+          {user.user.id === selfUser.id.value ? (
+            <Text variant="body2">{t('user:usermenu.party.you')}</Text>
+          ) : partyState.isOwned.value ? (
+            <Text color="red" variant="body2" onClick={() => kickUser(user.user.id)}>
+              {t('user:usermenu.party.kick')}
+            </Text>
+          ) : null}
+        </Box>
+      )
+    })
+  }
+
+  const renderCreateButtons = () => {
+    return (
+      <Box flex={1}>
+        <Button fullWidth type="gradientRounded" className={styles.create} onClick={createParty}>
           {t('user:usermenu.party.create')}
         </Button>
       </Box>
     )
   }
 
-  const renderUser = () => {
+  const renderUserButtons = () => {
     return (
-      <>
-        {/* <section className={styles.midBlock}>
-          {partyState.party.partyUsers.value?.map((user, i) => {
-            return (
-              <div className={styles.partyUserBlock + ' ' + styles.backDrop} key={i}>
-                <div className={styles.userBlock}>
-                  <div className={styles.profile}>
-                    <img src={user.user.static_resources && user.user.static_resources[0].url} alt="" />
-                  </div>
-                  <div className={styles.userName}>{user.user.name}</div>
-                  {user.isOwner && <img src="/icons/crown.svg" alt="" />}
-                </div>
-                {user.user.id === selfUser.id.value ? (
-                  <span className={styles.admin}>{t('user:usermenu.party.you')}</span>
-                ) : partyState.isOwned.value ? (
-                  <Button className={styles.kick} onClick={() => kickUser(user.user.id)}>
-                    {t('user:usermenu.party.kick')}
-                  </Button>
-                ) : null}
-              </div>
-            )
-          })}
-        </section>
-        <section className={styles.actionBlock + ' ' + styles.backDrop}>
-          {isInviteOpen ? (
-            <TextField
-              className={styles.emailField}
-              size="small"
-              placeholder={t('user:usermenu.share.ph-phoneEmail')}
-              variant="outlined"
-              value={token}
-              onChange={(e) => handleChangeToken(e)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start" onClick={() => setInviteOpen(false)} className={styles.cancelInvite}>
-                    <ClearIcon />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end" onClick={sendInvite} className={styles.send}>
-                    <SendIcon />
-                  </InputAdornment>
-                )
-              }}
-            />
-          ) : (
-            <div className={styles.controls}>
-              <div className={styles.leaveInviteButtons}>
-                <Button className={styles.leave} onClick={() => kickUser(selfUser.id.value)}>
-                  {t('user:usermenu.party.leave')}
-                </Button>
-                {isOwned && (
-                  <Button className={styles.invite} onClick={() => setInviteOpen(true)}>
-                    {t('user:usermenu.party.invite')}
-                  </Button>
-                )}
-              </div>
-              {isOwned && !isDeleteConfirmOpen && (
-                <Button className={styles.startDelete} onClick={() => setIsDeleteConfirmOpen(true)}>
-                  {t('user:usermenu.party.initDelete')}
-                </Button>
-              )}
-              {isOwned && isDeleteConfirmOpen && (
-                <div className={styles.confirmDeleteButtons}>
-                  <Button
-                    className={styles.confirmDelete}
-                    onClick={() => {
-                      deleteParty(partyState.party.id.value)
-                      setIsDeleteConfirmOpen(false)
-                    }}
-                  >
-                    {t('user:usermenu.party.confirmDelete')}
-                  </Button>
-                  <Button className={styles.cancelDelete} onClick={() => setIsDeleteConfirmOpen(false)}>
-                    {t('user:usermenu.party.cancelDelete')}
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-        
-        
-
-
-
-        
-      <div className={styles.menuContent}>
-        {!partyState.party.value && (
-          <Text align="center" mt={4} variant="body2">
-            {t('user:usermenu.party.createPartyText')}
-          </Text>
+      <Box flex={1}>
+        {isInviteOpen && (
+          <InputText
+            endIcon={<SendIcon />}
+            placeholder={t('user:usermenu.share.ph-phoneEmail')}
+            startIcon={<ClearIcon />}
+            sx={{ mb: 1, mt: 1 }}
+            value={token}
+            onChange={(e) => handleChangeToken(e)}
+            onEndIconClick={sendInvite}
+            onStartIconClick={() => setInviteOpen(false)}
+          />
         )}
 
-        <Button className={styles.create} onClick={createParty}>
-          {t('user:usermenu.party.create')}
-        </Button>
+        <Box display="flex" columnGap={2} alignItems="center">
+          <Button fullWidth type="gradientRounded" onClick={() => kickUser(selfUser.id.value)}>
+            {t('user:usermenu.party.leave')}
+          </Button>
+          {isOwned && (
+            <Button fullWidth type="gradientRounded" onClick={() => setInviteOpen(!isInviteOpen)}>
+              {t('user:usermenu.party.invite')}
+            </Button>
+          )}
+        </Box>
 
-        {displayList.map((value) => (
-          <Box key={value.id} display="flex" alignItems="center" m={2} gap={1.5}>
-            <Avatar alt={value.name} imageSrc={getAvatarURLForUser(userAvatarDetails, value.id)} size={50} />
+        {isOwned && (
+          <Button fullWidth type="gradientRounded" onClick={() => setIsDeleteConfirmOpen(true)}>
+            {t('user:common.delete')}
+          </Button>
+        )}
 
-            <Text flex={1}>{value.name}</Text>
-
-            {value.relationType === 'friend' && (
-              <IconButton
-                icon={<MessageIcon sx={{ height: 30, width: 30 }} />}
-                title={t('user:friends.message')}
-                onClick={() => NotificationService.dispatchNotify('Chat Pressed', { variant: 'info' })}
-              />
-            )}
-
-            {value.relationType === 'pending' && (
-              <>
-                <Chip className={commonStyles.chip} label={t('user:friends.pending')} size="small" variant="outlined" />
-
-                <IconButton
-                  icon={<CheckIcon sx={{ height: 30, width: 30 }} />}
-                  title={t('user:friends.accept')}
-                  onClick={() => FriendService.acceptFriend(userId, value.id)}
-                />
-
-                <IconButton
-                  icon={<CloseIcon sx={{ height: 30, width: 30 }} />}
-                  title={t('user:friends.decline')}
-                  onClick={() => FriendService.declineFriend(userId, value.id)}
-                />
-              </>
-            )}
-
-            {value.relationType === 'requested' && (
-              <Chip className={commonStyles.chip} label={t('user:friends.requested')} size="small" variant="outlined" />
-            )}
-
-            {value.relationType === 'blocking' && (
-              <IconButton
-                icon={<HowToRegIcon sx={{ height: 30, width: 30 }} />}
-                title={t('user:friends.unblock')}
-                onClick={() => FriendService.unblockUser(userId, value.id)}
-              />
-            )}
-
-            <IconButton
-              icon={<AccountCircleIcon sx={{ height: 30, width: 30 }} />}
-              title={t('user:friends.profile')}
-              onClick={() => handleProfile(value)}
-            />
-          </Box>
-        ))}
-      </div>
-        
-        
-        */}
-      </>
+        {isDeleteConfirmOpen && (
+          <ConfirmDialog
+            open
+            description={t('user:usermenu.party.deleteConfirmation')}
+            submitButtonText={t('user:common.delete')}
+            onClose={() => setIsDeleteConfirmOpen(false)}
+            onSubmit={() => {
+              deleteParty(partyState.party.id.value)
+              setIsDeleteConfirmOpen(false)
+            }}
+          />
+        )}
+      </Box>
     )
   }
 
   return (
-    <Menu open title={t('user:usermenu.party.title')} onClose={() => changeActiveMenu(Views.Closed)}>
-      {partyState.party.value ? renderUser() : renderCreate()}
+    <Menu
+      open
+      maxWidth="xs"
+      title={t('user:usermenu.party.title')}
+      actions={partyState.party.value ? renderUserButtons() : renderCreateButtons()}
+      onClose={() => changeActiveMenu(Views.Closed)}
+    >
+      <Box className={styles.menuContent} display="flex" flexDirection="column">
+        {partyState.party.value ? renderUser() : renderCreate()}
+      </Box>
     </Menu>
   )
 }

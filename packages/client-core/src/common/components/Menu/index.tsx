@@ -78,7 +78,7 @@ const Menu = ({
       <DialogContent sx={{ margin: contentMargin }}>{children}</DialogContent>
 
       {(showDefaultActions || actions) && (
-        <DialogActions>
+        <DialogActions className={styles.dialogActions}>
           {showDefaultActions && (
             <>
               <Button type="outlined" onClick={onClose}>
