@@ -88,7 +88,7 @@ export type ComponentErrorsType<C extends Component> = C['errors'][number]
 
 export const defineComponent = <
   ComponentType = true,
-  Schema extends bitECS.ISchema = any,
+  Schema extends bitECS.ISchema = {},
   JSON = ComponentType,
   ComponentExtras = unknown,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,

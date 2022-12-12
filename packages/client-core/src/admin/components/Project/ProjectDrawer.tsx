@@ -35,7 +35,9 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           name: 'tempProject',
           thumbnail: '',
           repositoryPath: '',
-          needsRebuild: false
+          needsRebuild: false,
+          commitSHA: '',
+          commitDate: new Date()
         }
 
   const projectUpdateStatus = useProjectUpdateState()[project.name].value
