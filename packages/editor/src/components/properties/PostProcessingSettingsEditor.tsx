@@ -324,11 +324,11 @@ export const PostProcessingSettingsEditor = () => {
         <div key={effect}>
           <Checkbox
             classes={{ checked: styles.checkbox }}
-            onChange={(e) => postprocessing.effects[effect].isActive.set(e.target.checked)}
-            checked={postprocessing.effects[effect].isActive.value}
+            onChange={(e) => postprocessing.effects[effect].ornull?.isActive.set(e.target.checked)}
+            checked={postprocessing.effects[effect].ornull?.isActive.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
-          {postprocessing.effects[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect].ornull?.isActive.value && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )
     })

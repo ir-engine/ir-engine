@@ -7,16 +7,12 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { AssetLoader } from './../assets/classes/AssetLoader'
 import { SkeletonUtils } from './../avatar/SkeletonUtils'
 import { Entity } from './../ecs/classes/Entity'
-import { getComponent } from './../ecs/functions/ComponentFunctions'
-import { XRControllerGripComponent, XRHandComponent } from './XRComponents'
 import { XRHandMeshModel } from './XRHandMeshModel'
 
-export const initializeControllerModel = async (entity: Entity) => {
+export const initializeControllerModel = async (entity: Entity, handedness: string) => {
   const avatarInputState = getState(AvatarInputSettingsState)
   const avatarInputControllerType = avatarInputState.controlType.value
   if (avatarInputControllerType !== AvatarControllerType.OculusQuest) return
-
-  const { handedness } = getComponent(entity, XRControllerGripComponent)
 
   const gltf = await AssetLoader.loadAsync(`/default_assets/controllers/hands/${handedness}_controller.glb`)
   let handMesh = gltf?.scene?.children[0]
@@ -46,14 +42,12 @@ export const initializeControllerModel = async (entity: Entity) => {
   controller.userData.mesh.rotation.z = Math.PI * 0.02 * -winding
 }
 
-export const initializeHandModel = async (entity: Entity) => {
+export const initializeHandModel = async (entity: Entity, handedness: string) => {
   const avatarInputState = getState(AvatarInputSettingsState)
   const avatarInputControllerType = avatarInputState.controlType.value
 
   // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
   if (avatarInputControllerType === AvatarControllerType.None) return
-
-  const { handedness } = getComponent(entity, XRHandComponent)
 
   const gltf = await AssetLoader.loadAsync(`/default_assets/controllers/hands/${handedness}.glb`)
   let handMesh = gltf?.scene?.children[0]
