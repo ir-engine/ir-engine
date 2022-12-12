@@ -34,6 +34,7 @@
     "@hookstate/core": "4.0.0-rc21",
     "@mui/icons-material": "5.8.4",
     "@mui/material": "5.10.0",
+    "@mui/styles": "5.9.3",
     "@xrengine/client-core": "^1.0.0-rc7",
     "@xrengine/common": "^1.0.0-rc7",
     "@xrengine/engine": "^1.0.0-rc7",
