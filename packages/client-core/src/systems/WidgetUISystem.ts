@@ -14,14 +14,15 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import {
   LocalTransformComponent,
-  setLocalTransformComponent
+  setLocalTransformComponent,
+  TransformComponent
 } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { XRControllerComponent } from '@xrengine/engine/src/xr/XRComponents'
-import { getPreferredControllerEntity } from '@xrengine/engine/src/xr/XRState'
+import { getPreferredInputSource } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
 import {
@@ -48,6 +49,8 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createSocialsMenuWidget } from './createSocialsMenuWidget'
 // import { createUploadAvatarWidget } from './createUploadAvatarWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
+
+const widgetMenuGripOffset = new Vector3(0.05, 0, -0.02)
 
 const widgetRotation = new Quaternion()
   .setFromAxisAngle(V_010, Math.PI * 0.5)
@@ -135,23 +138,21 @@ export default async function WidgetSystem(world: World) {
       if (typeof widget.cleanup === 'function') widget.cleanup()
     }
 
-    const controllerEntity = getPreferredControllerEntity(true)
+    const preferredInputSource = getPreferredInputSource(world.inputSources)
 
-    if (hasComponent(widgetMenuUI.entity, LocalTransformComponent) && !controllerEntity)
-      removeComponent(widgetMenuUI.entity, LocalTransformComponent)
+    if (preferredInputSource) {
+      const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+      const pose = Engine.instance.xrFrame!.getPose(
+        preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
+        referenceSpace
+      )!
+      const transform = getComponent(widgetMenuUI.entity, TransformComponent)
 
-    if (!hasComponent(widgetMenuUI.entity, LocalTransformComponent) && controllerEntity) {
-      const controllerGripEntity = getComponent(controllerEntity, XRControllerComponent)?.grip
-      if (controllerGripEntity)
-        setLocalTransformComponent(
-          widgetMenuUI.entity,
-          controllerGripEntity,
-          new Vector3(0.05, 0, -0.02),
-          widgetRotation.clone()
-        )
+      transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
+      transform.rotation.copy(pose.transform.orientation as any as Quaternion)
     }
 
-    const widgetMenuShown = !!controllerEntity && widgetState.widgetsMenuOpen.value
+    const widgetMenuShown = !!preferredInputSource && widgetState.widgetsMenuOpen.value
     showWidgetMenu(widgetMenuShown)
     setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
