@@ -15,6 +15,7 @@ import {
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
+import { defaultSSROptions, SSREffect } from 'screen-space-reflections'
 import { ColorRepresentation, Texture } from 'three'
 
 import { FXAAEffect } from '../../renderer/effects/FXAAEffect'
@@ -25,6 +26,7 @@ export enum Effects {
   SMAAEffect = 'SMAAEffect',
   OutlineEffect = 'OutlineEffect',
   SSAOEffect = 'SSAOEffect',
+  SSREffect = 'SSREffect',
   DepthOfFieldEffect = 'DepthOfFieldEffect',
   BloomEffect = 'BloomEffect',
   ToneMappingEffect = 'ToneMappingEffect',
@@ -44,6 +46,7 @@ export const EffectMap = new Map<Effects, EffectType>()
 EffectMap.set(Effects.SMAAEffect, { EffectClass: SMAAEffect })
 EffectMap.set(Effects.OutlineEffect, { EffectClass: OutlineEffect })
 EffectMap.set(Effects.SSAOEffect, { EffectClass: SSAOEffect })
+EffectMap.set(Effects.SSREffect, { EffectClass: SSREffect })
 EffectMap.set(Effects.DepthOfFieldEffect, { EffectClass: DepthOfFieldEffect })
 EffectMap.set(Effects.BloomEffect, { EffectClass: BloomEffect })
 EffectMap.set(Effects.ToneMappingEffect, { EffectClass: ToneMappingEffect })
@@ -93,6 +96,8 @@ export type SSAOEffectProps = EffectProps & {
   fade: number
 }
 
+export type SSREffectProps = EffectProps & typeof defaultSSROptions
+
 export type DepthOfFieldEffectProps = EffectProps & {
   focusDistance: number
   focalLength: number
@@ -136,6 +141,7 @@ export type EffectPropsSchema = {
   [Effects.SMAAEffect]: SMAAEffectProps
   [Effects.OutlineEffect]: OutlineEffectProps
   [Effects.SSAOEffect]: SSAOEffectProps
+  [Effects.SSREffect]: SSREffectProps
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
   [Effects.BloomEffect]: BloomEffectProps
   [Effects.ToneMappingEffect]: ToneMappingEffectProps
@@ -186,6 +192,10 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     radius: 0.01,
     intensity: 2,
     fade: 0.05
+  },
+  [Effects.SSREffect]: {
+    isActive: false,
+    ...defaultSSROptions
   },
   [Effects.DepthOfFieldEffect]: {
     isActive: false,
