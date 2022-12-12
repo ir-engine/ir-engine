@@ -138,7 +138,7 @@ export default async function WidgetSystem(world: World) {
       if (typeof widget.cleanup === 'function') widget.cleanup()
     }
 
-    const preferredInputSource = getPreferredInputSource(world.inputSources)
+    const preferredInputSource = getPreferredInputSource(world.inputSources, true)
 
     if (preferredInputSource) {
       const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
@@ -146,10 +146,10 @@ export default async function WidgetSystem(world: World) {
         preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
         referenceSpace
       )!
-      const transform = getComponent(widgetMenuUI.entity, TransformComponent)
 
+      const transform = getComponent(widgetMenuUI.entity, TransformComponent)
       transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
-      transform.rotation.copy(pose.transform.orientation as any as Quaternion)
+      transform.rotation.copy(pose.transform.orientation as any as Quaternion).multiply(widgetRotation)
     }
 
     const widgetMenuShown = !!preferredInputSource && widgetState.widgetsMenuOpen.value
