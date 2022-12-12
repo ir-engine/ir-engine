@@ -194,7 +194,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     fade: 0.05
   },
   [Effects.SSREffect]: {
-    isActive: false,
+    isActive: true,
     ...defaultSSROptions
   },
   [Effects.DepthOfFieldEffect]: {
