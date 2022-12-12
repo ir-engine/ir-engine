@@ -1,4 +1,4 @@
-import { AdditiveBlending, Color, Sprite, SpriteMaterial } from 'three'
+import { AdditiveBlending, Color, Group, Sprite, SpriteMaterial } from 'three'
 import * as THREE from 'three'
 import System, {
   Alpha,
@@ -36,6 +36,8 @@ import {
   Vec2Arg
 } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
 
+import { ParticleSystem } from '../ParticleTypes'
+
 export const DefaultArgs = {
   src: { ...TextureArg, default: '/static/editor/dot.png' },
   alpha: { ...TextureArg, default: '/static/editor/dot.png' },
@@ -59,11 +61,12 @@ export const DefaultArgs = {
   zoneSize: { ...FloatArg, default: 20 }
 }
 
-export default async function Dust(args) {
+export default async function Dust(container: Group, args) {
+  const [map, alphaMap] = await Promise.all([AssetLoader.loadAsync(args.src), AssetLoader.loadAsync(args.alpha)])
   const sprite = new Sprite(
     new SpriteMaterial({
-      map: await AssetLoader.loadAsync(args.src),
-      alphaMap: await AssetLoader.loadAsync(args.alpha),
+      map,
+      alphaMap,
       color: args.color,
       blending: AdditiveBlending,
       fog: true
@@ -118,8 +121,8 @@ export default async function Dust(args) {
     .setPosition({ x: 0, y: 0 })
     .emit()
 
-  const renderer = new SpriteRenderer(Engine.instance.currentWorld.scene, THREE)
+  const renderer = new SpriteRenderer(container, THREE)
   const system = new System()
   system.addEmitter(emitter).addRenderer(renderer)
-  return system
+  return system as ParticleSystem
 }
