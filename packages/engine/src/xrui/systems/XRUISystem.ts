@@ -212,10 +212,12 @@ export default async function XRUISystem(world: World) {
       const pointer = pointers.get(inputSource)!
 
       if (Engine.instance.xrFrame) {
-        const pose = Engine.instance.xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)!
-        pointer.position.copy(pose.transform.position as any as Vector3)
-        pointer.quaternion.copy(pose.transform.orientation as any as Quaternion)
-        pointer.updateMatrixWorld()
+        const pose = Engine.instance.xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
+        if (pose) {
+          pointer.position.copy(pose.transform.position as any as Vector3)
+          pointer.quaternion.copy(pose.transform.orientation as any as Quaternion)
+          pointer.updateMatrixWorld()
+        }
       }
 
       pointer.material.visible = isCloseToVisibleXRUI
