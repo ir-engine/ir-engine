@@ -15,8 +15,9 @@ import {
 import {
   deserializeParticleEmitter,
   initializeParticleSystem,
-  serializeParticleEmitter} from '../functions/loaders/ParticleEmitterFunctions'
-import { ParticleSystem } from '../functions/particles/ParticleTypes'
+  serializeParticleEmitter
+} from '../functions/loaders/ParticleEmitterFunctions'
+import { ParticleSystemType } from '../functions/particles/ParticleTypes'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export class ParticleSystemActions {
@@ -31,7 +32,7 @@ export class ParticleSystemActions {
 }
 
 export default async function ParticleSystem(world: World) {
-  const systemTable = new Map<Entity, ParticleSystem>()
+  const systemTable = new Map<Entity, ParticleSystemType>()
   const mutices = new Set<Entity>()
   const creatingQueue = createActionQueue(ParticleSystemActions.createParticleSystem.matches)
   const destroyingQueue = createActionQueue(ParticleSystemActions.destroyParticleSystem.matches)

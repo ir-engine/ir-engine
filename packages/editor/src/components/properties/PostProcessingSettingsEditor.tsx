@@ -328,7 +328,7 @@ export const PostProcessingSettingsEditor = () => {
             checked={postprocessing.effects[effect].isActive.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
-          {postprocessing.effects[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect].isActive.value && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )
     })

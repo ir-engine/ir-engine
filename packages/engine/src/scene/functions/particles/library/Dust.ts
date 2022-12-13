@@ -36,7 +36,7 @@ import {
   Vec2Arg
 } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
 
-import { ParticleSystem } from '../ParticleTypes'
+import { ParticleSystemType } from '../ParticleTypes'
 
 export const DefaultArgs = {
   src: { ...TextureArg, default: '/static/editor/dot.png' },
@@ -124,5 +124,5 @@ export default async function Dust(container: Group, args) {
   const renderer = new SpriteRenderer(container, THREE)
   const system = new System()
   system.addEmitter(emitter).addRenderer(renderer)
-  return system as ParticleSystem
+  return system as ParticleSystemType
 }
