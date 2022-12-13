@@ -207,7 +207,7 @@ export const PostProcessingSettingsEditor = () => {
     prop.set(val)
 
     // trigger re-render - @todo find out why just setting the value doesnt trigger the reactor
-    postprocessing.set(postprocessing.get(NO_PROXY))
+    configureEffectComposer()
   }
 
   const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {
