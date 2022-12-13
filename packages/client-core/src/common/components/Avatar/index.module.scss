@@ -38,3 +38,37 @@
     }
   }
 }
+
+.avatarSquare {
+  border: 3px solid var(--iconButtonSelectedBackground);
+  position: relative;
+  display: flex;
+  cursor: pointer;
+  transition: all 0.2s;
+  aspect-ratio: 1;
+
+  .avatarName {
+    bottom: -3px;
+    padding-top: 3px;
+    width: 100%;
+    opacity: 0.75;
+    position: absolute;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--textColor);
+    background: var(--iconButtonSelectedBackground);
+  }
+
+  &:hover {
+    background: var(--iconButtonSelectedBackground);
+  }
+
+  @media (max-width: 400px) {
+    margin-right: 5px;
+  }
+}
+
+.avatarSelected {
+  background: var(--iconButtonSelectedBackground);
+  cursor: not-allowed;
+}

@@ -67,3 +67,13 @@
   border: 0.2px solid var(--buttonOutlined);
   border-bottom: none;
 }
+
+@media (max-width: 899px) {
+  .hideSm {
+    display: none;
+  }
+
+  .flexWrapReverseSm {
+    flex-wrap: wrap-reverse;
+  }
+}

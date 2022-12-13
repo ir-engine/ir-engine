@@ -25,6 +25,7 @@ interface Props {
   size?: 'medium'
   startIcon?: React.ReactNode
   sx?: SxProps<Theme>
+  title?: string
   type?: 'outlined' | 'gradient' | 'gradientRounded' | 'solid' | 'solidRounded' | 'expander'
   width?: string
   onClick?: () => void
@@ -43,6 +44,7 @@ const Button = ({
   size,
   startIcon,
   sx,
+  title,
   type,
   width,
   onClick
@@ -96,6 +98,7 @@ const Button = ({
       id={id}
       startIcon={startIcon}
       sx={newSx}
+      title={title}
       onClick={onClick}
       onPointerUp={handleSoundEffect}
       onPointerEnter={handleSoundEffect}
