@@ -55,6 +55,7 @@
     "meshoptimizer": "^0.17.0",
     "postprocessing": "^6.26.3",
     "react": "18.2.0",
+    "screen-space-reflections": "^2.5.0",
     "sharp": "^0.30.7",
     "simplex-noise": "^3.0.0",
     "socket.io": "4.5.2",

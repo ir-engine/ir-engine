@@ -259,7 +259,7 @@ export class World {
 
   readonly dirtyTransforms = {} as Record<Entity, true>
 
-  inputSources: XRInputSourceArray = []
+  inputSources: Readonly<XRInputSourceArray> = []
 
   pointerState = {
     position: new Vector2(),

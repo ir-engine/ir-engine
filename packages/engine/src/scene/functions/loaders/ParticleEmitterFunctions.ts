@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { Object3D } from 'three'
+import { Group } from 'three'
 import System, { SpriteRenderer } from 'three-nebula'
 
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -9,28 +9,19 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../../ecs/functions/EntityFunctions'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
-import { setCallback } from '../../components/CallbackComponent'
+import { addObjectToGroup } from '../../components/GroupComponent'
 import {
   ParticleEmitterComponent,
   ParticleEmitterComponentType,
   SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES
 } from '../../components/ParticleEmitterComponent'
-import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
 import { ParticleSystemActions } from '../../systems/ParticleSystem'
 import { DefaultArguments, ParticleLibrary } from '../particles/ParticleLibrary'
+import { ParticleSystemType } from '../particles/ParticleTypes'
 
 export const disposeParticleSystem = (entity: Entity) => {
   dispatchAction(
@@ -42,16 +33,16 @@ export const disposeParticleSystem = (entity: Entity) => {
 
 export const initializeParticleSystem = async (entity: Entity) => {
   if (!entityExists(entity)) return
-  const world = Engine.instance.currentWorld
+  const container = new Group()
+  console.log('initializeParticleSystem', container)
   const ptcComp = getComponent(entity, ParticleEmitterComponent)
-  let transform = getComponent(entity, TransformComponent)
-  let system
+  let system: ParticleSystemType
   switch (ptcComp.mode) {
     case 'LIBRARY':
       const defaultArgs = DefaultArguments[ptcComp.src]
       const defaultValues = Object.fromEntries(Object.entries(defaultArgs).map(([k, v]) => [k, (v as any).default]))
       const args = ptcComp.args ? { ...defaultValues, ...ptcComp.args } : defaultValues
-      system = await ParticleLibrary[ptcComp.src](args)
+      system = await ParticleLibrary[ptcComp.src](container, args)
       break
     case 'JSON':
       if (typeof ptcComp.src === 'string') {
@@ -60,9 +51,10 @@ export const initializeParticleSystem = async (entity: Entity) => {
         ptcComp.src = (ptcComp.src as any).particleSystemState
       }
       system = await System.fromJSONAsync(ptcComp.src, THREE)
-      system.addRenderer(new SpriteRenderer(world.scene, THREE))
+      system.addRenderer(new SpriteRenderer(container, THREE))
       break
   }
+  addObjectToGroup(entity, container)
   return system
 }
 

@@ -14,8 +14,8 @@ export interface ProjectInterface {
   needsRebuild: boolean
   hasWriteAccess?: boolean
   project_permissions?: ProjectPermissionInterface[]
-  commitSHA: string
-  commitDate: Date
+  commitSHA?: string
+  commitDate?: Date
 }
 
 export interface ProjectPackageJsonType extends IPackageJson {

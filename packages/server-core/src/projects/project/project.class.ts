@@ -607,9 +607,7 @@ export class Project extends Service {
       }
     }
 
-    console.log('params', params)
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
-    console.log('data', data)
     data.forEach((item) => {
       const values = (item as any).dataValues
         ? ((item as any).dataValues as ProjectInterface)
