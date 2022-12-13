@@ -22,6 +22,7 @@ interface Props {
   fullWidth?: boolean
   id?: string
   open?: boolean
+  size?: 'medium'
   startIcon?: React.ReactNode
   sx?: SxProps<Theme>
   type?: 'outlined' | 'gradient' | 'gradientRounded' | 'solid' | 'solidRounded' | 'expander'
@@ -39,6 +40,7 @@ const Button = ({
   fullWidth,
   id,
   open,
+  size,
   startIcon,
   sx,
   type,
@@ -73,6 +75,17 @@ const Button = ({
     baseStyle = `${baseStyle} ${styles.roundedButton}`
   }
 
+  let newSx: SxProps<Theme> = { ...sx }
+  if (fullWidth) {
+    newSx = { width: '100%', ...sx }
+  }
+  if (size === 'medium') {
+    newSx = { width: '100%', maxWidth: '250px', ...sx }
+  }
+  if (width) {
+    newSx = { width: width, ...sx }
+  }
+
   return (
     <MUIButton
       autoFocus={autoFocus}
@@ -82,7 +95,7 @@ const Button = ({
       endIcon={endIcon}
       id={id}
       startIcon={startIcon}
-      sx={{ width: width ? width : fullWidth ? '100%' : 'auto', ...sx }}
+      sx={newSx}
       onClick={onClick}
       onPointerUp={handleSoundEffect}
       onPointerEnter={handleSoundEffect}

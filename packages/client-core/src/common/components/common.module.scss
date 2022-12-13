@@ -1,5 +1,6 @@
 .inputField {
   background: var(--inputBackground);
+  border-radius: 4px;
 
   /**
   * This below style is added to fix background issues with chrome autofill.
@@ -59,4 +60,10 @@
 .chip {
   color: var(--textColor);
   border-color: var(--textColor);
+}
+
+.divider {
+  margin: 30px 70px 20px;
+  border: 0.2px solid var(--buttonOutlined);
+  border-bottom: none;
 }
