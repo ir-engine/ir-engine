@@ -40,8 +40,8 @@ import {
 } from '../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import { updateWorldOrigin } from '../transform/updateWorldOrigin'
-import { InputSourceComponent, XRAnchorComponent, XRHitTestComponent } from './XRComponents'
-import { getControlMode, getPreferredControllerEntity, XRAction, XRReceptors, XRState } from './XRState'
+import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
+import { getControlMode, XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
 const _vecScale = new Vector3()
@@ -86,21 +86,26 @@ const _vec2 = new Vector3()
 const _quat2 = new Quaternion()
 const _ray = new Ray()
 
+const pos = new Vector3()
+const orient = new Quaternion()
+
 /** AR placement for immersive session */
 export const getNonImmersiveHitTestTransform = (world = Engine.instance.currentWorld) => {
-  const preferredController = getPreferredControllerEntity()
-  if (!preferredController) return
+  const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+  const pose = Engine.instance.xrFrame!.getPose(world.inputSources[0].targetRaySpace, referenceSpace)!
+  const { position, orientation } = pose.transform
 
-  const { position, rotation } = getComponent(preferredController, LocalTransformComponent)
+  pos.copy(position as any as Vector3)
+  orient.copy(orientation as any as Quaternion)
 
   // raycast controller to ground
-  _ray.set(position, _vec2.set(0, 0, -1).applyQuaternion(rotation))
+  _ray.set(pos, _vec2.set(0, 0, -1).applyQuaternion(orient))
   const hit = _ray.intersectPlane(_plane.set(V_010, 0), _vec)
 
   if (!hit) return
 
   /** swing twist quaternion decomposition to get the rotation around Y axis */
-  extractRotationAboutAxis(rotation, V_010, _quat2)
+  extractRotationAboutAxis(orient, V_010, _quat2)
 
   _quat2.multiply(_quat180)
 
@@ -121,7 +126,7 @@ export const getImmersiveHitTestTransform = (world = Engine.instance.currentWorl
   /** Swipe to rotate */
   const viewerInputSourceEntity = xrState.viewerInputSourceEntity.value
   if (viewerInputSourceEntity) {
-    const inputSource = getComponent(viewerInputSourceEntity, InputSourceComponent).inputSource
+    const inputSource = world.inputSources[0]
     const swipe = inputSource.gamepad?.axes ?? []
     if (swipe.length) {
       const delta = swipe[0] - (lastSwipeValue ?? 0)

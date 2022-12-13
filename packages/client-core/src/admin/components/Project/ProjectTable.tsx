@@ -211,6 +211,7 @@ const ProjectTable = ({ className }: Props) => {
   const isAdmin = user.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
   const createData = (el: ProjectInterface, name: string) => {
+    const commitSHA = el.commitSHA
     return {
       el,
       name: (
@@ -231,21 +232,23 @@ const ProjectTable = ({ className }: Props) => {
       commitSHA: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <div className={styles.commitContents}>
-            {el.commitSHA}
-            <ContentCopyIcon onClick={() => copyShaToClipboard(el.commitSHA)} />
+            {commitSHA?.substring(0, 7)}
+            {commitSHA ? <ContentCopyIcon onClick={() => copyShaToClipboard(commitSHA)} /> : '-'}
           </div>
         </Box>
       ),
       commitDate: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <span>
-            {new Date(el.commitDate).toLocaleString('en-us', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            })}
+            {el.commitDate
+              ? new Date(el.commitDate).toLocaleString('en-us', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric'
+                })
+              : '-'}
           </span>
         </Box>
       ),
