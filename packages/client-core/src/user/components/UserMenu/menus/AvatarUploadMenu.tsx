@@ -34,7 +34,7 @@ import { useRender3DPanelSystem } from '../../Panel3D/useRender3DPanelSystem'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 
-const logger = multiLogger.child({ component: 'client-core:AvatarSelectMenu' })
+const logger = multiLogger.child({ component: 'client-core:AvatarUploadMenu' })
 
 interface Props {
   avatarData?: StaticResourceInterface
@@ -77,7 +77,7 @@ function TabPanel({ children, value, index }: TabPanelProps) {
   )
 }
 
-export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload }: Props) => {
+export const AvatarUploadMenu = ({ avatarData, changeActiveMenu, onAvatarUpload }: Props) => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
   const [avatarName, setAvatarName] = useState('')
@@ -451,4 +451,4 @@ export const AvatarUploadModal = ({ avatarData, changeActiveMenu, onAvatarUpload
   )
 }
 
-export default AvatarUploadModal
+export default AvatarUploadMenu
