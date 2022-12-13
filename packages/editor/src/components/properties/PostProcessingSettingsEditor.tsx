@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { getState, useState } from '@xrengine/hyperflux'
+import { getState, NO_PROXY, useState } from '@xrengine/hyperflux'
 
 import Checkbox from '@mui/material/Checkbox'
 
@@ -71,6 +72,42 @@ const EffectsOptions: EffectOptionsType = {
     radius: { propertyType: PropertyTypes.Number, name: 'Radius', min: -1, max: 1, step: 0.01 },
     intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1, step: 0.01 },
     fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: -1, max: 1, step: 0.01 }
+  },
+  SSREffect: {
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 3, step: 0.01 },
+    exponent: { propertyType: PropertyTypes.Number, name: 'Exponent', min: 0.125, max: 8, step: 0.125 },
+    distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.1 },
+    fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: 0.01, max: 20, step: 0.01 },
+    roughnessFade: { propertyType: PropertyTypes.Number, name: 'Roughness Fade', min: 0, max: 1, step: 0.01 },
+    thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 10, step: 0.01 },
+    ior: { propertyType: PropertyTypes.Number, name: 'ior', min: 1, max: 2.33333, step: 0.01 },
+    maxRoughness: { propertyType: PropertyTypes.Number, name: 'Max Roughness', min: 0, max: 1, step: 0.01 },
+    maxDepthDifference: {
+      propertyType: PropertyTypes.Number,
+      name: 'Max Depth Difference',
+      min: 0,
+      max: 100,
+      step: 0.1
+    },
+    blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
+    correction: { propertyType: PropertyTypes.Number, name: 'Correction', min: 0, max: 1, step: 0.0001 },
+    correctionRadius: { propertyType: PropertyTypes.Number, name: 'Correction Radius', min: 1, max: 4, step: 1 },
+    blur: { propertyType: PropertyTypes.Number, name: 'Blur', min: 0, max: 1, step: 0.01 },
+    blurKernel: { propertyType: PropertyTypes.Number, name: 'Blur Kernel', min: 0, max: 5, step: 1 },
+    blurSharpness: { propertyType: PropertyTypes.Number, name: 'Blur Sharpness', min: 0, max: 100, step: 1 },
+    jitter: { propertyType: PropertyTypes.Number, name: 'Jitter', min: 0, max: 4, step: 0.01 },
+    jitterRoughness: { propertyType: PropertyTypes.Number, name: 'Jitter Roughness', min: 0, max: 4, step: 0.01 },
+    steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 1, max: 256, step: 1 },
+    refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
+    missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.125, max: 1, step: 0.125 },
+    velocityResolutionScale: {
+      propertyType: PropertyTypes.Number,
+      name: 'Velocity Resolution Scale',
+      min: 0.125,
+      max: 1,
+      step: 0.125
+    }
   },
   DepthOfFieldEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
@@ -166,6 +203,13 @@ export const PostProcessingSettingsEditor = () => {
     return value
   }
 
+  const setPropertyValue = (prop, val) => {
+    prop.set(val)
+
+    // trigger re-render - @todo find out why just setting the value doesnt trigger the reactor
+    configureEffectComposer()
+  }
+
   const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {
     let renderVal = <></>
 
@@ -177,7 +221,7 @@ export const PostProcessingSettingsEditor = () => {
             max={propertyDetail.max}
             step={propertyDetail.step}
             value={getPropertyValue(propertyPath).value}
-            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
           />
         )
         break
@@ -185,7 +229,7 @@ export const PostProcessingSettingsEditor = () => {
       case PropertyTypes.Boolean:
         renderVal = (
           <BooleanInput
-            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
             value={getPropertyValue(propertyPath).value}
           />
         )
@@ -195,7 +239,7 @@ export const PostProcessingSettingsEditor = () => {
         renderVal = (
           <SelectInput
             options={BlendFunctionSelect}
-            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
             value={getPropertyValue(propertyPath).value}
           />
         )
@@ -205,7 +249,7 @@ export const PostProcessingSettingsEditor = () => {
         renderVal = (
           <ColorInput
             value={new Color(getPropertyValue(propertyPath).value)}
-            onSelect={(value) => getPropertyValue(propertyPath).set('#' + value)}
+            onSelect={(value) => setPropertyValue(getPropertyValue(propertyPath), '#' + value)}
           />
         )
         break
@@ -214,7 +258,7 @@ export const PostProcessingSettingsEditor = () => {
         renderVal = (
           <SelectInput
             options={KernelSizeSelect}
-            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
             value={getPropertyValue(propertyPath).value}
           />
         )
@@ -224,7 +268,7 @@ export const PostProcessingSettingsEditor = () => {
         renderVal = (
           <SelectInput
             options={SMAAPreset}
-            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
             value={getPropertyValue(propertyPath).value}
           />
         )
@@ -234,7 +278,7 @@ export const PostProcessingSettingsEditor = () => {
         renderVal = (
           <SelectInput
             options={EdgeDetectionMode}
-            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
             value={getPropertyValue(propertyPath).value}
           />
         )
@@ -244,7 +288,7 @@ export const PostProcessingSettingsEditor = () => {
         renderVal = (
           <SelectInput
             options={PredicationMode}
-            onChange={(value) => getPropertyValue(propertyPath).set(value)}
+            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
             value={getPropertyValue(propertyPath).value}
           />
         )
@@ -284,7 +328,7 @@ export const PostProcessingSettingsEditor = () => {
             checked={postprocessing.effects[effect].isActive.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
-          {postprocessing.effects[effect]?.isActive && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect].isActive.value && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )
     })

@@ -298,6 +298,7 @@ export default async function WebGLRendererSystem(world: World) {
   const reactor = startReactor(() => {
     const renderSettings = useHookstate(world.sceneMetadata.renderSettings)
     const postprocessing = useHookstate(world.sceneMetadata.postprocessing)
+    console.log(postprocessing.value)
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
@@ -318,7 +319,6 @@ export default async function WebGLRendererSystem(world: World) {
 
     return null
   })
-  reactor.run()
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)

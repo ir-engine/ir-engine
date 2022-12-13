@@ -62,6 +62,10 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
       })
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
+    } else if (key === Effects.SSREffect) {
+      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, effect)
+      EngineRenderer.instance.effectComposer[key] = eff
+      effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
       const eff = new effectClass(camera, effect)
       EngineRenderer.instance.effectComposer[key] = eff

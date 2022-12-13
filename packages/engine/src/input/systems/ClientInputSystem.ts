@@ -59,7 +59,7 @@ export const addClientInputListeners = (world: World) => {
     const state = world.buttons as ButtonInputStateType
 
     if (down) state[button] = createInitialButtonState()
-    else state[button]!.up = true
+    else if (state[button]) state[button]!.up = true
   }
 
   const handleMouseMove = (event: MouseEvent) => {
