@@ -1990,72 +1990,6 @@
   }
 }
 
-.emoteMenu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.1s ease-out;
-
-  .itemContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    border: solid 100px rgb(51 51 110 / 50%);
-    border-bottom-color: transparent;
-    opacity: 0.9;
-    position: relative;
-    width: 361.4px !important;
-    height: 361.4px !important;
-    border-width: 70px !important;
-    left: -30px;
-
-    @media (max-width: 500px) {
-      left: 0;
-    }
-
-    @media (max-width: 360px) {
-      left: 0;
-      width: 300px !important;
-      height: 300px !important;
-      border-width: 60px !important;
-    }
-
-    .menuItemBlock {
-      position: relative;
-    }
-
-    .menuItem {
-      border-radius: 50%;
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      margin: 0;
-      padding: 0;
-      min-width: 0;
-      background: transparent;
-
-      &:hover {
-        img {
-          opacity: 1;
-        }
-      }
-
-      img {
-        opacity: 0.8;
-        display: block;
-        width: 100%;
-      }
-    }
-  }
-}
-
 .avatarSelectPanel {
   height: 53%;
   overflow: hidden;
@@ -2540,6 +2474,72 @@
 .menuContent {
   min-height: 220px;
   color: var(--textColor);
+}
+
+.emoteMenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.1s ease-out;
+
+  .itemContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: solid 100px rgb(51 51 110 / 50%);
+    border-bottom-color: transparent;
+    opacity: 0.9;
+    position: relative;
+    width: 361.4px !important;
+    height: 361.4px !important;
+    border-width: 70px !important;
+    left: -30px;
+
+    @media (max-width: 500px) {
+      left: 0;
+    }
+
+    @media (max-width: 360px) {
+      left: 0;
+      width: 300px !important;
+      height: 300px !important;
+      border-width: 60px !important;
+    }
+
+    .menuItemBlock {
+      position: relative;
+    }
+
+    .menuItem {
+      border-radius: 50%;
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      margin: 0;
+      padding: 0;
+      min-width: 0;
+      background: transparent;
+
+      &:hover {
+        img {
+          opacity: 1;
+        }
+      }
+
+      img {
+        opacity: 0.8;
+        display: block;
+        width: 100%;
+      }
+    }
+  }
 }
 
 .profileContainer {
