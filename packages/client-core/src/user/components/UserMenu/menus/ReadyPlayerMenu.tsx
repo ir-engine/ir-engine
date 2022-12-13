@@ -2,15 +2,17 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import Menu from '@xrengine/client-core/src/common/components/Menu'
 import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { ArrowBack, Check } from '@mui/icons-material'
+import CheckIcon from '@mui/icons-material/Check'
+import Box from '@mui/material/Box'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
@@ -40,7 +42,6 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
-  const [hover, setHover] = useState(false)
   const [loading, setLoading] = useState(LoadingState.LoadingRPM)
   const [error, setError] = useState('')
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
@@ -105,8 +106,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     }
   }
 
-  const openProfileMenu = (e) => {
-    e.preventDefault()
+  const openProfileMenu = () => {
     changeActiveMenu(Views.Profile)
   }
 
@@ -144,91 +144,60 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   const avatarPreviewLoaded = loading === LoadingState.None && selectedFile
 
   return (
-    <div
-      className={`${styles.menuPanel} ${styles.readyPlayerPanel}`}
-      style={{ width: avatarPreviewLoaded ? '400px' : '600px', padding: avatarPreviewLoaded ? '15px' : '0' }}
+    <Menu
+      open
+      maxWidth={avatarPreviewLoaded ? 'xs' : 'sm'}
+      showBackButton={avatarPreviewLoaded ? true : false}
+      title={avatarPreviewLoaded ? t('user:avatar.titleSelectThumbnail') : undefined}
+      onBack={openProfileMenu}
+      onClose={() => changeActiveMenu(Views.Closed)}
     >
-      {avatarPreviewLoaded && (
-        <div className={styles.avatarHeaderBlock}>
-          <button
-            type="button"
-            className={styles.iconBlock}
-            onClick={openProfileMenu}
-            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          >
-            <ArrowBack />
-          </button>
-          <h2>{t('user:avatar.titleSelectThumbnail')}</h2>
-        </div>
-      )}
+      <Box className={styles.menuContent} sx={{ minHeight: '450px !important' }}>
+        {loading !== LoadingState.None && (
+          <LoadingView
+            sx={{ position: 'absolute', background: 'inherit', margin: -3 }}
+            variant="body2"
+            title={
+              loading === LoadingState.Downloading
+                ? t('user:avatar.downloading')
+                : loading === LoadingState.LoadingPreview
+                ? t('user:avatar.loadingPreview')
+                : loading === LoadingState.Uploading
+                ? t('user:avatar.uploading')
+                : t('user:avatar.loadingRPM')
+            }
+          />
+        )}
 
-      {loading !== LoadingState.None && (
-        <LoadingView
-          sx={{ position: 'absolute', background: 'inherit' }}
-          variant="body2"
-          title={
-            loading === LoadingState.Downloading
-              ? t('user:avatar.downloading')
-              : loading === LoadingState.LoadingPreview
-              ? t('user:avatar.loadingPreview')
-              : loading === LoadingState.Uploading
-              ? t('user:avatar.uploading')
-              : t('user:avatar.loadingRPM')
-          }
-        />
-      )}
+        {!avatarUrl && (
+          <iframe
+            style={{
+              position: 'absolute',
+              margin: -24,
+              width: '100%',
+              height: '100%'
+            }}
+            src={config.client.readyPlayerMeUrl}
+          />
+        )}
 
-      {!avatarUrl && (
-        <iframe
+        <div
+          ref={panelRef}
+          id="stage"
+          className={styles.stage}
           style={{
-            position: 'relative',
-            zIndex: 1,
-            width: '100%',
-            height: '100%'
+            width: THUMBNAIL_WIDTH + 'px',
+            height: THUMBNAIL_HEIGHT + 'px',
+            margin: 'auto',
+            display: avatarUrl ? 'block' : 'none',
+            boxShadow: avatarPreviewLoaded ? '0 0 10px var(--buttonOutlined)' : 'none',
+            borderRadius: '8px'
           }}
-          src={config.client.readyPlayerMeUrl}
-        />
-      )}
+        ></div>
 
-      <div
-        ref={panelRef}
-        id="stage"
-        className={styles.stage}
-        style={{
-          width: THUMBNAIL_WIDTH + 'px',
-          height: THUMBNAIL_HEIGHT + 'px',
-          margin: 'auto',
-          display: avatarUrl ? 'block' : 'none',
-          boxShadow: avatarPreviewLoaded ? '0 0 10px var(--buttonOutlined)' : 'none',
-          borderRadius: '8px'
-        }}
-      ></div>
-
-      {avatarPreviewLoaded && (
-        <button
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-          type="button"
-          className={styles.iconBlock}
-          style={{
-            color: hover ? '#fff' : '#5f5ff1',
-            marginTop: '10px',
-            left: '45%',
-            border: 'none',
-            borderRadius: '50%',
-            height: '50px',
-            width: '50px',
-            background: hover ? '#5f5ff1' : '#fff'
-          }}
-          onClick={uploadAvatar}
-          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        >
-          <Check />
-        </button>
-      )}
-    </div>
+        {avatarPreviewLoaded && <IconButton icon={<CheckIcon />} onClick={uploadAvatar} />}
+      </Box>
+    </Menu>
   )
 }
 
