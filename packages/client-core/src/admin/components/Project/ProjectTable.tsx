@@ -211,6 +211,7 @@ const ProjectTable = ({ className }: Props) => {
   const isAdmin = user.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
   const createData = (el: ProjectInterface, name: string) => {
+    const commitSHA = el.commitSHA
     return {
       el,
       name: (
@@ -231,8 +232,8 @@ const ProjectTable = ({ className }: Props) => {
       commitSHA: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <div className={styles.commitContents}>
-            {el.commitSHA.substring(0, 7)}
-            <ContentCopyIcon onClick={() => copyShaToClipboard(el.commitSHA)} />
+            {commitSHA?.substring(0, 7)}
+            {commitSHA ? <ContentCopyIcon onClick={() => copyShaToClipboard(commitSHA)} /> : '-'}
           </div>
         </Box>
       ),
