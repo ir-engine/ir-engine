@@ -165,17 +165,17 @@ export type LinearTosRGBEffectProps = EffectProps
 
 export type EffectPropsSchema = {
   // [Effects.FXAAEffect]: FXAAEffectProps
-  [Effects.SMAAEffect]?: SMAAEffectProps
-  [Effects.OutlineEffect]?: OutlineEffectProps
-  [Effects.SSAOEffect]?: SSAOEffectProps
-  [Effects.SSREffect]?: SSREffectProps
-  [Effects.DepthOfFieldEffect]?: DepthOfFieldEffectProps
-  [Effects.BloomEffect]?: BloomEffectProps
-  [Effects.ToneMappingEffect]?: ToneMappingEffectProps
-  [Effects.BrightnessContrastEffect]?: BrightnessContrastEffectProps
-  [Effects.HueSaturationEffect]?: HueSaturationEffectProps
-  [Effects.ColorDepthEffect]?: ColorDepthEffectProps
-  [Effects.LinearTosRGBEffect]?: LinearTosRGBEffectProps
+  [Effects.SMAAEffect]: SMAAEffectProps
+  [Effects.OutlineEffect]: OutlineEffectProps
+  [Effects.SSAOEffect]: SSAOEffectProps
+  [Effects.SSREffect]: SSREffectProps
+  [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
+  [Effects.BloomEffect]: BloomEffectProps
+  [Effects.ToneMappingEffect]: ToneMappingEffectProps
+  [Effects.BrightnessContrastEffect]: BrightnessContrastEffectProps
+  [Effects.HueSaturationEffect]: HueSaturationEffectProps
+  [Effects.ColorDepthEffect]: ColorDepthEffectProps
+  [Effects.LinearTosRGBEffect]: LinearTosRGBEffectProps
 }
 
 export const defaultPostProcessingSchema: EffectPropsSchema = {
