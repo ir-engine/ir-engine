@@ -1,7 +1,7 @@
-export type ParticleSystem = {
+export type ParticleSystemType = {
   destroy: () => void
   update: (dt: number) => void
   addRenderer: (spriteRenderer: any) => void
 }
 
-export type ParticleEmitter = {}
+export type ParticleEmitterType = {}

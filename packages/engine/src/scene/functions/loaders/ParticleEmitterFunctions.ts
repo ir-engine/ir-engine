@@ -21,7 +21,7 @@ import {
 } from '../../components/ParticleEmitterComponent'
 import { ParticleSystemActions } from '../../systems/ParticleSystem'
 import { DefaultArguments, ParticleLibrary } from '../particles/ParticleLibrary'
-import { ParticleSystem } from '../particles/ParticleTypes'
+import { ParticleSystemType } from '../particles/ParticleTypes'
 
 export const disposeParticleSystem = (entity: Entity) => {
   dispatchAction(
@@ -36,7 +36,7 @@ export const initializeParticleSystem = async (entity: Entity) => {
   const container = new Group()
   console.log('initializeParticleSystem', container)
   const ptcComp = getComponent(entity, ParticleEmitterComponent)
-  let system: ParticleSystem
+  let system: ParticleSystemType
   switch (ptcComp.mode) {
     case 'LIBRARY':
       const defaultArgs = DefaultArguments[ptcComp.src]
