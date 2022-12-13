@@ -231,7 +231,7 @@ const ProjectTable = ({ className }: Props) => {
       commitSHA: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <div className={styles.commitContents}>
-            {el.commitSHA}
+            {el.commitSHA.substring(0, 7)}
             <ContentCopyIcon onClick={() => copyShaToClipboard(el.commitSHA)} />
           </div>
         </Box>
@@ -239,13 +239,15 @@ const ProjectTable = ({ className }: Props) => {
       commitDate: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <span>
-            {new Date(el.commitDate).toLocaleString('en-us', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            })}
+            {el.commitDate
+              ? new Date(el.commitDate).toLocaleString('en-us', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric'
+                })
+              : '-'}
           </span>
         </Box>
       ),
