@@ -1,3 +1,4 @@
+import { CharacterCollision } from '@dimforge/rapier3d-compat'
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
@@ -11,8 +12,12 @@ import { World } from '../ecs/classes/World'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { Physics } from '../physics/classes/Physics'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { CollisionGroups } from '../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
+import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { getControlMode, XRState } from '../xr/XRState'
@@ -94,6 +99,14 @@ export default async function AvatarInputSystem(world: World) {
   const gamepadMovementDisplacement = new Vector3()
   const desiredAvatarTranslation = new Vector3()
 
+  const avatarGroundRaycast = {
+    type: SceneQueryType.Closest,
+    origin: new Vector3(),
+    direction: ObjectDirection.Down,
+    maxDistance: 0.5,
+    groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
+  }
+
   const cameraDifference = new Vector3()
   const movementDelta = new Vector3()
   const lastMovementDelta = new Vector3()
@@ -146,6 +159,8 @@ export default async function AvatarInputSystem(world: World) {
     const teleporting =
       cameraAttached && avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
     const preferredHand = avatarInputSettingsState.preferredHand.value
+
+    const computedMovementRounded = new Vector3()
 
     let teleport = null as null | XRHandedness
 
@@ -242,29 +257,43 @@ export default async function AvatarInputSystem(world: World) {
         desiredAvatarTranslation.add(cameraDifference)
       }
 
-      // console.log(desiredAvatarTranslation)
-
       /** Use a kinematic character controller to calculate computed movement */
       controller.controller.computeColliderMovement(controller.bodyCollider, desiredAvatarTranslation) //  , 0, controller.bodyCollider.collisionGroups())
       const correctedMovement = controller.controller.computedMovement()
 
+      computedMovementRounded.set(
+        Math.abs(correctedMovement.x) > 0.001 ? correctedMovement.x : 0,
+        Math.abs(correctedMovement.y) > 0.001 ? correctedMovement.y : 0,
+        Math.abs(correctedMovement.z) > 0.001 ? correctedMovement.z : 0
+      )
+
+      // if (computedMovementRounded.y) {
+      //   console.log(controller.isInAir)
+      //   console.log('desired', desiredAvatarTranslation.y)
+      //   console.log('corrected', computedMovementRounded.y)
+      // }
+
       let hasGroundCollision = false
 
+      const numCollisions = controller.controller.numComputedCollisions()
+
       /** Process avatar movement collision events */
-      for (let i = 0; i < controller.controller.numComputedCollisions(); i++) {
-        const collision = controller.controller.computedCollision(i)
-        console.log(collision)
-        if (collision) {
-          const angle = V_010.angleTo(collision.normal1 as Vector3)
-          console.log(angle)
+      for (let i = 0; i < numCollisions; i++) {
+        const out = new CharacterCollision()
+        controller.controller.computedCollision(i, out)
+        // console.log(out.translationApplied, out.translationRemaining)
+        if (out) {
+          // const angle = V_010.angleTo(new Vector3().copy(out.normal1 as Vector3))
           hasGroundCollision = true
         }
       }
 
-      // console.log(hasGroundCollision)
+      // detect if we're in the air when the corrected movement in the y is less than desired movement
+      controller.isInAir = !hasGroundCollision
+      // console.log(controller.isInAir)
 
       const transform = getComponent(localClientEntity, TransformComponent)
-      transform.position.add(correctedMovement as Vector3)
+      transform.position.add(computedMovementRounded)
     }
 
     lastMovementDelta.copy(movementDelta)

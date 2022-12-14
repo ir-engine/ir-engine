@@ -86,7 +86,7 @@ export class World {
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
     this.origin.name = 'world-origin'
-    this.origin.add(new Mesh(new BoxGeometry(), new MeshNormalMaterial()))
+    // this.origin.add(new Mesh(new BoxGeometry(), new MeshNormalMaterial()))
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')

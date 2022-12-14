@@ -149,7 +149,7 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
   const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
   const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [])
   // rigidBody.setGravityScale(0.0, true)
-  rigidBody.lockRotations(true, true)
+  // rigidBody.lockRotations(true, true)
 
   return rigidBody
 }
@@ -180,10 +180,9 @@ export const createAvatarController = (entity: Entity) => {
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
-  avatarControllerComponent.controller = Physics.createCharacterController(
-    Engine.instance.currentWorld.physicsWorld,
-    {}
-  )
+  avatarControllerComponent.controller = Physics.createCharacterController(Engine.instance.currentWorld.physicsWorld, {
+    offset: 0.1
+  })
 
   addComponent(entity, CollisionComponent, new Map())
 }
