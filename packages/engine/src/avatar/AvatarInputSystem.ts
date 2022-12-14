@@ -147,12 +147,12 @@ export default async function AvatarInputSystem(world: World) {
      */
 
     /** keyboard input */
-    const keyDeltaX =
-      (keys.KeyA?.pressed ? -1 : 0) +
-      (keys.KeyD?.pressed ? 1 : 0) +
+    const keyDeltaX = (keys.KeyA?.pressed ? -1 : 0) + (keys.KeyD?.pressed ? 1 : 0)
+    const keyDeltaZ =
+      (keys.KeyW?.pressed ? -1 : 0) +
+      (keys.KeyS?.pressed ? 1 : 0) +
       (keys.ArrowUp?.pressed ? -1 : 0) +
       (keys.ArrowDown?.pressed ? 1 : 0)
-    const keyDeltaZ = (keys.KeyW?.pressed ? -1 : 0) + (keys.KeyS?.pressed ? 1 : 0)
 
     movementDelta.set(keyDeltaX, 0, keyDeltaZ)
 
@@ -232,10 +232,10 @@ export default async function AvatarInputSystem(world: World) {
       controller.gamepadMovementDirection.copy(movementDelta).normalize()
       /** smooth XZ input */
       const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
-      controller.gamepadMovementSmoothed.lerp(controller.gamepadMovementDirection, lerpAlpha)
+      controller.gamepadMovementSmoothed.copy(controller.gamepadMovementDirection)
 
       /** Apply vertical input velocity such that it is not normalized against XZ movement */
-      const isJumping = !!keys.Space?.pressed
+      const isJumping = !!keys.Space?.down
 
       /** Apply gamepad rotational input to rigidbody */
       avatarApplyRotation(localClientEntity)
@@ -258,42 +258,24 @@ export default async function AvatarInputSystem(world: World) {
       }
 
       /** Use a kinematic character controller to calculate computed movement */
+      desiredAvatarTranslation.y -= 0.01
       controller.controller.computeColliderMovement(controller.bodyCollider, desiredAvatarTranslation) //  , 0, controller.bodyCollider.collisionGroups())
-      const correctedMovement = controller.controller.computedMovement()
-
-      computedMovementRounded.set(
-        Math.abs(correctedMovement.x) > 0.001 ? correctedMovement.x : 0,
-        Math.abs(correctedMovement.y) > 0.001 ? correctedMovement.y : 0,
-        Math.abs(correctedMovement.z) > 0.001 ? correctedMovement.z : 0
-      )
-
-      // if (computedMovementRounded.y) {
-      //   console.log(controller.isInAir)
-      //   console.log('desired', desiredAvatarTranslation.y)
-      //   console.log('corrected', computedMovementRounded.y)
-      // }
-
-      let hasGroundCollision = false
+      const computedMovement = computedMovementRounded.copy(controller.controller.computedMovement() as any)
+      controller.isInAir = !controller.controller.computedGrounded()
+      if (computedMovement.lengthSq() > 0) computedMovement.y += 0.01
 
       const numCollisions = controller.controller.numComputedCollisions()
 
       /** Process avatar movement collision events */
+      const translationApplied = controller.translationApplied.set(0, 0, 0)
       for (let i = 0; i < numCollisions; i++) {
         const out = new CharacterCollision()
         controller.controller.computedCollision(i, out)
-        // console.log(out.translationApplied, out.translationRemaining)
-        if (out) {
-          // const angle = V_010.angleTo(new Vector3().copy(out.normal1 as Vector3))
-          hasGroundCollision = true
-        }
+        translationApplied.add(out.translationRemaining as any)
       }
 
-      // detect if we're in the air when the corrected movement in the y is less than desired movement
-      controller.isInAir = !hasGroundCollision
-      // console.log(controller.isInAir)
-
       const transform = getComponent(localClientEntity, TransformComponent)
-      transform.position.add(computedMovementRounded)
+      transform.position.add(computedMovement as Vector3)
     }
 
     lastMovementDelta.copy(movementDelta)

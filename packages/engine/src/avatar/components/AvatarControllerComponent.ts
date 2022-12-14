@@ -23,6 +23,7 @@ export type AvatarControllerComponentType = {
   speedVelocity: { value: number }
   /** @deprecated @todo replace this with RigidBodyComponent */
   lastPosition: Vector3
+  translationApplied: Vector3
 }
 
 export const AvatarControllerComponent =

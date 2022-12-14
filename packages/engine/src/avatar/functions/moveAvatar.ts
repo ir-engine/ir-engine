@@ -148,10 +148,7 @@ export const calculateAvatarDisplacementFromGamepad = (
     .multiplyScalar(currentSpeed * deltaSeconds)
     .applyQuaternion(forwardOrientation)
 
-  if (controller.isInAir) {
-    // apply gravity to avatar velocity
-    controller.gamepadYVelocity -= 9.81 * deltaSeconds
-  } else {
+  if (!controller.isInAir) {
     controller.gamepadYVelocity = 0
     if (isJumping && !controller.isJumping) {
       // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
@@ -161,6 +158,8 @@ export const calculateAvatarDisplacementFromGamepad = (
       controller.isJumping = false
     }
   }
+
+  controller.gamepadYVelocity -= 9.81 * deltaSeconds
 
   outDisplacement.y = controller.gamepadYVelocity * deltaSeconds
 }
