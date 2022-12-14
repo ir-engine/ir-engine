@@ -41,7 +41,8 @@ export const XRState = defineState({
     is8thWallActive: false,
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
-    viewerInputSourceEntity: 0 as Entity
+    viewerInputSourceEntity: 0 as Entity,
+    previousCameraPosition: new Vector3()
   })
 })
 
