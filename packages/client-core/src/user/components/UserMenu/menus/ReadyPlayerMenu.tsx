@@ -5,6 +5,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import Menu from '@xrengine/client-core/src/common/components/Menu'
+import { getCanvasBlob } from '@xrengine/client-core/src/common/utils'
 import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -131,14 +132,6 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
     setLoading(LoadingState.None)
     changeActiveMenu(Views.Closed)
-  }
-
-  const getCanvasBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        resolve(blob)
-      })
-    })
   }
 
   const avatarPreviewLoaded = loading === LoadingState.None && selectedFile

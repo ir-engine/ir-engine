@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import Text from '@xrengine/client-core/src/common/components/Text'
 
@@ -22,7 +23,7 @@ interface Props {
   showChangeButton?: boolean
   size?: number
   sx?: SxProps<Theme>
-  type?: 'round' | 'square' | 'rectangle'
+  type?: 'round' | 'rectangle' | 'thumbnail'
   onChange?: () => void
   onClick?: () => void
 }
@@ -52,24 +53,7 @@ const Avatar = ({
     onChange && onChange()
   }
 
-  if (type === 'square') {
-    return (
-      <Paper
-        title={name}
-        className={`${styles.avatarSquare} ${isSelected ? styles.avatarSelected : ''}`}
-        onClick={onClick}
-        onPointerUp={handleSoundEffect}
-        onPointerEnter={handleSoundEffect}
-      >
-        <img className={styles.avatar} src={imageSrc} alt={alt} crossOrigin="anonymous" />
-        {name && (
-          <Text variant="body2" className={styles.avatarName}>
-            {name}
-          </Text>
-        )}
-      </Paper>
-    )
-  } else if (type === 'rectangle') {
+  if (type === 'rectangle') {
     return (
       <Paper
         title={name}
@@ -92,11 +76,23 @@ const Avatar = ({
         )}
       </Paper>
     )
+  } else if (type === 'thumbnail') {
+    return (
+      <Box
+        className={`${commonStyles.preview} ${styles.avatarThumbnail} ${className}`}
+        sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
+      >
+        <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
+        <Text className={commonStyles.previewText} variant="body2">
+          {t('admin:components.avatar.thumbnailPreview')}
+        </Text>
+      </Box>
+    )
   }
 
   return (
     <Box
-      className={`${styles.avatarBlock} ${className}`}
+      className={`${styles.avatarRound} ${className}`}
       id={id}
       sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
     >

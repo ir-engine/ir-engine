@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import Text from '@xrengine/client-core/src/common/components/Text'
 import {
@@ -62,7 +63,7 @@ const AvatarPreview = ({ fill, selectedAvatar }: Props) => {
   }
 
   return (
-    <Box className={`${styles.preview} ${fill ? styles.fill : ''}`}>
+    <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`}>
       <div ref={panelRef} id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`} />
 
       {avatarLoading && (
@@ -74,18 +75,7 @@ const AvatarPreview = ({ fill, selectedAvatar }: Props) => {
       )}
 
       {!selectedAvatar && (
-        <Text
-          sx={{
-            position: 'absolute',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            width: '100%',
-            fontSize: 14,
-            top: 0
-          }}
-        >
+        <Text className={commonStyles.previewText} variant="body2">
           {t('admin:components.avatar.avatarPreview')}
         </Text>
       )}

@@ -1,4 +1,4 @@
-.avatarBlock {
+.avatarRound {
   filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
   border-radius: 50%;
   position: relative;
@@ -39,32 +39,8 @@
   }
 }
 
-.avatarSquare {
-  border: 3px solid var(--iconButtonBackground);
+.avatarThumbnail {
   position: relative;
-  display: flex;
-  cursor: pointer;
-  transition: all 0.2s;
-  aspect-ratio: 1;
-
-  .avatarName {
-    bottom: -3px;
-    padding-top: 3px;
-    width: 100%;
-    opacity: 0.75;
-    position: absolute;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    background: var(--iconButtonBackground);
-  }
-
-  &:hover {
-    background: var(--iconButtonHoverColor);
-  }
-
-  @media (max-width: 400px) {
-    margin-right: 5px;
-  }
 }
 
 .avatarRectangle {

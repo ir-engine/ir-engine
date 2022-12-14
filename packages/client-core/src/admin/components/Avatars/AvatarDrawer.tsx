@@ -5,6 +5,7 @@ import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDi
 import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import { getCanvasBlob, isValidHttpUrl } from '@xrengine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
@@ -133,18 +134,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         thumbnailFile: undefined
       })
     }
-  }
-
-  const isValidHttpUrl = (urlString) => {
-    let url
-
-    try {
-      url = new URL(urlString)
-    } catch (_) {
-      return false
-    }
-
-    return url.protocol === 'http:' || url.protocol === 'https:'
   }
 
   const updateAvatar = async () => {
@@ -353,14 +342,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     }
 
     setShowConfirm(ConfirmState.None)
-  }
-
-  const getCanvasBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        resolve(blob)
-      })
-    })
   }
 
   return (
