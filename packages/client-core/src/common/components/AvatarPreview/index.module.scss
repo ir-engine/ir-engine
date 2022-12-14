@@ -5,3 +5,13 @@
   box-shadow: 0 0 10px var(--buttonOutlined);
   position: relative;
 }
+
+.stage {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.fill {
+  width: 100%;
+  height: 100%;
+}

@@ -21,8 +21,9 @@ interface Props {
   showChangeButton?: boolean
   size?: number
   sx?: SxProps<Theme>
-  type?: 'round' | 'square'
+  type?: 'round' | 'square' | 'rectangle'
   onChange?: () => void
+  onClick?: () => void
 }
 
 const Avatar = ({
@@ -36,10 +37,16 @@ const Avatar = ({
   size,
   sx,
   type,
-  onChange
+  onChange,
+  onClick
 }: Props) => {
   if (!size) {
     size = 80
+  }
+
+  const handleChange = (e) => {
+    e.stopPropagation()
+    onChange && onChange()
   }
 
   if (type === 'square') {
@@ -47,12 +54,7 @@ const Avatar = ({
       <Paper
         title={name}
         className={`${styles.avatarSquare} ${isSelected ? styles.avatarSelected : ''}`}
-        sx={{
-          boxShadow: 'none',
-          backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1'),
-          pointerEvents: isSelected ? 'none' : 'auto'
-        }}
-        onClick={onChange}
+        onClick={onClick}
         onPointerUp={handleSoundEffect}
         onPointerEnter={handleSoundEffect}
       >
@@ -62,6 +64,23 @@ const Avatar = ({
             {name}
           </Text>
         )}
+      </Paper>
+    )
+  } else if (type === 'rectangle') {
+    return (
+      <Paper
+        title={name}
+        className={`${styles.avatarRectangle} ${isSelected ? styles.avatarSelected : ''}`}
+        onClick={onClick}
+        onPointerUp={handleSoundEffect}
+        onPointerEnter={handleSoundEffect}
+      >
+        <img className={styles.avatar} src={imageSrc} alt={alt} crossOrigin="anonymous" />
+        <Text variant="body2" flex={1} className={styles.avatarName}>
+          {name}
+        </Text>
+
+        {showChangeButton && <IconButton icon={<CreateIcon sx={{ fontSize: '20px' }} />} onClick={handleChange} />}
       </Paper>
     )
   }

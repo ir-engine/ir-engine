@@ -20,17 +20,18 @@ import Tooltip from '@mui/material/Tooltip'
 import styles from './index.module.scss'
 
 interface Props {
+  fill?: boolean
   selectedAvatar?: AvatarInterface
 }
 
-const AvatarPreview = ({ selectedAvatar }: Props) => {
+const AvatarPreview = ({ fill, selectedAvatar }: Props) => {
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
   const [avatarLoading, setAvatarLoading] = useState(false)
 
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { entity, camera, scene, renderer } = renderPanel.state
+  const { entity, camera, scene } = renderPanel.state
 
   useEffect(() => {
     loadAvatarPreview()
@@ -61,8 +62,8 @@ const AvatarPreview = ({ selectedAvatar }: Props) => {
   }
 
   return (
-    <Box className={styles.preview}>
-      <div ref={panelRef} id="stage" style={{ width: '100%', aspectRatio: 1 }} />
+    <Box className={`${styles.preview} ${fill ? styles.fill : ''}`}>
+      <div ref={panelRef} id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`} />
 
       {avatarLoading && (
         <LoadingView

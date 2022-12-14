@@ -53,7 +53,7 @@ export const RoomPage = (): any => {
                 }
               `}
           </style>
-          <RoomMenu changeActiveMenu={() => {}} />
+          <RoomMenu />
         </Box>
       </div>
     </div>

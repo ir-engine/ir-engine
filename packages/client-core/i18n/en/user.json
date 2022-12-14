@@ -348,8 +348,9 @@
     "createResource": "Create Resource"
   },
   "avatar": {
-    "title": "Upload Avatar",
+    "titleEditAvatar": "Edit Avatar",
     "titleSelectAvatar": "Select Avatar",
+    "titleUploadAvatar": "Upload Avatar",
     "titleSelectThumbnail": "Select Thumbnail",
     "lbl-browse": "Browse",
     "lbl-thumbnail": "Thumbnail",
@@ -385,7 +386,6 @@
     "submit": "Submit",
     "edit": "Edit",
     "confirm": "Confirm",
-    "upload": "Upload",
     "avatarUrl": "Avatar url",
     "upload-success-msg": "Avatar Uploaded Successfully.",
     "remove-success-msg": "Avatar Uploaded Successfully.",
@@ -393,7 +393,9 @@
     "loadingRPM": "Loading Ready Player Me",
     "downloading": "Downloading Avatar",
     "loadingPreview": "Loading Avatar Preview",
-    "uploading": "Uploading Avatar"
+    "uploading": "Uploading Avatar",
+    "searchAvatar": "Search Avatar",
+    "noAvatars": "No avatars to display"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",

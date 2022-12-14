@@ -258,7 +258,7 @@ export const AvatarUploadMenu = ({ avatarData, changeActiveMenu, onAvatarUpload 
         <button type="button" className={styles.iconBlock} onClick={openAvatarMenu}>
           <ArrowBack />
         </button>
-        <h2>{t('user:avatar.title')}</h2>
+        <h2>{t('user:avatar.titleUploadAvatar')}</h2>
       </div>
 
       <Button

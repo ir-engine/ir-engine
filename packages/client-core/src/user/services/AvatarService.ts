@@ -21,6 +21,7 @@ export const AvatarState = defineState({
   name: 'AvatarState',
   initial: () => ({
     avatarList: [] as Array<AvatarInterface>,
+    search: undefined as string | undefined,
     skip: 0,
     limit: AVATAR_PAGE_LIMIT,
     total: 0
@@ -30,6 +31,7 @@ export const AvatarState = defineState({
 export const AvatarServiceReceptor = (action) => {
   const s = getState(AvatarState)
   matches(action).when(AvatarActions.updateAvatarListAction.matches, (action) => {
+    s.search.set(action.search ?? undefined)
     s.skip.set(action.skip)
     s.total.set(action.total)
     return s.avatarList.set(action.avatarList)
@@ -67,18 +69,19 @@ export const AvatarService = {
     }
   },
 
-  async fetchAvatarList(incDec?: 'increment' | 'decrement') {
+  async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {
     const skip = accessAvatarState().skip.value
     const newSkip =
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
     const result = (await API.instance.client.service('avatar').find({
       query: {
+        search,
         $skip: newSkip,
         $limit: AVATAR_PAGE_LIMIT
       }
     })) as Paginated<AvatarInterface>
     dispatchAction(
-      AvatarActions.updateAvatarListAction({ avatarList: result.data, skip: result.skip, total: result.total })
+      AvatarActions.updateAvatarListAction({ avatarList: result.data, search, skip: result.skip, total: result.total })
     )
   },
 
@@ -145,6 +148,7 @@ export class AvatarActions {
   static updateAvatarListAction = defineAction({
     type: 'xre.client.avatar.AVATAR_FETCHED' as const,
     avatarList: matches.array as Validator<unknown, AvatarInterface[]>,
+    search: matches.string.optional(),
     skip: matches.number,
     total: matches.number
   })

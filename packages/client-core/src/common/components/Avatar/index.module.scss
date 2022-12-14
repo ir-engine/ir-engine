@@ -40,7 +40,7 @@
 }
 
 .avatarSquare {
-  border: 3px solid var(--iconButtonSelectedBackground);
+  border: 3px solid var(--iconButtonBackground);
   position: relative;
   display: flex;
   cursor: pointer;
@@ -55,12 +55,11 @@
     position: absolute;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--textColor);
-    background: var(--iconButtonSelectedBackground);
+    background: var(--iconButtonBackground);
   }
 
   &:hover {
-    background: var(--iconButtonSelectedBackground);
+    background: var(--iconButtonHoverColor);
   }
 
   @media (max-width: 400px) {
@@ -68,7 +67,41 @@
   }
 }
 
+.avatarRectangle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  background: var(--iconButtonBackground);
+  border-radius: 0;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  height: 80px;
+
+  img {
+    background: white;
+    border-radius: 8px;
+    width: 80px;
+    height: 100%;
+  }
+
+  button {
+    display: none;
+  }
+
+  &:hover {
+    background: var(--iconButtonHoverColor);
+
+    button {
+      display: block;
+    }
+  }
+}
+
 .avatarSelected {
-  background: var(--iconButtonSelectedBackground);
-  cursor: not-allowed;
+  background: var(--iconButtonHoverColor);
+
+  img {
+    background: var(--iconButtonBackground);
+  }
 }
