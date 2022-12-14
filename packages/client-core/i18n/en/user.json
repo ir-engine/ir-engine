@@ -1,6 +1,7 @@
 {
   "common": {
-    "delete": "Delete"
+    "delete": "Delete",
+    "edit": "Edit"
   },
   "auth": {
     "confirmEmail": {

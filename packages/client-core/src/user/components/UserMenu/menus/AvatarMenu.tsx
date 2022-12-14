@@ -34,11 +34,12 @@ interface Props {
 
 const AvatarMenu = ({ changeActiveMenu }: Props) => {
   const { t } = useTranslation()
-  const [viewMode, setViewMode] = useState(AvatarMenuMode.Select)
-  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>()
-
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
+
+  const [viewMode, setViewMode] = useState(AvatarMenuMode.Select)
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>(avatarId)
+
   const avatarState = useAvatarService()
   const { avatarList } = avatarState.value
 

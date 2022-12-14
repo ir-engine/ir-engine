@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import Text from '@xrengine/client-core/src/common/components/Text'
@@ -40,6 +41,8 @@ const Avatar = ({
   onChange,
   onClick
 }: Props) => {
+  const { t } = useTranslation()
+
   if (!size) {
     size = 80
   }
@@ -80,7 +83,13 @@ const Avatar = ({
           {name}
         </Text>
 
-        {showChangeButton && <IconButton icon={<CreateIcon sx={{ fontSize: '20px' }} />} onClick={handleChange} />}
+        {showChangeButton && (
+          <IconButton
+            icon={<CreateIcon sx={{ fontSize: '20px' }} />}
+            title={t('user:common.edit')}
+            onClick={handleChange}
+          />
+        )}
       </Paper>
     )
   }
