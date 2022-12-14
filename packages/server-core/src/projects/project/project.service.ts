@@ -20,10 +20,11 @@ import {
   checkBuilderService,
   checkDestination,
   checkProjectDestinationMatch,
+  checkUnfetchedSourceCommit,
   findBuilderTags,
   getBranches,
   getEnginePackageJson,
-  getTags,
+  getProjectCommits,
   updateBuilder
 } from './project-helper'
 import { dockerHubRegex, privateECRTagRegex, publicECRTagRegex } from './project-helper'
@@ -58,14 +59,17 @@ declare module '@xrengine/common/declarations' {
     'project-branches': {
       get: ReturnType<typeof projectBranchesGet>
     }
-    'project-tags': {
-      get: ReturnType<typeof projectTagsGet>
+    'project-commits': {
+      get: ReturnType<typeof projectCommitsGet>
     }
     'project-builder-tags': {
       find: ReturnType<typeof projectBuilderTagsGet>
     }
     'builder-info': {
       get: ReturnType<typeof builderInfoGet>
+    }
+    'project-check-unfetched-commit': {
+      get: ReturnType<typeof projectUnfetchedCommitGet>
     }
   }
   interface Models {
@@ -120,12 +124,16 @@ export const projectDestinationCheckGet = (app: Application) => async (url: stri
   return checkDestination(app, url, params as ProjectParams)
 }
 
+export const projectUnfetchedCommitGet = (app: Application) => (url: string, params?: ProjectParamsClient) => {
+  return checkUnfetchedSourceCommit(app, url, params as ProjectParams)
+}
+
 export const projectBranchesGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
   return getBranches(app, url, params as ProjectParams)
 }
 
-export const projectTagsGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
-  return getTags(app, url, params as ProjectParams)
+export const projectCommitsGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
+  return getProjectCommits(app, url, params as ProjectParams)
 }
 
 export const projectBuilderTagsGet = () => async () => {
@@ -213,6 +221,16 @@ export default (app: Application): void => {
     }
   })
 
+  app.use('project-check-unfetched-commit', {
+    get: projectUnfetchedCommitGet(app)
+  })
+
+  app.service('project-check-unfetched-commit').hooks({
+    before: {
+      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
+    }
+  })
+
   app.use('project-check-source-destination-match', {
     find: projectCheckSourceDestinationMatchFind(app)
   })
@@ -257,11 +275,11 @@ export default (app: Application): void => {
     }
   })
 
-  app.use('project-tags', {
-    get: projectTagsGet(app)
+  app.use('project-commits', {
+    get: projectCommitsGet(app)
   })
 
-  app.service('project-tags').hooks({
+  app.service('project-commits').hooks({
     before: {
       get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
     }

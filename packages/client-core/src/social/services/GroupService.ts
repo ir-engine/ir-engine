@@ -101,7 +101,7 @@ export const GroupServiceReceptor = (action) => {
         if (groupUserIndex !== -1) {
           group.groupUsers[groupUserIndex].set(action.groupUser)
         } else {
-          group.groupUsers.merge(action.groupUser)
+          group.groupUsers.merge([action.groupUser])
         }
       }
 
@@ -119,7 +119,7 @@ export const GroupServiceReceptor = (action) => {
         if (groupUserIndex !== -1) {
           group.groupUsers[groupUserIndex].set(action.groupUser)
         } else {
-          group.groupUsers.merge(action.groupUser)
+          group.groupUsers.merge([action.groupUser])
         }
       }
       return s

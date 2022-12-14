@@ -416,7 +416,7 @@ const ProjectsPage = () => {
         {`
         #menu-projectURL,
         #menu-branchData,
-        #menu-tagData {
+        #menu-commitData {
           z-index: 1500;
         }
         #engine-container {
