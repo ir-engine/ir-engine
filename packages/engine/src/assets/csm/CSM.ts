@@ -130,6 +130,8 @@ export class CSM {
         const lightClone = light.clone()
         lightClone.castShadow = true
         lightClone.visible = true
+        lightClone.matrixAutoUpdate = true
+        lightClone.matrixWorldAutoUpdate = true
         this.parent.add(lightClone, lightClone.target)
         this.lights.push(lightClone)
         lightClone.name = 'CSM_' + light.name
@@ -289,6 +291,7 @@ export class CSM {
       light.position.copy(_center)
       light.target.position.copy(_center).add(this.lightDirection)
     }
+    this.parent.updateMatrixWorld(true)
   }
 
   injectInclude(): void {
