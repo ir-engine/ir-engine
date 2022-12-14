@@ -43,11 +43,11 @@ const ConfirmDialog = ({
       </DialogContent>
 
       {!processing && (
-        <DialogActions>
-          <Button type="outlined" onClick={onClose}>
+        <DialogActions className={styles.dialogActions}>
+          <Button fullWidth type="outlined" onClick={onClose}>
             {closeButtonText ?? t('common:components.cancel')}
           </Button>
-          <Button type="gradient" autoFocus onClick={onSubmit}>
+          <Button fullWidth type="gradient" autoFocus onClick={onSubmit}>
             {submitButtonText ?? t('common:components.confirm')}
           </Button>
         </DialogActions>

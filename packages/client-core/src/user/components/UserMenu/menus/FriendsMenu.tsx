@@ -3,6 +3,12 @@ import { cloneDeep } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import Avatar from '@xrengine/client-core/src/common/components/Avatar'
+import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
+import IconButton from '@xrengine/client-core/src/common/components/IconButton'
+import Menu from '@xrengine/client-core/src/common/components/Menu'
+import Tabs from '@xrengine/client-core/src/common/components/Tabs'
+import Text from '@xrengine/client-core/src/common/components/Text'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
@@ -12,12 +18,8 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import HowToRegIcon from '@mui/icons-material/HowToReg'
 import MessageIcon from '@mui/icons-material/Message'
-import { Typography } from '@mui/material'
-import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import IconButton from '@mui/material/IconButton'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'
@@ -46,7 +48,7 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
     NetworkUserService.getLayerUsers(true)
   }, [])
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleTabChange = (newValue: string) => {
     setSelectedTab(newValue)
   }
 
@@ -82,85 +84,78 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
     })
   }
 
+  const settingTabs = [
+    { value: 'find', label: t('user:friends.find') },
+    { value: 'friends', label: t('user:friends.friends') },
+    { value: 'blocked', label: t('user:friends.blocked') }
+  ]
+
   return (
-    <div className={styles.menuPanel}>
-      <div className={styles.friendsPanel}>
-        <Tabs className={styles.tabsPanel} value={selectedTab} onChange={handleTabChange} variant="fullWidth">
-          <Tab value="find" label={t('user:friends.find')} />
-          <Tab value="friends" label={t('user:friends.friends')} />
-          <Tab value="blocked" label={t('user:friends.blocked')} />
-        </Tabs>
+    <Menu
+      open
+      header={<Tabs value={selectedTab} items={settingTabs} onChange={handleTabChange} />}
+      onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
+      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
+    >
+      <Box className={styles.menuContent}>
+        {displayList.map((value) => (
+          <Box key={value.id} display="flex" alignItems="center" m={2} gap={1.5}>
+            <Avatar alt={value.name} imageSrc={getAvatarURLForUser(userAvatarDetails, value.id)} size={50} />
 
-        <div className={styles.friendsList}>
-          {displayList.map((value) => (
-            <div key={value.id} className={styles.friendItem}>
-              <Avatar alt={value.name} src={getAvatarURLForUser(userAvatarDetails, value.id)} />
+            <Text flex={1}>{value.name}</Text>
 
-              <span className={styles.friendName}>{value.name}</span>
-
-              {value.relationType === 'friend' && (
-                <IconButton
-                  className={styles.filledBtn}
-                  title={t('user:friends.message')}
-                  onClick={() => NotificationService.dispatchNotify('Chat Pressed', { variant: 'info' })}
-                >
-                  <MessageIcon />
-                </IconButton>
-              )}
-
-              {value.relationType === 'pending' && (
-                <>
-                  <Chip className={styles.chip} label={t('user:friends.pending')} size="small" variant="outlined" />
-
-                  <IconButton
-                    className={styles.filledBtn}
-                    title={t('user:friends.accept')}
-                    onClick={() => FriendService.acceptFriend(userId, value.id)}
-                  >
-                    <CheckIcon />
-                  </IconButton>
-
-                  <IconButton
-                    className={styles.filledBtn}
-                    title={t('user:friends.decline')}
-                    onClick={() => FriendService.declineFriend(userId, value.id)}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </>
-              )}
-
-              {value.relationType === 'requested' && (
-                <Chip className={styles.chip} label={t('user:friends.requested')} size="small" variant="outlined" />
-              )}
-
-              {value.relationType === 'blocking' && (
-                <IconButton
-                  className={styles.filledBtn}
-                  title={t('user:friends.unblock')}
-                  onClick={() => FriendService.unblockUser(userId, value.id)}
-                >
-                  <HowToRegIcon />
-                </IconButton>
-              )}
-
+            {value.relationType === 'friend' && (
               <IconButton
-                className={styles.filledBtn}
-                title={t('user:friends.profile')}
-                onClick={() => handleProfile(value)}
-              >
-                <AccountCircleIcon />
-              </IconButton>
-            </div>
-          ))}
-          {displayList.length === 0 && (
-            <Typography className={styles.noUsers} variant="body2">
-              {t('user:friends.noUsers')}
-            </Typography>
-          )}
-        </div>
-      </div>
-    </div>
+                icon={<MessageIcon sx={{ height: 30, width: 30 }} />}
+                title={t('user:friends.message')}
+                onClick={() => NotificationService.dispatchNotify('Chat Pressed', { variant: 'info' })}
+              />
+            )}
+
+            {value.relationType === 'pending' && (
+              <>
+                <Chip className={commonStyles.chip} label={t('user:friends.pending')} size="small" variant="outlined" />
+
+                <IconButton
+                  icon={<CheckIcon sx={{ height: 30, width: 30 }} />}
+                  title={t('user:friends.accept')}
+                  onClick={() => FriendService.acceptFriend(userId, value.id)}
+                />
+
+                <IconButton
+                  icon={<CloseIcon sx={{ height: 30, width: 30 }} />}
+                  title={t('user:friends.decline')}
+                  onClick={() => FriendService.declineFriend(userId, value.id)}
+                />
+              </>
+            )}
+
+            {value.relationType === 'requested' && (
+              <Chip className={commonStyles.chip} label={t('user:friends.requested')} size="small" variant="outlined" />
+            )}
+
+            {value.relationType === 'blocking' && (
+              <IconButton
+                icon={<HowToRegIcon sx={{ height: 30, width: 30 }} />}
+                title={t('user:friends.unblock')}
+                onClick={() => FriendService.unblockUser(userId, value.id)}
+              />
+            )}
+
+            <IconButton
+              icon={<AccountCircleIcon sx={{ height: 30, width: 30 }} />}
+              title={t('user:friends.profile')}
+              onClick={() => handleProfile(value)}
+            />
+          </Box>
+        ))}
+        {displayList.length === 0 && (
+          <Text align="center" mt={4} variant="body2">
+            {t('user:friends.noUsers')}
+          </Text>
+        )}
+      </Box>
+    </Menu>
   )
 }
 

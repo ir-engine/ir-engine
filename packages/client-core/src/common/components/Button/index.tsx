@@ -19,11 +19,15 @@ interface Props {
   disabled?: boolean
   disableRipple?: boolean
   endIcon?: React.ReactNode
+  fullWidth?: boolean
   id?: string
   open?: boolean
+  size?: 'medium'
   startIcon?: React.ReactNode
   sx?: SxProps<Theme>
-  type?: 'outlined' | 'gradient' | 'gradientRounded' | 'expander'
+  title?: string
+  type?: 'outlined' | 'gradient' | 'gradientRounded' | 'solid' | 'solidRounded' | 'expander'
+  width?: string
   onClick?: () => void
 }
 
@@ -34,11 +38,15 @@ const Button = ({
   disabled,
   disableRipple,
   endIcon,
+  fullWidth,
   id,
   open,
+  size,
   startIcon,
   sx,
+  title,
   type,
+  width,
   onClick
 }: Props) => {
   if (type === 'expander') {
@@ -59,10 +67,25 @@ const Button = ({
   let baseStyle = ''
   if (type === 'outlined') {
     baseStyle = styles.outlinedButton
-  } else if (type === 'gradient') {
+  } else if (type === 'gradient' || type === 'gradientRounded') {
     baseStyle = styles.gradientButton
-  } else if (type === 'gradientRounded') {
-    baseStyle = `${styles.gradientButton} ${styles.roundedButton}`
+  } else if (type === 'solid' || type === 'solidRounded') {
+    baseStyle = styles.solidButton
+  }
+
+  if (type === 'gradientRounded' || type === 'solidRounded') {
+    baseStyle = `${baseStyle} ${styles.roundedButton}`
+  }
+
+  let newSx: SxProps<Theme> = { ...sx }
+  if (fullWidth) {
+    newSx = { width: '100%', ...sx }
+  }
+  if (size === 'medium') {
+    newSx = { width: '100%', maxWidth: '250px', ...sx }
+  }
+  if (width) {
+    newSx = { width: width, ...sx }
   }
 
   return (
@@ -74,7 +97,8 @@ const Button = ({
       endIcon={endIcon}
       id={id}
       startIcon={startIcon}
-      sx={sx}
+      sx={newSx}
+      title={title}
       onClick={onClick}
       onPointerUp={handleSoundEffect}
       onPointerEnter={handleSoundEffect}

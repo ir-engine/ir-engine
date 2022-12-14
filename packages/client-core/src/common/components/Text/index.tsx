@@ -13,6 +13,7 @@ interface Props {
   children?: React.ReactNode
   className?: string
   color?: string
+  flex?: string | number
   id?: string
   italic?: boolean
   margin?: string | number
@@ -30,12 +31,13 @@ interface Props {
   onClick?: () => void
 }
 
-const Button = ({
+const Text = ({
   align,
   bold,
   children,
   className,
   color,
+  flex,
   id,
   italic,
   margin,
@@ -70,7 +72,7 @@ const Button = ({
       marginBottom={mb ?? marginBottom}
       marginLeft={ml ?? marginLeft}
       marginRight={mr ?? marginRight}
-      sx={{ display: 'block', textDecoration: underline ? 'underline' : '', ...sx }}
+      sx={{ display: 'block', textDecoration: underline ? 'underline' : '', flex: flex ? flex : '', ...sx }}
       variant={variant}
       onClick={onClick}
       onPointerUp={() => (onClick ? handleSoundEffect : undefined)}
@@ -81,4 +83,4 @@ const Button = ({
   )
 }
 
-export default Button
+export default Text

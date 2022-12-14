@@ -1,4 +1,7 @@
 {
+  "common": {
+    "delete": "Delete"
+  },
   "auth": {
     "confirmEmail": {
       "header": "Confirmation Email",
@@ -155,7 +158,10 @@
       "party": "Party",
       "shareQuest": "Share to Quest",
       "shareDirect": "Share Direct Link",
-      "shareInvite": "Share by Invite"
+      "shareInvite": "Share by Invite",
+      "shareTitle": "AR/VR World | Ethereal Engine",
+      "shareDescription": "Check out AR/VR world on Ethereal Engine",
+      "shareFailed": "Error during sharing"
     },
     "party": {
       "title": "Party",
@@ -166,9 +172,7 @@
       "kick": "Kick",
       "admin": "Admin",
       "you": "You",
-      "initDelete": "Delete",
-      "confirmDelete": "Confirm",
-      "cancelDelete": "Cancel"
+      "deleteConfirmation": "Are you sure you want to delete this party?"
     },
     "setting": {
       "chromeAEC": "If you experience echo, please enable echo cancellation by going to ",

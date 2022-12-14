@@ -26,6 +26,7 @@ import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
 import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
+import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
 import { SelectChangeEvent } from '@mui/material/Select'
@@ -161,7 +162,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
       onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
     >
-      <div className={styles.menuContent}>
+      <Box className={styles.menuContent}>
         {selectedTab === 'general' && selfUser && (
           <>
             <Text align="center" variant="body1" mb={2} mt={1}>
@@ -446,7 +447,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             </Grid>
           </>
         )}
-      </div>
+      </Box>
     </Menu>
   )
 }

@@ -18,13 +18,13 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
 import styles from './index.module.scss'
 import AvatarContextMenu from './menus/AvatarContextMenu'
-import AvatarUploadModal from './menus/AvatarSelectMenu'
+import AvatarSelectMenu from './menus/AvatarSelectMenu'
+import AvatarUploadMenu from './menus/AvatarUploadMenu'
 import EmoteMenu from './menus/EmoteMenu'
 import FriendsMenu from './menus/FriendsMenu'
 import PartyMenu from './menus/PartyMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
-import SelectAvatarMenu from './menus/SelectAvatarMenu'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import { PopupMenuActions, PopupMenuServiceReceptor, PopupMenuState } from './PopupMenuService'
@@ -62,8 +62,8 @@ export const UserMenu = (): any => {
       [Views.Settings]: SettingMenu,
       [Views.Share]: ShareMenu,
       [Views.Party]: PartyMenu,
-      [Views.AvatarSelect]: SelectAvatarMenu,
-      [Views.AvatarUpload]: AvatarUploadModal,
+      [Views.AvatarSelect]: AvatarSelectMenu,
+      [Views.AvatarUpload]: AvatarUploadMenu,
       [Views.ReadyPlayer]: ReadyPlayerMenu,
       [Views.Emote]: EmoteMenu,
       [Views.Friends]: FriendsMenu,
