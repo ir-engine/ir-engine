@@ -26,6 +26,7 @@ import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
 import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
+import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
 import { SelectChangeEvent } from '@mui/material/Select'
