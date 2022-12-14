@@ -102,9 +102,10 @@ export default async function SceneObjectSystem(world: World) {
         if (child.material) {
           child.castShadow = !!shadow?.cast
           child.receiveShadow = !!shadow?.receive
-          if (child.receiveShadow && child.material.userData) {
+          if (child.receiveShadow) {
             /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
             EngineRenderer.instance.csm?.setupMaterial(child)
+            console.log(entity, child)
           }
         }
       })
