@@ -46,9 +46,11 @@ const AutoComplete = ({ data, label, disabled, error, onChange, value = '', free
       options: data,
       onInputChange: handleInputChange,
       getOptionLabel: (option) => option.label || '',
+      blurOnSelect: true,
       onChange: (event: React.ChangeEvent<{}>, value: any, reason: string) => {
         if (value?.value != null) {
           setLocalValue(value.value)
+          ;(getInputProps() as any).ref.current.value = value.value
           if (onChange) onChange({ target: { value: value.value } })
         }
       },
