@@ -275,7 +275,7 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
 
   if (checkPositionIsValid(newPosition, false)) {
     const avatar = getComponent(entity, AvatarComponent)
-    newPosition.y += avatar.avatarHalfHeight
+    newPosition.y += avatar.avatarHeight * 2
     const rigidbody = getComponent(entity, RigidBodyComponent)
     rigidbody.body.setTranslation(newPosition, true)
   } else {
