@@ -19,7 +19,9 @@ export const download = async (projectName: string, storageProviderName?: string
   const storageProvider = getStorageProvider(storageProviderName)
   try {
     logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
-    const files = await getFileKeysRecursive(`projects/${projectName}/`)
+    let files = await getFileKeysRecursive(`projects/${projectName}/`)
+    const assetsRegex = new RegExp(`^projects/${projectName}/assets`)
+    files = files.filter((file) => !assetsRegex.test(file))
     logger.info('[ProjectLoader]: Found files:' + files)
 
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects', projectName)
@@ -60,7 +62,8 @@ export const download = async (projectName: string, storageProviderName?: string
       ])
     }
   } catch (e) {
-    logger.error(e, `[ProjectLoader]: Failed to download project ${projectName} with error: ${e.message}`)
+    const errorMsg = `[ProjectLoader]: Failed to download project ${projectName} with error: ${e.message}`
+    logger.error(e, errorMsg)
     throw e
   }
 

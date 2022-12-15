@@ -13,6 +13,7 @@ import Grid from '@mui/material/Grid'
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import styles from '../../styles/admin.module.scss'
+import BuildStatusDrawer from './BuildStatusDrawer'
 import ProjectDrawer from './ProjectDrawer'
 import ProjectTable from './ProjectTable'
 import UpdateDrawer from './UpdateDrawer'
@@ -25,6 +26,7 @@ const Projects = () => {
   const { t } = useTranslation()
   const [projectDrawerOpen, setProjectDrawerOpen] = useState(false)
   const [updateDrawerOpen, setUpdateDrawerOpen] = useState(false)
+  const [buildStatusDrawerOpen, setBuildStatusDrawerOpen] = useState(false)
   const [isFirstRun, setIsFirstRun] = useState(true)
 
   const handleOpenProjectDrawer = () => {
@@ -33,6 +35,10 @@ const Projects = () => {
 
   const handleOpenUpdateDrawer = () => {
     setUpdateDrawerOpen(true)
+  }
+
+  const handleOpenBuildStatusDrawer = () => {
+    setBuildStatusDrawerOpen(true)
   }
 
   const ProjectUpdateSystemInjection = {
@@ -71,7 +77,7 @@ const Projects = () => {
   return (
     <div>
       <Grid container spacing={1} className={styles.mb10px}>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <Button
             className={styles.openModalBtn}
             type="button"
@@ -82,7 +88,7 @@ const Projects = () => {
             {t('admin:components.project.addProject')}
           </Button>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <Button
             className={styles.openModalBtn}
             type="button"
@@ -100,6 +106,17 @@ const Projects = () => {
             )}
           </Button>
         </Grid>
+        <Grid item xs={4}>
+          <Button
+            className={styles.openModalBtn}
+            type="button"
+            variant="contained"
+            color="primary"
+            onClick={() => handleOpenBuildStatusDrawer()}
+          >
+            {t('admin:components.project.buildStatus')}
+          </Button>
+        </Grid>
       </Grid>
 
       <div className={styles.engineInfo}>
@@ -112,6 +129,8 @@ const Projects = () => {
       <UpdateDrawer open={updateDrawerOpen} builderTags={builderTags} onClose={() => setUpdateDrawerOpen(false)} />
 
       <ProjectDrawer open={projectDrawerOpen} onClose={() => setProjectDrawerOpen(false)} />
+
+      <BuildStatusDrawer open={buildStatusDrawerOpen} onClose={() => setBuildStatusDrawerOpen(false)} />
     </div>
   )
 }
