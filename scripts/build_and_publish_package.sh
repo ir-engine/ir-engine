@@ -5,10 +5,11 @@ set -x
 STAGE=$1
 LABEL=$2
 PACKAGE=$3
-START_TIME=$4
-REGION=$5
-NODE_ENV=$6
-PRIVATE_ECR=$7
+DOCKERFILE=$4
+START_TIME=$5
+REGION=$6
+NODE_ENV=$7
+PRIVATE_ECR=$8
 
 if [ $PRIVATE_ECR == "true" ]
 then
@@ -39,7 +40,7 @@ then
     -t $ECR_URL/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
     -t $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE \
     -t ${LABEL}-$PACKAGE:${TAG} \
-    -f dockerfiles/$PACKAGE/Dockerfile-$PACKAGE \
+    -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
     --cache-to type=s3,mode=max,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
     --cache-from type=s3,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
     --build-arg ECR_URL=$ECR_URL \
@@ -74,7 +75,7 @@ else
     --push \
     -t $ECR_URL/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
     -t $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE \
-    -f dockerfiles/$PACKAGE/Dockerfile-$PACKAGE \
+    -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
     --cache-to type=s3,mode=max,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
     --cache-from type=s3,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
     --build-arg ECR_URL=$ECR_URL \

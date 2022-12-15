@@ -5,7 +5,6 @@ awscliv2.zip
 node_modules
 kubectl
 lib/
-packages/client/dist
 packages/native-plugin-example
 packages/ops
 readme/
@@ -15,13 +14,9 @@ packages/**/node_modules
 package-lock.json
 packages/**/package-lock.json
 packages/bot
-packages/client
-packages/client-core
-packages/editor
 packages/instanceserver
 packages/taskserver
 packages/test
-packages/ui
 
 
 kubernetes/**

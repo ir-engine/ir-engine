@@ -3,6 +3,7 @@
  */
 
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
+import packageRoot from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 import url from 'url'
@@ -42,8 +43,8 @@ export default defineConfig(
         hmr: false,
         port: process.env.INSTANCESERVER_PORT ? parseInt(process.env.INSTANCESERVER_PORT) : undefined,
         https: {
-          key: fs.readFileSync('../../certs/key.pem'),
-          cert: fs.readFileSync('../../certs/cert.pem')
+          key: fs.readFileSync(path.join(packageRoot.path, 'certs/key.pem')),
+          cert: fs.readFileSync(path.join(packageRoot.path, 'certs/cert.pem'))
         }
       },
       resolve: {
