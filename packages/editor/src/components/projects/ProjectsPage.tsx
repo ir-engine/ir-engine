@@ -581,15 +581,13 @@ const ProjectsPage = () => {
           removePermission={onRemovePermission}
         />
       )}
-      {activeProject && (
-        <ProjectDrawer
-          open={projectDrawerOpen}
-          inputProject={activeProject}
-          existingProject={true}
-          onClose={handleCloseProjectDrawer}
-          changeDestination={changeDestination}
-        />
-      )}
+      <ProjectDrawer
+        open={projectDrawerOpen}
+        inputProject={activeProject}
+        existingProject={activeProject != null}
+        onClose={handleCloseProjectDrawer}
+        changeDestination={changeDestination}
+      />
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu

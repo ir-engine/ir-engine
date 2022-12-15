@@ -596,7 +596,7 @@ export const getProjectCommits = async (
       per_page: COMMIT_PER_PAGE
     })
     const commits = headResponse.data
-    return (await Promise.all(
+    const mappedCommits = (await Promise.all(
       commits.map(
         (commit) =>
           new Promise(async (resolve, reject) => {
@@ -622,11 +622,14 @@ export const getProjectCommits = async (
               })
             } catch (err) {
               logger.error("Error getting commit's package.json %s/%s:%s %s", owner, repo, branchName, err.toString())
-              reject(err)
+              resolve({
+                discard: true
+              })
             }
           })
       )
     )) as ProjectCommitInterface[]
+    return mappedCommits.filter((commit) => !commit.discard)
   } catch (err) {
     logger.error('error getting repo commits %o', err)
     if (err.status === 404)
