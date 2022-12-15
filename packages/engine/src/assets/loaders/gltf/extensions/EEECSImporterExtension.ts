@@ -23,13 +23,8 @@ export default class EEECSImporterExtension extends ImporterExtension implements
     const extensionDef: EE_ecs = nodeDef.extensions[this.name]
     const entityName = extensionDef.data?.['xrengine.entity'] as string
     if (!entityName) return null
-    let entity: Entity
-    if (NameComponent.entitiesByName[entityName]) {
-      entity = NameComponent.entitiesByName[entityName].value
-    } else {
-      entity = createEntity()
-      addComponent(entity, NameComponent, entityName)
-    }
+    const entity = createEntity()
+    addComponent(entity, NameComponent, entityName)
     parseECSData(entity, Object.entries(extensionDef.data))
     return null
   }
