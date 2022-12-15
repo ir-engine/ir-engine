@@ -76,7 +76,6 @@ export class GLTFParser {
   options: {
     path?: string
     url?: string
-    entity?: Entity
   }
   associations: Map<Object3D | Material | Texture, GLTFReference>
 

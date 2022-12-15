@@ -1,5 +1,9 @@
 import { Event, Object3D } from 'three'
 
+import { Entity } from '../../../../ecs/classes/Entity'
+import { addComponent } from '../../../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../../ecs/functions/EntityFunctions'
+import { NameComponent } from '../../../../scene/components/NameComponent'
 import { parseECSData } from '../../../../scene/functions/loadGLTFModel'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
@@ -17,8 +21,16 @@ export default class EEECSImporterExtension extends ImporterExtension implements
     const nodeDef = json.nodes[nodeIndex]
     if (!nodeDef.extensions?.[this.name]) return null
     const extensionDef: EE_ecs = nodeDef.extensions[this.name]
-    if (!parser.options.entity) throw Error('error loading ecs data')
-    parseECSData(parser.options.entity, Object.entries(extensionDef.data))
+    const entityName = extensionDef.data?.['xrengine.entity'] as string
+    if (!entityName) return null
+    let entity: Entity
+    if (NameComponent.entitiesByName[entityName]) {
+      entity = NameComponent.entitiesByName[entityName].value
+    } else {
+      entity = createEntity()
+      addComponent(entity, NameComponent, entityName)
+    }
+    parseECSData(entity, Object.entries(extensionDef.data))
     return null
   }
 }
