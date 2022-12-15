@@ -6,37 +6,41 @@ import LoadingView from '@xrengine/client-core/src/common/components/LoadingView
 import Text from '@xrengine/client-core/src/common/components/Text'
 import {
   loadAvatarForPreview,
-  resetAnimationLogic
+  resetAnimationLogic,
+  validate
 } from '@xrengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@xrengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import HelpIcon from '@mui/icons-material/Help'
 import MouseIcon from '@mui/icons-material/Mouse'
 import Box from '@mui/material/Box'
+import { SxProps, Theme } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 
 import styles from './index.module.scss'
 
 interface Props {
   fill?: boolean
-  selectedAvatar?: AvatarInterface
+  avatarUrl?: string
+  sx?: SxProps<Theme>
+  onAvatarError?: (error: string) => void
+  onAvatarLoaded?: () => void
 }
 
-const AvatarPreview = ({ fill, selectedAvatar }: Props) => {
+const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: Props) => {
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
   const [avatarLoading, setAvatarLoading] = useState(false)
 
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { entity, camera, scene } = renderPanel.state
+  const { entity, camera, scene, renderer } = renderPanel.state
 
   useEffect(() => {
     loadAvatarPreview()
-  }, [selectedAvatar])
+  }, [avatarUrl])
 
   const loadAvatarPreview = async () => {
     const oldAvatar = scene.value.children.find((item) => item.name === 'avatar')
@@ -44,11 +48,20 @@ const AvatarPreview = ({ fill, selectedAvatar }: Props) => {
       scene.value.remove(oldAvatar)
     }
 
-    if (!selectedAvatar || !selectedAvatar.modelResource) return
+    if (!avatarUrl) return
 
     setAvatarLoading(true)
     resetAnimationLogic(entity.value)
-    const avatar = await loadAvatarForPreview(entity.value, selectedAvatar.modelResource.url)
+    const avatar = await loadAvatarForPreview(entity.value, avatarUrl)
+
+    if (!avatar) return
+
+    avatar.name = 'avatar'
+    scene.value.add(avatar)
+
+    const error = validate(avatar, renderer.value, scene.value, camera.value)
+    onAvatarError && onAvatarError(error)
+
     const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
     if (avatarRigComponent) {
       avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
@@ -56,14 +69,11 @@ const AvatarPreview = ({ fill, selectedAvatar }: Props) => {
       camera.value.position.z = 0.6
     }
     setAvatarLoading(false)
-    if (avatar) {
-      avatar.name = 'avatar'
-      scene.value.add(avatar)
-    }
+    onAvatarLoaded && onAvatarLoaded()
   }
 
   return (
-    <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`}>
+    <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
       <div ref={panelRef} id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`} />
 
       {avatarLoading && (
@@ -74,7 +84,7 @@ const AvatarPreview = ({ fill, selectedAvatar }: Props) => {
         />
       )}
 
-      {!selectedAvatar && (
+      {!avatarUrl && (
         <Text className={commonStyles.previewText} variant="body2">
           {t('admin:components.avatar.avatarPreview')}
         </Text>
