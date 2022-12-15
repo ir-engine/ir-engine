@@ -83,9 +83,11 @@ const Avatar = ({
         sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
       >
         <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
-        <Text className={commonStyles.previewText} variant="body2">
-          {t('admin:components.avatar.thumbnailPreview')}
-        </Text>
+        {!imageSrc && (
+          <Text className={commonStyles.previewText} variant="body2">
+            {t('admin:components.avatar.thumbnailPreview')}
+          </Text>
+        )}
       </Box>
     )
   }
@@ -98,12 +100,7 @@ const Avatar = ({
     >
       <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
       {showChangeButton && (
-        <IconButton
-          className={styles.avatarBtn}
-          disableRipple
-          icon={<CreateIcon sx={{ fontSize: '20px' }} />}
-          onClick={onChange}
-        />
+        <IconButton disableRipple icon={<CreateIcon sx={{ fontSize: '20px' }} />} type="glow" onClick={onChange} />
       )}
     </Box>
   )

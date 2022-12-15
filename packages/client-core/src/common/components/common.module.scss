@@ -1,6 +1,7 @@
 .inputField {
   background: var(--inputBackground);
   border-radius: 4px;
+  flex-grow: 1;
 
   /**
   * This below style is added to fix background issues with chrome autofill.

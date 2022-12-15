@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+import InputFile from '@xrengine/client-core/src/common/components/InputFile'
 import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
@@ -34,7 +35,6 @@ import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
-import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -45,10 +45,6 @@ import { AvatarService } from '../../../user/services/AvatarService'
 import DrawerView from '../../common/DrawerView'
 import { AdminAvatarActions, useAdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
-
-const Input = styled('input')({
-  display: 'none'
-})
 
 export enum AvatarDrawerMode {
   Create,
@@ -379,11 +375,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       {state.source === 'file' && (
         <>
           <label htmlFor="select-avatar">
-            <Input
+            <InputFile
               id="select-avatar"
               name="avatarFile"
               accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-              type="file"
               onChange={handleChangeFile}
             />
             <Button className={styles.gradientButton} component="span" startIcon={<FaceIcon />}>
@@ -483,11 +478,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       {state.source === 'file' && (
         <>
           <label htmlFor="select-thumbnail">
-            <Input
+            <InputFile
               id="select-thumbnail"
               name="thumbnailFile"
               accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-              type="file"
               onChange={handleChangeFile}
             />
             <Button className={styles.gradientButton} component="span" startIcon={<AccountCircleIcon />}>

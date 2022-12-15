@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import InputFile from '@xrengine/client-core/src/common/components/InputFile'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
@@ -23,7 +24,6 @@ import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@m
 import Button from '@mui/material/Button'
 import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
-import { styled } from '@mui/material/styles'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
@@ -46,10 +46,6 @@ let camera: PerspectiveCamera
 let scene: Scene
 let renderer: WebGLRenderer = null!
 let entity: Entity = null!
-
-const Input = styled('input')({
-  display: 'none'
-})
 
 function a11yProps(index: number) {
   return {
@@ -395,10 +391,9 @@ export const AvatarUploadMenu = ({ avatarData, changeActiveMenu, onAvatarUpload 
             <div className={styles.controlContainer}>
               <div className={styles.selectBtns}>
                 <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
-                  <Input
+                  <InputFile
                     accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
                     id="contained-button-file"
-                    type="file"
                     onChange={handleAvatarChange}
                     onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -413,10 +408,9 @@ export const AvatarUploadMenu = ({ avatarData, changeActiveMenu, onAvatarUpload 
                   </Button>
                 </label>
                 <label htmlFor="contained-button-file-t">
-                  <Input
+                  <InputFile
                     accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
                     id="contained-button-file-t"
-                    type="file"
                     onChange={handleThumbnailChange}
                     onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}

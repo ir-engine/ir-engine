@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
 import {
   addActionReceptor,
   dispatchAction,
@@ -18,7 +17,8 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
 import styles from './index.module.scss'
 import AvatarContextMenu from './menus/AvatarContextMenu'
-import AvatarMenu from './menus/AvatarMenu'
+import AvatarModifyMenu from './menus/AvatarModifyMenu'
+import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import EmoteMenu from './menus/EmoteMenu'
 import FriendsMenu from './menus/FriendsMenu'
 import PartyMenu from './menus/PartyMenu'
@@ -61,7 +61,8 @@ export const UserMenu = (): any => {
       [Views.Settings]: SettingMenu,
       [Views.Share]: ShareMenu,
       [Views.Party]: PartyMenu,
-      [Views.AvatarSelect]: AvatarMenu,
+      [Views.AvatarSelect]: AvatarSelectMenu,
+      [Views.AvatarModify]: AvatarModifyMenu,
       [Views.ReadyPlayer]: ReadyPlayerMenu,
       [Views.Emote]: EmoteMenu,
       [Views.Friends]: FriendsMenu,
