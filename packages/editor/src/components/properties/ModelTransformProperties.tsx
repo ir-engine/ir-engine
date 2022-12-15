@@ -385,6 +385,14 @@ export default function ModelTransformProperties({
               }}
             />
           </InputGroup>
+          <InputGroup name="emissive" label="emissive">
+            <BooleanInput
+              value={vertexBakeOptions.emissive.value}
+              onChange={(val: boolean) => {
+                vertexBakeOptions.emissive.set(val)
+              }}
+            />
+          </InputGroup>
           <InputGroup name="matcap" label="matcap">
             <TexturePreviewInput
               value={vertexBakeOptions.matcapPath.value}
