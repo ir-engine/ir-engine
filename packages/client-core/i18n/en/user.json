@@ -2,7 +2,10 @@
   "common": {
     "delete": "Delete",
     "edit": "Edit",
-    "upload": "Upload"
+    "save": "Save",
+    "upload": "Upload",
+    "discardChanges": "Discard Changes",
+    "confirmDiscardChange": "Changes you made may not be saved."
   },
   "auth": {
     "confirmEmail": {

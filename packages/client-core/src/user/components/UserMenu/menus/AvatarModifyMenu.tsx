@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Avatar from '@xrengine/client-core/src/common/components/Avatar'
 import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
 import Button from '@xrengine/client-core/src/common/components/Button'
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import InputFile from '@xrengine/client-core/src/common/components/InputFile'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
@@ -30,6 +31,7 @@ import PortraitIcon from '@mui/icons-material/Portrait'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 
@@ -46,10 +48,8 @@ const defaultState = {
   thumbnailFile: undefined as File | undefined,
   formErrors: {
     name: '',
-    avatarUrl: '',
-    thumbnailUrl: '',
-    avatarFile: '',
-    thumbnailFile: ''
+    avatar: '',
+    thumbnail: ''
   }
 }
 
@@ -57,6 +57,8 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
   const { t } = useTranslation()
   const [state, setState] = useState({ ...defaultState })
   const [avatarSrc, setAvatarSrc] = useState('')
+  const [showConfirmThumbnail, setShowConfirmThumbnail] = useState(false)
+  const [showConfirmChanges, setShowConfirmChanges] = useState(false)
   const avatarRef = useRef<HTMLInputElement | null>(null)
   const thumbnailRef = useRef<HTMLInputElement | null>(null)
 
@@ -65,20 +67,24 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
     thumbnailSrc = URL.createObjectURL(state.thumbnailFile)
   }
 
+  const hasErrors = state.formErrors.name || state.formErrors.avatar || state.formErrors.thumbnail ? true : false
+
+  const hasPendingChanges = state.name && avatarSrc && thumbnailSrc ? true : false
+
   useEffect(() => {
     updateAvatar()
   }, [state.avatarFile, state.avatarUrl])
 
   const updateAvatar = async () => {
     let url = ''
-    if (state.avatarFile && !state.formErrors.avatarFile) {
+    if (state.avatarFile && !state.formErrors.avatar) {
       await state.avatarFile.arrayBuffer()
 
       const assetType = AssetLoader.getAssetType(state.avatarFile.name)
       if (assetType) {
         url = URL.createObjectURL(state.avatarFile) + '#' + state.avatarFile.name
       }
-    } else if (state.avatarUrl && !state.formErrors.avatarUrl) {
+    } else if (state.avatarUrl && !state.formErrors.avatar) {
       url = state.avatarUrl
     }
 
@@ -98,13 +104,13 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
     switch (name) {
       case 'avatarFile': {
         const inValidSize = files[0].size < MIN_AVATAR_FILE_SIZE || files[0].size > MAX_AVATAR_FILE_SIZE
-        tempErrors.avatarFile = inValidSize
+        tempErrors.avatar = inValidSize
           ? t('admin:components.avatar.avatarFileOversized', {
               minSize: MIN_AVATAR_FILE_SIZE / 1048576,
               maxSize: MAX_AVATAR_FILE_SIZE / 1048576
             })
           : ''
-        if (!tempErrors.avatarFile) {
+        if (!tempErrors.avatar) {
           tempState.avatarUrl = files[0].name
         }
 
@@ -112,14 +118,14 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
       }
       case 'thumbnailFile': {
         const inValidSize = files[0].size < MIN_THUMBNAIL_FILE_SIZE || files[0].size > MAX_THUMBNAIL_FILE_SIZE
-        tempErrors.thumbnailFile = inValidSize
+        tempErrors.thumbnail = inValidSize
           ? t('admin:components.avatar.thumbnailFileOversized', {
               minSize: MIN_THUMBNAIL_FILE_SIZE / 1048576,
               maxSize: MAX_THUMBNAIL_FILE_SIZE / 1048576
             })
           : ''
 
-        if (!tempErrors.thumbnailFile) {
+        if (!tempErrors.thumbnail) {
           tempState.thumbnailUrl = files[0].name
         }
 
@@ -153,7 +159,7 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
           error = !(isValidHttpUrl(value) && validEndsWith) ? t('admin:components.avatar.avatarUrlInvalid') : ''
         }
 
-        tempErrors.avatarUrl = error
+        tempErrors.avatar = error
         break
       }
       case 'thumbnailUrl': {
@@ -168,7 +174,7 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
           error = !(isValidHttpUrl(value) && validEndsWith) ? t('admin:components.avatar.thumbnailUrlInvalid') : ''
         }
 
-        tempErrors.thumbnailUrl = error
+        tempErrors.thumbnail = error
         break
       }
       default:
@@ -178,40 +184,62 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
     setState({ ...state, [name]: value, formErrors: tempErrors })
   }
 
-  const handleGenerateFileThumbnail = () => {
-    if (state.thumbnailFile) {
-      // setShowConfirm(ConfirmState.File)
+  const handleGenerateThumbnail = () => {
+    if (thumbnailSrc) {
+      setShowConfirmThumbnail(true)
       return
     }
 
-    handleGenerateThumbnail(true)
+    handleProcessGenerateThumbnail()
   }
 
-  const handleGenerateUrlThumbnail = () => {
-    if (state.thumbnailUrl) {
-      // setShowConfirm(ConfirmState.Url)
-      return
-    }
-
-    handleGenerateThumbnail(false)
-  }
-
-  const handleGenerateThumbnail = async (isFile: boolean) => {
+  const handleProcessGenerateThumbnail = async () => {
     const canvas = document.createElement('canvas')
     canvas.width = THUMBNAIL_WIDTH
     canvas.height = THUMBNAIL_HEIGHT
 
-    // const newContext = canvas.getContext('2d')
-    // newContext?.drawImage(renderer.value.domElement, 0, 0)
+    const avatarCanvas = document.getElementById('stage')?.firstChild as CanvasImageSource
+
+    const newContext = canvas.getContext('2d')
+    newContext?.drawImage(avatarCanvas, 0, 0)
 
     const blob = await getCanvasBlob(canvas)
-    if (isFile) {
-      setState({ ...state, thumbnailFile: new File([blob!], 'thumbnail.png') })
-    } else {
-      setState({ ...state, thumbnailUrl: URL.createObjectURL(blob!) })
+    setState({ ...state, thumbnailUrl: 'thumbnail.png', thumbnailFile: new File([blob!], 'thumbnail.png') })
+
+    setShowConfirmThumbnail(false)
+  }
+
+  const handleSave = async () => {
+    let avatarBlob: Blob | undefined = undefined
+    let thumbnailBlob: Blob | undefined = undefined
+
+    if (state.avatarFile) {
+      avatarBlob = state.avatarFile
+    } else if (state.avatarUrl) {
+      const avatarData = await fetch(state.avatarUrl)
+      avatarBlob = await avatarData.blob()
     }
 
-    // setShowConfirm(ConfirmState.None)
+    if (state.thumbnailFile) {
+      thumbnailBlob = state.thumbnailFile
+    } else if (state.thumbnailUrl) {
+      const thumbnailData = await fetch(state.thumbnailUrl)
+      thumbnailBlob = await thumbnailData.blob()
+    }
+
+    if (avatarBlob && thumbnailBlob) {
+      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
+
+      changeActiveMenu(Views.Closed)
+    }
+  }
+
+  const handleBack = () => {
+    if (hasPendingChanges) {
+      setShowConfirmChanges(true)
+    } else {
+      changeActiveMenu(Views.AvatarSelect)
+    }
   }
 
   return (
@@ -221,13 +249,14 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
       actions={
         <Box display="flex" width="100%">
           <Button
-            disabled
+            disabled={!hasPendingChanges || hasErrors}
             startIcon={<CheckIcon />}
             size="medium"
             type="gradientRounded"
-            title={t('user:avatar.confirm')}
+            title={t('user:common.save')}
+            onClick={handleSave}
           >
-            {t('user:avatar.confirm')}
+            {t('user:common.save')}
           </Button>
         </Box>
       }
@@ -235,16 +264,21 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
         t('user:avatar.createAvatar')
         // : t('user:avatar.titleEditAvatar')
       }
-      onBack={() => changeActiveMenu(Views.AvatarSelect)}
+      onBack={handleBack}
       onClose={() => changeActiveMenu(Views.Closed)}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
-          <Grid item md={6} sx={{ width: '100%', mt: 1 }}>
-            <AvatarPreview fill avatarUrl={avatarSrc} />
+          <Grid item md={7} sx={{ width: '100%' }}>
+            <Box padding="10px 0">
+              <AvatarPreview
+                avatarUrl={avatarSrc}
+                sx={{ width: `${THUMBNAIL_WIDTH}px`, height: `${THUMBNAIL_HEIGHT}px`, m: 'auto' }}
+              />
+            </Box>
           </Grid>
 
-          <Grid item md={6} sx={{ width: '100%' }}>
+          <Grid item md={5} sx={{ width: '100%' }}>
             <Button fullWidth type="gradientRounded" sx={{ mt: 1 }} onClick={() => changeActiveMenu(Views.ReadyPlayer)}>
               {t('user:usermenu.profile.useReadyPlayerMe')}
             </Button>
@@ -263,7 +297,7 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
               label={t('user:avatar.avatar')}
               placeholder={t('user:avatar.enterAvatarUrl')}
               value={state.avatarUrl}
-              error={state.formErrors.avatarUrl}
+              error={state.formErrors.avatar}
               sx={{ mt: 2 }}
               endIcon={state.avatarFile ? <ClearIcon /> : undefined}
               endControl={
@@ -294,7 +328,7 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
               label={t('user:avatar.thumbnail')}
               placeholder={t('user:avatar.enterThumbnailUrl')}
               value={state.thumbnailUrl}
-              error={state.formErrors.thumbnailUrl}
+              error={state.formErrors.thumbnail}
               sx={{ mt: 2, mb: 1 }}
               endIcon={state.thumbnailFile ? <ClearIcon /> : undefined}
               endControl={
@@ -328,10 +362,29 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
               startIcon={<PortraitIcon />}
               sx={{ mb: 0, mt: 0 }}
               type="gradientRounded"
-              onClick={handleGenerateUrlThumbnail}
+              onClick={handleGenerateThumbnail}
             >
               {t('admin:components.avatar.saveThumbnail')}
             </Button>
+
+            {showConfirmThumbnail && (
+              <ConfirmDialog
+                open
+                description={t('admin:components.avatar.confirmThumbnailReplace')}
+                onClose={() => setShowConfirmThumbnail(false)}
+                onSubmit={handleProcessGenerateThumbnail}
+              />
+            )}
+
+            {showConfirmChanges && (
+              <ConfirmDialog
+                open
+                description={t('user:common.confirmDiscardChange')}
+                submitButtonText={t('user:common.discardChanges')}
+                onClose={() => setShowConfirmChanges(false)}
+                onSubmit={() => changeActiveMenu(Views.AvatarSelect)}
+              />
+            )}
           </Grid>
         </Grid>
       </Box>
