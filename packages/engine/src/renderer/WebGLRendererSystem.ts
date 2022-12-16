@@ -15,6 +15,8 @@ import {
 import { useEffect } from 'react'
 import {
   Light,
+  LinearToneMapping,
+  PCFSoftShadowMap,
   PerspectiveCamera,
   ShadowMapType,
   sRGBEncoding,
@@ -29,11 +31,13 @@ import {
   createActionQueue,
   dispatchAction,
   getState,
+  hookstate,
   removeActionQueue,
   startReactor,
   useHookstate
 } from '@xrengine/hyperflux'
 
+import { DEFAULT_LOD_DISTANCES } from '../assets/constants/LoaderConstants'
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { isHMD } from '../common/functions/isMobile'
@@ -43,6 +47,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
+import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
@@ -284,6 +289,26 @@ export class EngineRenderer {
   }
 }
 
+export const DefaultRenderSettingsState = {
+  LODs: { ...DEFAULT_LOD_DISTANCES },
+  csm: true,
+  toneMapping: LinearToneMapping as ToneMapping,
+  toneMappingExposure: 0.8,
+  shadowMapType: PCFSoftShadowMap as ShadowMapType
+}
+
+export type RenderSettingsState = typeof DefaultRenderSettingsState
+
+export const DefaultPostProcessingState = {
+  enabled: false,
+  effects: defaultPostProcessingSchema
+}
+
+export type PostProcessingState = typeof DefaultPostProcessingState
+
+export const RendererSceneMetadataLabel = 'renderSettings'
+export const PostProcessingSceneMetadataLabel = 'postprocessing'
+
 export default async function WebGLRendererSystem(world: World) {
   const setQualityLevelActions = createActionQueue(EngineRendererAction.setQualityLevel.matches)
   const setAutomaticActions = createActionQueue(EngineRendererAction.setAutomatic.matches)
@@ -296,17 +321,15 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
 
   const reactor = startReactor(() => {
-    const renderSettings = useHookstate(world.sceneMetadata.renderSettings)
-    const postprocessing = useHookstate(world.sceneMetadata.postprocessing)
-    console.log(postprocessing.value)
+    const renderSettings = useHookstate<RenderSettingsState>(world.sceneMetadata[RendererSceneMetadataLabel])
+    const postprocessing = useHookstate<PostProcessingState>(world.sceneMetadata[PostProcessingSceneMetadataLabel])
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
     }, [renderSettings.toneMapping])
 
     useEffect(() => {
-      EngineRenderer.instance.renderer.toneMappingExposure =
-        world.sceneMetadata.renderSettings.toneMappingExposure.value
+      EngineRenderer.instance.renderer.toneMappingExposure = renderSettings.toneMappingExposure.value
     }, [renderSettings.toneMappingExposure])
 
     useEffect(() => {
@@ -319,6 +342,9 @@ export default async function WebGLRendererSystem(world: World) {
 
     return null
   })
+
+  world.sceneMetadata[RendererSceneMetadataLabel] = hookstate(DefaultRenderSettingsState)
+  world.sceneMetadata[PostProcessingSceneMetadataLabel] = hookstate(DefaultPostProcessingState)
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)
