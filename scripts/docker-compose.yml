@@ -38,7 +38,7 @@ services:
     ports:
       - '6379:6379'
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.8
     container_name: elasticsearch
     environment:
       - xpack.security.enabled=false
@@ -59,7 +59,7 @@ services:
       - 9300:9300
   kibana:
     container_name: kibana
-    image: docker.elastic.co/kibana/kibana:7.4.0
+    image: docker.elastic.co/kibana/kibana:7.17.8
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
