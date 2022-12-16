@@ -8,7 +8,6 @@ import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import Menu from '@xrengine/client-core/src/common/components/Menu'
 import Text from '@xrengine/client-core/src/common/components/Text'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -32,6 +31,7 @@ interface Props {
 const AvatarMenu = ({ changeActiveMenu }: Props) => {
   const { t } = useTranslation()
   const authState = useAuthState()
+  const userId = authState.user?.id?.value
   const userAvatarId = authState.user?.avatarId?.value
 
   const [page, setPage] = useState(0)
@@ -120,7 +120,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
                     imageSrc={avatar.thumbnailResource?.url || ''}
                     isSelected={selectedAvatar && avatar.id === selectedAvatar.id}
                     name={avatar.name}
-                    showChangeButton
+                    showChangeButton={userId && avatar.userId === userId}
                     type="rectangle"
                     onClick={() => setSelectedAvatarId(avatar.id)}
                     onChange={() => changeActiveMenu(Views.AvatarModify, { selectedAvatar: avatar })}
