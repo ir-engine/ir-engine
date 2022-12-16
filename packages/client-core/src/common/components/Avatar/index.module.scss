@@ -1,10 +1,9 @@
 .avatarBlock {
-  width: 80px;
-  height: 80px;
-  box-shadow: 0 2px 18px 0 #11111159;
+  filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
   border-radius: 50%;
-  background: white;
   position: relative;
+  background-color: var(--popupBackground);
+  border: 3px solid var(--iconButtonSelectedBackground);
 
   img {
     width: 100%;
@@ -38,4 +37,38 @@
       opacity: 0.7;
     }
   }
+}
+
+.avatarSquare {
+  border: 3px solid var(--iconButtonSelectedBackground);
+  position: relative;
+  display: flex;
+  cursor: pointer;
+  transition: all 0.2s;
+  aspect-ratio: 1;
+
+  .avatarName {
+    bottom: -3px;
+    padding-top: 3px;
+    width: 100%;
+    opacity: 0.75;
+    position: absolute;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--textColor);
+    background: var(--iconButtonSelectedBackground);
+  }
+
+  &:hover {
+    background: var(--iconButtonSelectedBackground);
+  }
+
+  @media (max-width: 400px) {
+    margin-right: 5px;
+  }
+}
+
+.avatarSelected {
+  background: var(--iconButtonSelectedBackground);
+  cursor: not-allowed;
 }

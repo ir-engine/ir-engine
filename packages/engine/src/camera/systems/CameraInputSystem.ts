@@ -175,7 +175,7 @@ export default async function CameraInputSystem(world: World) {
 
       if (!lastMouseMoved && mouseMoved) lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
 
-      const keyDelta = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0)
+      const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
       target.theta += 100 * deltaSeconds * keyDelta
       setTargetCameraRotation(cameraEntity, target.phi, target.theta)
 

@@ -33,6 +33,7 @@ export interface InputMenuItem {
   value: string
   label: React.ReactNode
   disabled?: boolean
+  overflowContent?: React.ReactNode
 }
 
 const InputSelect = ({ className, disabled, endControl, error, id, label, menu, name, sx, value, onChange }: Props) => {

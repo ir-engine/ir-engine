@@ -245,8 +245,6 @@ export class EngineRenderer {
         this.needsResize = false
       }
 
-      state.qualityLevel.value > 0 && this.csm?.update()
-
       /**
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.

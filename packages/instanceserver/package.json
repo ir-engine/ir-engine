@@ -59,7 +59,6 @@
     "feathers-sync": "3.0.1",
     "helmet": "5.0.2",
     "mediasoup": "3.11.2",
-    "msgpackr": "1.5.5",
     "ps-list": "7.2.0",
     "serve-favicon": "2.5.0",
     "socket.io": "4.5.2",

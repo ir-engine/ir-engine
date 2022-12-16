@@ -2,19 +2,22 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import Avatar from '@xrengine/client-core/src/common/components/Avatar'
+import Button from '@xrengine/client-core/src/common/components/Button'
+import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
+import Menu from '@xrengine/client-core/src/common/components/Menu'
+import Text from '@xrengine/client-core/src/common/components/Text'
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
-import ArrowBack from '@mui/icons-material/ArrowBack'
-import { Chip, Typography } from '@mui/material'
-import Button from '@mui/material/Button'
+import { Box, Chip } from '@mui/material'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'
 import { InviteService } from '../../../../social/services/InviteService'
-import { PartyService, usePartyState } from '../../../../social/services/PartyService'
+import { usePartyState } from '../../../../social/services/PartyService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
@@ -71,148 +74,146 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
   }
 
   return (
-    <div className={styles.menuPanel}>
-      <div className={styles.avatarContextPanel}>
-        {user && user.id && (
-          <>
-            {onBack && (
-              <div className={styles.headerBlock}>
-                <button type="button" className={styles.iconBlock} onClick={onBack}>
-                  <ArrowBack />
-                </button>
-              </div>
+    <Menu
+      open
+      contentMargin={onBack ? '-50px 0 0' : undefined}
+      maxWidth="xs"
+      showBackButton={onBack ? true : false}
+      onBack={onBack}
+      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
+    >
+      {user && user.id && (
+        <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
+          <Avatar imageSrc={getAvatarURLForUser(userAvatarDetails, user.id)} size={150} sx={{ margin: '0 auto' }} />
+
+          <Text variant="h6" align="center" mt={2} mb={1}>
+            {user.name}
+          </Text>
+
+          {partyState?.party?.id?.value != null &&
+            partyOwner?.userId != null &&
+            partyOwner.userId === authState.user.id?.value &&
+            user.partyId !== partyState.party?.id?.value && (
+              <Button type="gradientRounded" width="70%" onClick={inviteToParty}>
+                {t('user:personMenu.inviteToParty')}
+              </Button>
             )}
 
-            <img
-              className={styles.ownerImage}
-              src={getAvatarURLForUser(userAvatarDetails, user.id)}
-              alt=""
-              crossOrigin="anonymous"
-            />
-            <section className={styles.contentSection}>
-              <Typography className={styles.userName} variant="h6">
-                {user.name}
-              </Typography>
+          {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
+            <Button
+              type="gradientRounded"
+              width="70%"
+              onClick={() => {
+                FriendService.requestFriend(selfId, user.id)
+                changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
+              }}
+            >
+              {t('user:personMenu.addAsFriend')}
+            </Button>
+          )}
 
-              {partyState?.party?.id?.value != null &&
-                partyOwner?.userId != null &&
-                partyOwner.userId === authState.user.id?.value &&
-                user.partyId !== partyState.party?.id?.value && (
-                  <Button className={styles.gradientBtn} onClick={inviteToParty}>
-                    {t('user:personMenu.inviteToParty')}
-                  </Button>
-                )}
+          {isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
+            <Button
+              type="gradientRounded"
+              width="70%"
+              onClick={() => {
+                FriendService.unfriend(selfId, user.id)
+                changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
+              }}
+            >
+              {t('user:personMenu.unFriend')}
+            </Button>
+          )}
 
-              {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
-                <Button
-                  className={styles.gradientBtn}
-                  onClick={() => {
-                    FriendService.requestFriend(selfId, user.id)
-                    changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
-                  }}
-                >
-                  {t('user:personMenu.addAsFriend')}
-                </Button>
-              )}
+          {isPending && (
+            <>
+              <Chip
+                className={commonStyles.chip}
+                sx={{ margin: '10px auto !important' }}
+                label={t('user:friends.pending')}
+                size="small"
+                variant="outlined"
+              />
 
-              {isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
-                <Button
-                  className={styles.gradientBtn}
-                  onClick={() => {
-                    FriendService.unfriend(selfId, user.id)
-                    changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
-                  }}
-                >
-                  {t('user:personMenu.unFriend')}
-                </Button>
-              )}
-
-              {isPending && (
-                <>
-                  <Chip
-                    className={styles.chip}
-                    sx={{ margin: '10px 0 !important' }}
-                    label={t('user:friends.pending')}
-                    size="small"
-                    variant="outlined"
-                  />
-
-                  <Button
-                    className={styles.gradientBtn}
-                    onClick={() => {
-                      FriendService.acceptFriend(selfId, user.id)
-                      changeActiveMenu(Views.Friends)
-                    }}
-                  >
-                    {t('user:personMenu.acceptRequest')}
-                  </Button>
-
-                  <Button
-                    className={styles.gradientBtn}
-                    onClick={() => {
-                      FriendService.declineFriend(selfId, user.id)
-                      changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
-                    }}
-                  >
-                    {t('user:personMenu.declineRequest')}
-                  </Button>
-                </>
-              )}
-
-              {isRequested && (
-                <>
-                  <Chip
-                    className={styles.chip}
-                    sx={{ margin: '10px 0 !important' }}
-                    label={t('user:friends.requested')}
-                    size="small"
-                    variant="outlined"
-                  />
-
-                  <Button
-                    className={styles.gradientBtn}
-                    onClick={() => {
-                      FriendService.unfriend(selfId, user.id)
-                      changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
-                    }}
-                  >
-                    {t('user:personMenu.cancelRequest')}
-                  </Button>
-                </>
-              )}
-
-              <Button className={styles.gradientBtn} onClick={handleMute}>
-                {t('user:personMenu.mute')}
+              <Button
+                type="gradientRounded"
+                width="70%"
+                onClick={() => {
+                  FriendService.acceptFriend(selfId, user.id)
+                  changeActiveMenu(Views.Friends)
+                }}
+              >
+                {t('user:personMenu.acceptRequest')}
               </Button>
 
-              {!isBlocked && !isBlocking && (
-                <Button
-                  className={styles.gradientBtn}
-                  onClick={() => {
-                    FriendService.blockUser(selfId, user.id)
-                    changeActiveMenu(Views.Friends, { defaultSelectedTab: 'blocked' })
-                  }}
-                >
-                  {t('user:personMenu.block')}
-                </Button>
-              )}
+              <Button
+                type="gradientRounded"
+                width="70%"
+                onClick={() => {
+                  FriendService.declineFriend(selfId, user.id)
+                  changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
+                }}
+              >
+                {t('user:personMenu.declineRequest')}
+              </Button>
+            </>
+          )}
 
-              {isBlocking && (
-                <Button
-                  className={styles.gradientBtn}
-                  onClick={() => {
-                    FriendService.unblockUser(selfId, user.id)
-                    changeActiveMenu(Views.Friends)
-                  }}
-                >
-                  {t('user:personMenu.unblock')}
-                </Button>
-              )}
-            </section>
-          </>
-        )}
-      </div>
-    </div>
+          {isRequested && (
+            <>
+              <Chip
+                className={commonStyles.chip}
+                sx={{ margin: '10px auto !important' }}
+                label={t('user:friends.requested')}
+                size="small"
+                variant="outlined"
+              />
+
+              <Button
+                type="gradientRounded"
+                width="70%"
+                onClick={() => {
+                  FriendService.unfriend(selfId, user.id)
+                  changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
+                }}
+              >
+                {t('user:personMenu.cancelRequest')}
+              </Button>
+            </>
+          )}
+
+          <Button type="gradientRounded" width="70%" onClick={handleMute}>
+            {t('user:personMenu.mute')}
+          </Button>
+
+          {!isBlocked && !isBlocking && (
+            <Button
+              type="gradientRounded"
+              width="70%"
+              onClick={() => {
+                FriendService.blockUser(selfId, user.id)
+                changeActiveMenu(Views.Friends, { defaultSelectedTab: 'blocked' })
+              }}
+            >
+              {t('user:personMenu.block')}
+            </Button>
+          )}
+
+          {isBlocking && (
+            <Button
+              type="gradientRounded"
+              width="70%"
+              onClick={() => {
+                FriendService.unblockUser(selfId, user.id)
+                changeActiveMenu(Views.Friends)
+              }}
+            >
+              {t('user:personMenu.unblock')}
+            </Button>
+          )}
+        </Box>
+      )}
+    </Menu>
   )
 }
 

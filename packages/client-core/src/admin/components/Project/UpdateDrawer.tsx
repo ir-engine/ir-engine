@@ -68,9 +68,9 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     })
     return {
       value: el.tag,
-      label: `${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
+      label: `Commit ${el.commitSHA.slice(0, 8)} -- ${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
         el.engineVersion
-      } -- Commit ${el.commitSHA.slice(0, 8)} -- Pushed ${pushedDate}`
+      } -- Pushed ${pushedDate}`
     }
   })
 
@@ -135,8 +135,8 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
 
         {
           <InputSelect
-            name="tagData"
-            label={t('admin:components.project.tagData')}
+            name="commitData"
+            label={t('admin:components.project.commitData')}
             value={selectedTag}
             menu={tagMenu}
             error={error}

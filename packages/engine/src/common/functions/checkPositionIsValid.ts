@@ -6,6 +6,14 @@ import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/Collis
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 
+const raycastComponentData = {
+  type: SceneQueryType.Closest,
+  origin: new Vector3(),
+  direction: new Vector3(0, -1, 0),
+  maxDistance: 2,
+  groups: 0
+}
+
 /**
  * Checks if given position is a valid position to move avatar too.
  * @param position
@@ -23,17 +31,13 @@ export default function checkPositionIsValid(
   const collisionLayer = onlyAllowPositionOnGround ? CollisionGroups.Ground : AvatarCollisionMask
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, collisionLayer)
 
-  const raycastComponentData = {
-    type: SceneQueryType.Closest,
-    origin: position,
-    direction: raycastDirection,
-    maxDistance: 2,
-    groups: interactionGroups
-  }
+  raycastComponentData.direction.copy(raycastDirection)
+  raycastComponentData.origin.copy(position)
+  raycastComponentData.groups = interactionGroups
   const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 
   let positionValid = false
-  let raycastHit = null as any
+  let raycastHit = null as RaycastHit | null
   if (hits.length > 0) {
     raycastHit = hits[0] as RaycastHit
     if (onlyAllowPositionOnGround) {

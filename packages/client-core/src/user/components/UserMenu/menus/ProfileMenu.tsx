@@ -354,12 +354,12 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
 
   return (
     <Menu open isPopover={isPopover} onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
-      <div className={styles.menuContent}>
+      <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
             showChangeButton={allowAvatarChange && changeActiveMenu ? true : false}
-            onClick={() => changeActiveMenu && changeActiveMenu(Views.AvatarSelect)}
+            onChange={() => changeActiveMenu && changeActiveMenu(Views.AvatarSelect)}
           />
 
           <Box className={styles.profileDetails}>
@@ -493,12 +493,12 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                 </Text>
 
                 {enableWalletLogin && (
-                  <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+                  <Box display="flex" flexDirection="column" alignItems="center">
                     <Button type="gradientRounded" onClick={() => handleWalletLoginClick()}>
                       {t('user:usermenu.profile.loginWithXRWallet')}
                     </Button>
 
-                    <Box display={'flex'} columnGap={2} alignItems={'center'}>
+                    <Box display="flex" columnGap={2} alignItems="center">
                       <Button type="gradientRounded" onClick={() => handleIssueCredentialClick()}>
                         {t('user:usermenu.profile.issueVC')}
                       </Button>
@@ -638,7 +638,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
             )}
           </>
         )}
-      </div>
+      </Box>
     </Menu>
   )
 }

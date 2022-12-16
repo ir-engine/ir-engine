@@ -21,6 +21,7 @@ interface Props {
   endIconTitle?: string
   error?: string
   id?: string
+  inputRef?: React.Ref<any>
   label?: string
   name?: string
   placeholder?: string
@@ -45,6 +46,7 @@ const InputText = ({
   endIconTitle,
   error,
   id,
+  inputRef,
   label,
   name,
   placeholder,
@@ -78,15 +80,18 @@ const InputText = ({
         <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
         <OutlinedInput
-          id={id}
-          name={name}
-          type={type}
-          placeholder={placeholder}
-          label={capitalizeFirstLetter(label)}
-          value={value}
-          error={!!error}
           disabled={disabled}
+          error={!!error}
+          fullWidth
+          id={id}
+          inputRef={inputRef}
+          label={capitalizeFirstLetter(label)}
+          name={name}
+          placeholder={placeholder}
           size={'small'}
+          sx={{ opacity: disabled ? 0.38 : 1 }}
+          type={type}
+          value={value}
           startAdornment={
             <>
               {startIcon && (
@@ -115,11 +120,9 @@ const InputText = ({
               {endAdornment}
             </>
           }
-          sx={{ opacity: disabled ? 0.38 : 1 }}
+          onBlur={onBlur}
           onChange={onChange}
           onKeyDown={onKeyDown}
-          onBlur={onBlur}
-          fullWidth
         />
       </FormControl>
 

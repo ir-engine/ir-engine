@@ -154,11 +154,87 @@ export const removeClientInputListeners = () => {
   boundListeners.splice(0, boundListeners.length - 1)
 }
 
+export const GamepadMapping = {
+  //https://w3c.github.io/gamepad/#remapping
+  standard: {
+    0: 'ButtonA',
+    1: 'ButtonB',
+    2: 'ButtonX',
+    3: 'ButtonY',
+    4: 'LeftBumper',
+    5: 'RightBumper',
+    6: 'LeftTrigger',
+    7: 'RightTrigger',
+    8: 'ButtonBack',
+    9: 'ButtonStart',
+    10: 'LeftStick',
+    11: 'RightStick',
+    12: 'DPad1',
+    13: 'DPad2',
+    14: 'DPad3',
+    15: 'DPad4'
+  },
+  //https://www.w3.org/TR/webxr-gamepads-module-1/
+  'xr-standard': {
+    left: {
+      0: 'LeftTrigger',
+      1: 'LeftBumper',
+      2: 'LeftPad',
+      3: 'LeftStick',
+      4: 'ButtonX',
+      5: 'ButtonY'
+    },
+    right: {
+      0: 'RightTrigger',
+      1: 'RightBumper',
+      2: 'RightPad',
+      3: 'RightStick',
+      4: 'ButtonA',
+      5: 'ButtonB'
+    },
+    none: {
+      0: 'RightTrigger',
+      1: 'RightBumper',
+      2: 'RightPad',
+      3: 'RightStick',
+      4: 'ButtonA',
+      5: 'ButtonB'
+    }
+  }
+}
+export function updateGamepadInput(world: World, source: XRInputSource) {
+  if (!source.gamepad) return
+  if (source.gamepad.mapping in GamepadMapping) {
+    const ButtonAlias = GamepadMapping[source.gamepad!.mapping]
+    const mapping = ButtonAlias[source.handedness]
+    const buttons = source.gamepad?.buttons
+    if (buttons) {
+      for (let i = 0; i < buttons.length; i++) {
+        const buttonMapping = mapping[i]
+        const button = buttons[i]
+        if (!world.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          world.buttons[buttonMapping] = createInitialButtonState(button)
+        }
+        if (world.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          if (!world.buttons[buttonMapping].pressed && button.pressed) world.buttons[buttonMapping].down = true
+          world.buttons[buttonMapping].pressed = button.pressed
+          world.buttons[buttonMapping].touched = button.touched
+          world.buttons[buttonMapping].value = button.value
+        } else if (world.buttons[buttonMapping]) {
+          world.buttons[buttonMapping].up = true
+        }
+      }
+    }
+  }
+}
+
 export default async function ClientInputSystem(world: World) {
   addClientInputListeners(world)
   world.pointerScreenRaycaster.layers.enableAll()
 
   const execute = () => {
+    for (const source of world.inputSources) updateGamepadInput(world, source)
+
     world.pointerScreenRaycaster.setFromCamera(world.pointerState.position, world.camera)
 
     world.pointerState.movement.subVectors(world.pointerState.position, world.pointerState.lastPosition)
