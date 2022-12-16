@@ -30,12 +30,17 @@ export const AvatarState = defineState({
 
 export const AvatarServiceReceptor = (action) => {
   const s = getState(AvatarState)
-  matches(action).when(AvatarActions.updateAvatarListAction.matches, (action) => {
-    s.search.set(action.search ?? undefined)
-    s.skip.set(action.skip)
-    s.total.set(action.total)
-    return s.avatarList.set(action.avatarList)
-  })
+  matches(action)
+    .when(AvatarActions.updateAvatarListAction.matches, (action) => {
+      s.search.set(action.search ?? undefined)
+      s.skip.set(action.skip)
+      s.total.set(action.total)
+      return s.avatarList.set(action.avatarList)
+    })
+    .when(AvatarActions.updateAvatarAction.matches, (action) => {
+      const index = s.avatarList.findIndex((item) => item.id.value === action.avatar.id)
+      return s.avatarList[index].set(action.avatar)
+    })
 }
 
 export const accessAvatarState = () => getState(AvatarState)
@@ -85,12 +90,55 @@ export const AvatarService = {
     )
   },
 
-  async patchAvatar(avatarId: string, modelResourceId: string, thumbnailResourceId: string, avatarName: string) {
-    return API.instance.client.service('avatar').patch(avatarId, {
-      modelResourceId: modelResourceId,
-      thumbnailResourceId: thumbnailResourceId,
+  async patchAvatar(
+    originalAvatar: AvatarInterface,
+    avatarName: string,
+    updateModels: boolean,
+    avatarBlob?: Blob,
+    thumbnailBlob?: Blob
+  ) {
+    let payload = {
+      modelResourceId: originalAvatar.modelResourceId,
+      thumbnailResourceId: originalAvatar.thumbnailResourceId,
       name: avatarName
-    })
+    }
+
+    if (updateModels && avatarBlob && thumbnailBlob) {
+      const uploadResponse = await AvatarService.uploadAvatarModel(
+        avatarBlob,
+        thumbnailBlob,
+        avatarName + '_' + originalAvatar.id,
+        originalAvatar.isPublic,
+        originalAvatar.id
+      )
+      const removalPromises = [] as any
+      if (uploadResponse[0].id !== originalAvatar.modelResourceId)
+        removalPromises.push(AvatarService.removeStaticResource(originalAvatar.modelResourceId))
+      if (uploadResponse[1].id !== originalAvatar.thumbnailResourceId)
+        removalPromises.push(AvatarService.removeStaticResource(originalAvatar.thumbnailResourceId))
+      await Promise.all(removalPromises)
+
+      payload = {
+        modelResourceId: uploadResponse[0].id,
+        thumbnailResourceId: uploadResponse[1].id,
+        name: avatarName
+      }
+    }
+
+    const avatar = await API.instance.client.service('avatar').patch(originalAvatar.id, payload)
+    dispatchAction(AvatarActions.updateAvatarAction({ avatar }))
+
+    const authState = accessAuthState()
+    const userAvatarId = authState.user?.avatarId?.value
+    if (userAvatarId === avatar.id) {
+      const userId = authState.user?.id.value!
+      await AvatarService.updateUserAvatarId(
+        userId,
+        avatar.id,
+        avatar.modelResource?.url || '',
+        avatar.thumbnailResource?.url || ''
+      )
+    }
   },
 
   async removeAvatar(keys: string) {
@@ -151,5 +199,9 @@ export class AvatarActions {
     search: matches.string.optional(),
     skip: matches.number,
     total: matches.number
+  })
+  static updateAvatarAction = defineAction({
+    type: 'xre.client.avatar.AVATAR_UPDATED' as const,
+    avatar: matches.object as Validator<unknown, AvatarInterface>
   })
 }

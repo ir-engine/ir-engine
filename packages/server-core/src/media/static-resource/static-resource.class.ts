@@ -5,7 +5,9 @@ import { Op } from 'sequelize'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
+import verifyScope from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
+import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type CreateStaticResourceType = {
@@ -18,10 +20,12 @@ export type CreateStaticResourceType = {
 }
 
 export class StaticResource extends Service<StaticResourceInterface> {
+  app: Application
   public docs: any
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
+    this.app = app
   }
 
   // @ts-ignore
@@ -90,8 +94,21 @@ export class StaticResource extends Service<StaticResourceInterface> {
     }
   }
 
-  async remove(id: string, params?: Params): Promise<StaticResourceInterface> {
+  async remove(id: string, params?: UserParams): Promise<StaticResourceInterface> {
     const resource = await super.get(id)
+
+    if (!resource) {
+      throw new NotFoundException('Unable to find specified resource id.')
+    }
+
+    if (!resource.userId) {
+      // for public resource the user should be admin to remove it.
+      await verifyScope('admin', 'admin')({ app: this.app, params } as any)
+    } else if (resource.userId !== params?.user?.id) {
+      /// for private resources the user show created it should have access to delete it.
+      throw new UnauthenticatedException('You are not the creator of this resource')
+    }
+
     if (resource.key) {
       const storageProvider = getStorageProvider(params?.query?.storageProviderName)
       await storageProvider.deleteResources([resource.key])

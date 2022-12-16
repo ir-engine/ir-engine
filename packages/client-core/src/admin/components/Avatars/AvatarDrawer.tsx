@@ -283,20 +283,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
     if (avatarBlob && thumbnailBlob) {
       if (selectedAvatar?.id) {
-        const uploadResponse = await AvatarService.uploadAvatarModel(
-          avatarBlob,
-          thumbnailBlob,
-          state.name + '_' + selectedAvatar.id,
-          selectedAvatar.isPublic,
-          selectedAvatar.id
-        )
-        const removalPromises = [] as any
-        if (uploadResponse[0].id !== selectedAvatar.modelResourceId)
-          removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.modelResourceId))
-        if (uploadResponse[1].id !== selectedAvatar.thumbnailResourceId)
-          removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.thumbnailResourceId))
-        await Promise.all(removalPromises)
-        await AvatarService.patchAvatar(selectedAvatar.id, uploadResponse[0].id, uploadResponse[1].id, state.name)
+        await AvatarService.patchAvatar(selectedAvatar, state.name, true, avatarBlob, thumbnailBlob)
       } else await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, true)
       dispatchAction(AdminAvatarActions.avatarUpdated({}))
 

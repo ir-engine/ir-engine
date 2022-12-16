@@ -53,7 +53,7 @@ const defaultState = {
   }
 }
 
-const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
+const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
   const { t } = useTranslation()
   const [state, setState] = useState({ ...defaultState })
   const [avatarSrc, setAvatarSrc] = useState('')
@@ -69,11 +69,40 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
 
   const hasErrors = state.formErrors.name || state.formErrors.avatar || state.formErrors.thumbnail ? true : false
 
-  const hasPendingChanges = state.name && avatarSrc && thumbnailSrc ? true : false
+  let hasPendingChanges = state.name && avatarSrc && thumbnailSrc ? true : false
+  if (selectedAvatar) {
+    hasPendingChanges =
+      selectedAvatar.name !== state.name ||
+      state.avatarFile ||
+      state.thumbnailFile ||
+      selectedAvatar.modelResource?.url !== state.avatarUrl ||
+      selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl
+        ? true
+        : false
+  }
+
+  useEffect(() => {
+    if (selectedAvatar) {
+      loadSelectedAvatar()
+    }
+  }, [selectedAvatar])
 
   useEffect(() => {
     updateAvatar()
   }, [state.avatarFile, state.avatarUrl])
+
+  const loadSelectedAvatar = () => {
+    if (selectedAvatar) {
+      setState({
+        ...defaultState,
+        name: selectedAvatar.name || '',
+        avatarUrl: selectedAvatar.modelResource?.url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.url || '',
+        avatarFile: undefined,
+        thumbnailFile: undefined
+      })
+    }
+  }
 
   const updateAvatar = async () => {
     let url = ''
@@ -227,7 +256,17 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
       thumbnailBlob = await thumbnailData.blob()
     }
 
-    if (avatarBlob && thumbnailBlob) {
+    if (selectedAvatar) {
+      await AvatarService.patchAvatar(
+        selectedAvatar,
+        state.name,
+        selectedAvatar.modelResource?.url !== state.avatarUrl ||
+          selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
+        avatarBlob,
+        thumbnailBlob
+      )
+      changeActiveMenu(Views.AvatarSelect)
+    } else if (avatarBlob && thumbnailBlob) {
       await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
 
       changeActiveMenu(Views.Closed)
@@ -260,10 +299,7 @@ const AvatarModifyMenu = ({ changeActiveMenu }: Props) => {
           </Button>
         </Box>
       }
-      title={
-        t('user:avatar.createAvatar')
-        // : t('user:avatar.titleEditAvatar')
-      }
+      title={selectedAvatar ? t('user:avatar.titleEditAvatar') : t('user:avatar.createAvatar')}
       onBack={handleBack}
       onClose={() => changeActiveMenu(Views.Closed)}
     >
