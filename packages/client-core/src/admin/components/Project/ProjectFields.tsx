@@ -2,12 +2,13 @@ import classNames from 'classnames'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import Autocomplete from '@xrengine/client-core/src/common/components/AutoCompleteSingle'
 import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
+import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectTagInterface } from '@xrengine/common/src/interfaces/ProjectTagInterface'
 
 import { Difference } from '@mui/icons-material'
 import Cancel from '@mui/icons-material/Cancel'
@@ -16,6 +17,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import Container from '@mui/material/Container'
 import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
+import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
@@ -54,10 +56,10 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
 
   const selfUser = useAuthState().user
 
-  const matchingTag = projectUpdateStatus?.value?.tagData?.find(
-    (tag: ProjectTagInterface) => tag.commitSHA === projectUpdateStatus.value.selectedSHA
+  const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
+    (commit: ProjectCommitInterface) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
   )
-  const matchesEngineVersion = matchingTag ? (matchingTag as ProjectTagInterface).matchesEngineVersion : false
+  const matchesEngineVersion = matchingCommit ? (matchingCommit as ProjectCommitInterface).matchesEngineVersion : false
 
   const handleChangeSource = (e) => {
     const { value } = e.target
@@ -119,7 +121,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               ProjectUpdateService.setDestinationProjectName(project, destinationResponse.projectName)
             if (destinationResponse.repoEmpty) ProjectUpdateService.setDestinationRepoEmpty(project, true)
             if (projectUpdateStatus.value.selectedSHA.length > 0)
-              handleTagChange({ target: { value: projectUpdateStatus.value.selectedSHA } })
+              handleCommitChange({ target: { value: projectUpdateStatus.value.selectedSHA } })
           } else {
             ProjectUpdateService.setDestinationValid(project, false)
             ProjectUpdateService.setDestinationError(project, destinationResponse.text)
@@ -138,52 +140,91 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     try {
       ProjectUpdateService.resetSourceState(project, { resetSourceURL: false, resetBranch: false })
       ProjectUpdateService.setSelectedBranch(project, e.target.value)
-      ProjectUpdateService.setTagsProcessing(project, true)
-      const projectResponse = (await ProjectService.fetchProjectTags(
+      ProjectUpdateService.setCommitsProcessing(project, true)
+      const projectResponse = (await ProjectService.fetchProjectCommits(
         projectUpdateStatus.value.sourceURL,
         e.target.value
       )) as any
-      ProjectUpdateService.setTagsProcessing(project, false)
+      ProjectUpdateService.setCommitsProcessing(project, false)
       if (projectResponse.error) {
-        ProjectUpdateService.setShowTagSelector(project, false)
-        ProjectUpdateService.setTagError(project, projectResponse.text)
+        ProjectUpdateService.setShowCommitSelector(project, false)
+        ProjectUpdateService.setBranchError(project, projectResponse.text)
       } else {
-        ProjectUpdateService.setShowTagSelector(project, true)
-        ProjectUpdateService.setTagData(project, projectResponse)
+        ProjectUpdateService.setShowCommitSelector(project, true)
+        ProjectUpdateService.setCommitData(project, projectResponse)
       }
     } catch (err) {
-      ProjectUpdateService.setTagsProcessing(project, false)
-      ProjectUpdateService.setShowTagSelector(project, false)
-      ProjectUpdateService.setTagError(project, err.message)
+      ProjectUpdateService.setCommitsProcessing(project, false)
+      ProjectUpdateService.setShowCommitSelector(project, false)
+      ProjectUpdateService.setBranchError(project, err.message)
       console.log('projectResponse error', err)
     }
   }
 
   const hasGithubProvider = selfUser?.identityProviders?.value?.find((ip) => ip.type === 'github')
 
-  const handleTagChange = async (e) => {
+  const handleCommitChange = async (e) => {
+    const selectedSHA = e.target.value
     ProjectUpdateService.setSourceVsDestinationChecked(project, false)
-    ProjectUpdateService.setSelectedSHA(project, e.target.value)
-    const matchingTag = (projectUpdateStatus.value.tagData as any).find((data) => data.commitSHA === e.target.value)
-    ProjectUpdateService.setSourceProjectName(project, matchingTag.projectName || '')
-    ProjectUpdateService.setTagError(project, '')
+    ProjectUpdateService.setSelectedSHA(project, selectedSHA)
+    if (selectedSHA === '') {
+      ProjectUpdateService.setSourceValid(project, false)
+      ProjectUpdateService.setCommitError(project, '')
+      ProjectUpdateService.setSourceProjectName(project, '')
+      return
+    }
+    const valueRegex = new RegExp(`^${e.target.value}`, 'g')
+    let matchingCommit = (projectUpdateStatus.value.commitData as any).find((data) => valueRegex.test(data.commitSHA))
+    if (!matchingCommit) {
+      const commitResponse = (await ProjectService.checkUnfetchedCommit({
+        url: projectUpdateStatus.value.sourceURL,
+        selectedSHA
+      })) as any
+      if (commitResponse.error) {
+        ProjectUpdateService.setCommitError(project, commitResponse.text)
+        ProjectUpdateService.setSourceProjectName(project, '')
+        return
+      } else {
+        ProjectUpdateService.mergeCommitData(project, commitResponse)
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(null)
+          }, 100)
+        })
+        matchingCommit = (projectUpdateStatus.value.commitData as any).find((data) => valueRegex.test(data.commitSHA))
+      }
+    }
+    ProjectUpdateService.setSourceProjectName(project, matchingCommit?.projectName || '')
+    ProjectUpdateService.setCommitError(project, '')
     ProjectUpdateService.setSourceValid(project, true)
   }
 
   const branchMenu: InputMenuItem[] = projectUpdateStatus?.value?.branchData.map((el: ProjectBranchInterface) => {
     return {
       value: el.name,
-      label: `Branch: ${el.name} ${el.isMain ? '(Root branch)' : '(Deployment branch)'}`
+      label: `Branch: ${el.name} ${
+        el.branchType === 'main' ? '(Main branch)' : el.branchType === 'deployment' ? '(Deployment branch)' : ''
+      }`
     }
   })
 
-  const tagMenu: InputMenuItem[] = projectUpdateStatus?.value?.tagData.map((el: ProjectTagInterface) => {
+  const commitMenu: InputMenuItem[] = projectUpdateStatus?.value?.commitData.map((el: ProjectCommitInterface) => {
+    let label = `Commit ${el.commitSHA.slice(0, 8)}`
+    if (el.projectVersion) label += ` -- Project Ver. ${el.projectVersion}`
+    if (el.engineVersion) label += ` -- Engine Ver. ${el.engineVersion}`
+    if (el.datetime) {
+      const datetime = new Date(el.datetime).toLocaleString('en-us', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'
+      })
+      label += ` -- Pushed ${datetime}`
+    }
     return {
       value: el.commitSHA,
-      label: `Project Version ${el.projectVersion} -- Engine Version ${el.engineVersion} -- Commit ${el.commitSHA.slice(
-        0,
-        8
-      )}`
+      label
     }
   })
 
@@ -212,6 +253,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
           ProjectUpdateService.setProjectName(project, res.projectName)
           ProjectUpdateService.setSubmitDisabled(project, !res.sourceProjectMatchesDestination)
           ProjectUpdateService.setSourceProjectMatchesDestination(project, res.sourceProjectMatchesDestination)
+          ProjectUpdateService.setSourceVsDestinationError(project, '')
+          ProjectUpdateService.setSourceValid(project, true)
         }
       })
     } else {
@@ -295,6 +338,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
             <LoadingView
               title={t('admin:components.project.destinationProcessing')}
               variant="body1"
+              flexDirection="row"
               fullHeight={false}
             />
           )}
@@ -347,26 +391,25 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                     onChange={handleChangeBranch}
                   />
                 )}
-
               {!processing &&
-                !projectUpdateStatus.value?.tagsProcessing &&
-                projectUpdateStatus.value?.tagData &&
-                projectUpdateStatus.value?.tagData.length > 0 &&
-                projectUpdateStatus.value?.showTagSelector && (
-                  <InputSelect
-                    name="tagData"
-                    label={t('admin:components.project.tagData')}
+                !projectUpdateStatus.value?.commitsProcessing &&
+                projectUpdateStatus.value?.commitData &&
+                projectUpdateStatus.value?.commitData.length > 0 &&
+                projectUpdateStatus.value?.showCommitSelector && (
+                  <Autocomplete
+                    freeSolo={true}
+                    data={commitMenu}
+                    label={t('admin:components.project.commitData')}
                     value={projectUpdateStatus.value?.selectedSHA}
-                    menu={tagMenu}
-                    error={projectUpdateStatus.value?.tagError}
-                    onChange={handleTagChange}
+                    onChange={handleCommitChange}
+                    error={projectUpdateStatus.value?.commitError}
                   />
                 )}
             </div>
           )}
 
           {!processing &&
-            !projectUpdateStatus.value?.tagsProcessing &&
+            !projectUpdateStatus.value?.commitsProcessing &&
             projectUpdateStatus.value?.sourceProjectName.length > 0 && (
               <div className={styles.projectVersion}>{`${t('admin:components.project.sourceProjectName')}: ${
                 projectUpdateStatus.value?.sourceProjectName
@@ -374,32 +417,43 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
             )}
 
           {projectUpdateStatus.value?.branchProcessing && (
-            <LoadingView title={t('admin:components.project.branchProcessing')} variant="body1" fullHeight={false} />
+            <LoadingView
+              title={t('admin:components.project.branchProcessing')}
+              flexDirection="row"
+              variant="body1"
+              fullHeight={false}
+            />
           )}
-          {projectUpdateStatus.value?.tagsProcessing && (
-            <LoadingView title={t('admin:components.project.tagsProcessing')} variant="body1" fullHeight={false} />
+          {projectUpdateStatus.value?.commitsProcessing && (
+            <LoadingView
+              title={t('admin:components.project.commitsProcessing')}
+              flexDirection="row"
+              variant="body1"
+              fullHeight={false}
+            />
+          )}
+
+          {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
+            <LoadingView
+              title={t('admin:components.project.sourceVsDestinationProcessing')}
+              variant="body1"
+              flexDirection="row"
+              fullHeight={false}
+            />
           )}
 
           {!processing &&
             !projectUpdateStatus.value?.branchProcessing &&
-            !projectUpdateStatus.value?.tagsProcessing &&
+            !projectUpdateStatus.value?.commitsProcessing &&
             projectUpdateStatus.value?.selectedSHA &&
             projectUpdateStatus.value?.selectedSHA.length > 0 &&
-            projectUpdateStatus.value?.tagData.length > 0 &&
+            projectUpdateStatus.value?.commitData.length > 0 &&
             !matchesEngineVersion && (
               <div className={styles.projectMismatchWarning}>
                 <WarningAmberIcon />
                 {t('admin:components.project.mismatchedProjectWarning')}
               </div>
             )}
-
-          {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
-            <LoadingView
-              title={t('admin:components.project.sourceVsDestinationProcessing')}
-              variant="body1"
-              fullHeight={false}
-            />
-          )}
 
           {projectUpdateStatus.value?.sourceVsDestinationError.length > 0 && (
             <div className={styles.errorText}>{projectUpdateStatus.value?.sourceVsDestinationError}</div>

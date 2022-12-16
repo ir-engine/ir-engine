@@ -232,7 +232,7 @@ const ProjectTable = ({ className }: Props) => {
       commitSHA: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <div className={styles.commitContents}>
-            {commitSHA?.substring(0, 7)}
+            {commitSHA?.substring(0, 8)}
             {commitSHA ? <ContentCopyIcon onClick={() => copyShaToClipboard(commitSHA)} /> : '-'}
           </div>
         </Box>

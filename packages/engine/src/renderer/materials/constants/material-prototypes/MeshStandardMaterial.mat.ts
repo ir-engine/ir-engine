@@ -7,6 +7,7 @@ import {
   BumpMapArgs,
   EmissiveMapArgs,
   EnvMapArgs,
+  LightMapArgs,
   MetalnessMapArgs,
   NormalMapArgs,
   RoughhnessMapArgs
@@ -20,7 +21,8 @@ export const DefaultArgs = {
   ...NormalMapArgs,
   ...BumpMapArgs,
   ...RoughhnessMapArgs,
-  ...MetalnessMapArgs
+  ...MetalnessMapArgs,
+  ...LightMapArgs
 }
 
 export const MeshStandardMaterial: MaterialPrototypeComponentType = {

@@ -416,7 +416,7 @@ const ProjectsPage = () => {
         {`
         #menu-projectURL,
         #menu-branchData,
-        #menu-tagData {
+        #menu-commitData {
           z-index: 1500;
         }
         #engine-container {
@@ -581,15 +581,13 @@ const ProjectsPage = () => {
           removePermission={onRemovePermission}
         />
       )}
-      {activeProject && (
-        <ProjectDrawer
-          open={projectDrawerOpen}
-          inputProject={activeProject}
-          existingProject={true}
-          onClose={handleCloseProjectDrawer}
-          changeDestination={changeDestination}
-        />
-      )}
+      <ProjectDrawer
+        open={projectDrawerOpen}
+        inputProject={activeProject}
+        existingProject={activeProject != null}
+        onClose={handleCloseProjectDrawer}
+        changeDestination={changeDestination}
+      />
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu

@@ -35,6 +35,7 @@ export const CSMModes = {
 type CSMParams = {
   camera: PerspectiveCamera
   parent: Object3D
+  light: DirectionalLight
   cascades?: number
   maxFar?: number
   mode?: typeof CSMModes[keyof typeof CSMModes]
@@ -45,7 +46,6 @@ type CSMParams = {
   lightNear?: number
   lightFar?: number
   lightMargin?: number
-  light?: DirectionalLight
   customSplitsCallback?: (amount: number, near: number, far: number, target: number[]) => void
 }
 
@@ -67,7 +67,7 @@ export class CSM {
   mainFrustum: Frustum
   frustums: Frustum[]
   breaks: number[]
-  sourceLight: DirectionalLight | null
+  sourceLight: DirectionalLight
   lights: DirectionalLight[]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
@@ -93,7 +93,7 @@ export class CSM {
 
     this.lights = []
 
-    this.createLights()
+    this.createLights(data.light)
     this.updateFrustums()
     this.injectInclude()
   }
@@ -127,14 +127,15 @@ export class CSM {
     if (light) {
       this.sourceLight = light
       for (let i = 0; i < this.cascades; i++) {
-        light = light?.clone()
-        light.target = light.target.clone()
-        light.castShadow = true
-        light.visible = true
-        this.parent.add(light, light.target)
-        this.lights.push(light)
-        light.name = 'CSM_' + light.name
-        light.target.name = 'CSM_' + light.target.name
+        const lightClone = light.clone()
+        lightClone.castShadow = true
+        lightClone.visible = true
+        lightClone.matrixAutoUpdate = true
+        lightClone.matrixWorldAutoUpdate = true
+        this.parent.add(lightClone, lightClone.target)
+        this.lights.push(lightClone)
+        lightClone.name = 'CSM_' + light.name
+        lightClone.target.name = 'CSM_' + light.target.name
       }
       return
     }
@@ -269,7 +270,6 @@ export class CSM {
       const texelWidth = (shadowCam.right - shadowCam.left) / light.shadow.mapSize.x
       const texelHeight = (shadowCam.top - shadowCam.bottom) / light.shadow.mapSize.y
 
-      light.updateMatrixWorld(true)
       light.shadow.camera.updateMatrixWorld(true)
       _cameraToLightMatrix.multiplyMatrices(light.shadow.camera.matrixWorldInverse, camera.matrixWorld)
       frustums[i].toSpace(_cameraToLightMatrix, _lightSpaceFrustum)
@@ -289,12 +289,9 @@ export class CSM {
       _center.applyMatrix4(light.shadow.camera.matrixWorld)
 
       light.position.copy(_center)
-      light.target.position.copy(_center)
-
-      light.target.position.x += this.lightDirection.x
-      light.target.position.y += this.lightDirection.y
-      light.target.position.z += this.lightDirection.z
+      light.target.position.copy(_center).add(this.lightDirection)
     }
+    this.parent.updateMatrixWorld(true)
   }
 
   injectInclude(): void {
@@ -315,18 +312,16 @@ export class CSM {
     const breaksVec2 = []
     const shaders = this.shaders
 
-    const self = this
-
     material.userData.CSMPlugin = {
       id: OBCType.CSM,
-      compile: function (shader: ShaderType) {
+      compile: (shader: ShaderType) => {
         if (shaders.has(material)) return
-        console.log(material)
-        const far = Math.min(self.camera.far, self.maxFar)
-        self.getExtendedBreaks(breaksVec2)
+        console.log(mesh, material)
+        const far = Math.min(this.camera.far, this.maxFar)
+        this.getExtendedBreaks(breaksVec2)
 
         shader.uniforms.CSM_cascades = { value: breaksVec2 }
-        shader.uniforms.cameraNear = { value: self.camera.near }
+        shader.uniforms.cameraNear = { value: this.camera.near }
         shader.uniforms.shadowFar = { value: far }
 
         shaders.set(material, shader)

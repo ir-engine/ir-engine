@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SpotLightComponent } from '@xrengine/engine/src/scene/components/SpotLightComponent'
 
 import AdjustIcon from '@mui/icons-material/Adjust'
@@ -22,7 +22,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = getComponent(props.node.entity, SpotLightComponent)
+  const lightComponent = useComponent(props.node.entity, SpotLightComponent).value
 
   return (
     <NodeEditor {...props} description={t('editor:properties.spotLight.description')}>

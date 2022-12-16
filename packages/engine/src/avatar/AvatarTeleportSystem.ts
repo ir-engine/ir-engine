@@ -197,7 +197,7 @@ export default async function AvatarTeleportSystem(world: World) {
         const validationData = checkPositionIsValid(currentVertexWorld, false, currentVertexDirection)
         if (validationData.raycastHit !== null) {
           guidelineBlocked = true
-          currentVertexWorld.copy(validationData.raycastHit.position)
+          currentVertexWorld.copy(validationData.raycastHit.position as Vector3)
         }
         lastValidationData = validationData
       }

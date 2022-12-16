@@ -271,14 +271,15 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
     return
   }
 
-  const newPosition = targetPosition.clone()
+  const raycastOrigin = targetPosition.clone()
+  raycastOrigin.y += 0.1
+  const { raycastHit } = checkPositionIsValid(raycastOrigin, false)
 
-  if (checkPositionIsValid(newPosition, false)) {
-    const avatar = getComponent(entity, AvatarComponent)
-    newPosition.y += avatar.avatarHalfHeight
-    const rigidbody = getComponent(entity, RigidBodyComponent)
-    rigidbody.body.setTranslation(newPosition, true)
+  if (raycastHit) {
+    const pos = new Vector3().copy(raycastHit.position as Vector3)
+    const transform = getComponent(entity, TransformComponent)
+    transform.position.copy(pos)
   } else {
-    console.log('invalid position', newPosition)
+    console.log('invalid position', targetPosition, raycastHit)
   }
 }

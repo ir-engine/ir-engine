@@ -145,11 +145,12 @@ export default async function WidgetSystem(world: World) {
       const pose = Engine.instance.xrFrame!.getPose(
         preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
         referenceSpace
-      )!
-
-      const transform = getComponent(widgetMenuUI.entity, TransformComponent)
-      transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
-      transform.rotation.copy(pose.transform.orientation as any as Quaternion).multiply(widgetRotation)
+      )
+      if (pose) {
+        const transform = getComponent(widgetMenuUI.entity, TransformComponent)
+        transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
+        transform.rotation.copy(pose.transform.orientation as any as Quaternion).multiply(widgetRotation)
+      }
     }
 
     const widgetMenuShown = !!preferredInputSource && widgetState.widgetsMenuOpen.value

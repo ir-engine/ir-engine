@@ -1,6 +1,13 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/XRUserSettings'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getState,
+  syncStateWithLocalStorage,
+  useState
+} from '@xrengine/hyperflux'
 
 export const AvatarMovementScheme = {
   Linear: 'AvatarMovementScheme_Linear' as const,
@@ -30,7 +37,21 @@ export const AvatarInputSettingsState = defineState({
     rotationAngle: 30,
     rotationInvertAxes: true,
     showAvatar: true
-  })
+  }),
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(AvatarInputSettingsState, [
+      'controlType',
+      'controlScheme',
+      'preferredHand',
+      'invertRotationAndMoveSticks',
+      'moving',
+      'rotation',
+      'rotationSmoothSpeed',
+      'rotationAngle',
+      'rotationInvertAxes',
+      'showAvatar'
+    ])
+  }
 })
 
 export function AvatarInputSettingsReceptor(action) {
