@@ -400,7 +400,8 @@
     "avatar": "Avatar",
     "thumbnail": "Thumbnail",
     "enterAvatarUrl": "Enter Avatar URL",
-    "enterThumbnailUrl": "Enter Thumbnail URL"
+    "enterThumbnailUrl": "Enter Thumbnail URL",
+    "avatarName": "Avatar Name"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",

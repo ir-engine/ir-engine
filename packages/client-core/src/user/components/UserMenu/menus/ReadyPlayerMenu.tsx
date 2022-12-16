@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import Menu from '@xrengine/client-core/src/common/components/Menu'
 import { getCanvasBlob } from '@xrengine/client-core/src/common/utils'
@@ -73,6 +74,13 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     }
   }
 
+  const handleNameChange = (e) => {
+    const { value } = e.target
+
+    setError(value.length < 2 ? t('admin:components.avatar.nameRequired') : '')
+    setAvatarName(value)
+  }
+
   const uploadAvatar = async () => {
     if (error || selectedFile === undefined) {
       return
@@ -139,6 +147,17 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
               zIndex: 2
             }}
             src={config.client.readyPlayerMeUrl}
+          />
+        )}
+
+        {avatarPreviewLoaded && (
+          <InputText
+            name="name"
+            label={t('user:avatar.avatarName')}
+            value={avatarName}
+            error={error}
+            sx={{ width: `${THUMBNAIL_WIDTH}px`, m: 'auto', p: '10px 0' }}
+            onChange={handleNameChange}
           />
         )}
 
