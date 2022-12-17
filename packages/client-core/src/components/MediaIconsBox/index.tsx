@@ -33,7 +33,7 @@ import {
   stopFaceTracking,
   stopLipsyncTracking
 } from '../../media/webcam/WebcamInput'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 

@@ -17,7 +17,7 @@ import {
   handleJoinWorld,
   handleLeaveWorld
 } from './NetworkFunctions'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   handleWebRtcCloseConsumer,
   handleWebRtcCloseProducer,

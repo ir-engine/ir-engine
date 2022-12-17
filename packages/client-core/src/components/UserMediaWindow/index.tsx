@@ -51,7 +51,7 @@ import Slider from '@mui/material/Slider'
 import Tooltip from '@mui/material/Tooltip'
 
 import { useMediaInstance, useMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
@@ -101,7 +101,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
 
-  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork?.value as SocketWebRTCClientNetwork
   const isSelf = !mediaNetwork || peerID === mediaNetwork?.peerID
   const volume = isSelf ? audioState.microphoneGain.value : _volume
   const isScreen = type === 'screen'
@@ -160,7 +160,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       setAudioProducerPaused(true)
       setAudioProducerGlobalMute(true)
     } else {
-      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      const network = mediaNetwork
       const videoConsumer = network.consumers?.find(
         (c) =>
           c.appData.peerID === peerID &&
@@ -192,7 +192,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       setAudioProducerPaused(false)
       setAudioProducerGlobalMute(false)
     } else {
-      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      const network = mediaNetwork
       const videoConsumer = network.consumers?.find(
         (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
       )
@@ -239,7 +239,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   useEffect(() => {
     if (!isSelf) {
-      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      const network = mediaNetwork
       if (network) {
         const videoConsumer = network.consumers?.find(
           (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
@@ -271,7 +271,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   useEffect(() => {
     if (!currentChannelInstanceConnection?.value) return
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     const socket = mediaNetwork.socket
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
     if (typeof socket?.on === 'function')
@@ -423,7 +422,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       if (await configureMediaTransports(mediaNetwork, ['video'])) {
         if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
@@ -456,7 +454,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       if (await configureMediaTransports(mediaNetwork, ['audio'])) {
         if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
@@ -487,7 +484,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (!audioProducerGlobalMute) {
       await globalMuteProducer(mediaNetwork, { id: audioStream.producerId })
       setAudioProducerGlobalMute(true)

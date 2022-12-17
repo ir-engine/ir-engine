@@ -9,7 +9,7 @@ import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstan
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import UserMediaWindow from '../UserMediaWindow'
 import styles from './index.module.scss'

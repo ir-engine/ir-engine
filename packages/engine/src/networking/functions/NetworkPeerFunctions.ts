@@ -65,7 +65,7 @@ function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.c
    * we want to remove them from world.users
    */
   if (network.topic === 'world') {
-    const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
+    const remainingPeersForDisconnectingUser = Object.entries(world.networks.value)
       .map(([id, network]: [string, Network]) => {
         return network.peers.has(peerID)
       })

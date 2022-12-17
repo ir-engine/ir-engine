@@ -12,8 +12,13 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { accessChatState } from '../../social/services/ChatService'
 import { accessLocationState } from '../../social/services/LocationService'
-import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import {
+  createClientNetwork,
+  endVideoChat,
+  initializeClientNetwork,
+  leaveNetwork,
+  SocketWebRTCClientNetwork
+} from '../../transports/SocketWebRTCClientFunctions'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
 
@@ -56,10 +61,9 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
   matches(action)
     .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
       Engine.instance.currentWorld.hostIds.media.set(action.instanceId)
-      Engine.instance.currentWorld.networks.set(
-        action.instanceId,
-        new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media)
-      )
+      Engine.instance.currentWorld.networks.merge({
+        [action.instanceId]: createClientNetwork(action.instanceId, NetworkTopics.media)
+      })
       return s.instances[action.instanceId].set({
         ipAddress: action.ipAddress,
         port: action.port,
@@ -97,9 +101,11 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     })
     .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
       const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
-      Engine.instance.currentWorld.mediaNetwork.hostId = action.newInstanceId as UserId
-      Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.mediaNetwork)
-      Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
+      Engine.instance.currentWorld.mediaNetwork!.hostId.set(action.newInstanceId as UserId)
+      Engine.instance.currentWorld.networks.merge({
+        [action.newInstanceId]: Engine.instance.currentWorld.mediaNetwork.value
+      })
+      Engine.instance.currentWorld.networks[action.currentInstanceId].set(none)
       Engine.instance.currentWorld.hostIds.media.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
@@ -145,11 +151,12 @@ export const MediaInstanceConnectionService = {
     const user = authState.user.value
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
-    const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    logger.info({ socket: !!network.socket, network }, 'Connect To Media Server.')
+    const networkState = Engine.instance.currentWorld.mediaNetwork as State<SocketWebRTCClientNetwork>
+    const network = networkState.value
+    console.log({ network }, 'Connect To Media Server.')
     if (network.socket) {
       await endVideoChat(network, { endConsumers: true })
-      leaveNetwork(network, false)
+      leaveNetwork(networkState, false)
     }
 
     const locationState = accessLocationState()
@@ -168,7 +175,7 @@ export const MediaInstanceConnectionService = {
       })
     )
 
-    await network.initialize({ port, ipAddress, channelId })
+    await initializeClientNetwork(networkState, { port, ipAddress, channelId })
   },
   resetServer: (instanceId: string) => {
     dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))

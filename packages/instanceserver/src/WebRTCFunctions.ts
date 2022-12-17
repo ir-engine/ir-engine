@@ -16,8 +16,6 @@ import { Socket } from 'socket.io'
 
 import { MediaStreamAppData, MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
@@ -28,9 +26,10 @@ import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
   ConsumerExtension,
   ProducerExtension,
+  sendData,
   SocketWebRTCServerNetwork,
   WebRTCTransportExtension
-} from './SocketWebRTCServerNetwork'
+} from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
@@ -319,7 +318,7 @@ export async function createInternalDataConsumer(
       network.incomingMessageQueueUnreliableIDs.add(peerID)
       // forward data to clients in world immediately
       // TODO: need to include the userId (or index), so consumers can validate
-      network.sendData(message)
+      sendData(network, message)
     })
     return consumer
   } catch (err) {

@@ -4,7 +4,7 @@ export default async function MediaStreamSystem(world: World) {
   let executeInProgress = false
 
   const execute = () => {
-    const network = world.mediaNetwork
+    const network = world.mediaNetwork?.value
     if (!network) return
 
     if (network?.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {

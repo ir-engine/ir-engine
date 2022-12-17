@@ -1,7 +1,7 @@
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { hookstate } from '@xrengine/hyperflux'
-import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { addOutgoingTopicIfNecessary, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
@@ -16,86 +16,56 @@ export const NetworkTopics = {
 }
 
 /** Interface for the Transport. */
-export class Network {
-  /**
-   * Initialize the transport.
-   * @param address Address of this transport.
-   * @param port Port of this transport.
-   * @param instance Whether this is a connection to an instance server or not (i.e. channel server)
-   * @param opts Options.
-   */
-  initialize(args: any) {}
+export interface Network {
+  sockets: Map<PeerID, any>
 
-  /**
-   * Send data over transport.
-   * @param data Data to be sent.
-   */
-  sendData(data: any) {}
-
-  /**
-   * Send outgoing actions through reliable channel
-   */
-  sendActions() {}
-
-  /**
-   * Sends a message across the connection and resolves with the reponse
-   * @param message
-   */
-  async request(message: string, data?: any): Promise<any> {}
-
-  /**
-   * Closes all the media soup transports
-   */
-  close(instance?: boolean, channel?: boolean) {}
+  sendData: (network: Network, data: ArrayBuffer) => void
 
   /** Consumers and producers have separate types on client and server */
-  producers = [] as any[]
-  consumers = [] as any[]
+  producers: any[]
+  consumers: any[]
 
   /** List of data producer nodes. */
-  dataProducers = new Map<string, any>()
+  dataProducers: Map<string, any>
 
   /** List of data consumer nodes. */
-  dataConsumers = new Map<string, any>()
+  dataConsumers: Map<string, any>
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliableIDs: RingBuffer<PeerID> = new RingBuffer<PeerID>(100)
+  incomingMessageQueueUnreliableIDs: RingBuffer<PeerID>
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
+  incomingMessageQueueUnreliable: RingBuffer<any>
 
   /** Buffer holding Mediasoup operations */
-  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
+  mediasoupOperationQueue: RingBuffer<any>
 
   /** Connected peers */
-  peers = new Map() as Map<PeerID, NetworkPeer>
-
-  /** Publish to connected peers that peer information has changed */
-  updatePeers() {}
+  peers: Map<PeerID, NetworkPeer>
 
   /** Map of numerical user index to user client IDs */
-  userIndexToUserID = new Map<number, UserId>()
+  userIndexToUserID: Map<number, UserId>
 
   /** Map of user client IDs to numerical user index */
-  userIDToUserIndex = new Map<UserId, number>()
+  userIDToUserIndex: Map<UserId, number>
 
   /** Map of numerical peer index to peer IDs */
-  peerIndexToPeerID = new Map<number, PeerID>()
+  peerIndexToPeerID: Map<number, PeerID>
 
   /** Map of peer IDs to numerical peer index */
-  peerIDToPeerIndex = new Map<PeerID, number>()
+  peerIDToPeerIndex: Map<PeerID, number>
 
   /**
    * The index to increment when a new user joins
    * NOTE: Must only be updated by the host
    */
-  userIndexCount = 0
+  userIndexCount: number
 
   /**
    * The index to increment when a new peer connects
    * NOTE: Must only be updated by the host
    */
-  peerIndexCount = 0
+  peerIndexCount: number
 
   /**
    * The UserId of the host
@@ -114,23 +84,42 @@ export class Network {
   ready: boolean
 
   /**
-   * Check if this user is hosting the world.
+   * True if this user is hosting the world.
    */
-  get isHosting() {
-    return Engine.instance.userId === this.hostId
-  }
+  isHosting: boolean
 
   topic: Topic
-
-  constructor(hostId: UserId, topic: Topic) {
-    this.hostId = hostId
-    this.topic = topic
-  }
 }
 
-export const createNetwork = <S extends {}>(extensionProps = {} as S) => {
-  return hookstate({
-    hostId: '' as UserId,
+type MandatoryNetworkProps = {
+  hostId: UserId
+  topic: Topic
+}
+
+export const createNetwork = <S extends MandatoryNetworkProps>(extensionProps = {} as S) => {
+  addOutgoingTopicIfNecessary(extensionProps.topic)
+  return {
+    sockets: new Map(),
+    sendData: () => {},
+    producers: [],
+    consumers: [],
+    dataProducers: new Map(),
+    dataConsumers: new Map(),
+    incomingMessageQueueUnreliableIDs: new RingBuffer<PeerID>(100),
+    incomingMessageQueueUnreliable: new RingBuffer(100),
+    mediasoupOperationQueue: new RingBuffer(100),
+    peers: new Map(),
+    userIndexToUserID: new Map(),
+    userIDToUserIndex: new Map(),
+    peerIndexToPeerID: new Map(),
+    peerIDToPeerIndex: new Map(),
+    userIndexCount: 0,
+    peerIndexCount: 0,
+    peerID: null! as PeerID,
+    ready: false,
+    get isHosting() {
+      return Engine.instance.userId === this.hostId
+    },
     ...extensionProps
-  })
+  } as Network & S
 }

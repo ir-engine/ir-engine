@@ -25,7 +25,7 @@ import {
 } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, getState, NO_PROXY, useHookstate } from '@xrengine/hyperflux'
 
 import BlurOffIcon from '@mui/icons-material/BlurOff'
 import GridOnIcon from '@mui/icons-material/GridOn'
@@ -45,7 +45,7 @@ export const Debug = ({ showingStateRef }) => {
     engineState.joinedWorld.value &&
     hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
 
-  const networks = mapToObject(Engine.instance.currentWorld.networks)
+  const networks = Engine.instance.currentWorld.networks.get(NO_PROXY)
 
   const onClickRespawn = (): void => {
     respawnAvatar(Engine.instance.currentWorld.localClientEntity)

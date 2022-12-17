@@ -257,7 +257,7 @@ export const ChatService = {
       const channelResult = (await API.instance.client.service('channel').find({
         query: {
           channelType: 'instance',
-          instanceId: Engine.instance.currentWorld.worldNetwork.hostId
+          instanceId: Engine.instance.currentWorld.worldNetwork.hostId.value
         }
       })) as Channel[]
       if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)

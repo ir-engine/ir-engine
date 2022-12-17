@@ -7,7 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
 //State

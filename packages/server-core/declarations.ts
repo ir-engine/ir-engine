@@ -6,7 +6,7 @@ import * as k8s from '@kubernetes/client-node'
 
 import { ServiceTypes } from '@xrengine/common/declarations'
 
-import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerNetwork'
+import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerFunctions'
 
 export const ServerMode = {
   API: 'API' as const,

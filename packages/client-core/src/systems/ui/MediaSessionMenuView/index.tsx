@@ -41,7 +41,7 @@ import {
   startScreenshare,
   stopScreenshare
 } from '../../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientFunctions'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 

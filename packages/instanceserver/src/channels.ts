@@ -12,6 +12,8 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
 import { initializeRealtimeSystems } from '@xrengine/engine/src/initializeRealtimeSystems'
 import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
@@ -28,7 +30,8 @@ import multiLogger from '@xrengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 import { authorizeUserToJoinServer } from './NetworkFunctions'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+import ServerHostNetworkSystem from './ServerHostNetworkSystem'
+import { createServerNetwork, initializeServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -227,12 +230,20 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const world = Engine.instance.currentWorld
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
-  const network = new SocketWebRTCServerNetwork(hostId, topic, app)
+  const network = createServerNetwork(hostId, topic, app)
   app.network = network
-  const initPromise = network.initialize()
+  const initPromise = initializeServerNetwork(network)
 
-  world.networks.set(hostId, network)
+  world.networks.merge({ [hostId]: network })
   const projects = await getProjectsList()
+
+  initSystems(world, [
+    {
+      uuid: 'ServerHostNetworkSystem',
+      type: SystemUpdateType.FIXED,
+      systemLoader: () => Promise.resolve({ default: ServerHostNetworkSystem })
+    }
+  ])
 
   if (app.isChannelInstance) {
     world.hostIds.media.set(hostId as UserId)
@@ -404,7 +415,9 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
-  const activeClients = app.network.peers
+  const world = Engine.instance.currentWorld
+  const network = app.isChannelInstance ? world.mediaNetwork.value : world.worldNetwork.value
+  const activeClients = network.peers
   const activeUsers = [...activeClients].filter(
     ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
   )
@@ -485,9 +498,12 @@ const handleUserDisconnect = async (
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
+  const world = Engine.instance.currentWorld
+  const network = app.isChannelInstance ? world.mediaNetwork.value : world.worldNetwork.value
+
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (app.network.peers.size <= 1) {
+  if (network.peers.size <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }

@@ -26,27 +26,26 @@ import { localConfig } from '@xrengine/server-core/src/config'
 import multiLogger from '@xrengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+import { SocketWebRTCServerNetwork, updatePeers } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
 export const setupSubdomain = async (network: SocketWebRTCServerNetwork) => {
-  const app = network.app
   let stringSubdomainNumber: string
 
   if (config.kubernetes.enabled) {
     await cleanupOldInstanceservers(network)
-    app.instanceServer = await app.agonesSDK.getGameServer()
+    network.app.instanceServer = await network.app.agonesSDK.getGameServer()
 
     // We used to provision subdomains for instanceservers, e.g. 00001.instanceserver.domain.com
     // This turned out to be unnecessary, and in fact broke Firefox's ability to connect via
     // UDP, so the following was commented out.
-    // const name = app.instanceServer.objectMeta.name
+    // const name = network.app.instanceServer.objectMeta.name
     // const isIdentifier = isNameRegex.exec(name)!
     // stringSubdomainNumber = await getFreeSubdomain(transport, isIdentifier[1], 0)
-    // app.isSubdomainNumber = stringSubdomainNumber
+    // network.app.isSubdomainNumber = stringSubdomainNumber
     //
     // const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
     // const params = {
@@ -56,7 +55,7 @@ export const setupSubdomain = async (network: SocketWebRTCServerNetwork) => {
     //         Action: 'UPSERT',
     //         ResourceRecordSet: {
     //           Name: `${stringSubdomainNumber}.${config.instanceserver.domain}`,
-    //           ResourceRecords: [{ Value: app.instanceserver.status.address }],
+    //           ResourceRecords: [{ Value: network.app.instanceserver.status.address }],
     //           TTL: 0,
     //           Type: 'A'
     //         }
@@ -69,8 +68,8 @@ export const setupSubdomain = async (network: SocketWebRTCServerNetwork) => {
   }
 
   // Set up our instanceserver according to our current environment
-  const localIp = await getLocalServerIp(app.isChannelInstance)
-  const announcedIp = config.kubernetes.enabled ? app.instanceServer.status.address : localIp.ipAddress
+  const localIp = await getLocalServerIp(network.app.isChannelInstance)
+  const announcedIp = config.kubernetes.enabled ? network.app.instanceServer.status.address : localIp.ipAddress
 
   localConfig.mediasoup.webRtcTransport.listenIps = [
     {
@@ -294,7 +293,7 @@ export async function handleJoinWorld(
 
   const peerID = socket.id as PeerID
 
-  network.updatePeers()
+  updatePeers(network)
 
   callback({
     peerIndex: network.peerIDToPeerIndex.get(peerID)!,
@@ -418,7 +417,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
     )
 
     NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
-    network.updatePeers()
+    updatePeers(network)
     logger.info(`Disconnecting user ${userId} on socket ${peerID}`)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -440,7 +439,7 @@ export async function handleLeaveWorld(
     if (transport.appData.peerID === peerID) closeTransport(network, transport)
   if (network.peers.has(peerID)) {
     NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
-    network.updatePeers()
+    updatePeers(network)
   }
   if (callback !== undefined) callback({})
 }

@@ -33,10 +33,10 @@ describe.skip('Equippables Integration Tests', () => {
     const world = Engine.instance.currentWorld
 
     const hostUserId = 'world' as UserId & PeerID
-    world.worldNetwork.hostId = hostUserId
+    world.worldNetwork.hostId.set(hostUserId)
     const hostIndex = 0
 
-    world.worldNetwork.peers.set(hostUserId, {
+    world.worldNetwork.peers.value.set(hostUserId, {
       peerID: hostUserId,
       peerIndex: hostIndex,
       userId: hostUserId,
@@ -68,8 +68,8 @@ describe.skip('Equippables Integration Tests', () => {
     // network mock stuff
     // initially the object is owned by server
     addComponent(equippableEntity, NetworkObjectComponent, {
-      ownerId: world.worldNetwork.hostId,
-      authorityPeerID: world.worldNetwork.peerID,
+      ownerId: world.worldNetwork.hostId.value,
+      authorityPeerID: world.worldNetwork.peerID.value,
       networkId: 0 as NetworkId
     })
 
@@ -82,7 +82,7 @@ describe.skip('Equippables Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    clearOutgoingActions(world.worldNetwork.topic)
+    clearOutgoingActions(world.worldNetwork.topic.value)
     applyIncomingActions()
 
     // equipperQueryEnter(equipperEntity)
@@ -97,7 +97,7 @@ describe.skip('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    clearOutgoingActions(world.worldNetwork.topic)
+    clearOutgoingActions(world.worldNetwork.topic.value)
     applyIncomingActions()
 
     equipperQueryExit(equipperEntity)

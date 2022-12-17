@@ -11,8 +11,12 @@ import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
-import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import {
+  createClientNetwork,
+  initializeClientNetwork,
+  leaveNetwork,
+  SocketWebRTCClientNetwork
+} from '../../transports/SocketWebRTCClientFunctions'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
 
@@ -51,10 +55,9 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
       Engine.instance.currentWorld.hostIds.world.set(action.instanceId)
-      Engine.instance.currentWorld.networks.set(
-        action.instanceId,
-        new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
-      )
+      Engine.instance.currentWorld.networks.merge({
+        [action.instanceId]: createClientNetwork(action.instanceId, NetworkTopics.world)
+      })
       return s.instances.merge({
         [action.instanceId]: {
           ipAddress: action.ipAddress,
@@ -84,9 +87,11 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
     })
     .when(LocationInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
       const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
-      Engine.instance.currentWorld.worldNetwork.hostId = action.newInstanceId as UserId
-      Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.worldNetwork)
-      Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
+      Engine.instance.currentWorld.worldNetwork!.hostId.set(action.newInstanceId as UserId)
+      Engine.instance.currentWorld.networks.merge({
+        [action.newInstanceId]: Engine.instance.currentWorld.worldNetwork.value
+      })
+      Engine.instance.currentWorld.networks[action.currentInstanceId].set(none)
       Engine.instance.currentWorld.hostIds.world.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
@@ -231,14 +236,15 @@ export const LocationInstanceConnectionService = {
   },
   connectToServer: async (instanceId: string) => {
     dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
-    const network = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
-    logger.info({ socket: !!network.socket, transport: network }, 'Connect To World Server')
+    const networkState = Engine.instance.currentWorld.worldNetwork as State<SocketWebRTCClientNetwork>
+    const network = networkState.value
+    console.log({ transport: network }, 'Connect To World Server')
     if (network.socket) {
-      leaveNetwork(network, false)
+      leaveNetwork(networkState, false)
     }
     const { ipAddress, port, locationId, roomCode } =
       accessLocationInstanceConnectionState().instances.value[instanceId]
-    await network.initialize({ port, ipAddress, locationId, roomCode })
+    await initializeClientNetwork(networkState, { port, ipAddress, locationId, roomCode })
   },
   useAPIListeners: () => {
     useEffect(() => {

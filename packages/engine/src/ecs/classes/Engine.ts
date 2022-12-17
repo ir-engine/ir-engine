@@ -23,8 +23,10 @@ export class Engine {
       const isHost =
         action.$topic === this.store.defaultTopic
           ? false
-          : (action.$topic === NetworkTopics.world ? this.currentWorld.worldNetwork : this.currentWorld.mediaNetwork)
-              ?.isHosting
+          : (action.$topic === NetworkTopics.world
+              ? this.currentWorld.worldNetwork.value
+              : this.currentWorld.mediaNetwork.value
+            )?.isHosting
       return isHost || action.$from === this.userId
     },
     getDispatchId: () => Engine.instance.userId,

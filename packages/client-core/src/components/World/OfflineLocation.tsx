@@ -4,7 +4,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
+import { createNetwork, Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { addOutgoingTopicIfNecessary, useState } from '@xrengine/hyperflux'
@@ -25,11 +25,11 @@ export const OfflineLocation = () => {
       const peerIndex = 1
 
       world.hostIds.world.set(userId)
-      world.networks.set(userId, new Network(userId, NetworkTopics.world))
+      world.networks.set(userId, createNetwork({ hostId: userId, topic: NetworkTopics.world }))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(
-        world.worldNetwork,
+        world.worldNetwork.value,
         peerID,
         peerIndex,
         userId,

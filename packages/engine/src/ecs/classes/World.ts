@@ -102,14 +102,14 @@ export class World {
    * get the default world network
    */
   get worldNetwork() {
-    return this.networks.get(this.hostIds.world.value!)!
+    return this.networks[this.hostIds.world.value!]
   }
 
   /**
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(this.hostIds.media.value!)!
+    return this.networks[this.hostIds.media.value!]
   }
 
   /** @todo parties */
@@ -126,7 +126,7 @@ export class World {
   // _worldHostId = null! as UserId
   // _mediaHostId = null! as UserId
 
-  networks = new Map<string, Network>()
+  networks = hookstate({} as Record<UserId, Network>)
 
   widgets = new Map<string, Widget>()
 

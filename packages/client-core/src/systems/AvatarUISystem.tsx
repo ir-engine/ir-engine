@@ -182,12 +182,12 @@ export default async function AvatarUISystem(world: World) {
       xruiTransform.position.copy(_vector3)
       xruiTransform.rotation.copy(cameraTransform.rotation)
 
-      if (world.mediaNetwork)
+      if (world.mediaNetwork?.value)
         if (immersiveMedia && videoPreviewTimer === 0) {
           const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-          const consumer = world.mediaNetwork!.consumers.find(
+          const consumer = world.mediaNetwork.value.consumers.find(
             (consumer) =>
-              consumer.appData.peerID === world.mediaNetwork.peerID && consumer.appData.mediaTag === 'cam-video'
+              consumer.appData.peerID === world.mediaNetwork!.value.peerID && consumer.appData.mediaTag === 'cam-video'
           ) as Consumer
           const paused = consumer && (consumer as any).producerPaused
           if (videoPreviewMesh.material.map) {

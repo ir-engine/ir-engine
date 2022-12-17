@@ -21,7 +21,7 @@ import {
   pauseProducer,
   resumeProducer
 } from '../../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss'
 
