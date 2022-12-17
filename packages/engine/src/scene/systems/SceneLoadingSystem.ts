@@ -203,6 +203,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
       for (const system of pipeline) {
         const i = pipeline.indexOf(system)
         pipeline.splice(i, 1)
+        delete world.systemsByUUID[system.uuid]
       }
     }
   }
