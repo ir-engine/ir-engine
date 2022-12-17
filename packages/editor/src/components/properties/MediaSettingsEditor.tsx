@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
+import { getMediaSceneMetadataState } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -14,7 +15,7 @@ import PropertyGroup from './PropertyGroup'
 
 export const MediaSettingsEditor = () => {
   const { t } = useTranslation()
-  const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.mediaSettings)
+  const sceneMetadata = useHookstate(getMediaSceneMetadataState(Engine.instance.currentWorld))
   const settings = sceneMetadata.get({ noproxy: true })
   return (
     <PropertyGroup

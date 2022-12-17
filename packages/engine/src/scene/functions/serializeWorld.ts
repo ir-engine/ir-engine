@@ -16,6 +16,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -54,7 +55,7 @@ export const serializeWorld = (
   const entityUuid = {}
   const sceneJson = {
     version: 0,
-    metadata: Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true }),
+    metadata: getSceneMetadataChanges(Engine.instance.currentWorld),
     entities: {},
     root: null! as EntityUUID
   }

@@ -181,33 +181,13 @@ export class World {
 
   fogShaders = [] as Shader[]
 
-  sceneMetadata = {} as Record<string, State<any>>
-
-  /** stores a hookstate copy of scene metadata */
-  // sceneMetadata = hookstate({
-  //   mediaSettings: {
-  //     immersiveMedia: false,
-  //     refDistance: 20,
-  //     rolloffFactor: 1,
-  //     maxDistance: 10000,
-  //     distanceModel: 'linear' as DistanceModelType,
-  //     coneInnerAngle: 360,
-  //     coneOuterAngle: 0,
-  //     coneOuterGain: 0
-  //   },
-  //   fog: {
-  //     type: FogType.Linear as FogType,
-  //     color: '#FFFFFF',
-  //     density: 0.005,
-  //     near: 1,
-  //     far: 1000,
-  //     timeScale: 1,
-  //     height: 0.05
-  //   },
-  //   xr: {
-  //     dollhouse: 'auto' as boolean | 'auto'
-  //   }
-  // })
+  sceneMetadata = {} as Record<
+    string,
+    {
+      state: State<any>
+      default: any
+    }
+  >
 
   /**
    * The scene entity

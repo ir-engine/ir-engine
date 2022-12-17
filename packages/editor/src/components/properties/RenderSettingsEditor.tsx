@@ -16,6 +16,7 @@ import {
 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getRendererSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import BooleanInput from '../inputs/BooleanInput'
@@ -83,7 +84,7 @@ const ShadowTypeOptions = [
 
 export const RenderSettingsEditor = () => {
   const { t } = useTranslation()
-  const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.renderSettings)
+  const sceneMetadata = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld))
   const settings = sceneMetadata.get({ noproxy: true })
 
   return (

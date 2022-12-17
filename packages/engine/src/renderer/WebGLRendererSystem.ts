@@ -34,6 +34,7 @@ import {
   hookstate,
   removeActionQueue,
   startReactor,
+  State,
   useHookstate
 } from '@xrengine/hyperflux'
 
@@ -188,8 +189,6 @@ export class EngineRenderer {
     } else {
       console.log('Browser does not support `WEBGL_lose_context` extension')
     }
-
-    configureEffectComposer()
   }
 
   handleWebGLConextLost(e) {
@@ -297,17 +296,22 @@ export const DefaultRenderSettingsState = {
   shadowMapType: PCFSoftShadowMap as ShadowMapType
 }
 
-export type RenderSettingsState = typeof DefaultRenderSettingsState
+export type RenderSettingsState = State<typeof DefaultRenderSettingsState>
 
 export const DefaultPostProcessingState = {
   enabled: false,
   effects: defaultPostProcessingSchema
 }
 
-export type PostProcessingState = typeof DefaultPostProcessingState
+export type PostProcessingState = State<typeof DefaultPostProcessingState>
 
 export const RendererSceneMetadataLabel = 'renderSettings'
 export const PostProcessingSceneMetadataLabel = 'postprocessing'
+
+export const getRendererSceneMetadataState = (world: World) =>
+  world.sceneMetadata[RendererSceneMetadataLabel].state as RenderSettingsState
+export const getPostProcessingSceneMetadataState = (world: World) =>
+  world.sceneMetadata[PostProcessingSceneMetadataLabel].state as PostProcessingState
 
 export default async function WebGLRendererSystem(world: World) {
   const setQualityLevelActions = createActionQueue(EngineRendererAction.setQualityLevel.matches)
@@ -320,9 +324,19 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolHeightActions = createActionQueue(EngineRendererAction.changeGridToolHeight.matches)
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
 
+  world.sceneMetadata[RendererSceneMetadataLabel] = {
+    state: hookstate(DefaultRenderSettingsState),
+    default: DefaultRenderSettingsState
+  }
+
+  world.sceneMetadata[PostProcessingSceneMetadataLabel] = {
+    state: hookstate(DefaultPostProcessingState),
+    default: DefaultPostProcessingState
+  }
+
   const reactor = startReactor(() => {
-    const renderSettings = useHookstate<RenderSettingsState>(world.sceneMetadata[RendererSceneMetadataLabel])
-    const postprocessing = useHookstate<PostProcessingState>(world.sceneMetadata[PostProcessingSceneMetadataLabel])
+    const renderSettings = useHookstate(getRendererSceneMetadataState(world))
+    const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
@@ -342,9 +356,6 @@ export default async function WebGLRendererSystem(world: World) {
 
     return null
   })
-
-  world.sceneMetadata[RendererSceneMetadataLabel] = hookstate(DefaultRenderSettingsState)
-  world.sceneMetadata[PostProcessingSceneMetadataLabel] = hookstate(DefaultPostProcessingState)
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)

@@ -18,7 +18,7 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
@@ -57,7 +57,7 @@ export default async function ShadowSystem(world: World) {
       const useCSM =
         !isHMD &&
         EngineRenderer.instance.renderer.shadowMap.enabled &&
-        Engine.instance.currentWorld.sceneMetadata.renderSettings.csm.value
+        getRendererSceneMetadataState(Engine.instance.currentWorld).csm.value
 
       if (useCSM && activeDirectionalLight) {
         if (!EngineRenderer.instance.csm) {

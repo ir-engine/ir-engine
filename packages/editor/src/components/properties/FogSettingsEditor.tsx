@@ -5,6 +5,7 @@ import { Color } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
+import { getFogSceneMetadataState } from '@xrengine/engine/src/scene/systems/FogSystem'
 
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
@@ -38,7 +39,7 @@ const FogTypeOptions = [
 export const FogSettingsEditor = () => {
   const { t } = useTranslation()
 
-  const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.fog)
+  const sceneMetadata = useHookstate(getFogSceneMetadataState(Engine.instance.currentWorld))
   const settings = sceneMetadata.get({ noproxy: true })
 
   return (
