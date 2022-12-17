@@ -11,9 +11,9 @@ export const sendActionsAsPeer = (network: Network) => {
   for (const [socketID, socket] of network.sockets) {
     if (actions.length && socket) {
       socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
-      clearOutgoingActions(network.topic)
     }
   }
+  clearOutgoingActions(network.topic)
 }
 
 export const sendActionsAsHost = (network: Network) => {

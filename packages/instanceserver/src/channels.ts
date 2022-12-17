@@ -498,12 +498,9 @@ const handleUserDisconnect = async (
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
-  const world = Engine.instance.currentWorld
-  const network = app.isChannelInstance ? world.mediaNetwork.value : world.worldNetwork.value
-
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (network.peers.size <= 1) {
+  if (app.network.peers.size <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }
