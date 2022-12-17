@@ -201,7 +201,6 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     await Promise.all(systemsToUnload.flat().map((system) => system.cleanup()))
     for (const pipeline of systemsToUnload) {
       for (const system of pipeline) {
-        /** @todo run cleanup hook for this system */
         const i = pipeline.indexOf(system)
         pipeline.splice(i, 1)
       }

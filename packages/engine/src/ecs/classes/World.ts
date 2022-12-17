@@ -295,6 +295,8 @@ export class World {
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstance[] }
 
+  systemsByUUID = {} as Record<string, SystemInstance>
+
   /**
    * Network object query
    */
