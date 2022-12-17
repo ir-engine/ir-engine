@@ -1,12 +1,8 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Group, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
@@ -14,11 +10,10 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import { WebcamInputComponent } from '../../input/components/WebcamInputComponent'
+import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
@@ -27,15 +22,11 @@ import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoneStructure } from '../AvatarBoneMatching'
-import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -70,28 +61,29 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
   const transform = getComponent(entity, TransformComponent)
 
-  // The visuals group is centered for easy actor tilting
-  const tiltContainer = new Group()
-  tiltContainer.name = 'Actor (tiltContainer)' + entity
-  // tiltContainer.position.setY(defaultAvatarHalfHeight)
-
-  // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
-  const modelContainer = new Group()
-  modelContainer.name = 'Actor (modelContainer)' + entity
-  tiltContainer.add(modelContainer)
-
   addComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
-    modelContainer
+    model: null
   })
 
   addComponent(entity, NameComponent, 'avatar_' + userId)
 
   addComponent(entity, VisibleComponent, true)
 
+  setComponent(entity, DistanceFromCameraComponent)
+  setComponent(entity, FrustumCullCameraComponent)
+
+  setComponent(entity, WebcamInputComponent, {
+    expressionValue: 0,
+    expressionIndex: 0,
+    pucker: 0,
+    widen: 0,
+    open: 0
+  })
+
   addComponent(entity, AnimationComponent, {
-    mixer: new AnimationMixer(modelContainer),
+    mixer: new AnimationMixer(new Object3D()),
     animations: [] as AnimationClip[],
     animationSpeed: 1
   })
@@ -111,9 +103,6 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     leftHand: false,
     rightHand: false
   })
-
-  addObjectToGroup(entity, tiltContainer)
-  setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   addComponent(entity, SpawnPoseComponent, {
     position: new Vector3().copy(transform.position),
@@ -161,13 +150,6 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
 
 export const createAvatarController = (entity: Entity) => {
   const avatarComponent = getComponent(entity, AvatarComponent)
-
-  if (!hasComponent(entity, InputComponent)) {
-    addComponent(entity, InputComponent, {
-      schema: AvatarInputSchema,
-      data: new Map()
-    })
-  }
 
   // offset so rigidboyd has feet at spawn position
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import LoadingView from '@xrengine/client-core/src/admin/common/LoadingView'
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { useRender3DPanelSystem } from '@xrengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 
@@ -19,10 +19,12 @@ export const ModelPreviewPanel = (props) => {
     const loadModel = async () => {
       try {
         const model = await loadAvatarModelAsset(url)
-        model.name = 'avatar'
-        const result = scene.value.getObjectByName(model.name)
-        if (result) scene.value.remove(result)
-        scene.value.add(model)
+        if (model) {
+          model.name = 'avatar'
+          const result = scene.value.getObjectByName(model.name)
+          if (result) scene.value.remove(result)
+          scene.value.add(model)
+        }
         setLoading(false)
       } catch (err) {
         setLoading(false)

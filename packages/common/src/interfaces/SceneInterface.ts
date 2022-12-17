@@ -1,10 +1,10 @@
 import { EntityUUID } from './EntityUUID'
 
 export interface ComponentJson<T extends any = any> {
-  // todo: eventually remove '= any'
   name: string
   props: T
 }
+
 export interface EntityJson {
   name: EntityUUID | string
   components: Array<ComponentJson>

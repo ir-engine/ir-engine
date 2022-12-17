@@ -138,6 +138,22 @@ export class Project extends Service {
     this.app.isSetup.then(() => this._callOnLoad())
   }
 
+  async _getCommitSHADate(projectName: string): Promise<{ commitSHA: string; commitDate: Date }> {
+    const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+    const git = useGit(projectDirectory)
+    let commitSHA = ''
+    let commitDate
+    try {
+      commitSHA = await git.revparse(['HEAD'])
+      const commit = await git.log(['-1'])
+      commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
+    } catch (err) {}
+    return {
+      commitSHA,
+      commitDate
+    }
+  }
+
   async _callOnLoad() {
     const projects = (
       (await super.find({
@@ -156,10 +172,14 @@ export class Project extends Service {
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
     const projectConfig = (await getProjectConfig(projectName)) ?? {}
+
+    const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
     await super.create({
       thumbnail: projectConfig.thumbnail,
       name: projectName,
       repositoryPath: getRemoteURLFromGitData(projectName),
+      commitSHA,
+      commitDate,
       needsRebuild: true
     })
     // run project install script
@@ -195,6 +215,17 @@ export class Project extends Service {
           logger.error(e)
         }
       }
+
+      const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
+
+      await this.Model.update(
+        { commitSHA, commitDate },
+        {
+          where: {
+            name: projectName
+          }
+        }
+      )
 
       promises.push(uploadLocalProjectToProvider(projectName))
     }
@@ -343,7 +374,7 @@ export class Project extends Service {
     //In testing, intermittently the signed URL was being entered into the database, which made matching impossible.
     //Stripping the signed portion out if it's about to be inserted.
     if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
-
+    const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
     const returned = !existingProjectResult
       ? // Add to DB
         await super.create(
@@ -351,7 +382,9 @@ export class Project extends Service {
             thumbnail: projectConfig.thumbnail,
             name: projectName,
             repositoryPath,
-            needsRebuild: data.needsRebuild ? data.needsRebuild : true
+            needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+            commitSHA,
+            commitDate
           },
           params || {}
         )
@@ -376,6 +409,11 @@ export class Project extends Service {
       if (!repoPath) repoPath = data.destinationURL //public repo
       await git.addRemote('destination', repoPath)
       await git.push('destination', branchName, ['-f', '--tags'])
+      const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
+      await super.patch(existingProjectResult.id, {
+        commitSHA,
+        commitDate
+      })
     }
     // run project install script
     if (projectConfig.onEvent && !existingProjectResult) {
@@ -557,7 +595,15 @@ export class Project extends Service {
       query: {
         ...params?.query,
         $limit: params?.query?.$limit || 1000,
-        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath', 'needsRebuild']
+        $select: params?.query?.$select || [
+          'id',
+          'name',
+          'thumbnail',
+          'repositoryPath',
+          'needsRebuild',
+          'commitSHA',
+          'commitDate'
+        ]
       }
     }
 

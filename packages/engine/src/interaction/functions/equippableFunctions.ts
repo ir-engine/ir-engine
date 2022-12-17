@@ -1,6 +1,5 @@
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { ParityValue } from '../../common/enums/ParityValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -9,13 +8,8 @@ import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObject
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
-import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
 
-export const equipEntity = (
-  equipperEntity: Entity,
-  equippedEntity: Entity,
-  attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
-): void => {
+export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentPoint: XRHandedness): void => {
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
     const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
     if (networkComponent.authorityPeerID === Engine.instance.currentWorld?.worldNetwork.peerID) {
@@ -70,7 +64,7 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   }
 }
 
-export const changeHand = (equipperEntity: Entity, attachmentPoint: EquippableAttachmentPoint): void => {
+export const changeHand = (equipperEntity: Entity, attachmentPoint: XRHandedness): void => {
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   if (equipperComponent) {
     const equippedEntity = equipperComponent.equippedEntity
@@ -79,18 +73,4 @@ export const changeHand = (equipperEntity: Entity, attachmentPoint: EquippableAt
   } else {
     console.warn(`changeHand for equippable called on entity with id ${equipperEntity} without equipperComponent!.`)
   }
-}
-
-export const getAttachmentPoint = (parityValue: ParityValue): EquippableAttachmentPoint => {
-  let attachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
-  if (parityValue === ParityValue.LEFT) attachmentPoint = EquippableAttachmentPoint.LEFT_HAND
-
-  return attachmentPoint
-}
-
-export const getParity = (attachmentPoint: EquippableAttachmentPoint): ParityValue => {
-  let parityValue = ParityValue.RIGHT
-  if (attachmentPoint === EquippableAttachmentPoint.LEFT_HAND) parityValue = ParityValue.LEFT
-
-  return parityValue
 }

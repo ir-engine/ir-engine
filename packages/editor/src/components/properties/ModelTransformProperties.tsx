@@ -19,7 +19,7 @@ import { MaterialSource, SourceType } from '@xrengine/engine/src/renderer/materi
 import MeshBasicMaterial from '@xrengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
 import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
 import { batchSetMaterialProperty } from '@xrengine/engine/src/renderer/materials/functions/batchEditMaterials'
-import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
@@ -109,10 +109,10 @@ export default function ModelTransformProperties({
   const transformHistory = useHookstate<string[]>([])
   const transformParms = useHookstate<ModelTransformParameters>({
     modelFormat: 'glb',
-    dedup: false,
-    prune: false,
+    dedup: true,
+    prune: true,
     dracoCompression: {
-      enabled: false,
+      enabled: true,
       options: {
         method: 'sequential',
         encodeSpeed: 0,
@@ -136,9 +136,9 @@ export default function ModelTransformProperties({
       }
     },
     meshQuantization: {
-      enabled: false,
+      enabled: true,
       options: {
-        quantizePosition: 12,
+        quantizePosition: 14,
         quantizeNormal: 8,
         quantizeTexcoord: 8,
         quantizeColor: 8,
@@ -382,6 +382,14 @@ export default function ModelTransformProperties({
               value={vertexBakeOptions.lightMap.value}
               onChange={(val: boolean) => {
                 vertexBakeOptions.lightMap.set(val)
+              }}
+            />
+          </InputGroup>
+          <InputGroup name="emissive" label="emissive">
+            <BooleanInput
+              value={vertexBakeOptions.emissive.value}
+              onChange={(val: boolean) => {
+                vertexBakeOptions.emissive.set(val)
               }}
             />
           </InputGroup>

@@ -1,7 +1,5 @@
 import assert from 'assert'
 
-// TODO: move all top level state calls into some API
-
 // import { accessAuthState, AuthAction, avatarFetchedReceptor } from '../../src/user/services/AuthService' // make browser globals defined
 
 // import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'

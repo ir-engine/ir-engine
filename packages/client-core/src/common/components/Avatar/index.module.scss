@@ -1,0 +1,63 @@
+.avatarRound {
+  filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
+  border-radius: 50%;
+  position: relative;
+  background-color: var(--popupBackground);
+  border: 3px solid var(--iconButtonSelectedBackground);
+
+  img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 10px;
+    border-radius: 50%;
+  }
+}
+
+.avatarThumbnail {
+  position: relative;
+}
+
+.avatarName {
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+
+.avatarRectangle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  background: var(--iconButtonBackground);
+  border-radius: 0;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  height: 80px;
+
+  img {
+    background: white;
+    border-radius: 8px;
+    width: 80px;
+    height: 100%;
+  }
+
+  button {
+    display: none;
+  }
+
+  &:hover {
+    background: var(--iconButtonHoverColor);
+
+    button {
+      display: block;
+    }
+  }
+}
+
+.avatarSelected {
+  background: var(--iconButtonHoverColor);
+
+  img {
+    background: var(--iconButtonBackground);
+  }
+}

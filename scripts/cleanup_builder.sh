@@ -7,15 +7,15 @@ LABEL=$1
 docker container prune --force
 docker image prune -f
 
-ANALYTICS_IMAGE_ID="$(docker images $LABEL-analytics:latest --format {{.ID}})"
 API_IMAGE_ID="$(docker images $LABEL-api:latest --format {{.ID}})"
 CLIENT_IMAGE_ID="$(docker images $LABEL-client:latest --format {{.ID}})"
 INSTANCESERVER_IMAGE_ID="$(docker images $LABEL-instanceserver:latest --format {{.ID}})"
+TASKSERVER_IMAGE_ID="$(docker images $LABEL-taskserver:latest --format {{.ID}})"
 TESTBOT_IMAGE_ID="$(docker images $LABEL-testbot:latest --format {{.ID}})"
 
-if [ -n "$ANALYTICS_IMAGE_ID" ]
+if [ -n "$TASKSERVER_IMAGE_ID" ]
 then
-  docker image rm -f $ANALYTICS_IMAGE_ID
+  docker image rm -f $TASKSERVER_IMAGE_ID
 fi
 
 if [ -n "$API_IMAGE_ID" ]

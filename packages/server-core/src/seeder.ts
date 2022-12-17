@@ -8,7 +8,6 @@ import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/pro
 import seederConfig from './seeder-config'
 
 const settingsServiceNames = [
-  'analytics-setting',
   'authentication-setting',
   'aws-setting',
   'chargebee-setting',
@@ -17,7 +16,8 @@ const settingsServiceNames = [
   'email-setting',
   'instance-server-setting',
   'redis-setting',
-  'server-setting'
+  'server-setting',
+  'task-server-setting'
 ]
 
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {

@@ -15,7 +15,7 @@ export const Axis = {
 Object.freeze(Axis)
 
 /** Right handed coordinate direction */
-export const AvatarDirection = {
+export const ObjectDirection = {
   Right: Object.freeze(new Vector3().copy(Axis.X).multiplyScalar(-1)),
   Left: Axis.X,
   Up: Axis.Y,
@@ -24,4 +24,4 @@ export const AvatarDirection = {
   Backward: Axis.Z
 }
 
-Object.freeze(AvatarDirection)
+Object.freeze(ObjectDirection)

@@ -97,7 +97,7 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
         )}
       </NameInputGroupContainer>
 
-      {/** @todo this is the add component menu - still a work in progress */}
+      {/** @todo #7258 */}
       {editorState.advancedMode.value && typeof props.node.entity === 'number' && (
         <div style={{ pointerEvents: 'auto' }}>
           <MainMenu

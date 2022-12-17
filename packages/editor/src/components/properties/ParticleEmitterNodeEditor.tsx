@@ -10,7 +10,7 @@ import {
   hasComponent,
   useComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { formatMaterialArgs } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
+import { formatMaterialArgs } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import {
   ParticleEmitterComponent,

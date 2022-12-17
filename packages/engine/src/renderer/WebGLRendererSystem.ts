@@ -138,7 +138,9 @@ export class EngineRenderer {
       logarithmicDepthBuffer: true,
       canvas,
       context,
-      preserveDrawingBuffer: !isHMD
+      preserveDrawingBuffer: !isHMD,
+      //@ts-ignore
+      multiviewStereo: true
     }
 
     this.canvas = canvas
@@ -243,8 +245,6 @@ export class EngineRenderer {
         this.needsResize = false
       }
 
-      state.qualityLevel.value > 0 && this.csm?.update()
-
       /**
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
@@ -298,6 +298,7 @@ export default async function WebGLRendererSystem(world: World) {
   const reactor = startReactor(() => {
     const renderSettings = useHookstate(world.sceneMetadata.renderSettings)
     const postprocessing = useHookstate(world.sceneMetadata.postprocessing)
+    console.log(postprocessing.value)
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
@@ -318,7 +319,6 @@ export default async function WebGLRendererSystem(world: World) {
 
     return null
   })
-  reactor.run()
 
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)

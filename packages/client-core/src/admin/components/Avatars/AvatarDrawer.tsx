@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+import InputFile from '@xrengine/client-core/src/common/components/InputFile'
+import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
+import InputText from '@xrengine/client-core/src/common/components/InputText'
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import { getCanvasBlob, isValidHttpUrl } from '@xrengine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
@@ -14,7 +20,6 @@ import {
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -30,25 +35,16 @@ import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
-import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
+import { loadAvatarForPreview, resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'
-import ConfirmDialog from '../../common/ConfirmDialog'
 import DrawerView from '../../common/DrawerView'
-import InputRadio from '../../common/InputRadio'
-import InputText from '../../common/InputText'
-import LoadingView from '../../common/LoadingView'
 import { AdminAvatarActions, useAdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
-
-const Input = styled('input')({
-  display: 'none'
-})
 
 export enum AvatarDrawerMode {
   Create,
@@ -136,18 +132,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     }
   }
 
-  const isValidHttpUrl = (urlString) => {
-    let url
-
-    try {
-      url = new URL(urlString)
-    } catch (_) {
-      return false
-    }
-
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  }
-
   const updateAvatar = async () => {
     let url = ''
     if (state.source === 'url' && state.avatarUrl) {
@@ -175,8 +159,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         camera.value.position.z = 0.6
       }
       setAvatarLoading(false)
-      avatar.name = 'avatar'
-      scene.value.add(avatar)
+      if (avatar) {
+        avatar.name = 'avatar'
+        scene.value.add(avatar)
+      }
     }
   }
 
@@ -297,20 +283,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
     if (avatarBlob && thumbnailBlob) {
       if (selectedAvatar?.id) {
-        const uploadResponse = await AvatarService.uploadAvatarModel(
-          avatarBlob,
-          thumbnailBlob,
-          state.name + '_' + selectedAvatar.id,
-          selectedAvatar.isPublic,
-          selectedAvatar.id
-        )
-        const removalPromises = [] as any
-        if (uploadResponse[0].id !== selectedAvatar.modelResourceId)
-          removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.modelResourceId))
-        if (uploadResponse[1].id !== selectedAvatar.thumbnailResourceId)
-          removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.thumbnailResourceId))
-        await Promise.all(removalPromises)
-        await AvatarService.patchAvatar(selectedAvatar.id, uploadResponse[0].id, uploadResponse[1].id, state.name)
+        await AvatarService.patchAvatar(selectedAvatar, state.name, true, avatarBlob, thumbnailBlob)
       } else await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, true)
       dispatchAction(AdminAvatarActions.avatarUpdated({}))
 
@@ -354,14 +327,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     setShowConfirm(ConfirmState.None)
   }
 
-  const getCanvasBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        resolve(blob)
-      })
-    })
-  }
-
   return (
     <Container maxWidth="sm" className={styles.mt10}>
       <DialogTitle className={styles.textAlign}>
@@ -397,11 +362,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       {state.source === 'file' && (
         <>
           <label htmlFor="select-avatar">
-            <Input
+            <InputFile
               id="select-avatar"
               name="avatarFile"
               accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-              type="file"
               onChange={handleChangeFile}
             />
             <Button className={styles.gradientButton} component="span" startIcon={<FaceIcon />}>
@@ -501,11 +465,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       {state.source === 'file' && (
         <>
           <label htmlFor="select-thumbnail">
-            <Input
+            <InputFile
               id="select-thumbnail"
               name="thumbnailFile"
               accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-              type="file"
               onChange={handleChangeFile}
             />
             <Button className={styles.gradientButton} component="span" startIcon={<AccountCircleIcon />}>

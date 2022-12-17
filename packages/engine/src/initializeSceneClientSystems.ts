@@ -2,6 +2,7 @@ import MediaSystem from './audio/systems/MediaSystem'
 import PositionalAudioSystem from './audio/systems/PositionalAudioSystem'
 import AnimationSystem from './avatar/AnimationSystem'
 import AvatarControllerSystem from './avatar/AvatarControllerSystem'
+import AvatarInputSystem from './avatar/AvatarInputSystem'
 import AvatarLoadingSystem from './avatar/AvatarLoadingSystem'
 import AvatarTeleportSystem from './avatar/AvatarTeleportSystem'
 import FlyControlSystem from './avatar/FlyControlSystem'
@@ -35,13 +36,18 @@ export default function () {
     },
     {
       uuid: 'xre.engine.AvatarTeleportSystem',
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.UPDATE_LATE,
       systemLoader: () => Promise.resolve({ default: AvatarTeleportSystem })
     },
     {
       uuid: 'xre.engine.AnimationSystem',
       type: SystemUpdateType.UPDATE,
       systemLoader: () => Promise.resolve({ default: AnimationSystem })
+    },
+    {
+      uuid: 'xre.engine.AvatarInputSystem',
+      type: SystemUpdateType.UPDATE,
+      systemLoader: () => Promise.resolve({ default: AvatarInputSystem })
     },
     {
       uuid: 'xre.engine.AvatarControllerSystem',
@@ -65,7 +71,7 @@ export default function () {
     },
     {
       uuid: 'xre.engine.PositionalAudioSystem',
-      type: SystemUpdateType.PRE_RENDER,
+      type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: PositionalAudioSystem })
     },
     {

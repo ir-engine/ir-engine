@@ -428,11 +428,11 @@ export const AuthService = {
         }
       }
 
-      // TODO: This is temp until we move completely to XR wallet
+      // TODO: This is temp until we move completely to XR wallet #6453
       const oldId = accessAuthState().user.id.value
       walletUser.id = oldId
 
-      // loadXRAvatarForUpdatedUser(walletUser) // TODO
+      // loadXRAvatarForUpdatedUser(walletUser)
       dispatchAction(AuthAction.loadedUserDataAction({ user: walletUser }))
       dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
     } catch (err) {

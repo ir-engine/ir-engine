@@ -10,7 +10,8 @@ import {
   Scene,
   Shader,
   ShadowMapType,
-  ToneMapping
+  ToneMapping,
+  Vector2
 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
@@ -26,8 +27,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { InputAlias } from '../../input/types/InputAlias'
+import { ButtonInputStateType } from '../../input/InputState'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -79,16 +79,20 @@ export class World {
     setTransformComponent(this.originEntity)
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
+    this.origin.name = 'world-origin'
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')
     addComponent(this.cameraEntity, CameraComponent)
     addComponent(this.cameraEntity, VisibleComponent, true)
-    setTransformComponent(this.cameraEntity)
     setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
-    /** @todo */
-    // this.scene.matrixAutoUpdate = false
+    this.camera.matrixAutoUpdate = false
+    this.camera.matrixWorldAutoUpdate = false
+
+    this.scene.matrixAutoUpdate = false
+    this.scene.matrixWorldAutoUpdate = false
+
     this.scene.layers.set(ObjectLayers.Scene)
   }
 
@@ -242,6 +246,11 @@ export class World {
   }
 
   /**
+   *
+   */
+  priorityAvatarEntities: ReadonlySet<Entity> = new Set()
+
+  /**
    * The local client entity
    */
   get localClientEntity() {
@@ -250,10 +259,17 @@ export class World {
 
   readonly dirtyTransforms = {} as Record<Entity, true>
 
-  inputState = new Map<InputAlias, InputValue>()
-  prevInputState = new Map<InputAlias, InputValue>()
+  inputSources: Readonly<XRInputSourceArray> = []
 
-  inputSources: XRInputSourceArray = []
+  pointerState = {
+    position: new Vector2(),
+    lastPosition: new Vector2(),
+    movement: new Vector2(),
+    scroll: new Vector2(),
+    lastScroll: new Vector2()
+  }
+
+  buttons = {} as Readonly<ButtonInputStateType>
 
   reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()
 
@@ -279,16 +295,7 @@ export class World {
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstance[] }
 
-  /**
-   * Entities mapped by name
-   * @deprecated use entitiesByName
-   */
-  get namedEntities() {
-    return new Map(Object.entries(this.entitiesByName.value))
-  }
-
-  entitiesByName = createState({} as Record<string, Entity>)
-  entitiesByUuid = createState({} as Record<string, Entity>)
+  systemsByUUID = {} as Record<string, SystemInstance>
 
   /**
    * Network object query

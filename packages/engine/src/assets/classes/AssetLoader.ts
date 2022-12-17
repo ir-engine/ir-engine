@@ -359,12 +359,7 @@ const load = (
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
-    // TODO: fix instancing for GLTFs - move this to the gltf loader
-    // if (instanced) {
-    //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
-    // } else {
     return loader.load(url, callback, onProgress, onError)
-    // }
   } catch (error) {
     onError(error)
   }

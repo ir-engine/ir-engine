@@ -4,8 +4,9 @@ import { createActionQueue, defineAction, dispatchAction, removeActionQueue } fr
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { GroupComponent, removeGroupComponent } from '../components/GroupComponent'
 import {
   ParticleEmitterComponent,
   SCENE_COMPONENT_PARTICLE_EMITTER,
@@ -14,9 +15,9 @@ import {
 import {
   deserializeParticleEmitter,
   initializeParticleSystem,
-  serializeParticleEmitter,
-  updateParticleEmitter
+  serializeParticleEmitter
 } from '../functions/loaders/ParticleEmitterFunctions'
+import { ParticleSystemType } from '../functions/particles/ParticleTypes'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export class ParticleSystemActions {
@@ -31,7 +32,7 @@ export class ParticleSystemActions {
 }
 
 export default async function ParticleSystem(world: World) {
-  const systemTable = new Map<Entity, any>()
+  const systemTable = new Map<Entity, ParticleSystemType>()
   const mutices = new Set<Entity>()
   const creatingQueue = createActionQueue(ParticleSystemActions.createParticleSystem.matches)
   const destroyingQueue = createActionQueue(ParticleSystemActions.destroyParticleSystem.matches)
@@ -60,34 +61,19 @@ export default async function ParticleSystem(world: World) {
   })
 
   const particleQuery = defineQuery([TransformComponent, ParticleEmitterComponent])
+  const particleGroupQuery = defineQuery([TransformComponent, ParticleEmitterComponent, GroupComponent])
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   const clearSystem = (entity) => {
     if (mutices.has(entity)) return
     if (systemTable.has(entity)) {
       mutices.add(entity)
+      removeGroupComponent(entity)
       dispose(entity, systemTable.get(entity))
     }
   }
 
   const execute = () => {
-    /**
-     * Scene Loaders
-     */
-    const dt = world.deltaSeconds
-    ;[...systemTable.keys()] /*.filter(entity => !mutices.has(entity))*/
-      .map((entity) => {
-        const system = systemTable.get(entity)
-        if (hasComponent(entity, TransformComponent)) {
-          const position = getComponent(entity, TransformComponent).position
-          system.emitters.map((emitter) => emitter.setPosition(position))
-        }
-        system.update(dt)
-      })
-
-    /**
-     * Effect handler
-     */
     for (const action of creatingQueue()) {
       const entity = action.entity
       if (mutices.has(entity)) continue
@@ -96,7 +82,7 @@ export default async function ParticleSystem(world: World) {
         dispose(entity, systemTable.get(entity))
       } else {
         initializeParticleSystem(entity).then((system) => {
-          systemTable.set(entity, system)
+          systemTable.set(entity, system!)
           mutices.delete(entity)
         })
       }
@@ -104,12 +90,21 @@ export default async function ParticleSystem(world: World) {
 
     for (const { entity } of destroyingQueue()) {
       if (!mutices.has(entity)) continue
-      systemTable.get(entity).destroy()
+      const system = systemTable.get(entity)
+      if (system) system.destroy()
       systemTable.delete(entity)
       mutices.delete(entity)
     }
 
     particleQuery.exit().map(clearSystem)
+
+    const dt = world.deltaSeconds
+    for (const entity of particleGroupQuery()) {
+      const group = getComponent(entity, GroupComponent)
+      for (const obj of group) obj.updateMatrixWorld(true)
+      const system = systemTable.get(entity)
+      if (system) system.update(dt)
+    }
   }
 
   const cleanup = async () => {

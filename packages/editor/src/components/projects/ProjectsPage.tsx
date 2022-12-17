@@ -233,7 +233,7 @@ const ProjectsPage = () => {
     fetchCommunityProjects()
   }, [authUser.accessToken])
 
-  // TODO: Implement tutorial
+  // TODO: Implement tutorial #7257
   const openTutorial = () => {
     logger.info('Implement Tutorial...')
   }
@@ -281,7 +281,6 @@ const ProjectsPage = () => {
     setUpdatingProject(true)
     if (activeProject) {
       try {
-        // TODO: using repo path as IDs & names are not properly implemented for official projects
         const proj = installedProjects.find((proj) => proj.id === activeProject.id)!
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()
@@ -417,7 +416,7 @@ const ProjectsPage = () => {
         {`
         #menu-projectURL,
         #menu-branchData,
-        #menu-tagData {
+        #menu-commitData {
           z-index: 1500;
         }
         #engine-container {
@@ -582,15 +581,13 @@ const ProjectsPage = () => {
           removePermission={onRemovePermission}
         />
       )}
-      {activeProject && (
-        <ProjectDrawer
-          open={projectDrawerOpen}
-          inputProject={activeProject}
-          existingProject={true}
-          onClose={handleCloseProjectDrawer}
-          changeDestination={changeDestination}
-        />
-      )}
+      <ProjectDrawer
+        open={projectDrawerOpen}
+        inputProject={activeProject}
+        existingProject={activeProject != null}
+        onClose={handleCloseProjectDrawer}
+        changeDestination={changeDestination}
+      />
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu

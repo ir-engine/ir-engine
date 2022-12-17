@@ -6,14 +6,16 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { initSystems, unloadSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 const initialize3D = () => {
   const camera = new PerspectiveCamera(60, 1, 0.25, 20)
   camera.position.set(0, 1.75, 0.5)
+  camera.layers.set(ObjectLayers.Panel)
 
   const scene = new Scene()
 
@@ -29,6 +31,9 @@ const initialize3D = () => {
   scene.add(frontLight)
   scene.add(frontLight.target)
   scene.add(hemi)
+  scene.traverse((obj) => {
+    obj.layers.set(ObjectLayers.Panel)
+  })
   const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.outputEncoding = sRGBEncoding
@@ -84,15 +89,18 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       }
     }
 
+    const systemUUID = 'xre.client.AvatarSelectRenderSystem-' + i++
+
     initSystems(world, [
       {
-        uuid: 'xre.client.AvatarSelectRenderSystem-' + i++,
+        uuid: systemUUID,
         type: SystemUpdateType.POST_RENDER,
         systemLoader: () => Promise.resolve({ default: AvatarSelectRenderSystem })
       }
     ])
 
     return () => {
+      unloadSystem(world, systemUUID)
       removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
     }

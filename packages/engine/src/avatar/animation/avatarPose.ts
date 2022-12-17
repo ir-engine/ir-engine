@@ -60,7 +60,7 @@ const conformArmToTpose = (coformingBoneReference: Bone, conformingBone: Bone, t
  */
 export function makeTPose(rig: BoneStructure) {
   /**
-   * @todo add complete rig t-pose compliance here
+   * @todo add complete rig t-pose compliance here #7264
    * should we use the retargeting source skeleton as a reference?
    */
 

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputFile from '@xrengine/client-core/src/common/components/InputFile'
+import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
+import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@xrengine/common/src/constants/AvatarConstants'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import {
@@ -16,21 +20,13 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
-import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
-import InputRadio from '../../common/InputRadio'
-import InputSelect, { InputMenuItem } from '../../common/InputSelect'
-import InputText from '../../common/InputText'
 import { ResourceService, useAdminResourceState } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
-
-const Input = styled('input')({
-  display: 'none'
-})
 
 export enum ResourceDrawerMode {
   Create,
@@ -309,7 +305,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       {state.source === 'file' && (
         <>
           <label htmlFor="select-file">
-            <Input id="select-file" name="resourceFile" type="file" onChange={handleChangeFile} />
+            <InputFile id="select-file" name="resourceFile" onChange={handleChangeFile} />
             <Button className={styles.gradientButton} component="span" startIcon={<FileUploadIcon />}>
               {t('admin:components.resources.selectFile')}
             </Button>

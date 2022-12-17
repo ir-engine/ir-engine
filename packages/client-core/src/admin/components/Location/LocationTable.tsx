@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
 import Avatar from '@mui/material/Avatar'
@@ -8,7 +9,6 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
 import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'

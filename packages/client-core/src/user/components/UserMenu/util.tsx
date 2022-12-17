@@ -10,13 +10,12 @@ export const Views = {
   Party: 'Party',
   DeleteAccount: 'accountDelete',
   Login: 'Login',
-  AvatarUpload: 'AvatarUpload',
-  Avatar: 'Avatar',
   Emote: 'Emote',
   ReadyPlayer: 'ReadyPlayer',
   AvatarSelect: 'AvatarSelect',
-  Friends: 'Friends',
-  AvatarContext: 'AvatarContext'
+  AvatarModify: 'AvatarModify',
+  AvatarContext: 'AvatarContext',
+  Friends: 'Friends'
 }
 
 export interface SettingMenuProps {

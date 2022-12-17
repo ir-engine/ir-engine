@@ -7,7 +7,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
+import { compareDistance, DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InteractState } from '../systems/InteractiveSystem'
 
@@ -21,12 +21,6 @@ const mat4 = new Matrix4()
 //   2 // far
 // )
 const frustum = new Frustum()
-
-const distanceSort = (a: Entity, b: Entity) => {
-  const aDist = DistanceFromCameraComponent.squaredDistance[a]
-  const bDist = DistanceFromCameraComponent.squaredDistance[b]
-  return aDist - bDist
-}
 
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
@@ -53,5 +47,5 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
   //   available.push(entityIn)
   // }
 
-  availableInteractable.set([...interactables].sort(distanceSort))
+  availableInteractable.set([...interactables].sort(compareDistance))
 }

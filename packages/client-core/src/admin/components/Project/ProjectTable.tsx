@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
 
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import Download from '@mui/icons-material/Download'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Group from '@mui/icons-material/Group'
@@ -17,9 +19,9 @@ import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
@@ -199,9 +201,17 @@ const ProjectTable = ({ className }: Props) => {
     setPage(0)
   }
 
+  const copyShaToClipboard = (sha: string) => {
+    navigator.clipboard.writeText(sha)
+    NotificationService.dispatchNotify(t('admin:components.project.commitSHACopied'), {
+      variant: 'success'
+    })
+  }
+
   const isAdmin = user.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
   const createData = (el: ProjectInterface, name: string) => {
+    const commitSHA = el.commitSHA
     return {
       el,
       name: (
@@ -217,6 +227,29 @@ const ProjectTable = ({ className }: Props) => {
       projectVersion: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <span>{el.version}</span>
+        </Box>
+      ),
+      commitSHA: (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <div className={styles.commitContents}>
+            {commitSHA?.substring(0, 8)}
+            {commitSHA ? <ContentCopyIcon onClick={() => copyShaToClipboard(commitSHA)} /> : '-'}
+          </div>
+        </Box>
+      ),
+      commitDate: (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <span>
+            {el.commitDate
+              ? new Date(el.commitDate).toLocaleString('en-us', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric'
+                })
+              : '-'}
+          </span>
         </Box>
       ),
       update: (
@@ -250,8 +283,8 @@ const ProjectTable = ({ className }: Props) => {
       link: (
         <>
           <IconButton className={styles.iconButton} name="update" onClick={() => handleOpenProjectDrawer(el, true)}>
-            {el.repositoryPath && <LinkOffIcon />}
-            {!el.repositoryPath && <LinkIcon />}
+            {!el.repositoryPath && <LinkOffIcon />}
+            {el.repositoryPath && <LinkIcon />}
           </IconButton>
         </>
       ),

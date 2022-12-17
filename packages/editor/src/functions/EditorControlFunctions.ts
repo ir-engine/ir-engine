@@ -29,8 +29,8 @@ import {
   reparentEntityNode,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/Utilities'
-import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '@xrengine/engine/src/scene/components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
@@ -75,7 +75,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(nodes: EntityTreeNo
     else removeComponent(entity, component)
   }
 
-  /** @todo remove when all scene components migrated to reactor pattern */
+  /** @todo remove when all scene components migrated to reactor pattern #6892 */
   dispatchAction(
     EngineActions.sceneObjectUpdate({
       entities: nodes.map((n) => n.entity)
@@ -106,7 +106,7 @@ const modifyProperty = <C extends Component<any, any>>(
     updateComponent(entity, component, properties)
   }
 
-  /** @todo remove when all scene components migrated to reactor pattern */
+  /** @todo remove when all scene components migrated to reactor pattern #6892 */
   dispatchAction(
     EngineActions.sceneObjectUpdate({
       entities: nodes.filter((node) => typeof node !== 'string').map((node: EntityTreeNode) => node.entity)
@@ -137,14 +137,14 @@ const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => 
     })
   }
   /**
-   * @todo
+   * @todo #7259
    * figure out how to use history here
    */
 }
 
 function _getMaterial(node: string, materialId: string) {
   let material: Material | undefined
-  if (MaterialLibrary.materials.has(node)) {
+  if (!!getMaterialLibrary().materials[materialId].value) {
     material = materialFromId(node).material
   } else {
     const mesh = obj3dFromUuid(node) as Mesh
@@ -175,7 +175,7 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
     material.needsUpdate = true
   }
   /**
-   * @todo
+   * @todo #7259
    * figure out how to use history here
    */
 }

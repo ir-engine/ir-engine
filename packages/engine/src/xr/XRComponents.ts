@@ -1,10 +1,20 @@
 // TODO: this should not be here
 import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
-import { BufferGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, RingGeometry } from 'three'
+import {
+  BufferGeometry,
+  Group,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  RingGeometry,
+  ShadowMaterial
+} from 'three'
 
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
 import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
 export type XRGripButtonComponentType = {}
@@ -110,122 +120,6 @@ export const XRAnchorComponent = defineComponent({
   }
 })
 
-export const InputSourceComponent = defineComponent({
-  name: 'XRControllerComponent',
-  onInit: (entity) => {
-    return {
-      inputSource: null! as XRInputSource
-    }
-  },
+export type XRHand = Map<XRHandJoint, XRJointSpace>
 
-  onSet: (entity, component, json) => {
-    if (json?.inputSource) component.inputSource.set(json.inputSource as XRInputSource)
-  },
-
-  toJSON: () => {
-    return null! as {
-      inputSource: XRInputSource
-    }
-  }
-})
-
-export const XRControllerComponent = defineComponent({
-  name: 'XRControllerComponent',
-  onInit: (entity) => {
-    return {
-      targetRaySpace: null! as XRSpace,
-      handedness: null! as XRHandedness,
-      grip: UndefinedEntity,
-      hand: UndefinedEntity
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (json?.targetRaySpace) component.targetRaySpace.set(json.targetRaySpace)
-    if (json?.handedness) component.handedness.set(json.handedness)
-  },
-
-  toJSON: () => {
-    return null! as {
-      targetRaySpace: XRSpace
-      handedness: XRHandedness
-      grip: Entity | null
-      hand: Entity | null
-    }
-  }
-})
-
-export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<RingGeometry, MeshBasicMaterial>) & {
-  targetRay?: Mesh<BufferGeometry, MeshBasicMaterial>
-  cursor?: Mesh<BufferGeometry, MeshBasicMaterial>
-  lastHit?: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
-}
-
-export const XRPointerComponent = defineComponent({
-  name: 'XRPointer',
-
-  onInit: (entity) => {
-    return {
-      pointer: null! as PointerObject
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (json?.pointer) component.pointer.set(json.pointer as PointerObject)
-  },
-
-  toJSON: () => {
-    return null! as {
-      pointer: PointerObject
-    }
-  }
-})
-
-export const XRControllerGripComponent = defineComponent({
-  name: 'XRControllerGrip',
-  onInit: (entity) => {
-    return {
-      gripSpace: null! as XRSpace,
-      handedness: null! as XRHandedness
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (json?.gripSpace) component.gripSpace.set(json.gripSpace)
-    if (json?.handedness) component.handedness.set(json.handedness)
-  },
-
-  toJSON: () => {
-    return null! as {
-      gripSpace: XRSpace
-      handedness: XRHandedness
-    }
-  }
-})
-
-export const XRHandComponent = defineComponent({
-  name: 'XRHand',
-  onInit: (entity) => {
-    const group = new Group()
-    addObjectToGroup(entity, group)
-    return {
-      hand: null! as XRHand,
-      group,
-      handedness: null! as XRHandedness,
-      joints: {} as { [name: string]: Group & { jointRadius: number | undefined } },
-      pinching: false
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (json?.hand) component.hand.set(json.hand)
-    if (json?.handedness) component.handedness.set(json.handedness)
-  },
-
-  toJSON: () => {
-    return null! as {
-      hand: XRHand
-      handedness: XRHandedness
-    }
-  }
-})
+export const XRPlaneComponent = defineComponent({ name: 'XRPlaneComponent' })

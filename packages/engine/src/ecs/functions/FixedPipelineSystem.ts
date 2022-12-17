@@ -1,19 +1,16 @@
-import multiLogger from '@xrengine/common/src/logger'
 import { getState } from '@xrengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { EngineState, getEngineState } from '../classes/EngineState'
+import { EngineState } from '../classes/EngineState'
 import { World } from '../classes/World'
 import { SystemUpdateType } from './SystemUpdateType'
 
-const logger = multiLogger.child({ component: 'engine:ecs:FixedPipelineSystem' })
+// const logger = multiLogger.child({ component: 'engine:ecs:FixedPipelineSystem' })
 /**
  * System for running simulation logic with fixed time intervals
  */
 export default function FixedPipelineSystem(world: World) {
-  // If the difference between fixedElapsedTime and elapsedTime becomes too large,
-  // we should simply skip ahead.
-  const maxFixedFrameDelay = 4
+  // const maxIterations = 1
 
   const execute = () => {
     const start = nowMilliseconds()
@@ -25,6 +22,10 @@ export default function FixedPipelineSystem(world: World) {
 
     const timestep = engineState.fixedDeltaSeconds.value
     const maxMilliseconds = 8
+
+    // If the difference between fixedElapsedTime and elapsedTime becomes too large,
+    // we should simply skip ahead.
+    const maxFixedFrameDelay = Math.max(1, world.deltaSeconds / timestep)
 
     if (accumulator < 0) {
       engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
@@ -45,13 +46,13 @@ export default function FixedPipelineSystem(world: World) {
 
       accumulator -= timestep
 
+      const frameDelay = accumulator / timestep
+
       timeUsed = nowMilliseconds() - start
       accumulatorDepleted = accumulator < timestep
       timeout = timeUsed > maxMilliseconds
-      const frameDelay = accumulator / timestep
 
-      if (frameDelay > maxFixedFrameDelay) {
-        logger.warn(`[FixedPipelineSystem]: FIXED pipeline is behind by %d frames! catching up...`, frameDelay)
+      if (frameDelay >= maxFixedFrameDelay) {
         engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
         engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
         break

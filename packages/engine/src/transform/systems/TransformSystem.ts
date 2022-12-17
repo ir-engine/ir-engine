@@ -1,22 +1,19 @@
 import { entityExists, Not } from 'bitecs'
-import { Camera, Mesh, Vector3 } from 'three'
+import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
-import { proxifyQuaternion } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
-  getComponentState,
   getOptionalComponent,
-  getOptionalComponentState,
   hasComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
@@ -24,14 +21,19 @@ import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/c
 import {
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
-  RigidBodyFixedTagComponent
+  RigidBodyKinematicPositionBasedTagComponent,
+  RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
-import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
+import {
+  DistanceFromCameraComponent,
+  DistanceFromLocalClientComponent,
+  FrustumCullCameraComponent
+} from '../components/DistanceComponents'
 import {
   LocalTransformComponent,
   SCENE_COMPONENT_TRANSFORM,
@@ -40,7 +42,7 @@ import {
 } from '../components/TransformComponent'
 
 const transformQuery = defineQuery([TransformComponent])
-const localTransformQuery = defineQuery([LocalTransformComponent])
+const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
 const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
@@ -49,6 +51,7 @@ const dynamicBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponen
 
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
+const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
 export const computeLocalTransformMatrix = (entity: Entity) => {
   const localTransform = getComponent(entity, LocalTransformComponent)
@@ -66,10 +69,11 @@ export const computeTransformMatrix = (entity: Entity, world = Engine.instance.c
 export const teleportRigidbody = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  rigidBody.body.setTranslation(transform.position, !rigidBody.body.isSleeping())
-  rigidBody.body.setRotation(transform.rotation, !rigidBody.body.isSleeping())
-  rigidBody.body.setLinvel(V_000, !rigidBody.body.isSleeping())
-  rigidBody.body.setAngvel(V_000, !rigidBody.body.isSleeping())
+  const isAwake = !rigidBody.body.isSleeping()
+  rigidBody.body.setTranslation(transform.position, isAwake)
+  rigidBody.body.setRotation(transform.rotation, isAwake)
+  rigidBody.body.setLinvel(V_000, isAwake)
+  rigidBody.body.setAngvel(V_000, isAwake)
   rigidBody.previousPosition.copy(transform.position)
   rigidBody.position.copy(transform.position)
   rigidBody.previousRotation.copy(transform.rotation)
@@ -117,10 +121,11 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const localTransform = getOptionalComponent(entity, LocalTransformComponent)
+  const isDynamicRigidbody = hasComponent(entity, RigidBodyDynamicTagComponent)
   const parentTransform = localTransform?.parentEntity
     ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
     : undefined
-  if (!localTransform || !parentTransform) return false
+  if (!localTransform || !parentTransform || isDynamicRigidbody) return false
   const transform = getComponent(entity, TransformComponent)
   transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
   transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
@@ -134,12 +139,13 @@ const updateTransformFromComputedTransform = (entity: Entity) => {
   return true
 }
 
-const updateGroupChildren = (entity: Entity) => {
+export const updateGroupChildren = (entity: Entity) => {
   const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
   // drop down one level and update children
   for (const root of group) {
     for (const obj of root.children) {
       obj.updateMatrixWorld()
+      obj.matrixWorldNeedsUpdate = false
     }
   }
 }
@@ -155,6 +161,20 @@ export default async function TransformSystem(world: World) {
     deserialize: deserializeTransform,
     serialize: serializeTransform
   })
+
+  /** override Skeleton.update, as it is called inside  */
+  const skeletonUpdate = Skeleton.prototype.update
+
+  function noop() {}
+
+  function iterateSkeletons(skinnedMesh: SkinnedMesh) {
+    if (skinnedMesh.isSkinnedMesh) {
+      skinnedMesh.skeleton.update()
+    }
+  }
+
+  const _frustum = new Frustum()
+  const _projScreenMatrix = new Matrix4()
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
@@ -204,13 +224,20 @@ export default async function TransformSystem(world: World) {
   }
 
   const isDirty = (entity: Entity) => world.dirtyTransforms[entity]
+  const isDirtyNonKinematic = (entity: Entity) =>
+    world.dirtyTransforms[entity] &&
+    !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
+    !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
-  const filterCleanNonSleepingRigidbodies = (entity: Entity) =>
+  const filterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
     !world.dirtyTransforms[entity] &&
-    !hasComponent(entity, RigidBodyFixedTagComponent) &&
+    hasComponent(entity, RigidBodyDynamicTagComponent) &&
     !getComponent(entity, RigidBodyComponent).body.isSleeping()
 
-  const invFilterCleanNonSleepingRigidbodies = (entity: Entity) => !filterCleanNonSleepingRigidbodies(entity)
+  const invFilterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
+    !filterCleanNonSleepingDynamicRigidbodies(entity)
+
+  let sortedTransformEntities = [] as Entity[]
 
   const execute = () => {
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
@@ -218,22 +245,35 @@ export default async function TransformSystem(world: World) {
     // if transform order is dirty, sort by reference depth
     // Note: cyclic references will cause undefined behavior
     const { transformsNeedSorting } = getState(EngineState)
-    const transformEntities = transformQuery()
-    if (transformsNeedSorting.value) {
+
+    let needsSorting = transformsNeedSorting.value
+
+    for (const entity of transformQuery.enter()) {
+      sortedTransformEntities.push(entity)
+      needsSorting = true
+    }
+
+    for (const entity of transformQuery.exit()) {
+      const idx = sortedTransformEntities.indexOf(entity)
+      idx > -1 && sortedTransformEntities.splice(idx, 1)
+      needsSorting = true
+    }
+
+    if (needsSorting) {
       transformDepths.clear()
-      for (const entity of transformEntities) updateTransformDepth(entity)
-      insertionSort(transformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
+      for (const entity of sortedTransformEntities) updateTransformDepth(entity)
+      insertionSort(sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
       transformsNeedSorting.set(false)
     }
 
     const allRigidbodyEntities = rigidbodyTransformQuery()
-    const cleanRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)
-    const invCleanRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingRigidbodies)
+    const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingDynamicRigidbodies)
+    const invCleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingDynamicRigidbodies)
 
-    // lerp clean rigidbody entities (make them dirty)
+    // lerp clean dynamic rigidbody entities (make them dirty)
     const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
     const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
-    for (const entity of cleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
+    for (const entity of cleanDynamicRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
     for (const entity of transformQuery()) {
@@ -245,13 +285,15 @@ export default async function TransformSystem(world: World) {
       if (makeDirty) world.dirtyTransforms[entity] = true
     }
 
-    const dirtyRigidbodyEntities = invCleanRigidbodyEntities.filter(isDirty)
-    const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
-    const dirtyTransformEntities = transformEntities.filter(isDirty)
+    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirtyNonKinematic)
+    const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
+    const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
 
-    for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
-    for (const entity of dirtyTransformEntities) computeTransformMatrix(entity, world)
+    for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
+    for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity, world)
+
+    // exclude teleporting kinematic bodies, which are updated in the Physics System
     for (const entity of dirtyRigidbodyEntities) teleportRigidbody(entity)
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
@@ -275,6 +317,17 @@ export default async function TransformSystem(world: World) {
     for (const entity of distanceFromCameraQuery())
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
+    /** @todo expose the frustum in WebGLRenderer to not calculate this twice  */
+    _projScreenMatrix.multiplyMatrices(world.camera.projectionMatrix, world.camera.matrixWorldInverse)
+    _frustum.setFromProjectionMatrix(_projScreenMatrix)
+
+    for (const entity of frustumCulledQuery())
+      FrustumCullCameraComponent.isCulled[entity] = _frustum.containsPoint(
+        getComponent(entity, TransformComponent).position
+      )
+        ? 0
+        : 1
+
     if (entityExists(world, world.localClientEntity)) {
       const localClientPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
       if (localClientPosition) {
@@ -287,6 +340,13 @@ export default async function TransformSystem(world: World) {
 
       updateReferenceSpace(world.localClientEntity)
     }
+
+    Skeleton.prototype.update = skeletonUpdate
+    for (const entity of world.priorityAvatarEntities) {
+      const group = getComponent(entity, GroupComponent)
+      for (const obj of group) obj.traverse(iterateSkeletons)
+    }
+    Skeleton.prototype.update = noop
   }
 
   const cleanup = async () => {
@@ -300,6 +360,7 @@ export default async function TransformSystem(world: World) {
     removeQuery(world, dynamicBoundingBoxQuery)
     removeQuery(world, distanceFromLocalClientQuery)
     removeQuery(world, distanceFromCameraQuery)
+    Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }

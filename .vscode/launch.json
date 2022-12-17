@@ -16,8 +16,8 @@
             "port": 3000
         },
         {
-            "command": "npm run dev-analytics",
-            "name": "npm run dev-analytics",
+            "command": "npm run dev-taskserver",
+            "name": "npm run dev-taskserver",
             "request": "launch",
             "type": "node-terminal",
             "port": 3000

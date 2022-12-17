@@ -3,7 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
-import { AvatarDirection } from '../../common/constants/Axis3D'
+import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
@@ -17,7 +17,6 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -33,7 +32,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarTeleportComponent } from '../components/AvatarTeleportComponent'
-import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
+import { AvatarInputSettingsState, AvatarMovementScheme } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './spawnAvatarReceptor'
 
 const _vec = new Vector3()
@@ -59,7 +58,7 @@ const minimumStepSpeed = 0.1
 const avatarStepRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
-  direction: AvatarDirection.Down,
+  direction: ObjectDirection.Down,
   maxDistance: stepHeight,
   groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
 }
@@ -117,7 +116,7 @@ export const moveAvatarWithVelocity = (entity: Entity) => {
 
   const camera = Engine.instance.currentWorld.camera
   const cameraDirection = camera.getWorldDirection(_vec).setY(0).normalize()
-  const forwardOrientation = _quat.setFromUnitVectors(AvatarDirection.Forward, cameraDirection)
+  const forwardOrientation = _quat.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
 
   avatarApplyVelocity(entity, forwardOrientation)
   avatarApplyRotation(entity)
@@ -214,18 +213,6 @@ export const avatarStepOverObstacles = (entity: Entity, forwardOrientation: Quat
   }
 }
 
-/**
- * Moves the avatar with teleport controls
- * @param entity
- */
-export const moveAvatarWithTeleport = (entity: Entity, magnitude: number, side: 'left' | 'right') => {
-  if (magnitude < -0.75 && !hasComponent(entity, AvatarTeleportComponent)) {
-    setComponent(entity, AvatarTeleportComponent, { side })
-  } else if (magnitude === 0.0) {
-    removeComponent(entity, AvatarTeleportComponent)
-  }
-}
-
 const quat = new Quaternion()
 
 /**
@@ -284,14 +271,15 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
     return
   }
 
-  const newPosition = targetPosition.clone()
+  const raycastOrigin = targetPosition.clone()
+  raycastOrigin.y += 0.1
+  const { raycastHit } = checkPositionIsValid(raycastOrigin, false)
 
-  if (checkPositionIsValid(newPosition, false)) {
-    const avatar = getComponent(entity, AvatarComponent)
-    newPosition.y += avatar.avatarHalfHeight
-    const rigidbody = getComponent(entity, RigidBodyComponent)
-    rigidbody.body.setTranslation(newPosition, true)
+  if (raycastHit) {
+    const pos = new Vector3().copy(raycastHit.position as Vector3)
+    const transform = getComponent(entity, TransformComponent)
+    transform.position.copy(pos)
   } else {
-    console.log('invalid position', newPosition)
+    console.log('invalid position', targetPosition, raycastHit)
   }
 }

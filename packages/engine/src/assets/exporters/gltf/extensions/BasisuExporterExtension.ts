@@ -41,8 +41,6 @@ export default class BasisuExporterExtension extends ExporterExtension implement
       this.writer.pending.push(entry.replacement.then((replacement) => (material[field] = replacement)))
     } else {
       let texturePromise: Promise<Texture | null> = (async () => null)()
-      const entry = { replacement: texturePromise, originals: new Array<{ material: Material; field: string }>() }
-      entry.originals.push({ material, field })
       if (!(texture as CubeTexture).isCubeTexture) {
         texturePromise = new Promise<Texture>((resolve) => {
           createReadableTexture(texture, { flipY: true }).then((replacement: Texture) => {
@@ -51,6 +49,9 @@ export default class BasisuExporterExtension extends ExporterExtension implement
           })
         })
       }
+      const entry = { replacement: texturePromise, originals: new Array<{ material: Material; field: string }>() }
+      entry.originals.push({ material, field })
+
       this.replacedImages.set(texture, entry)
       this.writer.pending.push(texturePromise)
     }

@@ -6,6 +6,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import CodeIcon from '@mui/icons-material/Code'
 import FormatColorFillIcon from '@mui/icons-material/FormatColorFill'
 import HubIcon from '@mui/icons-material/Hub'
+import ListAltIcon from '@mui/icons-material/ListAlt'
 import LockIcon from '@mui/icons-material/Lock'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -20,7 +21,6 @@ import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 
 import styles from '../../styles/settings.module.scss'
-import Analytics from './Analytics'
 import Authentication from './Authentication'
 import Aws from './Aws'
 import ChargeBee from './Chargebee'
@@ -32,14 +32,9 @@ import InstanceServer from './InstanceServer'
 import Project from './Project'
 import Redis from './Redis'
 import Server from './Server'
+import TaskServer from './TaskServer'
 
 const settingItems = [
-  {
-    name: 'analytics',
-    title: 'Analytics',
-    icon: <Icon icon="carbon:analytics" color="orange" />,
-    content: <Analytics />
-  },
   {
     name: 'project',
     title: 'Project',
@@ -69,6 +64,12 @@ const settingItems = [
     title: 'Instance Server',
     icon: <HubIcon sx={{ color: 'orange' }} />,
     content: <InstanceServer />
+  },
+  {
+    name: 'taskServer',
+    title: 'Task Server',
+    icon: <ListAltIcon sx={{ color: 'orange' }} />,
+    content: <TaskServer />
   },
   {
     name: 'email',
@@ -137,7 +138,7 @@ const Sidebar = ({ selected, onChange }: SidebarProps) => {
 
 const Setting = () => {
   const rootRef = useRef<any>()
-  const [selectedItem, setSelectedItem] = useState('analytics')
+  const [selectedItem, setSelectedItem] = useState('project')
   const [menuVisible, setMenuVisible] = useState(false)
   const { t } = useTranslation()
 

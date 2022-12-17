@@ -1,0 +1,15 @@
+.radioField {
+  :global {
+    .MuiFormLabel-root {
+      color: var(--textColor);
+    }
+
+    .MuiSvgIcon-root {
+      color: var(--textColor);
+    }
+  }
+}
+
+.block {
+  flex-direction: column;
+}
