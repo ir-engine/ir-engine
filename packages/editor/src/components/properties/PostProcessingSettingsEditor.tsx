@@ -5,8 +5,9 @@ import { Color } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
+import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { getState, NO_PROXY, useState } from '@xrengine/hyperflux'
+import { getState, NO_PROXY, useHookstate, useState } from '@xrengine/hyperflux'
 
 import Checkbox from '@mui/material/Checkbox'
 
@@ -186,7 +187,7 @@ const PredicationMode = [
 export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
-  const postprocessing = useState(Engine.instance.currentWorld.sceneMetadata).postprocessing
+  const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld))
   if (!postprocessing.value) return null
 
   const getPropertyValue = (keys: string[]): any => {
