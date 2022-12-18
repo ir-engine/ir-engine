@@ -5,4 +5,5 @@ export interface ProjectCommitInterface {
   commitSHA: string
   datetime: string
   matchesEngineVersion: boolean
+  discard?: boolean
 }

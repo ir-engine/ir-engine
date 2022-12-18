@@ -17,7 +17,7 @@ import styles from '../index.module.scss'
 import { Views } from '../util'
 
 interface Props {
-  changeActiveMenu: Function
+  changeActiveMenu?: Function
   location?: string
 }
 
@@ -86,7 +86,7 @@ const RoomMenu = ({ changeActiveMenu, location }: Props): JSX.Element => {
   }
 
   return (
-    <Menu open onClose={() => changeActiveMenu(Views.Closed)}>
+    <Menu open onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
       <Box className={styles.menuContent}>
         {!location && (
           <InputText

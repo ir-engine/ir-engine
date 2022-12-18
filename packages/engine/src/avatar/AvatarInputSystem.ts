@@ -100,13 +100,13 @@ export default async function AvatarInputSystem(world: World) {
     }
 
     /** keyboard input */
-    const keyDeltaX =
-      (keys.KeyA?.pressed ? -1 : 0) +
-      (keys.KeyD?.pressed ? 1 : 0) +
+    const keyDeltaX = (keys.KeyA?.pressed ? -1 : 0) + (keys.KeyD?.pressed ? 1 : 0)
+    const keyDeltaY = keys.Space?.down ? 1 : 0
+    const keyDeltaZ =
+      (keys.KeyW?.pressed ? -1 : 0) +
+      (keys.KeyS?.pressed ? 1 : 0) +
       (keys.ArrowUp?.pressed ? -1 : 0) +
       (keys.ArrowDown?.pressed ? 1 : 0)
-    const keyDeltaY = keys.Space?.pressed ? 1 : 0
-    const keyDeltaZ = (keys.KeyW?.pressed ? -1 : 0) + (keys.KeyS?.pressed ? 1 : 0)
 
     movementDelta.set(keyDeltaX, keyDeltaY, keyDeltaZ)
 

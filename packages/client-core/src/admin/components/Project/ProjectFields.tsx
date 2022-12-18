@@ -148,7 +148,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       ProjectUpdateService.setCommitsProcessing(project, false)
       if (projectResponse.error) {
         ProjectUpdateService.setShowCommitSelector(project, false)
-        ProjectUpdateService.setCommitError(project, projectResponse.text)
+        ProjectUpdateService.setBranchError(project, projectResponse.text)
       } else {
         ProjectUpdateService.setShowCommitSelector(project, true)
         ProjectUpdateService.setCommitData(project, projectResponse)
@@ -156,7 +156,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     } catch (err) {
       ProjectUpdateService.setCommitsProcessing(project, false)
       ProjectUpdateService.setShowCommitSelector(project, false)
-      ProjectUpdateService.setCommitError(project, err.message)
+      ProjectUpdateService.setBranchError(project, err.message)
       console.log('projectResponse error', err)
     }
   }

@@ -1,6 +1,11 @@
 {
   "common": {
-    "delete": "Delete"
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "upload": "Upload",
+    "discardChanges": "Discard Changes",
+    "confirmDiscardChange": "Changes you made may not be saved."
   },
   "auth": {
     "confirmEmail": {
@@ -237,7 +242,7 @@
       "phoneEmailError": "Invalid phone # or email address",
       "phoneError": "Invalid phone #",
       "emailError": "Invalid email address",
-      "useReadyPlayerMe": "Use Ready Player Me",
+      "useReadyPlayerMe": "Use ReadyPlayer.Me",
       "loginWithXRWallet": "Login with XR Wallet",
       "issueVC": "Issue a VC",
       "requestVC": "Request a VC",
@@ -348,8 +353,9 @@
     "createResource": "Create Resource"
   },
   "avatar": {
-    "title": "Upload Avatar",
+    "titleEditAvatar": "Edit Avatar",
     "titleSelectAvatar": "Select Avatar",
+    "titleUploadAvatar": "Upload Avatar",
     "titleSelectThumbnail": "Select Thumbnail",
     "lbl-browse": "Browse",
     "lbl-thumbnail": "Thumbnail",
@@ -370,7 +376,6 @@
     "remove": "Remove avatar",
     "uploadFiles": "Upload files",
     "useUrlInstead": "Use url instead",
-    "avatar": "Avatar",
     "cancel": "Cancel",
     "createAvatar": "Create Avatar",
     "delete": "Delete",
@@ -385,15 +390,21 @@
     "submit": "Submit",
     "edit": "Edit",
     "confirm": "Confirm",
-    "upload": "Upload",
     "avatarUrl": "Avatar url",
     "upload-success-msg": "Avatar Uploaded Successfully.",
     "remove-success-msg": "Avatar Uploaded Successfully.",
     "warning-msg": "Avatar resource is empty, have you synced avatars to your static file storage?",
-    "loadingRPM": "Loading Ready Player Me",
+    "loadingRPM": "Loading ReadyPlayer.Me",
     "downloading": "Downloading Avatar",
     "loadingPreview": "Loading Avatar Preview",
-    "uploading": "Uploading Avatar"
+    "uploading": "Uploading Avatar",
+    "searchAvatar": "Search Avatar",
+    "noAvatars": "No avatars to display",
+    "avatar": "Avatar",
+    "thumbnail": "Thumbnail",
+    "enterAvatarUrl": "Enter Avatar URL",
+    "enterThumbnailUrl": "Enter Thumbnail URL",
+    "avatarName": "Avatar Name"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",

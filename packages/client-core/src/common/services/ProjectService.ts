@@ -204,7 +204,7 @@ export const ProjectService = {
         }
       })
     } catch (err) {
-      logger.error('Error with fetching branches for a project', err)
+      logger.error('Error with fetching commits for a project', err)
       throw err
     }
   },
