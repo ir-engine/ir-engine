@@ -7,7 +7,7 @@ import { Engine } from './ecs/classes/Engine'
 import { EngineActions } from './ecs/classes/EngineState'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import AssetSystem from './scene/systems/AssetSystem'
+import AssemblySystem from './scene/systems/AssemblySystem'
 import LightSystem from './scene/systems/LightSystem'
 import SceneLoadingSystem from './scene/systems/SceneLoadingSystem'
 import SceneObjectSystem from './scene/systems/SceneObjectSystem'
@@ -45,9 +45,9 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
       systemLoader: () => Promise.resolve({ default: LightSystem })
     },
     {
-      uuid: 'xre.engine.AssetSystem',
+      uuid: 'xre.engine.AssemblySystem',
       type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: AssetSystem })
+      systemLoader: () => Promise.resolve({ default: AssemblySystem })
     },
     {
       uuid: 'xre.engine.BehaveGraphSystem',

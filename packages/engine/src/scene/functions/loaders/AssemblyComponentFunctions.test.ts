@@ -23,9 +23,13 @@ import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/ini
 
 import '@xrengine/engine/src/patchEngineNode'
 
-import { AssetComponent, AssetLoadedComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
+import {
+  AssemblyComponent,
+  AssemblyLoadedComponent,
+  LoadState
+} from '@xrengine/engine/src/scene/components/AssemblyComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
+import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssemblyComponentFunctions'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
@@ -33,7 +37,7 @@ import { World } from '../../../ecs/classes/World'
 import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 
-describe('AssetComponentFunctions', async () => {
+describe('AssemblyComponentFunctions', async () => {
   let entity: Entity
   let node: EntityTreeNode
   let world: World
@@ -122,8 +126,8 @@ describe('AssetComponentFunctions', async () => {
   describe('loadAsset()', () => {
     it('Correctly handles loading empty asset', async () => {
       //load test empty scene
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
+      addComponent(entity, AssemblyComponent, {
+        src: `${testDir}/empty.xre.gltf`,
         name: 'empty',
         loaded: LoadState.UNLOADED
       })
@@ -137,17 +141,17 @@ describe('AssetComponentFunctions', async () => {
       await nextFixedStep
 
       //check that AssetLoadedComponent is correctly configured
-      const loadedComp = getComponent(entity, AssetLoadedComponent)
+      const loadedComp = getComponent(entity, AssemblyLoadedComponent)
       assert(loadedComp, 'loaded asset')
-      //check that AssetComponent is correctly configured
-      const assetComp = getComponent(entity, AssetComponent)
+      //check that AssemblyComponent is correctly configured
+      const assetComp = getComponent(entity, AssemblyComponent)
       assert(assetComp, 'asset component exists')
       assert.equal(assetComp.loaded, LoadState.LOADED, 'asset is in a loaded state')
     })
 
     it('Correctly handles file not existing', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/nonexistent.xre.gltf`,
+      addComponent(entity, AssemblyComponent, {
+        src: `${testDir}/nonexistent.xre.gltf`,
         name: 'nonexistent',
         loaded: LoadState.UNLOADED
       })
@@ -158,9 +162,9 @@ describe('AssetComponentFunctions', async () => {
         await nextFixedStep
       } catch (e) {
         //check that AssetLoadedComponent does not exist
-        assert(!hasComponent(entity, AssetLoadedComponent), 'no AssetLoadedComponent')
-        //check that AssetComponent has identical state to pre-load attempt
-        const assetComp = getComponent(entity, AssetComponent)
+        assert(!hasComponent(entity, AssemblyLoadedComponent), 'no AssetLoadedComponent')
+        //check that AssemblyComponent has identical state to pre-load attempt
+        const assetComp = getComponent(entity, AssemblyComponent)
         assert(assetComp, 'asset component exists')
         assert(assetComp.loaded === LoadState.UNLOADED, 'asset is in unloaded state')
       }
@@ -168,8 +172,8 @@ describe('AssetComponentFunctions', async () => {
 
     it('Correctly handles loading basic test asset file', async () => {
       const assetPath = `${testDir}/empty_model.xre.gltf`
-      addComponent(entity, AssetComponent, {
-        path: assetPath,
+      addComponent(entity, AssemblyComponent, {
+        src: assetPath,
         name: 'empty_model',
         loaded: LoadState.UNLOADED
       })
@@ -177,9 +181,9 @@ describe('AssetComponentFunctions', async () => {
       await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       //wait one frame for system to reparent
       await nextFixedStep
-      //check that AssetLoadedComponent and AssetComponent are correctly configured
-      const assetComp = getComponent(entity, AssetComponent)
-      const loadedComp = getComponent(entity, AssetLoadedComponent)
+      //check that AssetLoadedComponent and AssemblyComponent are correctly configured
+      const assetComp = getComponent(entity, AssemblyComponent)
+      const loadedComp = getComponent(entity, AssemblyLoadedComponent)
       assert(assetComp, 'Asset component exists')
       assert(loadedComp, 'Asset Loaded Component exists')
       //check that asset root contains correct children
@@ -194,8 +198,8 @@ describe('AssetComponentFunctions', async () => {
     })
 
     it('Correctly handles multiple load calls in single frame', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
+      addComponent(entity, AssemblyComponent, {
+        src: `${testDir}/empty.xre.gltf`,
         name: 'empty',
         loaded: LoadState.UNLOADED
       })
@@ -207,15 +211,15 @@ describe('AssetComponentFunctions', async () => {
       await nextFixedStep
       //check that second call is ignored by...
       //make sure that loaded state is identical to single load call
-      const assetComp = getComponent(entity, AssetComponent)
-      const loadedComp = getComponent(entity, AssetLoadedComponent)
+      const assetComp = getComponent(entity, AssemblyComponent)
+      const loadedComp = getComponent(entity, AssemblyLoadedComponent)
       assert(assetComp && loadedComp, 'Asset and AssetLoaded components exist')
       assert.equal(assetComp.loaded, LoadState.LOADED, 'Asset state is set to loaded')
     })
 
     it('Calls load, then is deleted', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
+      addComponent(entity, AssemblyComponent, {
+        src: `${testDir}/empty.xre.gltf`,
         name: 'empty',
         loaded: LoadState.UNLOADED
       })
@@ -226,15 +230,19 @@ describe('AssetComponentFunctions', async () => {
       removeEntity(entity)
       //wait one fixed frame
       await nextFixedStep
-      assert.equal(getAllComponentsOfType(AssetComponent, world).length, 0, 'no Asset components in scene')
-      assert.equal(getAllComponentsOfType(AssetLoadedComponent, world).length, 0, 'no AssetLoaded components in scene')
+      assert.equal(getAllComponentsOfType(AssemblyComponent, world).length, 0, 'no Asset components in scene')
+      assert.equal(
+        getAllComponentsOfType(AssemblyLoadedComponent, world).length,
+        0,
+        'no AssetLoaded components in scene'
+      )
     })
   })
 
   describe('unloadAsset()', () => {
     it('Correctly handles unloading empty asset', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
+      addComponent(entity, AssemblyComponent, {
+        src: `${testDir}/empty.xre.gltf`,
         name: 'empty',
         loaded: LoadState.UNLOADED
       })
@@ -247,14 +255,14 @@ describe('AssetComponentFunctions', async () => {
       //execute frame
       await nextFixedStep
       //ensure that asset system does not try to load asset
-      assert(!hasComponent(entity, AssetLoadedComponent), 'AssetLoaded component does not exist')
-      const assetComp = getComponent(entity, AssetComponent)
+      assert(!hasComponent(entity, AssemblyLoadedComponent), 'AssetLoaded component does not exist')
+      const assetComp = getComponent(entity, AssemblyComponent)
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
     })
 
     it('Correctly handles unloading basic asset file', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty_model.xre.gltf`,
+      addComponent(entity, AssemblyComponent, {
+        src: `${testDir}/empty_model.xre.gltf`,
         name: 'empty',
         loaded: LoadState.UNLOADED
       })
@@ -267,16 +275,16 @@ describe('AssetComponentFunctions', async () => {
       // wait for frame
       await nextFixedStep
       //ensure that asset system does not try to load asset
-      assert(!hasComponent(entity, AssetLoadedComponent), 'AssetLoaded component does not exist')
-      const assetComp = getComponent(entity, AssetComponent)
+      assert(!hasComponent(entity, AssemblyLoadedComponent), 'AssetLoaded component does not exist')
+      const assetComp = getComponent(entity, AssemblyComponent)
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
       //check that asset child hierarchy is removed
       assert(node.children == undefined || node.children.length === 0, 'child hierarchy is removed')
     })
 
     it('Correctly handles unloading empty asset', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
+      addComponent(entity, AssemblyComponent, {
+        src: `${testDir}/empty.xre.gltf`,
         name: 'empty',
         loaded: LoadState.UNLOADED
       })
@@ -291,8 +299,8 @@ describe('AssetComponentFunctions', async () => {
       // wait for frame
       await nextFixedStep
       //ensure that asset system does not try to load asset
-      assert(!hasComponent(entity, AssetLoadedComponent), 'AssetLoaded component does not exist')
-      const assetComp = getComponent(entity, AssetComponent)
+      assert(!hasComponent(entity, AssemblyLoadedComponent), 'AssetLoaded component does not exist')
+      const assetComp = getComponent(entity, AssemblyComponent)
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
     })
   })

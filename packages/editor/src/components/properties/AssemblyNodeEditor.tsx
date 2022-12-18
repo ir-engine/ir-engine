@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AssetComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
-import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AssemblyComponent, LoadState } from '@xrengine/engine/src/scene/components/AssemblyComponent'
+import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssemblyComponentFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { exportAsset } from '../../functions/assetFunctions'
@@ -15,13 +15,13 @@ import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
-export const AssetNodeEditor: EditorComponentType = (props) => {
+export const AssemblyNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
   const node = props.node
-  const asset = getComponent(entity, AssetComponent)
-
-  const [isLoaded, setIsLoaded] = useState(asset.loaded)
+  const asset = useComponent(entity, AssemblyComponent)
+  const setIsLoaded = asset.loaded.set
+  const isLoaded = asset.loaded.value
 
   const onUnload = async () => {
     unloadAsset(entity)
@@ -55,7 +55,7 @@ export const AssetNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties:asset.description')}
     >
       <InputGroup name="Asset Path" label={t('editor:properties.asset.lbl-assetPath')}>
-        <StringInput value={asset.path} onChange={updateProperty(AssetComponent, 'path')} />
+        <StringInput value={asset.src.value} onChange={updateProperty(AssemblyComponent, 'src')} />
       </InputGroup>
       {isLoaded === LoadState.UNLOADED && (
         <PropertiesPanelButton onClick={onLoad}>{t('editor:properties:asset.lbl-load')}</PropertiesPanelButton>
@@ -69,7 +69,7 @@ export const AssetNodeEditor: EditorComponentType = (props) => {
       )}
       {isLoaded !== LoadState.LOADING && (
         <InputGroup name="Asset Name" label={t('editor:properties:asset.lbl-assetName')}>
-          <StringInput value={asset.name} onChange={updateProperty(AssetComponent, 'name')} />
+          <StringInput value={asset.name.value} onChange={updateProperty(AssemblyComponent, 'name')} />
         </InputGroup>
       )}
       {isLoaded !== LoadState.LOADING && (

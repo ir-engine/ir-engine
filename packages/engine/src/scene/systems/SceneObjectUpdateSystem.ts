@@ -20,10 +20,10 @@ import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '../../transform/components/TransformComponent'
 import {
-  AssetComponent,
-  SCENE_COMPONENT_ASSET,
-  SCENE_COMPONENT_ASSET_DEFAULT_VALUES
-} from '../components/AssetComponent'
+  AssemblyComponent,
+  SCENE_COMPONENT_ASSEMBLY,
+  SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES
+} from '../components/AssemblyComponent'
 import {
   CameraPropertiesComponent,
   SCENE_COMPONENT_CAMERA_PROPERTIES,
@@ -93,7 +93,7 @@ import {
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { FogType } from '../constants/FogType'
-import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
+import { deserializeAsset, serializeAsset } from '../functions/loaders/AssemblyComponentFunctions'
 import { deserializeCameraProperties, updateCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
@@ -219,12 +219,12 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.asset, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_ASSET, props: SCENE_COMPONENT_ASSET_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_ASSEMBLY, props: SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES }
   ])
 
-  world.sceneComponentRegistry.set(AssetComponent.name, SCENE_COMPONENT_ASSET)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSET, {
-    defaultData: SCENE_COMPONENT_ASSET_DEFAULT_VALUES,
+  world.sceneComponentRegistry.set(AssemblyComponent.name, SCENE_COMPONENT_ASSEMBLY)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSEMBLY, {
+    defaultData: SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES,
     deserialize: deserializeAsset,
     serialize: serializeAsset
   })
@@ -482,8 +482,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
     world.scenePrefabRegistry.delete(ScenePrefabs.asset)
 
-    world.sceneComponentRegistry.delete(AssetComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_ASSET)
+    world.sceneComponentRegistry.delete(AssemblyComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_ASSEMBLY)
 
     /**
      * Portals

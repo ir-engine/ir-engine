@@ -7,16 +7,16 @@ import {
   reparentEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
 
-import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
+import { AssemblyComponent, AssemblyLoadedComponent, LoadState } from '../components/AssemblyComponent'
 import { reparentObject3D } from '../functions/ReparentFunction'
 
 export default async function AssetSystem(world: World) {
-  const assetQuery = defineQuery([AssetComponent, AssetLoadedComponent])
+  const assetQuery = defineQuery([AssemblyComponent, AssemblyLoadedComponent])
 
   const nodeMap = () => world.entityTree.entityNodeMap
   const execute = () => {
     for (const entity of assetQuery.enter()) {
-      const asset = getComponent(entity, AssetComponent)
+      const asset = getComponent(entity, AssemblyComponent)
       /*const load = getComponent(entity, AssetLoadedComponent)
       if (asset == undefined || load == undefined) continue
       const node = nodeMap().get(entity)
@@ -41,7 +41,7 @@ export default async function AssetSystem(world: World) {
           removeEntity(child.entity)
         })
       }
-      const asset = getComponent(entity, AssetComponent)
+      const asset = getComponent(entity, AssemblyComponent)
       if (asset) asset.loaded = LoadState.UNLOADED
     }
   }
