@@ -16,8 +16,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
-import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
+import { AssemblyComponent, AssemblyLoadedComponent, LoadState } from '../components/AssemblyComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 
@@ -86,10 +85,10 @@ export const serializeWorld = (
 
       entityJson.components = serializeEntity(node.entity, world)
 
-      if (hasComponent(node.entity, AssetComponent)) {
-        const asset = getComponent(node.entity, AssetComponent)
+      if (hasComponent(node.entity, AssemblyComponent)) {
+        const asset = getComponent(node.entity, AssemblyComponent)
         if (asset.loaded === LoadState.LOADED) {
-          const loaded = getOptionalComponent(node.entity, AssetLoadedComponent)
+          const loaded = getOptionalComponent(node.entity, AssemblyLoadedComponent)
           loaded?.roots?.forEach((root) => loadedAssets.add(root))
         }
       }

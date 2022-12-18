@@ -3,7 +3,8 @@ import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
-import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
+import { AssemblyComponent } from '@xrengine/engine/src/scene/components/AssemblyComponent'
+import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
 import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
@@ -40,7 +41,8 @@ import { PersistentAnchorComponent } from '@xrengine/engine/src/xr/XRAnchorCompo
 import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
-import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
+import { AssemblyNodeEditor } from '../components/properties/AssemblyNodeEditor'
+import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
@@ -88,7 +90,7 @@ EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
 EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
 EntityNodeEditor.set(GroupComponent, GroupNodeEditor)
-EntityNodeEditor.set(AssetComponent, AssetNodeEditor)
+EntityNodeEditor.set(AssemblyComponent, AssemblyNodeEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
 EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)

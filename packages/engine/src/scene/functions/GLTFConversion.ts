@@ -8,8 +8,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getState } from '@xrengine/hyperflux'
 
-import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
-import { AssetComponentType } from '../components/AssetComponent'
+import { AssemblyComponentType } from '../components/AssemblyComponent'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 
@@ -68,7 +67,7 @@ export interface GLTFExtension {
 
 const serializeECS = (
   roots: Object3DWithEntity[],
-  asset?: AssetComponentType,
+  asset?: AssemblyComponentType,
   world: World = Engine.instance.currentWorld
 ) => {
   const eTree = world.entityTree

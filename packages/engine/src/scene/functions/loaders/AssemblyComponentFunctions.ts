@@ -16,73 +16,73 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import {
-  AssetComponent,
-  AssetComponentType,
-  AssetLoadedComponent,
+  AssemblyComponent,
+  AssemblyComponentType,
+  AssemblyLoadedComponent,
   LoadState,
-  SCENE_COMPONENT_ASSET_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/components/AssetComponent'
+  SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES
+} from '@xrengine/engine/src/scene/components/AssemblyComponent'
 
 import { Engine } from '../../../ecs/classes/Engine'
 
 export const unloadAsset = (entity: Entity) => {
-  if (!hasComponent(entity, AssetComponent)) {
+  if (!hasComponent(entity, AssemblyComponent)) {
     console.warn('no Asset component')
   } else {
-    const assetComp = getComponent(entity, AssetComponent)
+    const assetComp = getComponent(entity, AssemblyComponent)
     if (assetComp.loaded !== LoadState.LOADED) {
       console.warn('asset', assetComp, 'is not in loaded state')
     }
-    if (!hasComponent(entity, AssetLoadedComponent)) {
+    if (!hasComponent(entity, AssemblyLoadedComponent)) {
       console.warn('no AssetLoaded component')
     } else {
-      removeComponent(entity, AssetLoadedComponent)
+      removeComponent(entity, AssemblyLoadedComponent)
     }
   }
 }
 
 export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
-  const asset = getComponent(entity, AssetComponent)
+  const asset = getComponent(entity, AssemblyComponent)
   //check if asset is already loading or loaded
   if (asset.loaded !== LoadState.UNLOADED) {
     console.warn('Asset', asset, 'is not unloaded')
     return
   }
-  if (loader.getAssetType(asset.path) !== AssetType.XRE) {
+  if (loader.getAssetType(asset.src) !== AssetType.XRE) {
     throw Error('only .xre.gltf files currently supported')
   }
   try {
     asset.loaded = LoadState.LOADING
-    const result = (await loader.loadAsync(asset.path, {
+    const result = (await loader.loadAsync(asset.src, {
       assetRoot: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
     })) as EntityTreeNode[]
-    addComponent(entity, AssetLoadedComponent, { roots: result })
+    addComponent(entity, AssemblyLoadedComponent, { roots: result })
   } catch (e) {
     asset.loaded = LoadState.UNLOADED
     throw e
   }
 }
 
-export const deserializeAsset: ComponentDeserializeFunction = async (entity: Entity, data: AssetComponentType) => {
+export const deserializeAsset: ComponentDeserializeFunction = async (entity: Entity, data: AssemblyComponentType) => {
   const props = parseAssetProperties(data)
-  setComponent(entity, AssetComponent, props)
+  setComponent(entity, AssemblyComponent, props)
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {
-  const comp = getComponent(entity, AssetComponent) as AssetComponentType
+  const comp = getComponent(entity, AssemblyComponent) as AssemblyComponentType
   const metadata = comp.metadata ? { metadata: comp.metadata } : {}
   return {
-    path: comp.path,
+    path: comp.src,
     ...metadata,
     loaded: comp.loaded
   }
 }
 
-const parseAssetProperties = (props): AssetComponentType => {
+const parseAssetProperties = (props): AssemblyComponentType => {
   const metadata = props.metadata ? { metadata: props.metadata } : {}
   return {
-    name: props.name ? props.name : SCENE_COMPONENT_ASSET_DEFAULT_VALUES.name,
-    path: props.path ? props.path : SCENE_COMPONENT_ASSET_DEFAULT_VALUES.path,
+    name: props.name ? props.name : SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES.name,
+    src: props.path ? props.path : SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES.path,
     ...metadata,
     loaded: typeof props.loaded === 'boolean' ? (props.loaded ? LoadState.LOADED : LoadState.UNLOADED) : props.loaded
   }
