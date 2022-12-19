@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
+import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import {
   addActionReceptor,
   dispatchAction,
@@ -84,31 +84,24 @@ export const UserMenu = (): any => {
 
   return (
     <ClickAwayListener onClickAway={() => setCurrentActiveMenu({ id: Views.Closed })} mouseEvent="onMouseDown">
-      <div>
+      <>
         <section
-          className={`${styles.settingContainer} ${bottomShelfStyle} ${
+          className={`${styles.hotbarContainer} ${bottomShelfStyle} ${
             popupMenuState.openMenu.value ? styles.fadeOutBottom : ''
           }`}
         >
-          <div className={styles.iconContainer}>
+          <div className={styles.buttonsContainer}>
             {Object.keys(hotbarItems.value).map((id, index) => {
               const IconNode = hotbarItems.get(NO_PROXY)[id]
               if (!IconNode) return null
               return (
-                <span
+                <IconButton
                   key={index}
-                  id={id + '_' + index}
+                  type="solid"
+                  icon={<IconNode />}
+                  sizePx={50}
                   onClick={() => setCurrentActiveMenu({ id })}
-                  className={`${styles.materialIconBlock} ${
-                    popupMenuState.openMenu.value && popupMenuState.openMenu.value === id ? styles.activeMenu : null
-                  }`}
-                >
-                  <IconNode
-                    className={styles.icon}
-                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  />
-                </span>
+                />
               )
             })}
           </div>
@@ -123,7 +116,7 @@ export const UserMenu = (): any => {
             />
           </div>
         )}
-      </div>
+      </>
     </ClickAwayListener>
   )
 }
