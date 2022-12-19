@@ -70,7 +70,6 @@ import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/Visible
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { FogType } from '../constants/FogType'
 import { deserializeAsset } from '../functions/loaders/AssemblyComponentFunctions'
-import { deserializeCameraProperties, updateCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
 import { deserializeGround, serializeGroundPlane, updateGroundPlane } from '../functions/loaders/GroundPlaneFunctions'

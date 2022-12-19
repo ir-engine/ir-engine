@@ -8,6 +8,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getState } from '@xrengine/hyperflux'
 
+import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
 import { AssemblyComponentType } from '../components/AssemblyComponent'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
