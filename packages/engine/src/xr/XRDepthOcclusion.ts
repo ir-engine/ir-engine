@@ -234,7 +234,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const xrState = getState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
-  const useDepthTextureDebug = true
+  const useDepthTextureDebug = false
   const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
   let depthSupported = false
 
