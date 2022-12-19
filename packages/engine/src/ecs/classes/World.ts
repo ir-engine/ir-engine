@@ -24,6 +24,8 @@ import { createState, hookstate } from '@xrengine/hyperflux/functions/StateFunct
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CameraMode } from '../../camera/types/CameraMode'
+import { ProjectionType } from '../../camera/types/ProjectionType'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'

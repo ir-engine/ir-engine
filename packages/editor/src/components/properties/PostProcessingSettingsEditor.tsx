@@ -1,5 +1,5 @@
 import { BlendFunction } from 'postprocessing'
-import React, { ChangeEvent } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
@@ -7,9 +7,13 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { getState, NO_PROXY, useHookstate, useState } from '@xrengine/hyperflux'
+import { useHookstate } from '@xrengine/hyperflux'
 
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Checkbox from '@mui/material/Checkbox'
+import Collapse from '@mui/material/Collapse'
+import IconButton from '@mui/material/IconButton'
 
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
@@ -187,6 +191,7 @@ const PredicationMode = [
 export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
+  const [openSettings, setOpenSettings] = useState(false)
   const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld))
   if (!postprocessing.value) return null
 
@@ -341,10 +346,21 @@ export const PostProcessingSettingsEditor = () => {
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
     >
-      <InputGroup name="Use Immersive Media" label={t('editor:properties.postprocessing.enabled')}>
+      <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
         <BooleanInput value={postprocessing.enabled.value} onChange={(val) => postprocessing.enabled.set(val)} />
       </InputGroup>
-      {renderEffects()}
+      <IconButton
+        style={{ color: 'var(--textColor)' }}
+        onClick={() => setOpenSettings(!openSettings)}
+        className={styles.collapseBtn}
+        aria-label="expand"
+        size="small"
+      >
+        {openSettings ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+      </IconButton>
+      <Collapse in={openSettings} timeout="auto" unmountOnExit>
+        {renderEffects()}
+      </Collapse>
     </PropertyGroup>
   )
 }
