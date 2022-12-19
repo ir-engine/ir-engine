@@ -1,3 +1,5 @@
+import matches, { Validator } from 'ts-matches'
+
 import { createMappedComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { unloadAsset } from '../functions/loaders/AssemblyComponentFunctions'
@@ -10,10 +12,6 @@ export enum LoadState {
 
 export type AssemblyComponentType = {
   src: string
-  metadata?: {
-    author?: string
-    license?: string
-  }
   loaded: LoadState
   roots: EntityTreeNode[]
   dirty: boolean
@@ -27,11 +25,19 @@ export const AssemblyComponent = defineComponent({
   onInit: (entity) =>
     ({
       src: '',
-      metadata: {},
       loaded: LoadState.UNLOADED,
       roots: [],
       dirty: false
     } as AssemblyComponentType),
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    matches.boolean.test(json.dirty) && component.dirty.set(json.dirty)
+    ;(matches.string as Validator<unknown, LoadState>).test(json.loaded) && component.loaded.set(json.loaded)
+    matches.arrayOf(matches.object as Validator<unknown, EntityTreeNode>).test(json.roots) &&
+      component.roots.set(json.roots)
+    matches.string.test(json.src) && component.src.set(json.src)
+  },
 
   onRemove: unloadAsset
 })
