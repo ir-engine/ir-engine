@@ -52,7 +52,6 @@ const InputSelect = ({ className, disabled, endControl, error, id, label, menu, 
           error={!!error}
           disabled={disabled}
           size="small"
-          sx={{ flexGrow: 1 }}
         >
           <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 

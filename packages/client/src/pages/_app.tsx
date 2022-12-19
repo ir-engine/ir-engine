@@ -110,7 +110,7 @@ const App = (): any => {
       removeActionReceptor(OEmbedServiceReceptor)
       removeActionReceptor(AppThemeServiceReceptor)
     }
-  }, [notistackRef])
+  }, [])
 
   useEffect(() => {
     const html = document.querySelector('html')

@@ -9,8 +9,8 @@ import { NavigateBefore, NavigateNext } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import styles from '../index.module.scss'
 import { Views } from '../util'
+import styles from './EmoteMenu.module.scss'
 
 const MAX_EMOTE_PER_PAGE = 6
 const MIN_EMOTE_PER_PAGE = 5

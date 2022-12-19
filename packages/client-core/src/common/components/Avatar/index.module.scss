@@ -1,4 +1,4 @@
-.avatarBlock {
+.avatarRound {
   filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
   border-radius: 50%;
   position: relative;
@@ -12,63 +12,52 @@
     border-radius: 10px;
     border-radius: 50%;
   }
+}
 
-  .avatarBtn {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    bottom: -10px;
-    right: -10px;
-    margin: 0;
-    min-width: 30px;
-    border-radius: 50%;
-    color: var(--textColor);
-    background: var(--iconButtonBackground);
-    box-shadow: 2px 2px 10px gray;
-    transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+.avatarThumbnail {
+  position: relative;
+}
 
-    &:hover,
-    &:focus {
-      width: 40px;
-      height: 40px;
-      bottom: -15px;
-      right: -15px;
-      background: var(--iconButtonSelectedBackground);
-      opacity: 0.7;
+.avatarName {
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+
+.avatarRectangle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  background: var(--iconButtonBackground);
+  border-radius: 0;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  height: 80px;
+
+  img {
+    background: white;
+    border-radius: 8px;
+    width: 80px;
+    height: 100%;
+  }
+
+  button {
+    display: none;
+  }
+
+  &:hover {
+    background: var(--iconButtonHoverColor);
+
+    button {
+      display: block;
     }
   }
 }
 
-.avatarSquare {
-  border: 3px solid var(--iconButtonSelectedBackground);
-  position: relative;
-  display: flex;
-  cursor: pointer;
-  transition: all 0.2s;
-  aspect-ratio: 1;
-
-  .avatarName {
-    bottom: -3px;
-    padding-top: 3px;
-    width: 100%;
-    opacity: 0.75;
-    position: absolute;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--textColor);
-    background: var(--iconButtonSelectedBackground);
-  }
-
-  &:hover {
-    background: var(--iconButtonSelectedBackground);
-  }
-
-  @media (max-width: 400px) {
-    margin-right: 5px;
-  }
-}
-
 .avatarSelected {
-  background: var(--iconButtonSelectedBackground);
-  cursor: not-allowed;
+  background: var(--iconButtonHoverColor);
+
+  img {
+    background: var(--iconButtonBackground);
+  }
 }

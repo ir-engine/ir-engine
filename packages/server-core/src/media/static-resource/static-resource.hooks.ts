@@ -17,7 +17,7 @@ export default {
     patch: [authenticate(), verifyScope('admin', 'admin'), replaceThumbnailLink()],
     remove: [
       authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any),
+      // iff(isProvider('external'), verifyScope('admin', 'admin') as any),
       attachOwnerIdInQuery('userId')
     ]
   },

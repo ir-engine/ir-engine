@@ -4,10 +4,10 @@ import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineRendererState } from '../EngineRendererState'
-import { EngineRenderer } from '../WebGLRendererSystem'
+import { EngineRenderer, getRendererSceneMetadataState } from '../WebGLRendererSystem'
 
 export const updateShadowMap = (disable?: boolean) => {
-  const type = Engine.instance.currentWorld.sceneMetadata.renderSettings.shadowMapType.value
+  const type = getRendererSceneMetadataState(Engine.instance.currentWorld).shadowMapType.value
   const enabled = getState(EngineRendererState).useShadows.value && !disable
 
   EngineRenderer.instance.renderer.shadowMap.enabled = enabled

@@ -230,7 +230,7 @@ export const UploadAvatarMenu = () => {
             onClick={openAvatarMenu}
             content={<ArrowBack />}
           />
-          <h2>{t('user:avatar.title')}</h2>
+          <h2>{t('user:avatar.titleUploadAvatar')}</h2>
         </div>
 
         <section className="walletSection">

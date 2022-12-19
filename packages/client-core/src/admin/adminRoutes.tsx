@@ -2,9 +2,10 @@ import React, { Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
 import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -59,6 +60,7 @@ const ProtectedRoutes = () => {
   useEffect(() => {
     initializeCoreSystems([AdminSystemInjection]).then(async () => {
       await initializeSceneSystems()
+      dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })
   }, [])
 

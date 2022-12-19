@@ -10,7 +10,6 @@ import {
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
 } from '../../avatar/components/LoopAnimationComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
@@ -24,11 +23,6 @@ import {
   SCENE_COMPONENT_ASSET,
   SCENE_COMPONENT_ASSET_DEFAULT_VALUES
 } from '../components/AssetComponent'
-import {
-  CameraPropertiesComponent,
-  SCENE_COMPONENT_CAMERA_PROPERTIES,
-  SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
-} from '../components/CameraPropertiesComponent'
 import {
   CloudComponent,
   SCENE_COMPONENT_CLOUD,
@@ -94,7 +88,6 @@ import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/Visible
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { FogType } from '../constants/FogType'
 import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
-import { deserializeCameraProperties, updateCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
@@ -130,7 +123,6 @@ export const defaultSpatialComponents: ComponentJson[] = [
 export const ScenePrefabs = {
   groundPlane: 'Ground Plane' as const,
   model: 'Model' as const,
-  cameraProperties: 'Camera Properties' as const,
   particleEmitter: 'Particle Emitter' as const,
   portal: 'Portal' as const,
   chair: 'Chair' as const,
@@ -171,15 +163,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   /**
    * Metadata
    */
-
-  world.scenePrefabRegistry.set(ScenePrefabs.cameraProperties, [
-    { name: SCENE_COMPONENT_CAMERA_PROPERTIES, props: SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES }
-  ])
-
-  world.sceneComponentRegistry.set(CameraPropertiesComponent.name, SCENE_COMPONENT_CAMERA_PROPERTIES)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA_PROPERTIES, {
-    deserialize: deserializeCameraProperties
-  })
 
   world.scenePrefabRegistry.set(ScenePrefabs.previewCamera, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -409,7 +392,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const cloudQuery = defineQuery([CloudComponent])
   const oceanQuery = defineQuery([OceanComponent])
   const interiorQuery = defineQuery([InteriorComponent])
-  const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent, FollowCameraComponent, CameraComponent])
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
@@ -425,7 +407,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
         if (hasComponent(entity, InteriorComponent)) updateInterior(entity)
-        if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
       }
     }
 
@@ -438,7 +419,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)
-    for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
     for (const entity of scenePreviewCameraQuery.enter()) enterScenePreviewCamera(entity)
   }
 
@@ -455,11 +435,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     /**
      * Metadata
      */
-
-    world.scenePrefabRegistry.delete(ScenePrefabs.cameraProperties)
-
-    world.sceneComponentRegistry.delete(CameraPropertiesComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_CAMERA_PROPERTIES)
 
     world.scenePrefabRegistry.delete(ScenePrefabs.previewCamera)
 
@@ -575,7 +550,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     removeQuery(world, cloudQuery)
     removeQuery(world, oceanQuery)
     removeQuery(world, interiorQuery)
-    removeQuery(world, cameraPropertiesQuery)
     removeQuery(world, scenePreviewCameraQuery)
 
     removeActionQueue(modifyPropertyActionQueue)

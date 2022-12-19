@@ -72,7 +72,13 @@ const Text = ({
       marginBottom={mb ?? marginBottom}
       marginLeft={ml ?? marginLeft}
       marginRight={mr ?? marginRight}
-      sx={{ display: 'block', textDecoration: underline ? 'underline' : '', flex: flex ? flex : '', ...sx }}
+      sx={{
+        color: color ? color : 'var(--textColor)',
+        display: 'block',
+        textDecoration: underline ? 'underline' : '',
+        flex: flex ? flex : '',
+        ...sx
+      }}
       variant={variant}
       onClick={onClick}
       onPointerUp={() => (onClick ? handleSoundEffect : undefined)}

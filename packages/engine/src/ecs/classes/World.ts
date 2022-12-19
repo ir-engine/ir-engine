@@ -30,6 +30,8 @@ import { createState, hookstate } from '@xrengine/hyperflux/functions/StateFunct
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CameraMode } from '../../camera/types/CameraMode'
+import { ProjectionType } from '../../camera/types/ProjectionType'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -188,42 +190,13 @@ export class World {
 
   fogShaders = [] as Shader[]
 
-  /** stores a hookstate copy of scene metadata */
-  sceneMetadata = hookstate({
-    postprocessing: {
-      enabled: false,
-      effects: defaultPostProcessingSchema
-    },
-    mediaSettings: {
-      immersiveMedia: false,
-      refDistance: 20,
-      rolloffFactor: 1,
-      maxDistance: 10000,
-      distanceModel: 'linear' as DistanceModelType,
-      coneInnerAngle: 360,
-      coneOuterAngle: 0,
-      coneOuterGain: 0
-    },
-    renderSettings: {
-      LODs: { ...DEFAULT_LOD_DISTANCES },
-      csm: true,
-      toneMapping: LinearToneMapping as ToneMapping,
-      toneMappingExposure: 0.8,
-      shadowMapType: PCFSoftShadowMap as ShadowMapType
-    },
-    fog: {
-      type: FogType.Linear as FogType,
-      color: '#FFFFFF',
-      density: 0.005,
-      near: 1,
-      far: 1000,
-      timeScale: 1,
-      height: 0.05
-    },
-    xr: {
-      dollhouse: 'auto' as boolean | 'auto'
+  sceneMetadataRegistry = {} as Record<
+    string,
+    {
+      state: State<any>
+      default: any
     }
-  })
+  >
 
   /**
    * The scene entity
@@ -301,6 +274,8 @@ export class World {
     [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstance[] }
+
+  systemsByUUID = {} as Record<string, SystemInstance>
 
   /**
    * Network object query
