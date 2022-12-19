@@ -24,6 +24,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
+import { getMediaSceneMetadataState } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -115,10 +116,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const currentChannelInstanceConnection = useMediaInstance()
 
   const mediaSettingState = useHookstate(getState(MediaSettingsState))
-  const sceneMetadata = Engine.instance.currentWorld.sceneMetadata.mediaSettings
+  const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && !sceneMetadata.immersiveMedia.value)
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)
 
   const setVideoStream = (value) => {
     if (value?.track) setVideoTrackId(value.track.id)

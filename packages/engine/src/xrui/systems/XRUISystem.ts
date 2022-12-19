@@ -1,29 +1,66 @@
 import { WebContainer3D } from '@etherealjs/web-layer/three'
-import { Color, Object3D, Ray } from 'three'
+import {
+  AdditiveBlending,
+  BufferGeometry,
+  Color,
+  Float32BufferAttribute,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Quaternion,
+  Ray,
+  RingGeometry,
+  SphereGeometry,
+  Vector3
+} from 'three'
 
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { getState } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeQuery
-} from '../../ecs/functions/ComponentFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
-import { InputValue } from '../../input/interfaces/InputValue'
+import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { PointerObject, XRPointerComponent } from '../../xr/XRComponents'
-import { xrInputSourcesMap } from '../../xr/XRControllerSystem'
+import { XRState } from '../../xr/XRState'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent, XRUIInteractableComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
+import { XRUIState } from '../XRUIState'
+
+// pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
+const createPointer = (inputSource: XRInputSource): PointerObject => {
+  switch (inputSource.targetRayMode) {
+    case 'gaze': {
+      const geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
+      const material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
+      return new Mesh(geometry, material) as PointerObject
+    }
+    default:
+    case 'tracked-pointer': {
+      const geometry = new BufferGeometry()
+      geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, -1], 3))
+      geometry.setAttribute('color', new Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3))
+      const material = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
+      return new Line(geometry, material)
+    }
+  }
+}
+
+const createUICursor = () => {
+  const geometry = new SphereGeometry(0.01, 16, 16)
+  const material = new MeshBasicMaterial({ color: 0xffffff })
+  return new Mesh(geometry, material)
+}
+
+export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<RingGeometry, MeshBasicMaterial>) & {
+  targetRay?: Mesh<BufferGeometry, MeshBasicMaterial>
+  cursor?: Mesh<BufferGeometry, MeshBasicMaterial>
+  lastHit?: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
+}
 
 export default async function XRUISystem(world: World) {
   const renderer = EngineRenderer.instance.renderer
@@ -36,7 +73,8 @@ export default async function XRUISystem(world: World) {
   const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent])
   const visibleInteractableXRUIQuery = defineQuery([XRUIInteractableComponent, XRUIComponent, VisibleComponent])
   const xruiQuery = defineQuery([XRUIComponent])
-  const pointerQuery = defineQuery([XRPointerComponent])
+
+  const xruiState = getState(XRUIState)
 
   // todo - hoist to hyperflux state
   const maxXruiPointerDistanceSqr = 3 * 3
@@ -112,8 +150,7 @@ export default async function XRUISystem(world: World) {
     }
   }
 
-  const updateClickEventsForController = (controller: PointerObject, inputValue: InputValue) => {
-    if (inputValue.lifecycleState !== LifecycleValue.Started) return
+  const updateClickEventsForController = (controller: PointerObject) => {
     if (controller.cursor?.visible) {
       const hit = controller.lastHit
       if (hit && hit.intersection.object.visible) {
@@ -128,24 +165,26 @@ export default async function XRUISystem(world: World) {
   document.body.addEventListener('contextmenu', redirectDOMEvent)
   document.body.addEventListener('dblclick', redirectDOMEvent)
 
+  const pointers = new Map<XRInputSource, PointerObject>()
+
   const execute = () => {
-    const input = getOptionalComponent(world.localClientEntity, InputComponent)
+    const keys = world.buttons
 
     const xrFrame = Engine.instance.xrFrame
+    const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
 
     /** Update the objects to use for intersection tests */
     if (xrFrame && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
-      xrui.interactionRays = (
-        pointerQuery()
-          .filter((entity) => entity !== world.cameraEntity)
-          .map((entity) => getComponent(entity, XRPointerComponent).pointer) as (Object3D | Ray)[]
-      ).concat(world.pointerScreenRaycaster.ray) // todo, replace pointerScreenRaycaster with viewerInputSourceEntity
+      xrui.interactionRays = (Array.from(pointers.values()) as (Ray | Object3D)[]).concat(
+        world.pointerScreenRaycaster.ray
+      ) // todo, replace pointerScreenRaycaster with viewerInputSourceEntity
 
     if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
 
     const interactableXRUIEntities = visibleInteractableXRUIQuery()
 
+    /** @todo rather than just a distance query, we should set this when the pointer is actually over an XRUI */
     let isCloseToVisibleXRUI = false
 
     for (const entity of interactableXRUIEntities) {
@@ -156,22 +195,49 @@ export default async function XRUISystem(world: World) {
         isCloseToVisibleXRUI = true
     }
 
-    /** do intersection tests */
-    for (const source of world.inputSources) {
-      const controllerEntity = xrInputSourcesMap.get(source)
-      if (!controllerEntity) continue
-      const pointer = getComponent(controllerEntity, XRPointerComponent).pointer
-      pointer.material.visible = isCloseToVisibleXRUI
+    if (xruiState.pointerActive.value !== isCloseToVisibleXRUI) xruiState.pointerActive.set(isCloseToVisibleXRUI)
 
-      if (source.targetRayMode === 'tracked-pointer') {
-        const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
-        updateControllerRayInteraction(pointer, interactableXRUIEntities)
-        if (input?.data?.has(GrabInput)) updateClickEventsForController(pointer, input.data.get(GrabInput)!)
+    /** do intersection tests */
+    for (const inputSource of world.inputSources) {
+      if (!pointers.has(inputSource)) {
+        const pointer = createPointer(inputSource)
+        const cursor = createUICursor()
+        pointer.cursor = cursor
+        pointer.add(cursor)
+        cursor.visible = false
+        pointers.set(inputSource, pointer)
+        world.scene.add(pointer)
       }
 
-      if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze')
-        if (input?.data?.has(BaseInput.PRIMARY))
-          updateClickEventsForController(pointer, input.data.get(BaseInput.PRIMARY)!)
+      const pointer = pointers.get(inputSource)!
+
+      if (Engine.instance.xrFrame) {
+        const pose = Engine.instance.xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
+        if (pose) {
+          pointer.position.copy(pose.transform.position as any as Vector3)
+          pointer.quaternion.copy(pose.transform.orientation as any as Quaternion)
+          pointer.updateMatrixWorld()
+        }
+      }
+
+      pointer.material.visible = isCloseToVisibleXRUI
+
+      if (
+        (inputSource.handedness === 'left' && keys.LeftTrigger?.down) ||
+        (inputSource.handedness === 'right' && keys.RightTrigger?.down)
+      )
+        updateClickEventsForController(pointer)
+
+      if (inputSource.targetRayMode === 'tracked-pointer')
+        updateControllerRayInteraction(pointer, interactableXRUIEntities)
+    }
+
+    const inputSources = Array.from(world.inputSources.values())
+    for (const [pointerSource, pointer] of pointers) {
+      if (!inputSources.includes(pointerSource)) {
+        world.scene.remove(pointer)
+        pointers.delete(pointerSource)
+      }
     }
 
     /** only update visible XRUI */
@@ -200,7 +266,6 @@ export default async function XRUISystem(world: World) {
     document.body.removeEventListener('dblclick', redirectDOMEvent)
     removeQuery(world, visibleXruiQuery)
     removeQuery(world, xruiQuery)
-    removeQuery(world, pointerQuery)
   }
 
   return { execute, cleanup }

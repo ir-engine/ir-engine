@@ -5,17 +5,17 @@ export const AvatarTeleportComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      side: null! as 'left' | 'right'
+      side: null! as XRHandedness
     }
   },
 
   onSet: (entity, component, json) => {
-    if (typeof json?.side === 'string') component.side.set(json.side as 'left' | 'right')
+    if (typeof json?.side === 'string') component.side.set(json.side as XRHandedness)
   },
 
   toJSON: () => {
     return null! as {
-      side: 'left' | 'right'
+      side: XRHandedness
     }
   }
 })

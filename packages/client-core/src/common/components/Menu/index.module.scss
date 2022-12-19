@@ -1,0 +1,26 @@
+.menu {
+  background: var(--popupBackground);
+  border-radius: 20px;
+  color: var(--textColor);
+
+  :global {
+    .MuiDialogContentText-root {
+      color: var(--textColor);
+    }
+
+    .MuiDialogContent-root {
+      padding-bottom: 10px;
+    }
+  }
+}
+
+.dialogTitle {
+  display: flex;
+  align-items: center;
+  padding: 16px 12px;
+}
+
+.dialogActions {
+  gap: 16px;
+  padding: 8px 24px;
+}

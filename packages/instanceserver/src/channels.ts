@@ -237,8 +237,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
     world.hostIds.media.set(hostId as UserId)
     await initializeRealtimeSystems(true, false)
-    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     await loadEngineInjection(world, projects)
+    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     world.hostIds.world.set(hostId as UserId)
@@ -250,8 +250,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
-
     await loadEngineInjection(world, projects)
+    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {
       const sceneData = (await sceneResultPromise).data

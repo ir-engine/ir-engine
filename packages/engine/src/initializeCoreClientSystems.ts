@@ -1,5 +1,7 @@
+import CameraInputSystem from './camera/systems/CameraInputSystem'
 import CameraSystem from './camera/systems/CameraSystem'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
+import ButtonSystem from './input/systems/ButtonSystem'
 import ClientInputSystem from './input/systems/ClientInputSystem'
 import MaterialLibrarySystem from './renderer/materials/systems/MaterialLibrarySystem'
 import WebGLRendererSystem from './renderer/WebGLRendererSystem'
@@ -10,6 +12,11 @@ import XRUISystem from './xrui/systems/XRUISystem'
 
 export default function () {
   return [
+    {
+      uuid: 'xre.engine.CameraInputSystem',
+      type: SystemUpdateType.UPDATE,
+      systemLoader: () => Promise.resolve({ default: CameraInputSystem })
+    },
     {
       uuid: 'xre.engine.CameraSystem',
       type: SystemUpdateType.UPDATE,
@@ -49,6 +56,11 @@ export default function () {
       uuid: 'xre.engine.WebGLRendererSystem',
       type: SystemUpdateType.RENDER,
       systemLoader: () => Promise.resolve({ default: WebGLRendererSystem })
+    },
+    {
+      uuid: 'xre.engine.ButtonSystem',
+      type: SystemUpdateType.POST_RENDER,
+      systemLoader: () => Promise.resolve({ default: ButtonSystem })
     }
   ]
 }

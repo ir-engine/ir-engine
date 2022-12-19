@@ -2,7 +2,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
+import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
@@ -19,15 +19,12 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { BaseInput } from '../input/enums/BaseInput'
-import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
@@ -73,10 +70,7 @@ export default async function AvatarControllerSystem(world: World) {
         })
       }
 
-      setComponent(controller.cameraEntity, FollowCameraComponent, {
-        ...FollowCameraDefaultValues,
-        targetEntity
-      })
+      setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity })
 
       dispatchAction(WorldNetworkAction.spawnCamera({}))
     }
@@ -181,16 +175,4 @@ export const rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
     Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds)
   )
   rigidbody.body.setRotation(finalOrientation, true)
-}
-
-export const updateMap = () => {
-  const avatarInputState = getState(AvatarInputSettingsState)
-  const inputMap = AvatarInputSchema.inputMap
-  if (avatarInputState.invertRotationAndMoveSticks.value) {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE_RIGHT)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE_LEFT)
-  } else {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE_LEFT)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE_RIGHT)
-  }
 }

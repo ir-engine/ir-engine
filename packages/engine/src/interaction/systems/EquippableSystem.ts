@@ -1,7 +1,15 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
+import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  createActionQueue,
+  dispatchAction,
+  getState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@xrengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { isClient } from '../../common/functions/isClient'
@@ -17,6 +25,7 @@ import {
   removeComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   RigidBodyComponent,
@@ -28,8 +37,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { EquippableComponent, SCENE_COMPONENT_EQUIPPABLE } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
-import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
-import { changeHand, equipEntity, getAttachmentPoint, getParity } from '../functions/equippableFunctions'
+import { changeHand, equipEntity, unequipEntity } from '../functions/equippableFunctions'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
 
@@ -78,7 +86,7 @@ export function transferAuthorityOfObjectReceptor(
         },
         equip: !hasComponent(equippableEntity, EquippedComponent),
         // todo, pass attachment point through actions somehow
-        attachmentPoint: EquippableAttachmentPoint.RIGHT_HAND
+        attachmentPoint: 'right'
       })
     )
   }
@@ -93,7 +101,7 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
   const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
 
-  const target = getHandTarget(equipperEntity, getParity(attachmentPoint))!
+  const target = getHandTarget(equipperEntity, attachmentPoint ?? 'left')!
   const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
 
   target.getWorldPosition(equippableTransform.position)
@@ -156,9 +164,21 @@ export default async function EquippableSystem(world: World) {
   const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
 
   const equipperQuery = defineQuery([EquipperComponent])
+  const equipperInputQuery = defineQuery([LocalInputTagComponent, EquipperComponent])
   const equippableQuery = defineQuery([EquippableComponent])
 
+  const onKeyU = () => {
+    for (const entity of equipperInputQuery()) {
+      const equipper = getComponent(entity, EquipperComponent)
+      if (!equipper.equippedEntity) return
+      unequipEntity(entity)
+    }
+  }
+
   const execute = () => {
+    const keys = world.buttons
+    if (keys.KeyU?.down) onKeyU()
+
     for (const action of interactedActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
       if (!hasComponent(action.targetEntity!, EquippableComponent)) continue
@@ -169,14 +189,13 @@ export default async function EquippableSystem(world: World) {
       if (equipperComponent?.equippedEntity) {
         const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
         const attachmentPoint = equippedComponent.attachmentPoint
-        const currentParity = getParity(attachmentPoint)
-        if (currentParity !== action.parityValue) {
-          changeHand(avatarEntity, getAttachmentPoint(action.parityValue))
+        if (attachmentPoint !== action.handedness) {
+          changeHand(avatarEntity, action.handedness)
         } else {
           // drop(entity, inputKey, inputValue)
         }
       } else {
-        equipEntity(avatarEntity, action.targetEntity!)
+        equipEntity(avatarEntity, action.targetEntity!, 'none')
       }
     }
 

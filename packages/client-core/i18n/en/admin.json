@@ -57,9 +57,7 @@
       "save": "Save",
       "confirm": "Confirm",
       "none": "None",
-      "select": "Select",
       "update": "Update",
-      "enter": "Enter",
       "remove": "Remove",
       "reset": "Reset",
       "delete": "Delete",
@@ -169,9 +167,9 @@
       "sourceVsDestinationProcessing": "Checking that source and destination are the same project, or destination is empty",
       "files": "Files",
       "branchData": "Source branch",
-      "tagData": "Tagged version",
+      "commitData": "Commit",
       "branchProcessing": "Fetching branches of project",
-      "tagsProcessing": "Fetching Tagged Versions of project",
+      "commitsProcessing": "Fetching commits of project",
       "mismatchedProjectWarning": "This version of this project does not match the installed version of Ethereal Engine. There may be compilation or runtime errors if this project is installed.",
       "needsGithubProvider": "You must connect your account with GitHub in order to add or update projects from GitHub",
       "sourceProjectName": "Project in source repo",
@@ -181,7 +179,8 @@
       "sourceURLValid": "Source URL valid and accessible?",
       "sourceMatchesDestination": "Source Project matches destination, or destination empty?",
       "changeDestination": "Change Destination Repo",
-      "copyDestination": "Copy Destination"
+      "copyDestination": "Copy Destination",
+      "commitSHACopied": "Commit SHA copied"
     },
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",

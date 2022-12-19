@@ -1,177 +1,250 @@
-import { BinaryValue } from '../../common/enums/BinaryValue'
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '../../common/functions/isClient'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { InputComponent, InputComponentType } from '../components/InputComponent'
-import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
-import { BaseInput } from '../enums/BaseInput'
-import { InputType } from '../enums/InputType'
-import { addClientInputListeners, removeClientInputListeners } from '../functions/clientInputListeners'
-import { handleGamepads } from '../functions/GamepadInput'
-import { InputValue } from '../interfaces/InputValue'
-import { InputAlias } from '../types/InputAlias'
+import normalizeWheel from '../functions/normalizeWheel'
+import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'
 
-export const processEngineInputState = (world = Engine.instance.currentWorld) => {
-  // for continuous input, figure out if the current data and previous data is the same
-  for (const [key, value] of world.inputState) {
-    const prevLifecycle = world.prevInputState.get(key)?.lifecycleState
+function preventDefault(e) {
+  e.preventDefault()
+}
 
-    /**
-     * If a button has previously started, set to unchanged (meaning held down)
-     */
-    if (value.type === InputType.BUTTON) {
-      if (value.lifecycleState === LifecycleValue.Started && prevLifecycle === LifecycleValue.Started)
-        value.lifecycleState = LifecycleValue.Unchanged
-    } else {
-      /**
-       * Ignore axes started with 0 to avoid overriding multiple physics to virtual mapping
-       */
-      if (value.lifecycleState === LifecycleValue.Started) {
-        const isZero = value.value.every((v) => v === 0)
-        if (isZero) value.lifecycleState = LifecycleValue.Ended
-      }
+interface ListenerBindingData {
+  domElement: any
+  eventName: string
+  callback: (event) => void
+}
 
-      /**
-       * If input lifecycle is not ended, figure out if it's changed or unchanged, and if it's zeroed and unchanged, end it
-       */
-      if (value.lifecycleState !== LifecycleValue.Ended) {
-        const isSameValue =
-          world.prevInputState.get(key) &&
-          value.value.every((val, i) => val === world.prevInputState.get(key)!.value[i])
-        if (isSameValue) {
-          const isZero = value.value.every((v) => v === 0)
-          if (isZero) {
-            value.lifecycleState = LifecycleValue.Ended
-          } else {
-            value.lifecycleState = LifecycleValue.Unchanged
-          }
-        } else {
-          if (value.lifecycleState !== LifecycleValue.Started || world.prevInputState.has(key)) {
-            value.lifecycleState = LifecycleValue.Changed
-          }
+const boundListeners: ListenerBindingData[] = []
+
+export const addClientInputListeners = (world: World) => {
+  if (!isClient) return
+  const canvas = EngineRenderer.instance.canvas
+
+  window.addEventListener('DOMMouseScroll', preventDefault, false)
+  window.addEventListener(
+    'keydown',
+    (evt) => {
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return
+      if (evt.code === 'Tab') evt.preventDefault()
+      // prevent DOM tab selection and spacebar/enter button toggling (since it interferes with avatar controls)
+      if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
+    },
+    false
+  )
+
+  const addListener = (
+    domElement: HTMLElement | Document | Window,
+    eventName,
+    callback: (event: Event) => void,
+    options?: boolean | AddEventListenerOptions
+  ) => {
+    domElement.addEventListener(eventName, callback, options)
+    boundListeners.push({
+      domElement,
+      eventName,
+      callback
+    })
+  }
+
+  addListener(document, 'gesturestart', preventDefault)
+  addListener(canvas, 'contextmenu', preventDefault)
+
+  const handleMouseClick = (event: MouseEvent) => {
+    const down = event.type === 'mousedown' || event.type === 'touchstart'
+
+    let button: ButtonTypes = 'PrimaryClick'
+    if (event.button === 1) button = 'AuxiliaryClick'
+    else if (event.button === 2) button = 'SecondaryClick'
+
+    const state = world.buttons as ButtonInputStateType
+
+    if (down) state[button] = createInitialButtonState()
+    else if (state[button]) state[button]!.up = true
+  }
+
+  const handleMouseMove = (event: MouseEvent) => {
+    world.pointerState.position.set(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      (event.clientY / window.innerHeight) * -2 + 1
+    )
+  }
+
+  const handleTouchMove = (event: TouchEvent) => {
+    const touch = event.touches[0]
+    world.pointerState.position.set(
+      (touch.clientX / window.innerWidth) * 2 - 1,
+      (touch.clientY / window.innerHeight) * -2 + 1
+    )
+  }
+
+  addListener(window, 'touchmove', handleTouchMove, { passive: true, capture: true })
+  addListener(window, 'mousemove', handleMouseMove, { passive: true, capture: true })
+  addListener(canvas, 'mouseup', handleMouseClick)
+  addListener(canvas, 'mousedown', handleMouseClick)
+  addListener(canvas, 'touchstart', handleMouseClick)
+  addListener(canvas, 'touchend', handleMouseClick)
+
+  const handleTouchDirectionalPad = (event: CustomEvent): void => {
+    const { stick, value }: { stick: 'StickLeft' | 'StickRight'; value: { x: number; y: number } } = event.detail
+    if (!stick) {
+      return
+    }
+
+    const index = world.inputSources.length === 1 || stick === 'StickLeft' ? 0 : 1
+
+    const axes = world.inputSources[index].gamepad!.axes as number[]
+
+    axes[0] = value.x
+    axes[1] = value.y
+  }
+  addListener(document, 'touchstickmove', handleTouchDirectionalPad)
+
+  const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
+  const clearKeyState = () => {
+    const state = world.buttons as ButtonInputStateType
+    for (const button of pointerButtons) {
+      const val = state[button]
+      if (!val?.up && val?.pressed) state[button].up = true
+    }
+  }
+  addListener(window, 'focus', clearKeyState)
+  addListener(window, 'blur', clearKeyState)
+  addListener(canvas, 'mouseleave', clearKeyState)
+
+  const handleVisibilityChange = (event: Event) => {
+    if (document.visibilityState === 'hidden') clearKeyState()
+  }
+
+  addListener(document, 'visibilitychange', handleVisibilityChange)
+
+  /** new */
+  const onKeyEvent = (event: KeyboardEvent) => {
+    const element = event.target as HTMLElement
+    // Сheck which excludes the possibility of controlling the avatar when typing in a text field
+    if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') return
+
+    const code = event.code
+    const down = event.type === 'keydown'
+
+    if (down) world.buttons[code] = createInitialButtonState()
+    else if (world.buttons[code]) world.buttons[code].up = true
+  }
+  addListener(document, 'keyup', onKeyEvent)
+  addListener(document, 'keydown', onKeyEvent)
+
+  const onWheelEvent = (event: WheelEvent) => {
+    const normalizedValues = normalizeWheel(event)
+    const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
+    const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
+    world.pointerState.scroll.x += x
+    world.pointerState.scroll.y += y
+  }
+  addListener(canvas, 'wheel', onWheelEvent, { passive: true, capture: true })
+}
+
+export const removeClientInputListeners = () => {
+  // if not client, no listeners will exist
+  if (!boundListeners.length) return
+
+  window.removeEventListener('DOMMouseScroll', preventDefault, false)
+
+  boundListeners.forEach(({ domElement, eventName, callback }) => {
+    domElement.removeEventListener(eventName, callback)
+  })
+  boundListeners.splice(0, boundListeners.length - 1)
+}
+
+export const GamepadMapping = {
+  //https://w3c.github.io/gamepad/#remapping
+  standard: {
+    0: 'ButtonA',
+    1: 'ButtonB',
+    2: 'ButtonX',
+    3: 'ButtonY',
+    4: 'LeftBumper',
+    5: 'RightBumper',
+    6: 'LeftTrigger',
+    7: 'RightTrigger',
+    8: 'ButtonBack',
+    9: 'ButtonStart',
+    10: 'LeftStick',
+    11: 'RightStick',
+    12: 'DPad1',
+    13: 'DPad2',
+    14: 'DPad3',
+    15: 'DPad4'
+  },
+  //https://www.w3.org/TR/webxr-gamepads-module-1/
+  'xr-standard': {
+    left: {
+      0: 'LeftTrigger',
+      1: 'LeftBumper',
+      2: 'LeftPad',
+      3: 'LeftStick',
+      4: 'ButtonX',
+      5: 'ButtonY'
+    },
+    right: {
+      0: 'RightTrigger',
+      1: 'RightBumper',
+      2: 'RightPad',
+      3: 'RightStick',
+      4: 'ButtonA',
+      5: 'ButtonB'
+    },
+    none: {
+      0: 'RightTrigger',
+      1: 'RightBumper',
+      2: 'RightPad',
+      3: 'RightStick',
+      4: 'ButtonA',
+      5: 'ButtonB'
+    }
+  }
+}
+export function updateGamepadInput(world: World, source: XRInputSource) {
+  if (!source.gamepad) return
+  if (source.gamepad.mapping in GamepadMapping) {
+    const ButtonAlias = GamepadMapping[source.gamepad!.mapping]
+    const mapping = ButtonAlias[source.handedness]
+    const buttons = source.gamepad?.buttons
+    if (buttons) {
+      for (let i = 0; i < buttons.length; i++) {
+        const buttonMapping = mapping[i]
+        const button = buttons[i]
+        if (!world.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          world.buttons[buttonMapping] = createInitialButtonState(button)
+        }
+        if (world.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          if (!world.buttons[buttonMapping].pressed && button.pressed) world.buttons[buttonMapping].down = true
+          world.buttons[buttonMapping].pressed = button.pressed
+          world.buttons[buttonMapping].touched = button.touched
+          world.buttons[buttonMapping].value = button.value
+        } else if (world.buttons[buttonMapping]) {
+          world.buttons[buttonMapping].up = true
         }
       }
-    }
-
-    /**
-     * If current is ended, and previous is ended or doesnt exist, delete it (this is to both ignore unchanged and zeroed input, or cleanup ended lifecycle)
-     */
-    if ((!prevLifecycle || prevLifecycle === LifecycleValue.Ended) && value.lifecycleState === LifecycleValue.Ended)
-      world.inputState.delete(key)
-  }
-}
-
-export const processCombinationLifecycle = (
-  inputComponent: InputComponentType,
-  prevData: Map<InputAlias, InputValue>,
-  mapping: InputAlias,
-  input: InputAlias[]
-) => {
-  const prev = prevData.get(mapping)
-  const isActive = input.map((c) => Engine.instance.currentWorld.inputState.has(c)).filter((a) => !a).length === 0
-  const wasActive = prev?.lifecycleState === LifecycleValue.Started || prev?.lifecycleState === LifecycleValue.Unchanged
-
-  if (isActive) {
-    if (prev?.lifecycleState === LifecycleValue.Ended)
-      // if we previously have ended this combination start it again or ignore it
-      inputComponent.data.set(mapping, {
-        type: InputType.BUTTON,
-        value: [BinaryValue.ON],
-        lifecycleState: LifecycleValue.Started
-      })
-    else if (wasActive)
-      // if this combination was previously active and still is, continue it
-      inputComponent.data.set(mapping, {
-        type: InputType.BUTTON,
-        value: [BinaryValue.ON],
-        lifecycleState: LifecycleValue.Unchanged
-      })
-    // if this combination was not previously active but now is, start it
-    else
-      inputComponent.data.set(mapping, {
-        type: InputType.BUTTON,
-        value: [BinaryValue.ON],
-        lifecycleState: LifecycleValue.Started
-      })
-  } else {
-    // if this combination was previously active but no longer, end it
-    if (wasActive)
-      inputComponent.data.set(mapping, {
-        type: InputType.BUTTON,
-        value: [BinaryValue.OFF],
-        lifecycleState: LifecycleValue.Ended
-      })
-  }
-}
-
-export const processInputComponentData = (entity: Entity) => {
-  const inputComponent = getComponent(entity, InputComponent)
-
-  const prevData = new Map<InputAlias, InputValue>()
-  for (const [key, value] of inputComponent.data) prevData.set(key, value)
-
-  inputComponent.data.clear()
-
-  // apply the input mappings
-  for (const [input, mapping] of inputComponent.schema.inputMap) {
-    if (typeof input === 'object') {
-      processCombinationLifecycle(inputComponent, prevData, mapping, input)
-    } else {
-      if (Engine.instance.currentWorld.inputState.has(input)) {
-        inputComponent.data.set(mapping, JSON.parse(JSON.stringify(Engine.instance.currentWorld.inputState.get(input))))
-      }
-    }
-  }
-
-  // now that we have the data mapped, run the behaviors
-  for (const [key, value] of inputComponent.data) {
-    if (inputComponent.schema.behaviorMap.has(key)) {
-      inputComponent.schema.behaviorMap.get(key)!(entity, key, value)
     }
   }
 }
 
 export default async function ClientInputSystem(world: World) {
-  const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])
-
-  addClientInputListeners()
+  addClientInputListeners(world)
   world.pointerScreenRaycaster.layers.enableAll()
 
   const execute = () => {
-    if (!EngineRenderer.instance?.xrSession) {
-      handleGamepads()
-    }
+    for (const source of world.inputSources) updateGamepadInput(world, source)
 
-    processEngineInputState(world)
+    world.pointerScreenRaycaster.setFromCamera(world.pointerState.position, world.camera)
 
-    // copy client input state to input component
-    for (const entity of localClientInputQuery(world)) {
-      processInputComponentData(entity)
-    }
+    world.pointerState.movement.subVectors(world.pointerState.position, world.pointerState.lastPosition)
+    world.pointerState.lastPosition.copy(world.pointerState.position)
 
-    // after running behaviours, update prev input with current input ready to receive new input
-    world.prevInputState.clear()
-    for (const [key, value] of world.inputState) {
-      world.prevInputState.set(key, value)
-    }
-
-    const input = getOptionalComponent(world.localClientEntity, InputComponent)
-    const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
-
-    if (screenXY) {
-      world.pointerScreenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, world.camera)
-    } else {
-      world.pointerScreenRaycaster.ray.origin.set(Infinity, Infinity, Infinity)
-      world.pointerScreenRaycaster.ray.direction.set(0, -1, 0)
-    }
+    world.pointerState.lastScroll.copy(world.pointerState.scroll)
   }
 
   const cleanup = async () => {
     removeClientInputListeners()
-    removeQuery(world, localClientInputQuery)
   }
 
   return { execute, cleanup }

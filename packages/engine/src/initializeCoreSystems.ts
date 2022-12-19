@@ -20,14 +20,14 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
-      uuid: 'xre.engine.SceneObjectSystem',
-      type: SystemUpdateType.UPDATE_LATE,
-      systemLoader: () => Promise.resolve({ default: SceneObjectSystem })
-    },
-    {
       uuid: 'xre.engine.TransformSystem',
       type: SystemUpdateType.UPDATE_LATE,
       systemLoader: () => Promise.resolve({ default: TransformSystem })
+    },
+    {
+      uuid: 'xre.engine.SceneObjectSystem',
+      type: SystemUpdateType.UPDATE_LATE,
+      systemLoader: () => Promise.resolve({ default: SceneObjectSystem })
     },
     {
       uuid: 'xre.engine.SceneLoadingSystem',
@@ -65,6 +65,4 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
 
   // load injected systems which may rely on core systems
   if (injectedSystems) await initSystems(world, injectedSystems)
-
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }

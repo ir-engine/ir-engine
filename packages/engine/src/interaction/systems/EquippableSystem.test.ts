@@ -22,9 +22,6 @@ import { Physics } from '../../physics/classes/Physics'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
-import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
-import { getParity } from '../functions/equippableFunctions'
-import EquippableSystem from './EquippableSystem'
 
 // @TODO this needs to be re-thought
 
@@ -59,7 +56,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     addComponent(item, EquippedComponent, {
       equipperEntity: player,
-      attachmentPoint: EquippableAttachmentPoint.HEAD
+      attachmentPoint: 'none'
     })
     const equippedComponent = getComponent(player, EquippedComponent)
     addComponent(player, EquipperComponent, { equippedEntity: item })
@@ -67,7 +64,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     setTransformComponent(item)
     const equippableTransform = getComponent(item, TransformComponent)
     const attachmentPoint = equippedComponent.attachmentPoint
-    const target = getHandTarget(item, getParity(attachmentPoint))!
+    const target = getHandTarget(item, attachmentPoint)!
     const position = target.getWorldPosition(new Vector3())
     const rotation = target.getWorldQuaternion(new Quaternion())
 

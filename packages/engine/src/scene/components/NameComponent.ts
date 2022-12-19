@@ -1,7 +1,7 @@
 import { hookstate, none } from '@xrengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, SetComponentType } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const NameComponent = defineComponent({
   name: 'NameComponent',
@@ -11,15 +11,19 @@ export const NameComponent = defineComponent({
   onSet: (entity, component, name?: string) => {
     if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')
     component.set(name)
-    NameComponent.entitiesByName[name].set(entity)
+    const namedEntities = NameComponent.entitiesByName[name]
+    const exists = !!namedEntities.value
+    exists && namedEntities.set([...namedEntities.value!, entity])
+    !exists && namedEntities.set([entity])
   },
 
   onRemove: (entity, component) => {
     const name = component.value
-    if (NameComponent.entitiesByName[name].value === entity) {
-      NameComponent.entitiesByName[name].set(none)
-    }
+    const namedEntities = NameComponent.entitiesByName[name]
+    const isSingleton = namedEntities.length === 1
+    isSingleton && namedEntities.set(none)
+    !isSingleton && namedEntities.set(namedEntities.value.filter((namedEntity) => namedEntity !== entity))
   },
 
-  entitiesByName: hookstate({} as Record<string, Entity>)
+  entitiesByName: hookstate({} as Record<string, Entity[]>)
 })

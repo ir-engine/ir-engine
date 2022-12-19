@@ -11,7 +11,7 @@ import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystem
 import { initializeRealtimeSystems } from '@xrengine/engine/src/initializeRealtimeSystems'
 import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
 import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import { API } from '../../API'
@@ -41,6 +41,8 @@ export const initClient = async (injectedSystems?: SystemModuleType<any>[]) => {
   await initializeRealtimeSystems()
   await initializeSceneSystems()
   await loadEngineInjection(world, await projects)
+
+  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
 export const loadScene = async (sceneData: SceneData) => {

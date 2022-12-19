@@ -18,15 +18,17 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { CameraActions } from '../camera/CameraState'
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
 import { easeOutCubic, normalizeRange } from '../common/functions/MathFunctions'
+import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { XRState } from '../xr/XRState'
+import { XRAction, XRState } from '../xr/XRState'
 import { createTransitionState } from '../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
@@ -143,6 +145,8 @@ export default async function AvatarTeleportSystem(world: World) {
         fadeBackInAccumulator = -1
         teleportAvatar(world.localClientEntity, guideCursor.position)
         dispatchAction(CameraActions.fadeToBlack({ in: false }))
+        dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
+        dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
       }
     }
     for (const entity of avatarTeleportQuery.exit(world)) {
@@ -158,16 +162,21 @@ export default async function AvatarTeleportSystem(world: World) {
       transition.setState('IN')
     }
     for (const entity of avatarTeleportQuery(world)) {
-      const sourceEntity =
-        getComponent(world.localClientEntity, AvatarTeleportComponent).side === 'left'
-          ? xrState.leftControllerEntity.value!
-          : xrState.rightControllerEntity.value!
-      const sourceTransform = getComponent(sourceEntity, TransformComponent)
-      guidelineTransform.position.copy(sourceTransform.position)
-      guidelineTransform.rotation.copy(sourceTransform.rotation)
+      const side = getComponent(world.localClientEntity, AvatarTeleportComponent).side
+
+      for (const inputSource of world.inputSources) {
+        const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+        if (inputSource.handedness === side) {
+          const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)!
+          guidelineTransform.position.copy(pose.transform.position as any as Vector3)
+          guidelineTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
+          guidelineTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
+        }
+      }
+
       const { p, v, t } = getParabolaInputParams(
-        sourceTransform.position,
-        sourceTransform.rotation,
+        guidelineTransform.position,
+        guidelineTransform.rotation,
         initialVelocity,
         gravity
       )
@@ -181,21 +190,21 @@ export default async function AvatarTeleportSystem(world: World) {
         // set vertex to current position of the virtual ball at time t
         positionAtT(currentVertexWorld, (i * t) / lineSegments, p, v, gravity)
         currentVertexLocal.copy(currentVertexWorld)
-        currentVertexLocal.applyMatrix4(sourceTransform.matrixInverse) // worldToLocal
+        currentVertexLocal.applyMatrix4(guidelineTransform.matrixInverse) // worldToLocal
         currentVertexLocal.toArray(lineGeometryVertices, i * 3)
         positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
         const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
         const validationData = checkPositionIsValid(currentVertexWorld, false, currentVertexDirection)
         if (validationData.raycastHit !== null) {
           guidelineBlocked = true
-          currentVertexWorld.copy(validationData.raycastHit.position)
+          currentVertexWorld.copy(validationData.raycastHit.position as Vector3)
         }
         lastValidationData = validationData
       }
       lastValidationData.positionValid ? (canTeleport = true) : (canTeleport = false)
       // Line should extend only up to last valid vertex
       currentVertexLocal.copy(currentVertexWorld)
-      currentVertexLocal.applyMatrix4(sourceTransform.matrixInverse) // worldToLocal
+      currentVertexLocal.applyMatrix4(guidelineTransform.matrixInverse) // worldToLocal
       currentVertexLocal.toArray(lineGeometryVertices, i * 3)
       stopGuidelineAtVertex(currentVertexLocal, lineGeometryVertices, i + 1, lineSegments)
       guideline.geometry.attributes.position.needsUpdate = true

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 import Button from '@mui/material/Button'
@@ -10,7 +11,6 @@ import DialogActions from '@mui/material/DialogActions'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
-import LoadingView from '../../common/LoadingView'
 import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 import ProjectFields from './ProjectFields'
@@ -35,7 +35,9 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           name: 'tempProject',
           thumbnail: '',
           repositoryPath: '',
-          needsRebuild: false
+          needsRebuild: false,
+          commitSHA: '',
+          commitDate: new Date()
         }
 
   const projectUpdateStatus = useProjectUpdateState()[project.name].value

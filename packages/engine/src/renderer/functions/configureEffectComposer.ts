@@ -1,10 +1,12 @@
 import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 
+import { NO_PROXY } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { EffectMap, EffectPropsSchema, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
 import { accessEngineRendererState } from '../EngineRendererState'
-import { EngineRenderer } from '../WebGLRendererSystem'
+import { EngineRenderer, getPostProcessingSceneMetadataState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
@@ -25,7 +27,7 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
     return
   }
 
-  const postprocessing = Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true }).postprocessing
+  const postprocessing = getPostProcessingSceneMetadataState(Engine.instance.currentWorld).get(NO_PROXY)
   if (!postprocessing.enabled) return
 
   const postProcessingEffects = postprocessing.effects as EffectPropsSchema
@@ -60,6 +62,10 @@ export const configureEffectComposer = (remove?: boolean, camera = Engine.instan
         ...effect,
         normalDepthBuffer: depthDownsamplingPass.texture
       })
+      EngineRenderer.instance.effectComposer[key] = eff
+      effects.push(eff)
+    } else if (key === Effects.SSREffect) {
+      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, effect)
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {

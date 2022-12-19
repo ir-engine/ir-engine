@@ -1,12 +1,9 @@
+import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import config from '@xrengine/common/src/config'
 import { isDev } from '@xrengine/common/src/config'
-import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
-import { V_001, V_010, V_100 } from '@xrengine/engine/src/common/constants/MathConstants'
-import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
+import { V_001, V_010 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
@@ -17,19 +14,26 @@ import {
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import {
   LocalTransformComponent,
-  setLocalTransformComponent
+  setLocalTransformComponent,
+  TransformComponent
 } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { XRControllerComponent } from '@xrengine/engine/src/xr/XRComponents'
-import { getPreferredControllerEntity } from '@xrengine/engine/src/xr/XRState'
-import { XRUIComponent, XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { getPreferredInputSource } from '@xrengine/engine/src/xr/XRState'
+import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { addActionReceptor, createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  createActionQueue,
+  dispatchAction,
+  getState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@xrengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
@@ -45,6 +49,8 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createSocialsMenuWidget } from './createSocialsMenuWidget'
 // import { createUploadAvatarWidget } from './createUploadAvatarWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
+
+const widgetMenuGripOffset = new Vector3(0.05, 0, -0.02)
 
 const widgetRotation = new Quaternion()
   .setFromAxisAngle(V_010, Math.PI * 0.5)
@@ -100,14 +106,9 @@ export default async function WidgetSystem(world: World) {
     }
   }
 
-  AvatarInputSchema.inputMap.set(GamepadButtons.X, WidgetInput.TOGGLE_MENU_BUTTONS)
-  // add escape key for local testing until we migrate fully with new interface story #6425
-  if (isDev && !isHMD) AvatarInputSchema.inputMap.set('Escape', WidgetInput.TOGGLE_MENU_BUTTONS)
-
-  AvatarInputSchema.behaviorMap.set(WidgetInput.TOGGLE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
-    if (inputValue.lifecycleState !== LifecycleValue.Started) return
+  const onEscape = () => {
     toggleWidgetsMenu()
-  })
+  }
 
   addActionReceptor(WidgetAppServiceReceptor)
 
@@ -116,6 +117,10 @@ export default async function WidgetSystem(world: World) {
   const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
 
   const execute = () => {
+    const keys = world.buttons
+    if (keys.ButtonX?.down) onEscape()
+    if (keys.Escape?.down) onEscape()
+
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       setVisibleComponent(widget.ui.entity, action.shown)
@@ -133,23 +138,22 @@ export default async function WidgetSystem(world: World) {
       if (typeof widget.cleanup === 'function') widget.cleanup()
     }
 
-    const controllerEntity = getPreferredControllerEntity(true)
+    const preferredInputSource = getPreferredInputSource(world.inputSources, true)
 
-    if (hasComponent(widgetMenuUI.entity, LocalTransformComponent) && !controllerEntity)
-      removeComponent(widgetMenuUI.entity, LocalTransformComponent)
-
-    if (!hasComponent(widgetMenuUI.entity, LocalTransformComponent) && controllerEntity) {
-      const controllerGripEntity = getComponent(controllerEntity, XRControllerComponent)?.grip
-      if (controllerGripEntity)
-        setLocalTransformComponent(
-          widgetMenuUI.entity,
-          controllerGripEntity,
-          new Vector3(0.05, 0, -0.02),
-          widgetRotation.clone()
-        )
+    if (preferredInputSource) {
+      const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+      const pose = Engine.instance.xrFrame!.getPose(
+        preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
+        referenceSpace
+      )
+      if (pose) {
+        const transform = getComponent(widgetMenuUI.entity, TransformComponent)
+        transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
+        transform.rotation.copy(pose.transform.orientation as any as Quaternion).multiply(widgetRotation)
+      }
     }
 
-    const widgetMenuShown = !!controllerEntity && widgetState.widgetsMenuOpen.value
+    const widgetMenuShown = !!preferredInputSource && widgetState.widgetsMenuOpen.value
     showWidgetMenu(widgetMenuShown)
     setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
@@ -164,11 +168,6 @@ export default async function WidgetSystem(world: World) {
   const cleanup = async () => {
     removeActionQueue(showWidgetQueue)
     removeEntity(widgetMenuUI.entity)
-    if (AvatarInputSchema.inputMap.get(GamepadButtons.X) === WidgetInput.TOGGLE_MENU_BUTTONS)
-      AvatarInputSchema.inputMap.delete(GamepadButtons.X)
-    if (AvatarInputSchema.inputMap.get('Escape') === WidgetInput.TOGGLE_MENU_BUTTONS)
-      AvatarInputSchema.inputMap.delete('Escape')
-    AvatarInputSchema.behaviorMap.delete(WidgetInput.TOGGLE_MENU_BUTTONS)
   }
 
   return { execute, cleanup }

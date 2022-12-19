@@ -114,22 +114,6 @@ export const ObjectFitFunctions = {
     }
   },
 
-  attachObjectToPreferredTransform: (container: WebContainer3D, distance = 0.1, scale?: number) => {
-    const xrState = getState(XRState)
-    if (xrState.leftControllerEntity.value) {
-      ObjectFitFunctions.attachObjectToHand(container, 10)
-    } else {
-      const fitScale =
-        scale ??
-        ObjectFitFunctions.computeContentFitScaleForCamera(
-          distance,
-          container.rootLayer.domSize.x,
-          container.rootLayer.domSize.y
-        )
-      ObjectFitFunctions.attachObjectInFrontOfCamera(container, fitScale, distance)
-    }
-  },
-
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {
     container.scale.setScalar(Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(position) / 3))
     container.position.copy(position)

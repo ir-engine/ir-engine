@@ -41,7 +41,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
   light.shadow.camera.far = component.cameraFar
   light.shadow.bias = component.shadowBias
   light.shadow.radius = component.shadowRadius
-  light.castShadow = !EngineRenderer.instance.csm && component.castShadow
+  light.castShadow = component.castShadow
 
   if (!light.shadow.mapSize.equals(component.shadowMapResolution)) {
     light.shadow.mapSize.copy(component.shadowMapResolution)

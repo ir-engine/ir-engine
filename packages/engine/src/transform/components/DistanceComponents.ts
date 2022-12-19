@@ -27,3 +27,9 @@ export function setDistanceFromLocalClientComponent(entity: Entity) {
 export function setDistanceFromCameraComponent(entity: Entity) {
   setComponent(entity, DistanceFromCameraComponent, {})
 }
+
+export const compareDistance = (a: Entity, b: Entity) => {
+  const aDist = DistanceFromCameraComponent.squaredDistance[a]
+  const bDist = DistanceFromCameraComponent.squaredDistance[b]
+  return aDist - bDist
+}

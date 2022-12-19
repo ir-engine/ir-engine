@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
+import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import {
   addActionReceptor,
   dispatchAction,
@@ -18,13 +17,13 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
 import styles from './index.module.scss'
 import AvatarContextMenu from './menus/AvatarContextMenu'
-import AvatarUploadModal from './menus/AvatarSelectMenu'
+import AvatarModifyMenu from './menus/AvatarModifyMenu'
+import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import EmoteMenu from './menus/EmoteMenu'
 import FriendsMenu from './menus/FriendsMenu'
 import PartyMenu from './menus/PartyMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
-import SelectAvatarMenu from './menus/SelectAvatarMenu'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import { PopupMenuActions, PopupMenuServiceReceptor, PopupMenuState } from './PopupMenuService'
@@ -62,8 +61,8 @@ export const UserMenu = (): any => {
       [Views.Settings]: SettingMenu,
       [Views.Share]: ShareMenu,
       [Views.Party]: PartyMenu,
-      [Views.AvatarSelect]: SelectAvatarMenu,
-      [Views.AvatarUpload]: AvatarUploadModal,
+      [Views.AvatarSelect]: AvatarSelectMenu,
+      [Views.AvatarModify]: AvatarModifyMenu,
       [Views.ReadyPlayer]: ReadyPlayerMenu,
       [Views.Emote]: EmoteMenu,
       [Views.Friends]: FriendsMenu,
@@ -85,31 +84,24 @@ export const UserMenu = (): any => {
 
   return (
     <ClickAwayListener onClickAway={() => setCurrentActiveMenu({ id: Views.Closed })} mouseEvent="onMouseDown">
-      <div>
+      <>
         <section
-          className={`${styles.settingContainer} ${bottomShelfStyle} ${
+          className={`${styles.hotbarContainer} ${bottomShelfStyle} ${
             popupMenuState.openMenu.value ? styles.fadeOutBottom : ''
           }`}
         >
-          <div className={styles.iconContainer}>
+          <div className={styles.buttonsContainer}>
             {Object.keys(hotbarItems.value).map((id, index) => {
               const IconNode = hotbarItems.get(NO_PROXY)[id]
               if (!IconNode) return null
               return (
-                <span
+                <IconButton
                   key={index}
-                  id={id + '_' + index}
+                  type="solid"
+                  icon={<IconNode />}
+                  sizePx={50}
                   onClick={() => setCurrentActiveMenu({ id })}
-                  className={`${styles.materialIconBlock} ${
-                    popupMenuState.openMenu.value && popupMenuState.openMenu.value === id ? styles.activeMenu : null
-                  }`}
-                >
-                  <IconNode
-                    className={styles.icon}
-                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  />
-                </span>
+                />
               )
             })}
           </div>
@@ -124,7 +116,7 @@ export const UserMenu = (): any => {
             />
           </div>
         )}
-      </div>
+      </>
     </ClickAwayListener>
   )
 }

@@ -1,11 +1,12 @@
-import { entityExists } from 'bitecs'
-import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+import { entityExists, Not } from 'bitecs'
+import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
+import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -18,7 +19,12 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyKinematicPositionBasedTagComponent,
+  RigidBodyKinematicVelocityBasedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
@@ -37,7 +43,7 @@ import {
 } from '../components/TransformComponent'
 
 const transformQuery = defineQuery([TransformComponent])
-const localTransformQuery = defineQuery([LocalTransformComponent])
+const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
 const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
@@ -116,10 +122,11 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const localTransform = getOptionalComponent(entity, LocalTransformComponent)
+  const isDynamicRigidbody = hasComponent(entity, RigidBodyDynamicTagComponent)
   const parentTransform = localTransform?.parentEntity
     ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
     : undefined
-  if (!localTransform || !parentTransform) return false
+  if (!localTransform || !parentTransform || isDynamicRigidbody) return false
   const transform = getComponent(entity, TransformComponent)
   transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
   transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
@@ -155,6 +162,17 @@ export default async function TransformSystem(world: World) {
     deserialize: deserializeTransform,
     serialize: serializeTransform
   })
+
+  /** override Skeleton.update, as it is called inside  */
+  const skeletonUpdate = Skeleton.prototype.update
+
+  function noop() {}
+
+  function iterateSkeletons(skinnedMesh: SkinnedMesh) {
+    if (skinnedMesh.isSkinnedMesh) {
+      skinnedMesh.skeleton.update()
+    }
+  }
 
   const _frustum = new Frustum()
   const _projScreenMatrix = new Matrix4()
@@ -207,6 +225,10 @@ export default async function TransformSystem(world: World) {
   }
 
   const isDirty = (entity: Entity) => world.dirtyTransforms[entity]
+  const isDirtyNonKinematic = (entity: Entity) =>
+    world.dirtyTransforms[entity] &&
+    !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
+    !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
   const filterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
     !world.dirtyTransforms[entity] &&
@@ -264,13 +286,15 @@ export default async function TransformSystem(world: World) {
       if (makeDirty) world.dirtyTransforms[entity] = true
     }
 
-    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirty)
-    const dirtyLocalTransformEntities = localTransformQuery().filter(isDirty)
+    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirtyNonKinematic)
+    const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
     const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
 
-    for (const entity of dirtyLocalTransformEntities) computeLocalTransformMatrix(entity)
+    for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
     for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity, world)
+
+    // exclude teleporting kinematic bodies, which are updated in the Physics System
     for (const entity of dirtyRigidbodyEntities) teleportRigidbody(entity)
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
@@ -317,6 +341,16 @@ export default async function TransformSystem(world: World) {
 
       updateReferenceSpace(world.localClientEntity)
     }
+
+    /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
+    if (isHMD) {
+      Skeleton.prototype.update = skeletonUpdate
+      for (const entity of world.priorityAvatarEntities) {
+        const group = getComponent(entity, GroupComponent)
+        for (const obj of group) obj.traverse(iterateSkeletons)
+      }
+      Skeleton.prototype.update = noop
+    }
   }
 
   const cleanup = async () => {
@@ -330,6 +364,7 @@ export default async function TransformSystem(world: World) {
     removeQuery(world, dynamicBoundingBoxQuery)
     removeQuery(world, distanceFromLocalClientQuery)
     removeQuery(world, distanceFromCameraQuery)
+    Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }

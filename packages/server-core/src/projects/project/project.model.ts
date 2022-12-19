@@ -29,6 +29,12 @@ export default (app: Application) => {
       },
       needsRebuild: {
         type: DataTypes.BOOLEAN
+      },
+      commitSHA: {
+        type: DataTypes.STRING
+      },
+      commitDate: {
+        type: DataTypes.DATE
       }
     },
     {

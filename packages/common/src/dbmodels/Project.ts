@@ -5,4 +5,6 @@ export interface ProjectInterface {
   repositoryPath: string
   settings: string
   needsRebuild: boolean
+  commitSHA: string
+  commitDate: string
 }

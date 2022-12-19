@@ -1,25 +1,23 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import adminStyles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
+import Button from '@xrengine/client-core/src/common/components/Button'
+import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
+import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
+import InputText from '@xrengine/client-core/src/common/components/InputText'
+import Menu from '@xrengine/client-core/src/common/components/Menu'
 import { InstanceService } from '@xrengine/client-core/src/common/services/InstanceService'
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
-import menuStyles from '@xrengine/client-core/src/user/components/UserMenu/index.module.scss'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { XRAction } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import Button from '@mui/material/Button'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 
-import styles from './RoomMenu.scss'
+import styles from '../index.module.scss'
+import { Views } from '../util'
 
 interface Props {
+  changeActiveMenu?: Function
   location?: string
 }
 
@@ -31,7 +29,7 @@ const numberize = (str: string) => {
   return validChars.join('')
 }
 
-const RoomMenu = ({ location }: Props): JSX.Element => {
+const RoomMenu = ({ changeActiveMenu, location }: Props): JSX.Element => {
   const { t } = useTranslation()
   const route = useRouter()
   const [locationName, setLocationName] = useState('')
@@ -88,95 +86,60 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
   }
 
   return (
-    <>
-      <style>{styles}</style>
+    <Menu open onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
+      <Box className={styles.menuContent}>
+        {!location && (
+          <InputText
+            error={!location && !locationName && error ? error : undefined}
+            label={t('user:roomMenu.locationName')}
+            value={locationName}
+            onChange={handleLocationName}
+          />
+        )}
 
-      <div className={`${menuStyles.menuPanel} roomMenu`}>
-        <div className={menuStyles.settingPanel}>
-          {!location && (
-            <TextField
-              className={menuStyles.emailField}
-              size="small"
-              placeholder={t('user:roomMenu.locationName')}
-              variant="outlined"
-              onChange={handleLocationName}
-              value={locationName}
-              error={!location && !locationName && error ? true : false}
-              helperText={!location && !locationName && error ? error : null}
-              fullWidth
-            />
-          )}
+        <hr className={commonStyles.divider} />
 
-          <hr className="divider" />
+        <InputRadio
+          value={source}
+          type="block"
+          options={[
+            {
+              value: 'create',
+              label: t('user:roomMenu.createRoom'),
+              overflowContent: (
+                <>
+                  <Button type="gradientRounded" disabled={source !== 'create'} size="medium" onClick={handleCreate}>
+                    {t('user:roomMenu.create')}
+                  </Button>
 
-          <FormControl className={adminStyles.radioField} fullWidth>
-            <RadioGroup value={source} onChange={handleSourceChange}>
-              <FormControlLabel
-                value="create"
-                control={<Radio />}
-                label={
-                  <Typography variant="h5" className="radioLabel">
-                    {t('user:roomMenu.createRoom')}
-                  </Typography>
-                }
-              />
+                  <hr className={commonStyles.divider} />
+                </>
+              )
+            },
+            {
+              value: 'join',
+              label: t('user:roomMenu.joinRoom')
+            }
+          ]}
+          sx={{ flexDirection: 'column', width: '100%' }}
+          onChange={handleSourceChange}
+        />
 
-              <Button
-                className="button"
-                disabled={source !== 'create'}
-                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onClick={handleCreate}
-              >
-                {t('user:roomMenu.create')}
-              </Button>
+        <InputText
+          disabled={source !== 'join'}
+          error={(location || locationName) && source === 'join' && error ? error : undefined}
+          label={t('user:roomMenu.joinRoomCode')}
+          placeholder={t('user:roomMenu.roomCode')}
+          value={roomCode}
+        />
 
-              <hr className="divider" />
-
-              <FormControlLabel
-                value="join"
-                control={<Radio />}
-                label={
-                  <Typography variant="h5" className="radioLabel">
-                    {t('user:roomMenu.joinRoom')}
-                  </Typography>
-                }
-              />
-
-              <section
-                className={`${menuStyles.emailPhoneSection} inputSection ${source === 'join' ? '' : 'disabled'}`}
-              >
-                <Typography variant="h1" className={menuStyles.panelHeader}>
-                  {t('user:roomMenu.joinRoomCode')}
-                </Typography>
-                <TextField
-                  className={menuStyles.emailField}
-                  size="small"
-                  placeholder={t('user:roomMenu.roomCode')}
-                  variant="outlined"
-                  onChange={handleRoomCode}
-                  value={roomCode}
-                  error={(location || locationName) && source === 'join' && error ? true : false}
-                  helperText={(location || locationName) && source === 'join' && error ? error : null}
-                  disabled={source !== 'join'}
-                  fullWidth
-                />
-              </section>
-
-              <Button
-                className="button"
-                disabled={source !== 'join'}
-                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onClick={handleJoin}
-              >
-                {t('user:roomMenu.join')}
-              </Button>
-            </RadioGroup>
-          </FormControl>
-        </div>
-      </div>
-    </>
+        <Box display="flex" alignItems="center">
+          <Button type="gradientRounded" disabled={source !== 'join'} size="medium" onClick={handleJoin}>
+            {t('user:roomMenu.join')}
+          </Button>
+        </Box>
+      </Box>
+    </Menu>
   )
 }
 

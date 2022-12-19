@@ -159,12 +159,10 @@ export const pushProjectToGithub = async (
 
     await Promise.all(
       files.map(async (filePath) => {
-        if (path.parse(filePath).ext.length > 0) {
-          logger.info(`[ProjectLoader]: - downloading "${filePath}"`)
-          const fileResult = await storageProvider.getObject(filePath)
-          if (fileResult.Body.length === 0) logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
-          writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
-        }
+        logger.info(`[ProjectLoader]: - downloading "${filePath}"`)
+        const fileResult = await storageProvider.getObject(filePath)
+        if (fileResult.Body.length === 0) logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
+        writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
       })
     )
     const repoPath = project.repositoryPath.toLowerCase()
@@ -215,7 +213,7 @@ export const pushProjectToGithub = async (
       if (commitSHA) git.checkout(commitSHA)
       await git.checkoutLocalBranch(deploymentBranch)
       await git.push('origin', deploymentBranch, ['-f'])
-    } else await uploadToRepo(octoKit, files, owner, repo, deploymentBranch, project.name)
+    } else await uploadToRepo(octoKit, files, owner, repo, deploymentBranch, project, app)
   } catch (err) {
     logger.error(err)
     throw err
@@ -230,7 +228,8 @@ const uploadToRepo = async (
   org: string,
   repo: string,
   branch: string = `master`,
-  projectName: string
+  project: ProjectInterface,
+  app: Application
 ) => {
   let currentCommit
   try {
@@ -252,13 +251,24 @@ const uploadToRepo = async (
     org,
     repo,
     fileBlobs,
-    filePaths.map((path) => path.replace(`projects/${projectName}/`, '')),
+    filePaths.map((path) => path.replace(`projects/${project.name}/`, '')),
     currentCommit.treeSha
   )
   const date = Date.now()
   const commitMessage = `Update by ${user.login} at ${new Date(date).toJSON()}`
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
+  await app.service('project').Model.update(
+    {
+      commitSHA: newCommit.sha,
+      commitDate: new Date()
+    },
+    {
+      where: {
+        id: project.id
+      }
+    }
+  )
   try {
     //This pushes the commit to the main branch in GitHub
     await setBranchToCommit(octo, org, repo, branch, newCommit.sha)

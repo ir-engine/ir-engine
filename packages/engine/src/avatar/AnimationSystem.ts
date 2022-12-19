@@ -15,9 +15,7 @@ import { TweenComponent } from '../transform/components/TweenComponent'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { AnimationManager } from './AnimationManager'
 import AvatarAnimationSystem from './AvatarAnimationSystem'
-import AvatarHandAnimationSystem from './AvatarHandAnimationSystem'
 import { AnimationComponent } from './components/AnimationComponent'
-import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
@@ -44,7 +42,7 @@ export function animationActionReceptor(
 export default async function AnimationSystem(world: World) {
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
-  const animationQuery = defineQuery([AnimationComponent, VisibleComponent, Not(AvatarHeadIKComponent)])
+  const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
@@ -100,9 +98,6 @@ export default async function AnimationSystem(world: World) {
   return {
     execute,
     cleanup,
-    subsystems: [
-      () => Promise.resolve({ default: AvatarAnimationSystem }),
-      () => Promise.resolve({ default: AvatarHandAnimationSystem })
-    ]
+    subsystems: [() => Promise.resolve({ default: AvatarAnimationSystem })]
   }
 }

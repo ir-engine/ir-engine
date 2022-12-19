@@ -22,7 +22,7 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { setCallback } from '../../scene/components/CallbackComponent'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -71,7 +71,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
     // Enable shadow for avatars
     obj.castShadow = true
   })
-  return SkeletonUtils.clone(parent)
+  return SkeletonUtils.clone(parent) as Object3D
 }
 
 export const loadAvatarForUser = async (
@@ -97,11 +97,12 @@ export const loadAvatarForUser = async (
 
   removeComponent(entity, AvatarPendingComponent)
 
+  if (!parent) return
   setupAvatarForUser(entity, parent)
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
-    const avatarMaterials = setupAvatarMaterials(entity, avatar.modelContainer)
+    const avatarMaterials = setupAvatarMaterials(entity, avatar.model)
     const effectEntity = createEntity()
     addComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,
@@ -113,22 +114,16 @@ export const loadAvatarForUser = async (
   dispatchAction(EngineActions.avatarModelChanged({ entity }))
 }
 
-export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
-  const parent = await loadAvatarModelAsset(avatarURL)
-  if (!parent) return
-  setupAvatarModel(entity)(parent)
-  // animateModel(entity)
-  return parent
-}
-
 export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   const avatar = getComponent(entity, AvatarComponent)
-  avatar.modelContainer.clear()
+  if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   setupAvatarModel(entity)(model)
   setupAvatarHeight(entity, model)
 
-  model.children.forEach((child) => avatar.modelContainer.add(child))
+  addObjectToGroup(entity, model)
+  setObjectLayers(model, ObjectLayers.Avatar)
+  avatar.model = model
 }
 
 export const setupAvatarModel = (entity: Entity) =>

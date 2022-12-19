@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 
@@ -25,7 +25,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const selectionState = useSelectionState()
-  const lightComponent = getComponent(props.node.entity, DirectionalLightComponent)
+  const lightComponent = useComponent(props.node.entity, DirectionalLightComponent).value
 
   useEffect(() => {
     if (selectionState.propertyName.value === 'color') {

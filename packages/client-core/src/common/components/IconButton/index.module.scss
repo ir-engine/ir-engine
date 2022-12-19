@@ -1,0 +1,58 @@
+.iconButton {
+  color: var(--iconButtonColor);
+}
+
+.iconButtonSolid {
+  cursor: pointer;
+  background: var(--iconButtonBackground);
+
+  &:hover {
+    background: var(--iconButtonHoverColor);
+  }
+}
+
+.iconButtonGradient {
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.iconButtonGlow {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  bottom: -10px;
+  right: -10px;
+  margin: 0;
+  min-width: 30px;
+  border-radius: 50%;
+  background: var(--iconButtonBackground);
+  box-shadow: 2px 2px 10px gray;
+  transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+
+  &:hover,
+  &:focus {
+    width: 40px;
+    height: 40px;
+    bottom: -15px;
+    right: -15px;
+    background: var(--iconButtonSelectedBackground);
+    opacity: 0.7;
+  }
+}
+
+.backgroundStyle {
+  box-shadow: 2px 2px 10px gray;
+  transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+
+  &:hover,
+  &:focus {
+    opacity: 0.7;
+  }
+}
