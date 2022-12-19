@@ -12,7 +12,6 @@ import { SelectionAction } from '../../services/SelectionServices'
 import AssemblyInput from '../inputs/AssemblyInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
-import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 

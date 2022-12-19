@@ -89,7 +89,7 @@ export const serializeWorld = (
       if (hasComponent(node.entity, AssemblyComponent)) {
         const asset = getComponent(node.entity, AssemblyComponent)
         if (asset.loaded === LoadState.LOADED) {
-          asset.roots.map(loadedAssets.add)
+          asset.roots.map((root) => loadedAssets.add(root))
         }
       }
     },
