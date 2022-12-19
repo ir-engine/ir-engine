@@ -10,6 +10,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getComponentState,
   hasComponent,
   removeComponent,
   setComponent,
@@ -50,7 +51,7 @@ export const unloadAsset = (entity: Entity) => {
       }
     })
     if (hasComponent(entity, AssemblyComponent)) {
-      const asset = useComponent(entity, AssemblyComponent)
+      const asset = getComponentState(entity, AssemblyComponent)
       asset.loaded.set(LoadState.UNLOADED)
       asset.roots.set([])
     }
@@ -59,7 +60,7 @@ export const unloadAsset = (entity: Entity) => {
 
 export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
   const asset = getComponent(entity, AssemblyComponent)
-  const assetState = useComponent(entity, AssemblyComponent)
+  const assetState = getComponentState(entity, AssemblyComponent)
   //check if asset is already loading or loaded
   if (asset.loaded !== LoadState.UNLOADED) {
     console.warn('Asset', asset, 'is not unloaded')

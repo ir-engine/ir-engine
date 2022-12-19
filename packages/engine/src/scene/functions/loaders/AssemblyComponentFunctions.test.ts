@@ -117,7 +117,8 @@ describe('AssemblyComponentFunctions', async () => {
     const scenePath = path.join(appRootPath.path, testDir, file)
     const xreLoader = new XRELoader()
     if (root) xreLoader.rootNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(root)!
-    const result = await xreLoader.parse(fs.readFileSync(scenePath, { encoding: 'utf-8' }))
+    const rawData = fs.readFileSync(scenePath, { encoding: 'utf-8' })
+    const result = await xreLoader.parse(rawData)
     return result
   }
 
@@ -129,7 +130,7 @@ describe('AssemblyComponentFunctions', async () => {
         loaded: LoadState.UNLOADED
       })
       //load asset from example repo
-      const emptyScene = loadXRE('empty.xre.gltf')
+      const emptyScene = await loadXRE('empty.xre.gltf')
       await loadAsset(entity, setContent(emptyScene))
 
       console.log('DEBUG EMPTY SCENE', entity, world.fixedTick)
