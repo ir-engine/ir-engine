@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 import logger from '@xrengine/common/src/logger'
 import {
   addActionReceptor,
@@ -127,7 +129,7 @@ export default async function MediaSystem(world: World) {
   }
 
   world.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
-    state: hookstate(DefaultMediaState),
+    state: hookstate(_.cloneDeep(DefaultMediaState)),
     default: DefaultMediaState
   }
 

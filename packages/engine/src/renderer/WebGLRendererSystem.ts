@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import {
   BloomEffect,
   BrightnessContrastEffect,
@@ -325,12 +326,12 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
 
   world.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
-    state: hookstate(DefaultRenderSettingsState),
+    state: hookstate(_.cloneDeep(DefaultRenderSettingsState)),
     default: DefaultRenderSettingsState
   }
 
   world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel] = {
-    state: hookstate(DefaultPostProcessingState),
+    state: hookstate(_.cloneDeep(DefaultPostProcessingState)),
     default: DefaultPostProcessingState
   }
 

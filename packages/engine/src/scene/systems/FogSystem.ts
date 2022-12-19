@@ -1,4 +1,5 @@
 import { Not } from 'bitecs'
+import _ from 'lodash'
 import { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial } from 'three'
 
@@ -45,7 +46,7 @@ export const getFogSceneMetadataState = (world: World) =>
 
 export default async function FogSystem(world: World) {
   world.sceneMetadataRegistry[FogSceneMetadataLabel] = {
-    state: hookstate(DefaultFogState),
+    state: hookstate(_.cloneDeep(DefaultFogState)),
     default: DefaultFogState
   }
 
