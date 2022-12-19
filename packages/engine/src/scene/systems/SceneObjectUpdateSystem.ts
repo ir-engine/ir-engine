@@ -17,11 +17,7 @@ import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '../../transform/components/TransformComponent'
-import {
-  AssemblyComponent,
-  SCENE_COMPONENT_ASSEMBLY,
-  SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES
-} from '../components/AssemblyComponent'
+import { AssemblyComponent, SCENE_COMPONENT_ASSEMBLY } from '../components/AssemblyComponent'
 import {
   CloudComponent,
   SCENE_COMPONENT_CLOUD,
@@ -73,7 +69,7 @@ import {
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { FogType } from '../constants/FogType'
-import { deserializeAsset, serializeAsset } from '../functions/loaders/AssemblyComponentFunctions'
+import { deserializeAsset } from '../functions/loaders/AssemblyComponentFunctions'
 import { deserializeCameraProperties, updateCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
@@ -173,14 +169,12 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.asset, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_ASSEMBLY, props: SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_ASSEMBLY, props: {} }
   ])
 
   world.sceneComponentRegistry.set(AssemblyComponent.name, SCENE_COMPONENT_ASSEMBLY)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSEMBLY, {
-    defaultData: SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES,
-    deserialize: deserializeAsset,
-    serialize: serializeAsset
+    deserialize: deserializeAsset
   })
 
   /**

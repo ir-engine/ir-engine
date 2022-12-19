@@ -12,11 +12,12 @@ import {
   getOptionalComponent,
   getOptionalComponentState,
   hasComponent,
-  serializeComponent
+  serializeComponent,
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { AssemblyComponent, AssemblyLoadedComponent, LoadState } from '../components/AssemblyComponent'
+import { AssemblyComponent, LoadState } from '../components/AssemblyComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 
@@ -88,8 +89,7 @@ export const serializeWorld = (
       if (hasComponent(node.entity, AssemblyComponent)) {
         const asset = getComponent(node.entity, AssemblyComponent)
         if (asset.loaded === LoadState.LOADED) {
-          const loaded = getOptionalComponent(node.entity, AssemblyLoadedComponent)
-          loaded?.roots?.forEach((root) => loadedAssets.add(root))
+          asset.roots.map(loadedAssets.add)
         }
       }
     },
