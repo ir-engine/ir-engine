@@ -1,33 +1,37 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
-
-export type AssemblyLoadedComponentType = {
-  roots: EntityTreeNode[]
-}
+import { unloadAsset } from '../functions/loaders/AssemblyComponentFunctions'
 
 export enum LoadState {
-  UNLOADED,
-  LOADING,
-  LOADED
+  UNLOADED = 'unloaded',
+  LOADING = 'loading',
+  LOADED = 'loaded'
 }
 
 export type AssemblyComponentType = {
   src: string
-  name: string
   metadata?: {
     author?: string
     license?: string
   }
   loaded: LoadState
+  roots: EntityTreeNode[]
+  dirty: boolean
 }
 
-export const AssemblyComponent = createMappedComponent<AssemblyComponentType>('AssemblyComponent')
+export const SCENE_COMPONENT_ASSEMBLY = 'assembly'
 
-export const AssemblyLoadedComponent = createMappedComponent<AssemblyLoadedComponentType>('AssemblyLoadedComponent')
+export const AssemblyComponent = defineComponent({
+  name: 'AssemblyComponent',
 
-export const SCENE_COMPONENT_ASSEMBLY = 'asset'
-export const SCENE_COMPONENT_ASSEMBLY_DEFAULT_VALUES = {
-  name: '',
-  path: '',
-  loaded: LoadState.UNLOADED
-}
+  onInit: (entity) =>
+    ({
+      src: '',
+      metadata: {},
+      loaded: LoadState.UNLOADED,
+      roots: [],
+      dirty: false
+    } as AssemblyComponentType),
+
+  onRemove: unloadAsset
+})

@@ -6,9 +6,10 @@ import { AssemblyComponent, LoadState } from '@xrengine/engine/src/scene/compone
 import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssemblyComponentFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { exportAsset } from '../../functions/assetFunctions'
+import { exportAssembly } from '../../functions/assetFunctions'
 import { EditorAction } from '../../services/EditorServices'
 import { SelectionAction } from '../../services/SelectionServices'
+import AssemblyInput from '../inputs/AssemblyInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -20,21 +21,17 @@ export const AssemblyNodeEditor: EditorComponentType = (props) => {
   const entity = props.node.entity
   const node = props.node
   const asset = useComponent(entity, AssemblyComponent)
-  const setIsLoaded = asset.loaded.set
   const isLoaded = asset.loaded.value
 
   const onUnload = async () => {
     unloadAsset(entity)
-    setIsLoaded(LoadState.UNLOADED)
     await new Promise((resolve) => setTimeout(resolve, 1))
     dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(SelectionAction.changedSceneGraph({}))
   }
 
   const onLoad = async () => {
-    setIsLoaded(LoadState.LOADING)
     await loadAsset(entity)
-    setIsLoaded(LoadState.LOADED)
     dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(SelectionAction.changedSceneGraph({}))
   }
@@ -45,7 +42,7 @@ export const AssemblyNodeEditor: EditorComponentType = (props) => {
   }
 
   const onExportAsset = async () => {
-    await exportAsset(node)
+    await exportAssembly(node)
   }
 
   return (
@@ -54,8 +51,8 @@ export const AssemblyNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties:asset.name')}
       description={t('editor:properties:asset.description')}
     >
-      <InputGroup name="Asset Path" label={t('editor:properties.asset.lbl-assetPath')}>
-        <StringInput value={asset.src.value} onChange={updateProperty(AssemblyComponent, 'src')} />
+      <InputGroup name="src" label={t('editor:properties.asset.lbl-assetPath')}>
+        <AssemblyInput value={asset.src.value} onChange={updateProperty(AssemblyComponent, 'src')} />
       </InputGroup>
       {isLoaded === LoadState.UNLOADED && (
         <PropertiesPanelButton onClick={onLoad}>{t('editor:properties:asset.lbl-load')}</PropertiesPanelButton>
@@ -65,11 +62,6 @@ export const AssemblyNodeEditor: EditorComponentType = (props) => {
         <InputGroup name={t('editor:properties:asset.lbl-options')}>
           <PropertiesPanelButton onClick={onUnload}>{t('editor:properties:asset.lbl-unload')}</PropertiesPanelButton>
           <PropertiesPanelButton onClick={onReload}>{t('editor:properties:asset.lbl-reload')}</PropertiesPanelButton>
-        </InputGroup>
-      )}
-      {isLoaded !== LoadState.LOADING && (
-        <InputGroup name="Asset Name" label={t('editor:properties:asset.lbl-assetName')}>
-          <StringInput value={asset.name.value} onChange={updateProperty(AssemblyComponent, 'name')} />
         </InputGroup>
       )}
       {isLoaded !== LoadState.LOADING && (
