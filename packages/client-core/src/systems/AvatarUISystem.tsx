@@ -8,6 +8,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { easeOutElastic } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
@@ -125,7 +126,11 @@ export default async function AvatarUISystem(world: World) {
     AvatarContextMenuUI.state.id.set('')
   }
 
+  const engineState = getState(EngineState)
+
   const execute = () => {
+    if (!engineState.isEngineInitialized.value) return
+
     const keys = world.buttons
 
     if (keys.PrimaryClick?.down) onPrimaryClick()
