@@ -34,7 +34,7 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
     entities: {},
     root: rootUuid,
     version: 2.0,
-    metadata: Engine.instance.currentWorld.sceneMetadata.get({ noproxy: true })
+    metadata: getSceneMetadataChanges(Engine.instance.currentWorld)
   }
   result.entities[rootUuid] = nodeToEntityJson(rootGL)
   const lookupNode = (idx) => gltf.nodes[idx]

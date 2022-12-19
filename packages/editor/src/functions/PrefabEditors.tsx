@@ -84,7 +84,6 @@ EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)
 EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
-EntityNodeEditor.set(CameraPropertiesComponent, CameraPropertiesNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
 EntityNodeEditor.set(ParticleEmitterComponent, ParticleEmitterNodeEditor)
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
@@ -120,7 +119,6 @@ export const prefabIcons = {
   [LightPrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
-  [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,

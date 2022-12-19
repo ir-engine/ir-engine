@@ -65,6 +65,4 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
 
   // load injected systems which may rely on core systems
   if (injectedSystems) await initSystems(world, injectedSystems)
-
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }

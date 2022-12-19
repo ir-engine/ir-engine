@@ -456,6 +456,10 @@
         "placeholder-instancedMesh": "Select Mesh to Instance"
       }
     },
+    "cameraSettings": {
+      "name": "Camera",
+      "description": "Change the camera settings for this scene."
+    },
     "postprocessing": {
       "name": "Post Processing",
       "enabled": "Enabled",

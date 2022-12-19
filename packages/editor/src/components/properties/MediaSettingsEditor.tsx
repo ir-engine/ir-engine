@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
+import { getMediaSceneMetadataState } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -14,8 +15,9 @@ import PropertyGroup from './PropertyGroup'
 
 export const MediaSettingsEditor = () => {
   const { t } = useTranslation()
-  const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.mediaSettings)
-  const settings = sceneMetadata.get({ noproxy: true })
+  const mediaState = useHookstate(getMediaSceneMetadataState(Engine.instance.currentWorld))
+  const media = mediaState.get({ noproxy: true })
+
   return (
     <PropertyGroup
       name={t('editor:properties.mediaSettings.name')}
@@ -28,8 +30,8 @@ export const MediaSettingsEditor = () => {
       >
         <SelectInput
           options={DistanceModelOptions}
-          value={settings.distanceModel}
-          onChange={(val: DistanceModelType) => sceneMetadata.distanceModel.set(val)}
+          value={media.distanceModel}
+          onChange={(val: DistanceModelType) => mediaState.distanceModel.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -37,10 +39,10 @@ export const MediaSettingsEditor = () => {
         label={t('editor:properties.mediaSettings.lbl-immersiveMedia')}
         info={t('editor:properties.mediaSettings.info-immersiveMedia')}
       >
-        <BooleanInput value={settings.immersiveMedia} onChange={(val) => sceneMetadata.immersiveMedia.set(val)} />
+        <BooleanInput value={media.immersiveMedia} onChange={(val) => mediaState.immersiveMedia.set(val)} />
       </InputGroup>
 
-      {settings.distanceModel === DistanceModel.Linear ? (
+      {media.distanceModel === DistanceModel.Linear ? (
         <InputGroup
           name="Media Rolloff Factor"
           label={t('editor:properties.mediaSettings.lbl-mediaRolloffFactor')}
@@ -52,8 +54,8 @@ export const MediaSettingsEditor = () => {
             smallStep={0.001}
             mediumStep={0.01}
             largeStep={0.1}
-            value={settings.rolloffFactor}
-            onChange={(val) => sceneMetadata.rolloffFactor.set(val)}
+            value={media.rolloffFactor}
+            onChange={(val) => mediaState.rolloffFactor.set(val)}
           />
         </InputGroup>
       ) : (
@@ -65,8 +67,8 @@ export const MediaSettingsEditor = () => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={settings.rolloffFactor}
-          onChange={(val) => sceneMetadata.rolloffFactor.set(val)}
+          value={media.rolloffFactor}
+          onChange={(val) => mediaState.rolloffFactor.set(val)}
         />
       )}
       <NumericInputGroup
@@ -77,8 +79,8 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={settings.refDistance}
-        onChange={(val) => sceneMetadata.refDistance.set(val)}
+        value={media.refDistance}
+        onChange={(val) => mediaState.refDistance.set(val)}
         unit="m"
       />
       <NumericInputGroup
@@ -89,8 +91,8 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={settings.maxDistance}
-        onChange={(val) => sceneMetadata.maxDistance.set(val)}
+        value={media.maxDistance}
+        onChange={(val) => mediaState.maxDistance.set(val)}
         unit="m"
       />
       <NumericInputGroup
@@ -102,8 +104,8 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={settings.coneInnerAngle}
-        onChange={(val) => sceneMetadata.coneInnerAngle.set(val)}
+        value={media.coneInnerAngle}
+        onChange={(val) => mediaState.coneInnerAngle.set(val)}
         unit="°"
       />
       <NumericInputGroup
@@ -115,8 +117,8 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={settings.coneOuterAngle}
-        onChange={(val) => sceneMetadata.coneOuterAngle.set(val)}
+        value={media.coneOuterAngle}
+        onChange={(val) => mediaState.coneOuterAngle.set(val)}
         unit="°"
       />
       <InputGroup
@@ -128,8 +130,8 @@ export const MediaSettingsEditor = () => {
           min={0}
           max={1}
           step={0.01}
-          value={settings.coneOuterGain}
-          onChange={(val) => sceneMetadata.coneOuterGain.set(val)}
+          value={media.coneOuterGain}
+          onChange={(val) => mediaState.coneOuterGain.set(val)}
         />
       </InputGroup>
     </PropertyGroup>
