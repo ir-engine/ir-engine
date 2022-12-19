@@ -197,7 +197,8 @@ function updateUniforms(materials: XRDepthOcclusionMaterialType[], depthInfo: XR
   for (const material of materials) {
     if (material.userData.DepthOcclusionPlugin && material.shader) {
       material.shader.uniforms.uResolution.value.set(width, height)
-      material.shader.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix)
+      /** invert matrix as physics looks down +z, and webxr looks down -z */
+      material.shader.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix).invert()
       material.shader.uniforms.uRawValueToMeters.value = rawValueToMeters
     }
   }
@@ -233,7 +234,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   const xrState = getState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
-  const useDepthTextureDebug = false
+  const useDepthTextureDebug = true
   const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
   let depthSupported = false
 
