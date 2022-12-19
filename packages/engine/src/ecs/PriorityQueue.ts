@@ -1,6 +1,7 @@
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 
 import { Entity } from './classes/Entity'
+import { entityExists } from './functions/EntityFunctions'
 
 export const createPriorityQueue = (args: { accumulationBudget: number }) => {
   const accumulatingPriorities = new Map<
@@ -32,8 +33,9 @@ export const createPriorityQueue = (args: { accumulationBudget: number }) => {
       for (const [entity, item] of accumulatingPriorities) {
         item.normalizedPriority += (item.accumulatedPriority * queue.accumulationBudget) / totalAccumulation
         item.accumulatedPriority = 0
-        if (item.normalizedPriority >= 1) {
-          priorityEntites.add(entity)
+        const exists = entityExists(entity)
+        if (item.normalizedPriority >= 1 || !exists) {
+          if (exists) priorityEntites.add(entity)
           queue.removeEntity(entity)
         }
       }
