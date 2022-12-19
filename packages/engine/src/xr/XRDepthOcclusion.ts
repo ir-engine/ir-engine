@@ -51,6 +51,8 @@ const XRDepthOcclusionMaterials = [] as XRDepthOcclusionMaterialType[]
  */
 function addDepthOBCPlugin(material: Material, depthMap: DepthDataTexture) {
   const mat = material as XRDepthOcclusionMaterialType
+  if (!mat) return
+  if (!mat.userData) mat.userData = {}
   if (mat.userData.DepthOcclusionPlugin) return
 
   mat.userData.DepthOcclusionPlugin = {
@@ -112,7 +114,6 @@ function addDepthOBCPlugin(material: Material, depthMap: DepthDataTexture) {
           {
             discard;
           }
-
         }
         `
       )
@@ -142,7 +143,7 @@ function addDepthOBCPlugin(material: Material, depthMap: DepthDataTexture) {
 
 function removeDepthOBCPlugin(material: Material) {
   const mat = material as XRDepthOcclusionMaterialType
-  if (!mat.userData.DepthOcclusionPlugin) return
+  if (!mat?.userData?.DepthOcclusionPlugin) return
 
   /** remove plugin */
   removeOBCPlugin(mat, mat.userData.DepthOcclusionPlugin)
@@ -162,7 +163,7 @@ function updateDepthMaterials(
   referenceSpace: XRReferenceSpace,
   depthTexture?: DepthCanvasTexture
 ) {
-  if (!frame) return
+  if (!frame || !referenceSpace) return
   const xrState = getState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
   if (viewerPose) {
@@ -242,13 +243,11 @@ export default async function XRDepthOcclusionSystem(world: World) {
 
       useEffect(() => {
         const mesh = obj as any as Mesh<any, Material>
-        if (mesh.material) {
-          if (depthDataTexture && depthSupported)
-            mesh.traverse((o: Mesh<any, Material>) =>
-              XRDepthOcclusion.addDepthOBCPlugin(o.material, depthDataTexture.value!)
-            )
-          else mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
-        }
+        if (depthDataTexture && depthSupported)
+          mesh.traverse((o: Mesh<any, Material>) =>
+            XRDepthOcclusion.addDepthOBCPlugin(o.material, depthDataTexture.value!)
+          )
+        else mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
       }, [depthDataTexture])
 
       useEffect(() => {
