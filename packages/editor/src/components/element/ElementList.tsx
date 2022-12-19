@@ -26,8 +26,8 @@ export interface PrefabItemType {
   type: string
   prefabType: string
   Icon: any
-  label: string // todo
-  description?: string // todo
+  label: string
+  description?: string
 }
 
 const getPrefabList = () => {

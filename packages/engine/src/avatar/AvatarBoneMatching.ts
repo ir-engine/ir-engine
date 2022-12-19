@@ -1,4 +1,3 @@
-//TODO:
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
 import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'

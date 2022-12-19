@@ -388,16 +388,16 @@ editor:
 redis:
   enabled: false
 
-analytics:
+taskserver:
   enabled: false
-  name: xrengine-analytics
+  name: xrengine-taskserver
   replicaCount: 1
   image:
     repository: <repository_name>
     pullPolicy: IfNotPresent
   extraEnv:
-    ANALYTICS_PORT: "3030"
-    ANALYTICS_PROCESS_INTERVAL: "10000"
+    TASKSERVER_PORT: "3030"
+    TASKSERVER_PROCESS_INTERVAL: "10000"
     AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
     STORAGE_S3_REGION: us-east-1
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>

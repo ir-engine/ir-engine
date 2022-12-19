@@ -33,7 +33,7 @@ describe.skip('equippableFunctions', () => {
       networkId: 0 as NetworkId
     })
 
-    equipEntity(entity1, entity2)
+    equipEntity(entity1, entity2, 'right')
     assert(hasComponent(entity1, EquipperComponent))
     assert(hasComponent(entity2, EquippedComponent))
   })
@@ -47,7 +47,7 @@ describe.skip('equippableFunctions', () => {
       networkId: 0 as NetworkId
     })
 
-    equipEntity(entity1, entity2)
+    equipEntity(entity1, entity2, 'right')
     assert(hasComponent(entity1, EquipperComponent))
     unequipEntity(entity1)
     assert(!hasComponent(entity1, EquipperComponent))

@@ -1,0 +1,19 @@
+.switchField {
+  :global {
+    .Mui-checked .MuiSwitch-thumb {
+      color: var(--iconButtonColor);
+    }
+
+    .Mui-checked .MuiSwitch-track {
+      background: var(--inputBackground);
+    }
+
+    .MuiFormControlLabel-label {
+      color: var(--textColor);
+    }
+
+    .MuiFormControlLabel-label.Mui-disabled {
+      color: var(--textColor);
+    }
+  }
+}

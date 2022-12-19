@@ -1,9 +1,18 @@
+import _ from 'lodash'
 import { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
-import { createActionQueue, dispatchAction, removeActionQueue, startReactor, useHookstate } from '@xrengine/hyperflux'
+import {
+  createActionQueue,
+  dispatchAction,
+  hookstate,
+  removeActionQueue,
+  startReactor,
+  State,
+  useHookstate
+} from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
@@ -34,6 +43,8 @@ import { CameraComponent } from '../components/CameraComponent'
 import { coneDebugHelpers, debugRays, FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import { CameraMode } from '../types/CameraMode'
+import { ProjectionType } from '../types/ProjectionType'
 import CameraFadeBlackEffectSystem from './CameraFadeBlackEffectSystem'
 
 const direction = new Vector3()
@@ -228,7 +239,34 @@ export function cameraSpawnReceptor(
   setComponent(entity, CameraComponent)
 }
 
+export const DefaultCameraState = {
+  fov: 50,
+  cameraNearClip: 0.01,
+  cameraFarClip: 10000,
+  projectionType: ProjectionType.Perspective,
+  minCameraDistance: 1,
+  maxCameraDistance: 50,
+  startCameraDistance: 5,
+  cameraMode: CameraMode.Dynamic,
+  cameraModeDefault: CameraMode.ThirdPerson,
+  minPhi: -70,
+  maxPhi: 85,
+  startPhi: 10
+}
+
+export type CameraState = State<typeof DefaultCameraState>
+
+export const CameraSceneMetadataLabel = 'camera'
+
+export const getCameraSceneMetadataState = (world: World) =>
+  world.sceneMetadataRegistry[CameraSceneMetadataLabel].state as CameraState
+
 export default async function CameraSystem(world: World) {
+  world.sceneMetadataRegistry[CameraSceneMetadataLabel] = {
+    state: hookstate(_.cloneDeep(DefaultCameraState)),
+    default: DefaultCameraState
+  }
+
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
   const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
   const spectatorQuery = defineQuery([SpectatorComponent])
@@ -237,7 +275,7 @@ export default async function CameraSystem(world: World) {
   const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
 
   const reactor = startReactor(() => {
-    const cameraSettings = useHookstate(world.sceneMetadata.camera)
+    const cameraSettings = useHookstate(getCameraSceneMetadataState(world))
 
     useEffect(() => {
       const camera = Engine.instance.currentWorld.camera as PerspectiveCamera

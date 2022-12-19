@@ -6,7 +6,7 @@ import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 import { Person } from '@mui/icons-material'
-import { IconButton, Popover } from '@mui/material'
+import { Box, IconButton, Popover } from '@mui/material'
 
 import styles from './styles.module.scss'
 
@@ -46,16 +46,18 @@ export const EditorNavbarProfile = () => {
             classes={{ paper: styles.profilePaper }}
             onClose={handleClose}
           >
-            {selectedMenu === Views.Profile && (
-              <ProfileMenu
-                isPopover
-                onClose={handleClose}
-                changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
-              />
-            )}
-            {selectedMenu === Views.Settings && (
-              <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
-            )}
+            <Box sx={{ width: '600px' }}>
+              {selectedMenu === Views.Profile && (
+                <ProfileMenu
+                  isPopover
+                  onClose={handleClose}
+                  changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
+                />
+              )}
+              {selectedMenu === Views.Settings && (
+                <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+              )}
+            </Box>
           </Popover>
         </>
       )}

@@ -16,7 +16,7 @@ import {
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
-import { removeMaterialSource } from '../../renderer/materials/functions/Utilities'
+import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
@@ -33,7 +33,6 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       generateBVH: false,
-      matrixAutoUpdate: false,
       scene: undefined as undefined | Scene
     }
   },
@@ -41,8 +40,7 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      generateBVH: component.generateBVH.value,
-      matrixAutoUpdate: component.matrixAutoUpdate.value
+      generateBVH: component.generateBVH.value
     }
   },
 
@@ -51,8 +49,6 @@ export const ModelComponent = defineComponent({
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
-    if (typeof json.matrixAutoUpdate === 'boolean' && json.matrixAutoUpdate !== component.matrixAutoUpdate.value)
-      component.matrixAutoUpdate.set(json.matrixAutoUpdate)
   },
 
   onRemove: (entity, component) => {
@@ -75,7 +71,7 @@ function ModelReactor({ root }: EntityReactorProps) {
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
-
+  const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   // update src
   useEffect(() => {
     if (model.src === model.scene?.userData?.src) return
@@ -94,7 +90,9 @@ function ModelReactor({ root }: EntityReactorProps) {
           }
         }
         if (!model.src) return
-        const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
+        if (!nodeMap.has(entity)) return
+
+        const uuid = nodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)
         let scene: Scene
         const fileExtension = /\.[\d\s\w]+$/.exec(model.src)?.[0]

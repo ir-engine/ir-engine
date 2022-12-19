@@ -1,5 +1,14 @@
+import _ from 'lodash'
+
 import logger from '@xrengine/common/src/logger'
-import { addActionReceptor, createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  createActionQueue,
+  getState,
+  hookstate,
+  removeActionQueue,
+  State
+} from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
@@ -53,7 +62,9 @@ export class AudioEffectPlayer {
     }
   }
 
-  play = (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
+  play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
+    await Promise.resolve()
+
     if (!this.#els.length) return
 
     if (!this.bufferMap[sound]) {
@@ -80,6 +91,24 @@ export const MediaPrefabs = {
   volumetric: 'Volumetric' as const
 }
 
+export const DefaultMediaState = {
+  immersiveMedia: false,
+  refDistance: 20,
+  rolloffFactor: 1,
+  maxDistance: 10000,
+  distanceModel: 'linear' as DistanceModelType,
+  coneInnerAngle: 360,
+  coneOuterAngle: 0,
+  coneOuterGain: 0
+}
+
+export type MediaState = State<typeof DefaultMediaState>
+
+export const MediaSceneMetadataLabel = 'mediaSettings'
+
+export const getMediaSceneMetadataState = (world: World) =>
+  world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
+
 export default async function MediaSystem(world: World) {
   if (isClient && !Engine.instance.isEditor) {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
@@ -99,6 +128,11 @@ export default async function MediaSystem(world: World) {
     window.addEventListener('keypress', handleAutoplay)
   }
 
+  world.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
+    state: hookstate(_.cloneDeep(DefaultMediaState)),
+    default: DefaultMediaState
+  }
+
   world.scenePrefabRegistry.set(MediaPrefabs.audio, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
@@ -115,7 +149,7 @@ export default async function MediaSystem(world: World) {
 
   world.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_MEDIA, props: {} }, // todo: add sample volumetric
+    { name: SCENE_COMPONENT_MEDIA, props: {} },
     { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} },
     { name: SCENE_COMPONENT_VOLUMETRIC, props: {} }
   ])

@@ -164,6 +164,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
   )
   systems.forEach((s) => {
     if (s) {
+      world.systemsByUUID[s.uuid] = s
       world.pipelines[s.type].push(s)
     }
   })
@@ -202,6 +203,7 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
     cleanup: system.cleanup,
     subsystems: []
   } as SystemInstance
+  world.systemsByUUID[systemData.uuid] = systemData
   world.pipelines[systemData.type].push(systemData)
 }
 
@@ -218,8 +220,22 @@ export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
     systemsToRemove.forEach((s) => {
       const i = pipeline.indexOf(s)
       pipeline.splice(i, 1)
+      delete world.systemsByUUID[s.uuid]
     })
   })
+}
+
+export const unloadSystem = (world: World, uuid: string) => {
+  const entries = Object.entries(world.pipelines)
+  for (const [type, pipeline] of entries) {
+    const system = pipeline.find((s) => s.uuid === uuid)
+    if (system) {
+      const i = pipeline.indexOf(system)
+      pipeline.splice(i, 1)
+      delete world.systemsByUUID[system.uuid]
+      return
+    }
+  }
 }
 
 function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReactor: React.FC<EntityReactorProps> }) {

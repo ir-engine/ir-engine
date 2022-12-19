@@ -44,7 +44,7 @@ type SceneStateType = {
 
 export const SceneState: SceneStateType = {
   isInitialized: false,
-  transformGizmo: null!,
+  transformGizmo: new TransformGizmo(),
   gizmoEntity: null!,
   editorEntity: null!
 }
@@ -84,8 +84,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
     cursorDeltaY: 0,
     focusedObjects: []
   })
-
-  SceneState.transformGizmo = new TransformGizmo()
 
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
   SceneState.editorEntity = createEditorEntity()

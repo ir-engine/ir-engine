@@ -170,7 +170,7 @@ export const ProjectService = {
   },
   useAPIListeners: () => {
     useEffect(() => {
-      // TODO
+      // TODO #7254
       // API.instance.client.service('project-build').on('patched', (params) => {
       //   store.dispatch(ProjectAction.buildProgress(params.message))
       // })
@@ -196,15 +196,15 @@ export const ProjectService = {
     }
   },
 
-  fetchProjectTags: async (url: string, branchName: string) => {
+  fetchProjectCommits: async (url: string, branchName: string) => {
     try {
-      return API.instance.client.service('project-tags').get(url, {
+      return API.instance.client.service('project-commits').get(url, {
         query: {
           branchName: branchName
         }
       })
     } catch (err) {
-      logger.error('Error with fetching branches for a project', err)
+      logger.error('Error with fetching commits for a project', err)
       throw err
     }
   },
@@ -214,6 +214,19 @@ export const ProjectService = {
       return API.instance.client.service('project-destination-check').get(url, {
         query: {
           inputProjectURL
+        }
+      })
+    } catch (err) {
+      logger.error('Error with checking destination for a project', err)
+      throw err
+    }
+  },
+
+  checkUnfetchedCommit: async ({ url, selectedSHA }: { url: string; selectedSHA?: string }) => {
+    try {
+      return API.instance.client.service('project-check-unfetched-commit').get(url, {
+        query: {
+          selectedSHA
         }
       })
     } catch (err) {
@@ -321,7 +334,7 @@ export class ProjectAction {
     builderInfo: matches.object as Validator<unknown, BuilderInfo>
   })
 
-  // TODO
+  // TODO #7254
   // buildProgress: (message: string) => {
   //   return {
   //     type: 'xre.client.Project.PROJECT_BUILDER_UPDATE' as const,

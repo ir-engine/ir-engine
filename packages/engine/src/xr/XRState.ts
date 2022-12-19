@@ -40,9 +40,7 @@ export const XRState = defineState({
     is8thWallActive: false,
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
-    viewerInputSourceEntity: 0 as Entity,
-    leftControllerEntity: 0 as Entity,
-    rightControllerEntity: 0 as Entity
+    viewerInputSourceEntity: 0 as Entity
   })
 })
 
@@ -93,7 +91,7 @@ export const getControlMode = () => {
 
 export const getAvatarHeadLock = () => {
   const { avatarHeadLock } = getState(XRState)
-  return avatarHeadLock.value === 'auto' ? true : avatarHeadLock.value
+  return avatarHeadLock.value === 'auto' ? false : avatarHeadLock.value
 }
 
 /**
@@ -101,11 +99,13 @@ export const getAvatarHeadLock = () => {
  * @param {boolean} offhand specifies to return the non-preferred hand instead
  * @returns {Entity}
  */
-export const getPreferredControllerEntity = (offhand = false) => {
+export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhand = false) => {
   const xrState = getState(XRState)
-  if (!xrState.sessionActive.value) return null
+  if (!xrState.sessionActive.value) return
   const avatarInputSettings = getState(AvatarInputSettingsState)
-  if (avatarInputSettings.preferredHand.value === 'left')
-    return offhand ? xrState.rightControllerEntity.value : xrState.leftControllerEntity.value
-  return offhand ? xrState.leftControllerEntity.value : xrState.rightControllerEntity.value
+  for (const inputSource of inputSources) {
+    if (inputSource.handedness === 'none') continue
+    if (!offhand && avatarInputSettings.preferredHand.value == inputSource.handedness) return inputSource
+    if (offhand && avatarInputSettings.preferredHand.value !== inputSource.handedness) return inputSource
+  }
 }

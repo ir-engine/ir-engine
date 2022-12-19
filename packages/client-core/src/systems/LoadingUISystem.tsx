@@ -95,7 +95,7 @@ export default async function LoadingUISystem(world: World) {
     // if (!getEngineState().joinedWorld.value) {
     //   Engine.instance.currentWorld.camera.rotateY(world.delta * 0.35)
     // } else {
-    //   // todo: figure out how to make this work properly for VR
+    //   // todo: figure out how to make this work properly for VR #7256
     // }
 
     const xrui = getComponent(ui.entity, XRUIComponent)

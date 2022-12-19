@@ -57,9 +57,6 @@ const AvatarContextMenu = () => {
   const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.id.value)
   const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.id.value)
 
-  // TODO: move these to widget register
-  PartyService.useAPIListeners()
-
   const inviteToParty = () => {
     if (authState.user?.partyId?.value && user?.id?.value) {
       const partyId = authState.user?.partyId?.value ?? ''

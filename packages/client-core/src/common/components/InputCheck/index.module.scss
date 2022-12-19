@@ -1,0 +1,25 @@
+.checkbox {
+  flex: 1;
+  color: var(--textColor);
+  -webkit-text-fill-color: var(--text-Color);
+
+  svg {
+    fill: var(--iconButtonColor);
+    font-size: 22px;
+  }
+
+  .checkedCheckbox {
+    color: var(--iconButtonColor);
+  }
+
+  [class*="Mui-disabled"] {
+    opacity: 0.38;
+    color: var(--textColor) !important;
+  }
+}
+
+@media (min-width: 600px) {
+  .label {
+    flex: 0.4;
+  }
+}

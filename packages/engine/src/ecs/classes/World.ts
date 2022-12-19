@@ -10,7 +10,8 @@ import {
   Scene,
   Shader,
   ShadowMapType,
-  ToneMapping
+  ToneMapping,
+  Vector2
 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
@@ -28,8 +29,7 @@ import { ProjectionType } from '../../camera/types/ProjectionType'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { InputAlias } from '../../input/types/InputAlias'
+import { ButtonInputStateType } from '../../input/InputState'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -81,16 +81,20 @@ export class World {
     setTransformComponent(this.originEntity)
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
+    this.origin.name = 'world-origin'
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')
     addComponent(this.cameraEntity, CameraComponent)
     addComponent(this.cameraEntity, VisibleComponent, true)
-    setTransformComponent(this.cameraEntity)
     setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
-    /** @todo */
-    // this.scene.matrixAutoUpdate = false
+    this.camera.matrixAutoUpdate = false
+    this.camera.matrixWorldAutoUpdate = false
+
+    this.scene.matrixAutoUpdate = false
+    this.scene.matrixWorldAutoUpdate = false
+
     this.scene.layers.set(ObjectLayers.Scene)
   }
 
@@ -179,57 +183,13 @@ export class World {
 
   fogShaders = [] as Shader[]
 
-  /** stores a hookstate copy of scene metadata */
-  /** @todo - move each of these to their own state in their respective modules that is registered to the world */
-  sceneMetadata = hookstate({
-    camera: {
-      fov: 50,
-      cameraNearClip: 0.01,
-      cameraFarClip: 10000,
-      projectionType: ProjectionType.Perspective,
-      minCameraDistance: 1,
-      maxCameraDistance: 50,
-      startCameraDistance: 5,
-      cameraMode: CameraMode.Dynamic,
-      cameraModeDefault: CameraMode.ThirdPerson,
-      minPhi: -70,
-      maxPhi: 85,
-      startPhi: 10
-    },
-    postprocessing: {
-      enabled: false,
-      effects: defaultPostProcessingSchema
-    },
-    mediaSettings: {
-      immersiveMedia: false,
-      refDistance: 20,
-      rolloffFactor: 1,
-      maxDistance: 10000,
-      distanceModel: 'linear' as DistanceModelType,
-      coneInnerAngle: 360,
-      coneOuterAngle: 0,
-      coneOuterGain: 0
-    },
-    renderSettings: {
-      LODs: { ...DEFAULT_LOD_DISTANCES },
-      csm: true,
-      toneMapping: LinearToneMapping as ToneMapping,
-      toneMappingExposure: 0.8,
-      shadowMapType: PCFSoftShadowMap as ShadowMapType
-    },
-    fog: {
-      type: FogType.Linear as FogType,
-      color: '#FFFFFF',
-      density: 0.005,
-      near: 1,
-      far: 1000,
-      timeScale: 1,
-      height: 0.05
-    },
-    xr: {
-      dollhouse: 'auto' as boolean | 'auto'
+  sceneMetadataRegistry = {} as Record<
+    string,
+    {
+      state: State<any>
+      default: any
     }
-  })
+  >
 
   /**
    * The scene entity
@@ -259,6 +219,11 @@ export class World {
   }
 
   /**
+   *
+   */
+  priorityAvatarEntities: ReadonlySet<Entity> = new Set()
+
+  /**
    * The local client entity
    */
   get localClientEntity() {
@@ -267,10 +232,17 @@ export class World {
 
   readonly dirtyTransforms = {} as Record<Entity, true>
 
-  inputState = new Map<InputAlias, InputValue>()
-  prevInputState = new Map<InputAlias, InputValue>()
+  inputSources: Readonly<XRInputSourceArray> = []
 
-  inputSources: XRInputSourceArray = []
+  pointerState = {
+    position: new Vector2(),
+    lastPosition: new Vector2(),
+    movement: new Vector2(),
+    scroll: new Vector2(),
+    lastScroll: new Vector2()
+  }
+
+  buttons = {} as Readonly<ButtonInputStateType>
 
   reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()
 
@@ -296,16 +268,7 @@ export class World {
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstance[] }
 
-  /**
-   * Entities mapped by name
-   * @deprecated use entitiesByName
-   */
-  get namedEntities() {
-    return new Map(Object.entries(this.entitiesByName.value))
-  }
-
-  entitiesByName = createState({} as Record<string, Entity>)
-  entitiesByUuid = createState({} as Record<string, Entity>)
+  systemsByUUID = {} as Record<string, SystemInstance>
 
   /**
    * Network object query

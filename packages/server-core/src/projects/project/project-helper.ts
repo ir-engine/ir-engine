@@ -7,9 +7,8 @@ import path from 'path'
 import Sequelize, { Op } from 'sequelize'
 
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
+import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
 import { ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectTagInterface } from '@xrengine/common/src/interfaces/ProjectTagInterface'
 import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
@@ -19,11 +18,14 @@ import logger from '../../ServerLogger'
 import { getOctokitForChecking } from './github-helper'
 import { ProjectParams } from './project.class'
 
-export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_]+)$/
+export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
 export const publicECRRepoRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/([a-z0-9\-_\\]+)$/
 export const publicECRTagRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/[a-z0-9\-_\\]+:([\w\d\s\-_.]+?)$/
 export const privateECRRepoRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/([a-z0-9\-_\\]+)$/
 export const privateECRTagRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaws.com\/[a-z0-9\-_\\]+:([\w\d\s\-_.]+)$/
+
+const BRANCH_PER_PAGE = 100
+const COMMIT_PER_PAGE = 10
 
 interface GitHubFile {
   status: number
@@ -207,8 +209,8 @@ export const getEnginePackageJson = (): ProjectPackageJsonType => {
   return require(path.resolve(appRootPath.path, 'packages/server-core/package.json'))
 }
 
-//DO NOT REMOVE, even though an IDE may say that it's not used in the codebase, projects
-//may use this.
+//DO NOT REMOVE!
+//Even though an IDE may say that it's not used in the codebase, projects may use this.
 export const getProjectEnv = async (app: Application, projectName: string) => {
   const projectSetting = await app.service('project-setting').find({
     query: {
@@ -220,6 +222,64 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
   const settings = {} as { [key: string]: string }
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
   return settings
+}
+
+export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: string, params: ProjectParams) => {
+  const { selectedSHA } = params.query!
+
+  const { owner, repo, octoKit: sourceOctoKit } = await getOctokitForChecking(app, sourceURL!, params)
+
+  if (!sourceOctoKit)
+    return {
+      error: 'invalidSourceOctokit',
+      text: 'You do not have access to the source GitHub repo'
+    }
+  if (!owner || !repo)
+    return {
+      error: 'invalidSourceURL',
+      text: 'The source URL is not valid, or you do not have access to it'
+    }
+  let commit
+  try {
+    commit = await sourceOctoKit.rest.repos.getCommit({
+      owner,
+      repo,
+      ref: selectedSHA || '',
+      per_page: 1
+    })
+  } catch (err) {
+    logger.error(err)
+    if (err.status === 422) {
+      return {
+        error: 'commitInvalid',
+        text: 'That commit does not appear to exist'
+      }
+    } else return Promise.reject(err)
+  }
+
+  try {
+    const blobResponse = await sourceOctoKit.rest.repos.getContent({
+      owner,
+      repo,
+      path: 'package.json',
+      ref: commit.data.sha
+    })
+    const content = JSON.parse(Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString())
+    const enginePackageJson = getEnginePackageJson()
+    return {
+      projectName: content.name,
+      projectVersion: content.version,
+      engineVersion: content.etherealEngine?.version,
+      commitSHA: commit.data.sha,
+      datetime: commit.data.commit.committer.date,
+      matchesEngineVersion: content.etherealEngine?.version
+        ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
+        : false
+    }
+  } catch (err) {
+    logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+    return Promise.reject(err)
+  }
 }
 
 export const checkProjectDestinationMatch = async (app: Application, params: ProjectParams) => {
@@ -465,16 +525,33 @@ export const getBranches = async (app: Application, url: string, params?: Projec
 
   try {
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-    const returnedBranches = [{ name: repoResponse.data.default_branch, isMain: true }] as ProjectBranchInterface[]
-    const deploymentBranch = `${config.server.releaseName}-deployment`
-    try {
-      await octoKit.rest.repos.getBranch({ owner, repo, branch: deploymentBranch })
-      returnedBranches.push({
-        name: deploymentBranch,
-        isMain: false
-      })
-    } catch (err) {
-      logger.error(err)
+    let returnedBranches = [] as { name: string; branchType: string }[]
+    let endPagination = false
+    let page = 1
+    while (!endPagination) {
+      const branches = (
+        await octoKit.rest.repos.listBranches({
+          owner,
+          repo,
+          per_page: BRANCH_PER_PAGE,
+          page
+        })
+      ).data
+      page++
+      if (branches.length < BRANCH_PER_PAGE || branches.length === 0) endPagination = true
+      returnedBranches = returnedBranches.concat(
+        branches.map((branch) => {
+          return {
+            name: branch.name,
+            branchType:
+              branch.name === repoResponse.data.default_branch
+                ? 'main'
+                : branch.name === `${config.server.releaseName}-deployment`
+                ? 'deployment'
+                : 'generic'
+          }
+        })
+      )
     }
     return returnedBranches
   } catch (err) {
@@ -488,11 +565,11 @@ export const getBranches = async (app: Application, url: string, params?: Projec
   }
 }
 
-export const getTags = async (
+export const getProjectCommits = async (
   app: Application,
   url: string,
   params?: ProjectParams
-): Promise<ProjectTagInterface[] | { error: string; text: string }> => {
+): Promise<ProjectCommitInterface[] | { error: string; text: string }> => {
   try {
     const octokitResponse = await getOctokitForChecking(app, url, params!)
     const { owner, repo, octoKit } = octokitResponse
@@ -509,64 +586,52 @@ export const getTags = async (
         text: 'You does not have access to the destination GitHub repo'
       }
 
-    let headIsTagged = false
     const enginePackageJson = getEnginePackageJson()
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
     const branchName = params!.query!.branchName || (repoResponse as any).default_branch
-    const [headResponse, tagResponse] = await Promise.all([
-      octoKit.rest.repos.listCommits({ owner, repo, sha: branchName }),
-      octoKit.rest.repos.listTags({ owner, repo })
-    ])
-    const commits = headResponse.data.map((commit) => commit.sha)
-    const matchingTags = tagResponse.data.filter((tag) => commits.indexOf(tag.commit.sha) > -1)
-    let tagDetails = (await Promise.all(
-      matchingTags.map(
-        (tag) =>
+    const headResponse = await octoKit.rest.repos.listCommits({
+      owner,
+      repo,
+      sha: branchName,
+      per_page: COMMIT_PER_PAGE
+    })
+    const commits = headResponse.data
+    const mappedCommits = (await Promise.all(
+      commits.map(
+        (commit) =>
           new Promise(async (resolve, reject) => {
             try {
-              if (tag.commit.sha === headResponse.data[0].sha) headIsTagged = true
               const blobResponse = await octoKit.rest.repos.getContent({
                 owner,
                 repo,
                 path: 'package.json',
-                ref: tag.name
+                ref: commit.sha
               })
               const content = JSON.parse(
                 Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
               )
               resolve({
                 projectName: content.name,
-                projectVersion: tag.name,
+                projectVersion: content.version,
                 engineVersion: content.etherealEngine?.version,
-                commitSHA: tag.commit.sha,
+                commitSHA: commit.sha,
+                datetime: commit?.commit?.committer?.date || new Date().toString(),
                 matchesEngineVersion: content.etherealEngine?.version
                   ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
                   : false
               })
             } catch (err) {
-              logger.error('Error getting tagged package.json %s/%s:%s %s', owner, repo, tag.name, err.toString())
-              reject(err)
+              logger.error("Error getting commit's package.json %s/%s:%s %s", owner, repo, branchName, err.toString())
+              resolve({
+                discard: true
+              })
             }
           })
       )
-    )) as ProjectTagInterface[]
-    tagDetails = tagDetails.sort((a, b) => compareVersions(b.projectVersion, a.projectVersion))
-    if (!headIsTagged) {
-      const headContent = await octoKit.rest.repos.getContent({ owner, repo, path: 'package.json' })
-      const content = JSON.parse(Buffer.from((headContent.data as { content: string }).content, 'base64').toString())
-      tagDetails.unshift({
-        projectName: content.name,
-        projectVersion: '{Latest commit}',
-        engineVersion: content.etherealEngine?.version,
-        commitSHA: headResponse.data[0].sha,
-        matchesEngineVersion: content.etherealEngine?.version
-          ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
-          : false
-      })
-    }
-    return tagDetails
+    )) as ProjectCommitInterface[]
+    return mappedCommits.filter((commit) => !commit.discard)
   } catch (err) {
-    logger.error('error getting repo tags %o', err)
+    logger.error('error getting repo commits %o', err)
     if (err.status === 404)
       return {
         error: 'invalidUrl',

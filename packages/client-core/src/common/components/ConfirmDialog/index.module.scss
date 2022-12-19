@@ -1,0 +1,19 @@
+.dialog {
+  background-color: var(--popupBackground);
+  color: var(--textColor);
+
+  :global {
+    .MuiDialogContentText-root {
+      color: var(--textColor);
+    }
+
+    .MuiDialogContent-root {
+      padding-bottom: 10px;
+    }
+  }
+}
+
+.dialogActions {
+  gap: 16px;
+  padding: 8px 24px;
+}

@@ -1,0 +1,26 @@
+.selectPaper {
+  background: var(--inputBackground);
+  color: var(--textColor);
+
+  svg {
+    color: var(--textColor) !important;
+  }
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+  }
+}
+
+.menuItem {
+  &:hover {
+    background: var(--dropdownMenuHoverBackground);
+  }
+
+  &:global(.Mui-selected) {
+    background: var(--dropdownMenuSelectedBackground);
+
+    &:hover {
+      background: var(--dropdownMenuSelectedBackground);
+    }
+  }
+}

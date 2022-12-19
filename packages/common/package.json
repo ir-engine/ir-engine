@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/common",
-  "version": "1.0.0-rc6",
+  "version": "1.0.0-rc7",
   "main": "lib/common.umd.js",
   "module": "lib/common.es.js",
   "types": "lib/index.d.ts",
@@ -25,7 +25,8 @@
     "@digitalcredentials/vc": "^4.1.1",
     "@interop/did-web-resolver": "^2.2.1",
     "cross-fetch": "^3.1.5",
-    "crypto-ld": "^6.0.0"
+    "crypto-ld": "^6.0.0",
+    "deep-object-diff": "^1.1.9"
   },
   "devDependencies": {
     "@types/mocha": "10.0.0",

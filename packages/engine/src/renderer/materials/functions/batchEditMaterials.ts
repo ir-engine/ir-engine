@@ -2,7 +2,7 @@ import { Material } from 'three'
 
 import { MaterialComponent } from '../components/MaterialComponent'
 import { MaterialSource } from '../components/MaterialSource'
-import { changeMaterialPrototype, getSourceMaterials, materialsFromSource } from './Utilities'
+import { changeMaterialPrototype, materialsFromSource } from './MaterialLibraryFunctions'
 
 export async function batchChangeMaterialPrototype(src: MaterialSource, protoId: string) {
   materialsFromSource(src)?.map((materialComponent) => changeMaterialPrototype(materialComponent.material, protoId))

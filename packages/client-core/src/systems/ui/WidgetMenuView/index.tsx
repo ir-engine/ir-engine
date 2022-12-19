@@ -1,7 +1,7 @@
 import { createState, useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 
-// import { VrIcon } from '../../../common/components/Icons/VRIcon'
+// import { VrIcon } from '../../../common/components/Icons/VrIcon'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'

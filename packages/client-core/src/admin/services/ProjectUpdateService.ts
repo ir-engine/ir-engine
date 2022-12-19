@@ -1,8 +1,8 @@
 import { none } from '@hookstate/core'
 
 import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
+import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectTagInterface } from '@xrengine/common/src/interfaces/ProjectTagInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -21,14 +21,14 @@ const initializeProjectUpdateReceptor = (action: typeof ProjectUpdateActions.ini
     destinationValid: false,
     destinationError: '',
     sourceValid: false,
-    tagsProcessing: false,
+    commitsProcessing: false,
     sourceURLError: '',
     branchError: '',
-    tagError: '',
+    commitError: '',
     showBranchSelector: false,
-    showTagSelector: false,
+    showCommitSelector: false,
     branchData: [],
-    tagData: [],
+    commitData: [],
     selectedBranch: '',
     sourceVsDestinationProcessing: false,
     sourceVsDestinationError: '',
@@ -56,10 +56,24 @@ const setProjectUpdateFieldReceptor = (action: typeof ProjectUpdateActions.setPr
   return state
 }
 
+const mergeProjectUpdateFieldReceptor = (action: typeof ProjectUpdateActions.mergeProjectUpdateField.matches._TYPE) => {
+  const state = getState(ProjectUpdateState)
+  if (state[action.project.name] && state[action.project.name][action.fieldName]) {
+    const field = state[action.project.name][action.fieldName]
+    const matchIndex = field.value!.findIndex((fieldItem) => {
+      return fieldItem != null && fieldItem[action.uniquenessField] === action.value[action.uniquenessField]
+    })
+    if (matchIndex !== -1) return field[matchIndex].set(action.value)
+    else return field.merge([action.value])
+  }
+  return state
+}
+
 export const ProjectUpdateReceptors = {
   initializeProjectUpdateReceptor,
   clearProjectUpdateReceptor,
-  setProjectUpdateFieldReceptor
+  setProjectUpdateFieldReceptor,
+  mergeProjectUpdateFieldReceptor
 }
 
 export const accessProjectUpdateState = () => getState(ProjectUpdateState)
@@ -100,9 +114,9 @@ export const ProjectUpdateService = {
   setDestinationError: (project: ProjectInterface, error: string) => {
     dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'destinationError', value: error }))
   },
-  setTagsProcessing: (project: ProjectInterface, processing: boolean) => {
+  setCommitsProcessing: (project: ProjectInterface, processing: boolean) => {
     dispatchAction(
-      ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'tagsProcessing', value: processing })
+      ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'commitsProcessing', value: processing })
     )
   },
   setSourceURLError: (project: ProjectInterface, error: string) => {
@@ -111,22 +125,34 @@ export const ProjectUpdateService = {
   setBranchError: (project: ProjectInterface, error: string) => {
     dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'branchError', value: error }))
   },
-  setTagError: (project: ProjectInterface, error: string) => {
-    dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'tagError', value: error }))
+  setCommitError: (project: ProjectInterface, error: string) => {
+    dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'commitError', value: error }))
   },
   setShowBranchSelector: (project: ProjectInterface, show: boolean) => {
     dispatchAction(
       ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'showBranchSelector', value: show })
     )
   },
-  setShowTagSelector: (project: ProjectInterface, show: boolean) => {
-    dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'showTagSelector', value: show }))
+  setShowCommitSelector: (project: ProjectInterface, show: boolean) => {
+    dispatchAction(
+      ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'showCommitSelector', value: show })
+    )
   },
   setBranchData: (project: ProjectInterface, data: ProjectBranchInterface[]) => {
     dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'branchData', value: data }))
   },
-  setTagData: (project: ProjectInterface, data: ProjectTagInterface[]) => {
-    dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'tagData', value: data }))
+  setCommitData: (project: ProjectInterface, data: ProjectCommitInterface[]) => {
+    dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'commitData', value: data }))
+  },
+  mergeCommitData: (project: ProjectInterface, data: ProjectCommitInterface) => {
+    dispatchAction(
+      ProjectUpdateActions.mergeProjectUpdateField({
+        project,
+        fieldName: 'commitData',
+        uniquenessField: 'commitSHA',
+        value: data
+      })
+    )
   },
   setSelectedBranch: (project: ProjectInterface, branchName: string) => {
     dispatchAction(
@@ -203,12 +229,12 @@ export const ProjectUpdateService = {
       ProjectUpdateService.setShowBranchSelector(project, false)
     }
     ProjectUpdateService.setSelectedSHA(project, '')
-    ProjectUpdateService.setTagData(project, [])
-    ProjectUpdateService.setShowTagSelector(project, false)
+    ProjectUpdateService.setCommitData(project, [])
+    ProjectUpdateService.setShowCommitSelector(project, false)
     ProjectUpdateService.setSubmitDisabled(project, true)
     ProjectUpdateService.setSourceURLError(project, '')
     ProjectUpdateService.setBranchError(project, '')
-    ProjectUpdateService.setTagError(project, '')
+    ProjectUpdateService.setCommitError(project, '')
     ProjectUpdateService.setSourceValid(project, false)
     ProjectUpdateService.setSourceProjectName(project, '')
     ProjectUpdateService.setSourceProjectMatchesDestination(project, false)
@@ -243,6 +269,14 @@ export class ProjectUpdateActions {
     type: 'xre.client.ProjectUpdate.SET_PROJECT_UPDATE_FIELD' as const,
     project: matches.object as Validator<unknown, ProjectInterface>,
     fieldName: matches.string,
+    value: matches.any
+  })
+
+  static mergeProjectUpdateField = defineAction({
+    type: 'xre.client.ProjectUpdate.MERGE_PROJECT_UPDATE_FIELD' as const,
+    project: matches.object as Validator<unknown, ProjectInterface>,
+    fieldName: matches.string,
+    uniquenessField: matches.string,
     value: matches.any
   })
 }

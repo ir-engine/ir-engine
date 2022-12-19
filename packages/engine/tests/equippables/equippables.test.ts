@@ -77,7 +77,7 @@ describe.skip('Equippables Integration Tests', () => {
     const equipperEntity = createEntity()
     setTransformComponent(equipperEntity)
 
-    equipEntity(equipperEntity, equippableEntity, undefined)
+    equipEntity(equipperEntity, equippableEntity, 'none')
 
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)

@@ -1,4 +1,12 @@
 {
+  "common": {
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "upload": "Upload",
+    "discardChanges": "Discard Changes",
+    "confirmDiscardChange": "Changes you made may not be saved."
+  },
   "auth": {
     "confirmEmail": {
       "header": "Confirmation Email",
@@ -152,7 +160,13 @@
       "mobileTitle": "View this Item in AR on your Mobile Device",
       "linkCopied": "Link copied to clipboard.",
       "friends": "Friends",
-      "party": "Party"
+      "party": "Party",
+      "shareQuest": "Share to Quest",
+      "shareDirect": "Share Direct Link",
+      "shareInvite": "Share by Invite",
+      "shareTitle": "AR/VR World | Ethereal Engine",
+      "shareDescription": "Check out AR/VR world on Ethereal Engine",
+      "shareFailed": "Error during sharing"
     },
     "party": {
       "title": "Party",
@@ -163,9 +177,7 @@
       "kick": "Kick",
       "admin": "Admin",
       "you": "You",
-      "initDelete": "Delete",
-      "confirmDelete": "Confirm",
-      "cancelDelete": "Cancel"
+      "deleteConfirmation": "Are you sure you want to delete this party?"
     },
     "setting": {
       "chromeAEC": "If you experience echo, please enable echo cancellation by going to ",
@@ -177,7 +189,7 @@
       "controls": "Controls",
       "lbl-control-type": "Controller Type",
       "lbl-control-scheme": "Control Scheme",
-      "lbl-preferred-Hand": "Preferred Hand",
+      "lbl-preferred-hand": "Preferred Hand",
       "lbl-resolution": "Resolution",
       "lbl-shadow": "Shadows",
       "lbl-pp": "Post Processing",
@@ -208,6 +220,7 @@
       "lbl-profile": "Profile",
       "lbl-settings": "Settings",
       "lbl-username": "Username",
+      "usernameError": "Invalid username",
       "update-msg": "Username updated",
       "inviteCode": "Invite Code",
       "youAreAn": "You are an",
@@ -218,9 +231,9 @@
       "hideApiKey": "Hide API key",
       "apiKey": "API key",
       "logout": "Log out",
-      "connectPhone": "Connect your phone number",
-      "connectEmail": "Connect your email",
-      "connectPhoneEmail": "Connect your email or phone number",
+      "connectPhone": "Connect your Phone Number",
+      "connectEmail": "Connect your Email",
+      "connectPhoneEmail": "Connect your Email or Phone Number",
       "or": "Or",
       "lbl-wallet": "Login with Wallet",
       "ph-email": "Email",
@@ -229,10 +242,12 @@
       "phoneEmailError": "Invalid phone # or email address",
       "phoneError": "Invalid phone #",
       "emailError": "Invalid email address",
-      "useReadyPlayerMe": "Use Ready Player Me",
+      "useReadyPlayerMe": "Use ReadyPlayer.Me",
       "loginWithXRWallet": "Login with XR Wallet",
-      "addSocial": "Connect your social logins",
-      "removeSocial": "Remove Social",
+      "issueVC": "Issue a VC",
+      "requestVC": "Request a VC",
+      "addSocial": "Connect your Social Logins",
+      "removeSocial": "Remove Social Logins",
       "connections": {
         "title": "Connections",
         "ipError": "Can not remove active Identity Provider",
@@ -248,7 +263,7 @@
       "userIcon": {
         "lbl-name": "Your name",
         "lbl-update": "Update",
-        "userId": "User id",
+        "userId": "User ID",
         "ph-uploadImg": "Upload Product Image",
         "lbl-selectAcvatar": "Select Avatar",
         "lbl-submit": "Submit"
@@ -270,7 +285,10 @@
         "finalDeleteText": "Deleting your account cannot be undone!",
         "finalDeleteCancel": "Cancel",
         "finalDeleteConfirm": "Delete my account"
-      }
+      },
+      "userIdCopied": "User ID copied",
+      "apiKeyCopied": "API Key copied",
+      "refreshApiKey": "Refresh API Key"
     },
     "oauth": {
       "authenticating": "Authenticating...",
@@ -335,8 +353,9 @@
     "createResource": "Create Resource"
   },
   "avatar": {
-    "title": "Upload Avatar",
+    "titleEditAvatar": "Edit Avatar",
     "titleSelectAvatar": "Select Avatar",
+    "titleUploadAvatar": "Upload Avatar",
     "titleSelectThumbnail": "Select Thumbnail",
     "lbl-browse": "Browse",
     "lbl-thumbnail": "Thumbnail",
@@ -357,7 +376,6 @@
     "remove": "Remove avatar",
     "uploadFiles": "Upload files",
     "useUrlInstead": "Use url instead",
-    "avatar": "Avatar",
     "cancel": "Cancel",
     "createAvatar": "Create Avatar",
     "delete": "Delete",
@@ -372,15 +390,21 @@
     "submit": "Submit",
     "edit": "Edit",
     "confirm": "Confirm",
-    "upload": "Upload",
     "avatarUrl": "Avatar url",
     "upload-success-msg": "Avatar Uploaded Successfully.",
     "remove-success-msg": "Avatar Uploaded Successfully.",
     "warning-msg": "Avatar resource is empty, have you synced avatars to your static file storage?",
-    "loadingRPM": "Loading Ready Player Me",
+    "loadingRPM": "Loading ReadyPlayer.Me",
     "downloading": "Downloading Avatar",
     "loadingPreview": "Loading Avatar Preview",
-    "uploading": "Uploading Avatar"
+    "uploading": "Uploading Avatar",
+    "searchAvatar": "Search Avatar",
+    "noAvatars": "No avatars to display",
+    "avatar": "Avatar",
+    "thumbnail": "Thumbnail",
+    "enterAvatarUrl": "Enter Avatar URL",
+    "enterThumbnailUrl": "Enter Thumbnail URL",
+    "avatarName": "Avatar Name"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",

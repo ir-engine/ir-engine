@@ -25,7 +25,7 @@ export const initializei18n = () => {
   })
 }
 
-// TODO: support typed translations
+// TODO: support typed translations #7253
 // declare module 'react-i18next' {
 //   // and extend them!
 //   interface CustomTypeOptions {

@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
+import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
 import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
@@ -10,8 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import PrivateRoute from '../Private'
 import AdminSystem from '../systems/AdminSystem'
 import { useAuthState } from '../user/services/AuthService'
-import LoadingView from './common/LoadingView'
-import analytic from './components/Analytics'
+import analytics from './components/Analytics'
 import avatars from './components/Avatars'
 import benchmarking from './components/Benchmarking'
 import botSetting from './components/Bots'
@@ -112,7 +112,7 @@ const ProtectedRoutes = () => {
             {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
             {allowedRoutes.user && <PrivateRoute exact path="/admin/users" component={users} />}
             <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />
-            <PrivateRoute path="/admin" component={analytic} />
+            <PrivateRoute path="/admin" component={analytics} />
           </Switch>
         )}
       </Suspense>

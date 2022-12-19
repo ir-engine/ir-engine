@@ -1,7 +1,6 @@
 import { defineAction } from '@xrengine/hyperflux'
 
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
-import { ParityValue } from '../../common/enums/ParityValue'
 import {
   matches,
   matchesNetworkId,
@@ -77,7 +76,7 @@ export class WorldNetworkAction {
   static interact = defineAction({
     type: 'xre.world.INTERACT',
     object: { ownerId: matchesUserId, networkId: matchesNetworkId },
-    parity: matches.some(...Object.values(ParityValue).map((v) => matches.literal(v))),
+    parity: matches.literals('left', 'right', 'none'),
     $topic: NetworkTopics.world
   })
 
@@ -88,7 +87,7 @@ export class WorldNetworkAction {
       networkId: matchesNetworkId
     }),
     equip: matches.boolean,
-    attachmentPoint: matches.number,
+    attachmentPoint: matches.literals('left', 'right', 'none'),
     $cache: true,
     $topic: NetworkTopics.world
   })

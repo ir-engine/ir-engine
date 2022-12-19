@@ -7,7 +7,8 @@ import { useRouter } from '@xrengine/client-core/src/common/services/RouterServi
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
-import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
@@ -221,7 +222,7 @@ const ProjectsPage = () => {
   }
 
   useEffect(() => {
-    initializeCoreSystems([ProjectUpdateSystemInjection])
+    initSystems(Engine.instance.currentWorld, [ProjectUpdateSystemInjection])
   }, [])
 
   useEffect(() => {
@@ -233,7 +234,7 @@ const ProjectsPage = () => {
     fetchCommunityProjects()
   }, [authUser.accessToken])
 
-  // TODO: Implement tutorial
+  // TODO: Implement tutorial #7257
   const openTutorial = () => {
     logger.info('Implement Tutorial...')
   }
@@ -281,7 +282,6 @@ const ProjectsPage = () => {
     setUpdatingProject(true)
     if (activeProject) {
       try {
-        // TODO: using repo path as IDs & names are not properly implemented for official projects
         const proj = installedProjects.find((proj) => proj.id === activeProject.id)!
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()
@@ -417,7 +417,7 @@ const ProjectsPage = () => {
         {`
         #menu-projectURL,
         #menu-branchData,
-        #menu-tagData {
+        #menu-commitData {
           z-index: 1500;
         }
         #engine-container {
@@ -582,15 +582,13 @@ const ProjectsPage = () => {
           removePermission={onRemovePermission}
         />
       )}
-      {activeProject && (
-        <ProjectDrawer
-          open={projectDrawerOpen}
-          inputProject={activeProject}
-          existingProject={true}
-          onClose={handleCloseProjectDrawer}
-          changeDestination={changeDestination}
-        />
-      )}
+      <ProjectDrawer
+        open={projectDrawerOpen}
+        inputProject={activeProject}
+        existingProject={activeProject != null}
+        onClose={handleCloseProjectDrawer}
+        changeDestination={changeDestination}
+      />
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu

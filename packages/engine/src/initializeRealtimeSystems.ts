@@ -18,7 +18,7 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
   if (media) {
     systemsToLoad.push({
       uuid: 'xre.engine.MediaStreamSystem',
-      type: SystemUpdateType.UPDATE,
+      type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: MediaStreamSystem })
     })
   }
@@ -32,7 +32,7 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
       },
       {
         uuid: 'xre.engine.OutgoingNetworkSystem',
-        type: SystemUpdateType.FIXED_LATE,
+        type: SystemUpdateType.POST_RENDER,
         systemLoader: () => Promise.resolve({ default: OutgoingNetworkSystem })
       }
     )

@@ -2,23 +2,23 @@ import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import Button from '@xrengine/client-core/src/common/components/Button'
+import IconButton from '@xrengine/client-core/src/common/components/IconButton'
+import { OculusIcon } from '@xrengine/client-core/src/common/components/Icons/OculusIcon'
+import InputCheck from '@xrengine/client-core/src/common/components/InputCheck'
+import InputText from '@xrengine/client-core/src/common/components/InputText'
+import Menu from '@xrengine/client-core/src/common/components/Menu'
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 
-import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import InputAdornment from '@mui/material/InputAdornment'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
+import { FileCopy, IosShare, Send } from '@mui/icons-material'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import Box from '@mui/material/Box'
 
-import { NotificationService } from '../../../../common/services/NotificationService'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
-import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
@@ -30,21 +30,19 @@ export const useShareMenuHooks = ({ refLink }) => {
   const [token, setToken] = React.useState('')
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
   const [shareLink, setShareLink] = useState('')
-  const postTitle = 'AR/VR world'
-  const siteTitle = 'XREngine'
   const engineState = useEngineState()
+  const selfUser = useAuthState().user
 
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
     NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
   }
-  const selfUser = useAuthState().user
 
   const shareOnApps = () => {
     navigator
       .share({
-        title: `${postTitle} | ${siteTitle}`,
-        text: `Check out ${postTitle} on ${siteTitle}`,
+        title: t('user:usermenu.share.shareTitle'),
+        text: t('user:usermenu.share.shareDescription'),
         url: document.location.href
       })
       .then(() => {
@@ -52,6 +50,7 @@ export const useShareMenuHooks = ({ refLink }) => {
       })
       .catch((error) => {
         logger.error(error, 'Error during sharing')
+        NotificationService.dispatchNotify(t('user:usermenu.share.shareFailed'), { variant: 'error' })
       })
   }
 
@@ -123,6 +122,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     handleChangeToken,
     token,
     shareLink,
+    isSpectatorMode,
     toggleSpectatorMode
   }
 }
@@ -131,124 +131,101 @@ interface Props {
   changeActiveMenu: (str: string) => void
 }
 
-const ShareMenu = (props: Props): JSX.Element => {
+const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const engineState = useEngineState()
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeToken, token, shareLink, toggleSpectatorMode } =
-    useShareMenuHooks({
-      refLink
-    })
+  const {
+    copyLinkToClipboard,
+    shareOnApps,
+    packageInvite,
+    handleChangeToken,
+    token,
+    shareLink,
+    isSpectatorMode,
+    toggleSpectatorMode
+  } = useShareMenuHooks({
+    refLink
+  })
+
+  // Ref: https://developer.oculus.com/documentation/web/web-launch
+  let questShareLink = new URL('https://oculus.com/open_url/')
+  questShareLink.searchParams.set('url', shareLink)
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
+  }
 
   return (
-    <div className={styles.menuPanel}>
-      <div className={styles.sharePanel}>
-        {engineState.shareTitle.value ? (
-          <Typography variant="h2" className={styles.title}>
-            {engineState.shareTitle.value}
-          </Typography>
-        ) : (
-          <>
-            <Typography variant="h1" className={styles.panelHeader}>
-              {t('user:usermenu.share.title')}
-            </Typography>
-            <FormControlLabel
-              classes={{
-                label: styles.label,
-                root: styles.formRoot
-              }}
-              control={
-                <Checkbox
-                  className={styles.checkboxMode}
-                  icon={<CheckBoxOutlineBlank fontSize="small" />}
-                  checkedIcon={<CheckBox fontSize="small" />}
-                  name="checked"
-                  color="primary"
-                  onChange={toggleSpectatorMode}
-                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                />
-              }
-              label={t('user:usermenu.share.lbl-spectator-mode')}
-            />
-          </>
-        )}
+    <Menu
+      open
+      title={engineState.shareTitle.value ? engineState.shareTitle.value : t('user:usermenu.share.title')}
+      onClose={() => changeActiveMenu(Views.Closed)}
+    >
+      <Box className={styles.menuContent}>
+        <Box className={styles.shareQuest}>
+          <Button
+            className={styles.shareQuestButton}
+            endIcon={<OculusIcon sx={{ width: '36px', height: '36px', margin: '-7px 0 -5px -7px' }} />}
+            type="gradientRounded"
+            onClick={() => window.open(questShareLink, '_blank')}
+          >
+            {t('user:usermenu.share.shareQuest')}
+          </Button>
+          <IconButton
+            icon={<FileCopy sx={{ width: '18px' }} />}
+            sizePx={35}
+            onClick={() => copyToClipboard(questShareLink.toString())}
+          />
+        </Box>
+
         <div className={styles.QRContainer}>
           <QRCodeSVG height={176} width={200} value={shareLink} />
         </div>
-        <TextField
-          className={styles.copyField}
-          size="small"
-          variant="outlined"
-          value={shareLink}
-          disabled={true}
+
+        {!engineState.shareTitle.value && (
+          <InputCheck
+            label={t('user:usermenu.share.lbl-spectator-mode')}
+            checked={isSpectatorMode}
+            onChange={toggleSpectatorMode}
+          />
+        )}
+
+        <InputText
+          endIcon={<ContentCopyIcon />}
           inputRef={refLink}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment
-                position="end"
-                onClick={copyLinkToClipboard}
-                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              >
-                <FileCopy />
-              </InputAdornment>
-            )
-          }}
+          label={t('user:usermenu.share.shareDirect')}
+          sx={{ mt: 2, mb: 3 }}
+          value={shareLink}
+          onEndIconClick={copyLinkToClipboard}
         />
-        <TextField
-          className={styles.emailField}
-          size="small"
+
+        <InputText
+          endIcon={<Send />}
+          label={t('user:usermenu.share.shareInvite')}
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
-          variant="outlined"
           value={token}
           onChange={(e) => handleChangeToken(e)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment
-                position="end"
-                onClick={packageInvite}
-                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              >
-                <Send />
-              </InputAdornment>
-            )
-          }}
+          onEndIconClick={packageInvite}
         />
+
         {isShareAvailable && (
-          <div className={styles.shareBtnContainer}>
-            <Button
-              className={styles.shareBtn}
-              onClick={shareOnApps}
-              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              endIcon={<IosShare />}
-            >
-              {t('user:usermenu.share.lbl-share')}
-            </Button>
-          </div>
+          <Button fullWidth type="solidRounded" endIcon={<IosShare />} onClick={shareOnApps}>
+            {t('user:usermenu.share.lbl-share')}
+          </Button>
         )}
-        <div className={styles.shareBtnContainer}>
-          <Button
-            className={styles.friendsBtn}
-            onClick={() => props.changeActiveMenu(Views.Party)}
-            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          >
+
+        <Box display="flex" columnGap={2} alignItems="center">
+          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(Views.Party)}>
             {t('user:usermenu.share.party')}
           </Button>
-          <Button
-            className={styles.friendsBtn}
-            onClick={() => props.changeActiveMenu(Views.Friends)}
-            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          >
+          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(Views.Friends)}>
             {t('user:usermenu.share.friends')}
           </Button>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Menu>
   )
 }
 

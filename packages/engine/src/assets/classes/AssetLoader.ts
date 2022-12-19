@@ -26,6 +26,7 @@ import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
+import { getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
@@ -148,7 +149,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = Engine.instance.currentWorld.sceneMetadata.renderSettings.LODs.value
+  const LODState = getRendererSceneMetadataState(Engine.instance.currentWorld).LODs.value
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {
@@ -359,12 +360,7 @@ const load = (
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
-    // TODO: fix instancing for GLTFs - move this to the gltf loader
-    // if (instanced) {
-    //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
-    // } else {
     return loader.load(url, callback, onProgress, onError)
-    // }
   } catch (error) {
     onError(error)
   }

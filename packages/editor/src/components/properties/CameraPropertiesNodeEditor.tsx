@@ -1,6 +1,7 @@
 import { t } from 'i18next'
 import React from 'react'
 
+import { getCameraSceneMetadataState } from '@xrengine/engine/src/camera/systems/CameraSystem'
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
 import { ProjectionType } from '@xrengine/engine/src/camera/types/ProjectionType'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -54,7 +55,7 @@ const projectionTypeSelect = [
 ]
 
 export const CameraPropertiesNodeEditor = () => {
-  const cameraSettings = useHookstate(Engine.instance.currentWorld.sceneMetadata).camera
+  const cameraSettings = useHookstate(getCameraSceneMetadataState(Engine.instance.currentWorld))
   if (!cameraSettings.value) return null
 
   return (

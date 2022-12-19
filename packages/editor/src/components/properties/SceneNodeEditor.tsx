@@ -10,7 +10,6 @@ import NodeEditor from './NodeEditor'
 import { PostProcessingSettingsEditor } from './PostProcessingSettingsEditor'
 import { RenderSettingsEditor } from './RenderSettingsEditor'
 import { EditorComponentType } from './Util'
-import { XRSettingsEditor } from './XRSettingsEditor'
 
 export const SceneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -25,7 +24,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
       <MediaSettingsEditor />
       <RenderSettingsEditor />
       <FogSettingsEditor />
-      <XRSettingsEditor />
     </NodeEditor>
   )
 }

@@ -46,6 +46,7 @@ export const NetworkInstanceProvisioning = () => {
   const currentChannelInstanceConnection = useMediaInstance()
 
   MediaInstanceConnectionService.useAPIListeners()
+  PartyService.useAPIListeners()
 
   useEffect(() => {
     addActionReceptor(MediaServiceReceptor)

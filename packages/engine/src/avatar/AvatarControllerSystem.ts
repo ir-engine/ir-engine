@@ -19,15 +19,12 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { BaseInput } from '../input/enums/BaseInput'
-import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
@@ -36,7 +33,7 @@ import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 /**
- * TODO: convert this to hyperflux state
+ * TODO: convert this to hyperflux state #7262
  */
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -82,7 +79,7 @@ export default async function AvatarControllerSystem(world: World) {
       const controller = getComponent(entity, AvatarControllerComponent)
       const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
       if (followCamera) {
-        // todo calculate head size and use that as the bound
+        // todo calculate head size and use that as the bound #7263
         if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
         else removeComponent(entity, AvatarHeadDecapComponent)
       }
@@ -96,7 +93,7 @@ export default async function AvatarControllerSystem(world: World) {
       if (controller.movementEnabled) {
         /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
          *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
-         *    if detecting input on the other user
+         *    if detecting input on the other user #7263
          */
         if (
           !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
@@ -178,16 +175,4 @@ export const rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
     Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds)
   )
   rigidbody.body.setRotation(finalOrientation, true)
-}
-
-export const updateMap = () => {
-  const avatarInputState = getState(AvatarInputSettingsState)
-  const inputMap = AvatarInputSchema.inputMap
-  if (avatarInputState.invertRotationAndMoveSticks.value) {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE_RIGHT)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE_LEFT)
-  } else {
-    inputMap.set(GamepadAxis.LThumbstick, BaseInput.PRIMARY_MOVE_LEFT)
-    inputMap.set(GamepadAxis.RThumbstick, BaseInput.PRIMARY_MOVE_RIGHT)
-  }
 }

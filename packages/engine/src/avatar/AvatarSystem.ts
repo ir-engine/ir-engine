@@ -48,14 +48,12 @@ export function avatarDetailsReceptor(
  */
 export function setupHeadIK(entity: Entity) {
   const target = new Object3D()
+  target.name = `ik-head-target-${entity}`
 
   setComponent(entity, AvatarHeadIKComponent, {
     target,
     rotationClamp: 0.785398
   })
-
-  target.matrixAutoUpdate = false
-  target.matrixWorldAutoUpdate = false
 
   const headIK = getComponent(entity, AvatarHeadIKComponent)
   proxifyVector3(AvatarHeadIKComponent.target.position, entity, headIK.target.position)
@@ -64,7 +62,11 @@ export function setupHeadIK(entity: Entity) {
 
 export function setupLeftHandIK(entity: Entity) {
   const leftHint = new Object3D()
+  leftHint.name = `ik-left-hint-${entity}`
   const leftOffset = new Object3D()
+  leftOffset.name = `ik-left-offset-${entity}`
+  leftOffset.updateMatrix()
+  leftOffset.updateMatrixWorld(true)
 
   const rig = getComponent(entity, AvatarRigComponent)
 
@@ -76,11 +78,12 @@ export function setupLeftHandIK(entity: Entity) {
     _vec.subVectors(_vec, leftHint.position).normalize()
     leftHint.position.add(_vec)
     rig.rig.LeftShoulder.attach(leftHint)
+    leftHint.updateMatrix()
+    leftHint.updateMatrixWorld(true)
   }
 
   const target = new Object3D()
-  target.matrixAutoUpdate = false
-  target.matrixWorldAutoUpdate = false
+  target.name = `ik-right-target-${entity}`
 
   setComponent(entity, AvatarLeftHandIKComponent, {
     target,
@@ -104,11 +107,15 @@ export function setupLeftHandIK(entity: Entity) {
 
 export function setupRightHandIK(entity: Entity) {
   const rightHint = new Object3D()
+  rightHint.name = `ik-right-hint-${entity}`
   const rightOffset = new Object3D()
+  rightOffset.name = `ik-right-offset-${entity}`
 
   const rig = getComponent(entity, AvatarRigComponent)
 
   rightOffset.rotation.set(-Math.PI * 0.5, 0, 0)
+  rightOffset.updateMatrix()
+  rightOffset.updateMatrixWorld(true)
 
   if (isClient) {
     rig.rig.RightShoulder.getWorldPosition(rightHint.position)
@@ -116,11 +123,12 @@ export function setupRightHandIK(entity: Entity) {
     _vec.subVectors(_vec, rightHint.position).normalize()
     rightHint.position.add(_vec)
     rig.rig.RightShoulder.attach(rightHint)
+    rightHint.updateMatrix()
+    rightHint.updateMatrixWorld(true)
   }
 
   const target = new Object3D()
-  target.matrixAutoUpdate = false
-  target.matrixWorldAutoUpdate = false
+  target.name = `ik-right-target-${entity}`
 
   setComponent(entity, AvatarRightHandIKComponent, {
     target,
