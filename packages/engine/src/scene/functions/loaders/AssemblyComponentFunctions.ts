@@ -84,4 +84,8 @@ export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
 
 export const deserializeAsset: ComponentDeserializeFunction = async (entity: Entity, data: AssemblyComponentType) => {
   setComponent(entity, AssemblyComponent, data)
+  if (data.loaded === LoadState.LOADED) {
+    getComponentState(entity, AssemblyComponent).loaded.set(LoadState.UNLOADED)
+    await loadAsset(entity)
+  }
 }

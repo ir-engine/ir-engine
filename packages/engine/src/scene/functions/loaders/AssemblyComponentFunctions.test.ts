@@ -45,7 +45,7 @@ describe('AssemblyComponentFunctions', async () => {
     world = Engine.instance.currentWorld
     addEntityNodeChild(node, world.entityTree.rootNode)
   }
-  const testDir = 'packages/engine/tests/assets/'
+  const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {
     sandbox = Sinon.createSandbox()
     createEngine()
@@ -124,8 +124,7 @@ describe('AssemblyComponentFunctions', async () => {
     it('Correctly handles loading empty asset', async () => {
       //load test empty scene
       addComponent(entity, AssemblyComponent, {
-        src: `${testDir}/empty.xre.gltf`,
-        loaded: LoadState.UNLOADED
+        src: `${testDir}/empty.xre.gltf`
       })
       //load asset from example repo
       const emptyScene = await loadXRE('empty.xre.gltf')
@@ -144,8 +143,7 @@ describe('AssemblyComponentFunctions', async () => {
 
     it('Correctly handles file not existing', async () => {
       addComponent(entity, AssemblyComponent, {
-        src: `${testDir}/nonexistent.xre.gltf`,
-        loaded: LoadState.UNLOADED
+        src: `${testDir}/nonexistent.xre.gltf`
       })
       //load from asset path that does not exist
       try {
@@ -163,8 +161,7 @@ describe('AssemblyComponentFunctions', async () => {
     it('Correctly handles loading basic test asset file', async () => {
       const assetPath = `${testDir}/empty_model.xre.gltf`
       addComponent(entity, AssemblyComponent, {
-        src: assetPath,
-        loaded: LoadState.UNLOADED
+        src: assetPath
       })
       //load asset from example repo
       await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
@@ -186,12 +183,11 @@ describe('AssemblyComponentFunctions', async () => {
 
     it('Correctly handles multiple load calls in single frame', async () => {
       addComponent(entity, AssemblyComponent, {
-        src: `${testDir}/empty.xre.gltf`,
-        loaded: LoadState.UNLOADED
+        src: `${testDir}/empty.xre.gltf`
       })
       //repeated load asset call for empty asset
       const loader = setContent(loadXRE('empty.xre.gltf'))
-      await Promise.all([loadAsset(entity, loader), loadAsset(entity, loader)]) //one of these should return a warning saying Asset is not unloaded
+      await Promise.all([loadAsset(entity, loader), loadAsset(entity, loader)]) //one of these should give a warning saying Asset is not unloaded
 
       //wait one fixed frame for system to reparent
       await nextFixedStep
@@ -204,25 +200,24 @@ describe('AssemblyComponentFunctions', async () => {
 
     it('Calls load, then is deleted', async () => {
       addComponent(entity, AssemblyComponent, {
-        src: `${testDir}/empty.xre.gltf`,
-        loaded: LoadState.UNLOADED
+        src: `${testDir}/empty_model.xre.gltf`
       })
       //call load
-      await loadAsset(entity, setContent(loadXRE('empty.xre.gltf', entity)))
+      await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       //delete entity
       removeEntityNodeFromParent(node, world.entityTree)
       removeEntity(entity)
       //wait one fixed frame
       await nextFixedStep
       assert.equal(getAllComponentsOfType(AssemblyComponent, world).length, 0, 'no Asset components in scene')
+      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
     })
   })
 
   describe('unloadAsset()', () => {
     it('Correctly handles unloading empty asset', async () => {
       addComponent(entity, AssemblyComponent, {
-        src: `${testDir}/empty.xre.gltf`,
-        loaded: LoadState.UNLOADED
+        src: `${testDir}/empty.xre.gltf`
       })
       //call load
       await loadAsset(entity, setContent(loadXRE('empty.xre.gltf')))
@@ -240,8 +235,7 @@ describe('AssemblyComponentFunctions', async () => {
 
     it('Correctly handles unloading basic asset file', async () => {
       addComponent(entity, AssemblyComponent, {
-        src: `${testDir}/empty_model.xre.gltf`,
-        loaded: LoadState.UNLOADED
+        src: `${testDir}/empty_model.xre.gltf`
       })
       //call load
       await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
@@ -256,13 +250,12 @@ describe('AssemblyComponentFunctions', async () => {
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
       //check that asset child hierarchy is removed
       assert.equal(assetComp.roots.length, 0, 'Asset has no roots')
-      assert(node.children == undefined || node.children.length === 0, 'child hierarchy is removed')
+      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
     })
 
     it('Correctly handles unloading empty asset', async () => {
       addComponent(entity, AssemblyComponent, {
-        src: `${testDir}/empty.xre.gltf`,
-        loaded: LoadState.UNLOADED
+        src: `${testDir}/empty.xre.gltf`
       })
       //call load
       await loadAsset(entity, setContent(loadXRE('empty.xre.gltf')))

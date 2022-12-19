@@ -39,5 +39,12 @@ export const AssemblyComponent = defineComponent({
     matches.string.test(json.src) && component.src.set(json.src)
   },
 
+  toJSON: (entity, component) => {
+    return {
+      src: component.src.value,
+      loaded: component.loaded.value
+    }
+  },
+
   onRemove: unloadAsset
 })
