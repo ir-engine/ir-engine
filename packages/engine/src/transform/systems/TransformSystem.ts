@@ -6,6 +6,7 @@ import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperf
 
 import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
+import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -341,12 +342,15 @@ export default async function TransformSystem(world: World) {
       updateReferenceSpace(world.localClientEntity)
     }
 
-    Skeleton.prototype.update = skeletonUpdate
-    for (const entity of world.priorityAvatarEntities) {
-      const group = getComponent(entity, GroupComponent)
-      for (const obj of group) obj.traverse(iterateSkeletons)
+    /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
+    if (isHMD) {
+      Skeleton.prototype.update = skeletonUpdate
+      for (const entity of world.priorityAvatarEntities) {
+        const group = getComponent(entity, GroupComponent)
+        for (const obj of group) obj.traverse(iterateSkeletons)
+      }
+      Skeleton.prototype.update = noop
     }
-    Skeleton.prototype.update = noop
   }
 
   const cleanup = async () => {

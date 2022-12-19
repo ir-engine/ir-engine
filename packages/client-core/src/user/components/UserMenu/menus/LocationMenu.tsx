@@ -97,7 +97,7 @@ const LocationMenu = (props: Props) => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <SearchIcon className={styles.primaryForeground} />
+                      <SearchIcon />
                     </InputAdornment>
                   )
                 }}

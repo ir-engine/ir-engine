@@ -200,6 +200,7 @@ export default async function AvatarAnimationSystem(world: World) {
       const idx = sortedTransformEntities.indexOf(entity)
       idx > -1 && sortedTransformEntities.splice(idx, 1)
       needsSorting = true
+      priorityQueue.removeEntity(entity)
     }
 
     if (needsSorting) {

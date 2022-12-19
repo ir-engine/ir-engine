@@ -17,7 +17,7 @@ interface Props {
   sizePx?: number
   sx?: SxProps<Theme>
   title?: string
-  type?: 'default' | 'glow' | 'gradient'
+  type?: 'default' | 'glow' | 'gradient' | 'solid'
   onClick?: (e) => void
 }
 
@@ -41,6 +41,8 @@ const IconButton = ({
     baseStyle = `${baseStyle} ${styles.iconButtonGlow}`
   } else if (type === 'gradient') {
     baseStyle = `${baseStyle} ${styles.iconButtonGradient}`
+  } else if (type === 'solid') {
+    baseStyle = `${baseStyle} ${styles.iconButtonSolid}`
   }
 
   return (
