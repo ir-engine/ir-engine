@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
 
 import { Box, CircularProgress } from '@mui/material'
@@ -40,7 +42,7 @@ const Projects = () => {
   } as const
 
   useEffect(() => {
-    initializeCoreSystems([ProjectUpdateSystemInjection])
+    initSystems(Engine.instance.currentWorld, [ProjectUpdateSystemInjection])
     ProjectService.checkReloadStatus()
   }, [])
 

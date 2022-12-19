@@ -7,7 +7,8 @@ import { useRouter } from '@xrengine/client-core/src/common/services/RouterServi
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
-import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
@@ -221,7 +222,7 @@ const ProjectsPage = () => {
   }
 
   useEffect(() => {
-    initializeCoreSystems([ProjectUpdateSystemInjection])
+    initSystems(Engine.instance.currentWorld, [ProjectUpdateSystemInjection])
   }, [])
 
   useEffect(() => {
