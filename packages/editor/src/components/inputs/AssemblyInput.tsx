@@ -12,7 +12,12 @@ import FileBrowserInput from './FileBrowserInput'
  */
 function AssemblyInput({ onChange, ...rest }) {
   return (
-    <FileBrowserInput acceptFileTypes={['.xre.gltf']} acceptDropItems={ItemTypes.ECS} onChange={onChange} {...rest} />
+    <FileBrowserInput
+      acceptFileTypes={['xre.gltf']}
+      acceptDropItems={['gltf', 'xre.gltf']}
+      onChange={onChange}
+      {...rest}
+    />
   )
 }
 
