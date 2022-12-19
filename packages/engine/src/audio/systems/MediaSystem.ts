@@ -105,7 +105,7 @@ export type MediaState = State<typeof DefaultMediaState>
 export const MediaSceneMetadataLabel = 'mediaSettings'
 
 export const getMediaSceneMetadataState = (world: World) =>
-  world.sceneMetadata[MediaSceneMetadataLabel].state as MediaState
+  world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
 
 export default async function MediaSystem(world: World) {
   if (isClient && !Engine.instance.isEditor) {
@@ -126,7 +126,7 @@ export default async function MediaSystem(world: World) {
     window.addEventListener('keypress', handleAutoplay)
   }
 
-  world.sceneMetadata[MediaSceneMetadataLabel] = {
+  world.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
     state: hookstate(DefaultMediaState),
     default: DefaultMediaState
   }

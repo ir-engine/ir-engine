@@ -181,7 +181,7 @@ export class World {
 
   fogShaders = [] as Shader[]
 
-  sceneMetadata = {} as Record<
+  sceneMetadataRegistry = {} as Record<
     string,
     {
       state: State<any>

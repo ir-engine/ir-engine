@@ -37,10 +37,10 @@ export class MediaSettingAction {
 export const shouldUseImmersiveMedia = () => {
   const xrSessionActive = getState(XRState).sessionActive.value
   const audioState = getState(AudioState)
-  const sceneMetadata = getMediaSceneMetadataState(Engine.instance.currentWorld)
+  const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
   const mediaSettingState = getState(MediaSettingsState)
   const immersiveMedia =
     mediaSettingState.immersiveMediaMode.value === 'on' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && sceneMetadata.immersiveMedia.value)
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && mediaState.immersiveMedia.value)
   return immersiveMedia || audioState.usePositionalMedia.value || xrSessionActive
 }

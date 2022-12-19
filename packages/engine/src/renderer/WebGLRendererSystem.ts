@@ -309,9 +309,9 @@ export const RendererSceneMetadataLabel = 'renderSettings'
 export const PostProcessingSceneMetadataLabel = 'postprocessing'
 
 export const getRendererSceneMetadataState = (world: World) =>
-  world.sceneMetadata[RendererSceneMetadataLabel].state as RenderSettingsState
+  world.sceneMetadataRegistry[RendererSceneMetadataLabel].state as RenderSettingsState
 export const getPostProcessingSceneMetadataState = (world: World) =>
-  world.sceneMetadata[PostProcessingSceneMetadataLabel].state as PostProcessingState
+  world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
 
 export default async function WebGLRendererSystem(world: World) {
   const setQualityLevelActions = createActionQueue(EngineRendererAction.setQualityLevel.matches)
@@ -324,12 +324,12 @@ export default async function WebGLRendererSystem(world: World) {
   const changeGridToolHeightActions = createActionQueue(EngineRendererAction.changeGridToolHeight.matches)
   const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
 
-  world.sceneMetadata[RendererSceneMetadataLabel] = {
+  world.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
     state: hookstate(DefaultRenderSettingsState),
     default: DefaultRenderSettingsState
   }
 
-  world.sceneMetadata[PostProcessingSceneMetadataLabel] = {
+  world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel] = {
     state: hookstate(DefaultPostProcessingState),
     default: DefaultPostProcessingState
   }

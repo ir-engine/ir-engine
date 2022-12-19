@@ -40,13 +40,16 @@ export type FogState = State<typeof DefaultFogState>
 
 export const FogSceneMetadataLabel = 'fog'
 
-export const getFogSceneMetadataState = (world: World) => world.sceneMetadata[FogSceneMetadataLabel].state as FogState
+export const getFogSceneMetadataState = (world: World) =>
+  world.sceneMetadataRegistry[FogSceneMetadataLabel].state as FogState
 
 export default async function FogSystem(world: World) {
-  world.sceneMetadata[FogSceneMetadataLabel] = {
+  world.sceneMetadataRegistry[FogSceneMetadataLabel] = {
     state: hookstate(DefaultFogState),
     default: DefaultFogState
   }
+
+  console.log(getFogSceneMetadataState(world))
 
   const fogStateReactor = startReactor(() => {
     const fog = useHookstate(getFogSceneMetadataState(world))

@@ -116,10 +116,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const currentChannelInstanceConnection = useMediaInstance()
 
   const mediaSettingState = useHookstate(getState(MediaSettingsState))
-  const sceneMetadata = getMediaSceneMetadataState(Engine.instance.currentWorld)
+  const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && !sceneMetadata.immersiveMedia.value)
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)
 
   const setVideoStream = (value) => {
     if (value?.track) setVideoTrackId(value.track.id)
