@@ -49,8 +49,6 @@ export default async function FogSystem(world: World) {
     default: DefaultFogState
   }
 
-  console.log(getFogSceneMetadataState(world))
-
   const fogStateReactor = startReactor(() => {
     const fog = useHookstate(getFogSceneMetadataState(world))
     const scene = world.scene
