@@ -11,7 +11,7 @@ import SceneObjectDynamicLoadSystem from './systems/SceneObjectDynamicLoadSystem
 import SceneObjectUpdateSystem from './systems/SceneObjectUpdateSystem'
 import TriggerSystem from './systems/TriggerSystem'
 
-export default function () {
+export function SceneClientModule() {
   return initSystems(Engine.instance.currentWorld, [
     {
       uuid: 'xre.engine.PortalSystem',

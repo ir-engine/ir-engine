@@ -4,7 +4,7 @@ import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import ButtonSystem from './systems/ButtonSystem'
 import ClientInputSystem from './systems/ClientInputSystem'
 
-export default function () {
+export function InputModule() {
   return initSystems(Engine.instance.currentWorld, [
     {
       uuid: 'xre.engine.ClientInputSystem',

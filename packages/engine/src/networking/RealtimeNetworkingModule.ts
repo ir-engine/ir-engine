@@ -6,7 +6,7 @@ import MediaStreamSystem from './systems/MediaStreamSystem'
 import OutgoingNetworkSystem from './systems/OutgoingNetworkSystem'
 import WorldNetworkActionSystem from './systems/WorldNetworkActionSystem'
 
-export const initializeRealtimeSystems = (media = true, pose = true) => {
+export function RealtimeNetworkingModule(media = true, pose = true) {
   const systemsToLoad: SystemModuleType<any>[] = []
 
   systemsToLoad.push({

@@ -131,7 +131,7 @@ const loadSystemInjection = async (world: World, s: SystemFactoryType<any>, type
     else logger.info(`${name} initializing`)
     const system = await s.systemModule.default(world, args)
     logger.info(`${name} (${s.uuid}) ready`)
-    const subsystems = loadSubsystems(world, s, system.subsystems)
+    const subsystems = await loadSubsystems(world, s, system.subsystems)
     return {
       execute: createExecute(system, subsystems, name, s.uuid),
       cleanup: system.cleanup,

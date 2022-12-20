@@ -4,7 +4,7 @@ import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import HighlightSystem from './HighlightSystem'
 import WebGLRendererSystem from './WebGLRendererSystem'
 
-export default function () {
+export function RendererModule() {
   return initSystems(Engine.instance.currentWorld, [
     {
       uuid: 'xre.engine.HighlightSystem',

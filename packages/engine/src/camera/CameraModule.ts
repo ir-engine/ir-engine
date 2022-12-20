@@ -4,7 +4,7 @@ import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import CameraInputSystem from './systems/CameraInputSystem'
 import CameraSystem from './systems/CameraSystem'
 
-export default function () {
+export function CameraModule() {
   return initSystems(Engine.instance.currentWorld, [
     {
       uuid: 'xre.engine.CameraInputSystem',

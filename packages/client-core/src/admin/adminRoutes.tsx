@@ -2,9 +2,12 @@ import React, { Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
-import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
+import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import CircularProgress from '@mui/material/CircularProgress'
@@ -58,8 +61,12 @@ const ProtectedRoutes = () => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    initializeCoreSystems([AdminSystemInjection]).then(async () => {
-      await initializeSceneSystems()
+    Promise.all([
+      TransformModule(),
+      SceneCommonModule(),
+      AvatarCommonModule(),
+      initSystems(Engine.instance.currentWorld, [AdminSystemInjection])
+    ]).then(async () => {
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })
   }, [])
