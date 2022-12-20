@@ -97,6 +97,33 @@ const createExecute = (system: SystemDefintion, subsystems: SystemInstanceData[]
   }
 }
 
+const loadSubsystems = (
+  world: World,
+  parentSystemFactory: SystemFactoryType<any>,
+  subsystems: Array<SystemLoader<any>> = []
+) => {
+  return Promise.all(
+    subsystems.map(async (subsystemInit, i) => {
+      const subsystem = await subsystemInit()
+      const name = subsystem.default.name
+      const uuid = name
+      const type = 'SUB_SYSTEM' as any
+      return {
+        uuid,
+        name,
+        type,
+        sceneSystem: parentSystemFactory.sceneSystem,
+        enabled: true,
+        ...(await loadSystemInjection(world, {
+          systemModule: subsystem,
+          uuid,
+          type
+        }))
+      }
+    })
+  )
+}
+
 const loadSystemInjection = async (world: World, s: SystemFactoryType<any>, type?: SystemUpdateType, args?: any) => {
   const name = s.systemModule.default.name
   try {
@@ -104,28 +131,7 @@ const loadSystemInjection = async (world: World, s: SystemFactoryType<any>, type
     else logger.info(`${name} initializing`)
     const system = await s.systemModule.default(world, args)
     logger.info(`${name} (${s.uuid}) ready`)
-    const subsystems = system.subsystems
-      ? await Promise.all(
-          system.subsystems.map(async (subsystemInit, i) => {
-            const subsystem = await subsystemInit()
-            const name = subsystem.default.name
-            const uuid = name
-            const type = 'SUB_SYSTEM' as any
-            return {
-              uuid,
-              name,
-              type,
-              sceneSystem: s.sceneSystem,
-              enabled: true,
-              ...(await loadSystemInjection(world, {
-                systemModule: subsystem,
-                uuid,
-                type
-              }))
-            }
-          })
-        )
-      : []
+    const subsystems = loadSubsystems(world, s, system.subsystems)
     return {
       execute: createExecute(system, subsystems, name, s.uuid),
       cleanup: system.cleanup,
