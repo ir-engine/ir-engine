@@ -169,14 +169,16 @@ export const createAvatarController = (entity: Entity) => {
     addComponent(entity, AvatarControllerComponent, {
       cameraEntity: Engine.instance.currentWorld.cameraEntity,
       bodyCollider: undefined!,
-      desiredMovement: new Vector3(),
+      desiredMovement: {
+        position: new Vector3(),
+        rotation: new Quaternion()
+      },
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
       isInAir: false,
-      gamepadMovementDirection: new Vector3(),
       gamepadMovementSmoothed: new Vector3(),
-      gamepadYVelocity: 0,
+      verticalVelocity: 0,
       speedVelocity: { value: 0 },
       lastPosition: new Vector3(), //.copy(rigidBody.translation() as Vector3),
       translationApplied: new Vector3()
@@ -186,7 +188,7 @@ export const createAvatarController = (entity: Entity) => {
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
   avatarControllerComponent.controller = Physics.createCharacterController(Engine.instance.currentWorld.physicsWorld, {
-    // offset: 0.1,
+    offset: 0.05
   })
 
   addComponent(entity, CollisionComponent, new Map())

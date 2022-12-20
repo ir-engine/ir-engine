@@ -1,5 +1,5 @@
 import { Collider, KinematicCharacterController, RigidBody } from '@dimforge/rapier3d-compat'
-import { Vector3 } from 'three'
+import { Vector2, Vector3 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
@@ -14,10 +14,14 @@ export type AvatarControllerComponentType = {
   isJumping: boolean
   isWalking: boolean
   isInAir: boolean
-  /** vector representing current movement direction normalized in the XZ plane */
-  gamepadMovementDirection: Vector3
-  gamepadYVelocity: number
-  gamepadMovementSmoothed: Vector3
+  /** velocity along the Y axis */
+  verticalVelocity: number
+  /** Is the gamepad-driven jump active */
+  gamepadJumpActive: boolean
+  /** gamepad-driven input, in the local XZ plane */
+  gamepadLocalInput: Vector3
+  /** gamepad-driven movement, in the world XZ plane */
+  gamepadWorldMovement: Vector3
   // Below two values used to smoothly transition between
   // walk and run speeds
   /** @todo refactor animation system */

@@ -8,14 +8,14 @@ import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
 import commonStyles from '../common.module.scss'
 import styles from './index.module.scss'
 
-interface Props {
+interface Props<T = unknown> {
   className?: string
   disabled?: boolean
   endControl?: React.ReactNode
@@ -25,8 +25,8 @@ interface Props {
   menu: InputMenuItem[]
   name?: string
   sx?: SxProps<Theme>
-  value?: unknown
-  onChange?: (e: any) => void
+  value?: T
+  onChange?: (e: React.ChangeEvent<{ value: T }>, child?: React.ReactNode) => void
 }
 
 export interface InputMenuItem {
@@ -36,7 +36,19 @@ export interface InputMenuItem {
   overflowContent?: React.ReactNode
 }
 
-const InputSelect = ({ className, disabled, endControl, error, id, label, menu, name, sx, value, onChange }: Props) => {
+function InputSelect<T>({
+  className,
+  disabled,
+  endControl,
+  error,
+  id,
+  label,
+  menu,
+  name,
+  sx,
+  value,
+  onChange
+}: Props<T>) {
   const { t } = useTranslation()
 
   if (!disabled) {
@@ -66,7 +78,7 @@ const InputSelect = ({ className, disabled, endControl, error, id, label, menu, 
             sx={{ opacity: disabled ? 0.38 : 1 }}
             value={value}
             MenuProps={{ classes: { paper: styles.selectPaper } }}
-            onChange={onChange}
+            onChange={onChange as any}
             onPointerUp={handleSoundEffect}
             onPointerEnter={handleSoundEffect}
           >

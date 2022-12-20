@@ -1,25 +1,126 @@
 import { Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { isDev } from '@xrengine/common/src/config'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { Engine } from '../ecs/classes/Engine'
+import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
-import { getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, getComponentState, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { InteractState } from '../interaction/systems/InteractiveSystem'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
+import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import { getControlMode, XRState } from '../xr/XRState'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
+import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { rotateAvatar } from './functions/moveAvatar'
-import { AvatarInputSettingsState } from './state/AvatarInputSettingsState'
+import { AvatarAxesControlScheme, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
+
+/**
+ * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
+ */
+export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, deadZone: number = 0.05) {
+  const axes = inputSource.gamepad!.axes
+  const axesIndex = axes.length >= 4 ? 2 : 0
+  const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
+  const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
+  return [xAxis, zAxis] as [number, number]
+}
+
+export const InputSourceAxesDidReset = new WeakMap<XRInputSource, boolean>()
+
+export const AvatarAxesControlSchemeBehavior = {
+  [AvatarAxesControlScheme.Move]: (inputSource: XRInputSource, controller: AvatarControllerComponentType) => {
+    if (inputSource.gamepad?.mapping !== 'xr-standard') return
+    const [x, z] = getThumbstickOrThumbpadAxes(inputSource, 0.05)
+    controller.gamepadLocalInput.x += x
+    controller.gamepadLocalInput.z += z
+  },
+
+  [AvatarAxesControlScheme.RotateAndTeleport]: (
+    inputSource: XRInputSource,
+    controller: AvatarControllerComponentType
+  ) => {
+    if (inputSource.gamepad?.mapping !== 'xr-standard') return
+
+    const localClientEntity = Engine.instance.currentWorld.localClientEntity
+    const [x, z] = getThumbstickOrThumbpadAxes(inputSource, 0.05)
+
+    if (x === 0 && z === 0) {
+      InputSourceAxesDidReset.set(inputSource, true)
+      removeComponent(localClientEntity, AvatarTeleportComponent)
+    }
+
+    if (!InputSourceAxesDidReset.get(inputSource)) return
+
+    const canTeleport = z < -0.75
+    const canRotate = Math.abs(x) > 0.1 && Math.abs(z) < 0.1
+
+    if (canRotate) {
+      rotateAvatar(localClientEntity, (Math.PI / 6) * (x > 0 ? -1 : 1)) // 30 degrees
+      InputSourceAxesDidReset.set(inputSource, false)
+    } else if (canTeleport) {
+      setComponent(localClientEntity, AvatarTeleportComponent, { side: inputSource.handedness })
+      InputSourceAxesDidReset.set(inputSource, false)
+    }
+  }
+}
 
 export default async function AvatarInputSystem(world: World) {
+  const interactState = getState(InteractState)
   const xrState = getState(XRState)
-  const avatarInputSettingsState = getState(AvatarInputSettingsState)
-
+  const avatarInputSettings = getState(AvatarInputSettingsState).value
   const cameraDifference = new Vector3()
-  let teleport = null as null | XRHandedness
 
-  let isVRRotatingLeft = false
-  let isVRRotatingRight = false
+  const onShiftLeft = () => {
+    const controller = getComponentState(world.localClientEntity, AvatarControllerComponent)
+    controller.isWalking.set(!controller.isWalking)
+  }
+
+  const onKeyE = () => {
+    dispatchAction(
+      EngineActions.interactedWithObject({
+        targetEntity: interactState.available[0].value,
+        handedness: 'none'
+      })
+    )
+  }
+
+  const onLeftTrigger = () => {
+    dispatchAction(
+      EngineActions.interactedWithObject({
+        targetEntity: interactState.available[0].value,
+        handedness: 'left'
+      })
+    )
+  }
+
+  const onRightTrigger = () => {
+    dispatchAction(
+      EngineActions.interactedWithObject({
+        targetEntity: interactState.available[0].value,
+        handedness: 'right'
+      })
+    )
+  }
+
+  const onKeyO = () => {
+    dispatchAction(
+      WorldNetworkAction.spawnDebugPhysicsObject({
+        config: boxDynamicConfig
+      })
+    )
+  }
+
+  const onKeyP = () => {
+    dispatchAction(
+      EngineRendererAction.setDebug({
+        debugEnable: !accessEngineRendererState().debugEnable.value
+      })
+    )
+  }
 
   const execute = () => {
     const { inputSources, localClientEntity } = world
@@ -27,39 +128,36 @@ export default async function AvatarInputSystem(world: World) {
 
     const cameraAttached = getControlMode() === 'attached'
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
-    const teleportControlsActive =
-      cameraAttached && avatarInputSettingsState.controlScheme.value === 'AvatarMovementScheme_Teleport'
+    const buttons = world.buttons
+
+    if (buttons.ShiftLeft?.down) onShiftLeft()
+    if (buttons.KeyE?.down) onKeyE()
+    if (buttons.LeftTrigger?.down) onLeftTrigger()
+    if (buttons.RightTrigger?.down) onRightTrigger()
+
+    if (isDev) {
+      if (buttons.KeyO?.down) onKeyO()
+      if (buttons.KeyP?.down) onKeyP()
+    }
+
+    /** keyboard input */
+    const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
+    const keyDeltaZ =
+      (buttons.KeyW?.pressed ? -1 : 0) +
+      (buttons.KeyS?.pressed ? 1 : 0) +
+      (buttons.ArrowUp?.pressed ? -1 : 0) +
+      (buttons.ArrowDown?.pressed ? 1 : 0)
+
+    controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ)
+
+    controller.gamepadJumpActive = !!buttons.Space?.pressed
 
     for (const inputSource of inputSources) {
-      if (inputSource.gamepad?.mapping === 'xr-standard') {
-        const axes = inputSource.gamepad!.axes
-        let xDelta = 0
-        let yDelta = 0
-        /** @todo do we want to sum these inputs up? */
-        if (axes.length <= 2) {
-          xDelta += Math.abs(axes[0]) > 0.05 ? axes[0] : 0
-          yDelta += Math.abs(axes[1]) > 0.05 ? axes[1] : 0
-        }
-        if (axes.length >= 4) {
-          xDelta += Math.abs(axes[2]) > 0.05 ? axes[2] : 0
-          yDelta += Math.abs(axes[3]) > 0.05 ? axes[3] : 0
-        }
-        const canRotate = Math.abs(xDelta) > 0.1 && Math.abs(yDelta) < 0.1
-
-        if (canRotate) {
-          if (
-            (inputSource.handedness === 'left' && !isVRRotatingLeft) ||
-            (inputSource.handedness === 'right' && !isVRRotatingRight)
-          )
-            rotateAvatar(localClientEntity, (Math.PI / 6) * (xDelta > 0 ? -1 : 1)) // 30 degrees
-        }
-        if (inputSource.handedness === 'left') isVRRotatingLeft = canRotate
-        else isVRRotatingRight = canRotate
-
-        if (yDelta < -0.75 && !teleport) {
-          teleport = inputSource.handedness
-        }
-      }
+      const controlScheme =
+        inputSource.handedness === 'left'
+          ? avatarInputSettings.leftAxesControlScheme
+          : avatarInputSettings.rightAxesControlScheme
+      AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
     }
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
@@ -73,14 +171,6 @@ export default async function AvatarInputSystem(world: World) {
       const cameraTransformRelativeToOrigin = getComponent(world.cameraEntity, LocalTransformComponent)
       cameraDifference.copy(cameraTransformRelativeToOrigin.position).sub(xrState.previousCameraPosition.value)
       controller.desiredMovement.copy(cameraDifference)
-    }
-
-    if (teleportControlsActive) {
-      if (teleport) {
-        setComponent(localClientEntity, AvatarTeleportComponent, { side: teleport })
-      } else {
-        removeComponent(localClientEntity, AvatarTeleportComponent)
-      }
     }
   }
 

@@ -14,9 +14,9 @@ import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/co
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import {
+  AvatarAxesControlScheme,
   AvatarInputSettingsAction,
-  AvatarInputSettingsState,
-  AvatarMovementScheme
+  AvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -29,7 +29,6 @@ import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
 import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
-import { SelectChangeEvent } from '@mui/material/Select'
 
 import { useClientSettingState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
@@ -49,14 +48,15 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const audioState = useAudioState()
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
   const selfUser = useAuthState().user
-  const controlScheme = avatarInputState.controlScheme.value
+  const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
+  const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const preferredHand = avatarInputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
   const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
-  const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
+  const controlSchemes = Object.values(AvatarAxesControlScheme).filter((value) => typeof value === 'string')
   const handOptions = ['left', 'right']
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
@@ -102,14 +102,6 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     }
     /** @todo switch handdedness */
   }, [avatarInputState.invertRotationAndMoveSticks])
-
-  const handleChangeControlScheme = (event: SelectChangeEvent) => {
-    dispatchAction(AvatarInputSettingsAction.setControlScheme({ scheme: event.target.value as any }))
-  }
-
-  const handleChangePreferredHand = (event: SelectChangeEvent) => {
-    dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: event.target.value as any }))
-  }
 
   const handleTabChange = (newValue: string) => {
     setSelectedTab(newValue)
@@ -199,10 +191,26 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                 <Grid container spacing={{ xs: 0, sm: 2 }}>
                   <Grid item xs={12} sm={8}>
                     <InputSelect
-                      label={t('user:usermenu.setting.lbl-control-scheme')}
-                      value={controlScheme}
+                      label={t('user:usermenu.setting.lbl-left-control-scheme')}
+                      value={leftAxesControlScheme}
                       menu={controlSchemesMenu}
-                      onChange={handleChangeControlScheme}
+                      onChange={(event) => {
+                        dispatchAction(
+                          AvatarInputSettingsAction.setLeftAxesControlScheme({ scheme: event.target.value })
+                        )
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={8}>
+                    <InputSelect
+                      label={t('user:usermenu.setting.lbl-right-control-scheme')}
+                      value={rightAxesControlScheme}
+                      menu={controlSchemesMenu}
+                      onChange={(event) => {
+                        dispatchAction(
+                          AvatarInputSettingsAction.setRightAxesControlScheme({ scheme: event.target.value })
+                        )
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -210,7 +218,9 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-preferred-hand')}
                       value={preferredHand}
                       menu={handOptionsMenu}
-                      onChange={handleChangePreferredHand}
+                      onChange={(event) =>
+                        dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: event.target.value }))
+                      }
                     />
                   </Grid>
                 </Grid>

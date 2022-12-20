@@ -132,12 +132,12 @@ export const setupAvatarModel = (entity: Entity) =>
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
 
-  const groupComponent = getComponent(entity, GroupComponent)
+  const groupComponent = getOptionalComponent(entity, GroupComponent)
 
   if (assetType == AssetType.FBX) {
     // TODO: Should probably be applied to vertexes in the modeling tool
     model.children[0].scale.setScalar(0.01)
-    for (const obj of groupComponent) obj.userData.scale = 0.01
+    if (groupComponent) for (const obj of groupComponent) obj.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
     if (model && (model as UpdateableObject3D).update) {
       addComponent(entity, UpdatableComponent, true)

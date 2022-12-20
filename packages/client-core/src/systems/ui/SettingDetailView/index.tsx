@@ -6,10 +6,10 @@ import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
+  AvatarAxesControlScheme,
   AvatarControllerType,
   AvatarInputSettingsAction,
-  AvatarInputSettingsState,
-  AvatarMovementScheme
+  AvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -43,7 +43,8 @@ const SettingDetailView = () => {
   const audioState = useAudioState()
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
-  const controlScheme = avatarInputState.controlScheme.value
+  const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
+  const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const authState = useAuthState()
@@ -54,8 +55,8 @@ const SettingDetailView = () => {
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
 
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
-  const handOptions = ['left', 'right']
-  const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
+  const handOptions = ['left', 'right'] as const
+  const controlSchemes = Object.values(AvatarAxesControlScheme).filter((value) => typeof value === 'string')
 
   useEffect(() => {
     const world = Engine.instance.currentWorld
@@ -99,14 +100,6 @@ const SettingDetailView = () => {
 
   const handleChangeControlType = (value) => {
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
-  }
-
-  const handleChangeControlScheme = (value: typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme]) => {
-    dispatchAction(AvatarInputSettingsAction.setControlScheme({ scheme: value }))
-  }
-
-  const handleChangePreferredHand = (value: 'left' | 'right') => {
-    dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: value }))
   }
 
   const toggleShowDetails = () => {
@@ -334,10 +327,22 @@ const SettingDetailView = () => {
               <div className="controlsContainer">
                 <h4 className="title">{t('user:usermenu.setting.controls')}</h4>
                 <div className="selectSize">
-                  <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-scheme')}</span>
+                  <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-left-control-scheme')}</span>
                   <XRSelectDropdown
-                    value={controlScheme}
-                    onChange={handleChangeControlScheme}
+                    value={leftAxesControlScheme}
+                    onChange={(value) =>
+                      dispatchAction(AvatarInputSettingsAction.setLeftAxesControlScheme({ scheme: value }))
+                    }
+                    options={controlSchemes}
+                  />
+                </div>
+                <div className="selectSize">
+                  <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-right-control-scheme')}</span>
+                  <XRSelectDropdown
+                    value={rightAxesControlScheme}
+                    onChange={(value) =>
+                      dispatchAction(AvatarInputSettingsAction.setRightAxesControlScheme({ scheme: value }))
+                    }
                     options={controlSchemes}
                   />
                 </div>
@@ -353,7 +358,9 @@ const SettingDetailView = () => {
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-preferred-hand')}</span>
                   <XRSelectDropdown
                     value={avatarInputState.preferredHand.value}
-                    onChange={handleChangePreferredHand}
+                    onChange={(value) =>
+                      dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: value }))
+                    }
                     options={handOptions}
                   />
                 </div>

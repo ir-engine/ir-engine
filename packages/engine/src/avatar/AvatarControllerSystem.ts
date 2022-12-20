@@ -28,7 +28,6 @@ import { setTransformComponent, TransformComponent } from '../transform/componen
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
-import { updateAvatarControllerOnGround } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
@@ -42,10 +41,6 @@ export class AvatarSettings {
   runSpeed = 3.769894125544925 * 1.5
   jumpHeight = 3
 }
-
-const rotMatrix = new Matrix4()
-const targetOrientation = new Quaternion()
-const finalOrientation = new Quaternion()
 
 export default async function AvatarControllerSystem(world: World) {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
@@ -89,7 +84,7 @@ export default async function AvatarControllerSystem(world: World) {
 
     if (hasComponent(controlledEntity, AvatarControllerComponent)) {
       const controller = getComponent(controlledEntity, AvatarControllerComponent)
-      // updateAvatarControllerOnGround(controlledEntity)
+
       if (controller.movementEnabled) {
         /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
          *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
@@ -123,55 +118,4 @@ export default async function AvatarControllerSystem(world: World) {
   }
 
   return { execute, cleanup }
-}
-
-const _cameraDirection = new Vector3()
-const _mat = new Matrix4()
-
-export const rotateBodyTowardsCameraDirection = (entity: Entity) => {
-  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
-  const rigidbody = getComponent(entity, RigidBodyComponent)
-  if (!rigidbody) return
-
-  const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
-  const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation).setComponent(1, 0)
-  targetOrientation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
-
-  finalOrientation.copy(rigidbody.body.rotation() as Quaternion)
-  finalOrientation.slerp(
-    targetOrientation,
-    Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds)
-  )
-  rigidbody.body.setRotation(finalOrientation, true)
-}
-
-const _velXZ = new Vector3()
-const prevVectors = new Map<Entity, Vector3>()
-export const rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
-  const rigidbody = getComponent(entity, RigidBodyComponent)
-  if (!rigidbody) return
-
-  let prevVector = prevVectors.get(entity)!
-  if (!prevVector) {
-    prevVector = new Vector3(0, 0, 1)
-    prevVectors.set(entity, prevVector)
-  }
-
-  _velXZ.set(vector.x, 0, vector.z)
-  const isZero = _velXZ.distanceTo(V_000) < 0.1
-  if (isZero) _velXZ.copy(prevVector)
-  if (!isZero) prevVector.copy(_velXZ)
-
-  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
-
-  rotMatrix.lookAt(_velXZ, V_000, V_010)
-  targetOrientation.setFromRotationMatrix(rotMatrix)
-
-  const prevRot = getComponent(entity, TransformComponent).rotation
-  finalOrientation.copy(prevRot)
-  finalOrientation.slerp(
-    targetOrientation,
-    Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds)
-  )
-  rigidbody.body.setRotation(finalOrientation, true)
 }
