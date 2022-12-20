@@ -157,11 +157,9 @@ export const calculateAvatarDisplacementFromGamepad = (
     } else if (controller.isJumping) {
       controller.isJumping = false
     }
+  } else {
+    controller.gamepadYVelocity -= 9.81 * deltaSeconds
   }
-
-  controller.gamepadYVelocity -= 9.81 * deltaSeconds
-
-  outDisplacement.y = controller.gamepadYVelocity * deltaSeconds
 }
 
 /**

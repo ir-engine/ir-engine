@@ -31,6 +31,7 @@ import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
   RigidBodyFixedTagComponent,
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
@@ -64,10 +65,10 @@ export function smoothPositionBasedKinematicBody(entity: Entity, alpha: number) 
   const transformComponent = getComponent(entity, TransformComponent)
   rigidbodyComponent.position.lerp(transformComponent.position, alpha)
   rigidbodyComponent.rotation.fastSlerp(transformComponent.rotation, alpha)
-  rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
-  rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
-  // rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
-  // rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
+  // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
+  // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
+  rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
+  rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
 
 export function smoothVelocityBasedKinematicBody(entity: Entity, alpha: number) {

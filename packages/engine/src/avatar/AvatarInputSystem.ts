@@ -112,10 +112,14 @@ export default async function AvatarInputSystem(world: World) {
   const lastMovementDelta = new Vector3()
   let isVRRotatingLeft = false
   let isVRRotatingRight = false
+  let lastFixedTick = world.fixedElapsedSeconds
 
   const execute = () => {
-    const { inputSources, localClientEntity } = world
+    const { inputSources, localClientEntity, fixedElapsedSeconds, deltaSeconds } = world
     if (!localClientEntity) return
+
+    const fixedDeltaSeconds = fixedElapsedSeconds - lastFixedTick
+    lastFixedTick = fixedElapsedSeconds
 
     const keys = world.buttons
 
@@ -226,14 +230,16 @@ export default async function AvatarInputSystem(world: World) {
         removeComponent(localClientEntity, AvatarTeleportComponent)
       }
     } else {
+      const controller = getComponent(localClientEntity, AvatarControllerComponent)
+      controller.isInAir = !controller.controller.computedGrounded()
+
       // updateAvatarControllerOnGround(localClientEntity)
       const rigidbody = getComponent(localClientEntity, RigidBodyComponent)
-      const controller = getComponent(localClientEntity, AvatarControllerComponent)
       /** @todo put y in a separate data structure */
       controller.gamepadMovementDirection.copy(movementDelta).normalize()
       /** smooth XZ input */
       const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
-      controller.gamepadMovementSmoothed.copy(controller.gamepadMovementDirection)
+      controller.gamepadMovementSmoothed.lerp(controller.gamepadMovementDirection, lerpAlpha)
 
       /** Apply vertical input velocity such that it is not normalized against XZ movement */
       const isJumping = !!keys.Space?.down
@@ -243,6 +249,9 @@ export default async function AvatarInputSystem(world: World) {
 
       /** calculate the avatar's displacement via a spring based on it's gamepad movement input  */
       calculateAvatarDisplacementFromGamepad(world, localClientEntity, gamepadMovementDisplacement, isJumping)
+      gamepadMovementDisplacement.y = controller.gamepadYVelocity * fixedDeltaSeconds
+      console.log(gamepadMovementDisplacement.y)
+
       desiredAvatarTranslation.copy(gamepadMovementDisplacement)
 
       /** When in attached camera mode, avatar movement should correspond to physical device movement */
@@ -258,25 +267,23 @@ export default async function AvatarInputSystem(world: World) {
         desiredAvatarTranslation.add(cameraDifference)
       }
 
+      // put desired avatar translation on controller
+      // apply gravity in fixed pipeline
+
       /** Use a kinematic character controller to calculate computed movement */
+      /**
+       * @todo rapier has a bug with computing movement resulting in the character falling through the world.
+       * To get around this, translate downwards and undo this translation if the character is not grounded.
+       */
       desiredAvatarTranslation.y -= 0.01
-      controller.controller.computeColliderMovement(controller.bodyCollider, desiredAvatarTranslation) //  , 0, controller.bodyCollider.collisionGroups())
+      controller.controller.computeColliderMovement(controller.bodyCollider, desiredAvatarTranslation)
       const computedMovement = computedMovementRounded.copy(controller.controller.computedMovement() as any)
-      controller.isInAir = !controller.controller.computedGrounded()
-      if (computedMovement.lengthSq() > 0) computedMovement.y += 0.01
 
-      const numCollisions = controller.controller.numComputedCollisions()
-
-      /** Process avatar movement collision events */
-      const translationApplied = controller.translationApplied.set(0, 0, 0)
-      for (let i = 0; i < numCollisions; i++) {
-        const out = new CharacterCollision()
-        controller.controller.computedCollision(i, out)
-        translationApplied.add(out.translationRemaining as any)
-      }
+      computedMovement.y = controller.isInAir ? controller.gamepadYVelocity * world.deltaSeconds : 0
 
       const transform = getComponent(localClientEntity, TransformComponent)
       transform.position.add(computedMovement as Vector3)
+      rigidbody.position.copy(transform.position)
     }
 
     lastMovementDelta.copy(movementDelta)

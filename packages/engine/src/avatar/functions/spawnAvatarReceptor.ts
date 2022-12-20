@@ -130,7 +130,10 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
 export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const avatarComponent = getComponent(entity, AvatarComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent).body
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const transform = getComponent(entity, TransformComponent)
+  rigidBody.position.copy(transform.position)
+  rigidBody.rotation.copy(transform.rotation)
 
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius,
@@ -141,7 +144,7 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   return Physics.createColliderAndAttachToRigidBody(
     Engine.instance.currentWorld.physicsWorld,
     bodyColliderDesc,
-    rigidBody
+    rigidBody.body
   )
 }
 
@@ -182,7 +185,7 @@ export const createAvatarController = (entity: Entity) => {
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
   avatarControllerComponent.controller = Physics.createCharacterController(Engine.instance.currentWorld.physicsWorld, {
-    // offset: 0.1
+    // offset: 0.1,
   })
 
   addComponent(entity, CollisionComponent, new Map())
