@@ -1,4 +1,3 @@
-import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import AvatarSpawnSystem from './avatar/AvatarSpawnSystem'
 import AvatarSystem from './avatar/AvatarSystem'
 import { isClient } from './common/functions/isClient'
@@ -6,7 +5,6 @@ import { Engine } from './ecs/classes/Engine'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import PhysicsSystem from './physics/systems/PhysicsSystem'
-import TriggerSystem from './scene/systems/TriggerSystem'
 
 /**
  * everything needed for rendering 3d scenes
@@ -38,11 +36,6 @@ export const initializeSceneSystems = async () => {
       uuid: 'xre.engine.PhysicsSystem',
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => Promise.resolve({ default: PhysicsSystem })
-    },
-    {
-      uuid: 'xre.engine.TriggerSystem',
-      type: SystemUpdateType.FIXED_LATE,
-      systemLoader: () => Promise.resolve({ default: TriggerSystem })
     }
   )
   if (isClient) {

@@ -7,11 +7,6 @@ import { Engine } from './ecs/classes/Engine'
 import { EngineActions } from './ecs/classes/EngineState'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import AssetSystem from './scene/systems/AssetSystem'
-import LightSystem from './scene/systems/LightSystem'
-import SceneLoadingSystem from './scene/systems/SceneLoadingSystem'
-import SceneObjectSystem from './scene/systems/SceneObjectSystem'
-import SceneObjectUpdateSystem from './scene/systems/SceneObjectUpdateSystem'
 import TransformSystem from './transform/systems/TransformSystem'
 
 export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<any>[]) => {
@@ -23,31 +18,6 @@ export const initializeCoreSystems = async (injectedSystems?: SystemModuleType<a
       uuid: 'xre.engine.TransformSystem',
       type: SystemUpdateType.UPDATE_LATE,
       systemLoader: () => Promise.resolve({ default: TransformSystem })
-    },
-    {
-      uuid: 'xre.engine.SceneObjectSystem',
-      type: SystemUpdateType.UPDATE_LATE,
-      systemLoader: () => Promise.resolve({ default: SceneObjectSystem })
-    },
-    {
-      uuid: 'xre.engine.SceneLoadingSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: SceneLoadingSystem })
-    },
-    {
-      uuid: 'xre.engine.SceneObjectUpdateSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: SceneObjectUpdateSystem })
-    },
-    {
-      uuid: 'xre.engine.LightSystem',
-      type: SystemUpdateType.FIXED_LATE,
-      systemLoader: () => Promise.resolve({ default: LightSystem })
-    },
-    {
-      uuid: 'xre.engine.AssetSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: AssetSystem })
     },
     {
       uuid: 'xre.engine.BehaveGraphSystem',

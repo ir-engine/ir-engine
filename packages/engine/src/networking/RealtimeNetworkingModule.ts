@@ -1,12 +1,12 @@
-import { Engine } from './ecs/classes/Engine'
-import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
-import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import IncomingNetworkSystem from './networking/systems/IncomingNetworkSystem'
-import MediaStreamSystem from './networking/systems/MediaStreamSystem'
-import OutgoingNetworkSystem from './networking/systems/OutgoingNetworkSystem'
-import WorldNetworkActionSystem from './networking/systems/WorldNetworkActionSystem'
+import { Engine } from '../ecs/classes/Engine'
+import { initSystems, SystemModuleType } from '../ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
+import IncomingNetworkSystem from './systems/IncomingNetworkSystem'
+import MediaStreamSystem from './systems/MediaStreamSystem'
+import OutgoingNetworkSystem from './systems/OutgoingNetworkSystem'
+import WorldNetworkActionSystem from './systems/WorldNetworkActionSystem'
 
-export const initializeRealtimeSystems = async (media = true, pose = true) => {
+export const initializeRealtimeSystems = (media = true, pose = true) => {
   const systemsToLoad: SystemModuleType<any>[] = []
 
   systemsToLoad.push({
@@ -38,5 +38,5 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
     )
   }
 
-  await initSystems(Engine.instance.currentWorld, systemsToLoad)
+  return initSystems(Engine.instance.currentWorld, systemsToLoad)
 }

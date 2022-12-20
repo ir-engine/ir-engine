@@ -12,23 +12,9 @@ import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import InteractiveSystem from './interaction/systems/InteractiveSystem'
 import MediaControlSystem from './interaction/systems/MediaControlSystem'
 import MountPointSystem from './interaction/systems/MountPointSystem'
-import HighlightSystem from './renderer/HighlightSystem'
-import HyperspacePortalSystem from './scene/systems/HyperspacePortalSystem'
-import ParticleSystem from './scene/systems/ParticleSystem'
-import PortalSystem from './scene/systems/PortalSystem'
 
 export default function () {
   return [
-    {
-      uuid: 'xre.engine.PortalSystem',
-      type: SystemUpdateType.UPDATE,
-      systemLoader: () => Promise.resolve({ default: PortalSystem })
-    },
-    {
-      uuid: 'xre.engine.HyperspacePortalSystem',
-      type: SystemUpdateType.UPDATE,
-      systemLoader: () => Promise.resolve({ default: HyperspacePortalSystem })
-    },
     {
       uuid: 'xre.engine.FlyControlSystem',
       type: SystemUpdateType.UPDATE_LATE,
@@ -85,11 +71,6 @@ export default function () {
       systemLoader: () => Promise.resolve({ default: AvatarLoadingSystem })
     },
     {
-      uuid: 'xre.engine.ParticleSystem',
-      type: SystemUpdateType.PRE_RENDER,
-      systemLoader: () => Promise.resolve({ default: ParticleSystem })
-    },
-    {
       uuid: 'xre.engine.DebugHelpersSystem',
       type: SystemUpdateType.PRE_RENDER,
       systemLoader: () => Promise.resolve({ default: DebugHelpersSystem })
@@ -98,11 +79,6 @@ export default function () {
       uuid: 'xre.engine.DebugRenderer',
       type: SystemUpdateType.PRE_RENDER,
       systemLoader: () => Promise.resolve({ default: DebugRenderer })
-    },
-    {
-      uuid: 'xre.engine.HighlightSystem',
-      type: SystemUpdateType.PRE_RENDER,
-      systemLoader: () => Promise.resolve({ default: HighlightSystem })
     }
   ]
 }
