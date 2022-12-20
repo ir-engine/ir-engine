@@ -46,12 +46,12 @@ export default function () {
     },
     {
       uuid: 'xre.engine.AvatarInputSystem',
-      type: SystemUpdateType.UPDATE,
+      type: SystemUpdateType.UPDATE_EARLY,
       systemLoader: () => Promise.resolve({ default: AvatarInputSystem })
     },
     {
       uuid: 'xre.engine.AvatarControllerSystem',
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.UPDATE_EARLY,
       systemLoader: () => Promise.resolve({ default: AvatarControllerSystem })
     },
     {

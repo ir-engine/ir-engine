@@ -14,7 +14,7 @@ export default function () {
   return [
     {
       uuid: 'xre.engine.CameraInputSystem',
-      type: SystemUpdateType.UPDATE,
+      type: SystemUpdateType.UPDATE_EARLY,
       systemLoader: () => Promise.resolve({ default: CameraInputSystem })
     },
     {
