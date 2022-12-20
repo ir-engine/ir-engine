@@ -172,6 +172,10 @@ export class World {
     return getState(EngineState).fixedTick.value
   }
 
+  get fixedDeltaSeconds() {
+    return getState(EngineState).fixedDeltaSeconds.value
+  }
+
   physicsWorld: PhysicsWorld
   physicsCollisionEventQueue: EventQueue
 

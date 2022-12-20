@@ -127,7 +127,7 @@ export const calculateAvatarDisplacementFromGamepad = (
   world: World,
   entity: Entity,
   outDisplacement: Vector3,
-  isJumping: boolean
+  hasJumpInput: boolean
 ) => {
   const camera = world.camera
   camera.getWorldDirection(cameraDirection).setY(0).normalize()
@@ -136,7 +136,7 @@ export const calculateAvatarDisplacementFromGamepad = (
   const controller = getComponent(entity, AvatarControllerComponent)
   const isInVR = getControlMode() === 'attached'
 
-  const deltaSeconds = world.deltaSeconds
+  const fixedDeltaSeconds = world.fixedDeltaSeconds
 
   // always walk in VR
   const currentSpeed =
@@ -145,20 +145,22 @@ export const calculateAvatarDisplacementFromGamepad = (
   /** Multiple spring scale by speed and apply forward orientation */
   outDisplacement
     .copy(controller.gamepadMovementSmoothed)
-    .multiplyScalar(currentSpeed * deltaSeconds)
+    .multiplyScalar(currentSpeed * fixedDeltaSeconds)
     .applyQuaternion(forwardOrientation)
 
   if (!controller.isInAir) {
     controller.gamepadYVelocity = 0
-    if (isJumping && !controller.isJumping) {
-      // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
-      controller.gamepadYVelocity = Math.sqrt(2 * AvatarSettings.instance.jumpHeight * 9.81)
-      controller.isJumping = true
+    if (hasJumpInput) {
+      if (!controller.isJumping) {
+        // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
+        controller.gamepadYVelocity = Math.sqrt(2 * AvatarSettings.instance.jumpHeight * 9.81)
+        controller.isJumping = true
+      }
     } else if (controller.isJumping) {
       controller.isJumping = false
     }
   } else {
-    controller.gamepadYVelocity -= 9.81 * deltaSeconds
+    controller.gamepadYVelocity -= 9.81 * fixedDeltaSeconds
   }
 }
 

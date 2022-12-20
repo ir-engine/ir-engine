@@ -4,6 +4,7 @@ import AnimationSystem from './avatar/AnimationSystem'
 import AvatarControllerSystem from './avatar/AvatarControllerSystem'
 import AvatarInputSystem from './avatar/AvatarInputSystem'
 import AvatarLoadingSystem from './avatar/AvatarLoadingSystem'
+import AvatarMovementSystem from './avatar/AvatarMovementSystem'
 import AvatarTeleportSystem from './avatar/AvatarTeleportSystem'
 import FlyControlSystem from './avatar/FlyControlSystem'
 import DebugHelpersSystem from './debug/systems/DebugHelpersSystem'
@@ -48,6 +49,11 @@ export default function () {
       uuid: 'xre.engine.AvatarInputSystem',
       type: SystemUpdateType.UPDATE_EARLY,
       systemLoader: () => Promise.resolve({ default: AvatarInputSystem })
+    },
+    {
+      uuid: 'xre.engine.AvatarInputSystem',
+      type: SystemUpdateType.FIXED_EARLY,
+      systemLoader: () => Promise.resolve({ default: AvatarMovementSystem })
     },
     {
       uuid: 'xre.engine.AvatarControllerSystem',
