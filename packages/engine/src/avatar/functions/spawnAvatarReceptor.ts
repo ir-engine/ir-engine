@@ -169,15 +169,13 @@ export const createAvatarController = (entity: Entity) => {
     addComponent(entity, AvatarControllerComponent, {
       cameraEntity: Engine.instance.currentWorld.cameraEntity,
       bodyCollider: undefined!,
-      desiredMovement: {
-        position: new Vector3(),
-        rotation: new Quaternion()
-      },
+      desiredMovement: new Vector3(),
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
       isInAir: false,
-      gamepadMovementSmoothed: new Vector3(),
+      gamepadLocalInput: new Vector3(),
+      gamepadWorldMovement: new Vector3(),
       verticalVelocity: 0,
       speedVelocity: { value: 0 },
       lastPosition: new Vector3(), //.copy(rigidBody.translation() as Vector3),

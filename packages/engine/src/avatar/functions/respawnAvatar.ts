@@ -6,11 +6,14 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const respawnAvatar = (entity: Entity) => {
   const { position } = getComponent(entity, SpawnPoseComponent)
   const networkObject = getComponent(entity, NetworkObjectComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
+  controller.verticalVelocity = 0
   dispatchAction(
     WorldNetworkAction.teleportObject({
       object: {
