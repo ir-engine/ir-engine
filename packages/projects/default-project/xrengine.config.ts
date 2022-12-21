@@ -22,6 +22,9 @@ const config: ProjectConfigInterface = {
     '/editor': {
       component: () => import('@xrengine/client/src/pages/editor/editor')
     },
+    '/studio': {
+      component: () => import('@xrengine/client/src/pages/editor/editor')
+    },
     '/room': {
       component: () => import('@xrengine/client/src/pages/room')
     }
