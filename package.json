@@ -88,7 +88,10 @@
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
     "bump-project-versions": "cross-env ts-node --swc scripts/bump-project-versions.js",
-    "update-site-manifest": "cross-env ts-node --swc scripts/update-site-manifest.ts"
+    "update-site-manifest": "cross-env ts-node --swc scripts/update-site-manifest.ts",
+    "create-build-status": "cross-env ts-node --swc scripts/create-build-status.ts",
+    "record-build-error": "cross-env ts-node --swc scripts/record-build-error.ts",
+    "record-build-success": "cross-env ts-node --swc scripts/record-build-success"
   },
   "types": "lib/",
   "pre-commit": [
