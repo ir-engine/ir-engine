@@ -245,7 +245,7 @@ const ProjectsPage = () => {
 
     dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
     dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
-    route(`/editor/${project.name}`)
+    route(`/studio/${project.name}`)
   }
 
   const onCreateProject = async (name) => {
