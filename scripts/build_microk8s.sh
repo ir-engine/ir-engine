@@ -4,7 +4,7 @@ set -x
 
 if [ -z "$MYSQL_HOST" ]
 then
-  MYSQL_HOST=host.minikube.internal
+  MYSQL_HOST=localhost
 else
   MYSQL_HOST=$MYSQL_HOST
 fi
@@ -94,15 +94,16 @@ else
 fi
 
 docker start xrengine_minikube_db
-# eval $(minikube docker-env)
 
 mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-DOCKER_BUILDKIT=1 docker build -t root-builder -f dockerfiles/package-root/Dockerfile-root .
+DOCKER_BUILDKIT=1 docker build -t 10.28.234.211:32000/root-builder -f dockerfiles/package-root/Dockerfile-root .
 
-DOCKER_BUILDKIT=1 docker build -t xrengine \
+docker push 10.28.234.211:32000/root-builder
+
+DOCKER_BUILDKIT=1 docker build --network=host -t 10.28.234.211:32000/xrengine \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
@@ -119,4 +120,8 @@ DOCKER_BUILDKIT=1 docker build -t xrengine \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
-#DOCKER_BUILDKIT=1 docker build -t xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+docker push 10.28.234.211:32000/xrengine
+
+#DOCKER_BUILDKIT=1 docker build -t localhost:32000/xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+
+# docker push localhost:32000/xrengine-testbot

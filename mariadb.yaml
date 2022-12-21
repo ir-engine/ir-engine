@@ -1,0 +1,19 @@
+kind: Service
+apiVersion: v1
+metadata:
+ name: mariadb
+spec:
+ type: ClusterIP # Probably don't want to expose it outside of the cluster
+ ports:
+ - port: 3304
+   targetPort: 3304
+---
+kind: Endpoints
+apiVersion: v1
+metadata:
+ name: mariadb
+subsets:
+ - addresses:
+     - ip: 10.0.1.1 # Host IP from host-access
+   ports:
+     - port: 3304
