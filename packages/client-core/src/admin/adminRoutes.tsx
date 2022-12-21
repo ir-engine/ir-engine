@@ -2,10 +2,12 @@ import React, { Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import { AvatarClientModule } from '@xrengine/engine/src/avatar/AvatarClientModule'
 import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SceneClientModule } from '@xrengine/engine/src/scene/SceneClientModule'
 import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
 import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -64,7 +66,9 @@ const ProtectedRoutes = () => {
     Promise.all([
       TransformModule(),
       SceneCommonModule(),
+      SceneClientModule(),
       AvatarCommonModule(),
+      AvatarClientModule(),
       initSystems(Engine.instance.currentWorld, [AdminSystemInjection])
     ]).then(async () => {
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
