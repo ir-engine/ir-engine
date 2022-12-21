@@ -28,7 +28,7 @@ import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
 import { getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
-import { LODS_REGEXP } from '../constants/LoaderConstants'
+import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
@@ -149,7 +149,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = getRendererSceneMetadataState(Engine.instance.currentWorld).LODs.value
+  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState(Engine.instance.currentWorld).LODs.value
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {

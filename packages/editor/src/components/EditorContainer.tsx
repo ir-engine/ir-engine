@@ -192,7 +192,7 @@ const EditorContainer = () => {
   const reRouteToLoadScene = async (newSceneName: string) => {
     if (sceneName.value === newSceneName) return
     if (!projectName.value || !newSceneName) return
-    route(`/editor/${projectName.value}/${newSceneName}`)
+    route(`/studio/${projectName.value}/${newSceneName}`)
   }
 
   const loadScene = async (sceneName: string) => {

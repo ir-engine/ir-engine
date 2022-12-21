@@ -92,7 +92,7 @@ export const RenderSettingsEditor = () => {
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
-      <InputGroup
+      {/* <InputGroup
         name="LODs"
         label={t('editor:properties.renderSettings.lbl-lods')}
         info={t('editor:properties.renderSettings.info-lods')}
@@ -105,7 +105,7 @@ export const RenderSettingsEditor = () => {
           largeStep={1}
           onChange={(val) => rendererState.LODs.set({ '0': val.x, '1': val.y, '2': val.z })}
         />
-      </InputGroup>
+      </InputGroup> */}
       <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}
