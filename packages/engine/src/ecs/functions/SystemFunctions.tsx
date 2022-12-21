@@ -130,8 +130,8 @@ const loadSystemInjection = async (world: World, s: SystemFactoryType<any>, type
     if (type) logger.info(`${name} initializing on ${type} pipeline`)
     else logger.info(`${name} initializing`)
     const system = await s.systemModule.default(world, args)
-    logger.info(`${name} (${s.uuid}) ready`)
     const subsystems = await loadSubsystems(world, s, system.subsystems)
+    logger.info(`${name} (${s.uuid}) ready`)
     return {
       execute: createExecute(system, subsystems, name, s.uuid),
       cleanup: system.cleanup,
