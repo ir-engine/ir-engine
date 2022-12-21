@@ -125,18 +125,24 @@ export const defaultThemeSettings = {
 
 export const defaultThemeModes = {
   client: 'light',
-  editor: 'dark',
+  studio: 'dark',
   admin: 'vaporwave'
 } as ThemeMode
 
+/**
+ * Defaults to light theme
+ * @param themeModes
+ * @returns
+ */
 export const getCurrentTheme = (themeModes: ThemeMode | undefined): string => {
   const currentThemeModes = themeModes || defaultThemeModes
   const { pathname } = window.location
 
   if (pathname.startsWith('/admin')) {
-    return currentThemeModes['admin']
-  } else if (pathname.startsWith('/editor')) {
-    return currentThemeModes['editor']
+    if (currentThemeModes['admin']) return currentThemeModes['admin']
+  } else if (pathname.startsWith('/studio')) {
+    const theme = currentThemeModes['studio'] ?? currentThemeModes['editor']
+    if (theme) return theme
   }
 
   return currentThemeModes['client']

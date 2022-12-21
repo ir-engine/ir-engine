@@ -14,7 +14,7 @@ const avatarsFolder = path.resolve(__dirname, 'public/avatars')
 const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OEmbed) => {
   const isLocation = /^\/location\//.test(url.pathname)
   const isAdminPanel = /^\/admin/.test(url.pathname)
-  const isEditor = /^\/editor/.test(url.pathname)
+  const isEditor = /^\/studio/.test(url.pathname)
   if (isLocation) {
     const locationName = url.pathname.replace(/\/location\//, '')
     const locationResult = (await app.service('location').find({
@@ -39,12 +39,12 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
 
     return currentOEmbed
   } else if (isEditor) {
-    currentOEmbed.title = `Editor - ${currentOEmbed.title}`
+    currentOEmbed.title = `Studio - ${currentOEmbed.title}`
     currentOEmbed.description = `No need to download extra software. Create, publish, and edit your world directly in the web browser.`
 
-    let subPath = url.pathname.replace(/\/editor\//, '')
-    if (subPath.startsWith('editor')) {
-      subPath = url.pathname.replace(/\/editor/, '')
+    let subPath = url.pathname.replace(/\/studio\//, '')
+    if (subPath.startsWith('studio')) {
+      subPath = url.pathname.replace(/\/studio/, '')
     }
 
     if (subPath.includes('/')) {
@@ -56,7 +56,7 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
       if (locationResult.total > 0) {
         const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
         const storageProvider = getStorageProvider()
-        currentOEmbed.title = `${locationResult.data[0].name} Editor - ${currentOEmbed.title}`
+        currentOEmbed.title = `${locationResult.data[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
         currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
         currentOEmbed.height = 320
