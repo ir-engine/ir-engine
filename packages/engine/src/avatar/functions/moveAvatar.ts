@@ -115,13 +115,11 @@ export const applyGamepadInput = (entity: Entity) => {
   // apply movement
   controller.desiredMovement.x += controller.gamepadWorldMovement.x
   controller.desiredMovement.z += controller.gamepadWorldMovement.z
-  controller.desiredMovement.y = controller.verticalVelocity * fixedDeltaSeconds
+  controller.desiredMovement.y += controller.verticalVelocity * fixedDeltaSeconds
   controller.controller.computeColliderMovement(controller.bodyCollider, controller.desiredMovement)
   controller.isInAir = !controller.controller.computedGrounded()
   transform.position.add(controller.controller.computedMovement() as any)
   if (!controller.isInAir) controller.verticalVelocity = 0
-
-  // transform.position.y += controller.isInAir ? controller.verticalVelocity * fixedDeltaSeconds : 0
 
   // apply rotation
   _avatarApplyRotation(entity)

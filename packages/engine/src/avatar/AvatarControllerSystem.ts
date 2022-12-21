@@ -93,7 +93,7 @@ export default async function AvatarControllerSystem(world: World) {
         if (
           !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
           world.worldNetwork &&
-          controller.gamepadMovementDirection.lengthSq() > 0.1
+          controller.gamepadWorldMovement.lengthSq() > 0.1
         ) {
           const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
           dispatchAction(

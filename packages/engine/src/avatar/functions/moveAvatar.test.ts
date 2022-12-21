@@ -13,7 +13,6 @@ import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetw
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { moveAvatar } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 describe('moveAvatar function tests', () => {
@@ -45,14 +44,14 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
     const avatar = getComponent(entity, AvatarControllerComponent)
 
-    avatar.gamepadMovementDirection.setZ(-1)
+    avatar.gamepadWorldMovement.setZ(-1)
 
     // velocity starts at 0
     strictEqual(velocity.x, 0)
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatar(entity)
+    // moveAvatar(entity)
 
     /* assert */
   })
