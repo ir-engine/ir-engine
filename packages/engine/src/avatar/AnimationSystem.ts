@@ -45,8 +45,6 @@ export default async function AnimationSystem(world: World) {
   const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
-  await AnimationManager.instance.loadDefaultAnimations()
-
   const execute = () => {
     const { deltaSeconds } = world
 

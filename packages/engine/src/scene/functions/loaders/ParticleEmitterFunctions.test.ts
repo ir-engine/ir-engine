@@ -2,8 +2,6 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe } from 'mocha'
 import { createSandbox, SinonSandbox } from 'sinon'
 
-import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
-
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
@@ -36,7 +34,7 @@ describe('ParticleEmitterFunctions', async () => {
     initEntity()
     Engine.instance.engineTimer.start()
     Engine.instance.publicPath = ''
-    await initializeCoreSystems()
+    await Promise.all([])
 
     await initSystems(world, [
       {
