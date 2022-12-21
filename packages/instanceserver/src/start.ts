@@ -1,5 +1,4 @@
 import AgonesSDK from '@google-cloud/agones-sdk'
-import { exec } from 'child_process'
 import fs from 'fs'
 import https from 'https'
 import psList from 'ps-list'
@@ -10,7 +9,6 @@ import '@xrengine/engine/src/patchEngineNode'
 
 import { Socket } from 'socket.io'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { Application, ServerMode } from '@xrengine/server-core/declarations'
