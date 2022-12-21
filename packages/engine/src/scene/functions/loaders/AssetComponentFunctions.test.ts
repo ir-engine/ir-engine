@@ -18,7 +18,6 @@ import {
   createEntityNode,
   removeEntityNodeFromParent
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
 import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import '@xrengine/engine/src/patchEngineNode'
@@ -32,6 +31,9 @@ import { XRELoader } from '../../../assets/classes/XRELoader'
 import { World } from '../../../ecs/classes/World'
 import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
+import { TransformModule } from '../../../transform/TransformModule'
+import { SceneClientModule } from '../../SceneClientModule'
+import { SceneCommonModule } from '../../SceneCommonModule'
 
 describe('AssetComponentFunctions', async () => {
   let entity: Entity
@@ -54,7 +56,7 @@ describe('AssetComponentFunctions', async () => {
     Engine.instance.engineTimer.start()
 
     Engine.instance.publicPath = ''
-    await initializeCoreSystems()
+    await Promise.all([TransformModule(), SceneCommonModule(), SceneClientModule()])
 
     await initSystems(world, [
       {
