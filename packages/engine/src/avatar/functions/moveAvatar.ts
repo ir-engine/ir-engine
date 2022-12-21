@@ -69,6 +69,7 @@ const avatarStepRaycast = {
 
 const cameraDirection = new Vector3()
 const forwardOrientation = new Quaternion()
+const targetWorldMovement = new Vector3()
 
 /**
  * Avatar movement via gamepad
@@ -80,18 +81,20 @@ export const applyGamepadInput = (entity: Entity) => {
   const camera = world.camera
   const fixedDeltaSeconds = world.fixedDeltaSeconds
   const controller = getComponent(entity, AvatarControllerComponent)
-  const transform = getComponent(entity, TransformComponent)
+  const rigidbody = getComponent(entity, RigidBodyComponent)
 
-  const lerpAlpha = 1 - Math.exp(-5 * fixedDeltaSeconds)
+  const lerpAlpha = 6 * fixedDeltaSeconds
   const legSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   camera.getWorldDirection(cameraDirection).setY(0).normalize()
   forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
 
-  /** compute smoothed movement in the world XZ plane */
-  controller.gamepadWorldMovement
-    .copy(controller.gamepadLocalInput, lerpAlpha)
+  targetWorldMovement
+    .copy(controller.gamepadLocalInput)
     .multiplyScalar(legSpeed * fixedDeltaSeconds)
     .applyQuaternion(forwardOrientation)
+
+  /** compute smoothed movement in the world XZ plane */
+  controller.gamepadWorldMovement.lerp(targetWorldMovement, lerpAlpha)
 
   // set vertical velocity on ground
   if (!controller.isInAir) {
@@ -118,7 +121,9 @@ export const applyGamepadInput = (entity: Entity) => {
   controller.desiredMovement.y += controller.verticalVelocity * fixedDeltaSeconds
   controller.controller.computeColliderMovement(controller.bodyCollider, controller.desiredMovement)
   controller.isInAir = !controller.controller.computedGrounded()
-  transform.position.add(controller.controller.computedMovement() as any)
+  const computedMovement = controller.controller.computedMovement() as any
+  rigidbody.nextPosition.copy(rigidbody.position).add(computedMovement)
+
   if (!controller.isInAir) controller.verticalVelocity = 0
 
   // apply rotation
@@ -135,9 +140,9 @@ export const applyGamepadInput = (entity: Entity) => {
  */
 export const rotateAvatar = (entity: Entity, angle: number) => {
   _quat.setFromAxisAngle(V_010, angle)
-  const rigidBody = getComponent(entity, RigidBodyComponent).body
-  _quat2.copy(rigidBody.rotation() as Quaternion).multiply(_quat)
-  rigidBody.setRotation(_quat2, true)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  _quat2.copy(rigidBody.body.rotation() as Quaternion).multiply(_quat)
+  rigidBody.nextRotation.copy(_quat2)
 }
 
 /**
@@ -198,7 +203,7 @@ const _rotateBodyTowardsCameraDirection = (entity: Entity) => {
 
   finalOrientation.copy(rigidbody.body.rotation() as Quaternion)
   finalOrientation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
-  rigidbody.body.setRotation(finalOrientation, true)
+  rigidbody.nextRotation.copy(finalOrientation)
 }
 
 const _velXZ = new Vector3()
@@ -226,5 +231,5 @@ const _rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
   const prevRot = getComponent(entity, TransformComponent).rotation
   finalOrientation.copy(prevRot)
   finalOrientation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
-  rigidbody.body.setRotation(finalOrientation, true)
+  rigidbody.nextRotation.copy(finalOrientation)
 }

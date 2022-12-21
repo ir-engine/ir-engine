@@ -21,6 +21,7 @@ import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/c
 import {
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
+  RigidBodyFixedTagComponent,
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
@@ -44,7 +45,7 @@ import { updateWorldOriginToAttachedAvatar } from '../updateWorldOrigin'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
-const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
 const staticBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent])
@@ -243,13 +244,10 @@ export default async function TransformSystem(world: World) {
     !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
     !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
-  const filterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
-    !world.dirtyTransforms[entity] &&
-    hasComponent(entity, RigidBodyDynamicTagComponent) &&
-    !getComponent(entity, RigidBodyComponent).body.isSleeping()
+  const filterCleanNonSleepingRigidbodies = (entity: Entity) =>
+    !world.dirtyTransforms[entity] && !getComponent(entity, RigidBodyComponent).body.isSleeping()
 
-  const invFilterCleanNonSleepingDynamicRigidbodies = (entity: Entity) =>
-    !filterCleanNonSleepingDynamicRigidbodies(entity)
+  const invFilterCleanNonSleepingRigidbodies = (entity: Entity) => !filterCleanNonSleepingRigidbodies(entity)
 
   let sortedTransformEntities = [] as Entity[]
 
@@ -299,8 +297,8 @@ export default async function TransformSystem(world: World) {
      * 3 - Update scene entities (entities not children of the world origin)
      */
     const allRigidbodyEntities = rigidbodyTransformQuery()
-    const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingDynamicRigidbodies)
-    const invCleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingDynamicRigidbodies)
+    const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)
+    const invCleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingRigidbodies)
 
     // lerp clean dynamic rigidbody entities (make them dirty)
     const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
