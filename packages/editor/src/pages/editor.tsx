@@ -112,7 +112,7 @@ const EditorProtectedRoutes = () => {
         <Route path="/studio/:projectName" component={EditorPage} />
         <Route path="/studio" component={ProjectPage} />
         {/* Not in use */}
-        <Route path="/editor-login" component={SignInPage} />
+        <Route path="/studio-login" component={SignInPage} />
       </Switch>
     </Suspense>
   )
