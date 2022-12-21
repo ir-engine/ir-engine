@@ -10,15 +10,16 @@ import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
-import { initializeRealtimeSystems } from '@xrengine/engine/src/initializeRealtimeSystems'
-import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { RealtimeNetworkingModule } from '@xrengine/engine/src/networking/RealtimeNetworkingModule'
+import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
 import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { Application } from '@xrengine/server-core/declarations'
@@ -236,7 +237,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   if (app.isChannelInstance) {
     world.hostIds.media.set(hostId as UserId)
-    await initializeRealtimeSystems(true, false)
+    await RealtimeNetworkingModule(true, false)
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
@@ -247,9 +248,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
-    await initializeCoreSystems()
-    await initializeRealtimeSystems(false, true)
-    await initializeSceneSystems()
+    await Promise.all([
+      TransformModule(),
+      SceneCommonModule(),
+      AvatarCommonModule(),
+      RealtimeNetworkingModule(false, true)
+    ])
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 

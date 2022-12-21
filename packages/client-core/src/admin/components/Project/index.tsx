@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
 
 import { Box, CircularProgress } from '@mui/material'
 import Button from '@mui/material/Button'

@@ -62,6 +62,8 @@ const _rotY90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI 
 const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
 
 export default async function AvatarAnimationSystem(world: World) {
+  await AnimationManager.instance.loadDefaultAnimations()
+
   const leftHandQuery = defineQuery([VisibleComponent, AvatarLeftHandIKComponent, AvatarRigComponent])
   const rightHandQuery = defineQuery([VisibleComponent, AvatarRightHandIKComponent, AvatarRigComponent])
   const headIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarRigComponent])
