@@ -290,7 +290,7 @@ export default async function TransformSystem(world: World) {
       if (world.dirtyTransforms[world.localClientEntity]) {
         computeTransformMatrix(world.localClientEntity, world)
       }
-      updateWorldOriginToAttachedAvatar(world)
+      updateWorldOriginToAttachedAvatar(world.localClientEntity, world)
     }
 
     /**

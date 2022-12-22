@@ -53,13 +53,25 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
 export default async function XRCameraSystem(world: World) {
   const xrState = getState(XRState)
 
+  let hasRun = false
+
   const execute = () => {
-    if (!EngineRenderer.instance.xrSession) return
+    if (!Engine.instance.xrFrame) {
+      hasRun = false
+      return
+    }
 
     const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
     xrState.previousCameraPosition.value.copy(cameraTransform.position)
 
     updateXRInput(world)
+
+    /** ensure that on the first frame of a WebXR session, the camera difference is 0 to avoid desync */
+    if (!hasRun) {
+      const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+      xrState.previousCameraPosition.value.copy(cameraTransform.position)
+      hasRun = true
+    }
 
     // Assume world.camera.layers is source of truth for all xr cameras
     const camera = Engine.instance.currentWorld.camera as PerspectiveCamera

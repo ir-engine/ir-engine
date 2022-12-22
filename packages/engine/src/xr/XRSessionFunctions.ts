@@ -3,9 +3,12 @@ import { dispatchAction, getState, none } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { V_000 } from '../common/constants/MathConstants'
 import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
@@ -69,10 +72,17 @@ export const requestXRSession = createHookableFunction(
       const referenceSpace = xrManager.getReferenceSpace()
       xrState.originReferenceSpace.set(referenceSpace)
 
+      const world = Engine.instance.currentWorld
+
+      const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
+      xrState.previousAvatarPosition.value.copy(rigidBody.position)
+      const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+      worldOriginTransform.position.copy(rigidBody.position)
+      const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+      xrState.previousCameraPosition.value.copy(cameraTransform.position)
+
       xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
-
-      const world = Engine.instance.currentWorld
 
       if (mode === 'immersive-ar') setupARSession(world)
       if (mode === 'immersive-vr') setupVRSession(world)
@@ -86,9 +96,13 @@ export const requestXRSession = createHookableFunction(
         xrManager.removeEventListener('sessionend', onSessionEnd)
         xrManager.setSession(null!)
         EngineRenderer.instance.xrSession = null!
+        Engine.instance.xrFrame = null!
         const world = Engine.instance.currentWorld
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
         EngineRenderer.instance.renderer.domElement.style.display = ''
+
+        const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+        worldOriginTransform.position.copy(V_000)
 
         xrState.originReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)

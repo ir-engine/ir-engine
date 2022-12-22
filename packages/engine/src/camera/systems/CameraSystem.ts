@@ -182,7 +182,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const cameraTransform = getComponent(cameraEntity, LocalTransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
-  if (!targetTransform) return
+  if (!targetTransform || !followCamera) return
 
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
