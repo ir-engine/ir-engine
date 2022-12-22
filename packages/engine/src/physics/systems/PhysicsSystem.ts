@@ -75,10 +75,10 @@ export function smoothVelocityBasedKinematicBody(entity: Entity, alpha: number) 
   rigidbodyComponent.position.lerp(rigidbodyComponent.nextPosition, alpha)
   rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.nextRotation, alpha)
   /** @todo implement proper velocity based kinematic movement */
-  rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
-  rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
-  // rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
-  // rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
+  // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
+  // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
+  rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
+  rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
 
 export default async function PhysicsSystem(world: World) {

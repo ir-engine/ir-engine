@@ -126,7 +126,7 @@ export default async function AvatarInputSystem(world: World) {
     const { inputSources, localClientEntity } = world
     if (!localClientEntity) return
 
-    const cameraAttached = getControlMode() === 'attached'
+    const xrCameraAttached = getControlMode() === 'attached'
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
     const buttons = world.buttons
 
@@ -161,7 +161,7 @@ export default async function AvatarInputSystem(world: World) {
     }
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
-    if (cameraAttached) {
+    if (xrCameraAttached) {
       /**
        * @todo #7328 we need a function to explicitly calculate transforms relative to the
        *   origin entity (or any entity), without making assumptions about hierarchy.

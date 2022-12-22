@@ -15,7 +15,10 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
@@ -63,11 +66,11 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   dispatchAction(EditorHistoryAction.clearHistory({}))
 
   const camera = world.camera
-  const localTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+  const transform = getComponent(world.cameraEntity, TransformComponent)
   camera.position.set(0, 5, 10)
   camera.lookAt(new Vector3())
-  localTransform.position.copy(camera.position)
-  localTransform.rotation.copy(camera.quaternion)
+  transform.position.copy(camera.position)
+  transform.rotation.copy(camera.quaternion)
   world.dirtyTransforms[world.cameraEntity] = true
 
   world.camera.layers.enable(ObjectLayers.Scene)

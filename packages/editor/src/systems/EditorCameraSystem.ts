@@ -36,7 +36,7 @@ export default async function EditorCameraSystem(world: World) {
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
       const transform = getComponent(entity, TransformComponent)
-      const localTransform = getComponent(entity, LocalTransformComponent)
+      const localTransform = getOptionalComponent(entity, LocalTransformComponent)
       const camera = getComponent(entity, CameraComponent).camera
 
       if (cameraComponent.zoomDelta) {
@@ -117,8 +117,8 @@ export default async function EditorCameraSystem(world: World) {
 
         cameraComponent.isOrbiting = false
       }
-      localTransform.position.copy(camera.position)
-      localTransform.rotation.copy(camera.quaternion)
+      localTransform?.position.copy(camera.position)
+      localTransform?.rotation.copy(camera.quaternion)
       world.dirtyTransforms[entity] = true
     }
   }

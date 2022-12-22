@@ -35,7 +35,7 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
   if (getControlMode() === 'attached' && refSpace && viewerPose) {
     const rigidBody = getComponent(entity, RigidBodyComponent)
 
-    /** camera differnce is the local pose delta since the last webxr frame */
+    /** camera difference is the local pose delta since the last webxr frame */
     const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
     // cameraAvatarDifference.copy(rigidBody.position)
     cameraDifference.copy(cameraLocalTransform.position).sub(xrState.previousCameraPosition.value)

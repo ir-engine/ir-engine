@@ -122,7 +122,7 @@ export const applyGamepadInput = (entity: Entity) => {
   controller.controller.computeColliderMovement(controller.bodyCollider, controller.desiredMovement)
   controller.isInAir = !controller.controller.computedGrounded()
   const computedMovement = controller.controller.computedMovement() as any
-  rigidbody.nextPosition.copy(rigidbody.position).add(computedMovement)
+  rigidbody.nextPosition.add(computedMovement)
 
   if (!controller.isInAir) controller.verticalVelocity = 0
 
@@ -190,7 +190,6 @@ const _mat = new Matrix4()
 
 const rotMatrix = new Matrix4()
 const targetOrientation = new Quaternion()
-const finalOrientation = new Quaternion()
 
 const _rotateBodyTowardsCameraDirection = (entity: Entity) => {
   const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
@@ -200,10 +199,7 @@ const _rotateBodyTowardsCameraDirection = (entity: Entity) => {
   const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
   const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation).setComponent(1, 0)
   targetOrientation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
-
-  finalOrientation.copy(rigidbody.body.rotation() as Quaternion)
-  finalOrientation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
-  rigidbody.nextRotation.copy(finalOrientation)
+  rigidbody.nextRotation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
 }
 
 const _velXZ = new Vector3()
@@ -228,8 +224,5 @@ const _rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
   rotMatrix.lookAt(_velXZ, V_000, V_010)
   targetOrientation.setFromRotationMatrix(rotMatrix)
 
-  const prevRot = getComponent(entity, TransformComponent).rotation
-  finalOrientation.copy(prevRot)
-  finalOrientation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
-  rigidbody.nextRotation.copy(finalOrientation)
+  rigidbody.nextRotation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
 }

@@ -94,7 +94,6 @@ export class World {
     addComponent(this.cameraEntity, NameComponent, 'camera')
     addComponent(this.cameraEntity, CameraComponent)
     addComponent(this.cameraEntity, VisibleComponent, true)
-    setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false

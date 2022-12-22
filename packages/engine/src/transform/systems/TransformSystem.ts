@@ -110,22 +110,15 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   const rotationZ = RigidBodyComponent.rotation.z[entity]
   const rotationW = RigidBodyComponent.rotation.w[entity]
 
-  TransformComponent.position.x[entity] = previousPositionX + (positionX - previousPositionX) * alpha
-  TransformComponent.position.y[entity] = previousPositionY + (positionY - previousPositionY) * alpha
-  TransformComponent.position.z[entity] = previousPositionZ + (positionZ - previousPositionZ) * alpha
-  TransformComponent.rotation.x[entity] = previousRotationX + (rotationX - previousRotationX) * alpha
-  TransformComponent.rotation.y[entity] = previousRotationY + (rotationY - previousRotationY) * alpha
-  TransformComponent.rotation.z[entity] = previousRotationZ + (rotationZ - previousRotationZ) * alpha
-  TransformComponent.rotation.w[entity] = previousRotationW + (rotationW - previousRotationW) * alpha
+  TransformComponent.position.x[entity] = positionX * alpha + previousPositionX * (1 - alpha)
+  TransformComponent.position.y[entity] = positionY * alpha + previousPositionY * (1 - alpha)
+  TransformComponent.position.z[entity] = positionZ * alpha + previousPositionZ * (1 - alpha)
+  TransformComponent.rotation.x[entity] = rotationX * alpha + previousRotationX * (1 - alpha)
+  TransformComponent.rotation.y[entity] = rotationY * alpha + previousRotationY * (1 - alpha)
+  TransformComponent.rotation.z[entity] = rotationZ * alpha + previousRotationZ * (1 - alpha)
+  TransformComponent.rotation.w[entity] = rotationW * alpha + previousRotationW * (1 - alpha)
 
   Engine.instance.currentWorld.dirtyTransforms[entity] = true
-}
-
-export const simpleLerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
-  const transform = getComponent(entity, TransformComponent)
-  const rigidbody = getComponent(entity, RigidBodyComponent)
-  transform.position.lerp(rigidbody.position, alpha)
-  transform.rotation.slerp(rigidbody.rotation, alpha)
 }
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
@@ -309,9 +302,8 @@ export default async function TransformSystem(world: World) {
 
     // lerp clean dynamic rigidbody entities (make them dirty)
     const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
-    // const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
-    const alpha = 1 - Math.exp(-1 * world.deltaSeconds)
-    for (const entity of cleanDynamicRigidbodyEntities) simpleLerpTransformFromRigidbody(entity, alpha)
+    const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
+    for (const entity of cleanDynamicRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
     for (const entity of transformQuery()) {
