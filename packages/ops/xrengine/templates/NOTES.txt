@@ -1,4 +1,4 @@
-Thank you for installing XREngine
+Thank you for installing Ethereal Engine
 
 1. Dashboard frontend is running on:
 {{- if .Values.client.ingress.enabled }}

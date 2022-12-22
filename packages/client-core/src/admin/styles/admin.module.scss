@@ -743,3 +743,61 @@
     margin-left: 5px;
   }
 }
+
+.paper {
+  @include paper-modal;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15000 !important;
+
+  .close {
+    left: 95%;
+
+    &:hover {
+      color: red;
+    }
+  }
+
+  .modalContent {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    max-height: 50%;
+    color: black;
+
+    @media (max-width: 768px) {
+      width: 90%;
+    }
+
+    .modalHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .title {
+        font-size: 1.5em;
+        text-align: center;
+      }
+
+      .closeButton {
+        background-color: lightgrey;
+
+        &:hover {
+          background-color: lighten(lightgrey, 5%);
+          cursor: pointer;
+          color: red;
+        }
+      }
+    }
+
+    .modal-body {
+      height: 100%;
+      overflow-y: auto;
+      white-space: pre-line;
+    }
+  }
+}

@@ -31,7 +31,7 @@ cli.main(async () => {
     try {
         const sequelizeClient = new Sequelize({
             ...db,
-            logging: true,
+            logging: console.log,
             define: {
                 freezeTableName: true
             }

@@ -15,12 +15,8 @@ import {
 export default async function MaterialLibrarySystem(world: World) {
   const registerMaterialQueue = createActionQueue(MaterialLibraryActions.RegisterMaterial.matches)
   const registerPrototypeQueue = createActionQueue(MaterialLibraryActions.RegisterPrototype.matches)
-  let initialized = false
+  initializeMaterialLibrary()
   const execute = () => {
-    if (!initialized) {
-      initializeMaterialLibrary()
-      initialized = true
-    }
     registerPrototypeQueue().map((action) => {
       registerMaterialPrototype(action.$prototype)
     })

@@ -82,7 +82,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
         dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
         dispatchAction(EngineActions.sceneUnloaded({}))
         disposeProject()
-        route(`/editor/${editorState.projectName.value}`)
+        route(`/studio/${editorState.projectName.value}`)
       }
 
       fetchItems()
@@ -121,7 +121,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
     dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
-    route(`/editor/${editorState.projectName.value}/${newName}`)
+    route(`/studio/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
   }
