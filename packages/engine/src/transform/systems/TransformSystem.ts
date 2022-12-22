@@ -121,6 +121,13 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   Engine.instance.currentWorld.dirtyTransforms[entity] = true
 }
 
+export const simpleLerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
+  const transform = getComponent(entity, TransformComponent)
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  transform.position.lerp(rigidbody.position, alpha)
+  transform.rotation.slerp(rigidbody.rotation, alpha)
+}
+
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const localTransform = getOptionalComponent(entity, LocalTransformComponent)
   const isDynamicRigidbody = hasComponent(entity, RigidBodyDynamicTagComponent)
@@ -302,8 +309,9 @@ export default async function TransformSystem(world: World) {
 
     // lerp clean dynamic rigidbody entities (make them dirty)
     const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
-    const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
-    for (const entity of cleanDynamicRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
+    // const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
+    const alpha = 1 - Math.exp(-1 * world.deltaSeconds)
+    for (const entity of cleanDynamicRigidbodyEntities) simpleLerpTransformFromRigidbody(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
     for (const entity of transformQuery()) {
