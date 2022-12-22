@@ -5,6 +5,7 @@ import {
 	FileLoader,
 	Group,
 	Loader,
+	Matrix4,
 	Mesh,
 	MeshStandardMaterial,
 	MirroredRepeatWrapping,
@@ -129,7 +130,15 @@ class USDZLoader extends Loader {
 	constructor( manager ) {
 
 		super( manager );
+		this.plugins = []
+	}
 
+	register( plugin ) {
+		this.plugins.push(plugin)
+	}
+
+	unregister( plugin ) {
+		this.plugins = this.plugins.filter(_plugin => plugin !== _plugin)
 	}
 
 	load( url, onLoad, onProgress, onError ) {
@@ -321,18 +330,33 @@ class USDZLoader extends Loader {
 
 		}
 
+		function buildTransform( matrix, data ) {
+			if ("matrix4d xformOp:transform" in data) {
+				const array = JSON.parse( '[' + data[ 'matrix4d xformOp:transform'  ].replace( /[()]*/g, '' ) + ']' );
+				return matrix.fromArray(array)
+			}
+			if ("matrix4d xformOp:transform.timeSamples" in data) {
+				const sampleData = data["matrix4d xformOp:transform.timeSamples"]
+				const sample = /\d+\:\w*\(\w*([\d,\w()]+)\w*\),/.exec(sampleData)
+				if (sample?.[1]) {
+					const array = JSON.parse( '[' + sample[1].replace( /[()]*/g, '') + ']')
+					return matrix.fromArray(array)
+				}
+			}
+		}
+
 		function buildGeometry( data ) {
 
 			let geometry = new BufferGeometry();
 
-			if ( 'int[] faceVertexIndices' in data ) {
+			if ( 'int[] faceVertexIndices' in data && typeof data['int[] faceVertexIndices'] === 'string' ) {
 
 				const indices = JSON.parse( data[ 'int[] faceVertexIndices' ] );
 				geometry.setIndex( new BufferAttribute( new Uint16Array( indices ), 1 ) );
 
 			}
 
-			if ( 'point3f[] points' in data ) {
+			if ( 'point3f[] points' in data && typeof data['point3f[] points'] === 'string') {
 
 				const positions = JSON.parse( data[ 'point3f[] points' ].replace( /[()]*/g, '' ) );
                 const positionArr = new Float32Array( positions )
@@ -342,7 +366,7 @@ class USDZLoader extends Loader {
 
 			}
 
-			if ( 'normal3f[] normals' in data ) {
+			if ( 'normal3f[] normals' in data && typeof data['normal3f[] normals'] === 'string' ) {
 
 				const normals = JSON.parse( data[ 'normal3f[] normals' ].replace( /[()]*/g, '' ) );
 				const attribute = new BufferAttribute( new Float32Array( normals ), 3 );
@@ -365,12 +389,12 @@ class USDZLoader extends Loader {
                 }
             }
 
-			if ( 'texCoord2f[] primvars:st' in data ) {
+			if ( 'texCoord2f[] primvars:st' in data && typeof data['texCoord2f[] primvars:st'] === 'string') {
 
 				const uvs = JSON.parse( data[ 'texCoord2f[] primvars:st' ].replace( /[()]*/g, '' ) );
 				const attribute = new BufferAttribute( new Float32Array( uvs ), 2 );
 
-				if ( 'int[] primvars:st:indices' in data ) {
+				if ( 'int[] primvars:st:indices' in data && typeof data['int[] primvars:st:indices'] === 'string' ) {
 
 					geometry = geometry.toNonIndexed();
 
@@ -385,6 +409,11 @@ class USDZLoader extends Loader {
 
 			}
 			
+			const geoPlugins = this.plugins.filter(plugin => !!plugin.buildGeometry)
+			for(const plugin of geoPlugins) {
+				geometry = plugin.buildGeometry(geometry, data)
+			}
+
 			return geometry;
 
 		}
@@ -600,21 +629,19 @@ class USDZLoader extends Loader {
 		function buildMesh( data ) {
 
 			const geometry = buildGeometry( 'point3f[] points' in data ? data : findMeshGeometry( data ) );
-			const material = buildMaterial( findMeshMaterial( data ) );
+			const foundMaterial = findMeshMaterial( data )
+			const material = foundMaterial ? buildMaterial( foundMaterial ) : undefined
 
-			const mesh = new Mesh( geometry, material );
-
-			if ( 'matrix4d xformOp:transform' in data ) {
-
-				const array = JSON.parse( '[' + data[ 'matrix4d xformOp:transform'  ].replace( /[()]*/g, '' ) + ']' );
-
-				mesh.matrix.fromArray( array );
+			let mesh = new Mesh( geometry, material );
+			if ( buildTransform(mesh.matrix, data) ) {
 				mesh.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
-
 			}
-
+			const plugins = this.plugins
+				.filter(plugin => !!plugin.buildMesh)
+			for (const plugin of plugins) {
+				mesh = plugin.buildMesh(mesh, data)
+			}
 			return mesh;
-
 		}
         
 
@@ -642,7 +669,7 @@ class USDZLoader extends Loader {
                 registry[registryPath] = material
             }
             if (name.startsWith( 'def Mesh' ) ) {
-                const mesh = buildMesh( nameContext);
+            		let mesh = buildMesh( nameContext);
                 if ( /def Mesh "([^"]+)"/.test( name ) ) {
                     mesh.name = /def Mesh "([^"]+)"/.exec( name )[ 1 ]
                 }
@@ -651,13 +678,21 @@ class USDZLoader extends Loader {
                 registry[path]?.add( mesh )
             }
             if ( name.startsWith( 'def Xform' ) ) {
-                const xform = new Group()
+                let xform = new Group()
                 if ( /def Xform "([^"]+)"/.test( name ) ) {
                     xform.name = /def Xform "([^"]+)"/.exec( name )[ 1 ]
                 }
                 const registryPath = `${path}/${xform.name}`
                 registry[registryPath] = xform
                 registry[path]?.add( xform )
+								if (buildTransform(xform.matrix, nameContext)) {
+									xform.matrix.decompose(xform.position, xform.quaternion, xform.scale)
+								}
+								const xformPlugins = this.plugins
+									.filter(plugin => !!plugin.buildXform)
+								for (const plugin of xformPlugins) {
+									xform = plugin.buildXform(xform, nameContext)
+								}
                 const keys = Object.keys(nameContext)
                 keys.map(key => {
                     if (fieldRegex.test(key)) {
