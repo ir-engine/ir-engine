@@ -79,7 +79,14 @@ export const createTransformGizmo = async () => {
 }
 
 export default async function EditorControlSystem(world: World) {
-  const gizmoEntity = await createTransformGizmo()
+  const gizmoEntity = createEntity()
+  addComponent(gizmoEntity, NameComponent, 'Transform Gizmo')
+  const gizmo = new TransformGizmo()
+  SceneState.transformGizmo = gizmo
+  await gizmo.load()
+  addComponent(gizmoEntity, TransformGizmoComponent, { gizmo })
+  setTransformComponent(gizmoEntity)
+  addObjectToGroup(gizmoEntity, gizmo)
 
   const selectionState = getState(SelectionState)
   const editorHelperState = getState(EditorHelperState)
