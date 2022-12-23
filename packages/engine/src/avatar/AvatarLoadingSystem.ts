@@ -21,6 +21,7 @@ import {
   ComponentType,
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeQuery,
@@ -179,8 +180,7 @@ export default async function AvatarLoadingSystem(world: World) {
     }
 
     for (const entity of growQuery(world)) {
-      const group = getComponent(entity, GroupComponent)
-      for (const object of group) object.updateWorldMatrix(true, true)
+      world.dirtyTransforms[entity] = true
     }
 
     for (const entity of commonQuery(world)) {
@@ -226,18 +226,18 @@ export default async function AvatarLoadingSystem(world: World) {
       if (disolveEffect.update(delta)) {
         removeComponent(entity, AvatarDissolveComponent)
         const effectComponent = getComponent(entity, AvatarEffectComponent)
-        const avatarGroup = getComponent(effectComponent.sourceEntity, GroupComponent)
-
-        effectComponent.originMaterials.forEach(({ id, material }) => {
-          for (const avatarObject of avatarGroup) {
-            avatarObject.traverse((obj) => {
-              if (obj.uuid === id) {
-                obj['material'] = material
-              }
-            })
-            setupObject(avatarObject)
-          }
-        })
+        const avatarGroup = getOptionalComponent(effectComponent.sourceEntity, GroupComponent)
+        if (avatarGroup?.length)
+          effectComponent.originMaterials.forEach(({ id, material }) => {
+            for (const avatarObject of avatarGroup) {
+              avatarObject.traverse((obj) => {
+                if (obj.uuid === id) {
+                  obj['material'] = material
+                }
+              })
+              setupObject(avatarObject)
+            }
+          })
 
         setComponent(entity, TweenComponent, {
           tween: new Tween<any>(effectComponent)
@@ -249,16 +249,17 @@ export default async function AvatarLoadingSystem(world: World) {
             )
             .start()
             .onComplete(async () => {
-              const objects = getComponent(entity, GroupComponent)
+              const objects = getOptionalComponent(entity, GroupComponent)
               let pillar: Mesh = null!
               let plate: Mesh = null!
-              for (const obj of objects) {
-                const childrens = obj.children as Mesh[]
-                for (let i = 0; i < childrens.length; i++) {
-                  if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
-                  if (childrens[i].name === 'plate_obj') plate = childrens[i]
+              if (objects?.length)
+                for (const obj of objects) {
+                  const childrens = obj.children as Mesh[]
+                  for (let i = 0; i < childrens.length; i++) {
+                    if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+                    if (childrens[i].name === 'plate_obj') plate = childrens[i]
+                  }
                 }
-              }
 
               if (pillar !== null) {
                 pillar.traverse(function (child) {
