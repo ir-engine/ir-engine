@@ -9,8 +9,10 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
 import { ClientModules } from '@xrengine/client-core/src/world/ClientModules'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorCameraSystem from '../systems/EditorCameraSystem'
@@ -93,6 +95,7 @@ const EditorProtectedRoutes = () => {
       initSystems(world, systems)
       await loadEngineInjection(world, await projects)
       setEngineReady(true)
+      dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })
   }, [])
 

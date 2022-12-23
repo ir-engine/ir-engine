@@ -33,6 +33,7 @@ export default async function EditorCameraSystem(world: World) {
   const cameraQuery = defineQuery([EditorCameraComponent, CameraComponent])
 
   const execute = () => {
+    if (world.localClientEntity) return
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
       const transform = getComponent(entity, TransformComponent)

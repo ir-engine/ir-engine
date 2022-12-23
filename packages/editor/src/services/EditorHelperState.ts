@@ -33,7 +33,6 @@ export const EditorHelperState = defineState({
   }),
   onCreate: () => {
     syncStateWithLocalStorage(EditorHelperState, [
-      'isPlayModeEnabled',
       'isFlyModeEnabled',
       'transformMode',
       'transformModeOnCancel',
