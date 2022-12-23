@@ -186,7 +186,7 @@ export const createAvatarController = (entity: Entity) => {
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
   avatarControllerComponent.controller = Physics.createCharacterController(Engine.instance.currentWorld.physicsWorld, {
-    offset: 0.05
+    // offset: 0.05
   })
 
   addComponent(entity, CollisionComponent, new Map())

@@ -38,22 +38,30 @@ import {
 } from '../components/RigidBodyComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
+export function teleportObject(entity, position: Vector3, rotation: Quaternion) {
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const transform = getComponent(entity, TransformComponent)
+  transform.position.copy(position)
+  transform.rotation.copy(rotation)
+  if (rigidbody) {
+    rigidbody.position.copy(transform.position)
+    rigidbody.rotation.copy(transform.rotation)
+    rigidbody.nextPosition.copy(transform.position)
+    rigidbody.nextRotation.copy(transform.rotation)
+    rigidbody.body.setTranslation(rigidbody.position, true)
+    rigidbody.body.setRotation(rigidbody.rotation, true)
+    rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+    rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
+  }
+}
+
 // Receptor
 export function teleportObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.teleportObject>,
   world = Engine.instance.currentWorld
 ) {
   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  const body = getComponent(entity, RigidBodyComponent).body
-  if (body) {
-    body.setTranslation(action.position, true)
-    body.setRotation(action.rotation, true)
-    body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-    body.setAngvel({ x: 0, y: 0, z: 0 }, true)
-  }
-  const transform = getComponent(entity, TransformComponent)
-  transform.position.copy(action.position)
-  transform.rotation.copy(action.rotation)
+  teleportObject(entity, action.position, action.rotation)
 }
 
 export const PhysicsPrefabs = {

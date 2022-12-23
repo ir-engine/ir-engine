@@ -1,4 +1,4 @@
-import { Collider } from '@dimforge/rapier3d-compat'
+import { Collider, QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
@@ -22,6 +22,7 @@ import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { teleportObject } from '../../physics/systems/PhysicsSystem'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
@@ -41,22 +42,13 @@ const _quat2 = new Quaternion()
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 
 /**
- * configurables
- */
-const stepHeight = 0.5
-const stepAngle = (60 * Math.PI) / 180 // 60 degrees
-
-/**
  * raycast internals
  */
-const expandedAvatarRadius = avatarRadius + 0.025
-const stepLowerBound = avatarRadius * 0.25
-const minimumStepSpeed = 0.1
-const avatarStepRaycast = {
+const avatarGroundRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
   direction: ObjectDirection.Down,
-  maxDistance: stepHeight,
+  maxDistance: 1.1,
   groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
 }
 
@@ -119,10 +111,29 @@ export const applyGamepadInput = (entity: Entity) => {
   controller.desiredMovement.x += controller.gamepadWorldMovement.x
   controller.desiredMovement.z += controller.gamepadWorldMovement.z
   controller.desiredMovement.y += controller.verticalVelocity * fixedDeltaSeconds
-  controller.controller.computeColliderMovement(controller.bodyCollider, controller.desiredMovement)
-  controller.isInAir = !controller.controller.computedGrounded()
+  controller.controller.computeColliderMovement(
+    controller.bodyCollider,
+    controller.desiredMovement,
+    QueryFilterFlags.EXCLUDE_SENSORS,
+    controller.bodyCollider.collisionGroups()
+  )
+
   const computedMovement = controller.controller.computedMovement() as any
+
   rigidbody.nextPosition.add(computedMovement)
+
+  /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
+  avatarGroundRaycast.origin.copy(rigidbody.nextPosition)
+  avatarGroundRaycast.origin.y += 1
+  const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
+  // controller.isInAir = !controller.controller.computedGrounded()
+  controller.isInAir = true
+  if (groundHits.length) {
+    const hit = groundHits[0]
+    const controllerOffset = controller.controller.offset()
+    rigidbody.nextPosition.y = hit.position.y + controllerOffset
+    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
+  }
 
   if (!controller.isInAir) controller.verticalVelocity = 0
 
@@ -163,7 +174,7 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   if (raycastHit) {
     const pos = new Vector3().copy(raycastHit.position as Vector3)
     const transform = getComponent(entity, TransformComponent)
-    transform.position.copy(pos)
+    teleportObject(entity, pos, transform.rotation)
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }
