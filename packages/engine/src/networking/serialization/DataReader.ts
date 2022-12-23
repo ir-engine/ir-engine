@@ -202,15 +202,15 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readBodyAngularVelocity(v, entity)
   if (hasComponent(entity, RigidBodyComponent)) {
     const rigidBody = getComponent(entity, RigidBodyComponent)
-    const position = rigidBody.body.translation()
-    const rotation = rigidBody.body.rotation()
-    RigidBodyComponent.nextPosition.x[entity] = position.x
-    RigidBodyComponent.nextPosition.y[entity] = position.y
-    RigidBodyComponent.nextPosition.z[entity] = position.z
-    RigidBodyComponent.nextRotation.x[entity] = position.x
-    RigidBodyComponent.nextRotation.y[entity] = rotation.y
-    RigidBodyComponent.nextRotation.z[entity] = rotation.z
-    RigidBodyComponent.nextRotation.w[entity] = rotation.w
+    const position = rigidBody.position
+    const rotation = rigidBody.rotation
+    RigidBodyComponent.targetKinematicPosition.x[entity] = position.x
+    RigidBodyComponent.targetKinematicPosition.y[entity] = position.y
+    RigidBodyComponent.targetKinematicPosition.z[entity] = position.z
+    RigidBodyComponent.targetKinematicRotation.x[entity] = rotation.x
+    RigidBodyComponent.targetKinematicRotation.y[entity] = rotation.y
+    RigidBodyComponent.targetKinematicRotation.z[entity] = rotation.z
+    RigidBodyComponent.targetKinematicRotation.w[entity] = rotation.w
   }
 }
 

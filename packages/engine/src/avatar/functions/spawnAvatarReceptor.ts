@@ -157,37 +157,35 @@ export const createAvatarCollider = (entity: Entity): Collider => {
 const createAvatarRigidBody = (entity: Entity): RigidBody => {
   const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
   const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [])
-  // rigidBody.setGravityScale(0.0, true)
-  rigidBody.lockRotations(true, true)
+  rigidBody.lockRotations(true, false)
+  rigidBody.setEnabledRotations(false, true, false, false)
 
   return rigidBody
 }
 
 export const createAvatarController = (entity: Entity) => {
-  if (!hasComponent(entity, AvatarControllerComponent)) {
-    createAvatarRigidBody(entity)
-    const rigidbody = getComponent(entity, RigidBodyComponent)
-    const transform = getComponent(entity, TransformComponent)
-    rigidbody.position.copy(transform.position)
-    rigidbody.rotation.copy(transform.rotation)
-    rigidbody.nextPosition.copy(transform.position)
-    rigidbody.nextRotation.copy(transform.rotation)
+  createAvatarRigidBody(entity)
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const transform = getComponent(entity, TransformComponent)
+  rigidbody.position.copy(transform.position)
+  rigidbody.rotation.copy(transform.rotation)
+  rigidbody.targetKinematicPosition.copy(transform.position)
+  rigidbody.targetKinematicRotation.copy(transform.rotation)
 
-    addComponent(entity, AvatarControllerComponent, {
-      cameraEntity: Engine.instance.currentWorld.cameraEntity,
-      bodyCollider: undefined!,
-      desiredMovement: new Vector3(),
-      movementEnabled: true,
-      isJumping: false,
-      isWalking: false,
-      isInAir: false,
-      gamepadLocalInput: new Vector3(),
-      gamepadWorldMovement: new Vector3(),
-      verticalVelocity: 0,
-      speedVelocity: { value: 0 },
-      translationApplied: new Vector3()
-    })
-  }
+  addComponent(entity, AvatarControllerComponent, {
+    cameraEntity: Engine.instance.currentWorld.cameraEntity,
+    bodyCollider: undefined!,
+    desiredMovement: new Vector3(),
+    movementEnabled: true,
+    isJumping: false,
+    isWalking: false,
+    isInAir: false,
+    gamepadLocalInput: new Vector3(),
+    gamepadWorldMovement: new Vector3(),
+    verticalVelocity: 0,
+    speedVelocity: { value: 0 },
+    translationApplied: new Vector3()
+  })
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)

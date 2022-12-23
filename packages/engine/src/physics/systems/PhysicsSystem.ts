@@ -54,8 +54,8 @@ export function teleportObject(entity: Entity, position: Vector3, rotation: Quat
   if (rigidbody) {
     rigidbody.position.copy(transform.position)
     rigidbody.rotation.copy(transform.rotation)
-    rigidbody.nextPosition.copy(transform.position)
-    rigidbody.nextRotation.copy(transform.rotation)
+    rigidbody.targetKinematicPosition.copy(transform.position)
+    rigidbody.targetKinematicRotation.copy(transform.rotation)
     rigidbody.body.setTranslation(rigidbody.position, true)
     rigidbody.body.setRotation(rigidbody.rotation, true)
     rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
@@ -78,8 +78,8 @@ export const PhysicsPrefabs = {
 
 export function smoothPositionBasedKinematicBody(entity: Entity, alpha: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  rigidbodyComponent.position.lerp(rigidbodyComponent.nextPosition, alpha)
-  rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.nextRotation, alpha)
+  rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+  rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
   // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
   // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
@@ -88,8 +88,8 @@ export function smoothPositionBasedKinematicBody(entity: Entity, alpha: number) 
 
 export function smoothVelocityBasedKinematicBody(entity: Entity, alpha: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  rigidbodyComponent.position.lerp(rigidbodyComponent.nextPosition, alpha)
-  rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.nextRotation, alpha)
+  rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+  rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
   /** @todo implement proper velocity based kinematic movement */
   // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
   // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)

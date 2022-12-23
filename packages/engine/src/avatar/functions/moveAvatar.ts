@@ -123,10 +123,10 @@ export const applyGamepadInput = (entity: Entity) => {
 
   const computedMovement = controller.controller.computedMovement() as any
 
-  rigidbody.nextPosition.add(computedMovement)
+  rigidbody.targetKinematicPosition.add(computedMovement)
 
   /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
-  avatarGroundRaycast.origin.copy(rigidbody.nextPosition)
+  avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += 1
   const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
@@ -135,7 +135,7 @@ export const applyGamepadInput = (entity: Entity) => {
   if (groundHits.length) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
-    rigidbody.nextPosition.y = hit.position.y + controllerOffset
+    rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
     controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
   }
 
@@ -157,7 +157,7 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
   _quat.setFromAxisAngle(V_010, angle)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   _quat2.copy(rigidBody.body.rotation() as Quaternion).multiply(_quat)
-  rigidBody.nextRotation.copy(_quat2)
+  rigidBody.targetKinematicRotation.copy(_quat2)
 }
 
 /**
@@ -214,7 +214,7 @@ const _rotateBodyTowardsCameraDirection = (entity: Entity) => {
   const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
   const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation).setComponent(1, 0)
   targetOrientation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
-  rigidbody.nextRotation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
+  rigidbody.targetKinematicRotation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
 }
 
 const _velXZ = new Vector3()
@@ -239,5 +239,5 @@ const _rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
   rotMatrix.lookAt(_velXZ, V_000, V_010)
   targetOrientation.setFromRotationMatrix(rotMatrix)
 
-  rigidbody.nextRotation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
+  rigidbody.targetKinematicRotation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
 }
