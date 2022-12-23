@@ -412,23 +412,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
-    for (const entity of interiorQuery.enter()) updateInterior(entity)
-    for (const entity of scenePreviewCameraQuery.enter()) enterScenePreviewCamera(entity)
-  }
-
-  const cleanup = async () => {
-    world.sceneComponentRegistry.delete(VisibleComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_VISIBLE)
-
-    world.sceneComponentRegistry.delete(ShadowComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SHADOW)
-
-    world.sceneComponentRegistry.delete(PreventBakeTagComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PREVENT_BAKE)
-
-    /**
-     * Metadata
-     */
+    for (const entity of interiorQuery.enter()) updateInterior(entity)0.60904, 155.76205, 170.0137), (401.22018, 156.59421, 170.98016), (402.47455, 156.00838, 170.69138), (401.86334, 155.17622, 169.72491), (399.61465, 151.5238, 174.29169), (
 
     world.scenePrefabRegistry.delete(ScenePrefabs.previewCamera)
 
