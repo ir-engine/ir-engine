@@ -1,16 +1,12 @@
 import { API } from '@xrengine/client-core/src/API'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import ErrorIcon from '../classes/ErrorIcon'
-import { disposePlayModeControls } from '../controls/PlayModeControls'
 import { copy, paste } from '../functions/copyPaste'
 import { EditorErrorAction } from '../services/EditorErrorServices'
-import { EditorHistoryAction } from '../services/EditorHistory'
 import { accessEditorState, EditorAction, TaskStatus } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
@@ -40,11 +36,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
   if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
     dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.IN_PROGRESS }))
 
-    await Promise.all([
-      ErrorIcon.load(),
-      SceneState.transformGizmo.load(),
-      AnimationManager.instance.loadDefaultAnimations()
-    ])
+    await Promise.all([AnimationManager.instance.loadDefaultAnimations()])
 
     dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.COMPLETED }))
   }
@@ -79,7 +71,6 @@ export async function loadProjectScene(projectData: SceneData) {
  * Disposes project data
  */
 export function disposeProject() {
-  disposePlayModeControls()
   dispatchAction(EditorAction.projectLoaded({ loaded: false }))
 
   window.addEventListener('copy', copy)

@@ -21,8 +21,6 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
-import { createEditorEntity } from './createEditorEntity'
-import { createGizmoEntity } from './createGizmoEntity'
 
 export type DefaultExportOptionsType = {
   shouldCombineMeshes: boolean
@@ -37,16 +35,12 @@ export const DefaultExportOptions: DefaultExportOptionsType = {
 type SceneStateType = {
   isInitialized: boolean
   transformGizmo: TransformGizmo
-  gizmoEntity: Entity
-  editorEntity: Entity
   onUpdateStats?: (info: WebGLInfo) => void
 }
 
 export const SceneState: SceneStateType = {
   isInitialized: false,
-  transformGizmo: new TransformGizmo(),
-  gizmoEntity: null!,
-  editorEntity: null!
+  transformGizmo: null!
 }
 
 export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
@@ -84,9 +78,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
     cursorDeltaY: 0,
     focusedObjects: []
   })
-
-  SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
-  SceneState.editorEntity = createEditorEntity()
 
   // Require when changing scene
   if (!world.scene.children.includes(InfiniteGridHelper.instance)) {
@@ -221,9 +212,6 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 }*/
 
 export function disposeScene() {
-  if (entityExists(SceneState.gizmoEntity)) removeEntity(SceneState.gizmoEntity, true)
-  if (entityExists(SceneState.editorEntity)) removeEntity(SceneState.editorEntity, true)
-
   if (Engine.instance.currentWorld.scene) {
     // Empty existing scene
     Engine.instance.currentWorld.scene.traverse((child: any) => {
