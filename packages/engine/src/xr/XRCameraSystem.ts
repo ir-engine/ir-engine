@@ -63,6 +63,7 @@ export default async function XRCameraSystem(world: World) {
 
     const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
     xrState.previousCameraPosition.value.copy(cameraTransform.position)
+    xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
 
     updateXRInput(world)
 
@@ -70,6 +71,7 @@ export default async function XRCameraSystem(world: World) {
     if (!hasRun) {
       const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
       xrState.previousCameraPosition.value.copy(cameraTransform.position)
+      xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
       hasRun = true
     }
 

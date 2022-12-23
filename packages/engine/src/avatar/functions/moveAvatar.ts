@@ -156,8 +156,7 @@ export const applyGamepadInput = (entity: Entity) => {
 export const rotateAvatar = (entity: Entity, angle: number) => {
   _quat.setFromAxisAngle(V_010, angle)
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  _quat2.copy(rigidBody.body.rotation() as Quaternion).multiply(_quat)
-  rigidBody.targetKinematicRotation.copy(_quat2)
+  rigidBody.targetKinematicRotation.multiply(_quat)
 }
 
 /**

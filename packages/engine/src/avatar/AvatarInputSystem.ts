@@ -1,14 +1,16 @@
-import { Vector3 } from 'three'
+import { Euler, Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { getComponent, getComponentState, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
@@ -72,7 +74,10 @@ export default async function AvatarInputSystem(world: World) {
   const interactState = getState(InteractState)
   const xrState = getState(XRState)
   const avatarInputSettings = getState(AvatarInputSettingsState).value
-  const cameraDifference = new Vector3()
+  const cameraTranslationDifference = new Vector3()
+  const _quat = new Quaternion()
+  const _euler = new Euler()
+  const cameraRotationDifference = new Quaternion()
 
   const onShiftLeft = () => {
     const controller = getComponentState(world.localClientEntity, AvatarControllerComponent)
@@ -168,9 +173,20 @@ export default async function AvatarInputSystem(world: World) {
        *
        * ex:   `getTransformRelativeTo(world.cameraEntity, world.originEntity)`
        */
+      const rigidBody = getComponent(localClientEntity, RigidBodyComponent)
       const cameraTransformRelativeToOrigin = getComponent(world.cameraEntity, LocalTransformComponent)
-      cameraDifference.copy(cameraTransformRelativeToOrigin.position).sub(xrState.previousCameraPosition.value)
-      controller.desiredMovement.copy(cameraDifference)
+      const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+
+      cameraTranslationDifference
+        .copy(cameraTransformRelativeToOrigin.position)
+        .sub(xrState.previousCameraPosition.value)
+      cameraRotationDifference
+        .copy(_quat.copy(xrState.previousCameraRotation.value).invert())
+        .multiply(cameraLocalTransform.rotation)
+
+      controller.desiredMovement.copy(cameraTranslationDifference)
+      const cameraYSpin = _euler.setFromQuaternion(cameraRotationDifference).y
+      rotateAvatar(localClientEntity, cameraYSpin)
     }
   }
 

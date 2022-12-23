@@ -43,7 +43,9 @@ export const XRState = defineState({
     lightEstimator: null! as XREstimatedLight,
     viewerInputSourceEntity: 0 as Entity,
     previousCameraPosition: new Vector3(),
-    previousAvatarPosition: new Vector3()
+    previousCameraRotation: new Quaternion(),
+    previousAvatarPosition: new Vector3(),
+    previousAvatarRotation: new Quaternion()
   })
 })
 

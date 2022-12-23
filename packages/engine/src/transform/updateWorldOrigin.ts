@@ -12,16 +12,14 @@ import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { getAvatarHeadLock, getControlMode, XRState } from '../xr/XRState'
 import { LocalTransformComponent, TransformComponent } from './components/TransformComponent'
 
-const quat = new Quaternion()
-const _vec = new Vector3()
-const _vec2 = new Vector3()
-const quat180y = new Quaternion().setFromAxisAngle(V_010, Math.PI)
+const _quat = new Quaternion()
 
-const cameraXZ = new Vector3()
-const avatarDifference = new Vector3()
-const cameraDifference = new Vector3()
-const avatarCameraDifference = new Vector3()
-const cameraDrift = new Vector3()
+const avatarTranslationDifference = new Vector3()
+const avatarRotationDifference = new Quaternion()
+const cameraTranslationDifference = new Vector3()
+const cameraRotationDifference = new Quaternion()
+const avatarCameraTranslationDifference = new Vector3()
+const avatarCameraRotationDifference = new Quaternion()
 
 /**
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
@@ -38,22 +36,31 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
     /** camera difference is the local pose delta since the last webxr frame */
     const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
     // cameraAvatarDifference.copy(rigidBody.position)
-    cameraDifference.copy(cameraLocalTransform.position).sub(xrState.previousCameraPosition.value)
+    cameraTranslationDifference.copy(cameraLocalTransform.position).sub(xrState.previousCameraPosition.value)
+    cameraRotationDifference
+      .copy(_quat.copy(xrState.previousCameraRotation.value).invert())
+      .multiply(cameraLocalTransform.rotation)
 
     /** avatar differnce is the avatar's world pose delta since the last webxr frame */
-    avatarDifference.copy(rigidBody.position).sub(xrState.previousAvatarPosition.value)
+    avatarTranslationDifference.copy(rigidBody.position).sub(xrState.previousAvatarPosition.value)
+    avatarRotationDifference
+      .copy(_quat.copy(xrState.previousAvatarRotation.value).invert())
+      .multiply(rigidBody.rotation)
 
     /** avatar camera differnce is the distance the camera has moved relative to the avatar since the last webxr frame */
-    avatarCameraDifference.subVectors(avatarDifference, cameraDifference).multiplyScalar(-1)
+    avatarCameraTranslationDifference.subVectors(avatarTranslationDifference, cameraTranslationDifference)
+    avatarCameraRotationDifference.multiplyQuaternions(cameraRotationDifference.invert(), avatarRotationDifference)
 
     /** shift the world origin by the distance the camera has moved relative to the avatar */
     const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    worldOriginTransform.position.sub(avatarCameraDifference)
+    worldOriginTransform.position.add(avatarCameraTranslationDifference)
+    worldOriginTransform.rotation.multiply(avatarCameraRotationDifference)
   }
 
   if (hasComponent(entity, RigidBodyComponent)) {
     const rigidBody = getComponent(entity, RigidBodyComponent)
     xrState.previousAvatarPosition.value.copy(rigidBody.position)
+    xrState.previousAvatarRotation.value.copy(rigidBody.rotation)
   }
 }
 
