@@ -26,8 +26,6 @@ export type AvatarControllerComponentType = {
   // walk and run speeds
   /** @todo refactor animation system */
   speedVelocity: { value: number }
-  /** @deprecated @todo replace this with RigidBodyComponent */
-  lastPosition: Vector3
   translationApplied: Vector3
 }
 

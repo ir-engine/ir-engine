@@ -286,7 +286,7 @@ export default async function TransformSystem(world: World) {
     /**
      * 2 - Update avatar entity and world origin reference space
      */
-    if (entityExists(world, world.localClientEntity)) {
+    if (world.localClientEntity) {
       if (world.dirtyTransforms[world.localClientEntity]) {
         computeTransformMatrix(world.localClientEntity, world)
       }
@@ -358,7 +358,7 @@ export default async function TransformSystem(world: World) {
         ? 0
         : 1
 
-    if (entityExists(world, world.localClientEntity)) {
+    if (world.localClientEntity) {
       const localClientPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
       if (localClientPosition) {
         for (const entity of distanceFromLocalClientQuery())

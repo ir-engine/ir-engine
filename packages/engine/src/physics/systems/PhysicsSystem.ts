@@ -1,4 +1,5 @@
 import { Not } from 'bitecs'
+import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
@@ -7,7 +8,15 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeQuery,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
@@ -31,14 +40,13 @@ import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
-  RigidBodyDynamicTagComponent,
   RigidBodyFixedTagComponent,
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../components/RigidBodyComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
-export function teleportObject(entity, position: Vector3, rotation: Quaternion) {
+export function teleportObject(entity: Entity, position: Vector3, rotation: Quaternion) {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(position)
@@ -105,8 +113,26 @@ export default async function PhysicsSystem(world: World) {
 
   const engineState = getState(EngineState)
 
-  const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
-  const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
+  const modelColliderReactor = startQueryReactor(
+    [TransformComponent, ColliderComponent],
+    function ModelColliderReactor(props) {
+      const { entity } = props.root
+
+      if (!hasComponent(entity, TransformComponent) || !hasComponent(entity, ColliderComponent)) throw props.root.stop()
+
+      const transformComponent = useComponent(entity, TransformComponent)
+      const colliderComponent = useComponent(entity, ColliderComponent)
+      const gltfLoadedComponent = useOptionalComponent(entity, GLTFLoadedComponent)
+
+      useEffect(() => {
+        if (hasComponent(entity, GLTFLoadedComponent)) updateModelColliders(entity)
+        else updateCollider(entity)
+      }, [transformComponent, colliderComponent, gltfLoadedComponent])
+
+      return null
+    }
+  )
+
   const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
   const collisionQuery = defineQuery([CollisionComponent])
 
@@ -143,8 +169,6 @@ export default async function PhysicsSystem(world: World) {
         }
       }
     }
-    for (const action of colliderQuery.enter()) updateCollider(action)
-    for (const action of groupColliderQuery.enter()) updateModelColliders(action)
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
@@ -240,8 +264,7 @@ export default async function PhysicsSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
     world.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
 
-    removeQuery(world, colliderQuery)
-    removeQuery(world, groupColliderQuery)
+    modelColliderReactor.stop()
     removeQuery(world, allRigidBodyQuery)
     removeQuery(world, collisionQuery)
 

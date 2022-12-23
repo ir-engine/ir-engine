@@ -152,20 +152,21 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
   const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
   const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [])
   // rigidBody.setGravityScale(0.0, true)
-  // rigidBody.lockRotations(true, true)
+  rigidBody.lockRotations(true, true)
 
   return rigidBody
 }
 
 export const createAvatarController = (entity: Entity) => {
-  const avatarComponent = getComponent(entity, AvatarComponent)
-
-  // offset so rigidboyd has feet at spawn position
-  const springSimulator = new VectorSpringSimulator(60, 10, 0.8)
-
   if (!hasComponent(entity, AvatarControllerComponent)) {
-    getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
     createAvatarRigidBody(entity)
+    const rigidbody = getComponent(entity, RigidBodyComponent)
+    const transform = getComponent(entity, TransformComponent)
+    rigidbody.position.copy(transform.position)
+    rigidbody.rotation.copy(transform.rotation)
+    rigidbody.nextPosition.copy(transform.position)
+    rigidbody.nextRotation.copy(transform.rotation)
+
     addComponent(entity, AvatarControllerComponent, {
       cameraEntity: Engine.instance.currentWorld.cameraEntity,
       bodyCollider: undefined!,
@@ -178,16 +179,16 @@ export const createAvatarController = (entity: Entity) => {
       gamepadWorldMovement: new Vector3(),
       verticalVelocity: 0,
       speedVelocity: { value: 0 },
-      lastPosition: new Vector3(), //.copy(rigidBody.translation() as Vector3),
       translationApplied: new Vector3()
     })
   }
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
-  avatarControllerComponent.controller = Physics.createCharacterController(Engine.instance.currentWorld.physicsWorld, {
-    // offset: 0.05
-  })
+  avatarControllerComponent.controller = Physics.createCharacterController(
+    Engine.instance.currentWorld.physicsWorld,
+    {}
+  )
 
   addComponent(entity, CollisionComponent, new Map())
 }

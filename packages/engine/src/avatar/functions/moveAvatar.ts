@@ -49,7 +49,7 @@ const avatarGroundRaycast = {
   origin: new Vector3(),
   direction: ObjectDirection.Down,
   maxDistance: 1.1,
-  groups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
+  groups: 0
 }
 
 //   const avatarInputState = getState(AvatarInputSettingsState)
@@ -111,11 +111,14 @@ export const applyGamepadInput = (entity: Entity) => {
   controller.desiredMovement.x += controller.gamepadWorldMovement.x
   controller.desiredMovement.z += controller.gamepadWorldMovement.z
   controller.desiredMovement.y += controller.verticalVelocity * fixedDeltaSeconds
+
+  const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
+
   controller.controller.computeColliderMovement(
     controller.bodyCollider,
     controller.desiredMovement,
     QueryFilterFlags.EXCLUDE_SENSORS,
-    controller.bodyCollider.collisionGroups()
+    avatarCollisionGroups
   )
 
   const computedMovement = controller.controller.computedMovement() as any
@@ -124,6 +127,7 @@ export const applyGamepadInput = (entity: Entity) => {
 
   /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
   avatarGroundRaycast.origin.copy(rigidbody.nextPosition)
+  avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += 1
   const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
   // controller.isInAir = !controller.controller.computedGrounded()
