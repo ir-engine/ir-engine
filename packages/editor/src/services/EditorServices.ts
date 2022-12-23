@@ -16,7 +16,6 @@ export const EditorState = defineState({
     projectName: null as string | null,
     sceneName: null as string | null,
     sceneModified: false,
-    preprojectLoadTaskStatus: TaskStatus.NOT_STARTED,
     projectLoaded: false,
     rendererInitialized: false,
     showObject3DInHierarchy: false,
@@ -36,9 +35,6 @@ export const EditorServiceReceptor = (action) => {
     })
     .when(EditorAction.sceneModified.matches, (action) => {
       return s.merge({ sceneModified: action.modified })
-    })
-    .when(EditorAction.updatePreprojectLoadTask.matches, (action) => {
-      return s.merge({ preprojectLoadTaskStatus: action.taskStatus })
     })
     .when(EditorAction.projectLoaded.matches, (action) => {
       return s.merge({ projectLoaded: action.loaded })

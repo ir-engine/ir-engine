@@ -28,29 +28,12 @@ export const getProjects = async (): Promise<ProjectInterface[]> => {
 }
 
 /**
- * Runs tasks require prior to the project load.
- */
-export async function runPreprojectLoadTasks(): Promise<void> {
-  const editorState = accessEditorState()
-
-  if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
-    dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.IN_PROGRESS }))
-
-    await Promise.all([AnimationManager.instance.loadDefaultAnimations()])
-
-    dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.COMPLETED }))
-  }
-}
-
-/**
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectData: SceneData) {
   EditorControlFunctions.replaceSelection([])
 
   disposeProject()
-
-  await runPreprojectLoadTasks()
 
   const errors = await initializeScene(projectData)
 
