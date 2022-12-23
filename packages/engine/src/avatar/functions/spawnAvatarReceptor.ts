@@ -7,6 +7,8 @@ import {
 } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -22,6 +24,7 @@ import { WebcamInputComponent } from '../../input/components/WebcamInputComponen
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
@@ -73,7 +76,10 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     model: null
   })
 
-  addComponent(entity, NameComponent, 'avatar_' + userId)
+  const userNames = getState(WorldState).userNames
+  const userName = userNames[userId].value
+  const shortId = userId.substring(0, 7)
+  addComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
 
   addComponent(entity, VisibleComponent, true)
 
