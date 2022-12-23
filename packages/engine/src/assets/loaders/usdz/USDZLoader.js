@@ -34,92 +34,85 @@ class USDAParser {
 		// debugger;
 
 		function parseNextLine() {
+			while (current < length) {
+				const line = lines[ current ];
 
-			const line = lines[ current ];
-
-			// console.log( line );
-
-			if ( line.includes( '=' ) ) {
-
-				const assignment = line.split( '=' );
-
-				const lhs = assignment[ 0 ].trim();
-				const rhs = assignment[ 1 ].trim();
-
-				if ( rhs.endsWith( '{' ) ) {
-
-					const group = {};
+				// console.log( line );
+	
+				if ( line.includes( '=' ) ) {
+	
+					const assignment = line.split( '=' );
+	
+					const lhs = assignment[ 0 ].trim();
+					const rhs = assignment[ 1 ].trim();
+	
+					if ( rhs.endsWith( '{' ) ) {
+	
+						const group = {};
+						stack.push( group );
+	
+						target[ lhs ] = group;
+						target = group;
+	
+					} else {
+	
+						target[ lhs ] = rhs;
+											if ( line.endsWith( '(' )) {
+													const meta = {}
+													stack.push (meta)
+													target=meta
+											}
+					}
+	
+				} else if ( line.endsWith( '{' ) ) {
+	
+					const group = target[ string ] || {};
 					stack.push( group );
-
-					target[ lhs ] = group;
+	
+					target[ string ] = group;
 					target = group;
-
+	
+				} else if ( line.endsWith( '}' ) ) {
+	
+					stack.pop();
+	
+					if ( stack.length === 0 ) {
+											if (current + 1 < length) {
+													current++;
+													continue
+											} else return;
+									}
+	
+					target = stack[ stack.length - 1 ];
+	
+				} else if ( line.endsWith( '(' ) ) {
+	
+					const meta = {};
+					stack.push( meta );
+	
+					string = line.split( '(' )[ 0 ].trim() || string;
+	
+					target[ string ] = meta;
+					target = meta;
+	
+				} else if ( line.endsWith( ')' ) ) {
+	
+					stack.pop();
+	
+					target = stack[ stack.length - 1 ];
+	
 				} else {
-
-					target[ lhs ] = rhs;
-                    if ( line.endsWith( '(' )) {
-                        const meta = {}
-                        stack.push (meta)
-                        target=meta
-                    }
+	
+					string = line.trim();
+	
 				}
-
-			} else if ( line.endsWith( '{' ) ) {
-
-				const group = target[ string ] || {};
-				stack.push( group );
-
-				target[ string ] = group;
-				target = group;
-
-			} else if ( line.endsWith( '}' ) ) {
-
-				stack.pop();
-
-				if ( stack.length === 0 ) {
-                    if (current + 1 < length) {
-                        current++;
-                        parseNextLine();
-                    } else return;
-                }
-
-				target = stack[ stack.length - 1 ];
-
-			} else if ( line.endsWith( '(' ) ) {
-
-				const meta = {};
-				stack.push( meta );
-
-				string = line.split( '(' )[ 0 ].trim() || string;
-
-				target[ string ] = meta;
-				target = meta;
-
-			} else if ( line.endsWith( ')' ) ) {
-
-				stack.pop();
-
-				target = stack[ stack.length - 1 ];
-
-			} else {
-
-				string = line.trim();
-
+				current ++;
 			}
-
-			current ++;
-
-			if ( current < length ) {
-
-				parseNextLine();
-
-			}
-
 		}
+			
+		parseNextLine()
 
-		parseNextLine();
-
-		return data;
+		return data
 
 	}
 
