@@ -2,15 +2,14 @@ import { API } from '@xrengine/client-core/src/API'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { copy, paste } from '../functions/copyPaste'
 import { EditorErrorAction } from '../services/EditorErrorServices'
-import { accessEditorState, EditorAction, TaskStatus } from '../services/EditorServices'
+import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
-import { initializeScene, SceneState } from './sceneRenderFunctions'
+import { initializeScene } from './sceneRenderFunctions'
 
 /**
  * Gets a list of projects installed
