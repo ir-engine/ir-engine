@@ -249,7 +249,7 @@ class USDZLoader extends Loader {
 
 		const text = fflate.strFromU8( file );
 		const root = parser.parse( text );
-
+		const plugins = this.plugins
 		// Build scene
         const registryRegex = /def (?:Scope )?"([^"]*)"/
 		function findMeshGeometry( data ) {
@@ -366,7 +366,9 @@ class USDZLoader extends Loader {
 
 			}
 
-			if ( 'normal3f[] normals' in data && typeof data['normal3f[] normals'] === 'string' ) {
+			if ( 'normal3f[] normals' in data 
+			&& typeof data['normal3f[] normals'] === 'string'
+			&& data['normal3f[] normals'] !== "None" ) {
 
 				const normals = JSON.parse( data[ 'normal3f[] normals' ].replace( /[()]*/g, '' ) );
 				const attribute = new BufferAttribute( new Float32Array( normals ), 3 );
@@ -389,12 +391,16 @@ class USDZLoader extends Loader {
                 }
             }
 
-			if ( 'texCoord2f[] primvars:st' in data && typeof data['texCoord2f[] primvars:st'] === 'string') {
+			if ( 'texCoord2f[] primvars:st' in data 
+			&& typeof data['texCoord2f[] primvars:st'] === 'string'
+			&& data['texCoord2f[] primvars:st'] !== 'None') {
 
 				const uvs = JSON.parse( data[ 'texCoord2f[] primvars:st' ].replace( /[()]*/g, '' ) );
 				const attribute = new BufferAttribute( new Float32Array( uvs ), 2 );
 
-				if ( 'int[] primvars:st:indices' in data && typeof data['int[] primvars:st:indices'] === 'string' ) {
+				if ( 'int[] primvars:st:indices' in data
+				 && typeof data['int[] primvars:st:indices'] === 'string'
+				 && data['int[] primvars:st:indices'] !== 'None' ) {
 
 					geometry = geometry.toNonIndexed();
 
@@ -409,7 +415,7 @@ class USDZLoader extends Loader {
 
 			}
 			
-			const geoPlugins = this.plugins.filter(plugin => !!plugin.buildGeometry)
+			const geoPlugins = plugins.filter(plugin => !!plugin.buildGeometry)
 			for(const plugin of geoPlugins) {
 				geometry = plugin.buildGeometry(geometry, data)
 			}
@@ -636,9 +642,9 @@ class USDZLoader extends Loader {
 			if ( buildTransform(mesh.matrix, data) ) {
 				mesh.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
 			}
-			const plugins = this.plugins
+			const meshPlugins = plugins
 				.filter(plugin => !!plugin.buildMesh)
-			for (const plugin of plugins) {
+			for (const plugin of meshPlugins) {
 				mesh = plugin.buildMesh(mesh, data)
 			}
 			return mesh;
@@ -688,7 +694,7 @@ class USDZLoader extends Loader {
 								if (buildTransform(xform.matrix, nameContext)) {
 									xform.matrix.decompose(xform.position, xform.quaternion, xform.scale)
 								}
-								const xformPlugins = this.plugins
+								const xformPlugins = plugins
 									.filter(plugin => !!plugin.buildXform)
 								for (const plugin of xformPlugins) {
 									xform = plugin.buildXform(xform, nameContext)
