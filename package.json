@@ -115,8 +115,11 @@
     "@types/cli": "0.11.21",
     "@types/mocha": "10.0.0",
     "@types/pino": "^7.0.5",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "@typescript-eslint/parser": "^5.47.0",
     "concurrently": "7.1.0",
     "depcheck": "1.4.3",
+    "eslint": "^8.30.0",
     "jsdom": "^20.0.2",
     "kill-port": "1.6.1",
     "lint-staged": "12.3.7",
@@ -131,8 +134,7 @@
     "stylelint": "^14.6.1",
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-scss": "^4.2.0",
-    "supertest": "6.2.2",
-    "trace-unhandled": "2.0.1"
+    "supertest": "6.2.2"
   },
   "dependencies": {
     "@feathersjs/commons": "5.0.0-pre.29",
@@ -151,7 +153,7 @@
     "react-json-view": "^1.21.3",
     "three": "0.148.0",
     "ts-node": "10.8.2",
-    "typescript": "4.8.3",
+    "typescript": "4.9.4",
     "vite-plugin-node": "^1.0.0",
     "ws": "8.12.0"
   }
