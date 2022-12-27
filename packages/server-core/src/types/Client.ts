@@ -1,7 +1,7 @@
-import SocketIO from 'socket.io'
+import { Spark } from 'primus'
 
 export interface Client {
-  socket: SocketIO.Socket
+  spark: Spark
   lastSeenTs: number
   joinTs: number
   media: any

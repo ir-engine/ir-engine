@@ -1,6 +1,6 @@
 import * as mediasoupClient from 'mediasoup-client'
 import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
-import { io as ioclient, Socket } from 'socket.io-client'
+import Primus from 'primus-client'
 
 import config from '@xrengine/common/src/config'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -11,7 +11,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { clearOutgoingActions, dispatchAction } from '@xrengine/hyperflux'
-import { Action, addOutgoingTopicIfNecessary, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { addOutgoingTopicIfNecessary, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import {
   accessLocationInstanceConnectionState,
@@ -34,12 +34,32 @@ export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { a
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
 export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData; producerPaused: boolean }
 
+let id = 0
+
 // import { encode, decode } from 'msgpackr'
 
-// Adds support for Promise to socket.io-client
-const promisedRequest = (socket: Socket) => {
+// Adds support for Promise to Primus client
+// Each 'data' listener function needs to be named something unique in order for removeListener to
+// not remove all 'data' listener functions
+const promisedRequest = (primus: Primus) => {
   return function request(type: any, data = {}): any {
-    return new Promise((resolve) => socket.emit(type, data, resolve))
+    return new Promise((resolve) => {
+      const responseFunction = (data) => {
+        if (data.type.toString() === message.type.toString() && message.id === data.id) {
+          resolve(data.data)
+          primus.removeListener('data', responseFunction)
+        }
+      }
+      Object.defineProperty(responseFunction, 'name', { value: `responseFunction${id}`, writable: true })
+      let message = {
+        type: type,
+        data: data,
+        id: id++
+      }
+      primus.write(message)
+
+      primus.on('data', responseFunction)
+    })
   }
 }
 
@@ -93,7 +113,7 @@ export class SocketWebRTCClientNetwork extends Network {
   reconnecting = false
   recvTransport: MediaSoupTransport
   sendTransport: MediaSoupTransport
-  socket: Socket = null!
+  primus: Primus = null!
   request: ReturnType<typeof promisedRequest>
 
   dataProducer: DataProducer
@@ -105,15 +125,15 @@ export class SocketWebRTCClientNetwork extends Network {
   sendActions() {
     if (!this.ready) return
     const actions = [...Engine.instance.store.actions.outgoing[this.topic].queue]
-    if (actions.length && this.socket) {
-      this.socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
+    if (actions.length && this.primus) {
+      this.primus.write({ type: MessageTypes.ActionData.toString(), /*encode(*/ data: actions }) //)
       clearOutgoingActions(this.topic)
     }
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: ArrayBuffer): void {
-    if (this.dataProducer && this.dataProducer.closed !== true && this.dataProducer.readyState === 'open')
+    if (this.dataProducer && !this.dataProducer.closed && this.dataProducer.readyState === 'open')
       this.dataProducer.send(data)
   }
 
@@ -124,9 +144,9 @@ export class SocketWebRTCClientNetwork extends Network {
     this.recvTransport = null!
     this.sendTransport = null!
     this.heartbeat && clearInterval(this.heartbeat)
-    this.socket?.removeAllListeners()
-    this.socket?.close()
-    this.socket = null!
+    this.primus?.removeAllListeners()
+    this.primus?.end()
+    this.primus = null!
   }
 
   public async initialize(args: {
@@ -137,7 +157,7 @@ export class SocketWebRTCClientNetwork extends Network {
     roomCode?: string | null
   }): Promise<void> {
     this.reconnecting = false
-    if (this.socket) {
+    if (this.primus) {
       return logger.error(new Error('Network already initialized'))
     }
     logger.info('Initialising transport with args %o', args)
@@ -151,6 +171,13 @@ export class SocketWebRTCClientNetwork extends Network {
       channelId,
       roomCode,
       token
+    } as {
+      locationId?: string
+      channelId?: string
+      roomCode?: string
+      address?: string
+      port?: string
+      token: string
     }
 
     if (locationId) delete query.channelId
@@ -158,47 +185,45 @@ export class SocketWebRTCClientNetwork extends Network {
     if (!roomCode) delete query.roomCode
 
     try {
-      if (config.client.localBuild === 'true') {
-        this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {
-          query
-        })
-      } else if (config.client.appEnv === 'development' && config.client.localNginx !== 'true') {
-        this.socket = ioclient(`${ipAddress as string}:${port.toString()}`, {
-          query
-        })
+      if (
+        config.client.localBuild === 'true' ||
+        (config.client.appEnv === 'development' && config.client.localNginx !== 'true')
+      ) {
+        const queryString = new URLSearchParams(query).toString()
+        this.primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
       } else {
-        this.socket = ioclient(config.client.instanceserverUrl, {
-          path: `/socket.io/${ipAddress as string}/${port.toString()}`,
-          query
-        })
+        query.address = ipAddress
+        query.port = port.toString()
+        const queryString = new URLSearchParams(query).toString()
+        this.primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
       }
     } catch (err) {
       logger.error(err)
       return handleFailedConnection(locationId != null)
     }
-    this.request = promisedRequest(this.socket)
+    this.request = promisedRequest(this.primus)
 
     const connectionFailTimeout = setTimeout(() => {
       return handleFailedConnection(locationId != null)
     }, 3000)
 
-    this.socket.on('connect', () => {
+    this.primus.on('incoming::open', (event) => {
       clearTimeout(connectionFailTimeout)
       if (this.reconnecting) {
         this.reconnecting = false
-        ;(this.socket as any)._connected = false
+        ;(this.primus as any)._connected = false
         return
       }
 
-      if ((this.socket as any)._connected) return
-      ;(this.socket as any)._connected = true
+      if ((this.primus as any)._connected) return
+      ;(this.primus as any)._connected = true
 
       logger.info('CONNECT to port %o', { port, locationId })
       onConnectToInstance(this)
 
       // Send heartbeat every second
       this.heartbeat = setInterval(() => {
-        this.socket.emit(MessageTypes.Heartbeat.toString())
+        this.primus.write({ type: MessageTypes.Heartbeat.toString() })
       }, 1000)
     })
   }

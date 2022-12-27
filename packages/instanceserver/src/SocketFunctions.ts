@@ -1,10 +1,11 @@
-import { Socket } from 'socket.io'
-
 import { AuthError } from '@xrengine/common/src/enums/AuthError'
 import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { Application } from '@xrengine/server-core/declarations'
 import multiLogger from '@xrengine/server-core/src/ServerLogger'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 
@@ -17,7 +18,6 @@ import {
   handleJoinWorld,
   handleLeaveWorld
 } from './NetworkFunctions'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 import {
   handleWebRtcCloseConsumer,
   handleWebRtcCloseProducer,
@@ -36,11 +36,9 @@ import {
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
 
-const logger = multiLogger.child({ component: 'instanceserver:socket' })
+const logger = multiLogger.child({ component: 'instanceserver:spark' })
 
-export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket: Socket) => {
-  logger.info('Initialized new socket connection with id %s', socket.id)
-
+export const setupSocketFunctions = async (app: Application, spark: any) => {
   let authTask: AuthTask | undefined
 
   /**
@@ -49,13 +47,14 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
    *
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
-  socket.on(
-    MessageTypes.Authorization.toString(),
-    async (data: { accessToken: string }, callback: (result: AuthTask) => void) => {
-      // if we have already started an auth task, return it's status
+  if (!getEngineState().joinedWorld.value)
+    await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
+  spark.on('data', async (message) => {
+    if (message.type === MessageTypes.Authorization.toString()) {
+      const data = message.data
       if (authTask) {
-        logger.info('[MessageTypes.Authorization]: sending auth status to socket %s %o', socket.id, authTask)
-        callback(authTask)
+        logger.info('[MessageTypes.Authorization]: sending auth status to spark %s %o', spark.id, authTask)
+        spark.write({ type: MessageTypes.Authorization.toString(), data: authTask, id: message.id })
         return
       }
 
@@ -63,8 +62,8 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
       // the client will have to keep polling us for the status of the task
       // until it is resolved
       authTask = { status: 'pending' }
-      callback(authTask)
-      logger.info('[MessageTypes.Authorization]: starting authorization for socket %s', socket.id)
+      spark.write({ type: MessageTypes.Authorization.toString(), data: authTask, id: message.id })
+      logger.info('[MessageTypes.Authorization]: starting authorization for spark %s', spark.id)
 
       /**
        * userId or access token were undefined, so something is wrong. Return failure
@@ -73,7 +72,7 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
       if (!accessToken) {
         authTask.status = 'fail'
         authTask.error = AuthError.MISSING_ACCESS_TOKEN
-        logger.error('[MessageTypes.Authorization]: socket is missing access token %s %o', socket.id, authTask)
+        logger.error('[MessageTypes.Authorization]: spark is missing access token %s %o', spark.id, authTask)
         return
       }
 
@@ -81,29 +80,29 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
       let user: UserInterface
 
       try {
-        const authResult = await network.app.service('authentication').strategies.jwt.authenticate!(
+        const authResult = await app.service('authentication').strategies.jwt.authenticate!(
           { accessToken: accessToken },
           {}
         )
         userId = authResult['identity-provider'].userId as UserId
-        user = await network.app.service('user').get(userId)
+        user = await app.service('user').get(userId)
 
         if (!user) {
           authTask.status = 'fail'
           authTask.error = AuthError.USER_NOT_FOUND
-          logger.error('[MessageTypes.Authorization]: user %s not found over socket %s %o', userId, socket.id, authTask)
+          logger.error('[MessageTypes.Authorization]: user %s not found over spark %s %o', userId, spark.id, authTask)
           return
         }
 
         // Check that this use is allowed on this instance
-        const instance = await network.app.service('instance').get(network.app.instance.id)
-        if (!(await authorizeUserToJoinServer(network.app, instance, userId))) {
+        const instance = await app.service('instance').get(app.instance.id)
+        if (!(await authorizeUserToJoinServer(app, instance, userId))) {
           authTask.status = 'fail'
           authTask.error = AuthError.USER_NOT_AUTHORIZED
           logger.error(
-            '[MessageTypes.Authorization]: user %s not authorized over socket %s %o',
+            '[MessageTypes.Authorization]: user %s not authorized over spark %s %o',
             userId,
-            socket.id,
+            spark.id,
             authTask
           )
           return
@@ -115,90 +114,85 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
          * @todo Check if the user is banned
          */
 
-        await handleConnectingPeer(network, socket, user)
+        await handleConnectingPeer(app.network, spark, user)
       } catch (e) {
+        console.error(e)
         authTask.status = 'fail'
         authTask.error = AuthError.INTERNAL_ERROR
-        logger.error('[MessageTypes.Authorization]: internal error while authorizing socket %s', socket.id, e.message)
+        logger.error('[MessageTypes.Authorization]: internal error while authorizing spark %s', spark.id, e.message)
         return
       }
 
-      socket.on(MessageTypes.JoinWorld.toString(), (data, callback) => {
-        handleJoinWorld(network, socket, data, callback, userId, user)
+      spark.on('end', () => {
+        console.log('got disconnection')
+        handleDisconnect(app.network, spark)
       })
 
-      socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(network, socket, data))
+      spark.on('data', async (message) => {
+        const { type, data, id } = message
+        switch (type) {
+          case MessageTypes.JoinWorld.toString():
+            handleJoinWorld(app.network, spark, data, id, userId, user)
+            break
+          case MessageTypes.Heartbeat.toString():
+            handleHeartbeat(app.network, spark)
+            break
+          case MessageTypes.ActionData.toString():
+            handleIncomingActions(app.network, spark, data)
+            break
+          case MessageTypes.LeaveWorld.toString():
+            handleLeaveWorld(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCTransportCreate.toString():
+            handleWebRtcTransportCreate(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCProduceData.toString():
+            handleWebRtcProduceData(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCTransportConnect.toString():
+            handleWebRtcTransportConnect(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCTransportClose.toString():
+            handleWebRtcTransportClose(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCCloseProducer.toString():
+            handleWebRtcCloseProducer(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCSendTrack.toString():
+            handleWebRtcSendTrack(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCReceiveTrack.toString():
+            handleWebRtcReceiveTrack(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCPauseConsumer.toString():
+            handleWebRtcPauseConsumer(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCResumeConsumer.toString():
+            handleWebRtcResumeConsumer(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCCloseConsumer.toString():
+            handleWebRtcCloseConsumer(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCConsumerSetLayers.toString():
+            handleWebRtcConsumerSetLayers(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCResumeProducer.toString():
+            handleWebRtcResumeProducer(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCPauseProducer.toString():
+            handleWebRtcPauseProducer(app.network, spark, data, id)
+            break
+          case MessageTypes.WebRTCRequestCurrentProducers.toString():
+            handleWebRtcRequestCurrentProducers(app.network, spark, data, id)
+            break
+          case MessageTypes.InitializeRouter.toString():
+            handleWebRtcInitializeRouter(app.network, spark, data, id)
+            break
+        }
+      })
 
-      socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(network, socket))
-
-      socket.on('disconnect', () => handleDisconnect(network, socket))
-
-      socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) =>
-        handleLeaveWorld(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: WebRtcTransportParams, callback) =>
-        handleWebRtcTransportCreate(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCProduceData.toString(), async (data, callback) =>
-        handleWebRtcProduceData(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) =>
-        handleWebRtcTransportConnect(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCTransportClose.toString(), async (data, callback) =>
-        handleWebRtcTransportClose(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) =>
-        handleWebRtcCloseProducer(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) =>
-        handleWebRtcSendTrack(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) =>
-        handleWebRtcReceiveTrack(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) =>
-        handleWebRtcPauseConsumer(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) =>
-        handleWebRtcResumeConsumer(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) =>
-        handleWebRtcCloseConsumer(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) =>
-        handleWebRtcConsumerSetLayers(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) =>
-        handleWebRtcResumeProducer(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
-        handleWebRtcPauseProducer(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
-        handleWebRtcRequestCurrentProducers(network, socket, data, callback)
-      )
-
-      socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
-        handleWebRtcInitializeRouter(network, socket, data, callback)
-      )
-
-      logger.info('[MessageTypes.Authorization]: user %s successfully authorized over socket %s', userId, socket.id)
+      logger.info('[MessageTypes.Authorization]: user %s successfully authorized over spark %s', userId, spark.id)
       authTask.status = 'success'
     }
-  )
+  })
 }

@@ -2,16 +2,16 @@ import type { AuthenticationClient } from '@feathersjs/authentication-client'
 import authentication from '@feathersjs/authentication-client'
 import feathers from '@feathersjs/client'
 import type { FeathersApplication } from '@feathersjs/feathers'
-import socketio from '@feathersjs/socketio-client'
-import type SocketIO from 'socket.io'
-import io from 'socket.io-client'
+import Primus from 'primus-client'
 
 import type { ServiceTypes } from '@xrengine/common/declarations'
 import config from '@xrengine/common/src/config'
 
+import primusClient from './util/primus-client'
+
 type FeathersClient = FeathersApplication<ServiceTypes> &
   AuthenticationClient & {
-    io: SocketIO.Server
+    primus: Primus
     authentication: AuthenticationClient
   }
 
@@ -22,10 +22,10 @@ export class API {
   static createAPI = () => {
     const feathersClient = feathers()
 
-    const socket = io(config.client.serverUrl, {
+    const primus = new Primus(config.client.serverUrl, {
       withCredentials: true
     })
-    feathersClient.configure(socketio(socket, { timeout: 10000 }))
+    feathersClient.configure(primusClient(primus, { timeout: 10000 }))
 
     feathersClient.configure(
       authentication({
