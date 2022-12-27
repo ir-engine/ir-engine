@@ -553,7 +553,7 @@
     },
     "transform": {
       "title": "Transform",
-      "lbl-postition": "Position",
+      "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale"
     },

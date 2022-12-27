@@ -39,7 +39,6 @@ import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxCo
 import { EngineRendererAction, EngineRendererState } from '../../renderer/EngineRendererState'
 import EditorDirectionalLightHelper from '../../scene/classes/EditorDirectionalLightHelper'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
-import Spline from '../../scene/classes/Spline'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
 import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
@@ -49,7 +48,6 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
 import { SelectTagComponent } from '../../scene/components/SelectTagComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
-import { SplineComponent } from '../../scene/components/SplineComponent'
 import { SpotLightComponent } from '../../scene/components/SpotLightComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -90,7 +88,6 @@ export default async function DebugHelpersSystem(world: World) {
   const pointLightQuery = defineQuery([TransformComponent, PointLightComponent])
   const spotLightQuery = defineQuery([TransformComponent, SpotLightComponent])
   const portalQuery = defineQuery([TransformComponent, PortalComponent])
-  const splineQuery = defineQuery([TransformComponent, SplineComponent])
   const spawnPointQuery = defineQuery([TransformComponent, SpawnPointComponent])
   const mountPointQuery = defineQuery([TransformComponent, MountPointComponent])
   const envMapBakeQuery = defineQuery([TransformComponent, EnvMapBakeComponent])
@@ -381,26 +378,6 @@ export default async function DebugHelpersSystem(world: World) {
       }
 
       /**
-       * Spline
-       */
-
-      for (const entity of splineQuery.enter()) {
-        const spline = getComponent(entity, SplineComponent)
-        const helper = new Spline()
-        helper.name = `spline-helper-${entity}`
-        helper.init(spline.splinePositions)
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        Engine.instance.currentWorld.scene.add(helper)
-        editorHelpers.set(entity, helper)
-      }
-
-      for (const entity of splineQuery.exit()) {
-        const helper = editorHelpers.get(entity)!
-        Engine.instance.currentWorld.scene.remove(helper)
-        editorHelpers.delete(entity)
-      }
-
-      /**
        * Update helper positions
        */
 
@@ -528,7 +505,6 @@ export default async function DebugHelpersSystem(world: World) {
     removeQuery(world, pointLightQuery)
     removeQuery(world, spotLightQuery)
     removeQuery(world, portalQuery)
-    removeQuery(world, splineQuery)
     removeQuery(world, spawnPointQuery)
     removeQuery(world, mountPointQuery)
     removeQuery(world, envMapBakeQuery)

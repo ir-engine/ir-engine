@@ -289,7 +289,7 @@ export default async function EditorControlSystem(world: World) {
 
     const inputState = world.buttons
 
-    if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
+    if (selectedEntities.length === 0 || transformMode === TransformMode.Disabled) {
       if (hasComponent(gizmoEntity, VisibleComponent)) removeComponent(gizmoEntity, VisibleComponent)
     } else {
       const lastSelection = selectedEntities[selectedEntities.length - 1]
@@ -307,7 +307,9 @@ export default async function EditorControlSystem(world: World) {
 
         if (isChanged || transformPivotChanged) {
           if (transformPivot === TransformPivot.Selection) {
-            gizmoObj.position.copy(lastSelectedTransform.position)
+            'quaternion' in lastSelectedTransform
+              ? (lastSelectedTransform as Object3D).getWorldPosition(gizmoObj.position)
+              : gizmoObj.position.copy(lastSelectedTransform.position)
           } else {
             box.makeEmpty()
 
@@ -330,9 +332,9 @@ export default async function EditorControlSystem(world: World) {
 
         if (isChanged || transformSpaceChanged) {
           if (transformSpace === TransformSpace.LocalSelection) {
-            gizmoObj.quaternion.copy(
-              'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
-            )
+            'quaternion' in lastSelectedTransform
+              ? (lastSelectedTransform as Object3D).getWorldQuaternion(gizmoObj.quaternion)
+              : gizmoObj.quaternion.copy(lastSelectedTransform.rotation)
           } else {
             gizmoObj.rotation.set(0, 0, 0)
           }

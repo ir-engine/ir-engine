@@ -3,12 +3,11 @@ import { Vector3 } from 'three'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, getComponentState, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { SplineComponent } from '../../components/SplineComponent'
-import { deserializeSpline, parseSplineProperties, serializeSpline } from './SplineFunctions'
 
 describe('SplineFunctions', () => {
   let entity: Entity
@@ -31,7 +30,7 @@ describe('SplineFunctions', () => {
 
   describe('deserializeSpline()', () => {
     it('creates Spline Component with provided component data', () => {
-      deserializeSpline(entity, sceneComponentData)
+      setComponent(entity, SplineComponent, sceneComponentData)
 
       const splineComponent = getComponent(entity, SplineComponent)
       assert(splineComponent)
@@ -41,33 +40,8 @@ describe('SplineFunctions', () => {
 
   describe('serializeSpline()', () => {
     it('should properly serialize spline', () => {
-      deserializeSpline(entity, sceneComponentData)
-      assert.deepEqual(serializeSpline(entity), sceneComponentData)
-    })
-  })
-
-  describe('parseSplineProperties()', () => {
-    const data = it('should return empty array of spline ponits', () => {
-      const data = {}
-      const componentData = parseSplineProperties(data)
-      assert(componentData.splinePositions.length <= 0)
-      assert(data !== componentData)
-    })
-
-    it('should return Vector3 array of spline ponits', () => {
-      const componentData = parseSplineProperties(sceneComponentData)
-      assert(componentData.splinePositions.length > 0)
-      assert(sceneComponentData !== componentData)
-      assert(
-        componentData.splinePositions.filter((pos, i) => {
-          if (
-            pos.x !== sceneComponentData.splinePositions[i].x ||
-            pos.y !== sceneComponentData.splinePositions[i].y ||
-            pos.z !== sceneComponentData.splinePositions[i].z
-          )
-            return true
-        }).length <= 0
-      )
+      setComponent(entity, SplineComponent, sceneComponentData)
+      assert.deepEqual(SplineComponent.toJSON(entity, getComponentState(entity, SplineComponent)), sceneComponentData)
     })
   })
 })

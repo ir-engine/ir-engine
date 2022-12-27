@@ -1,12 +1,15 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SplineComponent } from '@xrengine/engine/src/scene/components/SplineComponent'
 
+import ClearIcon from '@mui/icons-material/Clear'
 import TimelineIcon from '@mui/icons-material/Timeline'
 
 import { PropertiesPanelButton } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
@@ -19,16 +22,43 @@ import { EditorComponentType } from './Util'
 
 export const SplineNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const spline = useComponent(props.node.entity, SplineComponent).spline.value
 
-  const onAddNode = () => {
-    const obj3d = getComponent(props.node.entity, GroupComponent)[0]
-    const newSplineObject = obj3d.userData.helper.addPoint()
-    obj3d.add(newSplineObject)
+  const onAddPoint = () => {
+    spline.addPoint()
   }
+
+  const onRemovePoint = (point) => {
+    spline.removePoint(point)
+  }
+
+  const onRelease = () => {
+    spline.updateSplineOutline()
+  }
+
+  const helperObjects = spline.getCurrentSplineHelperObjects()
 
   return (
     <NodeEditor description={t('editor:properties.spline.description')} {...props}>
-      <PropertiesPanelButton onClick={onAddNode}>{t('editor:properties.spline.lbl-addNode')}</PropertiesPanelButton>
+      <InputGroup name="Add Point">
+        <PropertiesPanelButton onClick={onAddPoint}>{t('editor:properties.spline.lbl-addNode')}</PropertiesPanelButton>
+      </InputGroup>
+      {helperObjects.map((point, i) => (
+        <InputGroup key={point.uuid} name="Position" label={`${t('editor:properties.transform.lbl-position')} ${i}`}>
+          <div style={{}} onClick={() => onRemovePoint(point)}>
+            <ClearIcon style={{ color: 'white' }} />
+          </div>
+          <Vector3Input
+            style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+            value={point.position}
+            smallStep={0.01}
+            mediumStep={0.1}
+            largeStep={1}
+            onChange={(val) => point.position.copy(val)}
+            onRelease={onRelease}
+          />
+        </InputGroup>
+      ))}
     </NodeEditor>
   )
 }

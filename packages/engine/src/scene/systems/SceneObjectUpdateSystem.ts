@@ -74,11 +74,7 @@ import {
   SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA,
   SpawnPointComponent
 } from '../components/SpawnPointComponent'
-import {
-  SCENE_COMPONENT_SPLINE,
-  SCENE_COMPONENT_SPLINE_DEFAULT_VALUES,
-  SplineComponent
-} from '../components/SplineComponent'
+import { SCENE_COMPONENT_SPLINE, SplineComponent } from '../components/SplineComponent'
 import {
   SCENE_COMPONENT_SYSTEM,
   SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES,
@@ -111,7 +107,6 @@ import {
   shouldDeserializeSkybox,
   updateSkybox
 } from '../functions/loaders/SkyboxFunctions'
-import { deserializeSpline, serializeSpline } from '../functions/loaders/SplineFunctions'
 import { deserializeWater } from '../functions/loaders/WaterFunctions'
 
 export const defaultSpatialComponents: ComponentJson[] = [
@@ -371,14 +366,12 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.spline, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_SPLINE, props: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_SPLINE, props: {} }
   ])
 
   world.sceneComponentRegistry.set(SplineComponent.name, SCENE_COMPONENT_SPLINE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPLINE, {
-    defaultData: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES,
-    deserialize: deserializeSpline,
-    serialize: serializeSpline
+    defaultData: {}
   })
 
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
