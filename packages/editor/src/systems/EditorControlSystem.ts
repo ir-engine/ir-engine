@@ -62,6 +62,7 @@ import {
 } from '../functions/transformFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
 import EditorHistoryReceptor, { EditorHistoryAction } from '../services/EditorHistory'
+import { EditorAction, EditorState } from '../services/EditorServices'
 import EditorSelectionReceptor, { SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
@@ -82,6 +83,7 @@ export default async function EditorControlSystem(world: World) {
   const gizmoEntity = await createTransformGizmo()
 
   const selectionState = getState(SelectionState)
+  const editorState = getState(EditorState)
   const editorHelperState = getState(EditorHelperState)
 
   const raycaster = new Raycaster()
@@ -159,6 +161,10 @@ export default async function EditorControlSystem(world: World) {
   }
 
   const onEscape = () => {
+    if (!editorState.visible.value) {
+      dispatchAction(EditorAction.toggleVisible({ visible: true }))
+      return
+    }
     cancelGrabOrPlacement()
     EditorControlFunctions.replaceSelection([])
   }

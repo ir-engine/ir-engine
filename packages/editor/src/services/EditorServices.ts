@@ -10,6 +10,7 @@ export const EditorState = defineState({
     projectName: null as string | null,
     sceneName: null as string | null,
     sceneModified: false,
+    visible: true,
     projectLoaded: false,
     rendererInitialized: false,
     showObject3DInHierarchy: false,
@@ -32,6 +33,9 @@ export const EditorServiceReceptor = (action) => {
     })
     .when(EditorAction.projectLoaded.matches, (action) => {
       return s.merge({ projectLoaded: action.loaded })
+    })
+    .when(EditorAction.toggleVisible.matches, (action) => {
+      return s.merge({ visible: action.visible })
     })
     .when(EditorAction.rendererInitialized.matches, (action) => {
       return s.merge({ rendererInitialized: action.initialized })
@@ -74,6 +78,11 @@ export class EditorAction {
   static projectLoaded = defineAction({
     type: 'xre.editor.Editor.EDITOR_PROJECT_LOADED' as const,
     loaded: matches.boolean
+  })
+
+  static toggleVisible = defineAction({
+    type: 'xre.editor.Editor.EDITOR_TOGGLE_VISIBLE' as const,
+    visible: matches.boolean
   })
 
   static rendererInitialized = defineAction({

@@ -132,6 +132,7 @@ const EditorContainer = () => {
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
+  const editorVisible = editorState.visible
   const sceneLoaded = useEngineState().sceneLoaded
 
   const errorState = useEditorErrorState()
@@ -629,7 +630,10 @@ const EditorContainer = () => {
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={sceneLoaded.value ? { background: 'transparent' } : {}}
+        style={{
+          background: sceneLoaded.value ? 'transparent' : undefined,
+          display: editorVisible.value ? 'flex' : 'none'
+        }}
       >
         <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
           <DndWrapper id="editor-container">
