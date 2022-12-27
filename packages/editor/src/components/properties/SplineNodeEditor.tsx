@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponentState, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SplineComponent } from '@xrengine/engine/src/scene/components/SplineComponent'
 
 import ClearIcon from '@mui/icons-material/Clear'
@@ -26,6 +26,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
 
   const onAddPoint = () => {
     spline.addPoint()
+    getComponentState(props.node.entity, SplineComponent).spline._splinePointsLength.set((val) => val)
   }
 
   const onRemovePoint = (point) => {
@@ -44,7 +45,11 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         <PropertiesPanelButton onClick={onAddPoint}>{t('editor:properties.spline.lbl-addNode')}</PropertiesPanelButton>
       </InputGroup>
       {helperObjects.map((point, i) => (
-        <InputGroup key={point.uuid} name="Position" label={`${t('editor:properties.transform.lbl-position')} ${i}`}>
+        <InputGroup
+          key={point.uuid}
+          name="Position"
+          label={`${t('editor:properties.transform.lbl-position')} ${i + 1}`}
+        >
           <div style={{}} onClick={() => onRemovePoint(point)}>
             <ClearIcon style={{ color: 'white' }} />
           </div>
@@ -54,7 +59,10 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
             smallStep={0.01}
             mediumStep={0.1}
             largeStep={1}
-            onChange={(val) => point.position.copy(val)}
+            onChange={(val) => {
+              point.position.copy(val)
+              spline.updateSplineOutline()
+            }}
             onRelease={onRelease}
           />
         </InputGroup>

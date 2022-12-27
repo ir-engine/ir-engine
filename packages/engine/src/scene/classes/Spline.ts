@@ -1,30 +1,43 @@
-import { BufferAttribute, BufferGeometry, CatmullRomCurve3, Line, LineBasicMaterial, Object3D, Vector3 } from 'three'
+import {
+  BoxGeometry,
+  BufferAttribute,
+  BufferGeometry,
+  CatmullRomCurve3,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshLambertMaterial,
+  Object3D,
+  Vector3
+} from 'three'
 
 import { removeElementFromArray } from '@xrengine/common/src/utils/removeElementFromArray'
 
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
-import SplineHelper from './SplineHelper'
 
 const _point = new Vector3()
 
-export default class Spline extends Object3D {
-  ARC_SEGMENTS = 200
-  INIT_POINTS_COUNT = 2
+const helperGeometry = new BoxGeometry(0.1, 0.1, 0.1)
+const helperMaterial = new MeshLambertMaterial({ color: 'white' })
+const ARC_SEGMENTS = 200
 
+const lineGeometry = new BufferGeometry()
+lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
+
+export default class Spline extends Object3D {
   _splineHelperObjects: Object3D[] = []
-  _splinePointsLength = this.INIT_POINTS_COUNT
+  _splinePointsLength = 0
   _positions: Vector3[] = []
 
   mesh: Line
   curve: CatmullRomCurve3
 
-  init(loadedSplinePositions: Vector3[] = [], curveType = 'catmullrom' as 'catmullrom' | 'centripetal' | 'chordal') {
-    if (this.mesh) {
-      super.remove(this.mesh)
-    }
-
-    console.log(loadedSplinePositions)
+  constructor(
+    loadedSplinePositions: Vector3[] = [],
+    curveType = 'catmullrom' as 'catmullrom' | 'centripetal' | 'chordal'
+  ) {
+    super()
 
     this._splinePointsLength = loadedSplinePositions.length
 
@@ -38,13 +51,10 @@ export default class Spline extends Object3D {
       this._positions.push(this._splineHelperObjects[i].position)
     }
 
-    const geometry = new BufferGeometry()
-    geometry.setAttribute('position', new BufferAttribute(new Float32Array(this.ARC_SEGMENTS * 3), 3))
-
     const catmullRomCurve3 = new CatmullRomCurve3(this._positions)
     ;(catmullRomCurve3 as any).curveType = curveType
     const curveMesh = new Line(
-      geometry.clone(),
+      lineGeometry.clone(),
       new LineBasicMaterial({
         color: 0xff0000,
         opacity: 0.35
@@ -59,17 +69,15 @@ export default class Spline extends Object3D {
 
     if (loadedSplinePositions.length) {
       this.load(loadedSplinePositions)
-    } else {
-      this.load([new Vector3(-1, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 0, 0)])
     }
   }
 
-  getCurrentSplineHelperObjects(): Object3D[] {
+  getCurrentSplineHelperObjects() {
     return this._splineHelperObjects
   }
 
-  addSplineObject(position?: Vector3): SplineHelper {
-    const splineHelperNode = new SplineHelper()
+  addSplineObject(position?: Vector3) {
+    const splineHelperNode = new Mesh(helperGeometry, helperMaterial)
     setObjectLayers(splineHelperNode, ObjectLayers.NodeHelper)
     const object = splineHelperNode
 
@@ -81,22 +89,21 @@ export default class Spline extends Object3D {
     object.receiveShadow = true
     super.add(object)
     this._splineHelperObjects.push(object)
+    console.log(this._splineHelperObjects)
     return object
   }
 
-  addPoint(): SplineHelper {
+  addPoint() {
     this._splinePointsLength++
 
     const newSplineObject = this.addSplineObject()
     this._positions.push(newSplineObject.position)
 
     this.updateSplineOutline()
-
-    return newSplineObject
   }
 
-  removeLastPoint(): void {
-    if (this._splinePointsLength <= this.INIT_POINTS_COUNT) {
+  removeLastPoint() {
+    if (this._splinePointsLength <= 0) {
       return
     }
 
@@ -109,8 +116,8 @@ export default class Spline extends Object3D {
     this.updateSplineOutline()
   }
 
-  removePoint(splineHelperNode?: SplineHelper): void {
-    if (this._splinePointsLength <= this.INIT_POINTS_COUNT) {
+  removePoint(splineHelperNode?: Mesh) {
+    if (this._splinePointsLength <= 0) {
       return
     }
 
@@ -126,16 +133,17 @@ export default class Spline extends Object3D {
     this.updateSplineOutline()
   }
 
-  updateSplineOutline(): void {
+  updateSplineOutline() {
     const splineMesh = this.mesh
     const position = splineMesh.geometry.attributes.position
 
     const splineCurve = this.curve
+    splineMesh.visible = splineCurve.points.length >= 2
 
     if (splineCurve.points.length <= 2) return
 
-    for (let i = 0; i < this.ARC_SEGMENTS; i++) {
-      const t = i / (this.ARC_SEGMENTS - 1)
+    for (let i = 0; i < ARC_SEGMENTS; i++) {
+      const t = i / (ARC_SEGMENTS - 1)
       splineCurve.getPoint(t, _point)
       position.setXYZ(i, _point.x, _point.y, _point.z)
     }
