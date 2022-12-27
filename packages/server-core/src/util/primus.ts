@@ -3,8 +3,6 @@ import http from 'http'
 import Primus from 'primus'
 import Emitter from 'primus-emitter'
 
-import { setupSocketFunctions } from '@xrengine/instanceserver/src/SocketFunctions'
-
 function configurePrimus(instanceserver = false, config?: any, configurer?: any) {
   return function (app) {
     // Returns the connection object
@@ -63,9 +61,10 @@ function configurePrimus(instanceserver = false, config?: any, configurer?: any)
               0
             )
 
-            primus.on('connection', (spark) => {
+            primus.on('connection', async (spark) => {
               socketMap.set(getParams(spark), spark)
               if (instanceserver) {
+                const { setupSocketFunctions } = await import('@xrengine/instanceserver/src/SocketFunctions')
                 setupSocketFunctions(app, spark)
               }
             })
