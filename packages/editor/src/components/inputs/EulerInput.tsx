@@ -17,6 +17,7 @@ type EulerInputProps = {
   quaternion: Quaternion
   onChange?: (euler: Euler) => any
   onRelease?: () => void
+  style?: React.CSSProperties
   unit?: string
 }
 
@@ -43,7 +44,7 @@ export const EulerInput = (props: EulerInputProps) => {
   const vz = props.quaternion ? Math.round((_euler.z || 0) * RAD2DEG) : 0
 
   return (
-    <Vector3InputContainer>
+    <Vector3InputContainer style={props.style}>
       <UniformButtonContainer />
       <NumericInput
         value={vx}

@@ -4,6 +4,7 @@ import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
+import { CameraTrackComponent } from '@xrengine/engine/src/scene/components/CameraTrackComponent'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
 import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
@@ -41,6 +42,7 @@ import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
+import CameraTrackNodeEditor from '../components/properties/CameraTrackNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
@@ -104,6 +106,7 @@ EntityNodeEditor.set(WaterComponent, WaterNodeEditor)
 EntityNodeEditor.set(InteriorComponent, InteriorNodeEditor)
 EntityNodeEditor.set(SystemComponent, SystemNodeEditor)
 EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
+EntityNodeEditor.set(CameraTrackComponent, CameraTrackNodeEditor)
 EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
@@ -136,6 +139,7 @@ export const prefabIcons = {
   [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
+  [ScenePrefabs.cameraTrack]: CameraTrackNodeEditor.iconComponent,
   [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
   [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent,
   [ScenePrefabs.behaveGraph]: ChairIcon

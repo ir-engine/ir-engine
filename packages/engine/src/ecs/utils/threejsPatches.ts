@@ -45,7 +45,11 @@ v[7] = (opmu * 8.0) / 17.0
  */
 
 const fastSlerp = function (target: Quaternion, t: number) {
-  let x = this.x * target.x + this.y * target.y + this.z * target.z + this.w * target.w
+  return this.fastSlerpQuaternions(this, target, t)
+}
+
+const fastSlerpQuaternions = function (source: Quaternion, target: Quaternion, t: number) {
+  let x = source.x * target.x + source.y * target.y + source.z * target.z + source.w * target.w
 
   let sign
   if (x >= 0) {
@@ -77,15 +81,16 @@ const fastSlerp = function (target: Quaternion, t: number) {
       bD[0] *
         (1.0 + bD[1] * (1.0 + bD[2] * (1.0 + bD[3] * (1.0 + bD[4] * (1.0 + bD[5] * (1.0 + bD[6] * (1.0 + bD[7]))))))))
 
-  this.x = target.x * cT + this.x * cD
-  this.y = target.y * cT + this.y * cD
-  this.z = target.z * cT + this.z * cD
-  this.w = target.w * cT + this.w * cD
+  this.x = target.x * cT + source.x * cD
+  this.y = target.y * cT + source.y * cD
+  this.z = target.z * cT + source.z * cD
+  this.w = target.w * cT + source.w * cD
 
   return this
 }
 
 Quaternion.prototype.fastSlerp = fastSlerp
+Quaternion.prototype.fastSlerpQuaternions = fastSlerpQuaternions
 
 //@ts-ignore
 Euler.prototype.toJSON = function () {
@@ -105,6 +110,7 @@ declare module 'three/src/core/Object3D' {
 declare module 'three/src/math/Quaternion' {
   export interface Quaternion {
     fastSlerp: typeof fastSlerp
+    fastSlerpQuaternions: typeof fastSlerpQuaternions
   }
 }
 

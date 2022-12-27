@@ -23,6 +23,7 @@ import {
   SCENE_COMPONENT_ASSET,
   SCENE_COMPONENT_ASSET_DEFAULT_VALUES
 } from '../components/AssetComponent'
+import { CameraTrackComponent, SCENE_COMPONENT_CAMERA_TRACK } from '../components/CameraTrackComponent'
 import {
   CloudComponent,
   SCENE_COMPONENT_CLOUD,
@@ -133,6 +134,7 @@ export const ScenePrefabs = {
   interior: 'Interior' as const,
   system: 'System' as const,
   spline: 'Spline' as const,
+  cameraTrack: 'Camera Track' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
   loadVolume: 'Load Volume' as const,
@@ -374,6 +376,16 @@ export default async function SceneObjectUpdateSystem(world: World) {
     defaultData: {}
   })
 
+  world.scenePrefabRegistry.set(ScenePrefabs.cameraTrack, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_CAMERA_TRACK, props: {} }
+  ])
+
+  world.sceneComponentRegistry.set(CameraTrackComponent.name, SCENE_COMPONENT_CAMERA_TRACK)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA_TRACK, {
+    defaultData: {}
+  })
+
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
@@ -531,6 +543,11 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
     world.sceneComponentRegistry.delete(SplineComponent.name)
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.cameraTrack)
+
+    world.sceneComponentRegistry.delete(CameraTrackComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_CAMERA_TRACK)
 
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)
