@@ -7,7 +7,6 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { Application } from '@xrengine/server-core/declarations'
 import multiLogger from '@xrengine/server-core/src/ServerLogger'
-import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 
 import {
   authorizeUserToJoinServer,
