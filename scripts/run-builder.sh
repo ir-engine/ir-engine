@@ -16,17 +16,17 @@ bash ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAM
 npm run check-db-exists
 npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
-npm run install-projects >project-install-build-logs.txt 2>project-install-build-error.txt
+npm run install-projects >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
 test -s project-install-build-error.txt && npm run record-build-error -- --service=project-install
-npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt
+npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
-npm run update-site-manifest >update-site-manifest-build-logs.txt 2>update-site-manifest-build-error.txt
+npm run update-site-manifest >update-site-manifest-build-logs.txt 2>update-site-manifest-build-error.txt || npm run record-build-error -- --service=update-site-manifest
 test -s update-site-manifest-build-error.txt && npm run record-build-error -- --service=update-site-manifest
-cd packages/client && npm run buildenv >buildenv-build-logs.txt 2>buildenv-build-error.txt
+cd packages/client && npm run buildenv >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
 then
-  npm run populate-assetlinks >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt
+  npm run populate-assetlinks >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
 test -s populate-assetlinks-build-error.txt && npm run record-build-error -- --service=populate-assetlinks
 fi
 cd ../..
