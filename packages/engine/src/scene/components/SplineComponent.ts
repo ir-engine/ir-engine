@@ -12,6 +12,7 @@ export const SplineComponent = defineComponent({
 
   onInit: (entity) => {
     const splinePositions = [] as Vector3[]
+    const splineDivisions = [] as Vector3[]
     const spline = new Spline(splinePositions)
     spline.name = `spline-helper-${entity}`
     addObjectToGroup(entity, spline)
@@ -19,23 +20,30 @@ export const SplineComponent = defineComponent({
 
     return {
       splinePositions,
+      splineDivisions,
+      divisions: 200,
       spline
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
+    if (matches.number.test(json.divisions)) {
+      component.divisions.set(json.divisions)
+    }
     if (matches.array.test(json.splinePositions)) {
       const points = [] as Vector3[]
       for (const pos of json.splinePositions) points.push(new Vector3(pos.x, pos.y, pos.z))
       component.splinePositions.set(points)
       component.spline.value.load(component.splinePositions.value)
+      component.splineDivisions.set(component.spline.value.curve.getSpacedPoints())
     }
   },
 
   toJSON: (entity, component) => {
     return {
-      splinePositions: component.spline.value._splineHelperObjects.map((obj) => obj.position)
+      splinePositions: component.spline.value._splineHelperObjects.map((obj) => obj.position),
+      divisions: component.divisions.value
     }
   },
 
