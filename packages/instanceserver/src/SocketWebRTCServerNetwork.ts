@@ -67,8 +67,9 @@ export class SocketWebRTCServerNetwork extends Network {
       }
     }) as Array<PeersUpdateType>
     if (peers.length)
-      for (const [socketID, socket] of this.app.io.of('/').sockets)
-        socket.emit(MessageTypes.UpdatePeers.toString(), peers)
+      this.app.primus.forEach((spark, id, connections) => {
+        spark.write({ type: MessageTypes.UpdatePeers.toString(), data: peers })
+      })
   }
 
   public sendActions = (): any => {
@@ -79,7 +80,7 @@ export class SocketWebRTCServerNetwork extends Network {
 
     const outgoing = Engine.instance.store.actions.outgoing
 
-    for (const [socketID, socket] of this.app.io.of('/').sockets) {
+    this.app.primus.forEach((spark, sparkId) => {
       const arr: Action[] = []
       for (const a of [...actions]) {
         const action = { ...a }
@@ -88,20 +89,23 @@ export class SocketWebRTCServerNetwork extends Network {
           outgoing[this.topic].queue.splice(idx, 1)
         }
         if (!action.$to) continue
-        const toUserId = this.peers.get(socketID)?.userId
+        const toUserId = this.peers.get(sparkId)?.userId
         if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
           arr.push(action)
         }
       }
-      if (arr.length) socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ arr) //)
-    }
+      if (arr.length) spark.write({ type: MessageTypes.ActionData.toString(), /*encode(*/ data: arr }) //)
+    })
 
     // TODO: refactor this to support multiple connections of the same topic type
     clearOutgoingActions(this.topic, Engine.instance.store)
   }
 
   public sendReliableData = (message: any): any => {
-    if (this.app.io != null) this.app.io.of('/').emit(MessageTypes.ReliableMessage.toString(), message)
+    if (this.app.primus != null)
+      this.app.primus.forEach((spark) => {
+        spark.write(MessageTypes.ReliableMessage.toString(), message)
+      })
   }
 
   public sendData = (data: Buffer): void => {

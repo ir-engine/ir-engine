@@ -33,7 +33,7 @@ import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
-interface SocketIOConnectionType {
+interface PrimusConnectionType {
   provider: string
   headers: any
   socketQuery?: {
@@ -417,7 +417,7 @@ const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
 
 const handleUserDisconnect = async (
   app: Application,
-  connection: SocketIOConnectionType,
+  connection: PrimusConnectionType,
   user: UserInterface,
   instanceId: string
 ) => {
@@ -497,7 +497,7 @@ const handleUserDisconnect = async (
   }
 }
 
-const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
+const onConnection = (app: Application) => async (connection: PrimusConnectionType) => {
   logger.info('Connection: %o', connection)
 
   if (!connection.socketQuery?.token) return
@@ -581,7 +581,7 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   await handleUserAttendance(app, userId)
 }
 
-const onDisconnection = (app: Application) => async (connection: SocketIOConnectionType) => {
+const onDisconnection = (app: Application) => async (connection: PrimusConnectionType) => {
   logger.info('Disconnection: %o', connection)
   const token = connection.socketQuery?.token
   if (!token) return
