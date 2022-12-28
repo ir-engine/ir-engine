@@ -4,6 +4,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { VPSSystem } from './VPSSystem'
+import { getOriginReferenceSpace } from './XRState'
 
 /**
  * XRPersistentAnchorSystem
@@ -28,7 +29,7 @@ type XRAnchorPersistentType = XRAnchor & {
 const createAnchor = async (xrFrame: XRFramePersistentAnchorType, position: Vector3, rotation: Quaternion) => {
   if (xrFrame) {
     const anchorPose = new XRRigidTransform(position, rotation)
-    return await xrFrame.createAnchor?.(anchorPose, EngineRenderer.instance.renderer.xr.getReferenceSpace()!)
+    return await xrFrame.createAnchor?.(anchorPose, getOriginReferenceSpace()!)
   } else {
     throw new Error('XRFrame not available.')
   }
@@ -41,7 +42,7 @@ const createPersistentAnchor = async (
 ) => {
   if (xrFrame) {
     const anchorPose = new XRRigidTransform(position, rotation)
-    const anchor = await xrFrame.createAnchor(anchorPose, EngineRenderer.instance.renderer.xr.getReferenceSpace()!)!
+    const anchor = await xrFrame.createAnchor(anchorPose, getOriginReferenceSpace()!)!
     try {
       const handle = await anchor.requestPersistentHandle()
       return [anchor, handle]
@@ -108,7 +109,7 @@ export default async function XRPersistentAnchorSystem(world: World) {
         }
       }
 
-      const xrSpace = EngineRenderer.instance.renderer.xr.getReferenceSpace()!
+      const xrSpace = getOriginReferenceSpace()!
 
       for (const anchor of anchors) {
         const knownPose = anchorPoses.get(anchor)

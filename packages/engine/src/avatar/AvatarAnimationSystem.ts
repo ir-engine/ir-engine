@@ -30,7 +30,7 @@ import {
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRHand } from '../xr/XRComponents'
-import { getControlMode, XRState } from '../xr/XRState'
+import { getControlMode, getOriginReferenceSpace, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
@@ -121,7 +121,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
     /** Update controller pose input sources from WebXR into the ECS */
     if (xrFrame && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
-      const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+      const referenceSpace = getOriginReferenceSpace()!
 
       /** Head */
       if (inAttachedControlMode && hasComponent(localClientEntity, AvatarHeadIKComponent)) {
@@ -139,7 +139,6 @@ export default async function AvatarAnimationSystem(world: World) {
           if (hand && xrFrame.getJointPose) {
             const wrist = hand.get('wrist')
             if (wrist) {
-              const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
               const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
               if (jointPose) {
                 ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
@@ -165,7 +164,6 @@ export default async function AvatarAnimationSystem(world: World) {
           if (hand && xrFrame.getJointPose) {
             const wrist = hand.get('wrist')
             if (wrist) {
-              const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
               const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
               if (jointPose) {
                 ik.target.position.copy(jointPose.transform.position as unknown as Vector3)

@@ -12,7 +12,7 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRPlaneComponent } from './XRComponents'
-import { XRAction } from './XRState'
+import { getOriginReferenceSpace, XRAction } from './XRState'
 
 type DetectedPlanesType = {
   /** WebXR implements detectedPlanes on the XRFrame, but the current typescript implementation has it on worldInformation */
@@ -21,7 +21,7 @@ type DetectedPlanesType = {
 }
 
 export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, plane: XRPlane) => {
-  const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
+  const referenceSpace = getOriginReferenceSpace()
   if (!referenceSpace) return
 
   const planePose = frame.getPose(plane.planeSpace, referenceSpace)

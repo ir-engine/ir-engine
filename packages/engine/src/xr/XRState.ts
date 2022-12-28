@@ -6,7 +6,10 @@ import { defineAction } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { isHMD } from '../common/functions/isMobile'
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XREstimatedLight } from './XREstimatedLight'
 
@@ -113,4 +116,15 @@ export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhan
     if (!offhand && avatarInputSettings.preferredHand.value == inputSource.handedness) return inputSource
     if (offhand && avatarInputSettings.preferredHand.value !== inputSource.handedness) return inputSource
   }
+}
+
+export const getOriginReferenceSpace = () => {
+  const world = Engine.instance.currentWorld
+  const xrState = getState(XRState)
+  const refSpace = xrState.originReferenceSpace.value
+  if (!refSpace) return
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+  const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
+  const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
+  return offsetRefSpace
 }

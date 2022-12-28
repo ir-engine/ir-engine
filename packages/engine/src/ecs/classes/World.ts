@@ -46,7 +46,11 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { FogType } from '../../scene/constants/FogType'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../../scene/constants/PostProcessing'
-import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,

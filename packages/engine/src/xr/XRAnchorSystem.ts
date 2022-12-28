@@ -41,7 +41,7 @@ import {
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import { updateWorldOrigin } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
-import { getControlMode, XRAction, XRReceptors, XRState } from './XRState'
+import { getControlMode, getOriginReferenceSpace, XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
 const _vecScale = new Vector3()
@@ -91,7 +91,7 @@ const orient = new Quaternion()
 
 /** AR placement for immersive session */
 export const getNonImmersiveHitTestTransform = (world = Engine.instance.currentWorld) => {
-  const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+  const referenceSpace = getOriginReferenceSpace()!
   const pose = Engine.instance.xrFrame!.getPose(world.inputSources[0].targetRaySpace, referenceSpace)!
   const { position, orientation } = pose.transform
 

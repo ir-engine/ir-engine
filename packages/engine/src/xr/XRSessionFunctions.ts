@@ -1,3 +1,5 @@
+import { Quaternion, Vector3 } from 'three'
+
 import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { dispatchAction, getState, none } from '@xrengine/hyperflux'
 
@@ -19,6 +21,8 @@ import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { getControlMode, XRAction, XRState } from './XRState'
+
+const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 const skyboxQuery = defineQuery([SkyboxComponent])
 
@@ -84,7 +88,7 @@ export const requestXRSession = createHookableFunction(
 
       const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
       worldOriginTransform.position.copy(rigidBody.position)
-      worldOriginTransform.rotation.copy(rigidBody.rotation)
+      worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
 
       setLocalTransformComponent(world.cameraEntity, world.originEntity)
       const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)

@@ -62,7 +62,7 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
     /** shift the world origin by the distance the camera has moved relative to the avatar */
     const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
     worldOriginTransform.position.add(avatarCameraTranslationDifference)
-    worldOriginTransform.rotation.multiply(avatarCameraRotationDifference).copy(avatarYRotation)
+    worldOriginTransform.rotation.multiply(avatarCameraRotationDifference)
   }
 
   if (hasComponent(entity, RigidBodyComponent)) {
