@@ -96,7 +96,8 @@ export class Avatar extends Service<AvatarInterface> {
       isPublic: data.isPublic ?? true,
       userId: params?.user!.id,
       modelResourceId: data.modelResourceId,
-      thumbnailResourceId: data.thumbnailResourceId
+      thumbnailResourceId: data.thumbnailResourceId,
+      project: data.project
     })) as AvatarInterface
     avatar = await this.patch(avatar.id, {
       identifierName: avatar.name + '_' + avatar.id
@@ -134,7 +135,9 @@ export class Avatar extends Service<AvatarInterface> {
     const avatar = await this.get(id, params)
     try {
       await this.app.service('static-resource').remove(avatar.modelResourceId)
-    } catch (err) {}
+    } catch (err) {
+      logger.error(err)
+    }
     try {
       await this.app.service('static-resource').remove(avatar.thumbnailResourceId)
     } catch (err) {}

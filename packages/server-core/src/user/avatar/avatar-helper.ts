@@ -5,6 +5,7 @@ import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownC
 
 import { Application } from '../../../declarations'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
+import { getProjectPackageJson } from '../../projects/project/project-helper'
 import logger from '../../ServerLogger'
 import { UserParams } from '../user/user.class'
 
@@ -14,6 +15,7 @@ export type AvatarCreateArguments = {
   identifierName?: string
   name: string
   isPublic?: boolean
+  project?: string
 }
 
 export type AvatarPatchArguments = {
@@ -30,10 +32,12 @@ export type AvatarUploadArguments = {
   isPublic: boolean
   avatarFileType?: string
   avatarId?: string
+  project?: string
 }
 
 // todo: move this somewhere else
 const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
+const PROJECT_NAME_REGEX = /projects\/([a-zA-Z0-9-_.]+)\/public\/avatars$/
 
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
   const avatarsToInstall = fs
@@ -51,21 +55,38 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         avatarName,
         avatarFileType,
         isPublic: true
-      }
+      } as AvatarUploadArguments
     })
   const promises: Promise<any>[] = []
+  const projectNameExec = PROJECT_NAME_REGEX.exec(avatarsFolder)
+  let projectJSON
+  if (projectNameExec) projectJSON = getProjectPackageJson(projectNameExec[1])
+  let projectName
+  if (projectJSON) projectName = projectJSON.name
   for (const avatar of avatarsToInstall) {
     promises.push(
       new Promise(async (resolve, reject) => {
         try {
-          const newAvatar = await app.service('avatar').create({
-            name: avatar.avatarName,
-            isPublic: avatar.isPublic
+          const existingAvatar = await app.service('avatar').Model.findOne({
+            where: {
+              name: avatar.avatarName,
+              isPublic: avatar.isPublic,
+              project: projectName
+            }
           })
-          avatar.avatarName = newAvatar.identifierName
+          let selectedAvatar
+          if (!existingAvatar) {
+            selectedAvatar = await app.service('avatar').create({
+              name: avatar.avatarName,
+              isPublic: avatar.isPublic,
+              project: projectName
+            })
+          } else selectedAvatar = existingAvatar
+          avatar.avatarName = selectedAvatar.identifierName
+          avatar.project = projectName
           const [modelResource, thumbnailResource] = await uploadAvatarStaticResource(app, avatar)
 
-          await app.service('avatar').patch(newAvatar.id, {
+          await app.service('avatar').patch(selectedAvatar.id, {
             modelResourceId: modelResource.id,
             thumbnailResourceId: thumbnailResource.id
           })
@@ -95,13 +116,15 @@ export const uploadAvatarStaticResource = async (
   const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, CommonKnownContentTypes.glb, {
     userId: params?.user!.id,
     key: `${key}.${data.avatarFileType ?? 'glb'}`,
-    staticResourceType: 'avatar'
+    staticResourceType: 'avatar',
+    project: data.project
   })
 
   const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, CommonKnownContentTypes.png, {
     userId: params?.user!.id,
     key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
-    staticResourceType: 'user-thumbnail'
+    staticResourceType: 'user-thumbnail',
+    project: data.project
   })
 
   const [modelResource, thumbnailResource] = await Promise.all([modelPromise, thumbnailPromise])
