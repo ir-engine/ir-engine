@@ -89,6 +89,7 @@ export const requestXRSession = createHookableFunction(
       setLocalTransformComponent(world.cameraEntity, world.originEntity)
       const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
       xrState.previousCameraPosition.value.copy(cameraTransform.position)
+      xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
 
       xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
