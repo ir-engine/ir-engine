@@ -4,6 +4,7 @@ import { getState } from '@xrengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { V_010, V_111 } from '../common/constants/MathConstants'
+import { extractRotationAboutAxis } from '../common/functions/MathFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
@@ -20,6 +21,8 @@ const cameraTranslationDifference = new Vector3()
 const cameraRotationDifference = new Quaternion()
 const avatarCameraTranslationDifference = new Vector3()
 const avatarCameraRotationDifference = new Quaternion()
+const avatarYRotationDifference = new Quaternion()
+const cameraYRotationDifference = new Quaternion()
 
 /**
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
@@ -49,7 +52,12 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
 
     /** avatar camera differnce is the distance the camera has moved relative to the avatar since the last webxr frame */
     avatarCameraTranslationDifference.subVectors(avatarTranslationDifference, cameraTranslationDifference)
-    avatarCameraRotationDifference.multiplyQuaternions(cameraRotationDifference.invert(), avatarRotationDifference)
+    // avatarCameraRotationDifference.multiplyQuaternions(cameraRotationDifference.invert(), avatarRotationDifference)
+
+    extractRotationAboutAxis(avatarRotationDifference, V_010, avatarYRotationDifference)
+    extractRotationAboutAxis(cameraRotationDifference, V_010, cameraYRotationDifference)
+
+    avatarCameraRotationDifference.multiplyQuaternions(cameraYRotationDifference.invert(), avatarYRotationDifference)
 
     /** shift the world origin by the distance the camera has moved relative to the avatar */
     const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
