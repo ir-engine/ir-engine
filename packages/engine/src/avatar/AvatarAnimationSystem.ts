@@ -138,7 +138,7 @@ export default async function AvatarAnimationSystem(world: World) {
           /** detect hand joint pose support */
           if (hand && xrFrame.getJointPose) {
             const wrist = hand.get('wrist')
-            if (wrist && xrFrame.getJointPose) {
+            if (wrist) {
               const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
               const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
               if (jointPose) {
@@ -162,9 +162,9 @@ export default async function AvatarAnimationSystem(world: World) {
         if (inputSource.handedness === 'right' && hasComponent(localClientEntity, AvatarRightHandIKComponent)) {
           const ik = getComponent(localClientEntity, AvatarRightHandIKComponent)
           const hand = inputSource.hand as XRHand | undefined
-          if (hand) {
+          if (hand && xrFrame.getJointPose) {
             const wrist = hand.get('wrist')
-            if (wrist && xrFrame.getJointPose) {
+            if (wrist) {
               const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
               const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
               if (jointPose) {
