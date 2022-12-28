@@ -36,7 +36,7 @@ export const SplineComponent = defineComponent({
       for (const pos of json.splinePositions) points.push(new Vector3(pos.x, pos.y, pos.z))
       component.splinePositions.set(points)
       component.spline.value.load(component.splinePositions.value)
-      component.splineDivisions.set(component.spline.value.curve.getSpacedPoints())
+      component.splineDivisions.set(component.spline.value.curve.getSpacedPoints(component.divisions.value))
     }
   },
 
