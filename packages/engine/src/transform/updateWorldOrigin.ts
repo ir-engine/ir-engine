@@ -21,8 +21,8 @@ const cameraTranslationDifference = new Vector3()
 const cameraRotationDifference = new Quaternion()
 const avatarCameraTranslationDifference = new Vector3()
 const avatarCameraRotationDifference = new Quaternion()
-const avatarYRotationDifference = new Quaternion()
-const cameraYRotationDifference = new Quaternion()
+const avatarYRotation = new Quaternion()
+const cameraYRotation = new Quaternion()
 
 /**
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
@@ -54,15 +54,15 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
     avatarCameraTranslationDifference.subVectors(avatarTranslationDifference, cameraTranslationDifference)
     // avatarCameraRotationDifference.multiplyQuaternions(cameraRotationDifference.invert(), avatarRotationDifference)
 
-    extractRotationAboutAxis(avatarRotationDifference, V_010, avatarYRotationDifference)
-    extractRotationAboutAxis(cameraRotationDifference, V_010, cameraYRotationDifference)
+    extractRotationAboutAxis(rigidBody.rotation, V_010, avatarYRotation)
+    extractRotationAboutAxis(cameraLocalTransform.rotation, V_010, cameraYRotation)
 
-    avatarCameraRotationDifference.multiplyQuaternions(cameraYRotationDifference.invert(), avatarYRotationDifference)
+    avatarCameraRotationDifference.multiplyQuaternions(cameraYRotation.invert(), avatarYRotation)
 
     /** shift the world origin by the distance the camera has moved relative to the avatar */
     const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
     worldOriginTransform.position.add(avatarCameraTranslationDifference)
-    worldOriginTransform.rotation.multiply(avatarCameraRotationDifference)
+    worldOriginTransform.rotation.multiply(avatarCameraRotationDifference).copy(avatarYRotation)
   }
 
   if (hasComponent(entity, RigidBodyComponent)) {
