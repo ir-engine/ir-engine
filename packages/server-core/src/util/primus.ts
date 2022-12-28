@@ -3,7 +3,7 @@ import http from 'http'
 import Primus from 'primus'
 import Emitter from 'primus-emitter'
 
-function configurePrimus(instanceserver = false, config?: any, configurer?: any) {
+function configurePrimus(config?: any, configurer?: any) {
   return function (app) {
     // Returns the connection object
     const getParams = (spark) => spark.request.feathers
@@ -61,13 +61,7 @@ function configurePrimus(instanceserver = false, config?: any, configurer?: any)
               0
             )
 
-            primus.on('connection', async (spark) => {
-              socketMap.set(getParams(spark), spark)
-              if (instanceserver) {
-                const { setupSocketFunctions } = await import('@xrengine/instanceserver/src/SocketFunctions')
-                setupSocketFunctions(app, spark)
-              }
-            })
+            primus.on('connection', async (spark) => socketMap.set(getParams(spark), spark))
             primus.on('disconnection', (spark) => app.emit('disconnect', getParams(spark)))
           }
 
