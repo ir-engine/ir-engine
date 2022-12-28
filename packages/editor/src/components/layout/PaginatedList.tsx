@@ -1,19 +1,19 @@
 import React, { JSXElementConstructor, useEffect } from 'react'
 
 import { any } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { useHookstate } from '@xrengine/hyperflux'
+import { State, useHookstate } from '@xrengine/hyperflux'
 
 import { Grid, Stack } from '@mui/material'
 
 import { Button } from '../inputs/Button'
 import Well from './Well'
 
-export default function PaginatedList({
+export default function PaginatedList<T>({
   list,
   element,
   options
 }: {
-  ['list']: any[]
+  ['list']: T[] | State<T[]>
   ['element']: any
   ['options']?: {
     ['countPerPage']?: number
