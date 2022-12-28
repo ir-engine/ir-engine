@@ -116,7 +116,6 @@ export default defineConfig(async () => {
     resolve: {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
-        'socket.io-client': 'socket.io-client/dist/socket.io.js',
         '@mui/styled-engine': '@mui/styled-engine-sc/'
       }
     },

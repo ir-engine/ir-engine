@@ -15,7 +15,6 @@
 # Declare variables to be passed into your templates.
 
 agones:
-  featureGates: "RollingUpdateOnReady=true"
   metrics:
     prometheusEnabled: true
     prometheusServiceDiscovery: true

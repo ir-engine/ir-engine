@@ -66,7 +66,7 @@ import EditorSelectionReceptor, { SelectionState } from '../services/SelectionSe
 
 const SELECT_SENSITIVITY = 0.001
 
-export default async function EditorControlSystem(world: World) {
+export const createTransformGizmo = async () => {
   const gizmoEntity = createEntity()
   addComponent(gizmoEntity, NameComponent, 'Transform Gizmo')
   const gizmo = new TransformGizmo()
@@ -75,6 +75,11 @@ export default async function EditorControlSystem(world: World) {
   addComponent(gizmoEntity, TransformGizmoComponent, { gizmo })
   setTransformComponent(gizmoEntity)
   addObjectToGroup(gizmoEntity, gizmo)
+  return gizmoEntity
+}
+
+export default async function EditorControlSystem(world: World) {
+  const gizmoEntity = await createTransformGizmo()
 
   const selectionState = getState(SelectionState)
   const editorHelperState = getState(EditorHelperState)

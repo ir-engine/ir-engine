@@ -42,7 +42,7 @@
   "dependencies": {
     "@feathersjs/express": "5.0.0-pre.29",
     "@feathersjs/feathers": "5.0.0-pre.29",
-    "@feathersjs/socketio": "5.0.0-pre.29",
+    "@feathersjs/primus":  "4.5.15",
     "@swc/core": "^1.2.210",
     "@xrengine/server-core": "^1.0.0-rc8",
     "compression": "1.7.4",

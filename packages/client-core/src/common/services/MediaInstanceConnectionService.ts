@@ -146,8 +146,8 @@ export const MediaInstanceConnectionService = {
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
     const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    logger.info({ socket: !!network.socket, network }, 'Connect To Media Server.')
-    if (network.socket) {
+    logger.info({ primus: !!network.primus, network }, 'Connect To Media Server.')
+    if (network.primus) {
       await endVideoChat(network, { endConsumers: true })
       leaveNetwork(network, false)
     }

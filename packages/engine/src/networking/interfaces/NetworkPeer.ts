@@ -1,4 +1,4 @@
-import type SocketIO from 'socket.io'
+import { Spark } from 'primus'
 
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
@@ -11,7 +11,7 @@ export interface NetworkPeer {
   spectating?: boolean
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
   // The following properties are only present on the server
-  socket?: SocketIO.Socket
+  spark?: Spark
   peerIndex: number
   peerID: PeerID
   lastSeenTs?: any
