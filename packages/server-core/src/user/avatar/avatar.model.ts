@@ -35,6 +35,10 @@ export default (app: Application) => {
       },
       userId: {
         type: DataTypes.UUID
+      },
+      project: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
     {
