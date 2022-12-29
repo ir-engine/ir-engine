@@ -123,10 +123,9 @@ This section lists configuration specific for server, client components.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| client.extraEnv.API_SERVER | string | `"http://xrengine.local"` |  |
 | client.extraEnv.APP_ENV | string | `"development"` |  |
 | client.extraEnv.SITE_DESC | string | `"Connected Worlds for Everyone"` |  |
-| client.extraEnv.SITE_TITLE | string | `"MyXR"` |  |
+| client.extraEnv.SITE_TITLE | string | `"Ethereal Engine"` |  |
 | rts.extraEnv.NAF_LISTEN_PORT | string | `"8081"` |  |
 | server.extraEnv.APP_HOST | string | `"http://api.xrengine.local/"` |  |
 | server.extraEnv.FACEBOOK_CALLBACK_URL | string | `"http://127.0.0.1:3000/oauth/facebook"` |  |
