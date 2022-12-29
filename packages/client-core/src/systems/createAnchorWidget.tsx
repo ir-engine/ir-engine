@@ -31,7 +31,9 @@ export function createAnchorWidget(world: World) {
     onOpen: () => {
       dispatchAction(
         XRAction.changePlacementMode({
-          active: true
+          inputSource: Array.from(world.inputSources.values()).find(
+            (inputSource) => inputSource.handedness === avatarInputSettings.preferredHand.value
+          )
         })
       )
     },
@@ -49,7 +51,7 @@ export function createAnchorWidget(world: World) {
       if (buttonInput) {
         dispatchAction(
           XRAction.changePlacementMode({
-            active: false
+            inputSource: null
           })
         )
       }

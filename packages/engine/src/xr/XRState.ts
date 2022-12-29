@@ -1,5 +1,5 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import matches from 'ts-matches'
+import matches, { Validator } from 'ts-matches'
 
 import { defineState, getState } from '@xrengine/hyperflux'
 import { defineAction } from '@xrengine/hyperflux'
@@ -18,7 +18,7 @@ export const XRState = defineState({
   initial: () => ({
     sessionActive: false,
     requestingSession: false,
-    scenePlacementMode: false,
+    scenePlacementMode: null as XRInputSource | null,
     supportedSessionModes: {
       inline: false,
       'immersive-ar': false,
@@ -63,7 +63,7 @@ export const XRState = defineState({
 
 export const XRReceptors = {
   scenePlacementMode: (action: ReturnType<typeof XRAction.changePlacementMode>) => {
-    getState(XRState).scenePlacementMode.set(action.active)
+    getState(XRState).scenePlacementMode.set(action.inputSource)
   }
 }
 
@@ -85,7 +85,7 @@ export class XRAction {
 
   static changePlacementMode = defineAction({
     type: 'xre.xr.changePlacementMode',
-    active: matches.boolean
+    inputSource: matches.object.optional() as Validator<unknown, XRInputSource | null>
   })
 
   // todo, support more haptic formats other than just vibrating controllers
