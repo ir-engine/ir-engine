@@ -73,12 +73,10 @@ export const requestXRSession = createHookableFunction(
         xrManager.setFramebufferScaleFactor(1.2)
       }
 
-      await xrManager.setSession(xrSession)
-
+      xrState.originReferenceSpace.set(xrSession.requestReferenceSpace('local-floor'))
+      xrState.localFloorReferenceSpace.set(xrSession.requestReferenceSpace('local-floor'))
+      xrState.viewerReferenceSpace.set(xrSession.requestReferenceSpace('viewer'))
       xrState.sessionActive.set(true)
-
-      const referenceSpace = xrManager.getReferenceSpace()
-      xrState.originReferenceSpace.set(referenceSpace)
 
       const world = Engine.instance.currentWorld
 
@@ -91,7 +89,7 @@ export const requestXRSession = createHookableFunction(
       worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
 
       setLocalTransformComponent(world.cameraEntity, world.originEntity)
-      const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
       xrState.previousCameraPosition.value.copy(cameraTransform.position)
       xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
 
@@ -127,6 +125,7 @@ export const requestXRSession = createHookableFunction(
         worldOriginTransform.rotation.identity()
 
         xrState.originReferenceSpace.set(null)
+        xrState.localFloorReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)
 
         const skybox = skyboxQuery()[0]
@@ -134,6 +133,8 @@ export const requestXRSession = createHookableFunction(
         dispatchAction(XRAction.sessionChanged({ active: false }))
       }
       xrManager.addEventListener('sessionend', onSessionEnd)
+
+      await xrManager.setSession(xrSession)
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
     } catch (e) {

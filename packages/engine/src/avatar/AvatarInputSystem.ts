@@ -13,7 +13,7 @@ import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { LocalTransformComponent } from '../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { getControlMode, XRState } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
@@ -167,22 +167,11 @@ export default async function AvatarInputSystem(world: World) {
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
     if (xrCameraAttached) {
-      /**
-       * @todo #7328 we need a function to explicitly calculate transforms relative to the
-       *   origin entity (or any entity), without making assumptions about hierarchy.
-       *
-       * ex:   `getTransformRelativeTo(world.cameraEntity, world.originEntity)`
-       */
-      const rigidBody = getComponent(localClientEntity, RigidBodyComponent)
-      const cameraTransformRelativeToOrigin = getComponent(world.cameraEntity, LocalTransformComponent)
-      const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
-
-      cameraTranslationDifference
-        .copy(cameraTransformRelativeToOrigin.position)
-        .sub(xrState.previousCameraPosition.value)
+      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+      cameraTranslationDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value)
       cameraRotationDifference
         .copy(_quat.copy(xrState.previousCameraRotation.value).invert())
-        .multiply(cameraLocalTransform.rotation)
+        .multiply(cameraTransform.rotation)
 
       controller.desiredMovement.copy(cameraTranslationDifference)
       const cameraYSpin = _euler.setFromQuaternion(cameraRotationDifference).y

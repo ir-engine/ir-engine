@@ -33,8 +33,17 @@ export const XRState = defineState({
      */
     avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
     avatarHeadLock: false as 'auto' | true | false,
-    /** origin is always 0,0,0 */
+    /**
+     * The scene origin reference space describes where the origin of the tracking space is
+     */
     originReferenceSpace: null as XRReferenceSpace | null,
+    /**
+     * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-local-floor
+     */
+    localFloorReferenceSpace: null as XRReferenceSpace | null,
+    /**
+     * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-viewer
+     */
     viewerReferenceSpace: null as XRReferenceSpace | null,
     viewerHitTestSource: null as XRHitTestSource | null,
     viewerHitTestEntity: 0 as Entity,
@@ -116,15 +125,4 @@ export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhan
     if (!offhand && avatarInputSettings.preferredHand.value == inputSource.handedness) return inputSource
     if (offhand && avatarInputSettings.preferredHand.value !== inputSource.handedness) return inputSource
   }
-}
-
-export const getOriginReferenceSpace = () => {
-  const world = Engine.instance.currentWorld
-  const xrState = getState(XRState)
-  const refSpace = xrState.originReferenceSpace.value
-  if (!refSpace) return
-  const originTransform = getComponent(world.originEntity, TransformComponent)
-  const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
-  const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
-  return offsetRefSpace
 }

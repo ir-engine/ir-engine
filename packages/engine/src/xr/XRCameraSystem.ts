@@ -27,11 +27,11 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
   /*
    * We want to position the camera relative to the xr origin
    */
-  const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
-  cameraLocalTransform.matrix.copy(camera.matrixWorld)
-  cameraLocalTransform.position.copy(camera.position)
-  cameraLocalTransform.rotation.copy(camera.quaternion)
-  cameraLocalTransform.scale.copy(camera.scale)
+  const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+  cameraTransform.matrix.copy(camera.matrixWorld)
+  cameraTransform.position.copy(camera.position)
+  cameraTransform.rotation.copy(camera.quaternion)
+  cameraTransform.scale.copy(camera.scale)
 
   /*
    * xr cameras also have to have their world transforms updated relative to the origin, as these are used for actual rendering
@@ -61,7 +61,7 @@ export default async function XRCameraSystem(world: World) {
       return
     }
 
-    const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+    const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
     xrState.previousCameraPosition.value.copy(cameraTransform.position)
     xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
 
@@ -69,7 +69,7 @@ export default async function XRCameraSystem(world: World) {
 
     /** ensure that on the first frame of a WebXR session, the camera difference is 0 to avoid desync */
     if (!hasRun) {
-      const cameraTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
       xrState.previousCameraPosition.value.copy(cameraTransform.position)
       xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
       hasRun = true

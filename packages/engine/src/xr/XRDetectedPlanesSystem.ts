@@ -1,6 +1,6 @@
 import { BoxGeometry, Mesh, MeshBasicMaterial, MeshLambertMaterial, ShadowMaterial } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -12,7 +12,7 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRPlaneComponent } from './XRComponents'
-import { getOriginReferenceSpace, XRAction } from './XRState'
+import { XRAction, XRState } from './XRState'
 
 type DetectedPlanesType = {
   /** WebXR implements detectedPlanes on the XRFrame, but the current typescript implementation has it on worldInformation */
@@ -21,7 +21,7 @@ type DetectedPlanesType = {
 }
 
 export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, plane: XRPlane) => {
-  const referenceSpace = getOriginReferenceSpace()
+  const referenceSpace = getState(XRState).originReferenceSpace.value
   if (!referenceSpace) return
 
   const planePose = frame.getPose(plane.planeSpace, referenceSpace)

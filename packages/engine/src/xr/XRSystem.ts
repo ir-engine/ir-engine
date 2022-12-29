@@ -1,5 +1,7 @@
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import XR8 from './8thwall/XR8'
 import { World } from './../ecs/classes/World'
 import XRAnchorSystem from './XRAnchorSystem'

@@ -34,14 +34,13 @@ import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import {
   LocalTransformComponent,
-  setLocalTransformComponent,
   setTransformComponent,
   TransformComponent
 } from '../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import { updateWorldOrigin } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
-import { getControlMode, getOriginReferenceSpace, XRAction, XRReceptors, XRState } from './XRState'
+import { getControlMode, XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
 const _vecScale = new Vector3()
@@ -66,11 +65,11 @@ export const updateHitTest = (entity: Entity) => {
   const hitTestComponent = getComponent(entity, XRHitTestComponent)
 
   if (hitTestComponent.hitTestSource) {
-    const localTransform = getComponent(entity, LocalTransformComponent)
+    const localTransform = getComponent(entity, TransformComponent)
     const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource!)
     if (hitTestResults.length) {
       const hit = hitTestResults[0]
-      const hitPose = hit.getPose(xrState.originReferenceSpace.value!)!
+      const hitPose = hit.getPose(xrState.localFloorReferenceSpace.value!)!
       localTransform.position.copy(hitPose.transform.position as any as Vector3)
       localTransform.rotation.copy(hitPose.transform.orientation as any as Quaternion)
       hitTestComponent.hitTestResult = hit
@@ -91,7 +90,7 @@ const orient = new Quaternion()
 
 /** AR placement for immersive session */
 export const getNonImmersiveHitTestTransform = (world = Engine.instance.currentWorld) => {
-  const referenceSpace = getOriginReferenceSpace()!
+  const referenceSpace = getState(XRState).originReferenceSpace.value!
   const pose = Engine.instance.xrFrame!.getPose(world.inputSources[0].targetRaySpace, referenceSpace)!
   const { position, orientation } = pose.transform
 
@@ -203,15 +202,16 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 }
 
 export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorld) => {
-  const xrState = getState(XRState)
   const anchor = getComponent(entity, XRAnchorComponent).anchor
   const xrFrame = Engine.instance.xrFrame!
+  const xrManager = EngineRenderer.instance.xrManager!
+  const referenceSpace = xrManager.getReferenceSpace()!
   if (anchor) {
-    const pose = xrFrame.getPose(anchor.anchorSpace, xrState.originReferenceSpace.value!)
+    const pose = xrFrame.getPose(anchor.anchorSpace, referenceSpace)
     if (pose) {
-      const localTransform = getComponent(entity, LocalTransformComponent)
-      localTransform.position.copy(pose.transform.position as any as Vector3)
-      localTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
+      const transform = getComponent(entity, TransformComponent)
+      transform.position.copy(pose.transform.position as any as Vector3)
+      transform.rotation.copy(pose.transform.orientation as any as Quaternion)
     }
   }
 }
@@ -226,7 +226,7 @@ export default async function XRAnchorSystem(world: World) {
 
   const scenePlacementEntity = createEntity()
   setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-  setLocalTransformComponent(scenePlacementEntity, world.originEntity)
+  setTransformComponent(scenePlacementEntity)
   setComponent(scenePlacementEntity, VisibleComponent, true)
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
@@ -256,23 +256,15 @@ export default async function XRAnchorSystem(world: World) {
       if (action.active) {
         if (xrState.sessionMode.value === 'immersive-ar') {
           const session = EngineRenderer.instance.xrSession
-          session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
-            const xrState = getState(XRState)
-            xrState.viewerReferenceSpace.set(viewerReferenceSpace)
-            if ('requestHitTestSource' in session) {
-              session.requestHitTestSource!({ space: viewerReferenceSpace })!
-                .then((source) => {
-                  xrState.viewerHitTestSource.set(source)
-                })
-                .catch((err) => {
-                  console.warn('Failed to requestHitTestSource', err)
-                })
-            }
-          })
+          const xrState = getState(XRState)
+          if ('requestHitTestSource' in session) {
+            xrState.viewerHitTestSource.set(
+              session.requestHitTestSource!({ space: xrState.viewerReferenceSpace.value! }) ?? null
+            )
+          }
         }
       } else {
         setTransformComponent(world.originEntity) // reset world origin
-        xrState.viewerReferenceSpace.set(null)
         xrState.scenePlacementMode.set(false)
         hasComponent(world.originEntity, XRAnchorComponent) && removeComponent(world.originEntity, XRAnchorComponent)
 

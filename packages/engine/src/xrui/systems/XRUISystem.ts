@@ -25,7 +25,7 @@ import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { getOriginReferenceSpace, XRState } from '../../xr/XRState'
+import { XRState } from '../../xr/XRState'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent, XRUIInteractableComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
@@ -210,8 +210,8 @@ export default async function XRUISystem(world: World) {
 
       const pointer = pointers.get(inputSource)!
 
-      if (Engine.instance.xrFrame) {
-        const referenceSpace = getOriginReferenceSpace()!
+      const referenceSpace = getState(XRState).originReferenceSpace.value
+      if (Engine.instance.xrFrame && referenceSpace) {
         const pose = Engine.instance.xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
         if (pose) {
           pointer.position.copy(pose.transform.position as any as Vector3)

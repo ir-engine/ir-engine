@@ -30,7 +30,7 @@ import {
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRHand } from '../xr/XRComponents'
-import { getControlMode, getOriginReferenceSpace, XRState } from '../xr/XRState'
+import { getControlMode, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
@@ -119,10 +119,10 @@ export default async function AvatarAnimationSystem(world: World) {
 
     const inAttachedControlMode = getControlMode() === 'attached'
 
-    /** Update controller pose input sources from WebXR into the ECS */
-    if (xrFrame && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
-      const referenceSpace = getOriginReferenceSpace()!
+    const referenceSpace = getState(XRState).originReferenceSpace.value!
 
+    /** Update controller pose input sources from WebXR into the ECS */
+    if (xrFrame && referenceSpace && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       /** Head */
       if (inAttachedControlMode && hasComponent(localClientEntity, AvatarHeadIKComponent)) {
         const ik = getComponent(localClientEntity, AvatarHeadIKComponent)

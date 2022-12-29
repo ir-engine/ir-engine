@@ -1,10 +1,11 @@
 import { Quaternion, Vector3 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { VPSSystem } from './VPSSystem'
-import { getOriginReferenceSpace } from './XRState'
+import { XRState } from './XRState'
 
 /**
  * XRPersistentAnchorSystem
@@ -27,9 +28,10 @@ type XRAnchorPersistentType = XRAnchor & {
 }
 
 const createAnchor = async (xrFrame: XRFramePersistentAnchorType, position: Vector3, rotation: Quaternion) => {
-  if (xrFrame) {
+  const referenceSpace = getState(XRState).originReferenceSpace.value
+  if (xrFrame && referenceSpace) {
     const anchorPose = new XRRigidTransform(position, rotation)
-    return await xrFrame.createAnchor?.(anchorPose, getOriginReferenceSpace()!)
+    return await xrFrame.createAnchor?.(anchorPose, referenceSpace)
   } else {
     throw new Error('XRFrame not available.')
   }
@@ -40,9 +42,10 @@ const createPersistentAnchor = async (
   position: Vector3,
   rotation: Quaternion
 ) => {
-  if (xrFrame) {
+  const referenceSpace = getState(XRState).originReferenceSpace.value
+  if (xrFrame && referenceSpace) {
     const anchorPose = new XRRigidTransform(position, rotation)
-    const anchor = await xrFrame.createAnchor(anchorPose, getOriginReferenceSpace()!)!
+    const anchor = await xrFrame.createAnchor(anchorPose, referenceSpace)!
     try {
       const handle = await anchor.requestPersistentHandle()
       return [anchor, handle]
@@ -88,6 +91,9 @@ export default async function XRPersistentAnchorSystem(world: World) {
     const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
     if (!frame) return
 
+    const xrSpace = getState(XRState).originReferenceSpace.value
+    if (!xrSpace) return
+
     if (frame.trackedAnchors) {
       const anchorsToRemove = [] as XRAnchorPersistentType[]
 
@@ -108,8 +114,6 @@ export default async function XRPersistentAnchorSystem(world: World) {
           anchors.add(anchor)
         }
       }
-
-      const xrSpace = getOriginReferenceSpace()!
 
       for (const anchor of anchors) {
         const knownPose = anchorPoses.get(anchor)
