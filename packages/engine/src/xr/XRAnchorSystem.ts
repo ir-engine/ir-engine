@@ -90,7 +90,7 @@ const pos = new Vector3()
 const orient = new Quaternion()
 
 /** AR placement for immersive session */
-export const getNonImmersiveHitTestTransform = (world = Engine.instance.currentWorld) => {
+export const getHitTestFromController = (world = Engine.instance.currentWorld) => {
   const referenceSpace = getOriginReferenceSpace()!
   const pose = Engine.instance.xrFrame!.getPose(world.inputSources[0].targetRaySpace, referenceSpace)!
   const { position, orientation } = pose.transform
@@ -116,18 +116,19 @@ export const getNonImmersiveHitTestTransform = (world = Engine.instance.currentW
 }
 
 /** AR placement for non immersive / mobile session */
-export const getImmersiveHitTestTransform = (world = Engine.instance.currentWorld) => {
+export const getHitTestFromViewier = (world = Engine.instance.currentWorld) => {
   const xrState = getState(XRState)
 
   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
 
   computeTransformMatrix(viewerHitTestEntity)
 
+  const hitTestComponent = getComponent(viewerHitTestEntity, XRHitTestComponent)
+
   /** Swipe to rotate */
-  const viewerInputSourceEntity = xrState.viewerInputSourceEntity.value
-  if (viewerInputSourceEntity) {
-    const inputSource = world.inputSources[0]
-    const swipe = inputSource.gamepad?.axes ?? []
+  if (hitTestComponent?.hitTestResult) {
+    const placementInputSource = xrState.scenePlacementMode.value!
+    const swipe = placementInputSource.gamepad?.axes ?? []
     if (swipe.length) {
       const delta = swipe[0] - (lastSwipeValue ?? 0)
       if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (world.deltaSeconds * 20)))
@@ -153,10 +154,12 @@ let lastSwipeValue = null! as null | number
 export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const xrState = getState(XRState)
 
-  const controlMode = getControlMode()
+  const placementInputSource = xrState.scenePlacementMode.value!
 
   const hitLocalTransform =
-    controlMode === 'attached' ? getNonImmersiveHitTestTransform(world) : getImmersiveHitTestTransform(world)
+    placementInputSource.targetRayMode === 'tracked-pointer'
+      ? getHitTestFromController(world)
+      : getHitTestFromViewier(world)
   if (!hitLocalTransform) return
 
   const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
@@ -174,7 +177,9 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const maxDollhouseScale = 0.2
   const minDollhouseDist = 0.01
   const maxDollhouseDist = 0.6
-  const lifeSize = controlMode === 'attached' || (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+  const lifeSize =
+    placementInputSource.targetRayMode === 'tracked-pointer' ||
+    (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
   const targetScale = lifeSize
     ? 1
     : 1 /
@@ -273,7 +278,7 @@ export default async function XRAnchorSystem(world: World) {
       } else {
         setTransformComponent(world.originEntity) // reset world origin
         xrState.viewerReferenceSpace.set(null)
-        xrState.scenePlacementMode.set(false)
+        xrState.scenePlacementMode.set(null)
         hasComponent(world.originEntity, XRAnchorComponent) && removeComponent(world.originEntity, XRAnchorComponent)
 
         for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
@@ -286,7 +291,7 @@ export default async function XRAnchorSystem(world: World) {
     const changePlacementModeActions = changePlacementModeQueue()
     for (const action of changePlacementModeActions) {
       XRReceptors.scenePlacementMode(action)
-      if (action.active) {
+      if (action.inputSource) {
         // adding it to the group component will render it transparent - we don't want that
         Engine.instance.currentWorld.scene.add(worldOriginPinpointAnchor)
       } else {
@@ -295,7 +300,7 @@ export default async function XRAnchorSystem(world: World) {
     }
 
     if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
-      if (changePlacementModeActions.length && changePlacementModeActions[0].active) {
+      if (changePlacementModeActions.length && changePlacementModeActions[0].inputSource) {
         setComponent(scenePlacementEntity, XRHitTestComponent, {
           hitTestSource: xrState.viewerHitTestSource.value
         })
@@ -303,7 +308,7 @@ export default async function XRAnchorSystem(world: World) {
       for (const entity of xrHitTestQuery()) {
         const hit = updateHitTest(entity)
         if (entity === scenePlacementEntity && hit && changePlacementModeActions.length) {
-          if (changePlacementModeActions[0].active) {
+          if (changePlacementModeActions[0].inputSource) {
             hasComponent(entity, XRAnchorComponent) && removeComponent(entity, XRAnchorComponent)
           } else {
             // detect support for anchors
