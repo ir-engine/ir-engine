@@ -73,9 +73,9 @@ export const requestXRSession = createHookableFunction(
         xrManager.setFramebufferScaleFactor(1.2)
       }
 
-      xrState.originReferenceSpace.set(xrSession.requestReferenceSpace('local-floor'))
-      xrState.localFloorReferenceSpace.set(xrSession.requestReferenceSpace('local-floor'))
-      xrState.viewerReferenceSpace.set(xrSession.requestReferenceSpace('viewer'))
+      xrSession.requestReferenceSpace('local-floor').then(xrState.originReferenceSpace.set)
+      xrSession.requestReferenceSpace('local-floor').then(xrState.localFloorReferenceSpace.set)
+      xrSession.requestReferenceSpace('viewer').then(xrState.viewerReferenceSpace.set)
       xrState.sessionActive.set(true)
 
       const world = Engine.instance.currentWorld
