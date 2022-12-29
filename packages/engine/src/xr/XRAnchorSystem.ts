@@ -263,8 +263,8 @@ export default async function XRAnchorSystem(world: World) {
           const session = EngineRenderer.instance.xrSession
           const xrState = getState(XRState)
           if ('requestHitTestSource' in session) {
-            xrState.viewerHitTestSource.set(
-              session.requestHitTestSource!({ space: xrState.viewerReferenceSpace.value! }) ?? null
+            session.requestHitTestSource!({ space: xrState.viewerReferenceSpace.value! })?.then(
+              xrState.viewerHitTestSource.set
             )
           }
         }
