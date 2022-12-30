@@ -5,13 +5,22 @@ import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'th
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  removeComponent,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
+import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '@xrengine/engine/src/transform/components/ComputedTransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
@@ -87,7 +96,23 @@ export default async function LoadingUISystem(world: World) {
       )
         transition.setState('OUT')
     }
-    if (transition.state === 'OUT' && transition.alpha === 0) return
+    if (transition.state === 'OUT' && transition.alpha === 0) {
+      removeComponent(ui.entity, ComputedTransformComponent)
+      return
+    }
+
+    const xrui = getComponent(ui.entity, XRUIComponent)
+
+    if (transition.state === 'IN' && transition.alpha === 1) {
+      setComputedTransformComponent(ui.entity, world.cameraEntity, () => {
+        const distance = 0.1
+        const ppu = xrui.options.manager.pixelsPerMeter
+        const contentWidth = ui.state.imageWidth.value / ppu
+        const contentHeight = ui.state.imageHeight.value / ppu
+        const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
+        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+      })
+    }
 
     mesh.quaternion.copy(Engine.instance.currentWorld.camera.quaternion).invert()
 
@@ -98,17 +123,8 @@ export default async function LoadingUISystem(world: World) {
     //   // todo: figure out how to make this work properly for VR #7256
     // }
 
-    const xrui = getComponent(ui.entity, XRUIComponent)
-
-    const distance = 0.1
-    const ppu = xrui.options.manager.pixelsPerMeter
-    const contentWidth = ui.state.imageWidth.value / ppu
-    const contentHeight = ui.state.imageHeight.value / ppu
-
     const loadingState = getState(LoadingSystemState).loadingScreenOpacity
 
-    const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
-    ObjectFitFunctions.attachObjectInFrontOfCamera(xrui, scale, distance)
     transition.update(world.deltaSeconds, (opacity) => {
       if (opacity !== loadingState.value) loadingState.set(opacity)
       mesh.material.opacity = opacity
