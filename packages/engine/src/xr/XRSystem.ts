@@ -1,12 +1,9 @@
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../transform/components/TransformComponent'
 import XR8 from './8thwall/XR8'
 import { World } from './../ecs/classes/World'
 import XRAnchorSystem from './XRAnchorSystem'
 import XRCameraSystem from './XRCameraSystem'
-import XRDepthOcclusion from './XRDepthOcclusion'
 import XRDetectedPlanesSystem from './XRDetectedPlanesSystem'
 import XRHapticsSystem from './XRHapticsSystem'
 import XRInputSourceSystem from './XRInputSourceSystem'

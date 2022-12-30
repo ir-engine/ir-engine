@@ -15,6 +15,7 @@ import {
   setLocalTransformComponent,
   TransformComponent
 } from '../transform/components/TransformComponent'
+import { updateWorldOrigin, updateWorldOriginToAttachedAvatar } from '../transform/updateWorldOrigin'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
@@ -80,18 +81,13 @@ export const requestXRSession = createHookableFunction(
 
       const world = Engine.instance.currentWorld
 
+      updateWorldOriginToAttachedAvatar(world.localClientEntity, world)
+
       const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
-      xrState.previousAvatarPosition.value.copy(rigidBody.position)
-      xrState.previousAvatarRotation.value.copy(rigidBody.rotation)
 
       const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
       worldOriginTransform.position.copy(rigidBody.position)
       worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
-
-      setLocalTransformComponent(world.cameraEntity, world.originEntity)
-      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-      xrState.previousCameraPosition.value.copy(cameraTransform.position)
-      xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
 
       xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
@@ -112,9 +108,6 @@ export const requestXRSession = createHookableFunction(
         Engine.instance.xrFrame = null!
         const world = Engine.instance.currentWorld
 
-        /** detatch the camera from the world origin, and add the follow camera */
-        removeComponent(world.cameraEntity, LocalTransformComponent)
-
         /** @todo move to camera system in a reactor */
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
 
@@ -127,6 +120,8 @@ export const requestXRSession = createHookableFunction(
         xrState.originReferenceSpace.set(null)
         xrState.localFloorReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)
+        xrState.previousViewerOriginPose.set(null)
+        xrState.previousAvatarWorldPose.set(null)
 
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)

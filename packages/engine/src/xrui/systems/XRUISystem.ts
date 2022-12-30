@@ -176,7 +176,7 @@ export default async function XRUISystem(world: World) {
     if (xrFrame && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
       xrui.interactionRays = (Array.from(pointers.values()) as (Ray | Object3D)[]).concat(
         world.pointerScreenRaycaster.ray
-      ) // todo, replace pointerScreenRaycaster with viewerInputSourceEntity
+      ) // todo, replace pointerScreenRaycaster with input sources
 
     if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]

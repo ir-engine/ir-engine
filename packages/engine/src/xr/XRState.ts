@@ -1,3 +1,4 @@
+import { quat2 } from 'gl-matrix'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
@@ -5,6 +6,7 @@ import { defineState, getState } from '@xrengine/hyperflux'
 import { defineAction } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
+import { DualQuaternion } from '../common/classes/DualQuaternion'
 import { isHMD } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -54,10 +56,15 @@ export const XRState = defineState({
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
     viewerInputSourceEntity: 0 as Entity,
-    previousCameraPosition: new Vector3(),
-    previousCameraRotation: new Quaternion(),
-    previousAvatarPosition: new Vector3(),
-    previousAvatarRotation: new Quaternion()
+
+    // TODO: Move the following into a component?
+
+    previousAvatarWorldPose: null as DualQuaternion | null,
+    previousViewerOriginPose: null as DualQuaternion | null,
+    avatarWorldPose: new DualQuaternion(),
+    viewerOriginPose: new DualQuaternion(),
+    avatarWorldPoseDelta: new DualQuaternion(),
+    viewerOriginPoseDelta: new DualQuaternion()
   })
 })
 

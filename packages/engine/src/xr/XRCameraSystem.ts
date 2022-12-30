@@ -1,14 +1,10 @@
-import { Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
-
-import { getState } from '@xrengine/hyperflux'
+import { Matrix4, PerspectiveCamera } from 'three'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../transform/systems/TransformSystem'
-import { XRState } from './XRState'
+import { TransformComponent } from '../transform/components/TransformComponent'
 
 const updateXRCameraTransform = (camera: PerspectiveCamera, originMatrix: Matrix4) => {
   camera.matrixWorld.multiplyMatrices(originMatrix, camera.matrix)
@@ -23,26 +19,22 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
    * Updates the XR camera to the camera position, including updating it's world matrix
    */
   xrManager.updateCamera(camera)
-
-  /*
-   * We want to position the camera relative to the xr origin
-   */
   const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-  cameraTransform.matrix.copy(camera.matrixWorld)
+  cameraTransform.matrix.copy(camera.matrix)
+  cameraTransform.matrixInverse.copy(cameraTransform.matrix).invert()
   cameraTransform.position.copy(camera.position)
   cameraTransform.rotation.copy(camera.quaternion)
   cameraTransform.scale.copy(camera.scale)
-
   /*
    * xr cameras also have to have their world transforms updated relative to the origin, as these are used for actual rendering
    */
-  const originTransform = getComponent(world.originEntity, TransformComponent)
-  const cameraXR = xrManager.getCamera()
-  updateXRCameraTransform(cameraXR, originTransform.matrix)
-  for (const camera of cameraXR.cameras) updateXRCameraTransform(camera, originTransform.matrix)
+  // const originTransform = getComponent(world.originEntity, TransformComponent)
+  // const cameraXR = xrManager.getCamera()
+  // updateXRCameraTransform(cameraXR, originTransform.matrix)
+  // for (const camera of cameraXR.cameras) updateXRCameraTransform(camera, originTransform.matrix)
 
   /** compute transform matricies with new information */
-  computeTransformMatrix(world.cameraEntity, world)
+  // computeTransformMatrix(world.cameraEntity, world)
 }
 
 /**
@@ -51,30 +43,9 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
  * @returns
  */
 export default async function XRCameraSystem(world: World) {
-  const xrState = getState(XRState)
-
-  let hasRun = false
-
   const execute = () => {
-    if (!Engine.instance.xrFrame) {
-      hasRun = false
-      return
-    }
-
-    const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-    xrState.previousCameraPosition.value.copy(cameraTransform.position)
-    xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
-
+    if (!Engine.instance.xrFrame) return
     updateXRInput(world)
-
-    /** ensure that on the first frame of a WebXR session, the camera difference is 0 to avoid desync */
-    if (!hasRun) {
-      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-      xrState.previousCameraPosition.value.copy(cameraTransform.position)
-      xrState.previousCameraRotation.value.copy(cameraTransform.rotation)
-      hasRun = true
-    }
-
     // Assume world.camera.layers is source of truth for all xr cameras
     const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
     const xrCamera = EngineRenderer.instance.xrManager.getCamera()

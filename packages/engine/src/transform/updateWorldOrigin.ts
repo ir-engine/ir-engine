@@ -2,67 +2,84 @@ import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
+import { DualQuaternion } from '../common/classes/DualQuaternion'
 import { V_111 } from '../common/constants/MathConstants'
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { getControlMode, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 
+const _vec = new Vector3()
 const _quat = new Quaternion()
 
-const avatarTranslationDifference = new Vector3()
-const avatarRotationDifference = new Quaternion()
-const cameraTranslationDifference = new Vector3()
-const cameraRotationDifference = new Quaternion()
-const avatarCameraTranslationDifference = new Vector3()
-const avatarCameraRotationDifference = new Quaternion()
+const avatarViewerPoseDeltaDifference = new DualQuaternion()
 
 /**
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
  * @param entity
  */
 export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) => {
+  const xrFrame = Engine.instance.xrFrame
   const xrState = getState(XRState).get({ noproxy: true })
 
+  if (!xrFrame || !xrState.localFloorReferenceSpace) return
+
+  const viewerPose = xrFrame.getViewerPose(xrState.localFloorReferenceSpace)
+  const avatarTransform = getComponent(entity, TransformComponent)
+
+  if (!viewerPose) return
+
+  if (!xrState.previousAvatarWorldPose)
+    xrState.previousAvatarWorldPose = new DualQuaternion().setFromRotationTranslation(
+      viewerPose.transform.orientation,
+      viewerPose.transform.position
+    )
+  if (!xrState.previousViewerOriginPose)
+    xrState.previousViewerOriginPose = new DualQuaternion().setFromRotationTranslation(
+      avatarTransform.rotation,
+      avatarTransform.position
+    )
+
+  const {
+    previousViewerOriginPose,
+    viewerOriginPose,
+    viewerOriginPoseDelta,
+    previousAvatarWorldPose,
+    avatarWorldPose,
+    avatarWorldPoseDelta
+  } = xrState
+
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+
+  // viewer pose delta is the viewer pose delta since the last webxr frame (relative to the origin space, and then rotated to align with world space)
+  viewerOriginPose.setFromRotationTranslation(viewerPose.transform.orientation, viewerPose.transform.position)
+  viewerOriginPoseDelta
+    .copy(previousViewerOriginPose)
+    .invert()
+    .premultiply(viewerOriginPose)
+    .prerotateByQuaternion(originTransform.rotation)
+  previousViewerOriginPose.copy(viewerOriginPose)
+
+  // avatar pose delta is the avatar's world pose delta since the last webxr frame
+  avatarWorldPose.setFromRotationTranslation(viewerPose.transform.orientation, viewerPose.transform.position)
+  avatarWorldPoseDelta.copy(previousAvatarWorldPose).invert().premultiply(avatarWorldPose)
+  previousAvatarWorldPose.copy(avatarWorldPose)
+
+  /** avatar viewer pose delta is the difference bewteen how the viewer has moved relative to the avatar movement since the last webxr frame */
+  avatarViewerPoseDeltaDifference.copy(avatarWorldPoseDelta).invert().premultiply(viewerOriginPoseDelta)
+
   if (getControlMode() === 'attached' && xrState.originReferenceSpace && xrState.localFloorReferenceSpace) {
-    const rigidBody = getComponent(entity, RigidBodyComponent)
-
-    /** camera difference is the local pose delta since the last webxr frame */
-    const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-    // cameraAvatarDifference.copy(rigidBody.position)
-    cameraTranslationDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition)
-    cameraRotationDifference
-      .copy(_quat.copy(xrState.previousCameraRotation).invert())
-      .multiply(cameraTransform.rotation)
-
-    /** avatar differnce is the avatar's world pose delta since the last webxr frame */
-    avatarTranslationDifference.copy(rigidBody.position).sub(xrState.previousAvatarPosition)
-    avatarRotationDifference.copy(_quat.copy(xrState.previousAvatarRotation).invert()).multiply(rigidBody.rotation)
-
-    /** avatar camera differnce is the distance the camera has moved relative to the avatar since the last webxr frame */
-    avatarCameraTranslationDifference.subVectors(avatarTranslationDifference, cameraTranslationDifference)
-    avatarCameraRotationDifference.multiplyQuaternions(cameraRotationDifference.invert(), avatarRotationDifference)
-
-    // extractRotationAboutAxis(rigidBody.rotation, V_010, avatarYRotation)
-    // extractRotationAboutAxis(cameraLocalTransform.rotation, V_010, cameraYRotation)
-
-    // avatarCameraRotationDifference.multiplyQuaternions(cameraYRotation.invert(), avatarYRotation)
-
-    /** shift the world origin by the distance the camera has moved relative to the avatar */
-    const originTransform = getComponent(world.originEntity, TransformComponent)
-    originTransform.position.add(avatarCameraTranslationDifference)
+    // shift the world origin by the difference between avatar and viewer movmement
+    originTransform.position.add(avatarViewerPoseDeltaDifference.getTranslation(_vec))
     // originTransform.rotation.multiply(avatarCameraRotationDifference)
 
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     xrState.originReferenceSpace = xrState.localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
-  }
-
-  if (hasComponent(entity, RigidBodyComponent)) {
-    const rigidBody = getComponent(entity, RigidBodyComponent)
-    xrState.previousAvatarPosition.copy(rigidBody.position)
-    xrState.previousAvatarRotation.copy(rigidBody.rotation)
+    EngineRenderer.instance.xrManager.setReferenceSpace(xrState.originReferenceSpace)
   }
 }
 

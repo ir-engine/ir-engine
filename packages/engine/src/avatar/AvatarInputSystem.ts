@@ -13,6 +13,7 @@ import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { getControlMode, XRState } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
@@ -127,6 +128,9 @@ export default async function AvatarInputSystem(world: World) {
     )
   }
 
+  const previousViewerPosition = new Vector3()
+  const previousViewerRotation = new Quaternion()
+
   const execute = () => {
     const { inputSources, localClientEntity } = world
     if (!localClientEntity) return
@@ -167,13 +171,16 @@ export default async function AvatarInputSystem(world: World) {
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
     if (xrCameraAttached) {
-      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-      cameraTranslationDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value)
-      cameraRotationDifference
-        .copy(_quat.copy(xrState.previousCameraRotation.value).invert())
-        .multiply(cameraTransform.rotation)
+      // compute viewer pose movement
 
-      controller.desiredMovement.copy(cameraTranslationDifference)
+      // const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+      // cameraTranslationDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value)
+      // cameraRotationDifference
+      //   .copy(_quat.copy(xrState.previousCameraRotation.value).invert())
+      //   .multiply(cameraTransform.rotation)
+
+      xrState.viewerOriginPoseDelta.value.getTranslation(controller.desiredMovement)
+      // controller.desiredMovement.copy(cameraTranslationDifference)
       const cameraYSpin = _euler.setFromQuaternion(cameraRotationDifference).y
       rotateAvatar(localClientEntity, cameraYSpin)
     }
