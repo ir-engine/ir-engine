@@ -7,4 +7,5 @@ export interface StaticResourceInterface {
   mimeType: string
   staticResourceType: string
   userId: string
+  project?: string
 }
