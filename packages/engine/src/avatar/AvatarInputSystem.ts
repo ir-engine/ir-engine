@@ -126,8 +126,7 @@ export default async function AvatarInputSystem(world: World) {
     )
   }
 
-  const previousViewerPosition = new Vector3()
-  const previousViewerRotation = new Quaternion()
+  const _rot = new Quaternion()
 
   const execute = () => {
     const { inputSources, localClientEntity } = world
@@ -172,7 +171,7 @@ export default async function AvatarInputSystem(world: World) {
       const originTransform = getComponent(world.originEntity, TransformComponent)
       xrState.viewerPoseDeltaMetric.delta.value
         .getTranslation(controller.desiredMovement)
-        .applyQuaternion(originTransform.rotation)
+        .applyQuaternion(_rot.copy(originTransform.rotation).invert())
       xrState.viewerPoseDeltaMetric.delta.value.getRotation(cameraRotationDifference)
       const cameraYSpin = _euler.setFromQuaternion(cameraRotationDifference).y
       rotateAvatar(localClientEntity, cameraYSpin)
