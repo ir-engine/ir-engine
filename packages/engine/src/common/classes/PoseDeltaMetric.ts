@@ -47,7 +47,7 @@ export class PoseDeltaMetric {
       this.pose = new DualQuaternion().copy(newPose)
     }
 
-    this.delta.copy(this.pose).invert().premultiply(newPose)
+    this.delta.copy(this.pose).invert().multiply(newPose)
     this.pose.copy(newPose)
   }
 }

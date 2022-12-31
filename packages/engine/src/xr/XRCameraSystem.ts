@@ -30,11 +30,11 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
 
   const xrFrame = Engine.instance.xrFrame
   const referenceSpace = xrState.localFloorReferenceSpace.value
+  /** get viewer pose relative to the local floor */
   const viewerXRPose = referenceSpace && xrFrame?.getViewerPose(referenceSpace)
 
   if (viewerXRPose) {
-    const originTransform = getComponent(world.originEntity, TransformComponent)
-    const viewerPose = _pose.makeFromXRPose(viewerXRPose).prerotate(originTransform.rotation)
+    const viewerPose = _pose.makeFromXRPose(viewerXRPose)
     xrState.viewerPoseDeltaMetric.value.update(viewerPose)
   } else {
     xrState.viewerPoseDeltaMetric.value.update(null)

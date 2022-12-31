@@ -48,11 +48,17 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
     /** avatar viewer pose delta is the difference bewteen how the viewer has moved relative to the avatar movement since the last webxr frame */
     const viewerPoseDelta = xrState.viewerPoseDeltaMetric.delta
     const avatarPoseDelta = xrState.avatarPoseDeltaMetric.delta
-    avatarViewerPoseDeltaDifference.copy(viewerPoseDelta).invert().premultiply(avatarPoseDelta)
+    const originTransform = getComponent(world.originEntity, TransformComponent)
+    /** get (avatar - viewer) as a dual quaternion */
+    avatarViewerPoseDeltaDifference
+      .copy(viewerPoseDelta)
+      .prerotate(originTransform.rotation)
+      .invert()
+      .multiply(avatarPoseDelta)
 
     // shift the world origin by the difference between avatar and viewer movmement
     originTransform.position.add(avatarViewerPoseDeltaDifference.getTranslation(_vec))
-    // originTransform.rotation.multiply(avatarViewerPoseDeltaDifference.getRotation(_quat))
+    originTransform.rotation.multiply(avatarViewerPoseDeltaDifference.getRotation(_quat))
 
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     xrState.originReferenceSpace = xrState.localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)

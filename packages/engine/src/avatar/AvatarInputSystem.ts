@@ -75,8 +75,6 @@ export default async function AvatarInputSystem(world: World) {
   const interactState = getState(InteractState)
   const xrState = getState(XRState)
   const avatarInputSettings = getState(AvatarInputSettingsState).value
-  const cameraTranslationDifference = new Vector3()
-  const _quat = new Quaternion()
   const _euler = new Euler()
   const cameraRotationDifference = new Quaternion()
 
@@ -171,7 +169,11 @@ export default async function AvatarInputSystem(world: World) {
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
     if (xrCameraAttached) {
-      xrState.viewerPoseDeltaMetric.delta.value.getTranslation(controller.desiredMovement)
+      const originTransform = getComponent(world.originEntity, TransformComponent)
+      xrState.viewerPoseDeltaMetric.delta.value
+        .getTranslation(controller.desiredMovement)
+        .applyQuaternion(originTransform.rotation)
+      xrState.viewerPoseDeltaMetric.delta.value.getRotation(cameraRotationDifference)
       const cameraYSpin = _euler.setFromQuaternion(cameraRotationDifference).y
       rotateAvatar(localClientEntity, cameraYSpin)
     }
