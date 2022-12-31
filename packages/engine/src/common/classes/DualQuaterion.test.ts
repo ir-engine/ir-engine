@@ -49,6 +49,15 @@ describe('DualQuaternion', () => {
     assertApproximatelyEqual(translation, new Vector3(10, 30, 90))
   })
 
+  it('should be able to invert', () => {
+    const m = new Matrix4().makeRotationFromEuler(new Euler(1, 2, 3)).setPosition(10, 30, 90).invert()
+    const dq = new DualQuaternion()
+      .makeFromRotationTranslation(new Quaternion().setFromEuler(new Euler(1, 2, 3)), new Vector3(10, 30, 90))
+      .invert()
+    const dqToMat = dq.getMatrix4(new Matrix4())
+    assertApproximatelyEqual(dqToMat, m)
+  })
+
   it('should be able to multiply dual quaternions', () => {
     const dq0 = new DualQuaternion().makeFromRotationTranslation(
       new Quaternion().setFromEuler(new Euler(1, 2, 3)),

@@ -4,6 +4,7 @@ import { isDev } from '@xrengine/common/src/config'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
+import { extractRotationAboutAxis } from '../common/functions/MathFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
@@ -76,7 +77,7 @@ export default async function AvatarInputSystem(world: World) {
   const xrState = getState(XRState)
   const avatarInputSettings = getState(AvatarInputSettingsState).value
   const _euler = new Euler()
-  const cameraRotationDifference = new Quaternion()
+  const viewerRotationDifference = new Quaternion()
 
   const onShiftLeft = () => {
     const controller = getComponentState(world.localClientEntity, AvatarControllerComponent)
@@ -126,7 +127,7 @@ export default async function AvatarInputSystem(world: World) {
     )
   }
 
-  const _rot = new Quaternion()
+  const _rotY180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
   const execute = () => {
     const { inputSources, localClientEntity } = world
@@ -168,13 +169,13 @@ export default async function AvatarInputSystem(world: World) {
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
     if (xrCameraAttached) {
-      const originTransform = getComponent(world.originEntity, TransformComponent)
-      xrState.viewerPoseDeltaMetric.delta.value
-        .getTranslation(controller.desiredMovement)
-        .applyQuaternion(_rot.copy(originTransform.rotation).invert())
-      xrState.viewerPoseDeltaMetric.delta.value.getRotation(cameraRotationDifference)
-      const cameraYSpin = _euler.setFromQuaternion(cameraRotationDifference).y
-      rotateAvatar(localClientEntity, cameraYSpin)
+      const rigidBody = getComponent(localClientEntity, RigidBodyComponent)
+      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+      extractRotationAboutAxis(cameraTransform.rotation, V_010, rigidBody.rotation).multiply(_rotY180)
+      rigidBody.targetKinematicRotation.copy(rigidBody.rotation)
+      const transform = getComponent(localClientEntity, TransformComponent)
+      // transform.rotation.copy(rigidBody.rotation)
+      // delete world.dirtyTransforms[localClientEntity]
     }
   }
 

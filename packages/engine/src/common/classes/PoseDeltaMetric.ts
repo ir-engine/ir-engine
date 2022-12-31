@@ -1,53 +1,35 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { DualQuaternion } from './DualQuaternion'
-
 export class PoseDeltaMetric {
-  // pose: {
-  //   rotation: Quaternion
-  //   translation: Vector3,
-  // } | null
-  // delta = {
-  //   rotation: new Quaternion(),
-  //   translation: new Vector3()
-  // }
+  position: Vector3 | null = null
+  orientation: Quaternion | null = null
 
-  // update(newPose: DualQuaternion | null) {
-  //   if (!newPose) {
-  //     this.pose = null
-  //     return
-  //   }
+  delta = {
+    translation: new Vector3(),
+    rotation: new Quaternion()
+  }
 
-  //   if (!this.pose) {
-  //     this.pose = {
-  //       rotation: new Quaternion(),
-  //       translation: new Vector3()
-  //     }
-  //     newPose.getRotation(this.pose.rotation)
-  //     newPose.getTranslation(this.pose.translation)
-  //   }
-
-  //   newPose.getTranslation(this.delta.translation)
-  //   this.delta.translation.negate().add(this.pose.translation)
-
-  //   newPose.getRotation(this.delta.rotation)
-  //   this.delta.rotation.invert().premultiply(this.pose.rotation)
-  // }
-
-  pose: DualQuaternion | null
-  delta = new DualQuaternion()
-
-  update(newPose: DualQuaternion | null) {
-    if (!newPose) {
-      this.pose = null
+  update(newPosition?: Vector3 | DOMPointReadOnly | null, newOrientation?: Quaternion | DOMPointReadOnly) {
+    if (!newPosition || !newOrientation) {
+      if (this.position || this.orientation) {
+        this.position = null
+        this.orientation = null
+        this.delta.rotation.identity()
+        this.delta.translation.set(0, 0, 0)
+      }
       return
     }
 
-    if (!this.pose) {
-      this.pose = new DualQuaternion().copy(newPose)
-    }
+    if (!this.position) this.position = new Vector3().copy(newPosition as any)
+    if (!this.orientation) this.orientation = new Quaternion().copy(newOrientation as any)
 
-    this.delta.copy(this.pose).invert().multiply(newPose)
-    this.pose.copy(newPose)
+    // final - initial
+    this.delta.translation.copy(newPosition as any).sub(this.position)
+    this.delta.rotation
+      .copy(newOrientation as any)
+      .invert()
+      .multiply(this.orientation)
+    this.position.copy(newPosition as any)
+    this.orientation.copy(newOrientation as any)
   }
 }

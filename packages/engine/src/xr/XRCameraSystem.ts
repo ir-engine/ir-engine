@@ -27,18 +27,13 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
   cameraTransform.position.copy(camera.position)
   cameraTransform.rotation.copy(camera.quaternion)
   cameraTransform.scale.copy(camera.scale)
+  delete world.dirtyTransforms[world.cameraEntity]
 
   const xrFrame = Engine.instance.xrFrame
-  const referenceSpace = xrState.localFloorReferenceSpace.value
   /** get viewer pose relative to the local floor */
+  const referenceSpace = xrState.localFloorReferenceSpace.value
   const viewerXRPose = referenceSpace && xrFrame?.getViewerPose(referenceSpace)
-
-  if (viewerXRPose) {
-    const viewerPose = _pose.makeFromXRPose(viewerXRPose)
-    xrState.viewerPoseDeltaMetric.value.update(viewerPose)
-  } else {
-    xrState.viewerPoseDeltaMetric.value.update(null)
-  }
+  xrState.viewerPoseDeltaMetric.value.update(viewerXRPose?.transform.position, viewerXRPose?.transform.orientation)
 }
 
 /**
