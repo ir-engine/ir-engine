@@ -1,9 +1,9 @@
-import { Quaternion, Vector3 } from 'three'
+import { Euler, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { DualQuaternion } from '../common/classes/DualQuaternion'
-import { V_111 } from '../common/constants/MathConstants'
+import { V_010, V_111 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
@@ -16,6 +16,7 @@ import { TransformComponent } from './components/TransformComponent'
 const _vec = new Vector3()
 const _quat = new Quaternion()
 const _pose = new DualQuaternion()
+const _euler = new Euler()
 
 const avatarViewerPoseDeltaDifference = new DualQuaternion()
 
@@ -58,7 +59,8 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
 
     // shift the world origin by the difference between avatar and viewer movmement
     originTransform.position.add(avatarViewerPoseDeltaDifference.getTranslation(_vec))
-    originTransform.rotation.multiply(avatarViewerPoseDeltaDifference.getRotation(_quat))
+    const avatarYSpin = _euler.setFromQuaternion(avatarPoseDelta.getRotation(_quat)).y
+    originTransform.rotation.multiply(_quat.setFromAxisAngle(V_010, avatarYSpin))
 
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     xrState.originReferenceSpace = xrState.localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
