@@ -17,6 +17,7 @@ export type CreateStaticResourceType = {
   key: string
   staticResourceType?: string
   userId?: string
+  project?: string
 }
 
 export class StaticResource extends Service<StaticResourceInterface> {
@@ -31,11 +32,13 @@ export class StaticResource extends Service<StaticResourceInterface> {
   // @ts-ignore
   async create(data: CreateStaticResourceType, params?: UserParams): Promise<StaticResourceInterface> {
     const self = this
+    const query = {
+      $select: ['id'],
+      url: data.url
+    } as any
+    if (data.project) query.project = data.project
     const oldResource = await this.find({
-      query: {
-        $select: ['id'],
-        url: data.url
-      }
+      query
     })
 
     if ((oldResource as any).total > 0) {
@@ -102,12 +105,9 @@ export class StaticResource extends Service<StaticResourceInterface> {
     }
 
     if (!resource.userId) {
-      // for public resource the user should be admin to remove it.
-      await verifyScope('admin', 'admin')({ app: this.app, params } as any)
-    } else if (resource.userId !== params?.user?.id) {
-      /// for private resources the user show created it should have access to delete it.
+      if (params?.provider) await verifyScope('admin', 'admin')({ app: this.app, params } as any)
+    } else if (params?.provider && resource.userId !== params?.user?.id)
       throw new UnauthenticatedException('You are not the creator of this resource')
-    }
 
     if (resource.key) {
       const storageProvider = getStorageProvider(params?.query?.storageProviderName)

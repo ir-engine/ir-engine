@@ -166,6 +166,14 @@ export const start = async (): Promise<Application> => {
   server.on('listening', () =>
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
-
+  await new Promise((resolve) => {
+    const primusWaitInterval = setInterval(() => {
+      if (app.primus) {
+        clearInterval(primusWaitInterval)
+        resolve(null)
+      }
+    }, 100)
+  })
+  app.primus.on('connection', async (spark) => setupSocketFunctions(app, spark))
   return app
 }

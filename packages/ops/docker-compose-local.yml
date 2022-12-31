@@ -30,8 +30,7 @@ services:
       context: ../xrsocial-client
     image: xrengine/client
     environment:
-        API_SERVER: https://127.0.0.1:3030
-        SITE_TITLE: XREngine
+        SITE_TITLE: Ethereal Engine
         SITE_DESC: Connected Worlds for Everyone
         APP_ENV: dev
     restart: always
