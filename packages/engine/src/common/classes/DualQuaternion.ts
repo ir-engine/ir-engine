@@ -29,14 +29,14 @@ export class DualQuaternion {
   /**
    * Sets the dual quaternion from an XR pose
    */
-  setFromXRPose(pose: XRPose) {
-    return this.setFromRotationTranslation(pose.transform.orientation, pose.transform.position)
+  makeFromXRPose(pose: XRPose) {
+    return this.makeFromRotationTranslation(pose.transform.orientation, pose.transform.position)
   }
 
   /**
    * Creates a dual quaternion from a normalized quaternion and a translation
    */
-  setFromRotationTranslation(q: Quaternion | DOMPointReadOnly, t: Vector3 | DOMPointReadOnly) {
+  makeFromRotationTranslation(q: Quaternion | DOMPointReadOnly, t: Vector3 | DOMPointReadOnly) {
     const qx = q.x
     const qy = q.y
     const qz = q.z
@@ -58,7 +58,7 @@ export class DualQuaternion {
   /**
    * Sets the dual quaternion from a translation
    */
-  setFromTranslation(t: Vector3 | DOMPointReadOnly) {
+  makeFromTranslation(t: Vector3 | DOMPointReadOnly) {
     this.real.x = 0
     this.real.y = 0
     this.real.z = 0
@@ -73,11 +73,11 @@ export class DualQuaternion {
   /**
    * Sets the dual quaternion from a rotation
    */
-  setFromMatrix4(m: Matrix4) {
+  makeFromMatrix4(m: Matrix4) {
     _rotMat.extractRotation(m)
     _rotation.setFromRotationMatrix(_rotMat)
     _translation.setFromMatrixPosition(m)
-    return this.setFromRotationTranslation(_rotation, _translation)
+    return this.makeFromRotationTranslation(_rotation, _translation)
   }
 
   identity() {
@@ -109,10 +109,16 @@ export class DualQuaternion {
     const by = -this.real.y
     const bz = -this.real.z
     const bw = this.real.w
-    out.x = ax * bw + aw * bx + ay * bz - az * by
-    out.y = ay * bw + aw * by + az * bx - ax * bz
-    out.z = az * bw + aw * bz + ax * by - ay * bx
+    out.x = (ax * bw + aw * bx + ay * bz - az * by) * 2
+    out.y = (ay * bw + aw * by + az * bx - ax * bz) * 2
+    out.z = (az * bw + aw * bz + ax * by - ay * bx) * 2
     return out
+  }
+
+  getMatrix4(out: Matrix4) {
+    const rotation = this.getRotation(_rotation)
+    const translation = this.getTranslation(_translation)
+    return out.makeRotationFromQuaternion(rotation).setPosition(translation)
   }
 
   translate(t: Vector3) {
@@ -237,14 +243,16 @@ export class DualQuaternion {
     const by0 = b.real.y
     const bz0 = b.real.z
     const bw0 = b.real.w
+
     this.real.x = ax0 * bw0 + aw0 * bx0 + ay0 * bz0 - az0 * by0
     this.real.y = ay0 * bw0 + aw0 * by0 + az0 * bx0 - ax0 * bz0
     this.real.z = az0 * bw0 + aw0 * bz0 + ax0 * by0 - ay0 * bx0
     this.real.w = aw0 * bw0 - ax0 * bx0 - ay0 * by0 - az0 * bz0
-    this.dual.x = ax1 * bw1 + aw1 * bx1 + ay1 * bz1 - az1 * by1
-    this.dual.y = ay1 * bw1 + aw1 * by1 + az1 * bx1 - ax1 * bz1
-    this.dual.z = az1 * bw1 + aw1 * bz1 + ax1 * by1 - ay1 * bx1
-    this.dual.w = aw1 * bw1 - ax1 * bx1 - ay1 * by1 - az1 * bz1
+    this.dual.x = ax0 * bw1 + aw0 * bx1 + ay0 * bz1 - az0 * by1 + ax1 * bw0 + aw1 * bx0 + ay1 * bz0 - az1 * by0
+    this.dual.y = ay0 * bw1 + aw0 * by1 + az0 * bx1 - ax0 * bz1 + ay1 * bw0 + aw1 * by0 + az1 * bx0 - ax1 * bz0
+    this.dual.z = az0 * bw1 + aw0 * bz1 + ax0 * by1 - ay0 * bx1 + az1 * bw0 + aw1 * bz0 + ax1 * by0 - ay1 * bx0
+    this.dual.w = aw0 * bw1 - ax0 * bx1 - ay0 * by1 - az0 * bz1 + aw1 * bw0 - ax1 * bx0 - ay1 * by0 - az1 * bz0
+
     return this
   }
 
@@ -265,14 +273,16 @@ export class DualQuaternion {
     const by0 = this.real.y
     const bz0 = this.real.z
     const bw0 = this.real.w
+
     this.real.x = ax0 * bw0 + aw0 * bx0 + ay0 * bz0 - az0 * by0
     this.real.y = ay0 * bw0 + aw0 * by0 + az0 * bx0 - ax0 * bz0
     this.real.z = az0 * bw0 + aw0 * bz0 + ax0 * by0 - ay0 * bx0
     this.real.w = aw0 * bw0 - ax0 * bx0 - ay0 * by0 - az0 * bz0
-    this.dual.x = ax1 * bw1 + aw1 * bx1 + ay1 * bz1 - az1 * by1
-    this.dual.y = ay1 * bw1 + aw1 * by1 + az1 * bx1 - ax1 * bz1
-    this.dual.z = az1 * bw1 + aw1 * bz1 + ax1 * by1 - ay1 * bx1
-    this.dual.w = aw1 * bw1 - ax1 * bx1 - ay1 * by1 - az1 * bz1
+    this.dual.x = ax0 * bw1 + aw0 * bx1 + ay0 * bz1 - az0 * by1 + ax1 * bw0 + aw1 * bx0 + ay1 * bz0 - az1 * by0
+    this.dual.y = ay0 * bw1 + aw0 * by1 + az0 * bx1 - ax0 * bz1 + ay1 * bw0 + aw1 * by0 + az1 * bx0 - ax1 * bz0
+    this.dual.z = az0 * bw1 + aw0 * bz1 + ax0 * by1 - ay0 * bx1 + az1 * bw0 + aw1 * bz0 + ax1 * by0 - ay1 * bx0
+    this.dual.w = aw0 * bw1 - ax0 * bx1 - ay0 * by1 - az0 * bz1 + aw1 * bw0 - ax1 * bx0 - ay1 * by0 - az1 * bz0
+
     return this
   }
 

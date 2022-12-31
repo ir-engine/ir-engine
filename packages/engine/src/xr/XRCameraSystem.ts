@@ -34,7 +34,7 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
 
   if (viewerXRPose) {
     const originTransform = getComponent(world.originEntity, TransformComponent)
-    const viewerPose = _pose.setFromXRPose(viewerXRPose).prerotate(originTransform.rotation)
+    const viewerPose = _pose.makeFromXRPose(viewerXRPose) //.prerotate(originTransform.rotation)
     xrState.viewerPoseDeltaMetric.value.update(viewerPose)
   } else {
     xrState.viewerPoseDeltaMetric.value.update(null)

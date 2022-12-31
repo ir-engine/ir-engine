@@ -41,7 +41,7 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
     return
   }
 
-  const avatarPose = _pose.setFromRotationTranslation(avatarTransform.rotation, avatarTransform.position)
+  const avatarPose = _pose.makeFromRotationTranslation(avatarTransform.rotation, avatarTransform.position)
   xrState.avatarPoseDeltaMetric.update(avatarPose)
 
   if (getControlMode() === 'attached' && xrState.originReferenceSpace && xrState.localFloorReferenceSpace) {

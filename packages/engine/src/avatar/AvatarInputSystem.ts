@@ -171,16 +171,7 @@ export default async function AvatarInputSystem(world: World) {
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
     if (xrCameraAttached) {
-      // compute viewer pose movement
-
-      // const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-      // cameraTranslationDifference.copy(cameraTransform.position).sub(xrState.previousCameraPosition.value)
-      // cameraRotationDifference
-      //   .copy(_quat.copy(xrState.previousCameraRotation.value).invert())
-      //   .multiply(cameraTransform.rotation)
-
-      xrState.viewerOriginPoseDelta.value.getTranslation(controller.desiredMovement)
-      // controller.desiredMovement.copy(cameraTranslationDifference)
+      xrState.viewerPoseDeltaMetric.delta.value.getTranslation(controller.desiredMovement)
       const cameraYSpin = _euler.setFromQuaternion(cameraRotationDifference).y
       rotateAvatar(localClientEntity, cameraYSpin)
     }
