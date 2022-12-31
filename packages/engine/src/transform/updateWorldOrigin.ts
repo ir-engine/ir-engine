@@ -58,7 +58,7 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
       .multiply(avatarPoseDelta)
 
     // shift the world origin by the difference between avatar and viewer movmement
-    originTransform.position.add(avatarViewerPoseDeltaDifference.getTranslation(_vec))
+    originTransform.position.sub(avatarViewerPoseDeltaDifference.getTranslation(_vec))
     const avatarYSpin = _euler.setFromQuaternion(avatarPoseDelta.getRotation(_quat)).y
     originTransform.rotation.multiply(_quat.setFromAxisAngle(V_010, avatarYSpin))
 
