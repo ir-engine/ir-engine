@@ -27,6 +27,13 @@ export class DualQuaternion {
   }
 
   /**
+   * Sets the dual quaternion from an XR pose
+   */
+  setFromXRPose(pose: XRPose) {
+    return this.setFromRotationTranslation(pose.transform.orientation, pose.transform.position)
+  }
+
+  /**
    * Creates a dual quaternion from a normalized quaternion and a translation
    */
   setFromRotationTranslation(q: Quaternion | DOMPointReadOnly, t: Vector3 | DOMPointReadOnly) {
@@ -131,7 +138,7 @@ export class DualQuaternion {
     return this
   }
 
-  rotateByQuaternion(q: Quaternion) {
+  rotate(q: Quaternion) {
     const ax = this.real.x
     const ay = this.real.y
     const az = this.real.z
@@ -155,7 +162,7 @@ export class DualQuaternion {
     return this
   }
 
-  prerotateByQuaternion(q: Quaternion) {
+  prerotate(q: Quaternion) {
     const ax = this.real.x
     const ay = this.real.y
     const az = this.real.z

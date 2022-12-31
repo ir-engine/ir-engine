@@ -7,6 +7,7 @@ import { defineAction } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { DualQuaternion } from '../common/classes/DualQuaternion'
+import { PoseDeltaMetric } from '../common/classes/PoseDeltaMetric'
 import { isHMD } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -15,6 +16,7 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XREstimatedLight } from './XREstimatedLight'
 
+// TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
   name: 'XRState',
   initial: () => ({
@@ -57,14 +59,8 @@ export const XRState = defineState({
     lightEstimator: null! as XREstimatedLight,
     viewerInputSourceEntity: 0 as Entity,
 
-    // TODO: Move the following into a component?
-
-    previousAvatarWorldPose: null as DualQuaternion | null,
-    previousViewerOriginPose: null as DualQuaternion | null,
-    avatarWorldPose: new DualQuaternion(),
-    viewerOriginPose: new DualQuaternion(),
-    avatarWorldPoseDelta: new DualQuaternion(),
-    viewerOriginPoseDelta: new DualQuaternion()
+    avatarPoseDeltaMetric: new PoseDeltaMetric(),
+    viewerPoseDeltaMetric: new PoseDeltaMetric()
   })
 })
 

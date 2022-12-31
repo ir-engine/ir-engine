@@ -120,8 +120,6 @@ export const requestXRSession = createHookableFunction(
         xrState.originReferenceSpace.set(null)
         xrState.localFloorReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)
-        xrState.previousViewerOriginPose.set(null)
-        xrState.previousAvatarWorldPose.set(null)
 
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)

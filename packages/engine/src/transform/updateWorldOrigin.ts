@@ -15,6 +15,7 @@ import { TransformComponent } from './components/TransformComponent'
 
 const _vec = new Vector3()
 const _quat = new Quaternion()
+const _pose = new DualQuaternion()
 
 const avatarViewerPoseDeltaDifference = new DualQuaternion()
 
@@ -26,53 +27,29 @@ export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) 
   const xrFrame = Engine.instance.xrFrame
   const xrState = getState(XRState).get({ noproxy: true })
 
-  if (!xrFrame || !xrState.localFloorReferenceSpace) return
+  if (!xrFrame || !xrState.localFloorReferenceSpace) {
+    xrState.avatarPoseDeltaMetric.update(null)
+    return
+  }
 
   const viewerPose = xrFrame.getViewerPose(xrState.localFloorReferenceSpace)
   const avatarTransform = getComponent(entity, TransformComponent)
-
-  if (!viewerPose) return
-
-  if (!xrState.previousAvatarWorldPose)
-    xrState.previousAvatarWorldPose = new DualQuaternion().setFromRotationTranslation(
-      viewerPose.transform.orientation,
-      viewerPose.transform.position
-    )
-  if (!xrState.previousViewerOriginPose)
-    xrState.previousViewerOriginPose = new DualQuaternion().setFromRotationTranslation(
-      avatarTransform.rotation,
-      avatarTransform.position
-    )
-
-  const {
-    previousViewerOriginPose,
-    viewerOriginPose,
-    viewerOriginPoseDelta,
-    previousAvatarWorldPose,
-    avatarWorldPose,
-    avatarWorldPoseDelta
-  } = xrState
-
   const originTransform = getComponent(world.originEntity, TransformComponent)
 
-  // viewer pose delta is the viewer pose delta since the last webxr frame (relative to the origin space, and then rotated to align with world space)
-  viewerOriginPose.setFromRotationTranslation(viewerPose.transform.orientation, viewerPose.transform.position)
-  viewerOriginPoseDelta
-    .copy(previousViewerOriginPose)
-    .invert()
-    .premultiply(viewerOriginPose)
-    .prerotateByQuaternion(originTransform.rotation)
-  previousViewerOriginPose.copy(viewerOriginPose)
+  if (!viewerPose || !avatarTransform || !originTransform) {
+    xrState.avatarPoseDeltaMetric.update(null)
+    return
+  }
 
-  // avatar pose delta is the avatar's world pose delta since the last webxr frame
-  avatarWorldPose.setFromRotationTranslation(viewerPose.transform.orientation, viewerPose.transform.position)
-  avatarWorldPoseDelta.copy(previousAvatarWorldPose).invert().premultiply(avatarWorldPose)
-  previousAvatarWorldPose.copy(avatarWorldPose)
-
-  /** avatar viewer pose delta is the difference bewteen how the viewer has moved relative to the avatar movement since the last webxr frame */
-  avatarViewerPoseDeltaDifference.copy(avatarWorldPoseDelta).invert().premultiply(viewerOriginPoseDelta)
+  const avatarPose = _pose.setFromRotationTranslation(avatarTransform.rotation, avatarTransform.position)
+  xrState.avatarPoseDeltaMetric.update(avatarPose)
 
   if (getControlMode() === 'attached' && xrState.originReferenceSpace && xrState.localFloorReferenceSpace) {
+    /** avatar viewer pose delta is the difference bewteen how the viewer has moved relative to the avatar movement since the last webxr frame */
+    const viewerPoseDelta = xrState.viewerPoseDeltaMetric.delta
+    const avatarPoseDelta = xrState.avatarPoseDeltaMetric.delta
+    avatarViewerPoseDeltaDifference.copy(avatarPoseDelta).invert().premultiply(viewerPoseDelta)
+
     // shift the world origin by the difference between avatar and viewer movmement
     originTransform.position.add(avatarViewerPoseDeltaDifference.getTranslation(_vec))
     // originTransform.rotation.multiply(avatarCameraRotationDifference)

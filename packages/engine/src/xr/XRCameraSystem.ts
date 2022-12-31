@@ -1,17 +1,19 @@
-import { Matrix4, PerspectiveCamera } from 'three'
+import { PerspectiveCamera } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
+import { DualQuaternion } from '../common/classes/DualQuaternion'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRState } from './XRState'
 
-const updateXRCameraTransform = (camera: PerspectiveCamera, originMatrix: Matrix4) => {
-  camera.matrixWorld.multiplyMatrices(originMatrix, camera.matrix)
-  camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
-}
+const _pose = new DualQuaternion()
 
 export const updateXRInput = (world = Engine.instance.currentWorld) => {
+  const xrState = getState(XRState)
   const xrManager = EngineRenderer.instance.xrManager
   const camera = world.camera as PerspectiveCamera
 
@@ -25,16 +27,18 @@ export const updateXRInput = (world = Engine.instance.currentWorld) => {
   cameraTransform.position.copy(camera.position)
   cameraTransform.rotation.copy(camera.quaternion)
   cameraTransform.scale.copy(camera.scale)
-  /*
-   * xr cameras also have to have their world transforms updated relative to the origin, as these are used for actual rendering
-   */
-  // const originTransform = getComponent(world.originEntity, TransformComponent)
-  // const cameraXR = xrManager.getCamera()
-  // updateXRCameraTransform(cameraXR, originTransform.matrix)
-  // for (const camera of cameraXR.cameras) updateXRCameraTransform(camera, originTransform.matrix)
 
-  /** compute transform matricies with new information */
-  // computeTransformMatrix(world.cameraEntity, world)
+  const xrFrame = Engine.instance.xrFrame
+  const referenceSpace = xrState.localFloorReferenceSpace.value
+  const viewerXRPose = referenceSpace && xrFrame?.getViewerPose(referenceSpace)
+
+  if (viewerXRPose) {
+    const originTransform = getComponent(world.originEntity, TransformComponent)
+    const viewerPose = _pose.setFromXRPose(viewerXRPose).prerotate(originTransform.rotation)
+    xrState.viewerPoseDeltaMetric.value.update(viewerPose)
+  } else {
+    xrState.viewerPoseDeltaMetric.value.update(null)
+  }
 }
 
 /**
