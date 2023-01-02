@@ -145,7 +145,7 @@ const PartyMenu = ({ changeActiveMenu }: Props): JSX.Element => {
   const renderCreateButtons = () => {
     return (
       <Box flex={1}>
-        <Button fullWidth type="gradientRounded" className={styles.create} onClick={createParty}>
+        <Button fullWidth type="gradientRounded" onClick={createParty}>
           {t('user:usermenu.party.create')}
         </Button>
       </Box>

@@ -14,6 +14,7 @@ export type AdminAssetUploadArgumentsType = {
   staticResourceType?: string
   userId?: string
   name?: string
+  project?: string
 }
 
 export type AdminAssetUploadType = {

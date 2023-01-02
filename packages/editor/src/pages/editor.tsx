@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { Redirect, Route, Switch } from 'react-router-dom'
 
 import { API } from '@xrengine/client-core/src/API'
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
@@ -7,12 +7,12 @@ import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircl
 import PortalLoadSystem from '@xrengine/client-core/src/systems/PortalLoadSystem'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
+import { ClientModules } from '@xrengine/client-core/src/world/ClientModules'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { initializeCoreSystems } from '@xrengine/engine/src/initializeCoreSystems'
-import { initializeRealtimeSystems } from '@xrengine/engine/src/initializeRealtimeSystems'
-import { initializeSceneSystems } from '@xrengine/engine/src/initializeSceneSystems'
+import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 import EditorCameraSystem from '../systems/EditorCameraSystem'
@@ -90,13 +90,12 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     Engine.instance.isEditor = true
     const world = Engine.instance.currentWorld
-    initializeCoreSystems().then(async () => {
+    const projects = API.instance.client.service('projects').find()
+    ClientModules().then(async () => {
       initSystems(world, systems)
-      const projects = API.instance.client.service('projects').find()
-      await initializeRealtimeSystems(false)
-      await initializeSceneSystems()
       await loadEngineInjection(world, await projects)
       setEngineReady(true)
+      dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })
   }, [])
 
@@ -105,11 +104,14 @@ const EditorProtectedRoutes = () => {
   return (
     <Suspense fallback={<LoadingCircle />}>
       <Switch>
-        <Route path="/editor/:projectName/:sceneName" component={EditorPage} />
-        <Route path="/editor/:projectName" component={EditorPage} />
-        <Route path="/editor" component={ProjectPage} />
+        <Redirect from="/editor/:projectName/:sceneName" to="/studio/:projectName/:sceneName" />
+        <Redirect from="/editor/:projectName" to="/studio/:projectName" />
+        <Redirect from="/editor" to="/studio" />
+        <Route path="/studio/:projectName/:sceneName" component={EditorPage} />
+        <Route path="/studio/:projectName" component={EditorPage} />
+        <Route path="/studio" component={ProjectPage} />
         {/* Not in use */}
-        <Route path="/editor-login" component={SignInPage} />
+        <Route path="/studio-login" component={SignInPage} />
       </Switch>
     </Suspense>
   )

@@ -5,7 +5,9 @@ import { Op } from 'sequelize'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
+import verifyScope from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
+import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type CreateStaticResourceType = {
@@ -15,23 +17,28 @@ export type CreateStaticResourceType = {
   key: string
   staticResourceType?: string
   userId?: string
+  project?: string
 }
 
 export class StaticResource extends Service<StaticResourceInterface> {
+  app: Application
   public docs: any
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
+    this.app = app
   }
 
   // @ts-ignore
   async create(data: CreateStaticResourceType, params?: UserParams): Promise<StaticResourceInterface> {
     const self = this
+    const query = {
+      $select: ['id'],
+      url: data.url
+    } as any
+    if (data.project) query.project = data.project
     const oldResource = await this.find({
-      query: {
-        $select: ['id'],
-        url: data.url
-      }
+      query
     })
 
     if ((oldResource as any).total > 0) {
@@ -90,8 +97,18 @@ export class StaticResource extends Service<StaticResourceInterface> {
     }
   }
 
-  async remove(id: string, params?: Params): Promise<StaticResourceInterface> {
+  async remove(id: string, params?: UserParams): Promise<StaticResourceInterface> {
     const resource = await super.get(id)
+
+    if (!resource) {
+      throw new NotFoundException('Unable to find specified resource id.')
+    }
+
+    if (!resource.userId) {
+      if (params?.provider) await verifyScope('admin', 'admin')({ app: this.app, params } as any)
+    } else if (params?.provider && resource.userId !== params?.user?.id)
+      throw new UnauthenticatedException('You are not the creator of this resource')
+
     if (resource.key) {
       const storageProvider = getStorageProvider(params?.query?.storageProviderName)
       await storageProvider.deleteResources([resource.key])

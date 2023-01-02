@@ -19,7 +19,7 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
-import { disposeProject, loadProjectScene, runPreprojectLoadTasks } from '../functions/projectFunctions'
+import { disposeProject, loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -141,7 +141,6 @@ const EditorContainer = () => {
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
 
   const { t } = useTranslation()
-  const [editorReady, setEditorReady] = useState(false)
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
   const route = useRouter()
@@ -150,11 +149,7 @@ const EditorContainer = () => {
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
 
   useEffect(() => {
-    runPreprojectLoadTasks().then(() => {
-      setEditorReady(true)
-    })
     return () => {
-      setEditorReady(false)
       disposeProject()
     }
   }, [])
@@ -183,16 +178,16 @@ const EditorContainer = () => {
   }
 
   useEffect(() => {
-    if (sceneName.value && editorReady) {
+    if (sceneName.value) {
       logger.info(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
     }
-  }, [editorReady, sceneName])
+  }, [sceneName])
 
   const reRouteToLoadScene = async (newSceneName: string) => {
     if (sceneName.value === newSceneName) return
     if (!projectName.value || !newSceneName) return
-    route(`/editor/${projectName.value}/${newSceneName}`)
+    route(`/studio/${projectName.value}/${newSceneName}`)
   }
 
   const loadScene = async (sceneName: string) => {
@@ -529,7 +524,6 @@ const EditorContainer = () => {
   }, [])
 
   const toolbarMenu = generateToolbarMenu()
-  if (!editorReady) return <></>
 
   const defaultLayout: LayoutData = {
     dockbox: {
@@ -640,7 +634,7 @@ const EditorContainer = () => {
         <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
           <DndWrapper id="editor-container">
             <DragLayer />
-            <ToolBar editorReady={editorReady} menu={toolbarMenu} />
+            <ToolBar menu={toolbarMenu} />
             <ElementList />
             <ControlText />
             <div className={styles.workspaceContainer}>

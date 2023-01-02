@@ -201,9 +201,9 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     await Promise.all(systemsToUnload.flat().map((system) => system.cleanup()))
     for (const pipeline of systemsToUnload) {
       for (const system of pipeline) {
-        /** @todo run cleanup hook for this system */
         const i = pipeline.indexOf(system)
         pipeline.splice(i, 1)
+        delete world.systemsByUUID[system.uuid]
       }
     }
   }
@@ -226,9 +226,12 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
 
   world.sceneJson = sceneData.scene
 
-  /** @todo - check for removed metadata types */
-  if (sceneData.scene.metadata)
-    world.sceneMetadata.merge(merge({}, world.sceneMetadata.value, sceneData.scene.metadata))
+  if (sceneData.scene.metadata) {
+    for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
+      if (!world.sceneMetadataRegistry[key]) continue
+      world.sceneMetadataRegistry[key].state.merge(merge({}, world.sceneMetadataRegistry[key].state.value, val))
+    }
+  }
 
   /** 4. update scene entities with new data, and load new ones */
   updateRootNodeUuid(sceneData.scene.root, world.entityTree)

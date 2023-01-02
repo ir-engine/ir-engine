@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { v4 } from 'uuid'
 
+import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 for (const project of fs.readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/'))) {
@@ -16,7 +17,7 @@ for (const project of fs.readdirSync(path.resolve(appRootPath.path, 'packages/pr
     for (const uuid of Object.keys(sceneJson.entities)) {
       uuidMapping[uuid] = v4()
     }
-    sceneJson.root = uuidMapping[Object.keys(sceneJson.entities)[0]]
+    sceneJson.root = uuidMapping[Object.keys(sceneJson.entities)[0]] as EntityUUID
     for (const uuid of Object.keys(sceneJson.entities)) {
       if (Object.keys(uuidMapping).includes(sceneJson.entities[uuid].parent!)) {
         sceneJson.entities[uuid].parent =

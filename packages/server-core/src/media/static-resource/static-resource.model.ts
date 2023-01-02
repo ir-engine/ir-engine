@@ -33,6 +33,10 @@ export default (app: Application) => {
       metadata: {
         type: DataTypes.JSON,
         allowNull: true
+      },
+      project: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
     {

@@ -19,6 +19,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
+  addComponent,
   defineQuery,
   getComponent,
   getOptionalComponent,
@@ -27,9 +28,12 @@ import {
   removeQuery,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import {
@@ -42,11 +46,10 @@ import {
   TransformPivotType
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
-import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
@@ -63,8 +66,21 @@ import EditorSelectionReceptor, { SelectionState } from '../services/SelectionSe
 
 const SELECT_SENSITIVITY = 0.001
 
+export const createTransformGizmo = async () => {
+  const gizmoEntity = createEntity()
+  addComponent(gizmoEntity, NameComponent, 'Transform Gizmo')
+  const gizmo = new TransformGizmo()
+  SceneState.transformGizmo = gizmo
+  await gizmo.load()
+  addComponent(gizmoEntity, TransformGizmoComponent, { gizmo })
+  setTransformComponent(gizmoEntity)
+  addObjectToGroup(gizmoEntity, gizmo)
+  return gizmoEntity
+}
+
 export default async function EditorControlSystem(world: World) {
-  const editorControlQuery = defineQuery([EditorControlComponent])
+  const gizmoEntity = await createTransformGizmo()
+
   const selectionState = getState(SelectionState)
   const editorHelperState = getState(EditorHelperState)
 
@@ -254,12 +270,11 @@ export default async function EditorControlSystem(world: World) {
   const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
   const execute = () => {
-    if (editorHelperState.isPlayModeEnabled.value || !hasComponent(SceneState.gizmoEntity, TransformGizmoComponent))
-      return
+    if (world.localClientEntity || !hasComponent(gizmoEntity, TransformGizmoComponent)) return
 
     selectedParentEntities = selectionState.selectedParentEntities.value
     selectedEntities = selectionState.selectedEntities.value
-    const gizmoObj = getComponent(SceneState.gizmoEntity, TransformGizmoComponent).gizmo
+    const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent).gizmo
 
     transformModeChanged = transformMode !== editorHelperState.transformMode.value
     transformMode = editorHelperState.transformMode.value
@@ -275,8 +290,7 @@ export default async function EditorControlSystem(world: World) {
     const inputState = world.buttons
 
     if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
-      if (hasComponent(SceneState.gizmoEntity, VisibleComponent))
-        removeComponent(SceneState.gizmoEntity, VisibleComponent)
+      if (hasComponent(gizmoEntity, VisibleComponent)) removeComponent(gizmoEntity, VisibleComponent)
     } else {
       const lastSelection = selectedEntities[selectedEntities.length - 1]
       const isUuid = typeof lastSelection === 'string'
@@ -329,8 +343,7 @@ export default async function EditorControlSystem(world: World) {
         if ((transformModeChanged || transformSpaceChanged) && transformMode === TransformMode.Scale) {
           gizmoObj.setLocalScaleHandlesVisible(transformSpace !== TransformSpace.World)
         }
-        if (!hasComponent(SceneState.gizmoEntity, VisibleComponent))
-          setComponent(SceneState.gizmoEntity, VisibleComponent)
+        if (!hasComponent(gizmoEntity, VisibleComponent)) setComponent(gizmoEntity, VisibleComponent)
       }
     }
     const cursorPosition = world.pointerState.position
@@ -605,9 +618,7 @@ export default async function EditorControlSystem(world: World) {
     }
   }
 
-  const cleanup = async () => {
-    removeQuery(world, editorControlQuery)
-  }
+  const cleanup = async () => {}
 
   return {
     execute,

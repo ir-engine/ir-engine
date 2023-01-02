@@ -2,7 +2,12 @@ import { Event, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { ComponentMap, getComponent, hasComponent } from '../../../../ecs/functions/ComponentFunctions'
+import {
+  ComponentMap,
+  getComponent,
+  getComponentState,
+  hasComponent
+} from '../../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../../scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '../../../../scene/components/GLTFLoadedComponent'
 import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
@@ -27,8 +32,15 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
           data.push(['xrengine.entity', name])
           break
         default:
-          const component = ComponentMap.has(field)
+          const component = ComponentMap.get(field)!
+          const compData = component.toJSON(entity, getComponentState(entity, component))
+          for (const [field, value] of Object.entries(compData)) {
+            data.push([`xrengine.${component.name}.${field}`, value])
+          }
       }
     }
+    nodeDef.extensions = nodeDef.extensions ?? {}
+    nodeDef.extensions[this.name] = { data }
+    this.writer.extensionsUsed[this.name] = true
   }
 }

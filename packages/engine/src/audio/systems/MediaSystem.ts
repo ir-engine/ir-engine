@@ -1,5 +1,14 @@
+import _ from 'lodash'
+
 import logger from '@xrengine/common/src/logger'
-import { addActionReceptor, createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  createActionQueue,
+  getState,
+  hookstate,
+  removeActionQueue,
+  State
+} from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
@@ -82,6 +91,24 @@ export const MediaPrefabs = {
   volumetric: 'Volumetric' as const
 }
 
+export const DefaultMediaState = {
+  immersiveMedia: false,
+  refDistance: 20,
+  rolloffFactor: 1,
+  maxDistance: 10000,
+  distanceModel: 'linear' as DistanceModelType,
+  coneInnerAngle: 360,
+  coneOuterAngle: 0,
+  coneOuterGain: 0
+}
+
+export type MediaState = State<typeof DefaultMediaState>
+
+export const MediaSceneMetadataLabel = 'mediaSettings'
+
+export const getMediaSceneMetadataState = (world: World) =>
+  world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
+
 export default async function MediaSystem(world: World) {
   if (isClient && !Engine.instance.isEditor) {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
@@ -99,6 +126,11 @@ export default async function MediaSystem(world: World) {
     // TODO: add destroy callbacks
     window.addEventListener('pointerdown', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
+  }
+
+  world.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
+    state: hookstate(_.cloneDeep(DefaultMediaState)),
+    default: DefaultMediaState
   }
 
   world.scenePrefabRegistry.set(MediaPrefabs.audio, [

@@ -5,6 +5,7 @@ import { Color } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
+import { getFogSceneMetadataState } from '@xrengine/engine/src/scene/systems/FogSystem'
 
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
@@ -38,27 +39,23 @@ const FogTypeOptions = [
 export const FogSettingsEditor = () => {
   const { t } = useTranslation()
 
-  const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.fog)
-  const settings = sceneMetadata.get({ noproxy: true })
+  const fogState = useHookstate(getFogSceneMetadataState(Engine.instance.currentWorld))
+  const fog = fogState.get({ noproxy: true })
 
   return (
     <PropertyGroup name={t('editor:properties.fog.name')} description={t('editor:properties.fog.description')}>
       <InputGroup name="Fog Type" label={t('editor:properties.fog.lbl-fogType')}>
-        <SelectInput
-          options={FogTypeOptions}
-          value={settings.type}
-          onChange={(val: FogType) => sceneMetadata.type.set(val)}
-        />
+        <SelectInput options={FogTypeOptions} value={fog.type} onChange={(val: FogType) => fogState.type.set(val)} />
       </InputGroup>
-      {settings.type !== FogType.Disabled && (
+      {fog.type !== FogType.Disabled && (
         <>
           <InputGroup name="Fog Color" label={t('editor:properties.fog.lbl-fogColor')}>
             <ColorInput
-              value={new Color(settings.color)}
-              onSelect={(val: Color) => sceneMetadata.color.set('#' + val.getHexString())}
+              value={new Color(fog.color)}
+              onSelect={(val: Color) => fogState.color.set('#' + val.getHexString())}
             />
           </InputGroup>
-          {settings.type === FogType.Linear ? (
+          {fog.type === FogType.Linear ? (
             <>
               <NumericInputGroup
                 name="Fog Near Distance"
@@ -67,8 +64,8 @@ export const FogSettingsEditor = () => {
                 mediumStep={1}
                 largeStep={10}
                 min={0}
-                value={settings.near}
-                onChange={(val) => sceneMetadata.near.set(val)}
+                value={fog.near}
+                onChange={(val) => fogState.near.set(val)}
               />
               <NumericInputGroup
                 name="Fog Far Distance"
@@ -77,8 +74,8 @@ export const FogSettingsEditor = () => {
                 mediumStep={100}
                 largeStep={1000}
                 min={0}
-                value={settings.far}
-                onChange={(val) => sceneMetadata.far.set(val)}
+                value={fog.far}
+                onChange={(val) => fogState.far.set(val)}
               />
             </>
           ) : (
@@ -90,10 +87,10 @@ export const FogSettingsEditor = () => {
                 mediumStep={0.1}
                 largeStep={0.25}
                 min={0}
-                value={settings.density}
-                onChange={(val) => sceneMetadata.density.set(val)}
+                value={fog.density}
+                onChange={(val) => fogState.density.set(val)}
               />
-              {settings.type !== FogType.Exponential && (
+              {fog.type !== FogType.Exponential && (
                 <NumericInputGroup
                   name="Fog Height"
                   label={t('editor:properties.fog.lbl-fogHeight')}
@@ -101,11 +98,11 @@ export const FogSettingsEditor = () => {
                   mediumStep={0.1}
                   largeStep={0.25}
                   min={0}
-                  value={settings.height}
-                  onChange={(val) => sceneMetadata.height.set(val)}
+                  value={fog.height}
+                  onChange={(val) => fogState.height.set(val)}
                 />
               )}
-              {settings.type === FogType.Brownian && (
+              {fog.type === FogType.Brownian && (
                 <NumericInputGroup
                   name="Fog Time Scale"
                   label={t('editor:properties.fog.lbl-fogTimeScale')}
@@ -113,8 +110,8 @@ export const FogSettingsEditor = () => {
                   mediumStep={0.1}
                   largeStep={0.25}
                   min={0.001}
-                  value={settings.timeScale}
-                  onChange={(val) => sceneMetadata.timeScale.set(val)}
+                  value={fog.timeScale}
+                  onChange={(val) => fogState.timeScale.set(val)}
                 />
               )}
             </>

@@ -6,7 +6,7 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { addEntityNodeChild, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { accessEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer, getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
@@ -59,7 +59,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   // Rendering the scene to the new canvas with given size
-  if (Engine.instance.currentWorld.sceneMetadata.postprocessing.enabled.value) {
+  if (getPostProcessingSceneMetadataState(Engine.instance.currentWorld).enabled.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.render()
     configureEffectComposer(false, Engine.instance.currentWorld.camera)

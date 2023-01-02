@@ -7,4 +7,5 @@ export type FlyControlComponentType = {
   maxXRotation: number
 }
 
+/** @todo replace with basic state somewhere instead of a component */
 export const FlyControlComponent = createMappedComponent<FlyControlComponentType>('FlyControlComponent')

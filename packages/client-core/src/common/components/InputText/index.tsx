@@ -17,6 +17,7 @@ interface Props {
   className?: string
   disabled?: boolean
   endAdornment?: React.ReactNode
+  endControl?: React.ReactNode
   endIcon?: React.ReactNode
   endIconTitle?: string
   error?: string
@@ -42,6 +43,7 @@ const InputText = ({
   className,
   disabled,
   endAdornment,
+  endControl,
   endIcon,
   endIconTitle,
   error,
@@ -69,62 +71,66 @@ const InputText = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
-      <FormControl
-        variant="outlined"
-        className={`${commonStyles.inputField} ${className ?? ''}`}
-        error={!!error}
-        disabled={disabled}
-        focused={true}
-        size="small"
-      >
-        <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
-
-        <OutlinedInput
-          disabled={disabled}
+      <Box sx={{ display: 'flex' }}>
+        <FormControl
+          variant="outlined"
+          className={`${commonStyles.inputField} ${className ?? ''}`}
           error={!!error}
-          fullWidth
-          id={id}
-          inputRef={inputRef}
-          label={capitalizeFirstLetter(label)}
-          name={name}
-          placeholder={placeholder}
-          size={'small'}
-          sx={{ opacity: disabled ? 0.38 : 1 }}
-          type={type}
-          value={value}
-          startAdornment={
-            <>
-              {startIcon && (
-                <IconButton
-                  className={styles.iconButton}
-                  title={startIconTitle}
-                  icon={startIcon}
-                  sx={{ ml: -1.5 }}
-                  onClick={onStartIconClick}
-                />
-              )}
-              {startAdornment}
-            </>
-          }
-          endAdornment={
-            <>
-              {endIcon && (
-                <IconButton
-                  className={styles.iconButton}
-                  title={endIconTitle}
-                  icon={endIcon}
-                  sx={{ mr: -1.5 }}
-                  onClick={onEndIconClick}
-                />
-              )}
-              {endAdornment}
-            </>
-          }
-          onBlur={onBlur}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-        />
-      </FormControl>
+          disabled={disabled}
+          focused={true}
+          size="small"
+        >
+          <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
+
+          <OutlinedInput
+            disabled={disabled}
+            error={!!error}
+            fullWidth
+            id={id}
+            inputRef={inputRef}
+            label={capitalizeFirstLetter(label)}
+            name={name}
+            placeholder={placeholder}
+            size={'small'}
+            sx={{ opacity: disabled ? 0.38 : 1 }}
+            type={type}
+            value={value}
+            startAdornment={
+              <>
+                {startIcon && (
+                  <IconButton
+                    className={styles.iconButton}
+                    title={startIconTitle}
+                    icon={startIcon}
+                    sx={{ ml: -1.5 }}
+                    onClick={onStartIconClick}
+                  />
+                )}
+                {startAdornment}
+              </>
+            }
+            endAdornment={
+              <>
+                {endIcon && (
+                  <IconButton
+                    className={styles.iconButton}
+                    title={endIconTitle}
+                    icon={endIcon}
+                    sx={{ mr: -1.5 }}
+                    onClick={onEndIconClick}
+                  />
+                )}
+                {endAdornment}
+              </>
+            }
+            onBlur={onBlur}
+            onChange={onChange}
+            onKeyDown={onKeyDown}
+          />
+        </FormControl>
+
+        {endControl}
+      </Box>
 
       {error && (
         <FormControl error>

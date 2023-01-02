@@ -59,7 +59,8 @@ const SelectAvatarMenu = () => {
 
   const loadNextAvatars = () => {
     if ((page + 1) * imgPerPage >= avatarState.total.value) return
-    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length) AvatarService.fetchAvatarList('increment')
+    if ((page + 1) * imgPerPage >= avatarState.avatarList.value.length)
+      AvatarService.fetchAvatarList(undefined, 'increment')
     setPage(page + 1)
   }
 
@@ -136,7 +137,7 @@ const SelectAvatarMenu = () => {
             onClick={openProfileMenu}
             content={<ArrowBack />}
           />
-          <h2>{t('user:avatar.title')}</h2>
+          <h2>{t('user:avatar.titleUploadAvatar')}</h2>
         </div>
         <div className="avatarContainer">
           <div className="gridContainer" style={{ margin: 0 }}>

@@ -1,5 +1,7 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
+import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import Text from '@xrengine/client-core/src/common/components/Text'
 
@@ -21,8 +23,9 @@ interface Props {
   showChangeButton?: boolean
   size?: number
   sx?: SxProps<Theme>
-  type?: 'round' | 'square'
+  type?: 'round' | 'rectangle' | 'thumbnail'
   onChange?: () => void
+  onClick?: () => void
 }
 
 const Avatar = ({
@@ -36,50 +39,68 @@ const Avatar = ({
   size,
   sx,
   type,
-  onChange
+  onChange,
+  onClick
 }: Props) => {
+  const { t } = useTranslation()
+
   if (!size) {
     size = 80
   }
 
-  if (type === 'square') {
+  const handleChange = (e) => {
+    e.stopPropagation()
+    onChange && onChange()
+  }
+
+  if (type === 'rectangle') {
     return (
       <Paper
         title={name}
-        className={`${styles.avatarSquare} ${isSelected ? styles.avatarSelected : ''}`}
-        sx={{
-          boxShadow: 'none',
-          backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1'),
-          pointerEvents: isSelected ? 'none' : 'auto'
-        }}
-        onClick={onChange}
+        className={`${styles.avatarRectangle} ${isSelected ? styles.avatarSelected : ''}`}
+        onClick={onClick}
         onPointerUp={handleSoundEffect}
         onPointerEnter={handleSoundEffect}
       >
         <img className={styles.avatar} src={imageSrc} alt={alt} crossOrigin="anonymous" />
-        {name && (
-          <Text variant="body2" className={styles.avatarName}>
-            {name}
-          </Text>
+        <Text variant="body2" flex={1} className={styles.avatarName}>
+          {name}
+        </Text>
+
+        {showChangeButton && (
+          <IconButton
+            icon={<CreateIcon sx={{ fontSize: '20px' }} />}
+            title={t('user:common.edit')}
+            onClick={handleChange}
+          />
         )}
       </Paper>
+    )
+  } else if (type === 'thumbnail') {
+    return (
+      <Box
+        className={`${commonStyles.preview} ${styles.avatarThumbnail} ${className}`}
+        sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
+      >
+        <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
+        {!imageSrc && (
+          <Text className={commonStyles.previewText} variant="body2">
+            {t('admin:components.avatar.thumbnailPreview')}
+          </Text>
+        )}
+      </Box>
     )
   }
 
   return (
     <Box
-      className={`${styles.avatarBlock} ${className}`}
+      className={`${styles.avatarRound} ${className}`}
       id={id}
       sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
     >
       <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
       {showChangeButton && (
-        <IconButton
-          className={styles.avatarBtn}
-          disableRipple
-          icon={<CreateIcon sx={{ fontSize: '20px' }} />}
-          onClick={onChange}
-        />
+        <IconButton disableRipple icon={<CreateIcon sx={{ fontSize: '20px' }} />} type="glow" onClick={onChange} />
       )}
     </Box>
   )

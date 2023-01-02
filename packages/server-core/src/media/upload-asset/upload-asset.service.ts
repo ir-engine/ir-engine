@@ -43,10 +43,12 @@ export const addGenericAssetToS3AndStaticResources = async (
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
   const key = processFileName(args.key)
+  const whereArgs = {
+    [Op.or]: [{ key: key }, { id: args.id ?? '' }]
+  } as any
+  if (args.project) whereArgs.project = args.project
   const existingAsset = await app.service('static-resource').Model.findAndCountAll({
-    where: {
-      [Op.or]: [{ key: key }, { id: args.id ?? '' }]
-    }
+    where: whereArgs
   })
 
   let returned: Promise<StaticResourceInterface>
@@ -87,7 +89,8 @@ export const addGenericAssetToS3AndStaticResources = async (
             url: assetURL,
             key: key,
             mimeType: mimeType,
-            staticResourceType: args.staticResourceType
+            staticResourceType: args.staticResourceType,
+            project: args.project
           },
           { isInternal: true }
         )
@@ -102,6 +105,7 @@ export const addGenericAssetToS3AndStaticResources = async (
                 key: key,
                 mimeType: mimeType,
                 staticResourceType: args.staticResourceType,
+                project: args.project,
                 ...userIdQuery
               },
               { isInternal: true }

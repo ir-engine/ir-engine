@@ -8,12 +8,14 @@ import multiLogger from '@xrengine/common/src/logger'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { easeOutElastic } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
   hasComponent,
+  removeComponent,
   removeQuery,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -26,7 +28,7 @@ import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGro
 import { getInteractionGroups } from '@xrengine/engine/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent, XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -72,6 +74,7 @@ export default async function AvatarUISystem(world: World) {
     Not(NetworkObjectOwnedTag)
   ])
   const AvatarContextMenuUI = createAvatarContextMenuView()
+  removeComponent(AvatarContextMenuUI.entity, VisibleComponent)
   setComponent(AvatarContextMenuUI.entity, XRUIInteractableComponent)
 
   const _vector3 = new Vector3()
@@ -125,7 +128,11 @@ export default async function AvatarUISystem(world: World) {
     AvatarContextMenuUI.state.id.set('')
   }
 
+  const engineState = getState(EngineState)
+
   const execute = () => {
+    if (!engineState.isEngineInitialized.value) return
+
     const keys = world.buttons
 
     if (keys.PrimaryClick?.down) onPrimaryClick()

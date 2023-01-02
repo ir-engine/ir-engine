@@ -2,7 +2,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
+import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
@@ -70,10 +70,7 @@ export default async function AvatarControllerSystem(world: World) {
         })
       }
 
-      setComponent(controller.cameraEntity, FollowCameraComponent, {
-        ...FollowCameraDefaultValues,
-        targetEntity
-      })
+      setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity })
 
       dispatchAction(WorldNetworkAction.spawnCamera({}))
     }

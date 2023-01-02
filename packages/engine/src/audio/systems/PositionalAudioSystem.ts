@@ -30,6 +30,7 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioSettingAction } from '../AudioState'
 import { PositionalAudioComponent, PositionalAudioInterface } from '../components/PositionalAudioComponent'
+import { getMediaSceneMetadataState } from './MediaSystem'
 
 export const addPannerNode = (audioNodes: AudioNodeGroup, opts: PositionalAudioInterface) => {
   const panner = Engine.instance.audioContext.createPanner()
@@ -138,7 +139,7 @@ export default async function PositionalAudioSystem(world: World) {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
     const immersiveMedia = shouldUseImmersiveMedia()
-    const positionalAudioSettings = Engine.instance.currentWorld.sceneMetadata.mediaSettings.value
+    const positionalAudioSettings = getMediaSceneMetadataState(Engine.instance.currentWorld).value
 
     /**
      * Scene Objects

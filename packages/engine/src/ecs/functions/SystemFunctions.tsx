@@ -97,35 +97,41 @@ const createExecute = (system: SystemDefintion, subsystems: SystemInstanceData[]
   }
 }
 
+const loadSubsystems = (
+  world: World,
+  parentSystemFactory: SystemFactoryType<any>,
+  subsystems: Array<SystemLoader<any>> = []
+) => {
+  return Promise.all(
+    subsystems.map(async (subsystemInit, i) => {
+      const subsystem = await subsystemInit()
+      const name = subsystem.default.name
+      const uuid = name
+      const type = 'SUB_SYSTEM' as any
+      return {
+        uuid,
+        name,
+        type,
+        sceneSystem: parentSystemFactory.sceneSystem,
+        enabled: true,
+        ...(await loadSystemInjection(world, {
+          systemModule: subsystem,
+          uuid,
+          type
+        }))
+      }
+    })
+  )
+}
+
 const loadSystemInjection = async (world: World, s: SystemFactoryType<any>, type?: SystemUpdateType, args?: any) => {
   const name = s.systemModule.default.name
   try {
     if (type) logger.info(`${name} initializing on ${type} pipeline`)
     else logger.info(`${name} initializing`)
     const system = await s.systemModule.default(world, args)
+    const subsystems = await loadSubsystems(world, s, system.subsystems)
     logger.info(`${name} (${s.uuid}) ready`)
-    const subsystems = system.subsystems
-      ? await Promise.all(
-          system.subsystems.map(async (subsystemInit, i) => {
-            const subsystem = await subsystemInit()
-            const name = subsystem.default.name
-            const uuid = name
-            const type = 'SUB_SYSTEM' as any
-            return {
-              uuid,
-              name,
-              type,
-              sceneSystem: s.sceneSystem,
-              enabled: true,
-              ...(await loadSystemInjection(world, {
-                systemModule: subsystem,
-                uuid,
-                type
-              }))
-            }
-          })
-        )
-      : []
     return {
       execute: createExecute(system, subsystems, name, s.uuid),
       cleanup: system.cleanup,
@@ -164,6 +170,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
   )
   systems.forEach((s) => {
     if (s) {
+      world.systemsByUUID[s.uuid] = s
       world.pipelines[s.type].push(s)
     }
   })
@@ -202,6 +209,7 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
     cleanup: system.cleanup,
     subsystems: []
   } as SystemInstance
+  world.systemsByUUID[systemData.uuid] = systemData
   world.pipelines[systemData.type].push(systemData)
 }
 
@@ -218,8 +226,22 @@ export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
     systemsToRemove.forEach((s) => {
       const i = pipeline.indexOf(s)
       pipeline.splice(i, 1)
+      delete world.systemsByUUID[s.uuid]
     })
   })
+}
+
+export const unloadSystem = (world: World, uuid: string) => {
+  const entries = Object.entries(world.pipelines)
+  for (const [type, pipeline] of entries) {
+    const system = pipeline.find((s) => s.uuid === uuid)
+    if (system) {
+      const i = pipeline.indexOf(system)
+      pipeline.splice(i, 1)
+      delete world.systemsByUUID[system.uuid]
+      return
+    }
+  }
 }
 
 function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReactor: React.FC<EntityReactorProps> }) {

@@ -62,6 +62,8 @@ const _rotY90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI 
 const _rotYneg90 = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
 
 export default async function AvatarAnimationSystem(world: World) {
+  await AnimationManager.instance.loadDefaultAnimations()
+
   const leftHandQuery = defineQuery([VisibleComponent, AvatarLeftHandIKComponent, AvatarRigComponent])
   const rightHandQuery = defineQuery([VisibleComponent, AvatarRightHandIKComponent, AvatarRigComponent])
   const headIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarRigComponent])
@@ -136,7 +138,7 @@ export default async function AvatarAnimationSystem(world: World) {
           /** detect hand joint pose support */
           if (hand && xrFrame.getJointPose) {
             const wrist = hand.get('wrist')
-            if (wrist && xrFrame.getJointPose) {
+            if (wrist) {
               const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
               const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
               if (jointPose) {
@@ -146,13 +148,17 @@ export default async function AvatarAnimationSystem(world: World) {
               }
             }
           } else if (inputSource.gripSpace) {
-            const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)!
-            ik.target.position.copy(pose.transform.position as any as Vector3)
-            ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
+            if (pose) {
+              ik.target.position.copy(pose.transform.position as any as Vector3)
+              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            }
           } else {
-            const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)!
-            ik.target.position.copy(pose.transform.position as any as Vector3)
-            ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
+            if (pose) {
+              ik.target.position.copy(pose.transform.position as any as Vector3)
+              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            }
           }
         }
 
@@ -160,9 +166,9 @@ export default async function AvatarAnimationSystem(world: World) {
         if (inputSource.handedness === 'right' && hasComponent(localClientEntity, AvatarRightHandIKComponent)) {
           const ik = getComponent(localClientEntity, AvatarRightHandIKComponent)
           const hand = inputSource.hand as XRHand | undefined
-          if (hand) {
+          if (hand && xrFrame.getJointPose) {
             const wrist = hand.get('wrist')
-            if (wrist && xrFrame.getJointPose) {
+            if (wrist) {
               const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
               const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
               if (jointPose) {
@@ -172,13 +178,17 @@ export default async function AvatarAnimationSystem(world: World) {
               }
             }
           } else if (inputSource.gripSpace) {
-            const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)!
-            ik.target.position.copy(pose.transform.position as any as Vector3)
-            ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
+            if (pose) {
+              ik.target.position.copy(pose.transform.position as any as Vector3)
+              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            }
           } else {
-            const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)!
-            ik.target.position.copy(pose.transform.position as any as Vector3)
-            ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
+            if (pose) {
+              ik.target.position.copy(pose.transform.position as any as Vector3)
+              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            }
           }
         }
       }
@@ -200,6 +210,7 @@ export default async function AvatarAnimationSystem(world: World) {
       const idx = sortedTransformEntities.indexOf(entity)
       idx > -1 && sortedTransformEntities.splice(idx, 1)
       needsSorting = true
+      priorityQueue.removeEntity(entity)
     }
 
     if (needsSorting) {

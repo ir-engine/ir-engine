@@ -1,5 +1,4 @@
 import AgonesSDK from '@google-cloud/agones-sdk'
-import { exec } from 'child_process'
 import fs from 'fs'
 import https from 'https'
 import psList from 'ps-list'
@@ -7,8 +6,6 @@ import psList from 'ps-list'
 import { pipe } from '@xrengine/common/src/utils/pipe'
 
 import '@xrengine/engine/src/patchEngineNode'
-
-import { Socket } from 'socket.io'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -18,8 +15,8 @@ import config from '@xrengine/server-core/src/appconfig'
 import {
   configureK8s,
   configureOpenAPI,
+  configurePrimus,
   configureRedis,
-  configureSocketIO,
   createFeathersExpressApp
 } from '@xrengine/server-core/src/createApp'
 import multiLogger from '@xrengine/server-core/src/ServerLogger'
@@ -42,21 +39,12 @@ process.on('unhandledRejection', (error, promise) => {
 /**
  * Ensure the instance server has loaded the world before allowing any users to connect.
  * @param app
- * @param socket
+ * @param primus
  */
-const onSocket = async (app: Application, socket: Socket) => {
-  if (!getEngineState().joinedWorld.value) {
-    await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
-  }
-  setupSocketFunctions(app.network, socket)
-}
 
-export const instanceServerPipe = pipe(
-  configureOpenAPI(),
-  configureSocketIO(true, onSocket),
-  configureRedis(),
-  configureK8s()
-) as (app: Application) => Application
+export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true), configureRedis(), configureK8s()) as (
+  app: Application
+) => Application
 
 export const start = async (): Promise<Application> => {
   const app = createFeathersExpressApp(ServerMode.Instance, instanceServerPipe)
@@ -178,6 +166,14 @@ export const start = async (): Promise<Application> => {
   server.on('listening', () =>
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
-
+  await new Promise((resolve) => {
+    const primusWaitInterval = setInterval(() => {
+      if (app.primus) {
+        clearInterval(primusWaitInterval)
+        resolve(null)
+      }
+    }, 100)
+  })
+  app.primus.on('connection', async (spark) => setupSocketFunctions(app, spark))
   return app
 }

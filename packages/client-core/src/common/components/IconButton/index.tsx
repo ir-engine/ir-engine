@@ -17,6 +17,7 @@ interface Props {
   sizePx?: number
   sx?: SxProps<Theme>
   title?: string
+  type?: 'default' | 'glow' | 'gradient' | 'solid'
   onClick?: (e) => void
 }
 
@@ -31,12 +32,23 @@ const IconButton = ({
   sizePx,
   sx,
   title,
+  type,
   onClick
 }: Props) => {
+  let baseStyle = styles.iconButton
+
+  if (type === 'glow') {
+    baseStyle = `${baseStyle} ${styles.iconButtonGlow}`
+  } else if (type === 'gradient') {
+    baseStyle = `${baseStyle} ${styles.iconButtonGradient}`
+  } else if (type === 'solid') {
+    baseStyle = `${baseStyle} ${styles.iconButtonSolid}`
+  }
+
   return (
     <MUIIconButton
       id={id}
-      className={`${styles.iconButton} ${background ? styles.backgroundStyle : ''} ${className ?? ''}`}
+      className={`${baseStyle} ${background ? styles.backgroundStyle : ''} ${className ?? ''}`}
       disabled={disabled}
       disableRipple={disableRipple}
       size={size}

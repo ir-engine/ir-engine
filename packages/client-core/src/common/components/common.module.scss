@@ -1,6 +1,7 @@
 .inputField {
   background: var(--inputBackground);
   border-radius: 4px;
+  flex-grow: 1;
 
   /**
   * This below style is added to fix background issues with chrome autofill.
@@ -53,6 +54,25 @@
   }
 }
 
+.preview {
+  color: var(--textColor);
+  border: 1px solid var(--buttonOutlined);
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--buttonOutlined);
+  position: relative;
+}
+
+.previewText {
+  position: absolute;
+  top: 0;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
 .bold {
   font-weight: bold;
 }
@@ -71,9 +91,5 @@
 @media (max-width: 899px) {
   .hideSm {
     display: none;
-  }
-
-  .flexWrapReverseSm {
-    flex-wrap: wrap-reverse;
   }
 }

@@ -24,6 +24,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
+import { getMediaSceneMetadataState } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -115,10 +116,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const currentChannelInstanceConnection = useMediaInstance()
 
   const mediaSettingState = useHookstate(getState(MediaSettingsState))
-  const sceneMetadata = Engine.instance.currentWorld.sceneMetadata.mediaSettings
+  const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && !sceneMetadata.immersiveMedia.value)
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)
 
   const setVideoStream = (value) => {
     if (value?.track) setVideoTrackId(value.track.id)
@@ -152,7 +153,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     else if (consumerId === audioStreamRef?.current?.id && !selfAudioPausedRef.current) setAudioStreamPaused(false)
   }
 
-  const pauseProducerListener = (producerId: string, globalMute: boolean) => {
+  const pauseProducerListener = ({ producerId, globalMute }: { producerId: string; globalMute: boolean }) => {
     if (producerId === videoStreamRef?.current?.id && globalMute) {
       setVideoProducerPaused(true)
       setVideoProducerGlobalMute(true)
@@ -272,26 +273,35 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   useEffect(() => {
     if (!currentChannelInstanceConnection?.value) return
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    const socket = mediaNetwork.socket
-    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
-    if (typeof socket?.on === 'function')
-      socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
-    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
-    if (typeof socket?.on === 'function')
-      socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
-    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
-
-    return () => {
-      if (typeof socket?.on === 'function')
-        socket?.off(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
-      if (typeof socket?.on === 'function')
-        socket?.off(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
-      if (typeof socket?.on === 'function')
-        socket?.off(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
-      if (typeof socket?.on === 'function')
-        socket?.off(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
-      if (typeof socket?.on === 'function')
-        socket?.off(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
+    const primus = mediaNetwork.primus
+    if (typeof primus?.on === 'function') {
+      const responseFunction = (message) => {
+        if (message) {
+          const { type, data, id } = message
+          switch (type) {
+            case MessageTypes.WebRTCPauseConsumer.toString():
+              pauseConsumerListener(data)
+              break
+            case MessageTypes.WebRTCResumeConsumer.toString():
+              resumeConsumerListener(data)
+              break
+            case MessageTypes.WebRTCPauseProducer.toString():
+              pauseProducerListener(data)
+              break
+            case MessageTypes.WebRTCResumeProducer.toString():
+              resumeProducerListener(data)
+              break
+            case MessageTypes.WebRTCCloseProducer.toString():
+              closeProducerListener(data)
+              break
+          }
+        }
+      }
+      Object.defineProperty(responseFunction, 'name', { value: `responseFunction${peerID}`, writable: true })
+      primus.on('data', responseFunction)
+      primus.on('end', () => {
+        primus.removeListener('data', responseFunction)
+      })
     }
   }, [currentChannelInstanceConnection])
 

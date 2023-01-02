@@ -16,6 +16,7 @@ import {
 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getRendererSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import BooleanInput from '../inputs/BooleanInput'
@@ -83,34 +84,34 @@ const ShadowTypeOptions = [
 
 export const RenderSettingsEditor = () => {
   const { t } = useTranslation()
-  const sceneMetadata = useHookstate(Engine.instance.currentWorld.sceneMetadata.renderSettings)
-  const settings = sceneMetadata.get({ noproxy: true })
+  const rendererState = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld))
+  const renderer = rendererState.get({ noproxy: true })
 
   return (
     <PropertyGroup
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
-      <InputGroup
+      {/* <InputGroup
         name="LODs"
         label={t('editor:properties.renderSettings.lbl-lods')}
         info={t('editor:properties.renderSettings.info-lods')}
       >
         <Vector3Input
           hideLabels
-          value={new Vector3(settings.LODs['0'], settings.LODs['1'], settings.LODs['2'])}
+          value={new Vector3(renderer.LODs['0'], renderer.LODs['1'], renderer.LODs['2'])}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          onChange={(val) => sceneMetadata.LODs.set({ '0': val.x, '1': val.y, '2': val.z })}
+          onChange={(val) => rendererState.LODs.set({ '0': val.x, '1': val.y, '2': val.z })}
         />
-      </InputGroup>
+      </InputGroup> */}
       <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}
         info={t('editor:properties.renderSettings.info-csm')}
       >
-        <BooleanInput value={settings.csm} onChange={(val) => sceneMetadata.csm.set(val)} />
+        <BooleanInput value={renderer.csm} onChange={(val) => rendererState.csm.set(val)} />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"
@@ -119,8 +120,8 @@ export const RenderSettingsEditor = () => {
       >
         <SelectInput
           options={ToneMappingOptions}
-          value={settings.toneMapping}
-          onChange={(val: ToneMapping) => sceneMetadata.toneMapping.set(val)}
+          value={renderer.toneMapping}
+          onChange={(val: ToneMapping) => rendererState.toneMapping.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -132,8 +133,8 @@ export const RenderSettingsEditor = () => {
           min={0}
           max={10}
           step={0.1}
-          value={settings.toneMappingExposure}
-          onChange={(val) => sceneMetadata.toneMappingExposure.set(val)}
+          value={renderer.toneMappingExposure}
+          onChange={(val) => rendererState.toneMappingExposure.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -143,8 +144,8 @@ export const RenderSettingsEditor = () => {
       >
         <SelectInput
           options={ShadowTypeOptions}
-          value={settings.shadowMapType ?? -1}
-          onChange={(val: ShadowMapType) => sceneMetadata.shadowMapType.set(val)}
+          value={renderer.shadowMapType ?? -1}
+          onChange={(val: ShadowMapType) => rendererState.shadowMapType.set(val)}
         />
       </InputGroup>
     </PropertyGroup>

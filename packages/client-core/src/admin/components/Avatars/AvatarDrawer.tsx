@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+import InputFile from '@xrengine/client-core/src/common/components/InputFile'
 import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import { getCanvasBlob, isValidHttpUrl } from '@xrengine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
@@ -33,7 +35,6 @@ import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
-import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -44,10 +45,6 @@ import { AvatarService } from '../../../user/services/AvatarService'
 import DrawerView from '../../common/DrawerView'
 import { AdminAvatarActions, useAdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
-
-const Input = styled('input')({
-  display: 'none'
-})
 
 export enum AvatarDrawerMode {
   Create,
@@ -133,18 +130,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         thumbnailFile: undefined
       })
     }
-  }
-
-  const isValidHttpUrl = (urlString) => {
-    let url
-
-    try {
-      url = new URL(urlString)
-    } catch (_) {
-      return false
-    }
-
-    return url.protocol === 'http:' || url.protocol === 'https:'
   }
 
   const updateAvatar = async () => {
@@ -298,20 +283,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
     if (avatarBlob && thumbnailBlob) {
       if (selectedAvatar?.id) {
-        const uploadResponse = await AvatarService.uploadAvatarModel(
-          avatarBlob,
-          thumbnailBlob,
-          state.name + '_' + selectedAvatar.id,
-          selectedAvatar.isPublic,
-          selectedAvatar.id
-        )
-        const removalPromises = [] as any
-        if (uploadResponse[0].id !== selectedAvatar.modelResourceId)
-          removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.modelResourceId))
-        if (uploadResponse[1].id !== selectedAvatar.thumbnailResourceId)
-          removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.thumbnailResourceId))
-        await Promise.all(removalPromises)
-        await AvatarService.patchAvatar(selectedAvatar.id, uploadResponse[0].id, uploadResponse[1].id, state.name)
+        await AvatarService.patchAvatar(selectedAvatar, state.name, true, avatarBlob, thumbnailBlob)
       } else await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, true)
       dispatchAction(AdminAvatarActions.avatarUpdated({}))
 
@@ -355,14 +327,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     setShowConfirm(ConfirmState.None)
   }
 
-  const getCanvasBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        resolve(blob)
-      })
-    })
-  }
-
   return (
     <Container maxWidth="sm" className={styles.mt10}>
       <DialogTitle className={styles.textAlign}>
@@ -398,11 +362,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       {state.source === 'file' && (
         <>
           <label htmlFor="select-avatar">
-            <Input
+            <InputFile
               id="select-avatar"
               name="avatarFile"
               accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-              type="file"
               onChange={handleChangeFile}
             />
             <Button className={styles.gradientButton} component="span" startIcon={<FaceIcon />}>
@@ -502,11 +465,10 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       {state.source === 'file' && (
         <>
           <label htmlFor="select-thumbnail">
-            <Input
+            <InputFile
               id="select-thumbnail"
               name="thumbnailFile"
               accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-              type="file"
               onChange={handleChangeFile}
             />
             <Button className={styles.gradientButton} component="span" startIcon={<AccountCircleIcon />}>

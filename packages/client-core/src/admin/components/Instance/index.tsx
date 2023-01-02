@@ -21,7 +21,7 @@ const Instance = () => {
 
   useEffect(() => {
     if (patch) {
-      NotificationService.dispatchNotify(patch.message, { variant: patch.status === true ? 'success' : 'error' })
+      NotificationService.dispatchNotify(patch.message, { variant: patch.status ? 'success' : 'error' })
     }
   }, [instanceserverState.patch])
 

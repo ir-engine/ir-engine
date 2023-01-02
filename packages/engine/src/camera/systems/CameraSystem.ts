@@ -1,13 +1,22 @@
-import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
+import _ from 'lodash'
+import { useEffect } from 'react'
+import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
-import { createActionQueue, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  createActionQueue,
+  dispatchAction,
+  hookstate,
+  removeActionQueue,
+  startReactor,
+  State,
+  useHookstate
+} from '@xrengine/hyperflux'
 
-import { BoneNames } from '../../avatar/AvatarBoneMatching'
-import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -15,7 +24,6 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   getOptionalComponent,
@@ -23,20 +31,21 @@ import {
   removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
+import { coneDebugHelpers, debugRays, FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import { CameraMode } from '../types/CameraMode'
+import { ProjectionType } from '../types/ProjectionType'
 import CameraFadeBlackEffectSystem from './CameraFadeBlackEffectSystem'
 
 const direction = new Vector3()
@@ -45,16 +54,6 @@ const empty = new Vector3()
 const mx = new Matrix4()
 const tempVec1 = new Vector3()
 const raycaster = new Raycaster()
-//const cameraRayCount = 1
-const cameraRays: Vector3[] = []
-const rayConeAngle = Math.PI / 6
-const coneDebugHelpers: ArrowHelper[] = []
-const debugRays = false
-const camRayCastClock = new Clock()
-const camRayCastCache = {
-  maxDistance: -1,
-  targetHit: false
-}
 
 /**
  * Calculates and returns view vector for give angle. View vector will be at the given angle after the calculation
@@ -107,6 +106,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   // Cache the raycast result for 0.1 seconds
   const raycastProps = followCamera.raycastProps
+  const { camRayCastCache, camRayCastClock, cameraRays, rayConeAngle } = raycastProps
   if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < raycastProps.rayFrequency) {
     return camRayCastCache
   }
@@ -229,23 +229,6 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   updateCameraTargetRotation(cameraEntity)
 }
 
-function createCameraRays(entity: Entity) {
-  const cameraFollow = getComponent(entity, FollowCameraComponent)
-  if (!cameraFollow.raycastProps) {
-    cameraFollow.raycastProps = { ...RAYCAST_PROPERTIES_DEFAULT_VALUES }
-    for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
-      cameraRays.push(new Vector3())
-      if (debugRays) {
-        const arrow = new ArrowHelper()
-        arrow.setColor('red')
-        coneDebugHelpers.push(arrow)
-        setObjectLayers(arrow, ObjectLayers.Gizmos)
-        Engine.instance.currentWorld.scene.add(arrow)
-      }
-    }
-  }
-}
-
 export function cameraSpawnReceptor(
   spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>,
   world = Engine.instance.currentWorld
@@ -257,13 +240,56 @@ export function cameraSpawnReceptor(
   setComponent(entity, CameraComponent)
 }
 
+export const DefaultCameraState = {
+  fov: 50,
+  cameraNearClip: 0.01,
+  cameraFarClip: 10000,
+  projectionType: ProjectionType.Perspective,
+  minCameraDistance: 1,
+  maxCameraDistance: 50,
+  startCameraDistance: 5,
+  cameraMode: CameraMode.Dynamic,
+  cameraModeDefault: CameraMode.ThirdPerson,
+  minPhi: -70,
+  maxPhi: 85,
+  startPhi: 10
+}
+
+export type CameraState = State<typeof DefaultCameraState>
+
+export const CameraSceneMetadataLabel = 'camera'
+
+export const getCameraSceneMetadataState = (world: World) =>
+  world.sceneMetadataRegistry[CameraSceneMetadataLabel].state as CameraState
+
 export default async function CameraSystem(world: World) {
+  world.sceneMetadataRegistry[CameraSceneMetadataLabel] = {
+    state: hookstate(_.cloneDeep(DefaultCameraState)),
+    default: DefaultCameraState
+  }
+
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
   const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
   const spectatorQuery = defineQuery([SpectatorComponent])
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
   const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
+
+  const reactor = startReactor(() => {
+    const cameraSettings = useHookstate(getCameraSceneMetadataState(world))
+
+    useEffect(() => {
+      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+      if (camera?.isPerspectiveCamera) {
+        camera.near = cameraSettings.cameraNearClip.value
+        camera.far = cameraSettings.cameraFarClip.value
+        camera.updateProjectionMatrix()
+      }
+      switchCameraMode(Engine.instance.currentWorld.cameraEntity, cameraSettings.value)
+    }, [cameraSettings])
+
+    return null
+  })
 
   const execute = () => {
     for (const action of cameraSpawnActions()) cameraSpawnReceptor(action, world)
@@ -290,7 +316,6 @@ export default async function CameraSystem(world: World) {
     for (const cameraEntity of followCameraQuery.enter()) {
       const followCamera = getComponent(cameraEntity, FollowCameraComponent)
       setComputedTransformComponent(cameraEntity, followCamera.targetEntity, computeCameraFollow)
-      createCameraRays(cameraEntity)
     }
 
     for (const cameraEntity of followCameraQuery.exit()) {
@@ -326,6 +351,7 @@ export default async function CameraSystem(world: World) {
     removeQuery(world, spectatorQuery)
     removeActionQueue(cameraSpawnActions)
     removeActionQueue(spectateUserActions)
+    reactor.stop()
   }
 
   return { execute, cleanup, subsystems: [async () => ({ default: CameraFadeBlackEffectSystem })] }
