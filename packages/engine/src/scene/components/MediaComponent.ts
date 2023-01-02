@@ -1,14 +1,14 @@
 import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 
-import { none } from '@xrengine/hyperflux'
+import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
 import { deepEqual } from '../../common/functions/deepEqual'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -191,6 +191,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+  const userHasInteracted = useHookstate(getState(EngineState).userHasInteracted)
 
   useEffect(
     function updatePlay() {
@@ -228,11 +229,10 @@ export function MediaReactor({ root }: EntityReactorProps) {
         tempElement.crossOrigin = 'anonymous'
         tempElement.preload = 'metadata'
         tempElement.src = path
-        tempElement.load()
       }
 
       // handle autoplay
-      if (media.autoplay.value && getEngineState().userHasInteracted.value) media.paused.set(false)
+      if (media.autoplay.value && userHasInteracted.value) media.paused.set(false)
 
       return () => {
         for (const { tempElement, listener } of metadataListeners) {
@@ -243,6 +243,13 @@ export function MediaReactor({ root }: EntityReactorProps) {
       }
     },
     [media.paths]
+  )
+
+  useEffect(
+    function updatePausedUponInteract() {
+      if (userHasInteracted.value && media.autoplay.value) media.paused.set(false)
+    },
+    [userHasInteracted]
   )
 
   useEffect(

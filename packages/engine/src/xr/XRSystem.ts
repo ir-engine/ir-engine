@@ -64,7 +64,7 @@ export default async function XRSystem(world: World) {
       () => Promise.resolve({ default: XRHapticsSystem }),
       () => Promise.resolve({ default: XRLightProbeSystem }),
       () => Promise.resolve({ default: XRDetectedPlanesSystem }),
-      () => Promise.resolve({ default: XRDepthOcclusion }),
+      // () => Promise.resolve({ default: XRDepthOcclusion }),
       () => Promise.resolve({ default: XRScenePlacementShader })
     ]
   }
