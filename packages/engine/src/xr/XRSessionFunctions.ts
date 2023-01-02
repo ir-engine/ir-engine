@@ -15,7 +15,6 @@ import {
   setLocalTransformComponent,
   TransformComponent
 } from '../transform/components/TransformComponent'
-import { updateWorldOrigin, updateWorldOriginToAttachedAvatar } from '../transform/updateWorldOrigin'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
@@ -81,8 +80,6 @@ export const requestXRSession = createHookableFunction(
 
       const world = Engine.instance.currentWorld
 
-      updateWorldOriginToAttachedAvatar(world.localClientEntity, world)
-
       const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
 
       const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
@@ -100,9 +97,9 @@ export const requestXRSession = createHookableFunction(
       removeComponent(world.cameraEntity, FollowCameraComponent)
 
       const onSessionEnd = () => {
+        xrSession.removeEventListener('end', onSessionEnd)
         xrState.sessionActive.set(false)
         xrState.sessionMode.set('none')
-        xrManager.removeEventListener('sessionend', onSessionEnd)
         xrManager.setSession(null!)
         EngineRenderer.instance.xrSession = null!
         Engine.instance.xrFrame = null!
@@ -125,7 +122,8 @@ export const requestXRSession = createHookableFunction(
         if (skybox) updateSkybox(skybox)
         dispatchAction(XRAction.sessionChanged({ active: false }))
       }
-      xrManager.addEventListener('sessionend', onSessionEnd)
+
+      xrSession.addEventListener('end', onSessionEnd)
 
       await xrManager.setSession(xrSession)
 
@@ -165,6 +163,8 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {}
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   EngineRenderer.instance.renderer.domElement.style.display = 'none'
+
+  const session = Engine.instance.xrFrame?.session!
 
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions

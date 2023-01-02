@@ -173,7 +173,7 @@ export default async function AvatarInputSystem(world: World) {
       const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
       extractRotationAboutAxis(cameraTransform.rotation, V_010, rigidBody.rotation).multiply(_rotY180)
       rigidBody.targetKinematicRotation.copy(rigidBody.rotation)
-      const transform = getComponent(localClientEntity, TransformComponent)
+      // const transform = getComponent(localClientEntity, TransformComponent)
       // transform.rotation.copy(rigidBody.rotation)
       // delete world.dirtyTransforms[localClientEntity]
     }

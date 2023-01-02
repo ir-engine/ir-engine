@@ -1,83 +1,78 @@
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
-import { DualQuaternion } from '../common/classes/DualQuaternion'
-import { V_010, V_111 } from '../common/constants/MathConstants'
-import { extractRotationAboutAxis } from '../common/functions/MathFunctions'
+import { V_111 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { getControlMode, XRState } from '../xr/XRState'
+import { XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
-
-const _vec = new Vector3()
-const _quat = new Quaternion()
-const _pose = new DualQuaternion()
-const _euler = new Euler()
-
-const avatarViewerTranslationDeltaDifference = new Vector3()
-const avatarViewerRotationDeltaDifference = new Quaternion()
 
 /**
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
  * @param entity
  */
-export const updateWorldOriginToAttachedAvatar = (entity: Entity, world: World) => {
+export const updateWorldOrigin = (entity: Entity, world: World) => {
   const xrFrame = Engine.instance.xrFrame
-  const xrState = getState(XRState).get({ noproxy: true })
-
-  if (!xrFrame || !xrState.localFloorReferenceSpace) {
-    xrState.avatarPoseDeltaMetric.update(null)
-    return
-  }
-
   const avatarTransform = getComponent(entity, TransformComponent)
   const originTransform = getComponent(world.originEntity, TransformComponent)
 
-  if (!avatarTransform || !originTransform) {
-    xrState.avatarPoseDeltaMetric.update(null)
-    return
-  }
+  if (!avatarTransform || !originTransform || !xrFrame) return
 
-  xrState.avatarPoseDeltaMetric.update(avatarTransform.position, avatarTransform.rotation)
+  const xrState = getState(XRState).get({ noproxy: true })
 
-  if (getControlMode() === 'attached' && xrState.originReferenceSpace && xrState.localFloorReferenceSpace) {
-    /** avatar viewer pose delta is the difference bewteen how the viewer has moved relative to the avatar movement since the last webxr frame */
-    const viewerPoseDelta = xrState.viewerPoseDeltaMetric.delta
-    const avatarPoseDelta = xrState.avatarPoseDeltaMetric.delta
-    const originTransform = getComponent(world.originEntity, TransformComponent)
+  // viewer pose is relative to the local floor reference space
+  const viewerPoseMetrics = xrState.viewerPoseMetrics
+  const localFloorReferenceSpace = xrState.localFloorReferenceSpace
 
-    // get avatar - viewer pose delta difference
-    avatarViewerTranslationDeltaDifference.copy(avatarPoseDelta.translation).sub(viewerPoseDelta.translation)
-    avatarViewerRotationDeltaDifference.copy(viewerPoseDelta.rotation).invert().multiply(avatarPoseDelta.rotation)
+  if (
+    xrState.avatarControlMode === 'attached' &&
+    viewerPoseMetrics.position &&
+    viewerPoseMetrics.orientation &&
+    localFloorReferenceSpace
+  ) {
+    // compute origin relative to viewer pose
+    originTransform.position.copy(viewerPoseMetrics.position)
+    originTransform.rotation.copy(viewerPoseMetrics.orientation)
+    originTransform.scale.copy(V_111)
+    originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale).invert()
+    // now origin is relative to viewer/avatar; convert back to world space
+    originTransform.matrix.premultiply(avatarTransform.matrix)
+    originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
+    originTransform.matrixInverse.copy(originTransform.matrix).invert()
+    // now origin is relative to world
 
-    // shift the world origin by the difference between avatar and viewer movmement
-    // originTransform.position.copy(avatarTransform.position)
-    originTransform.position.add(avatarViewerTranslationDeltaDifference)
+    // const originTransform = getComponent(world.originEntity, TransformComponent)
 
-    // originTransform.rotation.multiply(avatarPoseDelta.getRotation(_quat))
-    // originTransform.position.sub(avatarViewerPoseDeltaDifference.getTranslation(_vec))
-    // const avatarYSpin = extractRotationAboutAxis(avatarViewerRotationDeltaDifference, V_010, _quat)
-    // originTransform.rotation.multiply(avatarYSpin)
+    // // get avatar - viewer pose delta difference
+    // avatarViewerTranslationDeltaDifference.copy(avatarPoseDelta.translation).sub(viewerPoseDelta.translation)
+    // avatarViewerRotationDeltaDifference.copy(viewerPoseDelta.rotation).invert().multiply(avatarPoseDelta.rotation)
+
+    // // shift the world origin by the difference between avatar and viewer movmement
+    // // originTransform.position.copy(avatarTransform.position)
+    // originTransform.position.add(avatarViewerTranslationDeltaDifference)
+
+    // // originTransform.rotation.multiply(avatarPoseDelta.getRotation(_quat))
+    // // originTransform.position.sub(avatarViewerPoseDeltaDifference.getTranslation(_vec))
+    // // const avatarYSpin = extractRotationAboutAxis(avatarViewerRotationDeltaDifference, V_010, _quat)
+    // // originTransform.rotation.multiply(avatarYSpin)
 
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
-    xrState.originReferenceSpace = xrState.localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
+    xrState.originReferenceSpace = localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(xrState.originReferenceSpace)
   }
 }
 
-/**
- * Sets the world origin
- * @param world
- * @param position
- * @param rotation
- * @param scale
- */
-export const updateWorldOrigin = (world: World, position: Vector3, rotation: Quaternion, scale?: Vector3) => {
+// TODO: only update the world origin in one place; move logic for moving based on viewer hit into the function above
+export const updateWorldOriginFromViewerHit = (
+  world: World,
+  position: Vector3,
+  rotation: Quaternion,
+  scale?: Vector3
+) => {
   const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
   worldOriginTransform.matrix.compose(position, rotation, V_111)
   worldOriginTransform.matrix.invert()

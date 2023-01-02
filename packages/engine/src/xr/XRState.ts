@@ -7,7 +7,7 @@ import { defineAction } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { DualQuaternion } from '../common/classes/DualQuaternion'
-import { PoseDeltaMetric } from '../common/classes/PoseDeltaMetric'
+import { PoseMetrics } from '../common/classes/PoseMetrics'
 import { isHMD } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -58,9 +58,7 @@ export const XRState = defineState({
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
     viewerInputSourceEntity: 0 as Entity,
-
-    avatarPoseDeltaMetric: new PoseDeltaMetric(),
-    viewerPoseDeltaMetric: new PoseDeltaMetric()
+    viewerPoseMetrics: new PoseMetrics()
   })
 })
 

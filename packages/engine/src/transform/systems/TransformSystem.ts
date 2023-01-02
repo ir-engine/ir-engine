@@ -1,5 +1,5 @@
 import { entityExists, Not } from 'bitecs'
-import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Camera, Frustum, Matrix4, Mesh, PerspectiveCamera, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
@@ -25,6 +25,7 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
@@ -41,7 +42,7 @@ import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
 } from '../components/TransformComponent'
-import { updateWorldOriginToAttachedAvatar } from '../updateWorldOrigin'
+import { updateWorldOrigin } from '../updateWorldOrigin'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
@@ -290,11 +291,12 @@ export default async function TransformSystem(world: World) {
       if (world.dirtyTransforms[world.localClientEntity]) {
         computeTransformMatrix(world.localClientEntity, world)
       }
-      updateWorldOriginToAttachedAvatar(world.localClientEntity, world)
+      updateWorldOrigin(world.localClientEntity, world)
     }
+    if (Engine.instance.xrFrame) EngineRenderer.instance.xrManager.updateCamera(world.camera as PerspectiveCamera)
 
     /**
-     * 3 - Update scene entities (entities not children of the world origin)
+     * 3 - Update entity transforms
      */
     const allRigidbodyEntities = rigidbodyTransformQuery()
     const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)

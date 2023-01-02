@@ -38,7 +38,7 @@ import {
   TransformComponent
 } from '../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
-import { updateWorldOrigin } from '../transform/updateWorldOrigin'
+import { updateWorldOriginFromViewerHit } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { getControlMode, XRAction, XRReceptors, XRState } from './XRState'
 
@@ -198,7 +198,7 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
   smoothedSceneScale.lerp(targetScaleVector, lerpAlpha)
 
-  updateWorldOrigin(
+  updateWorldOriginFromViewerHit(
     world,
     smoothedViewerHitResultPose.position,
     smoothedViewerHitResultPose.rotation,
@@ -209,10 +209,9 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorld) => {
   const anchor = getComponent(entity, XRAnchorComponent).anchor
   const xrFrame = Engine.instance.xrFrame!
-  const xrManager = EngineRenderer.instance.xrManager!
-  const referenceSpace = xrManager.getReferenceSpace()!
-  if (anchor) {
-    const pose = xrFrame.getPose(anchor.anchorSpace, referenceSpace)
+  const localFloorReferenceSpace = getState(XRState).localFloorReferenceSpace.value
+  if (anchor && localFloorReferenceSpace) {
+    const pose = xrFrame.getPose(anchor.anchorSpace, localFloorReferenceSpace)
     if (pose) {
       const transform = getComponent(entity, TransformComponent)
       transform.position.copy(pose.transform.position as any as Vector3)

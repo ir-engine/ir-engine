@@ -25,7 +25,6 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { teleportObject } from '../../physics/systems/PhysicsSystem'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
