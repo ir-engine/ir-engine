@@ -1,17 +1,55 @@
+import { useEffect } from 'react'
 import { AmbientLight, Color } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { matches } from '../../common/functions/MatchesUtils'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
-export type AmbientLightComponentType = {
-  color: Color
-  intensity: number
-  light?: AmbientLight
-}
+export const AmbientLightComponent = defineComponent({
+  name: 'AmbientLightComponent',
 
-export const AmbientLightComponent = createMappedComponent<AmbientLightComponentType>('AmbientLightComponent')
+  onInit: (entity, world) => {
+    const light = new AmbientLight()
+    addObjectToGroup(entity, light)
+    return {
+      light,
+      // todo, maybe we want to reference light.color instead of creating a new Color?
+      color: new Color(),
+      intensity: 1
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
+    if (matches.string.test(json.color)) component.color.value.set(json.color)
+    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      color: component.color.value.getHex(),
+      intensity: component.intensity.value
+    }
+  },
+
+  onRemove: (entity, component) => {
+    removeObjectFromGroup(entity, component.light.value)
+  },
+
+  reactor: function ({ root }) {
+    const light = useComponent(root.entity, AmbientLightComponent)
+
+    useEffect(() => {
+      light.light.value.color.set(light.color.value)
+    }, [light.color])
+
+    useEffect(() => {
+      light.light.value.intensity = light.intensity.value
+    }, [light.intensity])
+
+    return null
+  }
+})
 
 export const SCENE_COMPONENT_AMBIENT_LIGHT = 'ambient-light'
-export const SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES = {
-  color: '#ffffff',
-  intensity: 1
-}

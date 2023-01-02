@@ -56,7 +56,6 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioHelper } from '../PositionalAudioHelper'
 
-const vector3 = new Vector3()
 const quat = new Quaternion()
 
 const cubeGeometry = new ConeGeometry(0.05, 0.25, 4)
@@ -86,9 +85,6 @@ export default async function DebugHelpersSystem(world: World) {
     navpath: new Map(),
     positionalAudioHelper: new Map()
   }
-  const directionalLightQuery = defineQuery([TransformComponent, DirectionalLightComponent])
-  const pointLightQuery = defineQuery([TransformComponent, PointLightComponent])
-  const spotLightQuery = defineQuery([TransformComponent, SpotLightComponent])
   const portalQuery = defineQuery([TransformComponent, PortalComponent])
   const splineQuery = defineQuery([TransformComponent, SplineComponent])
   const spawnPointQuery = defineQuery([TransformComponent, SpawnPointComponent])
@@ -125,29 +121,6 @@ export default async function DebugHelpersSystem(world: World) {
      * @todo refactor this modularly (these queries should be in the system that loads the associated component) #7265
      */
     if (Engine.instance.isEditor) {
-      /**
-       * Directional Light
-       */
-      for (const entity of directionalLightQuery.enter()) {
-        const helper = new EditorDirectionalLightHelper(getComponent(entity, DirectionalLightComponent).light)
-        helper.name = `directional-light-helper-${entity}`
-        helper.visible = true
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        Engine.instance.currentWorld.scene.add(helper)
-        editorHelpers.set(entity, helper)
-
-        // const cameraHelper = new CameraHelper(light.shadow.camera)
-        // cameraHelper.visible = false
-        // light.userData.cameraHelper = cameraHelper
-        // setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
-      }
-
-      for (const entity of directionalLightQuery.exit()) {
-        const helper = editorHelpers.get(entity)!
-        Engine.instance.currentWorld.scene.remove(helper)
-        editorHelpers.delete(entity)
-      }
-
       for (const entity of directionalLightSelectQuery.exit()) {
         const light = getComponent(entity, DirectionalLightComponent)?.light
         if (light?.userData?.cameraHelper) light.userData.cameraHelper.visible = false
@@ -157,69 +130,6 @@ export default async function DebugHelpersSystem(world: World) {
         const helper = editorHelpers.get(entity)! as EditorDirectionalLightHelper
         helper.update()
         // light.userData.cameraHelper.update()
-      }
-
-      /**
-       * Point Light
-       */
-      for (const entity of pointLightQuery.enter()) {
-        const helper = new Object3D()
-        helper.name = `pointlight-helper-${entity}`
-
-        const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
-        const rangeBall = new Mesh(
-          new IcosahedronGeometry(0.25),
-          new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5 })
-        )
-        helper.add(rangeBall, ball)
-
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-
-        editorHelpers.set(entity, helper)
-        Engine.instance.currentWorld.scene.add(helper)
-      }
-
-      for (const entity of pointLightQuery.exit()) {
-        const helper = editorHelpers.get(entity)!
-        Engine.instance.currentWorld.scene.remove(helper)
-        editorHelpers.delete(entity)
-      }
-
-      /**
-       * Spot Light
-       */
-
-      for (const entity of spotLightQuery.enter()) {
-        const helper = new Object3D()
-        helper.name = `spotlight-helper-${entity}`
-
-        const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
-        const cone = new Mesh(
-          new ConeGeometry(0.25, 0.5, 8, 1, true),
-          new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
-        )
-        helper.add(ring, cone)
-
-        ring.rotateX(Math.PI / 2)
-        cone.position.setY(-0.25)
-
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-
-        editorHelpers.set(entity, helper)
-        Engine.instance.currentWorld.scene.add(helper)
-      }
-
-      for (const entity of spotLightQuery.exit()) {
-        const helper = editorHelpers.get(entity)!
-        Engine.instance.currentWorld.scene.remove(helper)
-        editorHelpers.delete(entity)
-      }
-
-      for (const entity of spotLightQuery()) {
-        const component = getComponent(entity, SpotLightComponent)
-        const helper = editorHelpers.get(entity)! as any
-        helper.children[0].material.color = component.color
-        helper.children[0].material.color = component.color
       }
 
       /**
@@ -524,9 +434,6 @@ export default async function DebugHelpersSystem(world: World) {
     Engine.instance.currentWorld.scene.remove(InfiniteGridHelper.instance)
     InfiniteGridHelper.instance = null!
 
-    removeQuery(world, directionalLightQuery)
-    removeQuery(world, pointLightQuery)
-    removeQuery(world, spotLightQuery)
     removeQuery(world, portalQuery)
     removeQuery(world, splineQuery)
     removeQuery(world, spawnPointQuery)
