@@ -492,10 +492,21 @@ export class Project extends Service {
         await this.app.service('location').remove(location.dataValues.id)
       })
 
+    const whereClause = {
+      [Op.and]: [
+        {
+          project: name
+        },
+        {
+          project: {
+            [Op.ne]: null
+          }
+        }
+      ]
+    }
+
     const routeItems = await (this.app.service('route') as any).Model.findAll({
-      where: {
-        project: name
-      }
+      where: whereClause
     })
     routeItems.length &&
       routeItems.forEach(async (route) => {
@@ -503,9 +514,7 @@ export class Project extends Service {
       })
 
     const avatarItems = await (this.app.service('avatar') as any).Model.findAll({
-      where: {
-        project: name
-      }
+      where: whereClause
     })
     await Promise.all(
       avatarItems.map(async (avatar) => {
@@ -514,9 +523,7 @@ export class Project extends Service {
     )
 
     const staticResourceItems = await (this.app.service('static-resource') as any).Model.findAll({
-      where: {
-        project: name
-      }
+      where: whereClause
     })
     staticResourceItems.length &&
       staticResourceItems.forEach(async (staticResource) => {
