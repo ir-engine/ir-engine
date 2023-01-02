@@ -228,7 +228,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
         tempElement.crossOrigin = 'anonymous'
         tempElement.preload = 'metadata'
         tempElement.src = path
-        tempElement.load()
       }
 
       // handle autoplay
