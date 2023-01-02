@@ -114,7 +114,8 @@ export default async function DebugHelpersSystem(world: World) {
 
   const execute = () => {
     for (const action of debugActionQueue()) physicsDebugUpdate(action.debugEnable)
-    const debugEnabled = getState(EngineRendererState).debugEnable.value
+    const physicsDebugEnabled = getState(EngineRendererState).debugEnable.value
+    const componentDebugEnabled = getState(EngineRendererState).nodeHelperVisibility.value
 
     /**
      * EDITOR GIZMOS
@@ -127,8 +128,8 @@ export default async function DebugHelpersSystem(world: World) {
       }
 
       for (const entity of directionalLightSelectQuery()) {
-        const helper = editorHelpers.get(entity)! as EditorDirectionalLightHelper
-        helper.update()
+        const helper = getComponent(entity, DirectionalLightComponent)?.helper
+        if (helper) helper.update()
         // light.userData.cameraHelper.update()
       }
 
@@ -329,7 +330,7 @@ export default async function DebugHelpersSystem(world: World) {
       const anim = getComponent(entity, AvatarRigComponent)
       if (
         !helpersByEntity.skeletonHelpers.has(entity) &&
-        debugEnabled &&
+        physicsDebugEnabled &&
         !hasComponent(entity, AvatarPendingComponent) &&
         anim.rig.Hips
       ) {
@@ -340,7 +341,7 @@ export default async function DebugHelpersSystem(world: World) {
       }
       if (
         helpersByEntity.skeletonHelpers.has(entity) &&
-        (!debugEnabled || hasComponent(entity, AvatarPendingComponent))
+        (!physicsDebugEnabled || hasComponent(entity, AvatarPendingComponent))
       ) {
         const helper = helpersByEntity.skeletonHelpers.get(entity) as SkeletonHelper
         Engine.instance.currentWorld.scene.remove(helper)
@@ -369,7 +370,7 @@ export default async function DebugHelpersSystem(world: World) {
     }
 
     for (const entity of boundingBoxQuery()) {
-      if (!debugEnabled && helpersByEntity.box.has(entity)) {
+      if (!physicsDebugEnabled && helpersByEntity.box.has(entity)) {
         const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
         boxHelper.removeFromParent()
         helpersByEntity.box.delete(entity)
@@ -383,7 +384,7 @@ export default async function DebugHelpersSystem(world: World) {
       setObjectLayers(helper, ObjectLayers.NodeHelper)
       helpersByEntity.box.set(entity, helper)
       Engine.instance.currentWorld.scene.add(helper)
-      helper.visible = debugEnabled
+      helper.visible = physicsDebugEnabled
     }
 
     // ===== Autopilot Helper ===== //
@@ -398,7 +399,7 @@ export default async function DebugHelpersSystem(world: World) {
         Engine.instance.currentWorld.scene.remove(helper)
       }
 
-      if (debugEnabled)
+      if (componentDebugEnabled)
         for (const entity of audioHelper()) {
           const mediaElement = getComponent(entity, MediaElementComponent)
           const audioNodes = AudioNodeGroups.get(mediaElement.element)
@@ -418,7 +419,7 @@ export default async function DebugHelpersSystem(world: World) {
         }
     }
 
-    if (debugEnabled) {
+    if (physicsDebugEnabled || componentDebugEnabled) {
       for (const [entity, helper] of editorHelpers) {
         helper.updateMatrixWorld(true)
       }

@@ -74,14 +74,12 @@ export const SpotLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    const debugEnabled = useHookstate(getState(EngineRendererState).debugEnable)
+    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, SpotLightComponent)
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
-
       if (light.helperCone.value) light.helperCone.value.material.color = light.color.value
-
       if (light.helperRing.value) light.helperRing.value.material.color = light.color.value
     }, [light.color])
 

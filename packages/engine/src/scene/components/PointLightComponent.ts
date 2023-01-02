@@ -63,7 +63,7 @@ export const PointLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    const debugEnabled = useHookstate(getState(EngineRendererState).debugEnable)
+    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, PointLightComponent)
 
     useEffect(() => {

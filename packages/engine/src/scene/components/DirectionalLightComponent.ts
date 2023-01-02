@@ -30,7 +30,7 @@ export const DirectionalLightComponent = defineComponent({
       shadowRadius: 1,
       cameraFar: 2000,
       useInCSM: true,
-      helper: null as Object3D | null
+      helper: null as EditorDirectionalLightHelper | null
     }
   },
 
@@ -67,7 +67,7 @@ export const DirectionalLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    const debugEnabled = useHookstate(getState(EngineRendererState).debugEnable)
+    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, DirectionalLightComponent)
 
     useEffect(() => {
