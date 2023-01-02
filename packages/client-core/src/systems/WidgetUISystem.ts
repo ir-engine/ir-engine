@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
+import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { V_001, V_010 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -9,6 +11,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -18,12 +21,17 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '@xrengine/engine/src/transform/components/ComputedTransformComponent'
+import {
   LocalTransformComponent,
   setLocalTransformComponent,
   TransformComponent
 } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { getPreferredInputSource } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
 import {
   addActionReceptor,
@@ -65,6 +73,8 @@ export default async function WidgetSystem(world: World) {
   removeComponent(widgetMenuUI.entity, VisibleComponent)
 
   addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
+
+  const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const widgetState = getState(WidgetAppState)
 
@@ -119,7 +129,8 @@ export default async function WidgetSystem(world: World) {
   const execute = () => {
     const keys = world.buttons
     if (keys.ButtonX?.down) onEscape()
-    if (keys.Escape?.down) onEscape()
+    /** @todo allow non HMDs to access the widget menu too */
+    if (isHMD && keys.Escape?.down) onEscape()
 
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
@@ -138,6 +149,7 @@ export default async function WidgetSystem(world: World) {
       if (typeof widget.cleanup === 'function') widget.cleanup()
     }
 
+    const transform = getComponent(widgetMenuUI.entity, TransformComponent)
     const preferredInputSource = getPreferredInputSource(world.inputSources, true)
 
     if (preferredInputSource) {
@@ -146,14 +158,20 @@ export default async function WidgetSystem(world: World) {
         preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
         referenceSpace
       )
+      if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent))
+        removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
       if (pose) {
-        const transform = getComponent(widgetMenuUI.entity, TransformComponent)
         transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
         transform.rotation.copy(pose.transform.orientation as any as Quaternion).multiply(widgetRotation)
       }
+    } else {
+      if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent))
+        setComputedTransformComponent(widgetMenuUI.entity, world.cameraEntity, () =>
+          ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, 0.1)
+        )
     }
 
-    const widgetMenuShown = !!preferredInputSource && widgetState.widgetsMenuOpen.value
+    const widgetMenuShown = widgetState.widgetsMenuOpen.value
     showWidgetMenu(widgetMenuShown)
     setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
