@@ -164,7 +164,12 @@ export class EngineRenderer {
     this.renderer.debug.checkShaderErrors = false //isDev
 
     // @ts-ignore
-    this.xrManager = renderer.xr = createWebXRManager(renderer, renderer.getContext())
+    this.xrManager = renderer.xr = createWebXRManager(
+      renderer,
+      renderer.getContext(),
+      renderer.extensions,
+      options.multiviewStereo
+    )
     this.xrManager.cameraAutoUpdate = false
     this.xrManager.enabled = true
 
