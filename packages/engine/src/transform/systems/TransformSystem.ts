@@ -290,9 +290,7 @@ export default async function TransformSystem(world: World) {
      * 2 - Update avatar entity and world origin reference space
      */
     if (world.localClientEntity) {
-      if (world.dirtyTransforms[world.localClientEntity]) {
-        computeTransformMatrix(world.localClientEntity, world)
-      }
+      computeTransformMatrix(world.localClientEntity, world)
       updateWorldOrigin(world.localClientEntity, world)
     }
 

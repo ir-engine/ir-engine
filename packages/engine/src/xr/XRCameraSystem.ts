@@ -84,10 +84,11 @@ function updateCamera(camera, parent) {
   camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
 }
 
-function updatePoseFromXRFrame(referenceSpace: XRReferenceSpace) {
+function updatePoseFromXRFrame() {
   const xrFrame = Engine.instance.xrFrame
   const renderer = EngineRenderer.instance.renderer
-  const pose = xrFrame!.getViewerPose(referenceSpace)
+  const referenceSpace = getState(XRState).originReferenceSpace.value
+  const pose = referenceSpace && xrFrame!.getViewerPose(referenceSpace)
 
   if (pose) {
     const views = pose.views
@@ -171,10 +172,7 @@ export function updateXRCamera(camera = Engine.instance.currentWorld.camera) {
   const session = xrState.session.value
   if (session === null) return
 
-  const referenceSpace = xrState.originReferenceSpace.value
-  if (referenceSpace === null) return
-
-  updatePoseFromXRFrame(referenceSpace)
+  updatePoseFromXRFrame()
 
   const xrCameraState = getState(XRCameraState)
   const cameraVR = xrCameraState.cameraVR.value

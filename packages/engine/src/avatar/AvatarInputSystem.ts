@@ -170,9 +170,12 @@ export default async function AvatarInputSystem(world: World) {
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
     if (xrCameraAttached) {
       const rigidBody = getComponent(localClientEntity, RigidBodyComponent)
-      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-      extractRotationAboutAxis(cameraTransform.rotation, V_010, rigidBody.rotation).multiply(_rotY180)
-      rigidBody.targetKinematicRotation.copy(rigidBody.rotation)
+      const avatarController = getComponent(localClientEntity, AvatarControllerComponent)
+      const viewerDeltaPosition = xrState.viewerPoseMetrics.deltaPosition
+      const viewerDeltaRotation = xrState.viewerPoseMetrics.deltaRotation
+      avatarController.desiredMovement.copy(viewerDeltaPosition.value)
+      rigidBody.targetKinematicRotation.multiply(viewerDeltaRotation.value)
+      // extractRotationAboutAxis(cameraTransform.orientation, V_010, rigidBody.rotation).multiply(_rotY180)
       // const transform = getComponent(localClientEntity, TransformComponent)
       // transform.rotation.copy(rigidBody.rotation)
       // delete world.dirtyTransforms[localClientEntity]
