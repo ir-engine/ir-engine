@@ -26,6 +26,12 @@ declare module 'three/src/cameras/PerspectiveCamera' {
   }
 }
 
+declare module 'three/src/renderers/WebGLRenderer' {
+  interface WebGLRenderer {
+    animation: WebGLAnimation
+  }
+}
+
 declare module 'three' {
   class WebGLMultiviewRenderTarget extends WebGLRenderTarget {
     constructor(width: number, height: number, numViews: number, options: WebGLRenderTargetOptions)
@@ -110,6 +116,7 @@ export function createWebXRManager(
 
     //
 
+    renderer.animation.start()
     animation.stop()
 
     scope.isPresenting = false
@@ -259,6 +266,7 @@ export function createWebXRManager(
       referenceSpace = await session.requestReferenceSpace(referenceSpaceType)
 
       animation.setContext(session)
+      renderer.animation.stop()
       animation.start()
 
       scope.isPresenting = true
@@ -546,3 +554,4 @@ function createWebGLAnimation() {
 }
 
 export type WebXRManager = ReturnType<typeof createWebXRManager>
+export type WebGLAnimation = ReturnType<typeof createWebGLAnimation>
