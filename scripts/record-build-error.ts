@@ -86,21 +86,24 @@ cli.main(async () => {
             } else
                 cli.exit(0)
         } else {
-            const combinedLogs =
-                `Task that errored: ${options.service}\n\nError logs:\n\n${buildErrors}\n\nTask logs:\n\n${buildLogs}`
-            await BuildStatus.update(
-                {
-                    status: 'failed',
-                    logs: combinedLogs,
-                    dateEnded: dateNow
-                },
-                {
-                    where: {
-                        id: builderRun
+            const hasError = /error/i.test(buildErrors) || /fail/i.test(buildErrors)
+            if (hasError) {
+                const combinedLogs =
+                    `Task that errored: ${options.service}\n\nError logs:\n\n${buildErrors}\n\nTask logs:\n\n${buildLogs}`
+                await BuildStatus.update(
+                    {
+                        status: 'failed',
+                        logs: combinedLogs,
+                        dateEnded: dateNow
+                    },
+                    {
+                        where: {
+                            id: builderRun
+                        }
                     }
-                }
-            )
-            cli.exit(1)
+                )
+                cli.exit(1)
+            } else cli.exit(0)
         }
     } catch (err) {
         console.log(err)
