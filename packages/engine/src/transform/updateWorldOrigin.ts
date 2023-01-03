@@ -22,11 +22,11 @@ export const updateWorldOrigin = (entity: Entity, world: World) => {
 
   if (!avatarTransform || !originTransform || !xrFrame) return
 
-  const xrState = getState(XRState).get({ noproxy: true })
+  const xrState = getState(XRState)
 
   // viewer pose is relative to the local floor reference space
-  const viewerPoseMetrics = xrState.viewerPoseMetrics
-  const localFloorReferenceSpace = xrState.localFloorReferenceSpace
+  const viewerPoseMetrics = xrState.viewerPoseMetrics.value
+  const localFloorReferenceSpace = xrState.localFloorReferenceSpace.value
 
   if (
     getControlMode() === 'attached' &&
@@ -61,7 +61,7 @@ export const updateWorldOrigin = (entity: Entity, world: World) => {
     // // originTransform.rotation.multiply(avatarYSpin)
 
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
-    xrState.originReferenceSpace = localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
+    xrState.originReferenceSpace.set(localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse))
   }
 }
 
