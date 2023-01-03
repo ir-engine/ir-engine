@@ -57,12 +57,6 @@ export function createWebXRManager(
   let initialRenderTarget = null as WebGLRenderTarget | null
   let newRenderTarget = null as WebGLRenderTarget | null
 
-  const controllers = []
-  const controllerInputSources = []
-
-  const planes = new Set()
-  const planesLastChangedTimes = new Map()
-
   //
 
   const cameraL = new PerspectiveCamera()
@@ -212,7 +206,6 @@ export function createWebXRManager(
         newRenderTarget = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, {
           format: RGBAFormat,
           type: UnsignedByteType,
-          // @ts-ignore	- DepthTexture typings are missing last constructor argument
           depthTexture: new DepthTexture(
             glProjLayer.textureWidth,
             glProjLayer.textureHeight,
@@ -223,6 +216,7 @@ export function createWebXRManager(
             undefined,
             undefined,
             undefined,
+            // @ts-ignore	- DepthTexture typings are missing last constructor argument
             depthFormat
           ),
           stencilBuffer: attributes?.stencil,
@@ -467,10 +461,6 @@ export function createWebXRManager(
     if (glBaseLayer !== null && glBaseLayer.fixedFoveation !== undefined) {
       glBaseLayer.fixedFoveation = foveation
     }
-  }
-
-  scope.getPlanes = function () {
-    return planes
   }
 
   // Animation Loop
