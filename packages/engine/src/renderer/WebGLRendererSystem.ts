@@ -167,7 +167,9 @@ export class EngineRenderer {
     this.xrManager = renderer.xr = createWebXRManager(
       renderer,
       renderer.getContext(),
+      // @ts-ignore
       renderer.extensions,
+      // @ts-ignore
       options.multiviewStereo
     )
     this.xrManager.cameraAutoUpdate = false
