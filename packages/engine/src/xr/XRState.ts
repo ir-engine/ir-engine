@@ -1,18 +1,12 @@
-import { quat2 } from 'gl-matrix'
-import { Matrix4, Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
 import { defineState, getState } from '@xrengine/hyperflux'
 import { defineAction } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { DualQuaternion } from '../common/classes/DualQuaternion'
 import { PoseMetrics } from '../common/classes/PoseMetrics'
 import { isHMD } from '../common/functions/isMobile'
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../transform/components/TransformComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XREstimatedLight } from './XREstimatedLight'
 
@@ -28,6 +22,7 @@ export const XRState = defineState({
       'immersive-ar': false,
       'immersive-vr': false
     },
+    session: null as XRSession | null,
     sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
     /**
      * The `avatarControlMode` property can be 'auto', 'attached', or 'detached'.

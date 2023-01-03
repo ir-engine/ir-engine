@@ -64,14 +64,11 @@ export const requestXRSession = createHookableFunction(
           : 'inline')
 
       xrState.requestingSession.set(true)
-      const xrSession = (EngineRenderer.instance.xrSession = await navigator.xr!.requestSession(mode, sessionInit))
+      const xrSession = await navigator.xr!.requestSession(mode, sessionInit)
 
       // @ts-ignore
-      if (xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen') {
-        xrManager.setFramebufferScaleFactor(0.5)
-      } else {
-        xrManager.setFramebufferScaleFactor(1.2)
-      }
+      const framebufferScaleFactor =
+        xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen' ? 0.5 : 1.2
 
       xrSession.requestReferenceSpace('local-floor').then(xrState.originReferenceSpace.set)
       xrSession.requestReferenceSpace('local-floor').then(xrState.localFloorReferenceSpace.set)
@@ -100,7 +97,6 @@ export const requestXRSession = createHookableFunction(
         xrSession.removeEventListener('end', onSessionEnd)
         xrState.sessionActive.set(false)
         xrState.sessionMode.set('none')
-        EngineRenderer.instance.xrSession = null!
         Engine.instance.xrFrame = null!
         const world = Engine.instance.currentWorld
 
@@ -124,7 +120,9 @@ export const requestXRSession = createHookableFunction(
 
       xrSession.addEventListener('end', onSessionEnd)
 
-      await xrManager.setSession(xrSession)
+      await xrManager.setSession(xrSession, framebufferScaleFactor)
+
+      xrState.session.set(xrSession)
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
     } catch (e) {
@@ -140,7 +138,7 @@ export const requestXRSession = createHookableFunction(
  * @returns
  */
 export const endXRSession = createHookableFunction(async () => {
-  await EngineRenderer.instance.xrSession?.end()
+  await getState(XRState).session.value?.end()
 })
 
 /**
@@ -163,16 +161,16 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {}
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   EngineRenderer.instance.renderer.domElement.style.display = 'none'
 
-  const session = Engine.instance.xrFrame?.session!
+  const session = getState(XRState).session.value!
 
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
    * This gets piped into the input system as a TouchInput.Touch
    */
-  EngineRenderer.instance.xrSession.addEventListener('selectstart', () => {
+  session.addEventListener('selectstart', () => {
     ;(world.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
-  EngineRenderer.instance.xrSession.addEventListener('selectend', (inputSource) => {
+  session.addEventListener('selectend', (inputSource) => {
     ;(world.buttons as ButtonInputStateType).PrimaryClick!.up = true
   })
 

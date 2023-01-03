@@ -104,8 +104,6 @@ export class EngineRenderer {
   effectComposer: EffectComposerWithSchema = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
-  /** @deprecated use Engine.instance.xrFrame.session instead */
-  xrSession: XRSession = null!
   csm: CSM = null!
   webGLLostContext: any = null
 

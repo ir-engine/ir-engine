@@ -259,8 +259,7 @@ export default async function XRAnchorSystem(world: World) {
     for (const action of xrSessionChangedQueue()) {
       if (action.active) {
         if (xrState.sessionMode.value === 'immersive-ar') {
-          const session = EngineRenderer.instance.xrSession
-          const xrState = getState(XRState)
+          const session = xrState.session.value!
           if ('requestHitTestSource' in session) {
             session.requestHitTestSource!({ space: xrState.viewerReferenceSpace.value! })?.then(
               xrState.viewerHitTestSource.set

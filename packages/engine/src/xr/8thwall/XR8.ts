@@ -242,7 +242,7 @@ class XRFrameProxy {
   }
 
   get session() {
-    return EngineRenderer.instance.xrSession
+    return getState(XRState).session.value
   }
 
   /**
@@ -316,7 +316,7 @@ export default async function XR8System(world: World) {
       (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
       (ev.touches[0].screenY / window.innerHeight) * -2 + 1
     ]
-    EngineRenderer.instance.xrSession.dispatchEvent({
+    xrState.session.value!.dispatchEvent({
       type: 'inputsourceschange',
       added: [viewerInputSource],
       removed: []
@@ -332,7 +332,7 @@ export default async function XR8System(world: World) {
   }
 
   const onTouchEnd = (ev) => {
-    EngineRenderer.instance.xrSession.dispatchEvent({
+    xrState.session.value!.dispatchEvent({
       type: 'inputsourceschange',
       removed: [viewerInputSource],
       added: []
@@ -359,7 +359,7 @@ export default async function XR8System(world: World) {
         return
       }
 
-      EngineRenderer.instance.xrSession = new XRSessionProxy(inputSources) as any as XRSession
+      xrState.session.set(new XRSessionProxy(inputSources) as any as XRSession)
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
       xrState.is8thWallActive.set(true)
@@ -380,7 +380,7 @@ export default async function XR8System(world: World) {
       xrState.sessionActive.set(false)
       xrState.sessionMode.set('none')
       xrState.is8thWallActive.set(false)
-      EngineRenderer.instance.xrSession = null!
+      xrState.session.set(null)
 
       xrState.originReferenceSpace.set(null)
       xrState.viewerReferenceSpace.set(null)

@@ -16,6 +16,10 @@ import {
   WebGLRenderTargetOptions
 } from 'three'
 
+import { defineState, getState } from '@xrengine/hyperflux'
+
+import { XRState } from './XRState'
+
 // augment PerspectiveCamera
 declare module 'three/src/cameras/PerspectiveCamera' {
   interface PerspectiveCamera {
@@ -55,16 +59,12 @@ export function createWebXRManager(
   extensions: Map<string, any>,
   useMultiview: boolean
 ) {
+  const originReferenceSpace = getState(XRState).originReferenceSpace
+
   const scope = function () {}
 
   let session = null as XRSession | null
-  let framebufferScaleFactor = 1.0
 
-  let referenceSpace = null as XRReferenceSpace | null
-  let referenceSpaceType = 'local-floor' as XRReferenceSpaceType
-  let customReferenceSpace = null as XRReferenceSpace | null
-
-  let pose: XRViewerPose | undefined
   let glBinding = null as XRWebGLBinding | null
   let glProjLayer = null as XRProjectionLayer | null
   let glBaseLayer = null as XRWebGLLayer | null
@@ -90,9 +90,7 @@ export function createWebXRManager(
   let _currentDepthNear = null as number | null
   let _currentDepthFar = null as number | null
 
-  //
-
-  scope.cameraAutoUpdate = true
+  scope.cameraAutoUpdate = false
   scope.enabled = false
 
   scope.isPresenting = false
@@ -114,55 +112,18 @@ export function createWebXRManager(
     session = null
     newRenderTarget = null
 
-    //
-
     renderer.animation.start()
     animation.stop()
 
     scope.isPresenting = false
   }
 
-  scope.setFramebufferScaleFactor = function (value) {
-    framebufferScaleFactor = value
-
-    if (scope.isPresenting === true) {
-      console.warn('THREE.WebXRManager: Cannot change framebuffer scale while presenting.')
-    }
-  }
-
-  scope.setReferenceSpaceType = function (value) {
-    referenceSpaceType = value
-
-    if (scope.isPresenting === true) {
-      console.warn('THREE.WebXRManager: Cannot change reference space type while presenting.')
-    }
-  }
-
-  scope.getReferenceSpace = function () {
-    return customReferenceSpace || referenceSpace
-  }
-
-  scope.setReferenceSpace = function (space) {
-    customReferenceSpace = space
-  }
-
-  scope.getBaseLayer = function () {
-    return glProjLayer !== null ? glProjLayer : glBaseLayer
-  }
-
-  scope.getBinding = function () {
-    return glBinding
-  }
-
-  scope.getFrame = function () {
-    return xrFrame
-  }
-
+  /** this is needed by WebGLBackground */
   scope.getSession = function () {
     return session
   }
 
-  scope.setSession = async function (value) {
+  scope.setSession = async function (value, framebufferScaleFactor = 1) {
     session = value
 
     if (session !== null) {
@@ -262,9 +223,6 @@ export function createWebXRManager(
       // Set foveation to maximum.
       scope.setFoveation(1.0)
 
-      customReferenceSpace = null
-      referenceSpace = await session.requestReferenceSpace(referenceSpaceType)
-
       animation.setContext(session)
       renderer.animation.stop()
       animation.start()
@@ -341,8 +299,8 @@ export function createWebXRManager(
     camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
   }
 
-  function updatePoseFromXRFrame() {
-    pose = xrFrame!.getViewerPose(customReferenceSpace ?? referenceSpace!)
+  function updatePoseFromXRFrame(referenceSpace: XRReferenceSpace) {
+    const pose = xrFrame!.getViewerPose(referenceSpace)
 
     if (pose) {
       const views = pose.views
@@ -410,10 +368,12 @@ export function createWebXRManager(
     }
   }
 
-  scope.updateCamera = function (camera) {
+  scope.updateCamera = function (camera: PerspectiveCamera) {
     if (session === null) return
 
-    updatePoseFromXRFrame()
+    const referenceSpace = originReferenceSpace.value!
+
+    updatePoseFromXRFrame(referenceSpace)
 
     cameraVR.near = cameraR.near = cameraL.near = camera.near
     cameraVR.far = cameraR.far = cameraL.far = camera.far
