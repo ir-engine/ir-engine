@@ -203,7 +203,7 @@ export function createWebXRManager(
           colorFormat: gl.RGBA8,
           depthFormat: glDepthFormat,
           scaleFactor: framebufferScaleFactor,
-          textureType: scope.isMultiview ? 'texture-array' : ('texture' as XRTextureType)
+          textureType: (scope.isMultiview ? 'texture-array' : 'texture') as XRTextureType
         }
 
         glBinding = new XRWebGLBinding(session, gl)
