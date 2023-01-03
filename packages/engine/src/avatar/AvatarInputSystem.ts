@@ -128,6 +128,7 @@ export default async function AvatarInputSystem(world: World) {
   }
 
   const _rotY180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
+  const _quat = new Quaternion()
 
   const execute = () => {
     const { inputSources, localClientEntity } = world
@@ -174,11 +175,8 @@ export default async function AvatarInputSystem(world: World) {
       const viewerDeltaPosition = xrState.viewerPoseMetrics.deltaPosition
       const viewerDeltaRotation = xrState.viewerPoseMetrics.deltaRotation
       avatarController.desiredMovement.copy(viewerDeltaPosition.value)
-      rigidBody.targetKinematicRotation.multiply(viewerDeltaRotation.value)
-      // extractRotationAboutAxis(cameraTransform.orientation, V_010, rigidBody.rotation).multiply(_rotY180)
-      // const transform = getComponent(localClientEntity, TransformComponent)
-      // transform.rotation.copy(rigidBody.rotation)
-      // delete world.dirtyTransforms[localClientEntity]
+      const viewerRotAroundY = extractRotationAboutAxis(viewerDeltaRotation.value, V_010, _quat)
+      rigidBody.targetKinematicRotation.multiply(viewerRotAroundY)
     }
   }
 
