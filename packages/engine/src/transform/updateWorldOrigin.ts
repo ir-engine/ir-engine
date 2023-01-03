@@ -8,7 +8,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { XRState } from '../xr/XRState'
+import { getControlMode, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 
 /**
@@ -29,7 +29,7 @@ export const updateWorldOrigin = (entity: Entity, world: World) => {
   const localFloorReferenceSpace = xrState.localFloorReferenceSpace
 
   if (
-    xrState.avatarControlMode === 'attached' &&
+    getControlMode() === 'attached' &&
     viewerPoseMetrics.position &&
     viewerPoseMetrics.orientation &&
     localFloorReferenceSpace
