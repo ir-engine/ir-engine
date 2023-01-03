@@ -62,7 +62,6 @@ export const updateWorldOrigin = (entity: Entity, world: World) => {
 
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     xrState.originReferenceSpace = localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
-    EngineRenderer.instance.xrManager.setReferenceSpace(xrState.originReferenceSpace)
   }
 }
 

@@ -30,6 +30,7 @@ import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
+import { updateXRCamera } from '../../xr/XRCameraSystem'
 import { XRState } from '../../xr/XRState'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
@@ -294,10 +295,14 @@ export default async function TransformSystem(world: World) {
       }
       updateWorldOrigin(world.localClientEntity, world)
     }
-    if (Engine.instance.xrFrame) EngineRenderer.instance.xrManager.updateCamera(world.camera as PerspectiveCamera)
 
     /**
-     * 3 - Update entity transforms
+     * 3 - Update XR camera positions based on world origin and viewer pose
+     */
+    updateXRCamera()
+
+    /**
+     * 4 - Update entity transforms
      */
     const allRigidbodyEntities = rigidbodyTransformQuery()
     const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)
