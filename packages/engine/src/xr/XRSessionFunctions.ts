@@ -66,8 +66,8 @@ export const requestXRSession = createHookableFunction(
       xrState.requestingSession.set(true)
       const xrSession = await navigator.xr!.requestSession(mode, sessionInit)
 
-      // @ts-ignore
       const framebufferScaleFactor =
+        // @ts-ignore
         xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen' ? 0.5 : 1.2
 
       xrSession.requestReferenceSpace('local-floor').then(xrState.originReferenceSpace.set)

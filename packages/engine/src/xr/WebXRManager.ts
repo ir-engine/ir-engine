@@ -18,6 +18,8 @@ import {
 
 import { defineState, getState } from '@xrengine/hyperflux'
 
+import { Engine } from '../ecs/classes/Engine'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRState } from './XRState'
 
 // augment PerspectiveCamera
@@ -53,23 +55,22 @@ declare global {
   }
 }
 
-export function createWebXRManager(
-  renderer: WebGLRenderer,
-  gl: WebGLRenderingContext,
-  extensions: Map<string, any>,
-  useMultiview: boolean
-) {
-  const originReferenceSpace = getState(XRState).originReferenceSpace
+export const XRRendererState = defineState({
+  name: 'XRRendererState',
+  initial: {
+    glBinding: null as XRWebGLBinding | null,
+    glProjLayer: null as XRProjectionLayer | null,
+    glBaseLayer: null as XRWebGLLayer | null,
+    xrFrame: null as XRFrame | null
+  }
+})
+
+export function createWebXRManager() {
+  const xrState = getState(XRState)
+  const xrRendererState = getState(XRRendererState)
 
   const scope = function () {}
 
-  let session = null as XRSession | null
-
-  let glBinding = null as XRWebGLBinding | null
-  let glProjLayer = null as XRProjectionLayer | null
-  let glBaseLayer = null as XRWebGLLayer | null
-  let xrFrame = null as XRFrame | null
-  const attributes = gl.getContextAttributes()
   let initialRenderTarget = null as WebGLRenderTarget | null
   let newRenderTarget = null as WebGLRenderTarget | null
 
@@ -97,22 +98,22 @@ export function createWebXRManager(
   scope.isMultiview = false
 
   function onSessionEnd() {
-    session!.removeEventListener('end', onSessionEnd)
+    xrState.session.value!.removeEventListener('end', onSessionEnd)
 
     _currentDepthNear = null
     _currentDepthFar = null
 
     // restore framebuffer/rendering state
 
-    renderer.setRenderTarget(initialRenderTarget)
+    EngineRenderer.instance.renderer.setRenderTarget(initialRenderTarget)
 
-    glBaseLayer = null
-    glProjLayer = null
-    glBinding = null
-    session = null
+    xrRendererState.glBaseLayer.set(null)
+    xrRendererState.glProjLayer.set(null)
+    xrRendererState.glBinding.set(null)
+    xrState.session.set(null)
     newRenderTarget = null
 
-    renderer.animation.start()
+    EngineRenderer.instance.renderer.animation.start()
     animation.stop()
 
     scope.isPresenting = false
@@ -120,17 +121,18 @@ export function createWebXRManager(
 
   /** this is needed by WebGLBackground */
   scope.getSession = function () {
-    return session
+    return xrState.session.value
   }
 
-  scope.setSession = async function (value, framebufferScaleFactor = 1) {
-    session = value
-
+  scope.setSession = async function (session: XRSession, framebufferScaleFactor = 1) {
     if (session !== null) {
+      const renderer = EngineRenderer.instance.renderer
       initialRenderTarget = renderer.getRenderTarget()
 
       session.addEventListener('end', onSessionEnd)
 
+      const gl = renderer.getContext() as WebGLRenderingContext
+      const attributes = gl.getContextAttributes()
       if (attributes?.xrCompatible !== true) {
         await gl.makeXRCompatible()
       }
@@ -144,7 +146,8 @@ export function createWebXRManager(
           framebufferScaleFactor: framebufferScaleFactor
         }
 
-        glBaseLayer = new XRWebGLLayer(session, gl, layerInit)
+        const glBaseLayer = new XRWebGLLayer(session, gl, layerInit)
+        xrRendererState.glBaseLayer.set(glBaseLayer)
 
         session.updateRenderState({ baseLayer: glBaseLayer })
 
@@ -165,7 +168,9 @@ export function createWebXRManager(
           depthType = attributes.stencil ? UnsignedInt248Type : UnsignedIntType
         }
 
-        scope.isMultiview = useMultiview && extensions.has('OCULUS_multiview')
+        // @ts-ignore
+        const extensions = renderer.extensions
+        scope.isMultiview = extensions.has('OCULUS_multiview')
 
         const projectionlayerInit = {
           colorFormat: gl.RGBA8,
@@ -174,9 +179,11 @@ export function createWebXRManager(
           textureType: (scope.isMultiview ? 'texture-array' : 'texture') as XRTextureType
         }
 
-        glBinding = new XRWebGLBinding(session, gl)
+        const glBinding = new XRWebGLBinding(session, gl)
+        xrRendererState.glBinding.set(glBinding)
 
-        glProjLayer = glBinding.createProjectionLayer(projectionlayerInit)
+        const glProjLayer = glBinding.createProjectionLayer(projectionlayerInit)
+        xrRendererState.glProjLayer.set(glProjLayer)
 
         session.updateRenderState({ layers: [glProjLayer] })
 
@@ -300,10 +307,15 @@ export function createWebXRManager(
   }
 
   function updatePoseFromXRFrame(referenceSpace: XRReferenceSpace) {
+    const xrFrame = Engine.instance.xrFrame
+    const renderer = EngineRenderer.instance.renderer
     const pose = xrFrame!.getViewerPose(referenceSpace)
 
     if (pose) {
       const views = pose.views
+      const glBaseLayer = xrRendererState.glBaseLayer.value
+      const glBinding = xrRendererState.glBinding.value
+      const glProjLayer = xrRendererState.glProjLayer.value
 
       if (glBaseLayer !== null) {
         // @ts-ignore setRenderTargetFramebuffer is not in the type definition
@@ -369,9 +381,11 @@ export function createWebXRManager(
   }
 
   scope.updateCamera = function (camera: PerspectiveCamera) {
+    const session = xrState.session.value
     if (session === null) return
 
-    const referenceSpace = originReferenceSpace.value!
+    const referenceSpace = xrState.originReferenceSpace.value
+    if (referenceSpace === null) return
 
     updatePoseFromXRFrame(referenceSpace)
 
@@ -428,6 +442,9 @@ export function createWebXRManager(
   }
 
   scope.getFoveation = function () {
+    const glBaseLayer = xrRendererState.glBaseLayer.value
+    const glProjLayer = xrRendererState.glProjLayer.value
+
     if (glProjLayer !== null) {
       return glProjLayer.fixedFoveation
     }
@@ -439,7 +456,11 @@ export function createWebXRManager(
     return undefined
   }
 
+  /** @todo put foveation in state and make a reactor to update it */
   scope.setFoveation = function (foveation) {
+    const glBaseLayer = xrRendererState.glBaseLayer.value
+    const glProjLayer = xrRendererState.glProjLayer.value
+
     // 0 = no foveation = full resolution
     // 1 = maximum foveation = the edges render at lower resolution
 
@@ -457,11 +478,7 @@ export function createWebXRManager(
   let onAnimationFrameCallback = null as typeof onAnimationFrame | null
 
   function onAnimationFrame(time: number, frame: XRFrame) {
-    xrFrame = frame
-
     if (onAnimationFrameCallback) onAnimationFrameCallback(time, frame)
-
-    xrFrame = null
   }
 
   const animation = createWebGLAnimation()
