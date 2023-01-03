@@ -218,8 +218,6 @@ export class EngineRenderer {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    const activeSession = getState(XRState).sessionActive.value
-
     const xrCamera = EngineRenderer.instance.xrManager.getCamera()
     const xrFrame = Engine.instance.xrFrame
 

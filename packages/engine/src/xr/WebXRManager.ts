@@ -10,8 +10,10 @@ import {
   UnsignedIntType,
   Vector3,
   Vector4,
+  WebGLMultiviewRenderTarget,
   WebGLRenderer,
-  WebGLRenderTarget
+  WebGLRenderTarget,
+  WebGLRenderTargetOptions
 } from 'three'
 
 // augment PerspectiveCamera
@@ -21,6 +23,14 @@ declare module 'three/src/cameras/PerspectiveCamera' {
      * viewport used for XR rendering
      */
     viewport: Vector4
+  }
+}
+
+declare module 'three' {
+  class WebGLMultiviewRenderTarget extends WebGLRenderTarget {
+    constructor(width: number, height: number, numViews: number, options: WebGLRenderTargetOptions)
+    numViews: number
+    static isWebGLMultiviewRenderTarget: true
   }
 }
 
@@ -56,14 +66,6 @@ export function createWebXRManager(
   const attributes = gl.getContextAttributes()
   let initialRenderTarget = null as WebGLRenderTarget | null
   let newRenderTarget = null as WebGLRenderTarget | null
-
-  const controllers = []
-  const controllerInputSources = []
-
-  const planes = new Set()
-  const planesLastChangedTimes = new Map()
-
-  //
 
   const cameraL = new PerspectiveCamera()
   cameraL.layers.enable(1)
@@ -200,7 +202,8 @@ export function createWebXRManager(
         const projectionlayerInit = {
           colorFormat: gl.RGBA8,
           depthFormat: glDepthFormat,
-          scaleFactor: framebufferScaleFactor
+          scaleFactor: framebufferScaleFactor,
+          textureType: scope.isMultiview ? 'texture-array' : ('texture' as XRTextureType)
         }
 
         glBinding = new XRWebGLBinding(session, gl)
@@ -209,10 +212,9 @@ export function createWebXRManager(
 
         session.updateRenderState({ layers: [glProjLayer] })
 
-        newRenderTarget = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, {
+        const rtOptions = {
           format: RGBAFormat,
           type: UnsignedByteType,
-          // @ts-ignore	- DepthTexture typings are missing last constructor argument
           depthTexture: new DepthTexture(
             glProjLayer.textureWidth,
             glProjLayer.textureHeight,
@@ -223,13 +225,26 @@ export function createWebXRManager(
             undefined,
             undefined,
             undefined,
+            // @ts-ignore	- DepthTexture typings are missing last constructor argument
             depthFormat
           ),
           stencilBuffer: attributes?.stencil,
           encoding: renderer.outputEncoding,
           samples: attributes?.antialias ? 4 : 0
-        })
+        }
 
+        if (scope.isMultiview) {
+          const extension = extensions.get('OCULUS_multiview')
+          this.maxNumViews = gl.getParameter(extension.MAX_VIEWS_OVR)
+          newRenderTarget = new WebGLMultiviewRenderTarget(
+            glProjLayer.textureWidth,
+            glProjLayer.textureHeight,
+            2,
+            rtOptions
+          )
+        } else {
+          newRenderTarget = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, rtOptions)
+        }
         const renderTargetProperties = renderer.properties.get(newRenderTarget)
         renderTargetProperties.__ignoreDepthValues = glProjLayer.ignoreDepthValues
       }
@@ -467,10 +482,6 @@ export function createWebXRManager(
     if (glBaseLayer !== null && glBaseLayer.fixedFoveation !== undefined) {
       glBaseLayer.fixedFoveation = foveation
     }
-  }
-
-  scope.getPlanes = function () {
-    return planes
   }
 
   // Animation Loop
