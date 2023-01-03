@@ -10,4 +10,5 @@ export type AvatarInterface = {
   identifierName: string
   modelResource?: StaticResourceInterface
   thumbnailResource?: StaticResourceInterface
+  project?: string
 }

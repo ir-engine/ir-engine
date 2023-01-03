@@ -5,4 +5,5 @@ export interface StaticResourceInterface {
   key: string
   mimeType: string
   metadata: any
+  project?: string
 }

@@ -48,8 +48,7 @@ client:
   securityContext: {}
 
   extraEnv:
-    API_SERVER: http://xrsocial.local
-    SITE_TITLE: MyXR
+    SITE_TITLE: Ethereal Engine
     SITE_DESC: Connected Worlds for Everyone
     APP_ENV: production
 

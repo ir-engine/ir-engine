@@ -12,7 +12,7 @@ export const createPriorityQueue = (args: { accumulationBudget: number }) => {
     }
   >()
 
-  const priorityEntites = new Set<Entity>()
+  const priorityEntities = new Set<Entity>()
 
   let totalAccumulation = 0
 
@@ -29,19 +29,19 @@ export const createPriorityQueue = (args: { accumulationBudget: number }) => {
       totalAccumulation += priority
     },
     update: () => {
-      priorityEntites.clear()
+      priorityEntities.clear()
       for (const [entity, item] of accumulatingPriorities) {
         item.normalizedPriority += (item.accumulatedPriority * queue.accumulationBudget) / totalAccumulation
         item.accumulatedPriority = 0
         const exists = entityExists(entity)
         if (item.normalizedPriority >= 1 || !exists) {
-          if (exists) priorityEntites.add(entity)
+          if (exists) priorityEntities.add(entity)
           queue.removeEntity(entity)
         }
       }
       totalAccumulation = 0
     },
-    priorityEntities: priorityEntites as ReadonlySet<Entity>,
+    priorityEntities: priorityEntities as ReadonlySet<Entity>,
     accumulationBudget: args.accumulationBudget
   }
 

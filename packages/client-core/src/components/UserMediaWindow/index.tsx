@@ -641,7 +641,7 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           [styles['resizeable-screen']]: isScreen && !isPiP,
           [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
           [styles['party-chat-user']]: true,
-          [styles['self-user']]: isSelf,
+          [styles['self-user']]: isSelf && !isScreen,
           [styles['no-video']]: videoStream == null,
           [styles['video-paused']]: (videoStream && (videoProducerPaused || videoStreamPaused)) || !videoDisplayReady,
           [styles.pip]: isPiP && !isScreen,
