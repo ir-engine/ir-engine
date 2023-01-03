@@ -1,8 +1,9 @@
-import { Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
-import { V_111 } from '../common/constants/MathConstants'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { V_010, V_111 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
@@ -10,6 +11,10 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { getControlMode, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
+
+const avatarHeadMatrix = new Matrix4()
+const mat = new Matrix4()
+const _rot180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 /**
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
@@ -19,6 +24,7 @@ export const updateWorldOrigin = (entity: Entity, world: World) => {
   const xrFrame = Engine.instance.xrFrame
   const avatarTransform = getComponent(entity, TransformComponent)
   const originTransform = getComponent(world.originEntity, TransformComponent)
+  const avatar = getComponent(entity, AvatarComponent)
 
   if (!avatarTransform || !originTransform || !xrFrame) return
 
@@ -39,8 +45,12 @@ export const updateWorldOrigin = (entity: Entity, world: World) => {
     originTransform.rotation.copy(viewerPoseMetrics.orientation)
     originTransform.scale.copy(V_111)
     originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale).invert()
+
     // now origin is relative to viewer/avatar; convert back to world space
-    originTransform.matrix.premultiply(avatarTransform.matrix)
+    avatarHeadMatrix
+      .copy(avatarTransform.matrix)
+      .multiply(mat.makeRotationFromQuaternion(_rot180).setPosition(0, avatar.avatarHeight * 0.95, 0))
+    originTransform.matrix.premultiply(avatarHeadMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
     originTransform.matrixInverse.copy(originTransform.matrix).invert()
     // now origin is relative to world

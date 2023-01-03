@@ -128,6 +128,7 @@ export default async function AvatarInputSystem(world: World) {
   }
 
   const _rotY180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
+  const _quat = new Quaternion()
 
   const execute = () => {
     const { inputSources, localClientEntity } = world
@@ -169,13 +170,18 @@ export default async function AvatarInputSystem(world: World) {
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
     if (xrCameraAttached) {
+      const avatarTransform = getComponent(localClientEntity, TransformComponent)
       const rigidBody = getComponent(localClientEntity, RigidBodyComponent)
-      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-      extractRotationAboutAxis(cameraTransform.rotation, V_010, rigidBody.rotation).multiply(_rotY180)
-      rigidBody.targetKinematicRotation.copy(rigidBody.rotation)
-      // const transform = getComponent(localClientEntity, TransformComponent)
-      // transform.rotation.copy(rigidBody.rotation)
-      // delete world.dirtyTransforms[localClientEntity]
+      const avatarController = getComponent(localClientEntity, AvatarControllerComponent)
+      const viewerDeltaPosition = xrState.viewerPoseMetrics.deltaPosition
+      const viewerDeltaRotation = xrState.viewerPoseMetrics.deltaRotation
+      const viewerRotAroundY = extractRotationAboutAxis(viewerDeltaRotation.value, V_010, _quat).invert()
+      rigidBody.targetKinematicRotation.multiply(viewerRotAroundY)
+      rigidBody.rotation.copy(rigidBody.targetKinematicRotation)
+      avatarController.desiredMovement
+        .copy(viewerDeltaPosition.value)
+        .applyQuaternion(rigidBody.targetKinematicRotation)
+        .applyQuaternion(_rotY180)
     }
   }
 
