@@ -13,6 +13,8 @@ import { getControlMode, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 
 const avatarHeadMatrix = new Matrix4()
+const mat = new Matrix4()
+const _rot180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 /**
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
@@ -45,9 +47,10 @@ export const updateWorldOrigin = (entity: Entity, world: World) => {
     originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale).invert()
 
     // now origin is relative to viewer/avatar; convert back to world space
-    originTransform.matrix.premultiply(avatarTransform.matrix)
-    // .multiply(avatarHeadMatrix.makeRotationAxis(V_010, Math.PI))
-    // .multiply(avatarHeadMatrix.makeTranslation(0, avatar.avatarHeight * 0.95, 0))
+    avatarHeadMatrix
+      .copy(avatarTransform.matrix)
+      .multiply(mat.makeRotationFromQuaternion(_rot180).setPosition(0, avatar.avatarHeight * 0.95, 0))
+    originTransform.matrix.premultiply(avatarHeadMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
     originTransform.matrixInverse.copy(originTransform.matrix).invert()
     // now origin is relative to world
