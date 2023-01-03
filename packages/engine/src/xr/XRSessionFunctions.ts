@@ -100,7 +100,6 @@ export const requestXRSession = createHookableFunction(
         xrSession.removeEventListener('end', onSessionEnd)
         xrState.sessionActive.set(false)
         xrState.sessionMode.set('none')
-        xrManager.setSession(null!)
         EngineRenderer.instance.xrSession = null!
         Engine.instance.xrFrame = null!
         const world = Engine.instance.currentWorld
