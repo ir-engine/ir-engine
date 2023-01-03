@@ -255,6 +255,7 @@ export default async function TransformSystem(world: World) {
   let sortedTransformEntities = [] as Entity[]
 
   const execute = () => {
+    const { localClientEntity } = world
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
 
     // if transform order is dirty, sort by reference depth
@@ -289,11 +290,11 @@ export default async function TransformSystem(world: World) {
     /**
      * 2 - Update avatar entity and world origin reference space
      */
-    if (world.localClientEntity) {
-      if (world.dirtyTransforms[world.localClientEntity]) {
-        computeTransformMatrix(world.localClientEntity, world)
+    if (localClientEntity) {
+      if (world.dirtyTransforms[localClientEntity]) {
+        computeTransformMatrix(localClientEntity, world)
       }
-      updateWorldOrigin(world.localClientEntity, world)
+      updateWorldOrigin(localClientEntity, world)
     }
 
     /**
@@ -366,8 +367,8 @@ export default async function TransformSystem(world: World) {
         ? 0
         : 1
 
-    if (world.localClientEntity) {
-      const localClientPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
+    if (localClientEntity) {
+      const localClientPosition = getOptionalComponent(localClientEntity, TransformComponent)?.position
       if (localClientPosition) {
         for (const entity of distanceFromLocalClientQuery())
           DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
