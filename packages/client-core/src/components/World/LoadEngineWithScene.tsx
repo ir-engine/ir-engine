@@ -17,11 +17,9 @@ import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { PortalEffects } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
-import {
-  PortalEffects,
-  setAvatarToLocationTeleportingState
-} from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { setAvatarToLocationTeleportingState } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { addActionReceptor, dispatchAction, getState, removeActionReceptor } from '@xrengine/hyperflux'
 
