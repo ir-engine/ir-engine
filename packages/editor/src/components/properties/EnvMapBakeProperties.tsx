@@ -1,7 +1,8 @@
 import React from 'react'
 
+import { ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { EnvMapBakeComponent, EnvMapBakeComponentType } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
+import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeTypes'
 
@@ -13,7 +14,7 @@ import { BakePropertyTypes } from './EnvMapBakeNodeEditor'
 import { updateProperty } from './Util'
 
 type EnvMapBakePropertyEditorProps = {
-  bakeComponent: EnvMapBakeComponentType
+  bakeComponent: ComponentType<typeof EnvMapBakeComponent>
   element: any
   node: EntityTreeNode
 }
@@ -64,7 +65,7 @@ const bakeResolutionTypes = [
 ]
 
 export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
-  const getPropertyValue = (option: string) => props.bakeComponent[option]
+  const getPropertyValue = (option) => props.bakeComponent[option]
 
   let renderVal = <></>
   const label = props.element.label

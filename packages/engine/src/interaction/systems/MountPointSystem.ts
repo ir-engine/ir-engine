@@ -27,8 +27,7 @@ import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import {
   MountPoint,
   MountPointComponent,
-  SCENE_COMPONENT_MOUNT_POINT,
-  SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
+  SCENE_COMPONENT_MOUNT_POINT
 } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
@@ -53,12 +52,12 @@ export default async function MountPointSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.chair, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_MOUNT_POINT, props: {} }
   ])
 
   world.sceneComponentRegistry.set(MountPointComponent.name, SCENE_COMPONENT_MOUNT_POINT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
-    defaultData: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
+    defaultData: {}
   })
 
   if (Engine.instance.isEditor)

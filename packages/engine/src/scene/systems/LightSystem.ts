@@ -2,15 +2,17 @@ import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
 
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  TransformComponent
 } from '../../transform/components/TransformComponent'
 import { AmbientLightComponent, SCENE_COMPONENT_AMBIENT_LIGHT } from '../components/AmbientLightComponent'
 import { DirectionalLightComponent, SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '../components/DirectionalLightComponent'
 import { HemisphereLightComponent, SCENE_COMPONENT_HEMISPHERE_LIGHT } from '../components/HemisphereLightComponent'
 import { PointLightComponent, SCENE_COMPONENT_POINT_LIGHT } from '../components/PointLightComponent'
+import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SCENE_COMPONENT_SPOT_LIGHT, SpotLightComponent } from '../components/SpotLightComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
 
@@ -76,14 +78,15 @@ export default async function LightSystem(world: World) {
     { name: SCENE_COMPONENT_SPOT_LIGHT, props: {} }
   ])
 
-  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
-  const ambientLightQuery = defineQuery([AmbientLightComponent])
-  const directionalLightQuery = defineQuery([DirectionalLightComponent])
-  const hemisphereLightQuery = defineQuery([HemisphereLightComponent])
-  const pointLightQuery = defineQuery([PointLightComponent])
-  const spotLightQuery = defineQuery([SpotLightComponent])
+  const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
 
-  const execute = () => {}
+  const execute = () => {
+    for (const entity of directionalLightSelectQuery()) {
+      const helper = getComponent(entity, DirectionalLightComponent)?.helper
+      if (helper) helper.update()
+      // light.cameraHelper.update()
+    }
+  }
 
   const cleanup = async () => {
     world.sceneComponentRegistry.delete(DirectionalLightComponent.name)
@@ -107,12 +110,7 @@ export default async function LightSystem(world: World) {
     world.scenePrefabRegistry.delete(LightPrefabs.pointLight)
     world.scenePrefabRegistry.delete(LightPrefabs.spotLight)
 
-    removeActionQueue(modifyPropertyActionQueue)
-    removeQuery(world, ambientLightQuery)
-    removeQuery(world, directionalLightQuery)
-    removeQuery(world, hemisphereLightQuery)
-    removeQuery(world, pointLightQuery)
-    removeQuery(world, spotLightQuery)
+    removeQuery(world, directionalLightSelectQuery)
   }
 
   return { execute, cleanup }
