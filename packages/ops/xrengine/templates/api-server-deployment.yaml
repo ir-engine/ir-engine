@@ -119,6 +119,18 @@ spec:
             initialDelaySeconds: 10
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
+          {{ if eq .Values.api.extraEnv.STORAGE_PROVIDER "local" }}
+          volumeMounts:
+            - mountPath: /app/packages/server/upload
+              name: file-server
+          {{- end }}
+      {{ if eq .Values.api.extraEnv.STORAGE_PROVIDER "local" }}
+      volumes:
+        - name: file-server
+          hostPath:
+            path: {{ .Values.api.fileServer.hostUploadFolder }}
+            type: DirectoryOrCreate
+      {{- end }}
       initContainers:
         - name: init-redis
           image: busybox:1.28
