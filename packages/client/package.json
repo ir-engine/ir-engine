@@ -7,7 +7,7 @@
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
-    "node": ">= 16.3.0"
+    "node": ">= 18.12.0"
   },
   "npmClient": "npm",
   "scripts": {
@@ -73,7 +73,7 @@
     "vite-plugin-package-config": "0.1.1"
   },
   "devDependencies": {
-    "@types/node": "16.11.26",
+    "@types/node": "18.11.18",
     "@types/react": "18.0.19",
     "@types/react-dom": "18.0.0",
     "app-root-path": "3.0.0",
