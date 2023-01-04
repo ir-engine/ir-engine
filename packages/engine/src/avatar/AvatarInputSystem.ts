@@ -176,6 +176,8 @@ export default async function AvatarInputSystem(world: World) {
       const avatarController = getComponent(localClientEntity, AvatarControllerComponent)
       const viewerDeltaPosition = xrState.viewerPoseMetrics.deltaPosition
       const viewerDeltaRotation = xrState.viewerPoseMetrics.deltaRotation
+      xrState.viewerWorldRotation.value.premultiply(viewerDeltaRotation.value)
+
       const viewerRotAroundY = extractRotationAboutAxis(viewerDeltaRotation.value, V_010, _quat) //.invert()
       rigidBody.targetKinematicRotation.premultiply(viewerRotAroundY) //.multiply(_rotY180)
       rigidBody.rotation.copy(rigidBody.targetKinematicRotation)

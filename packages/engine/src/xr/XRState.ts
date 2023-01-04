@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
 import { defineState, getState } from '@xrengine/hyperflux'
@@ -53,7 +54,10 @@ export const XRState = defineState({
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
     viewerInputSourceEntity: 0 as Entity,
-    viewerPoseMetrics: new PoseMetrics()
+    viewerPoseMetrics: new PoseMetrics(),
+    /** Viewer's rotation relative to the world */
+    viewerWorldPosition: new Vector3(),
+    viewerWorldRotation: new Quaternion()
   })
 })
 

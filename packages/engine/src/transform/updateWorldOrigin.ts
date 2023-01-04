@@ -37,6 +37,31 @@ export const updateWorldOrigin = () => {
   const localFloorReferenceSpace = xrState.localFloorReferenceSpace.value
   const viewerReferenceSpace = xrState.viewerReferenceSpace.value
 
+  /**
+   * knowns:
+   * - where the avatar is in the world - it's final frame (matrix has been computed)
+   * - where the viewier is relative to the local floor origin
+   * - the relationship between the origin and the viewer
+   *   - equivalent to the relationship between the local floor space and the viewer
+   * - the cameras transform relative to the origin - should be the same as the viewer relative to the local floor space
+   *
+   * need to compute:
+   * - the camera transform
+   *   - the avatar's transform & height
+   *   - viewer rotation in world space
+   *
+   *   - `camera.position = avatar.position + avatarHeight`
+   *
+   *    // viewer is in world space
+   *   - `viewer.rotation = localFloor.rotation * origin.rotation` // OUT ISSUE IS THE AVATAR DOES NOT HAVE COMPLETE ROTATIONAL DATA - ONLY Y AXIS
+   *   - `camera.rotation = viewer.rotation`
+   *
+   *   - `localOrigin = inv(localFloor * viewer)
+   *          local origin is the local floor space relative to the viewer
+   *
+   *   - `worldOrigin = camera * localOrigin`
+   */
+
   if (
     getControlMode() === 'attached' &&
     viewerPoseMetrics.position &&
@@ -47,16 +72,24 @@ export const updateWorldOrigin = () => {
     // compute origin relative to viewer pose
     const originRelativeToViewerPose = xrFrame.getPose(localFloorReferenceSpace, viewerReferenceSpace)
     if (!originRelativeToViewerPose) return
-    originTransform.position.copy(originRelativeToViewerPose.transform.position as any)
-    originTransform.rotation.copy(originRelativeToViewerPose.transform.orientation as any)
-    originTransform.scale.copy(V_111)
-    originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale)
+
+    const localOriginTransform = originTransform
+    localOriginTransform.position.copy(originRelativeToViewerPose.transform.position as any)
+    localOriginTransform.rotation.copy(originRelativeToViewerPose.transform.orientation as any)
+    localOriginTransform.scale.copy(V_111)
+    localOriginTransform.matrix.compose(
+      localOriginTransform.position,
+      localOriginTransform.rotation,
+      localOriginTransform.scale
+    )
 
     // compute avatar head matrix
-    avatarHeadMatrix
-      .copy(clientTransform.matrix)
-      // .multiply(mat.makeRotationFromQuaternion(_rot180))
-      .multiply(mat.makeTranslation(0, avatar.avatarHeight * 0.95, 0))
+    // viewer in world space
+    avatarHeadMatrix.compose(
+      new Vector3().copy(clientTransform.position).setY(avatar.avatarHeight * 0.95),
+      xrState.viewerWorldRotation.value.clone().invert(),
+      V_111
+    )
 
     // convert origin to world space via parent transform (avatarHeadMatrix)
     originTransform.matrix.premultiply(avatarHeadMatrix)

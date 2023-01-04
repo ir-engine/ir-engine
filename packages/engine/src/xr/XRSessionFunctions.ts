@@ -82,6 +82,7 @@ export const requestXRSession = createHookableFunction(
       const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
       worldOriginTransform.position.copy(rigidBody.position)
       worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
+      xrState.viewerWorldRotation.value.copy(worldOriginTransform.rotation)
 
       xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
