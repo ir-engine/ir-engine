@@ -61,17 +61,13 @@ const quat = new Quaternion()
 const cubeGeometry = new ConeGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
-const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 
 export default async function DebugHelpersSystem(world: World) {
   InfiniteGridHelper.instance = new InfiniteGridHelper()
   Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
 
-  const [AUDIO_HELPER_TEXTURE, { scene: spawnPointHelperModel }] = await Promise.all([
-    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH),
-    AssetLoader.loadAsync(GLTF_PATH)
-  ])
+  const [{ scene: spawnPointHelperModel }] = await Promise.all([AssetLoader.loadAsync(GLTF_PATH)])
 
   spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
 
@@ -82,24 +78,16 @@ export default async function DebugHelpersSystem(world: World) {
     skeletonHelpers: new Map(),
     ikExtents: new Map(),
     box: new Map<Entity, Box3Helper>(),
-    navpath: new Map(),
-    positionalAudioHelper: new Map()
+    navpath: new Map()
   }
   const portalQuery = defineQuery([TransformComponent, PortalComponent])
   const splineQuery = defineQuery([TransformComponent, SplineComponent])
   const spawnPointQuery = defineQuery([TransformComponent, SpawnPointComponent])
   const mountPointQuery = defineQuery([TransformComponent, MountPointComponent])
   const envMapBakeQuery = defineQuery([TransformComponent, EnvMapBakeComponent])
-  const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
-  const scenePreviewCameraSelectQuery = defineQuery([
-    TransformComponent,
-    ScenePreviewCameraComponent,
-    SelectTagComponent
-  ])
 
   const boundingBoxQuery = defineQuery([TransformComponent, BoundingBoxComponent])
   const avatarAnimationQuery = defineQuery([AvatarRigComponent])
-  const audioHelper = defineQuery([PositionalAudioComponent, MediaElementComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
@@ -122,55 +110,6 @@ export default async function DebugHelpersSystem(world: World) {
      * @todo refactor this modularly (these queries should be in the system that loads the associated component) #7265
      */
     if (Engine.instance.isEditor) {
-      for (const entity of directionalLightSelectQuery.exit()) {
-        const light = getComponent(entity, DirectionalLightComponent)?.light
-        if (light?.userData?.cameraHelper) light.userData.cameraHelper.visible = false
-      }
-
-      for (const entity of directionalLightSelectQuery()) {
-        const helper = getComponent(entity, DirectionalLightComponent)?.helper
-        if (helper) helper.update()
-        // light.userData.cameraHelper.update()
-      }
-
-      /**
-       * Scene Preview Camera
-       */
-
-      for (const entity of scenePreviewCameraSelectQuery.enter()) {
-        const scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
-        const helper = new CameraHelper(scenePreviewCamera)
-        helper.name = `scene-preview-helper-${entity}`
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        editorHelpers.set(entity, helper)
-        Engine.instance.currentWorld.scene.add(helper)
-      }
-
-      for (const entity of scenePreviewCameraSelectQuery.exit()) {
-        const helper = editorHelpers.get(entity)!
-        helper.removeFromParent()
-        editorHelpers.delete(entity)
-      }
-
-      /**
-       * Audio Helper
-       */
-
-      for (const entity of audioHelper.enter()) {
-        const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
-        helper.name = `audio-helper-${entity}`
-        helper.material.map = AUDIO_HELPER_TEXTURE
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        Engine.instance.currentWorld.scene.add(helper)
-        editorHelpers.set(entity, helper)
-      }
-
-      for (const entity of audioHelper.exit()) {
-        const helper = editorHelpers.get(entity)!
-        Engine.instance.currentWorld.scene.remove(helper)
-        editorHelpers.delete(entity)
-      }
-
       /**
        * Env Map Bake
        */
@@ -387,38 +326,6 @@ export default async function DebugHelpersSystem(world: World) {
       helper.visible = physicsDebugEnabled
     }
 
-    // ===== Autopilot Helper ===== //
-    // TODO add createPathHelper for navpathQuery
-
-    // todo refactor this
-    if (Engine.instance.isEditor) {
-      for (const entity of audioHelper.exit()) {
-        const helper = helpersByEntity.positionalAudioHelper.get(entity)
-        helper.dispose()
-        helpersByEntity.positionalAudioHelper.delete(entity)
-        Engine.instance.currentWorld.scene.remove(helper)
-      }
-
-      if (componentDebugEnabled)
-        for (const entity of audioHelper()) {
-          const mediaElement = getComponent(entity, MediaElementComponent)
-          const audioNodes = AudioNodeGroups.get(mediaElement.element)
-          if (!audioNodes) continue
-
-          if (!helpersByEntity.positionalAudioHelper.has(entity)) {
-            const helper = new PositionalAudioHelper(audioNodes)
-            helper.name = `positional-audio-helper-${entity}`
-            // helper.visible = false
-            helpersByEntity.positionalAudioHelper.set(entity, helper)
-            Engine.instance.currentWorld.scene.add(helper)
-          }
-
-          const helper = helpersByEntity.positionalAudioHelper.get(entity)
-          audioNodes.panner && helper?.update()
-          helper?.position.copy(getComponent(entity, TransformComponent).position)
-        }
-    }
-
     if (physicsDebugEnabled || componentDebugEnabled) {
       for (const [entity, helper] of editorHelpers) {
         helper.updateMatrixWorld(true)
@@ -440,11 +347,8 @@ export default async function DebugHelpersSystem(world: World) {
     removeQuery(world, spawnPointQuery)
     removeQuery(world, mountPointQuery)
     removeQuery(world, envMapBakeQuery)
-    removeQuery(world, directionalLightSelectQuery)
-    removeQuery(world, scenePreviewCameraSelectQuery)
     removeQuery(world, boundingBoxQuery)
     removeQuery(world, avatarAnimationQuery)
-    removeQuery(world, audioHelper)
 
     removeActionQueue(debugActionQueue)
   }
