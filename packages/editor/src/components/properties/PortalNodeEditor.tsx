@@ -6,8 +6,11 @@ import { API } from '@xrengine/client-core/src/API'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { PortalEffects, PortalPreviewTypes } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
+import {
+  PortalComponent,
+  PortalEffects,
+  PortalPreviewTypes
+} from '@xrengine/engine/src/scene/components/PortalComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'

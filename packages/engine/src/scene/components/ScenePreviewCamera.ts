@@ -3,8 +3,10 @@ import { CameraHelper, PerspectiveCamera } from 'three'
 
 import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -13,8 +15,14 @@ export const ScenePreviewCameraComponent = defineComponent({
   name: 'XRE_scenePreviewCamera',
 
   onInit: (entity) => {
+    const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
+    addObjectToGroup(entity, camera)
+    const transform = getComponent(entity, TransformComponent)
+    const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, LocalTransformComponent)
+    cameraTransform.position.copy(transform.position)
+    cameraTransform.rotation.copy(transform.rotation)
     return {
-      camera: new PerspectiveCamera(80, 16 / 9, 0.2, 8000),
+      camera,
       helper: null as CameraHelper | null
     }
   },
@@ -29,6 +37,8 @@ export const ScenePreviewCameraComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
+    if (!hasComponent(root.entity, ScenePreviewCameraComponent)) throw root.stop()
+
     const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
     const camera = useComponent(root.entity, ScenePreviewCameraComponent)
 
