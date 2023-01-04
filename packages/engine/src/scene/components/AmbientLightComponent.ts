@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { AmbientLight, Color } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const AmbientLightComponent = defineComponent({
@@ -38,8 +38,6 @@ export const AmbientLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, AmbientLightComponent)) throw root.stop()
-
     const light = useComponent(root.entity, AmbientLightComponent)
 
     useEffect(() => {

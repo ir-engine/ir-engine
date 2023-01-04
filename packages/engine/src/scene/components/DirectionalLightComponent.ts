@@ -5,12 +5,7 @@ import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
 import { isHMD } from '../../common/functions/isMobile'
 import { matches } from '../../common/functions/MatchesUtils'
-import {
-  createMappedComponent,
-  defineComponent,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent, defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -72,8 +67,6 @@ export const DirectionalLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, DirectionalLightComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, DirectionalLightComponent)
 

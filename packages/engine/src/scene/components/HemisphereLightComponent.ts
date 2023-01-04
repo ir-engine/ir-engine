@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Color, HemisphereLight } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const HemisphereLightComponent = defineComponent({
@@ -41,8 +41,6 @@ export const HemisphereLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, HemisphereLightComponent)) throw root.stop()
-
     const light = useComponent(root.entity, HemisphereLightComponent)
 
     useEffect(() => {
