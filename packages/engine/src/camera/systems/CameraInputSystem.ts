@@ -18,6 +18,7 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { getControlMode } from '../../xr/XRState'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -156,6 +157,8 @@ export default async function CameraInputSystem(world: World) {
   const execute = () => {
     const { localClientEntity, deltaSeconds } = world
     if (!localClientEntity) return
+
+    if (getControlMode() !== 'detached') return
 
     const keys = world.buttons
     if (keys.KeyV?.down) onKeyV()

@@ -54,10 +54,7 @@ export const XRState = defineState({
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
     viewerInputSourceEntity: 0 as Entity,
-    viewerPoseMetrics: new PoseMetrics(),
-    /** Viewer's rotation relative to the world */
-    viewerWorldPosition: new Vector3(),
-    viewerWorldRotation: new Quaternion()
+    viewerPoseMetrics: new PoseMetrics()
   })
 })
 

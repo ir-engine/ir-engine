@@ -50,28 +50,23 @@ export const updateWorldOrigin = () => {
    *   - the avatar's transform & height
    *   - viewer rotation in world space
    *
-   *   - `camera.position = avatar.position + avatarHeight`
+   *   - `viewer.position = avatar.position + avatarHeight`
    *
    *    // viewer is in world space
    *   - `viewer.rotation = localFloor.rotation * origin.rotation` // OUT ISSUE IS THE AVATAR DOES NOT HAVE COMPLETE ROTATIONAL DATA - ONLY Y AXIS
-   *   - `camera.rotation = viewer.rotation`
    *
-   *   - `localOrigin = inv(localFloor * viewer)
-   *          local origin is the local floor space relative to the viewer
+   *   - `worldOriginRelativeToViewer = inv(localFloor * viewer)
+   *          the local floor space relative to the viewer (in physical space)
    *
-   *   - `worldOrigin = camera * localOrigin`
+   *   - `worldOrigin = viewer * localOrigin`
    */
 
-  if (
-    getControlMode() === 'attached' &&
-    viewerPoseMetrics.position &&
-    viewerPoseMetrics.orientation &&
-    localFloorReferenceSpace &&
-    viewerReferenceSpace
-  ) {
+  if (getControlMode() === 'attached' && localFloorReferenceSpace && viewerReferenceSpace) {
     // compute origin relative to viewer pose
     const originRelativeToViewerPose = xrFrame.getPose(localFloorReferenceSpace, viewerReferenceSpace)
     if (!originRelativeToViewerPose) return
+
+    const oldRotation = originTransform.rotation.clone()
 
     const localOriginTransform = originTransform
     localOriginTransform.position.copy(originRelativeToViewerPose.transform.position as any)
@@ -85,9 +80,13 @@ export const updateWorldOrigin = () => {
 
     // compute avatar head matrix
     // viewer in world space
+    const viewerRotationWorldSpace = xrState.viewerPoseMetrics.value.orientation!.clone().premultiply(oldRotation)
+    const viewerRotationWorldSpaceAboutXZ = extractRotationAboutAxis(viewerRotationWorldSpace, V_010, new Quaternion())
+      .invert()
+      .multiply(viewerRotationWorldSpace)
     avatarHeadMatrix.compose(
       new Vector3().copy(clientTransform.position).setY(avatar.avatarHeight * 0.95),
-      xrState.viewerWorldRotation.value.clone().invert(),
+      clientTransform.rotation.clone().multiply(viewerRotationWorldSpaceAboutXZ),
       V_111
     )
 
