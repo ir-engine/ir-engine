@@ -100,7 +100,7 @@ api:
   securityContext: {}
 
   fileServer:
-    hostUploadFolder:
+    hostUploadFolder: /hosthome/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload
 
   # Extra Environment variables to configure xrsocial
   extraEnv:
