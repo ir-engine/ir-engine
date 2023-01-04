@@ -44,9 +44,10 @@ export default function PaginatedList<T>({
             </Button>
           </Grid>
           {[-2, -1, 0, 1, 2].map((idx) => {
+            const btnKey = `paginatedButton-${idx}`
             if (!(currentPage.value + idx < 0 || currentPage.value + idx >= list.length / countPerPage))
               return (
-                <Grid item xs={2}>
+                <Grid item xs={2} key={btnKey}>
                   <Button
                     disabled={idx === 0}
                     onClick={() => currentPage.set(currentPage.value + idx)}
@@ -58,7 +59,7 @@ export default function PaginatedList<T>({
               )
             else
               return (
-                <Grid item xs={2}>
+                <Grid item xs={2} key={btnKey}>
                   <div style={{ textAlign: 'center' }}>
                     <p>·</p>
                   </div>
