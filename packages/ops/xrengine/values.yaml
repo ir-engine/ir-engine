@@ -99,6 +99,9 @@ api:
   podSecurityContext: {}
   securityContext: {}
 
+  fileServer:
+    hostUploadFolder:
+
   # Extra Environment variables to configure xrsocial
   extraEnv:
     # ENV_VAR1: val1
