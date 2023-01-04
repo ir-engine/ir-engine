@@ -4,6 +4,7 @@ import { getState } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { V_010, V_111 } from '../common/constants/MathConstants'
+import { extractRotationAboutAxis } from '../common/functions/MathFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
@@ -20,56 +21,48 @@ const _rot180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
  * Updates the world origin entity, effectively moving the world to be in alignment with where the viewer should be seeing it.
  * @param entity
  */
-export const updateWorldOrigin = (entity: Entity, world: World) => {
+export const updateWorldOrigin = () => {
+  const world = Engine.instance.currentWorld
   const xrFrame = Engine.instance.xrFrame
-  const avatarTransform = getComponent(entity, TransformComponent)
   const originTransform = getComponent(world.originEntity, TransformComponent)
-  const avatar = getComponent(entity, AvatarComponent)
+  const clientTransform = getComponent(world.localClientEntity, TransformComponent)
+  const avatar = getComponent(world.localClientEntity, AvatarComponent)
 
-  if (!avatarTransform || !originTransform || !xrFrame) return
+  if (!clientTransform || !originTransform || !xrFrame) return
 
   const xrState = getState(XRState)
 
   // viewer pose is relative to the local floor reference space
   const viewerPoseMetrics = xrState.viewerPoseMetrics.value
   const localFloorReferenceSpace = xrState.localFloorReferenceSpace.value
+  const viewerReferenceSpace = xrState.viewerReferenceSpace.value
 
   if (
     getControlMode() === 'attached' &&
     viewerPoseMetrics.position &&
     viewerPoseMetrics.orientation &&
-    localFloorReferenceSpace
+    localFloorReferenceSpace &&
+    viewerReferenceSpace
   ) {
     // compute origin relative to viewer pose
-    originTransform.position.copy(viewerPoseMetrics.position)
-    originTransform.rotation.copy(viewerPoseMetrics.orientation)
+    const originRelativeToViewerPose = xrFrame.getPose(localFloorReferenceSpace, viewerReferenceSpace)
+    if (!originRelativeToViewerPose) return
+    originTransform.position.copy(originRelativeToViewerPose.transform.position as any)
+    originTransform.rotation.copy(originRelativeToViewerPose.transform.orientation as any)
     originTransform.scale.copy(V_111)
-    originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale).invert()
+    originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale)
 
-    // now origin is relative to viewer/avatar; convert back to world space
+    // compute avatar head matrix
     avatarHeadMatrix
-      .copy(avatarTransform.matrix)
-      .multiply(mat.makeRotationFromQuaternion(_rot180).setPosition(0, avatar.avatarHeight * 0.95, 0))
+      .copy(clientTransform.matrix)
+      // .multiply(mat.makeRotationFromQuaternion(_rot180))
+      .multiply(mat.makeTranslation(0, avatar.avatarHeight * 0.95, 0))
+
+    // convert origin to world space via parent transform (avatarHeadMatrix)
     originTransform.matrix.premultiply(avatarHeadMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
-    originTransform.matrixInverse.copy(originTransform.matrix).invert()
+
     // now origin is relative to world
-
-    // const originTransform = getComponent(world.originEntity, TransformComponent)
-
-    // // get avatar - viewer pose delta difference
-    // avatarViewerTranslationDeltaDifference.copy(avatarPoseDelta.translation).sub(viewerPoseDelta.translation)
-    // avatarViewerRotationDeltaDifference.copy(viewerPoseDelta.rotation).invert().multiply(avatarPoseDelta.rotation)
-
-    // // shift the world origin by the difference between avatar and viewer movmement
-    // // originTransform.position.copy(avatarTransform.position)
-    // originTransform.position.add(avatarViewerTranslationDeltaDifference)
-
-    // // originTransform.rotation.multiply(avatarPoseDelta.getRotation(_quat))
-    // // originTransform.position.sub(avatarViewerPoseDeltaDifference.getTranslation(_vec))
-    // // const avatarYSpin = extractRotationAboutAxis(avatarViewerRotationDeltaDifference, V_010, _quat)
-    // // originTransform.rotation.multiply(avatarYSpin)
-
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     xrState.originReferenceSpace.set(localFloorReferenceSpace.getOffsetReferenceSpace(xrRigidTransform.inverse))
   }

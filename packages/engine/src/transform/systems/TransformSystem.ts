@@ -1,5 +1,5 @@
-import { entityExists, Not } from 'bitecs'
-import { Camera, Frustum, Matrix4, Mesh, PerspectiveCamera, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Not } from 'bitecs'
+import { Camera, Frustum, Matrix4, Mesh, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
@@ -288,11 +288,11 @@ export default async function TransformSystem(world: World) {
     }
 
     /**
-     * 2 - Update avatar entity and world origin reference space
+     * 2 - Update local client entity and world origin reference space
      */
     if (localClientEntity) {
       computeTransformMatrix(localClientEntity, world)
-      updateWorldOrigin(localClientEntity, world)
+      updateWorldOrigin()
     }
 
     /**
