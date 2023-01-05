@@ -216,6 +216,7 @@ export default async function MediaSystem(world: World) {
   const mediaQuery = defineQuery([MediaComponent])
   const videoQuery = defineQuery([VideoComponent])
   const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
+  const audioQuery = defineQuery([PositionalAudioComponent])
 
   Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
 
@@ -237,6 +238,7 @@ export default async function MediaSystem(world: World) {
 
     for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
+    for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
   }
 
   const cleanup = async () => {

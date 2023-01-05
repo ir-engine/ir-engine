@@ -1,5 +1,6 @@
 import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
 import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
@@ -23,9 +24,15 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
+import { setObjectLayers } from '../functions/setObjectLayers'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+
+const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
 export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
 
@@ -113,7 +120,8 @@ export const MediaComponent = defineComponent({
       paused: true,
       playing: false,
       track: 0,
-      trackDurations: [] as number[]
+      trackDurations: [] as number[],
+      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
     }
   },
 
@@ -366,6 +374,26 @@ export function MediaReactor({ root }: EntityReactorProps) {
     },
     [mediaElement, media.isMusic]
   )
+
+  const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+
+  useEffect(() => {
+    if (debugEnabled.value && !media.helper.value) {
+      const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
+      helper.name = `audio-helper-${root.entity}`
+      AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
+        helper.material.map = AUDIO_HELPER_TEXTURE
+      })
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      addObjectToGroup(root.entity, helper)
+      media.helper.set(helper)
+    }
+
+    if (!debugEnabled.value && media.helper.value) {
+      removeObjectFromGroup(root.entity, media.helper.value)
+      media.helper.set(none)
+    }
+  }, [debugEnabled])
 
   return null
 }

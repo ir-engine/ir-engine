@@ -110,6 +110,7 @@ export const updateVolumetric = async (entity: Entity) => {
   if (!mediaElement) return
   const volumetric = Volumetric.get(mediaElement.element)
   if (volumetric) {
+    volumetric.player.update()
     const player = volumetric.player
     const height = volumetric.height
     const step = volumetric.height / 150
