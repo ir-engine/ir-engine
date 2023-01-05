@@ -18,9 +18,9 @@ import {
 import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
-import { AssemblyComponent, LoadState } from '../components/AssemblyComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
+import { LoadState, PrefabComponent } from '../components/PrefabComponent'
 
 export const serializeEntity = (entity: Entity, world = Engine.instance.currentWorld) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
@@ -87,8 +87,8 @@ export const serializeWorld = (
 
       entityJson.components = serializeEntity(node.entity, world)
 
-      if (hasComponent(node.entity, AssemblyComponent)) {
-        const asset = getComponent(node.entity, AssemblyComponent)
+      if (hasComponent(node.entity, PrefabComponent)) {
+        const asset = getComponent(node.entity, PrefabComponent)
         if (asset.loaded === LoadState.LOADED) {
           asset.roots.map((root) => loadedAssets.add(root))
         }

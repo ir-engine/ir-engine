@@ -9,9 +9,9 @@ import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functio
 import { getState } from '@xrengine/hyperflux'
 
 import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
-import { AssemblyComponentType } from '../components/AssemblyComponent'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
+import { PrefabComponentType } from '../components/PrefabComponent'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
@@ -66,11 +66,7 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-const serializeECS = (
-  roots: Object3DWithEntity[],
-  asset?: AssemblyComponentType,
-  world: World = Engine.instance.currentWorld
-) => {
+const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instance.currentWorld) => {
   const eTree = world.entityTree
   const nodeMap = eTree.entityNodeMap
   let rootEntities = new Array()

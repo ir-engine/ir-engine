@@ -18,19 +18,19 @@ import {
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { AssemblyComponent } from '@xrengine/engine/src/scene/components/AssemblyComponent'
 import {
   addObjectToGroup,
   GroupComponent,
   Object3DWithEntity,
   removeObjectFromGroup
 } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
 import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 
 import { accessEditorState } from '../services/EditorServices'
 
-export const exportAssembly = async (node: EntityTreeNode) => {
-  const asset = getComponent(node.entity, AssemblyComponent)
+export const exportPrefab = async (node: EntityTreeNode) => {
+  const asset = getComponent(node.entity, PrefabComponent)
   const projectName = accessEditorState().projectName.value!
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')

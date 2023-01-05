@@ -4,11 +4,11 @@ import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { AssemblyComponent } from '@xrengine/engine/src/scene/components/AssemblyComponent'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 
 import { updateProperties } from '../components/properties/Util'
@@ -33,9 +33,9 @@ export async function addMediaNode(
   let prefabType = ''
   let updateFunc = null! as Function
 
-  if (contentType.startsWith('asset/')) {
-    prefabType = ScenePrefabs.asset
-    updateFunc = () => updateProperties(AssemblyComponent, { src: url }, [node])
+  if (contentType.startsWith('prefab/')) {
+    prefabType = ScenePrefabs.prefab
+    updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node])
   } else if (contentType.startsWith('model/')) {
     prefabType = ScenePrefabs.model
     updateFunc = () => updateProperties(ModelComponent, { src: url }, [node])

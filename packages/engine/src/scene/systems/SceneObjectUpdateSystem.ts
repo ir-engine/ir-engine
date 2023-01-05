@@ -17,7 +17,6 @@ import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '../../transform/components/TransformComponent'
-import { AssemblyComponent, SCENE_COMPONENT_ASSEMBLY } from '../components/AssemblyComponent'
 import {
   CloudComponent,
   SCENE_COMPONENT_CLOUD,
@@ -44,6 +43,7 @@ import {
   SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
 } from '../components/OceanComponent'
 import { PortalComponent, SCENE_COMPONENT_PORTAL } from '../components/PortalComponent'
+import { PrefabComponent, SCENE_COMPONENT_PREFAB } from '../components/PrefabComponent'
 import { PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE } from '../components/PreventBakeTagComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
@@ -68,7 +68,6 @@ import {
 } from '../components/SystemComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
-import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
 import { deserializeGround, serializeGroundPlane, updateGroundPlane } from '../functions/loaders/GroundPlaneFunctions'
@@ -77,6 +76,7 @@ import { deserializeInterior, serializeInterior, updateInterior } from '../funct
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
+import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
 import { deserializeSkybox, serializeSkybox, updateSkybox } from '../functions/loaders/SkyboxFunctions'
 import { deserializeSpline, serializeSpline } from '../functions/loaders/SplineFunctions'
 import { deserializeWater } from '../functions/loaders/WaterFunctions'
@@ -97,7 +97,7 @@ export const ScenePrefabs = {
   skybox: 'Skybox' as const,
   spawnPoint: 'Spawn Point' as const,
   group: 'Group' as const,
-  asset: 'Asset' as const,
+  prefab: 'Prefab' as const,
   image: 'Image' as const,
   cloud: 'Cloud' as const,
   water: 'Water' as const,
@@ -164,15 +164,15 @@ export default async function SceneObjectUpdateSystem(world: World) {
    * Assets
    */
 
-  world.scenePrefabRegistry.set(ScenePrefabs.asset, [
+  world.scenePrefabRegistry.set(ScenePrefabs.prefab, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_ASSEMBLY, props: {} }
+    { name: SCENE_COMPONENT_PREFAB, props: {} }
   ])
 
-  world.sceneComponentRegistry.set(AssemblyComponent.name, SCENE_COMPONENT_ASSEMBLY)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSEMBLY, {
-    deserialize: deserializeAsset
+  world.sceneComponentRegistry.set(PrefabComponent.name, SCENE_COMPONENT_PREFAB)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PREFAB, {
+    deserialize: deserializePrefab
   })
 
   /**
@@ -414,10 +414,10 @@ export default async function SceneObjectUpdateSystem(world: World) {
      * Assets
      */
 
-    world.scenePrefabRegistry.delete(ScenePrefabs.asset)
+    world.scenePrefabRegistry.delete(ScenePrefabs.prefab)
 
-    world.sceneComponentRegistry.delete(AssemblyComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_ASSEMBLY)
+    world.sceneComponentRegistry.delete(PrefabComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PREFAB)
 
     /**
      * Portals
