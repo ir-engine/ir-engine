@@ -110,8 +110,8 @@ export const applyGamepadInput = (entity: Entity) => {
   if (getControlMode() === 'attached') {
     /** update world origin by gamepad world movement */
     const originTransform = getComponent(world.originEntity, TransformComponent)
-    originTransform.position.x -= controller.gamepadWorldMovement.x
-    originTransform.position.z -= controller.gamepadWorldMovement.z
+    originTransform.position.x += controller.gamepadWorldMovement.x
+    originTransform.position.z += controller.gamepadWorldMovement.z
   } else {
     // apply movement
     controller.desiredMovement.x += controller.gamepadWorldMovement.x
