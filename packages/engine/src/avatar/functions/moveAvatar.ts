@@ -61,6 +61,7 @@ const avatarGroundRaycast = {
 const cameraDirection = new Vector3()
 const forwardOrientation = new Quaternion()
 const targetWorldMovement = new Vector3()
+const desiredMovement = new Vector3()
 
 /**
  * Avatar movement via gamepad
@@ -106,29 +107,25 @@ export const applyGamepadInput = (entity: Entity) => {
   // apply gravity
   controller.verticalVelocity -= 9.81 * fixedDeltaSeconds
 
+  const verticalMovement = controller.verticalVelocity * fixedDeltaSeconds
+
+  desiredMovement.copy(controller.viewerMovement)
+
   // viewer pose handles avatar movement in attached mode
-  if (getControlMode() === 'attached') {
-    /** update world origin by gamepad world movement */
-    const originTransform = getComponent(world.originEntity, TransformComponent)
-    originTransform.position.x += controller.gamepadWorldMovement.x
-    originTransform.position.z += controller.gamepadWorldMovement.z
-  } else {
-    // apply movement
-    controller.desiredMovement.x += controller.gamepadWorldMovement.x
-    controller.desiredMovement.z += controller.gamepadWorldMovement.z
-  }
-  controller.desiredMovement.y += controller.verticalVelocity * fixedDeltaSeconds
+  desiredMovement.x += controller.gamepadWorldMovement.x
+  desiredMovement.z += controller.gamepadWorldMovement.z
+  desiredMovement.y += verticalMovement
 
   const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
 
   controller.controller.computeColliderMovement(
     controller.bodyCollider,
-    controller.desiredMovement,
+    desiredMovement,
     QueryFilterFlags.EXCLUDE_SENSORS,
     avatarCollisionGroups
   )
 
-  const computedMovement = controller.controller.computedMovement() as any
+  const computedMovement = controller.controller.computedMovement() as Vector3
 
   rigidbody.targetKinematicPosition.add(computedMovement)
 
@@ -143,7 +140,17 @@ export const applyGamepadInput = (entity: Entity) => {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
     rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    // hack for atached
+    computedMovement.y -= hit.position.y + controllerOffset
     controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
+  }
+
+  const attached = getControlMode() === 'attached'
+  if (attached) {
+    const originTransform = getComponent(world.originEntity, TransformComponent)
+    originTransform.position.x += computedMovement.x - controller.viewerMovement.x
+    originTransform.position.y += computedMovement.y - controller.viewerMovement.y
+    originTransform.position.z += computedMovement.z - controller.viewerMovement.z
   }
 
   if (!controller.isInAir) controller.verticalVelocity = 0
@@ -152,8 +159,24 @@ export const applyGamepadInput = (entity: Entity) => {
   _avatarApplyRotation(entity)
 
   // reset desired movement
-  controller.desiredMovement.copy(V_000)
+  controller.viewerMovement.copy(V_000)
 }
+
+const _mat4 = new Matrix4()
+
+/**
+ * Rotates a matrix around a point
+ * @param matrix
+ * @param point
+ * @param rotation
+ */
+export const rotateMatrixAboutPoint = (matrix: Matrix4, point: Vector3, rotation: Quaternion) => {
+  matrix.multiply(_mat4.makeTranslation(-point.x, -point.y, -point.z))
+  matrix.multiply(_mat4.makeRotationFromQuaternion(rotation))
+  matrix.multiply(_mat4.makeTranslation(point.x, point.y, point.z))
+}
+
+const vec3 = new Vector3()
 
 /**
  * Rotates the avatar's rigidbody around the Y axis by a given angle
@@ -164,6 +187,21 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
   _quat.setFromAxisAngle(V_010, angle)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   rigidBody.targetKinematicRotation.multiply(_quat)
+
+  if (getControlMode() === 'attached') {
+    const world = Engine.instance.currentWorld
+    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+    rotateMatrixAboutPoint(
+      worldOriginTransform.matrix,
+      vec3.copy(rigidBody.targetKinematicPosition).applyMatrix4(worldOriginTransform.matrixInverse),
+      _quat
+    )
+    worldOriginTransform.matrix.decompose(
+      worldOriginTransform.position,
+      worldOriginTransform.rotation,
+      worldOriginTransform.scale
+    )
+  }
 }
 
 /**

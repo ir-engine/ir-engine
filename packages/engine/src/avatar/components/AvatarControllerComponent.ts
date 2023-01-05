@@ -8,7 +8,7 @@ export type AvatarControllerComponentType = {
   /** The camera entity that should be updated by this controller */
   cameraEntity: Entity
   controller: KinematicCharacterController
-  desiredMovement: Vector3
+  viewerMovement: Vector3
   bodyCollider: Collider
   movementEnabled: boolean
   isJumping: boolean
