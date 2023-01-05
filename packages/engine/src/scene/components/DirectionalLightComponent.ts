@@ -1,30 +1,135 @@
-import { Color, DirectionalLight, Vector2 } from 'three'
+import { useEffect } from 'react'
+import { Color, DirectionalLight, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, Vector2 } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
-export type DirectionalLightComponentType = {
-  color: Color
-  intensity: number
-  castShadow: boolean
-  shadowMapResolution: Vector2
-  shadowBias: number
-  shadowRadius: number
-  cameraFar: number
-  useInCSM: boolean
-  light: DirectionalLight
-}
+import { isHMD } from '../../common/functions/isMobile'
+import { matches } from '../../common/functions/MatchesUtils'
+import {
+  createMappedComponent,
+  defineComponent,
+  hasComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { EngineRendererState } from '../../renderer/EngineRendererState'
+import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
-export const DirectionalLightComponent =
-  createMappedComponent<DirectionalLightComponentType>('DirectionalLightComponent')
+export const DirectionalLightComponent = defineComponent({
+  name: 'DirectionalLightComponent',
+
+  onInit: (entity, world) => {
+    const light = new DirectionalLight()
+    light.target.position.set(0, 0, 1)
+    light.target.name = 'light-target'
+    light.add(light.target)
+    addObjectToGroup(entity, light)
+    return {
+      light,
+      color: new Color(),
+      intensity: 1,
+      shadowMapResolution: 512,
+      shadowBias: -0.00001,
+      shadowRadius: 1,
+      cameraFar: 2000,
+      useInCSM: true,
+      helper: null as EditorDirectionalLightHelper | null
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
+    if (matches.string.test(json.color)) component.color.value.set(json.color)
+    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
+    if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
+    /** backwards compat */
+    if (matches.array.test(json.shadowMapResolution))
+      component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
+    if (matches.number.test(json.shadowMapResolution)) component.shadowMapResolution.set(json.shadowMapResolution)
+    if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
+    if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
+    if (matches.number.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      color: component.color.value.getHex(),
+      intensity: component.intensity.value,
+      cameraFar: component.cameraFar.value,
+      shadowMapResolution: component.shadowMapResolution.value,
+      shadowBias: component.shadowBias.value,
+      shadowRadius: component.shadowRadius.value,
+      useInCSM: component.useInCSM.value
+    }
+  },
+
+  onRemove: (entity, component) => {
+    if (!isHMD) removeObjectFromGroup(entity, component.light.value)
+    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
+  },
+
+  reactor: function ({ root }) {
+    if (!hasComponent(root.entity, DirectionalLightComponent)) throw root.stop()
+
+    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const light = useComponent(root.entity, DirectionalLightComponent)
+
+    useEffect(() => {
+      light.light.value.color.set(light.color.value)
+    }, [light.color])
+
+    useEffect(() => {
+      light.light.value.intensity = light.intensity.value
+    }, [light.intensity])
+
+    useEffect(() => {
+      light.light.value.shadow.camera.far = light.cameraFar.value
+    }, [light.cameraFar])
+
+    useEffect(() => {
+      light.light.value.shadow.bias = light.shadowBias.value
+    }, [light.shadowBias])
+
+    useEffect(() => {
+      light.light.value.shadow.radius = light.shadowRadius.value
+    }, [light.shadowRadius])
+
+    useEffect(() => {
+      if (light.light.value.shadow.mapSize.x !== light.shadowMapResolution.value) {
+        light.light.value.shadow.mapSize.set(light.shadowMapResolution.value, light.shadowMapResolution.value)
+        light.light.value.shadow.map?.dispose()
+        light.light.value.shadow.map = null as any
+        light.light.value.shadow.camera.updateProjectionMatrix()
+        light.light.value.shadow.needsUpdate = true
+      }
+    }, [light.shadowMapResolution])
+
+    useEffect(() => {
+      if (debugEnabled.value && !light.helper.value) {
+        const helper = new EditorDirectionalLightHelper(light.light.value)
+        helper.name = `directional-light-helper-${root.entity}`
+
+        // const cameraHelper = new CameraHelper(light.shadow.camera)
+        // cameraHelper.visible = false
+        // light.userData.cameraHelper = cameraHelper
+
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+
+        addObjectToGroup(root.entity, helper)
+        light.helper.set(helper)
+      }
+
+      if (!debugEnabled.value && light.helper.value) {
+        removeObjectFromGroup(root.entity, light.helper.value)
+        light.helper.set(none)
+      }
+    }, [debugEnabled])
+
+    return null
+  }
+})
 
 export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'
-export const SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES = {
-  color: '#ffffff' as unknown as any,
-  intensity: 1,
-  castShadow: true,
-  shadowMapResolution: new Vector2(512, 512),
-  shadowBias: -0.00001,
-  shadowRadius: 1,
-  cameraFar: 2000,
-  useInCSM: true
-} as DirectionalLightComponentType

@@ -1,6 +1,6 @@
 import * as bitECS from 'bitecs'
 import React from 'react'
-import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
+import { Camera, Material, Mesh, Object3D } from 'three'
 
 import { none } from '@xrengine/hyperflux'
 
@@ -31,8 +31,12 @@ export const GroupComponent = defineComponent({
   onRemove: (entity, component) => {
     for (const obj of component.value) {
       obj.removeFromParent()
-      obj.traverse((mesh: Mesh<BufferGeometry, Material>) => {
-        mesh.material?.dispose()
+      obj.traverse((mesh: Mesh) => {
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((material: Material) => material.dispose())
+        } else {
+          mesh.material?.dispose()
+        }
         mesh.geometry?.dispose()
       })
     }

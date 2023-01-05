@@ -1,14 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 
 import BoltIcon from '@mui/icons-material/Bolt'
 
-import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
@@ -24,34 +21,7 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const selectionState = useSelectionState()
   const lightComponent = useComponent(props.node.entity, DirectionalLightComponent).value
-
-  useEffect(() => {
-    if (selectionState.propertyName.value === 'color') {
-      EngineRenderer.instance.csm.updateProperty('color', lightComponent.color)
-    }
-
-    if (selectionState.propertyName.value === 'intensity') {
-      EngineRenderer.instance.csm.updateProperty('intensity', lightComponent.intensity)
-    }
-
-    if (selectionState.propertyName.value === 'shadowBias') {
-      EngineRenderer.instance.csm.updateProperty('shadow.bias', lightComponent.shadowBias)
-    }
-
-    if (selectionState.propertyName.value === 'shadowRadius') {
-      EngineRenderer.instance.csm.updateProperty('shadow.radius', lightComponent.shadowRadius)
-    }
-
-    if (selectionState.propertyName.value === 'shadowMapResolution') {
-      EngineRenderer.instance.csm.updateProperty('shadow.mapSize', lightComponent.shadowMapResolution)
-    }
-
-    if (selectionState.propertyName.value === 'cameraFar') {
-      EngineRenderer.instance.csm.updateProperty('shadow.camera.far', lightComponent.cameraFar)
-    }
-  }, [selectionState.objectChangeCounter])
 
   return (
     <NodeEditor
