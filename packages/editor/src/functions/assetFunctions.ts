@@ -18,7 +18,7 @@ import {
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
+import { AssemblyComponent } from '@xrengine/engine/src/scene/components/AssemblyComponent'
 import {
   addObjectToGroup,
   GroupComponent,
@@ -29,10 +29,9 @@ import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion
 
 import { accessEditorState } from '../services/EditorServices'
 
-export const exportAsset = async (node: EntityTreeNode) => {
-  const asset = getComponent(node.entity, AssetComponent)
+export const exportAssembly = async (node: EntityTreeNode) => {
+  const asset = getComponent(node.entity, AssemblyComponent)
   const projectName = accessEditorState().projectName.value!
-  const assetName = asset.name
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }
@@ -51,7 +50,7 @@ export const exportAsset = async (node: EntityTreeNode) => {
   }
 
   const exportable = sceneToGLTF(obj3ds)
-  const uploadable = new File([JSON.stringify(exportable)], `${assetName}.xre.gltf`)
+  const uploadable = new File([JSON.stringify(exportable)], asset.src)
   for (const dudObj of dudObjs) {
     removeObjectFromGroup(dudObj.entity, dudObj)
   }
