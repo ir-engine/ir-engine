@@ -261,9 +261,9 @@ export default async function XRCameraSystem(world: World) {
     }
 
     /** get viewer pose relative to the local floor */
-    const referenceSpace = xrState.localFloorReferenceSpace.value
-    const viewerTransform = referenceSpace && xrFrame?.getViewerPose(referenceSpace)?.transform
-    xrState.viewerPoseMetrics.value.update(viewerTransform?.position, viewerTransform?.orientation)
+    const referenceSpace = xrState.originReferenceSpace.value
+    const viewerPose = referenceSpace && xrFrame?.getViewerPose(referenceSpace)
+    xrState.viewerPose.set(viewerPose ?? null)
 
     if (!xrFrame) return
   }

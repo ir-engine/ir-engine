@@ -106,9 +106,17 @@ export const applyGamepadInput = (entity: Entity) => {
   // apply gravity
   controller.verticalVelocity -= 9.81 * fixedDeltaSeconds
 
-  // apply movement
-  controller.desiredMovement.x += controller.gamepadWorldMovement.x
-  controller.desiredMovement.z += controller.gamepadWorldMovement.z
+  // viewer pose handles avatar movement in attached mode
+  if (getControlMode() === 'attached') {
+    /** update world origin by gamepad world movement */
+    const originTransform = getComponent(world.originEntity, TransformComponent)
+    originTransform.position.x -= controller.gamepadWorldMovement.x
+    originTransform.position.z -= controller.gamepadWorldMovement.z
+  } else {
+    // apply movement
+    controller.desiredMovement.x += controller.gamepadWorldMovement.x
+    controller.desiredMovement.z += controller.gamepadWorldMovement.z
+  }
   controller.desiredMovement.y += controller.verticalVelocity * fixedDeltaSeconds
 
   const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger

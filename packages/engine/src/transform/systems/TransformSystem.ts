@@ -44,7 +44,6 @@ import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
 } from '../components/TransformComponent'
-import { updateWorldOrigin } from '../updateWorldOrigin'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
@@ -166,6 +165,8 @@ export default async function TransformSystem(world: World) {
     deserialize: deserializeTransform,
     serialize: serializeTransform
   })
+
+  const xrState = getState(XRState)
 
   /** override Skeleton.update, as it is called inside  */
   const skeletonUpdate = Skeleton.prototype.update
@@ -290,9 +291,13 @@ export default async function TransformSystem(world: World) {
     /**
      * 2 - Update local client entity and world origin reference space
      */
-    if (localClientEntity) {
-      computeTransformMatrix(localClientEntity, world)
-      updateWorldOrigin()
+    if (xrState.localFloorReferenceSpace.value) {
+      computeTransformMatrix(world.originEntity, world)
+      const originTransform = getComponent(world.originEntity, TransformComponent)
+      const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
+      xrState.originReferenceSpace.set(
+        xrState.localFloorReferenceSpace.value.getOffsetReferenceSpace(xrRigidTransform.inverse)
+      )
     }
 
     /**

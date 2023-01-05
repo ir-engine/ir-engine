@@ -16,7 +16,9 @@ import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctio
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { updateXRCamera } from '../xr/XRCameraSystem'
 import { getControlMode, XRState } from '../xr/XRState'
+import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { rotateAvatar } from './functions/moveAvatar'
@@ -129,6 +131,7 @@ export default async function AvatarInputSystem(world: World) {
 
   const _rotY180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
   const _quat = new Quaternion()
+  const avatarHead = new Vector3()
 
   const execute = () => {
     const { inputSources, localClientEntity } = world
@@ -170,32 +173,29 @@ export default async function AvatarInputSystem(world: World) {
 
     /** When in attached camera mode, avatar movement should correspond to physical device movement */
     if (xrCameraAttached) {
-      const originTransform = getComponent(world.originEntity, TransformComponent)
-      const avatarTransform = getComponent(localClientEntity, TransformComponent)
       const rigidBody = getComponent(localClientEntity, RigidBodyComponent)
       const avatarController = getComponent(localClientEntity, AvatarControllerComponent)
-      const viewerDeltaPosition = xrState.viewerPoseMetrics.deltaPosition
-      const viewerDeltaRotation = xrState.viewerPoseMetrics.deltaRotation
+      const avatar = getComponent(localClientEntity, AvatarComponent)
+      const viewerPose = xrState.viewerPose.value
+      if (viewerPose) {
+        const avatarPosition = rigidBody.targetKinematicPosition
 
-      // const viewerRotAroundY = extractRotationAboutAxis(viewerDeltaRotation.value, V_010, _quat) //.invert()
-      rigidBody.targetKinematicRotation.multiply(viewerDeltaRotation.value).normalize()
-      // extractRotationAboutAxis(rigidBody.targetKinematicRotation, V_010, rigidBody.targetKinematicRotation) //.invert()
-      rigidBody.targetKinematicRotation.setFromAxisAngle(
-        V_010,
-        _euler.setFromQuaternion(rigidBody.targetKinematicRotation, 'YXZ').y
-      )
+        const viewerPosition = viewerPose.transform.position as any as Vector3
+        const viewerRotation = viewerPose.transform.orientation as any as Quaternion
 
-      const worldViewerDeltaPosition = viewerDeltaPosition.value.clone().applyQuaternion(originTransform.rotation)
-      rigidBody.targetKinematicPosition.add(worldViewerDeltaPosition)
+        avatarHead.copy(avatarPosition).y += avatar.avatarHeight * 0.95
 
-      // rigidBody.rotation.copy(rigidBody.targetKinematicRotation)
-      // rigidBody.position.copy(viewerDeltaPosition.value).add(originTransform.position)
+        extractRotationAboutAxis(viewerRotation, V_010, _quat)
 
-      // avatarController.desiredMovement
-      //   .copy(viewerDeltaPosition.value)
-      //   .applyQuaternion(originTransform.rotation)
-      // .applyQuaternion(_rotY180)
+        /** copy rigidbody rotation straight from WebXR, as it is the viewer rotation in world space */
+        rigidBody.targetKinematicRotation.copy(_quat)
+
+        /** use the WebXR delta for position, as we want the controller computed movement to handle avatar movement */
+        avatarController.desiredMovement.subVectors(viewerPosition, avatarHead)
+      }
     }
+
+    // updateXRCamera()
   }
 
   const cleanup = async () => {}
