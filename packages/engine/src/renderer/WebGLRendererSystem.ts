@@ -46,6 +46,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
+import { spacewarp } from '../xr/Spacewarp'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
@@ -360,6 +361,8 @@ export default async function WebGLRendererSystem(world: World) {
     return null
   })
 
+  const renderSpacewarp = spacewarp()
+
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)
     for (const action of setAutomaticActions()) EngineRendererReceptor.setAutomatic(action)
@@ -372,6 +375,8 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
 
     EngineRenderer.instance.execute(world.deltaSeconds)
+
+    renderSpacewarp()
   }
 
   const cleanup = async () => {
