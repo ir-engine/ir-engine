@@ -5,6 +5,7 @@ import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponent
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
+import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
@@ -79,6 +80,7 @@ export const requestXRSession = createHookableFunction(
 
       const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
+      setVisibleComponent(world.localClientEntity, false)
 
       const onSessionEnd = () => {
         xrState.sessionActive.set(false)
@@ -89,6 +91,7 @@ export const requestXRSession = createHookableFunction(
         const world = Engine.instance.currentWorld
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
         EngineRenderer.instance.renderer.domElement.style.display = ''
+        setVisibleComponent(world.localClientEntity, true)
 
         xrState.originReferenceSpace.set(null)
         xrState.viewerReferenceSpace.set(null)
