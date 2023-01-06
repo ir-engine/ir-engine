@@ -80,7 +80,7 @@ export const requestXRSession = createHookableFunction(
 
       const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
-      setVisibleComponent(world.localClientEntity, false)
+      if (mode === 'immersive-ar') setVisibleComponent(world.localClientEntity, false)
 
       const onSessionEnd = () => {
         xrState.sessionActive.set(false)
