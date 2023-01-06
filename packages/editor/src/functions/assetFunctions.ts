@@ -9,6 +9,7 @@ import {
 } from '@xrengine/client-core/src/util/upload'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import { modelResourcesPath, pathResolver } from '@xrengine/engine/src/assets/functions/pathResolver'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
@@ -35,19 +36,28 @@ export const exportPrefab = async (node: EntityTreeNode) => {
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }
-
+  const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   const dudObjs = new Array<Object3DWithEntity>()
   const obj3ds = new Array<Object3DWithEntity>()
-
-  for (const entity of node.children) {
-    if (!getComponent(entity, GroupComponent)) {
+  const frontier = new Array<EntityTreeNode>(node)
+  do {
+    const prefabNode = frontier.pop()!
+    const entity = prefabNode.entity
+    if (getComponent(entity, GroupComponent)?.length) {
+      const childObjs = getComponent(entity, GroupComponent).filter((obj) => !obj.type.includes('Helper'))
+      obj3ds.push(...childObjs)
+    } else {
       const dudObj = new Object3D() as Object3DWithEntity
       dudObj.entity = entity
       addObjectToGroup(entity, dudObj)
       dudObjs.push(dudObj)
       obj3ds.push(dudObj)
-    } else obj3ds.push(...getComponent(entity, GroupComponent))
-  }
+    }
+    const nodeChildren = prefabNode.children
+      .filter((child) => !!child && eNodeMap.has(child))
+      .map((child) => eNodeMap.get(child)!)
+    frontier.push(...nodeChildren)
+  } while (frontier.length > 0)
 
   const exportable = sceneToGLTF(obj3ds)
   const uploadable = new File([JSON.stringify(exportable)], asset.src)

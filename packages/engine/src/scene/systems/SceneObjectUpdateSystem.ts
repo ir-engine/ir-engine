@@ -74,7 +74,7 @@ import { deserializeGround, serializeGroundPlane, updateGroundPlane } from '../f
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
-import { deserializeModel } from '../functions/loaders/ModelFunctions'
+import { deserializeModel, serializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
 import { deserializeSkybox, serializeSkybox, updateSkybox } from '../functions/loaders/SkyboxFunctions'
@@ -230,7 +230,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
     defaultData: {},
-    deserialize: deserializeModel
+    deserialize: deserializeModel,
+    serialize: serializeModel
   })
 
   world.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)

@@ -1,13 +1,19 @@
 import { Color, MathUtils, Object3D } from 'three'
 
+import config from '@xrengine/common/src/config'
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getAllComponents,
+  getComponent,
+  getComponentState
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getState } from '@xrengine/hyperflux'
 
+import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -119,13 +125,15 @@ const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instanc
 }
 
 export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
-  roots.forEach((root) =>
+  const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
+  for (const root of roots) {
+    const node = eNodeMap.get(root.entity)!
     root.traverse((node: Object3DWithEntity) => {
       if (node.entity) {
         prepareObjectForGLTFExport(node)
       }
     })
-  )
+  }
 
   const gltf = serializeECS(roots)
   handleScenePaths(gltf, 'encode')
@@ -138,25 +146,26 @@ export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
  * @param mode 'encode' or 'decode'
  */
 export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
-  const hostPath = Engine.instance.publicPath.replace(/:\d{4}$/, '')
-  const cacheRe = new RegExp(`${hostPath}:\\d{4}\/projects`)
+  const cacheRe = new RegExp(`${config.client.fileServer}\/projects`)
   const symbolRe = /__\$project\$__/
   const pathSymbol = '__$project$__'
   const frontier = [...gltf.scenes, ...gltf.nodes]
   while (frontier.length > 0) {
     const elt = frontier.pop()
-    for (const [k, v] of Object.entries(elt)) {
-      if (typeof v === 'object') {
-        frontier.push(v)
-      }
-      if (mode === 'encode') {
-        if (typeof v === 'string' && cacheRe.test(v)) {
-          elt[k] = v.replace(cacheRe, pathSymbol)
+    if (typeof elt === 'object' && elt !== null) {
+      for (const [k, v] of Object.entries(elt)) {
+        if (!!v && typeof v === 'object' && !(v as Object3D).isObject3D) {
+          frontier.push(v)
         }
-      }
-      if (mode === 'decode') {
-        if (typeof v === 'string' && symbolRe.test(v)) {
-          elt[k] = v.replace(symbolRe, `${hostPath}:8642/projects`)
+        if (mode === 'encode') {
+          if (typeof v === 'string' && cacheRe.test(v)) {
+            elt[k] = v.replace(cacheRe, pathSymbol)
+          }
+        }
+        if (mode === 'decode') {
+          if (typeof v === 'string' && symbolRe.test(v)) {
+            elt[k] = v.replace(symbolRe, `${config.client.fileServer}/projects`)
+          }
         }
       }
     }
