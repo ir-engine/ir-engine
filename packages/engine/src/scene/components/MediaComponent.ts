@@ -1,14 +1,15 @@
 import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { none } from '@xrengine/hyperflux'
+import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
 import { deepEqual } from '../../common/functions/deepEqual'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -23,9 +24,15 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
+import { setObjectLayers } from '../functions/setObjectLayers'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+
+const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
 export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
 
@@ -113,7 +120,8 @@ export const MediaComponent = defineComponent({
       paused: true,
       playing: false,
       track: 0,
-      trackDurations: [] as number[]
+      trackDurations: [] as number[],
+      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
     }
   },
 
@@ -191,6 +199,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+  const userHasInteracted = useHookstate(getState(EngineState).userHasInteracted)
 
   useEffect(
     function updatePlay() {
@@ -228,11 +237,10 @@ export function MediaReactor({ root }: EntityReactorProps) {
         tempElement.crossOrigin = 'anonymous'
         tempElement.preload = 'metadata'
         tempElement.src = path
-        tempElement.load()
       }
 
       // handle autoplay
-      if (media.autoplay.value && getEngineState().userHasInteracted.value) media.paused.set(false)
+      if (media.autoplay.value && userHasInteracted.value) media.paused.set(false)
 
       return () => {
         for (const { tempElement, listener } of metadataListeners) {
@@ -243,6 +251,13 @@ export function MediaReactor({ root }: EntityReactorProps) {
       }
     },
     [media.paths]
+  )
+
+  useEffect(
+    function updatePausedUponInteract() {
+      if (userHasInteracted.value && media.autoplay.value) media.paused.set(false)
+    },
+    [userHasInteracted]
   )
 
   useEffect(
@@ -359,6 +374,26 @@ export function MediaReactor({ root }: EntityReactorProps) {
     },
     [mediaElement, media.isMusic]
   )
+
+  const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+
+  useEffect(() => {
+    if (debugEnabled.value && !media.helper.value) {
+      const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
+      helper.name = `audio-helper-${root.entity}`
+      AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
+        helper.material.map = AUDIO_HELPER_TEXTURE
+      })
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      addObjectToGroup(root.entity, helper)
+      media.helper.set(helper)
+    }
+
+    if (!debugEnabled.value && media.helper.value) {
+      removeObjectFromGroup(root.entity, media.helper.value)
+      media.helper.set(none)
+    }
+  }, [debugEnabled])
 
   return null
 }

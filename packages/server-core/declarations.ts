@@ -1,4 +1,5 @@
 import type { Application as ExpressFeathers } from '@feathersjs/express'
+import Primus from 'primus'
 
 import '@feathersjs/transport-commons'
 
@@ -24,7 +25,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   k8BatchClient: k8s.BatchV1Api
   agonesSDK: any
   sync: any
-  io: any //SocketIO.Server
+  primus: Primus
   network: SocketWebRTCServerNetwork
   seed: () => Application // function
   serverMode: ServerTypeMode

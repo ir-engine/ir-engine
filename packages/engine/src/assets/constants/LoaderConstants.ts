@@ -1,8 +1,8 @@
-export const DEFAULT_LOD_DISTANCES = {
+export const DEFAULT_LOD_DISTANCES = Object.freeze({
   '0': 5,
   '1': 15,
   '2': 30
-}
+})
 
 export const LODS_REGEXP = new RegExp(/^(.*)_LOD(\d+)$/)
 

@@ -47,9 +47,7 @@ export default defineConfig(
         }
       },
       resolve: {
-        alias: {
-          'socket.io-client': 'socket.io-client/dist/socket.io.js'
-        }
+        alias: {}
       },
       define: {
         'process.env': process.env

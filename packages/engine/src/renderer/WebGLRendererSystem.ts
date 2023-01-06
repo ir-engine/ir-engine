@@ -290,7 +290,7 @@ export class EngineRenderer {
 }
 
 export const DefaultRenderSettingsState = {
-  LODs: { ...DEFAULT_LOD_DISTANCES },
+  // LODs: { ...DEFAULT_LOD_DISTANCES },
   csm: true,
   toneMapping: LinearToneMapping as ToneMapping,
   toneMappingExposure: 0.8,

@@ -27,7 +27,7 @@ cli.enable('status')
 
 const sequelize = new Sequelize({
   ...db,
-  logging: true,
+  logging: console.log,
   define: {
     freezeTableName: true
   }

@@ -6,4 +6,5 @@ export interface AvatarInterface {
   thumbnailResourceId: string
   isPublic: boolean
   userId: string
+  project?: string
 }

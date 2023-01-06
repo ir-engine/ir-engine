@@ -219,7 +219,6 @@
     "react-window",
     "semantic-ui-react",
     "simplex-noise",
-    "socket.io-client",
     "styled-components",
     "three",
     "three-mesh-bvh",

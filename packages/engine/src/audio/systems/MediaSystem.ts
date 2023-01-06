@@ -17,6 +17,7 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
 import { SCENE_COMPONENT_VIDEO, VideoComponent } from '../../scene/components/VideoComponent'
@@ -55,6 +56,7 @@ export class AudioEffectPlayer {
   #els: HTMLAudioElement[] = []
 
   _init() {
+    if (this.#els.length) return
     for (let i = 0; i < 20; i++) {
       const audioElement = document.createElement('audio')
       audioElement.loop = false
@@ -110,11 +112,18 @@ export const getMediaSceneMetadataState = (world: World) =>
   world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
 
 export default async function MediaSystem(world: World) {
+  const enableAudioContext = () => {
+    if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
+    AudioEffectPlayer.instance._init()
+  }
+
   if (isClient && !Engine.instance.isEditor) {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
     function handleAutoplay() {
+      enableAudioContext()
+
       for (const entity of mediaQuery()) {
         const media = getComponentState(entity, MediaComponent)
         if (media.playing.value) return
@@ -126,6 +135,9 @@ export default async function MediaSystem(world: World) {
     // TODO: add destroy callbacks
     window.addEventListener('pointerdown', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
+    window.addEventListener('touchstart', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
   }
 
   world.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
@@ -216,19 +228,11 @@ export default async function MediaSystem(world: World) {
   const mediaQuery = defineQuery([MediaComponent])
   const videoQuery = defineQuery([VideoComponent])
   const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
+  const audioQuery = defineQuery([PositionalAudioComponent])
 
   Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
 
-  const enableAudioContext = () => {
-    if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
-    AudioEffectPlayer.instance._init()
-  }
-
   const execute = () => {
-    if (userInteractActionQueue().length) {
-      enableAudioContext()
-    }
-
     for (const entity of mediaQuery.enter()) {
       const media = getComponentState(entity, MediaComponent)
       setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
@@ -237,6 +241,7 @@ export default async function MediaSystem(world: World) {
 
     for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
     for (const entity of volumetricQuery()) updateVolumetric(entity)
+    for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
   }
 
   const cleanup = async () => {

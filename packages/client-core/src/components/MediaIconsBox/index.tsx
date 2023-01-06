@@ -63,6 +63,7 @@ export const MediaIconsBox = () => {
   const engineState = useEngineState()
   const xrState = useHookstate(getState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
+  const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
   useEffect(() => {
@@ -191,7 +192,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="UserVR"
-          className={styles.iconContainer + ' ' + (xrSessionActive ? styles.on : '')}
+          className={styles.iconContainer + ' ' + (xrMode === 'immersive-vr' ? styles.on : '')}
           onClick={() =>
             dispatchAction(
               xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: 'immersive-vr' })
@@ -207,7 +208,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="UserAR"
-          className={styles.iconContainer + ' ' + (xrSessionActive ? styles.on : '')}
+          className={styles.iconContainer + ' ' + (xrMode === 'immersive-ar' ? styles.on : '')}
           onClick={() =>
             dispatchAction(
               xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: 'immersive-ar' })

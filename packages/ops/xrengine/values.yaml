@@ -48,8 +48,7 @@ client:
   securityContext: {}
 
   extraEnv:
-    API_SERVER: http://xrsocial.local
-    SITE_TITLE: MyXR
+    SITE_TITLE: Ethereal Engine
     SITE_DESC: Connected Worlds for Everyone
     APP_ENV: production
 
@@ -99,6 +98,9 @@ api:
   affinity: {}
   podSecurityContext: {}
   securityContext: {}
+
+  fileServer:
+    hostUploadFolder: /hosthome/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload
 
   # Extra Environment variables to configure xrsocial
   extraEnv:

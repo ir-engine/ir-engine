@@ -47,13 +47,18 @@ const stateNamespaceKey = 'ee.hyperflux'
  * Values get automatically populated if they exist in localStorage and saved when they are changed.
  * @param {StateDefinition} stateDefinition
  * @param {string[]} keys the root paths to synchronise
+ *
+ * TODO: #7384 this api need to be revisited; we are syncing local state without doing any validation,
+ * so if we ever change the acceptable values for a given state key, we will have to do a migration
+ * or fallback to a default value, but we can't do that without knowing what the acceptable values are, which means
+ * we need to pass in a schema or validator function to this function (we should use ts-pattern for this).
  */
 export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
   const state = getState(stateDefinition)
 
   for (const key of keys) {
     const storedValue = localStorage.getItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)
-    if (storedValue !== null) state[key].set(JSON.parse(storedValue))
+    if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))
   }
 
   state.attach(() => ({
@@ -61,10 +66,13 @@ export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof def
     init: () => ({
       onSet(arg) {
         for (const key of keys) {
-          localStorage.setItem(
-            `${stateNamespaceKey}.${stateDefinition.name}.${key}`,
-            JSON.stringify(state[key].get({ noproxy: true }))
-          )
+          if (state[key].value === undefined)
+            localStorage.removeItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)
+          else
+            localStorage.setItem(
+              `${stateNamespaceKey}.${stateDefinition.name}.${key}`,
+              JSON.stringify(state[key].get({ noproxy: true }))
+            )
         }
       }
     })

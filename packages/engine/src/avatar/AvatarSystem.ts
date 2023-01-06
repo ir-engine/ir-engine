@@ -1,6 +1,6 @@
 import { Object3D, Vector3 } from 'three'
 
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
@@ -17,6 +17,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
+import { getControlMode, XRState } from '../xr/XRState'
 import { AvatarRigComponent } from './components/AvatarAnimationComponent'
 import {
   AvatarIKTargetsComponent,
@@ -151,6 +152,20 @@ export default async function AvatarSystem(world: World) {
   const avatarIKTargetsQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
 
   const execute = () => {
+    const { localClientEntity, inputSources } = world
+
+    if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
+      const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
+      const sources = Array.from(inputSources.values())
+      const head = !!sources.find((s) => s.handedness === 'none') && getControlMode() === 'attached'
+      const leftHand = !!sources.find((s) => s.handedness === 'left')
+      const rightHand = !!sources.find((s) => s.handedness === 'right')
+
+      const changed = ikTargets.head !== head || ikTargets.leftHand !== leftHand || ikTargets.rightHand !== rightHand
+
+      if (changed) dispatchAction(WorldNetworkAction.avatarIKTargets({ head, leftHand, rightHand }))
+    }
+
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
 
     for (const action of avatarIKTargetsQueue()) {

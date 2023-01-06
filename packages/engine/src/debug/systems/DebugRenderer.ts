@@ -8,6 +8,7 @@ import { World } from '../../ecs/classes/World'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
+import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -18,6 +19,9 @@ type RaycastDebugs = {
 
 export default async function DebugRenderer(world: World) {
   let enabled = false
+
+  InfiniteGridHelper.instance = new InfiniteGridHelper()
+  Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
 
   const debugLines = new Set<Line<BufferGeometry, LineBasicMaterial>>()
   const debugLineLifetime = 1000 // 1 second
@@ -43,9 +47,8 @@ export default async function DebugRenderer(world: World) {
       }
     }
 
-    if (enabled) {
+    if (enabled && world.physicsWorld) {
       const debugRenderBuffer = world.physicsWorld.debugRender()
-      world.physicsWorld.debugRenderPipeline
       _lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
       _lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
 
@@ -86,6 +89,8 @@ export default async function DebugRenderer(world: World) {
   const cleanup = async () => {
     _lineSegments.removeFromParent()
     removeActionQueue(sceneLoadQueue)
+    Engine.instance.currentWorld.scene.remove(InfiniteGridHelper.instance)
+    InfiniteGridHelper.instance = null!
   }
 
   return { execute, cleanup }

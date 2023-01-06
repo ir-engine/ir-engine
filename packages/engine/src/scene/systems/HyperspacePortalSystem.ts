@@ -14,20 +14,20 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
+import { PortalEffects } from '../components/PortalComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { PortalEffects } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
 
 /** @todo namespace this somehow */
 export const HyperspacePortalEffect = 'Hyperspace'
 
-PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)
-
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
 
 export default async function HyperspacePortalSystem(world: World) {
+  PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)
+
   const transition = createTransitionState(0.25, 'OUT')
 
   const hyperspaceEffect = new PortalEffect()

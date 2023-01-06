@@ -76,6 +76,9 @@ const config = {
   onInstall: (app: Application) => {
     return installAvatarsFromProject(app, avatarsFolder)
   },
+  onUpdate: (app: Application) => {
+    return installAvatarsFromProject(app, avatarsFolder)
+  },
   onOEmbedRequest: handleOEmbedRequest
   // TODO: remove avatars
   // onUninstall: (app: Application) => {

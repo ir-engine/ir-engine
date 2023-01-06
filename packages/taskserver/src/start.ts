@@ -1,7 +1,7 @@
 import { pipe } from '@xrengine/common/src/utils/pipe'
 import { Application, ServerMode } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
-import { configureRedis, configureSocketIO, createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
+import { configurePrimus, configureRedis, createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
 import multiLogger from '@xrengine/server-core/src/ServerLogger'
 
 import collectAnalytics from './collect-analytics'
@@ -12,7 +12,7 @@ process.on('unhandledRejection', (error, promise) => {
   logger.error(error, 'UNHANDLED REJECTION - Promise: %o', promise)
 })
 
-const taskServerPipe = pipe(configureSocketIO(), configureRedis())
+const taskServerPipe = pipe(configurePrimus(), configureRedis())
 
 export const start = async (): Promise<Application> => {
   const app = createFeathersExpressApp(ServerMode.Task, taskServerPipe)

@@ -30,7 +30,7 @@ const db = {
 const onlyDBUpdate = process.argv.includes('--db-only');
 const sequelizeClient = new Sequelize({
     ...db,
-    logging: true,
+    logging: console.log,
     define: {
         freezeTableName: true
     },
