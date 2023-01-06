@@ -1,24 +1,17 @@
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Euler, Quaternion } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { V_010 } from '../common/constants/MathConstants'
-import { extractRotationAboutAxis } from '../common/functions/MathFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { getComponent, getComponentState, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { updateXRCamera } from '../xr/XRCameraSystem'
 import { getControlMode, XRState } from '../xr/XRState'
-import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { rotateAvatar } from './functions/moveAvatar'
@@ -129,10 +122,6 @@ export default async function AvatarInputSystem(world: World) {
     )
   }
 
-  const _rotY180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
-  const _quat = new Quaternion()
-  const avatarHead = new Vector3()
-
   const execute = () => {
     const { inputSources, localClientEntity } = world
     if (!localClientEntity) return
@@ -170,45 +159,6 @@ export default async function AvatarInputSystem(world: World) {
           : avatarInputSettings.rightAxesControlScheme
       AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
     }
-
-    /** When in attached camera mode, avatar movement should correspond to physical device movement */
-    if (xrCameraAttached) {
-      const rigidBody = getComponent(localClientEntity, RigidBodyComponent)
-      const avatarController = getComponent(localClientEntity, AvatarControllerComponent)
-      const avatar = getComponent(localClientEntity, AvatarComponent)
-      const viewerPose = xrState.viewerPose.value
-      if (viewerPose) {
-        const avatarPosition = rigidBody.targetKinematicPosition
-
-        const viewerPosition = viewerPose.transform.position as any as Vector3
-        const viewerRotation = viewerPose.transform.orientation as any as Quaternion
-
-        avatarHead.copy(avatarPosition)
-
-        let viewerLocalFloorDifferenceY = 0
-
-        if (xrState.viewerReferenceSpace.value && xrState.localFloorReferenceSpace.value) {
-          const viewerLocalFloorDifference = Engine.instance.xrFrame?.getPose(
-            xrState.viewerReferenceSpace.value,
-            xrState.localFloorReferenceSpace.value
-          )
-          if (viewerLocalFloorDifference) viewerLocalFloorDifferenceY = viewerLocalFloorDifference.transform.position.y
-        }
-
-        /** Set the avatar's head to the distance along the world Y axis from the local floor space to the viewer space, limited by the avatar's height */
-        avatarHead.y += Math.max(0, Math.min(viewerLocalFloorDifferenceY, avatar.avatarHeight * 0.95))
-
-        extractRotationAboutAxis(viewerRotation, V_010, _quat)
-
-        /** copy rigidbody rotation straight from WebXR, as it is the viewer rotation in world space */
-        rigidBody.targetKinematicRotation.copy(_quat)
-
-        /** use the WebXR delta for position, as we want the controller computed movement to handle avatar movement */
-        avatarController.viewerMovement.subVectors(viewerPosition, avatarHead)
-      }
-    }
-
-    // updateXRCamera()
   }
 
   const cleanup = async () => {}

@@ -1,25 +1,32 @@
-import { ArrayCamera, PerspectiveCamera, Vector3, Vector4 } from 'three'
+import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three'
 
-import { createActionQueue, defineState, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
+import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { XRAction, XRState } from './XRState'
 
-export const XRCameraState = defineState({
-  name: 'XRCameraState',
-  initial: {
-    cameraVR: null! as ArrayCamera,
-    cameras: [] as PerspectiveCamera[]
-  }
-})
-
-//
-
 const cameraLPos = new Vector3()
 const cameraRPos = new Vector3()
+
+const cameraL = new PerspectiveCamera()
+cameraL.layers.enable(1)
+cameraL.viewport = new Vector4()
+cameraL.matrixAutoUpdate = false
+cameraL.matrixWorldAutoUpdate = false
+
+const cameraR = new PerspectiveCamera()
+cameraR.layers.enable(2)
+cameraR.viewport = new Vector4()
+cameraR.matrixAutoUpdate = false
+cameraR.matrixWorldAutoUpdate = false
+
+const cameraPool = [cameraL, cameraR]
 
 /**
  * Assumes 2 cameras that are parallel and share an X-axis, and that
@@ -27,7 +34,16 @@ const cameraRPos = new Vector3()
  * And that near and far planes are identical for both cameras.
  * Visualization of scope technique: https://computergraphics.stackexchange.com/a/4765
  */
-function setProjectionFromUnion(camera, cameraL, cameraR) {
+function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
+  if (camera.cameras.length !== 2) {
+    // assume single camera setup
+    camera.projectionMatrix.copy(cameraL.projectionMatrix)
+    return
+  }
+
+  // TODO: verify this is actually an HMD setup, not projection mapping or something
+  // update projection matrix for proper view frustum culling
+
   cameraLPos.setFromMatrixPosition(cameraL.matrixWorld)
   cameraRPos.setFromMatrixPosition(cameraR.matrixWorld)
 
@@ -55,11 +71,11 @@ function setProjectionFromUnion(camera, cameraL, cameraR) {
   const xOffset = zOffset * -leftFov
 
   // TODO: Better way to apply scope offset?
-  cameraL.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale)
-  camera.translateX(xOffset)
-  camera.translateZ(zOffset)
-  camera.matrixWorld.compose(camera.position, camera.quaternion, camera.scale)
-  camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
+  // cameraL.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale)
+  // camera.translateX(xOffset)
+  // camera.translateZ(zOffset)
+  // camera.matrixWorld.compose(camera.position, camera.quaternion, camera.scale)
+  // camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
 
   // Find the union of the frustum values of the cameras and scale
   // the values so that the near plane's position does not change in world space,
@@ -74,17 +90,10 @@ function setProjectionFromUnion(camera, cameraL, cameraR) {
   camera.projectionMatrix.makePerspective(left2, right2, top2, bottom2, near2, far2)
 }
 
-function updateCamera(camera, parent) {
-  if (parent === null) {
-    camera.matrixWorld.copy(camera.matrix)
-  } else {
-    camera.matrixWorld.multiplyMatrices(parent.matrixWorld, camera.matrix)
-  }
-
-  camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
-}
-
-function updatePoseFromXRFrame() {
+function updateCameraFromXRViewerPose() {
+  const world = Engine.instance.currentWorld
+  const camera = getComponent(world.cameraEntity, CameraComponent)
+  const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
   const xrFrame = Engine.instance.xrFrame
   const renderer = EngineRenderer.instance.renderer
   const referenceSpace = getState(XRState).originReferenceSpace.value
@@ -104,16 +113,16 @@ function updatePoseFromXRFrame() {
       renderer.setRenderTarget(newRenderTarget)
     }
 
-    let cameraVRNeedsUpdate = false
+    cameraTransform.position.copy(pose.transform.position as any)
+    cameraTransform.rotation.copy(pose.transform.orientation as any)
+    cameraTransform.matrix.fromArray(pose.transform.matrix)
+    cameraTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
 
-    // check if it's necessary to rebuild cameraVR's camera list
-    const xrCameraState = getState(XRCameraState)
-    const cameraVR = xrCameraState.cameraVR.value
-    const cameras = xrCameraState.cameras.value
-
-    if (views.length !== cameraVR.cameras.length) {
-      cameraVR.cameras.length = 0
-      cameraVRNeedsUpdate = true
+    // check if it's necessary to rebuild camera list
+    let cameraListNeedsUpdate = false
+    if (views.length !== camera.cameras.length) {
+      camera.cameras.length = 0
+      cameraListNeedsUpdate = true
     }
 
     for (let i = 0; i < views.length; i++) {
@@ -140,25 +149,26 @@ function updatePoseFromXRFrame() {
         }
       }
 
-      let camera = cameras[i]
+      let viewCamera = cameraPool[i]
 
-      if (camera === undefined) {
-        camera = new PerspectiveCamera()
-        camera.layers.enable(i)
-        camera.viewport = new Vector4()
-        cameras[i] = camera
+      if (viewCamera === undefined) {
+        viewCamera = new PerspectiveCamera()
+        viewCamera.layers.enable(i)
+        viewCamera.viewport = new Vector4()
+        cameraPool[i] = viewCamera
+        viewCamera.matrixAutoUpdate = false
+        viewCamera.matrixWorldAutoUpdate = false
       }
 
-      camera.matrix.fromArray(view.transform.matrix)
-      camera.projectionMatrix.fromArray(view.projectionMatrix)
-      camera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
+      viewCamera.position.copy(view.transform.position as any)
+      viewCamera.quaternion.copy(view.transform.orientation as any)
+      viewCamera.matrixWorld.fromArray(view.transform.matrix)
+      viewCamera.matrixWorldInverse.fromArray(view.transform.inverse.matrix)
+      viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
+      viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
 
-      if (i === 0) {
-        cameraVR.matrix.copy(camera.matrix)
-      }
-
-      if (cameraVRNeedsUpdate === true) {
-        cameraVR.cameras.push(camera)
+      if (cameraListNeedsUpdate === true) {
+        camera.cameras.push(viewCamera)
       }
     }
   }
@@ -166,106 +176,57 @@ function updatePoseFromXRFrame() {
 
 let _currentDepthNear = null as number | null
 let _currentDepthFar = null as number | null
+const _vec = new Vector2()
 
-export function updateXRCamera(camera = Engine.instance.currentWorld.camera) {
+export function updateXRCamera() {
+  const renderer = EngineRenderer.instance.renderer
+  if (!renderer) return
+
+  const camera = Engine.instance.currentWorld.camera
   const xrState = getState(XRState)
   const session = xrState.session.value
-  if (session === null) return
 
-  updatePoseFromXRFrame()
+  if (session === null) {
+    camera.cameras = [cameraL]
+    cameraL.copy(camera, false)
+    const size = renderer.getDrawingBufferSize(_vec)
+    cameraL.viewport.x = 0
+    cameraL.viewport.y = 0
+    cameraL.viewport.z = size.width
+    cameraL.viewport.w = size.height
+    return
+  }
 
-  const xrCameraState = getState(XRCameraState)
-  const cameraVR = xrCameraState.cameraVR.value
-  const cameraL = xrCameraState.cameras.value[0]
-  const cameraR = xrCameraState.cameras.value[1]
+  updateCameraFromXRViewerPose()
 
-  cameraVR.near = cameraR.near = cameraL.near = camera.near
-  cameraVR.far = cameraR.far = cameraL.far = camera.far
+  cameraR.near = cameraL.near = camera.near
+  cameraR.far = cameraL.far = camera.far
 
-  if (_currentDepthNear !== cameraVR.near || _currentDepthFar !== cameraVR.far) {
+  if (_currentDepthNear !== camera.near || _currentDepthFar !== camera.far) {
     // Note that the new renderState won't apply until the next frame. See #18320
 
     session.updateRenderState({
-      depthNear: cameraVR.near,
-      depthFar: cameraVR.far
+      depthNear: camera.near,
+      depthFar: camera.far
     })
 
-    _currentDepthNear = cameraVR.near
-    _currentDepthFar = cameraVR.far
+    _currentDepthNear = camera.near
+    _currentDepthFar = camera.far
   }
 
-  const parent = camera.parent
-  const cameras = cameraVR.cameras
-
-  updateCamera(cameraVR, parent)
-
-  for (let i = 0; i < cameras.length; i++) {
-    updateCamera(cameras[i], parent)
-  }
-
-  cameraVR.matrixWorld.decompose(cameraVR.position, cameraVR.quaternion, cameraVR.scale)
-
-  // update user camera and its children
-
-  camera.matrix.copy(cameraVR.matrix)
-  camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
-
-  const children = camera.children
-
-  for (let i = 0, l = children.length; i < l; i++) {
-    children[i].updateMatrixWorld(true)
-  }
-
-  // update projection matrix for proper view frustum culling
-
-  if (cameras.length === 2) {
-    setProjectionFromUnion(cameraVR, cameraL, cameraR)
-  } else {
-    // assume single camera setup (AR)
-
-    cameraVR.projectionMatrix.copy(cameraL.projectionMatrix)
-  }
+  updateProjectionFromCameraArrayUnion(camera)
 }
 
 export default async function XRCameraSystem(world: World) {
-  const xrCameraState = getState(XRCameraState)
-
-  const cameraL = new PerspectiveCamera()
-  cameraL.layers.enable(1)
-  cameraL.viewport = new Vector4()
-
-  const cameraR = new PerspectiveCamera()
-  cameraR.layers.enable(2)
-  cameraR.viewport = new Vector4()
-
-  const cameras = [cameraL, cameraR]
-
-  const cameraVR = new ArrayCamera()
-  cameraVR.layers.enable(1)
-  cameraVR.layers.enable(2)
-
-  xrCameraState.cameraVR.set(cameraVR)
-  xrCameraState.cameras.set(cameras)
-
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   const execute = () => {
-    const xrState = getState(XRState)
-    const xrFrame = Engine.instance.xrFrame
-
     for (const action of xrSessionChangedQueue()) {
       if (!action.active) {
         _currentDepthNear = null
         _currentDepthFar = null
       }
     }
-
-    /** get viewer pose relative to the local floor */
-    const referenceSpace = xrState.originReferenceSpace.value
-    const viewerPose = referenceSpace && xrFrame?.getViewerPose(referenceSpace)
-    xrState.viewerPose.set(viewerPose ?? null)
-
-    if (!xrFrame) return
   }
 
   const cleanup = async () => {}

@@ -98,7 +98,6 @@ export class World {
     addComponent(this.cameraEntity, NameComponent, 'camera')
     addComponent(this.cameraEntity, CameraComponent)
     addComponent(this.cameraEntity, VisibleComponent, true)
-    addObjectToGroup(this.cameraEntity, this.camera)
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
@@ -230,7 +229,7 @@ export class World {
    * Reference to the three.js camera object.
    */
   get camera() {
-    return getComponent(this.cameraEntity, CameraComponent).camera
+    return getComponent(this.cameraEntity, CameraComponent)
   }
 
   /**

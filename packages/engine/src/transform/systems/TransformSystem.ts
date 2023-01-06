@@ -4,6 +4,7 @@ import { Camera, Frustum, Matrix4, Mesh, Quaternion, Skeleton, SkinnedMesh, Vect
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
 import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
@@ -289,16 +290,10 @@ export default async function TransformSystem(world: World) {
     }
 
     /**
-     * 2 - Update local client entity and world origin reference space
+     * 2 - Update local client movement
      */
-    if (xrState.localFloorReferenceSpace.value) {
-      computeTransformMatrix(world.originEntity, world)
-      const originTransform = getComponent(world.originEntity, TransformComponent)
-      const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
-      xrState.originReferenceSpace.set(
-        xrState.localFloorReferenceSpace.value.getOffsetReferenceSpace(xrRigidTransform.inverse)
-      )
-    }
+    updateLocalAvatarPosition()
+    updateLocalAvatarRotation()
 
     /**
      * 3 - Update XR camera positions based on world origin and viewer pose

@@ -20,7 +20,6 @@ import { defineState, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { XRCameraState } from './XRCameraSystem'
 import { XRState } from './XRState'
 
 // augment PerspectiveCamera
@@ -224,7 +223,7 @@ export function createWebXRManager() {
   scope.updateCamera = function () {}
 
   scope.getCamera = function () {
-    return getState(XRCameraState).cameraVR.value
+    return Engine.instance.currentWorld.camera
   }
 
   scope.getFoveation = function () {

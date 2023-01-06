@@ -1,5 +1,5 @@
 import { Collider, KinematicCharacterController, RigidBody } from '@dimforge/rapier3d-compat'
-import { Vector2, Vector3 } from 'three'
+import { Quaternion, Vector2, Vector3 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
@@ -8,7 +8,6 @@ export type AvatarControllerComponentType = {
   /** The camera entity that should be updated by this controller */
   cameraEntity: Entity
   controller: KinematicCharacterController
-  viewerMovement: Vector3
   bodyCollider: Collider
   movementEnabled: boolean
   isJumping: boolean

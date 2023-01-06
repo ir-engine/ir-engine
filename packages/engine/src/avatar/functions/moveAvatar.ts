@@ -1,11 +1,12 @@
 import { Collider, QueryFilterFlags } from '@dimforge/rapier3d-compat'
-import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_00, V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
+import { extractRotationAboutAxis } from '../../common/functions/MathFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -25,6 +26,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { teleportObject } from '../../physics/systems/PhysicsSystem'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -63,6 +65,81 @@ const forwardOrientation = new Quaternion()
 const targetWorldMovement = new Vector3()
 const desiredMovement = new Vector3()
 
+export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
+  const world = Engine.instance.currentWorld
+  const entity = world.localClientEntity
+  const xrFrame = Engine.instance.xrFrame
+
+  if (!entity || (!xrFrame && !additionalMovement)) return
+
+  const xrState = getState(XRState)
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
+
+  const viewerPose =
+    xrFrame && xrState.originReferenceSpace.value ? xrFrame.getViewerPose(xrState.originReferenceSpace.value) : null
+  xrState.viewerPose.set(viewerPose)
+
+  const viewerMovement = viewerPose?.transform
+    ? new Vector3(
+        viewerPose.transform.position.x - rigidbody.targetKinematicPosition.x,
+        Math.max(viewerPose.transform.position.y - rigidbody.targetKinematicPosition.y - avatarHeight * 0.95, 0),
+        viewerPose.transform.position.z - rigidbody.targetKinematicPosition.z
+      )
+    : null
+
+  desiredMovement.copy(viewerMovement ?? V_000)
+  additionalMovement && desiredMovement.add(additionalMovement)
+
+  const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
+
+  controller.controller.computeColliderMovement(
+    controller.bodyCollider,
+    desiredMovement,
+    QueryFilterFlags.EXCLUDE_SENSORS,
+    avatarCollisionGroups
+  )
+
+  const computedMovement = controller.controller.computedMovement() as Vector3
+
+  rigidbody.targetKinematicPosition.add(computedMovement)
+
+  /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
+  avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
+  avatarGroundRaycast.groups = avatarCollisionGroups
+  avatarGroundRaycast.origin.y += 1
+  const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
+  // controller.isInAir = !controller.controller.computedGrounded()
+  controller.isInAir = true
+
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+
+  if (groundHits.length) {
+    const hit = groundHits[0]
+    const controllerOffset = controller.controller.offset()
+    rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    // hack for atached
+    computedMovement.y -= hit.position.y + controllerOffset
+    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
+    originTransform.position.y = hit.position.y
+  }
+
+  if (!controller.isInAir) controller.verticalVelocity = 0
+
+  const attached = getControlMode() === 'attached'
+  if (attached && viewerPose && viewerMovement) {
+    originTransform.position.x += computedMovement.x - viewerMovement.x
+    originTransform.position.z += computedMovement.z - viewerMovement.z
+    originTransform.position.y += computedMovement.y - viewerMovement.y
+
+    updateWorldOrigin()
+    updateLocalAvatarPositionAttachedMode()
+  }
+}
+
+const _additionalMovement = new Vector3()
+
 /**
  * Avatar movement via gamepad
  */
@@ -73,7 +150,6 @@ export const applyGamepadInput = (entity: Entity) => {
   const camera = world.camera
   const fixedDeltaSeconds = world.fixedDeltaSeconds
   const controller = getComponent(entity, AvatarControllerComponent)
-  const rigidbody = getComponent(entity, RigidBodyComponent)
 
   const lerpAlpha = 6 * fixedDeltaSeconds
   const legSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
@@ -104,62 +180,11 @@ export const applyGamepadInput = (entity: Entity) => {
     controller.isJumping = false
   }
 
-  // apply gravity
+  // apply gamepad movement and gravity
   controller.verticalVelocity -= 9.81 * fixedDeltaSeconds
-
   const verticalMovement = controller.verticalVelocity * fixedDeltaSeconds
-
-  desiredMovement.copy(controller.viewerMovement)
-
-  // viewer pose handles avatar movement in attached mode
-  desiredMovement.x += controller.gamepadWorldMovement.x
-  desiredMovement.z += controller.gamepadWorldMovement.z
-  desiredMovement.y += verticalMovement
-
-  const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
-
-  controller.controller.computeColliderMovement(
-    controller.bodyCollider,
-    desiredMovement,
-    QueryFilterFlags.EXCLUDE_SENSORS,
-    avatarCollisionGroups
-  )
-
-  const computedMovement = controller.controller.computedMovement() as Vector3
-
-  rigidbody.targetKinematicPosition.add(computedMovement)
-
-  /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
-  avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
-  avatarGroundRaycast.groups = avatarCollisionGroups
-  avatarGroundRaycast.origin.y += 1
-  const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
-  // controller.isInAir = !controller.controller.computedGrounded()
-  controller.isInAir = true
-  if (groundHits.length) {
-    const hit = groundHits[0]
-    const controllerOffset = controller.controller.offset()
-    rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
-    // hack for atached
-    computedMovement.y -= hit.position.y + controllerOffset
-    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
-  }
-
-  const attached = getControlMode() === 'attached'
-  if (attached) {
-    const originTransform = getComponent(world.originEntity, TransformComponent)
-    originTransform.position.x += computedMovement.x - controller.viewerMovement.x
-    originTransform.position.y += computedMovement.y - controller.viewerMovement.y
-    originTransform.position.z += computedMovement.z - controller.viewerMovement.z
-  }
-
-  if (!controller.isInAir) controller.verticalVelocity = 0
-
-  // apply rotation
-  _avatarApplyRotation(entity)
-
-  // reset desired movement
-  controller.viewerMovement.copy(V_000)
+  _additionalMovement.set(controller.gamepadWorldMovement.x, verticalMovement, controller.gamepadWorldMovement.z)
+  updateLocalAvatarPosition(_additionalMovement)
 }
 
 const _mat4 = new Matrix4()
@@ -204,6 +229,56 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
   }
 }
 
+export const updateLocalAvatarPositionAttachedMode = () => {
+  const entity = Engine.instance.currentWorld.localClientEntity
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const transform = getComponent(entity, TransformComponent)
+
+  // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
+  // previous and current position to the target position
+
+  rigidbody.previousPosition.copy(rigidbody.targetKinematicPosition)
+  rigidbody.position.copy(rigidbody.targetKinematicPosition)
+  transform.position.copy(rigidbody.targetKinematicPosition)
+  rigidbody.body.setTranslation(rigidbody.targetKinematicPosition, true)
+}
+
+const _updateLocalAvatarRotationAttachedMode = () => {
+  const entity = Engine.instance.currentWorld.localClientEntity
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const viewerPose = getState(XRState).viewerPose.value
+
+  if (!viewerPose) return
+
+  const viewerOrientation = viewerPose.transform.orientation
+  const viewerQuat = new Quaternion(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
+  // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
+  const avatarRotationAroundY = new Euler().setFromQuaternion(viewerQuat, 'YXZ').y
+  const avatarRotation = new Quaternion().setFromAxisAngle(V_010, avatarRotationAroundY)
+
+  // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
+  // previous and current rotation to the target rotation
+  rigidbody.previousRotation.copy(avatarRotation)
+  rigidbody.rotation.copy(avatarRotation)
+  transform.rotation.copy(avatarRotation)
+}
+
+export const updateLocalAvatarRotation = () => {
+  const world = Engine.instance.currentWorld
+  const entity = world.localClientEntity
+  if (getControlMode() === 'attached') {
+    _updateLocalAvatarRotationAttachedMode()
+  } else {
+    const alpha = 1 - Math.exp(-3 * world.deltaSeconds)
+    if (hasComponent(entity, AvatarHeadDecapComponent)) {
+      _slerpBodyTowardsCameraDirection(entity, alpha)
+    } else {
+      _slerpBodyTowardsVelocity(entity, alpha)
+    }
+  }
+}
+
 /**
  * Teleports the avatar to new position
  * @param entity
@@ -228,44 +303,29 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   }
 }
 
-/**
- * Rotates the avatar
- * - if we are in attached mode, we dont need to do any extra rotation
- *     as this is done via the webxr camera automatically
- */
-const _avatarApplyRotation = (entity: Entity) => {
-  const isInVR = getControlMode() === 'attached'
-  if (!isInVR) {
-    if (hasComponent(entity, AvatarHeadDecapComponent)) {
-      _rotateBodyTowardsCameraDirection(entity)
-    } else {
-      _rotateBodyTowardsVector(entity, getComponent(entity, RigidBodyComponent).linearVelocity)
-    }
-  }
-}
-
 const _cameraDirection = new Vector3()
 const _mat = new Matrix4()
 
 const rotMatrix = new Matrix4()
 const targetOrientation = new Quaternion()
 
-const _rotateBodyTowardsCameraDirection = (entity: Entity) => {
-  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
+const _slerpBodyTowardsCameraDirection = (entity: Entity, alpha: number) => {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   if (!rigidbody) return
 
   const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
   const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation).setComponent(1, 0)
   targetOrientation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
-  rigidbody.targetKinematicRotation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
+  rigidbody.targetKinematicRotation.slerp(targetOrientation, alpha)
 }
 
 const _velXZ = new Vector3()
 const prevVectors = new Map<Entity, Vector3>()
-const _rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
+const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   if (!rigidbody) return
+
+  const vector = rigidbody.linearVelocity
 
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
@@ -278,10 +338,8 @@ const _rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
   if (isZero) _velXZ.copy(prevVector)
   if (!isZero) prevVector.copy(_velXZ)
 
-  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
-
   rotMatrix.lookAt(_velXZ, V_000, V_010)
   targetOrientation.setFromRotationMatrix(rotMatrix)
 
-  rigidbody.targetKinematicRotation.slerp(targetOrientation, 3 * fixedDeltaSeconds)
+  rigidbody.targetKinematicRotation.slerp(targetOrientation, alpha)
 }

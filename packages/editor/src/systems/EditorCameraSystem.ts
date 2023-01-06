@@ -37,7 +37,7 @@ export default async function EditorCameraSystem(world: World) {
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
       const transform = getComponent(entity, TransformComponent)
-      const camera = getComponent(entity, CameraComponent).camera
+      const camera = getComponent(entity, CameraComponent)
 
       if (cameraComponent.zoomDelta) {
         const distance = transform.position.distanceTo(cameraComponent.center)
