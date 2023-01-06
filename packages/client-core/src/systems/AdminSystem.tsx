@@ -6,6 +6,7 @@ import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/service
 import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
+import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
 import { AdminInstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
 import { AdminInstanceActions, AdminInstanceReceptors } from '../admin/services/InstanceService'
@@ -127,6 +128,7 @@ export default async function AdminSystem(world: World) {
   // const authSettingPatchedQueue = createActionQueue(AuthSettingsActions.authSettingPatched.matches)
   // const fetchedClientQueue = createActionQueue(ClientSettingActions.fetchedClient.matches)
   // const clientSettingPatchedQueue = createActionQueue(ClientSettingActions.clientSettingPatched.matches)
+  const buildStatusRetrievedQueue = createActionQueue(AdminBuildStatusActions.fetchBuildStatusRetrieved.matches)
 
   const execute = () => {
     for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
@@ -220,6 +222,7 @@ export default async function AdminSystem(world: World) {
     // for (const action of authSettingPatchedQueue()) //   AuthSettingsReceptors.authSettingPatchedReceptor(action)/ }
     // for (const action of fetchedClientQueue()) //   ClientSettingReceptors.fetchedClientReceptor(action)/ }
     // for (const action of clientSettingPatchedQueue()) //   ClientSettingReceptors.clientSettingPatchedReceptor(action)/ }
+    for (const action of buildStatusRetrievedQueue()) AdminBuildStatusReceptors.fetchBuildStatusReceptor(action)
   }
 
   const cleanup = async () => {
@@ -299,6 +302,7 @@ export default async function AdminSystem(world: World) {
     removeActionQueue(inviteCreatedQueue)
     removeActionQueue(invitePatchedQueue)
     removeActionQueue(inviteRemovedQueue)
+    removeActionQueue(buildStatusRetrievedQueue)
   }
 
   return { execute, cleanup }

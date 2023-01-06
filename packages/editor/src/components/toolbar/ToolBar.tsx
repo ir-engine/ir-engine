@@ -19,14 +19,9 @@ import TransformTool from './tools/TransformTool'
 
 type ToolBarProps = {
   menu?: any
-  editorReady: boolean
 }
 
 export const ToolBar = (props: ToolBarProps) => {
-  if (!props.editorReady) {
-    return <div className={styles.toolbarContainer} />
-  }
-
   return (
     <div style={{ pointerEvents: 'auto' }} className={styles.toolbarContainer}>
       <DropDownMenu icon={MenuIcon} commands={props.menu} />

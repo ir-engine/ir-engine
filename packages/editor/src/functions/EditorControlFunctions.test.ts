@@ -27,6 +27,8 @@ import { EditorControlFunctions } from './EditorControlFunctions'
 
 import '@xrengine/engine/src/patchEngineNode'
 
+import { createTransformGizmo } from '../systems/EditorControlSystem'
+
 class TempProp {
   data: number
   constructor(data: number) {
@@ -58,6 +60,8 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
+      createTransformGizmo()
+
       Engine.instance.store.defaultDispatchDelay = 0
 
       const rootNode = Engine.instance.currentWorld.entityTree.rootNode
@@ -90,6 +94,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
+      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       Engine.instance.currentWorld.scenePrefabRegistry.set(ScenePrefabs.group, [
@@ -185,6 +190,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
+      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       const rootNode = Engine.instance.currentWorld.entityTree.rootNode
@@ -219,6 +225,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
+      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       Engine.instance.currentWorld.scenePrefabRegistry.set(ScenePrefabs.group, [
@@ -263,6 +270,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
+      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       const rootNode = Engine.instance.currentWorld.entityTree.rootNode

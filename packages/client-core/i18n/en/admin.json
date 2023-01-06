@@ -180,7 +180,8 @@
       "sourceMatchesDestination": "Source Project matches destination, or destination empty?",
       "changeDestination": "Change Destination Repo",
       "copyDestination": "Copy Destination",
-      "commitSHACopied": "Commit SHA copied"
+      "commitSHACopied": "Commit SHA copied",
+      "buildStatus": "Build Status"
     },
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",

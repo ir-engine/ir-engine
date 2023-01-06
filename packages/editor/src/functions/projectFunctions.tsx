@@ -1,20 +1,15 @@
 import { API } from '@xrengine/client-core/src/API'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import ErrorIcon from '../classes/ErrorIcon'
-import { disposePlayModeControls } from '../controls/PlayModeControls'
 import { copy, paste } from '../functions/copyPaste'
 import { EditorErrorAction } from '../services/EditorErrorServices'
-import { EditorHistoryAction } from '../services/EditorHistory'
-import { accessEditorState, EditorAction, TaskStatus } from '../services/EditorServices'
+import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
-import { initializeScene, SceneState } from './sceneRenderFunctions'
+import { initializeScene } from './sceneRenderFunctions'
 
 /**
  * Gets a list of projects installed
@@ -32,33 +27,12 @@ export const getProjects = async (): Promise<ProjectInterface[]> => {
 }
 
 /**
- * Runs tasks require prior to the project load.
- */
-export async function runPreprojectLoadTasks(): Promise<void> {
-  const editorState = accessEditorState()
-
-  if (editorState.preprojectLoadTaskStatus.value === TaskStatus.NOT_STARTED) {
-    dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.IN_PROGRESS }))
-
-    await Promise.all([
-      ErrorIcon.load(),
-      SceneState.transformGizmo.load(),
-      AnimationManager.instance.loadDefaultAnimations()
-    ])
-
-    dispatchAction(EditorAction.updatePreprojectLoadTask({ taskStatus: TaskStatus.COMPLETED }))
-  }
-}
-
-/**
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectData: SceneData) {
   EditorControlFunctions.replaceSelection([])
 
   disposeProject()
-
-  await runPreprojectLoadTasks()
 
   const errors = await initializeScene(projectData)
 
@@ -79,7 +53,6 @@ export async function loadProjectScene(projectData: SceneData) {
  * Disposes project data
  */
 export function disposeProject() {
-  disposePlayModeControls()
   dispatchAction(EditorAction.projectLoaded({ loaded: false }))
 
   window.addEventListener('copy', copy)

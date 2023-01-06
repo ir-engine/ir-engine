@@ -6,6 +6,9 @@ import path from "path";
 import fs from "fs";
 import appRootPath from 'app-root-path'
 import logger from '@xrengine/server-core/src/ServerLogger'
+import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
+import { ServerMode } from '@xrengine/server-core/declarations'
+import { getProjectConfig, onProjectEvent } from '@xrengine/server-core/src/projects/project/project-helper'
 
 dotenv.config();
 const db = {
@@ -23,6 +26,7 @@ db.url = process.env.MYSQL_URL ??
 
 async function installAllProjects() {
   try {
+      const app = createFeathersExpressApp(ServerMode.API)
     createDefaultStorageProvider()
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
@@ -52,10 +56,13 @@ async function installAllProjects() {
     const projects = await Projects.findAll()
     logger.info('found projects', projects)
     await Promise.all(projects.map((project) => download(project.name)))
+    const projectConfig = (await getProjectConfig('default-project')) ?? {}
+    if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')
     process.exit(0)
   } catch (e) {
     logger.fatal(e)
-    process.exit(1)
+      console.error(e)
+      process.exit(1)
   }
 
 }

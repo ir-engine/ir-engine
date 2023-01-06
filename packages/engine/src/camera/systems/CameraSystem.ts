@@ -31,6 +31,7 @@ import {
   removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'

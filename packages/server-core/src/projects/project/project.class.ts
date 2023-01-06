@@ -410,14 +410,19 @@ export class Project extends Service {
       await git.addRemote('destination', repoPath)
       await git.push('destination', branchName, ['-f', '--tags'])
       const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
-      await super.patch(existingProjectResult.id, {
+      await super.patch(returned.id, {
         commitSHA,
         commitDate
       })
     }
     // run project install script
-    if (projectConfig.onEvent && !existingProjectResult) {
-      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+    if (projectConfig.onEvent) {
+      await onProjectEvent(
+        this.app,
+        projectName,
+        projectConfig.onEvent,
+        existingProjectResult ? 'onUpdate' : 'onInstall'
+      )
     }
 
     return returned
@@ -487,14 +492,42 @@ export class Project extends Service {
         await this.app.service('location').remove(location.dataValues.id)
       })
 
+    const whereClause = {
+      [Op.and]: [
+        {
+          project: name
+        },
+        {
+          project: {
+            [Op.ne]: null
+          }
+        }
+      ]
+    }
+
     const routeItems = await (this.app.service('route') as any).Model.findAll({
-      where: {
-        project: name
-      }
+      where: whereClause
     })
     routeItems.length &&
       routeItems.forEach(async (route) => {
         await this.app.service('route').remove(route.dataValues.id)
+      })
+
+    const avatarItems = await (this.app.service('avatar') as any).Model.findAll({
+      where: whereClause
+    })
+    await Promise.all(
+      avatarItems.map(async (avatar) => {
+        await this.app.service('avatar').remove(avatar.dataValues.id)
+      })
+    )
+
+    const staticResourceItems = await (this.app.service('static-resource') as any).Model.findAll({
+      where: whereClause
+    })
+    staticResourceItems.length &&
+      staticResourceItems.forEach(async (staticResource) => {
+        await this.app.service('static-resource').remove(staticResource.dataValues.id)
       })
 
     return super.remove(id, params)

@@ -4,19 +4,12 @@ import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, getState } from '@xrengine/hyperflux'
 
-export enum TaskStatus {
-  NOT_STARTED = 0,
-  IN_PROGRESS = 1,
-  COMPLETED = 2
-}
-
 export const EditorState = defineState({
   name: 'EditorState',
   initial: () => ({
     projectName: null as string | null,
     sceneName: null as string | null,
     sceneModified: false,
-    preprojectLoadTaskStatus: TaskStatus.NOT_STARTED,
     projectLoaded: false,
     rendererInitialized: false,
     showObject3DInHierarchy: false,
@@ -36,9 +29,6 @@ export const EditorServiceReceptor = (action) => {
     })
     .when(EditorAction.sceneModified.matches, (action) => {
       return s.merge({ sceneModified: action.modified })
-    })
-    .when(EditorAction.updatePreprojectLoadTask.matches, (action) => {
-      return s.merge({ preprojectLoadTaskStatus: action.taskStatus })
     })
     .when(EditorAction.projectLoaded.matches, (action) => {
       return s.merge({ projectLoaded: action.loaded })
@@ -99,11 +89,6 @@ export class EditorAction {
   static setAdvancedMode = defineAction({
     type: 'xre.editor.Editor.SET_ADVANCED_MODE' as const,
     advanced: matches.boolean
-  })
-
-  static updatePreprojectLoadTask = defineAction({
-    type: 'xre.editor.Editor.UPDATE_PREPROJECT_TASK_STATUS' as const,
-    taskStatus: matches.any as Validator<unknown, TaskStatus>
   })
 
   static lockPropertiesPanel = defineAction({

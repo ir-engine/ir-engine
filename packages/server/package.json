@@ -47,7 +47,7 @@
   "dependencies": {
     "@feathersjs/express": "5.0.0-pre.29",
     "@feathersjs/feathers": "5.0.0-pre.29",
-    "@feathersjs/socketio": "5.0.0-pre.29",
+    "@feathersjs/primus":  "4.5.15",
     "@feathersjs/transport-commons": "5.0.0-pre.29",
     "@kubernetes/client-node": "0.16.3",
     "@swc/core": "^1.2.210",

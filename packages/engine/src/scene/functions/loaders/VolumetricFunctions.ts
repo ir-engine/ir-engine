@@ -5,13 +5,17 @@ import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/creat
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
+import { getState } from '@xrengine/hyperflux'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { iOS } from '../../../common/functions/isMobile'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getComponentState,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -22,7 +26,7 @@ import { createEntity, entityExists } from '../../../ecs/functions/EntityFunctio
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { MediaElementComponent } from '../../components/MediaComponent'
+import { MediaComponent, MediaElementComponent } from '../../components/MediaComponent'
 import { VolumetricComponent } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 
@@ -68,6 +72,8 @@ export const enterVolumetric = async (entity: Entity) => {
     // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
 
+  player.targetFramesToRequest = iOS ? 10 : 90
+
   const volumetric = {
     entity,
     player,
@@ -108,26 +114,23 @@ export const updateVolumetric = async (entity: Entity) => {
   const volumetric = Volumetric.get(mediaElement.element)
   if (volumetric) {
     volumetric.player.update()
-    updateLoadingEffect(volumetric)
-  }
-}
-
-export const updateLoadingEffect = (volumetric: NonNullable<ReturnType<typeof Volumetric.get>>) => {
-  const player = volumetric.player
-  const height = volumetric.height
-  const step = volumetric.height / 150
-  if (volumetric.loadingEffectActive) {
-    if (volumetric.loadingEffectTime <= height) {
-      player.mesh.traverse((child: any) => {
-        if (child['material']) {
-          if (child.material.uniforms) child.material.uniforms.time.value = volumetric.loadingEffectTime
-        }
-      })
-      volumetric.loadingEffectTime += step
-    } else {
-      volumetric.loadingEffectActive = false
-      endLoadingEffect(volumetric.entity, player.mesh)
-      player.video.play()
+    const player = volumetric.player
+    const height = volumetric.height
+    const step = volumetric.height / 150
+    if (volumetric.loadingEffectActive) {
+      if (volumetric.loadingEffectTime <= height) {
+        player.mesh.traverse((child: any) => {
+          if (child['material']) {
+            if (child.material.uniforms) child.material.uniforms.time.value = volumetric.loadingEffectTime
+          }
+        })
+        volumetric.loadingEffectTime += step
+      } else {
+        volumetric.loadingEffectActive = false
+        endLoadingEffect(volumetric.entity, player.mesh)
+        const media = getComponentState(entity, MediaComponent)
+        if (media.autoplay.value && getState(EngineState).userHasInteracted.value) media.paused.set(false)
+      }
     }
   }
 }
