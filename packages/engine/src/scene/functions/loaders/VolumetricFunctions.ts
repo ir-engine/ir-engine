@@ -72,7 +72,7 @@ export const enterVolumetric = async (entity: Entity) => {
     // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
 
-  player.targetFramesToRequest = iOS ? 30 : 90
+  player.targetFramesToRequest = iOS ? 10 : 90
 
   const volumetric = {
     entity,
