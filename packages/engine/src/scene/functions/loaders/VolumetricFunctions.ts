@@ -9,6 +9,7 @@ import { getState } from '@xrengine/hyperflux'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { iOS } from '../../../common/functions/isMobile'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
@@ -70,6 +71,8 @@ export const enterVolumetric = async (entity: Entity) => {
     worker
     // material: isMobile new MeshBasicMaterial() ? new MeshStandardMaterial() as any // TODO - shader problems make this not work
   })
+
+  player.targetFramesToRequest = iOS ? 30 : 90
 
   const volumetric = {
     entity,
