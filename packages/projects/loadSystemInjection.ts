@@ -28,8 +28,8 @@ export const importSystem = (project: string, data: SystemComponentType): Omit<S
     return null!
   }
   return {
-    systemLoader: () => import(`./projects/${project}/src/systems/${filePathRelative}`)!,
-    //import(`./projects/${project}/src/systems/${filePathRelative.replace(`System.ts`, '')}System.ts`)!,
+    systemLoader: () =>
+      import(`./projects/${project}/src/systems/${filePathRelative.replace(`System.ts`, '')}System.ts`)!,
     type: systemUpdateType,
     sceneSystem: true,
     args
