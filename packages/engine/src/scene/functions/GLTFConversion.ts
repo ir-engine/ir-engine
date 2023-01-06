@@ -9,7 +9,8 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   getAllComponents,
   getComponent,
-  getComponentState
+  getComponentState,
+  serializeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getState } from '@xrengine/hyperflux'
 
@@ -205,7 +206,7 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = En
       const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister) {
         const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
-        const data = serialize ? serialize(entity) : getComponent(entity, component)
+        const data = serialize ? serialize(entity) : serializeComponent(entity, component)
         if (data)
           addComponentDataToGLTFExtension(obj3d, {
             name: sceneComponentID,
