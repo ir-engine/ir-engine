@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
-import { dispatchAction, getState, none } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
@@ -11,11 +11,7 @@ import { ButtonInputStateType, createInitialButtonState } from '../input/InputSt
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  TransformComponent
-} from '../transform/components/TransformComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
@@ -87,12 +83,8 @@ export const requestXRSession = createHookableFunction(
       xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)
 
-      if (mode === 'immersive-ar') setupARSession(world)
-      if (mode === 'immersive-vr') setupVRSession(world)
-
       /** @todo move to camera system in a reactor */
       const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-      const prevTargetCamera = getComponent(world.cameraEntity, TargetCameraRotationComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, TargetCameraRotationComponent)
 
@@ -100,12 +92,12 @@ export const requestXRSession = createHookableFunction(
         xrSession.removeEventListener('end', onSessionEnd)
         xrState.sessionActive.set(false)
         xrState.sessionMode.set('none')
+        xrState.session.set(null)
         Engine.instance.xrFrame = null!
         const world = Engine.instance.currentWorld
 
         /** @todo move to camera system in a reactor */
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
-        addComponent(world.cameraEntity, TargetCameraRotationComponent, prevTargetCamera)
 
         EngineRenderer.instance.renderer.domElement.style.display = ''
 
@@ -122,11 +114,14 @@ export const requestXRSession = createHookableFunction(
         dispatchAction(XRAction.sessionChanged({ active: false }))
       }
 
-      xrSession.addEventListener('end', onSessionEnd)
-
       await xrManager.setSession(xrSession, framebufferScaleFactor)
 
+      xrSession.addEventListener('end', onSessionEnd)
+
       xrState.session.set(xrSession)
+
+      if (mode === 'immersive-ar') setupARSession(world)
+      if (mode === 'immersive-vr') setupVRSession(world)
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
     } catch (e) {
