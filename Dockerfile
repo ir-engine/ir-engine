@@ -1,5 +1,5 @@
 # not slim because we need github depedencies
-FROM node:16-buster-slim
+FROM node:18-buster-slim
 
 RUN apt-get update
 RUN apt-get install -y build-essential meson python3-testresources python3-venv python3-pip git procps
