@@ -4,6 +4,7 @@ import { MathUtils } from 'three'
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import logger from '@xrengine/common/src/logger'
+import { setLocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getState, NO_PROXY } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
@@ -17,6 +18,7 @@ import {
   defineQuery,
   getAllComponents,
   getComponent,
+  getComponentState,
   getOptionalComponent,
   hasComponent,
   removeAllComponents,
@@ -138,6 +140,13 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: EntityTreeNo
     }
     addEntityNodeChild(node, parentId ? (parentId === root.uuid ? root : entityMap[parentId]) : root)
   })
+  hasComponent(root.entity, TransformComponent) &&
+    root.children
+      .filter((child) => hasComponent(child, TransformComponent))
+      .map((child) => {
+        const transform = getComponent(child, TransformComponent)
+        setLocalTransformComponent(child, root.entity, transform.position, transform.rotation, transform.scale)
+      })
   return result
 }
 
@@ -229,7 +238,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   if (sceneData.scene.metadata) {
     for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
       if (!world.sceneMetadataRegistry[key]) continue
-      world.sceneMetadataRegistry[key].state.merge(merge({}, world.sceneMetadataRegistry[key].state.value, val))
+      world.sceneMetadataRegistry[key].state.set(merge({}, world.sceneMetadataRegistry[key].state.value, val))
     }
   }
 

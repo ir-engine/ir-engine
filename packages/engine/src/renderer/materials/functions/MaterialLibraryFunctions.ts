@@ -167,6 +167,15 @@ export function registerMaterial(material: Material, src: MaterialSource, params
   })
 }
 
+export function unregisterMaterial(material: Material) {
+  const materialLibrary = getMaterialLibrary()
+  const matEntry = materialFromId(material.uuid)
+  materialLibrary.materials[material.uuid].set(none)
+  const srcEntry = materialLibrary.sources[hashMaterialSource(matEntry.src)].entries
+  srcEntry.set(srcEntry.value.filter((matId) => matId !== material.uuid))
+  return matEntry
+}
+
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
   const materialLibrary = getMaterialLibrary()
   if (!!materialLibrary.prototypes[prototype.prototypeId].value) {
