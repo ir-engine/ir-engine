@@ -28,7 +28,8 @@ import {
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { updateGroupChildren } from '../transform/systems/TransformSystem'
+import { computeTransformMatrix, updateGroupChildren } from '../transform/systems/TransformSystem'
+import { updateXRCamera } from '../xr/XRCameraSystem'
 import { getControlMode, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -111,23 +112,10 @@ export default async function AvatarAnimationSystem(world: World) {
   let sortedTransformEntities = [] as Entity[]
 
   const execute = () => {
-    const { elapsedSeconds, deltaSeconds } = world
+    const { elapsedSeconds, deltaSeconds, localClientEntity } = world
 
     /**
-     * 1 - Update local client movement
-     */
-
-    updateLocalAvatarPosition()
-    updateLocalAvatarRotation()
-
-    /**
-     * 2 - Calculate localClientEntity's IK targets
-     */
-
-    applyInputSourcePoseToIKTargets()
-
-    /**
-     * 3 - Sort & apply avatar priority queue
+     * 1 - Sort & apply avatar priority queue
      */
 
     let needsSorting = false
@@ -164,7 +152,7 @@ export default async function AvatarAnimationSystem(world: World) {
     priorityQueue.update()
 
     /**
-     * 4 - Apply avatar animations
+     * 2 - Apply avatar animations
      */
 
     const avatarAnimationEntities = avatarAnimationQuery(world).filter(filterPriorityEntities)
@@ -234,7 +222,7 @@ export default async function AvatarAnimationSystem(world: World) {
     }
 
     /**
-     * 5 - Apply avatar IK
+     * 3 - Apply avatar IK
      */
 
     /**

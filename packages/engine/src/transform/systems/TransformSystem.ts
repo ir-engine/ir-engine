@@ -4,6 +4,7 @@ import { Camera, Frustum, Matrix4, Mesh, Quaternion, Skeleton, SkinnedMesh, Vect
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { applyInputSourcePoseToIKTargets } from '../../avatar/functions/applyInputSourcePoseToIKTargets'
 import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
 import { isHMD } from '../../common/functions/isMobile'
@@ -264,12 +265,26 @@ export default async function TransformSystem(world: World) {
     // Note: cyclic references will cause undefined behavior
 
     /**
-     * 1 - Update XR camera positions based on world origin and viewer pose
+     * 1 - Update local client movement
+     */
+
+    updateLocalAvatarPosition()
+    updateLocalAvatarRotation()
+
+    /**
+     * 2 - Update XR camera positions based on world origin and viewer pose
      */
     updateXRCamera()
 
     /**
-     * 2 - Sort transforms if needed
+     * @todo for whatever reason, this must run at the start of the transform system,
+     *   but IK must happen before the transform system.
+     * We likely need to break the transform system up into multiple systems.
+     */
+    applyInputSourcePoseToIKTargets()
+
+    /**
+     * 3 - Sort transforms if needed
      */
     const { transformsNeedSorting } = getState(EngineState)
 
@@ -295,7 +310,7 @@ export default async function TransformSystem(world: World) {
     }
 
     /**
-     * 3 - Update entity transforms
+     * 4 - Update entity transforms
      */
     const allRigidbodyEntities = rigidbodyTransformQuery()
     const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)

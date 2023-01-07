@@ -1,44 +1,28 @@
-import { Collider, QueryFilterFlags } from '@dimforge/rapier3d-compat'
-import { Euler, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
+import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { V_00, V_000, V_010 } from '../../common/constants/MathConstants'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
-import { extractRotationAboutAxis } from '../../common/functions/MathFunctions'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
-import {
-  ComponentType,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { teleportObject } from '../../physics/systems/PhysicsSystem'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import { AvatarTeleportComponent } from '../components/AvatarTeleportComponent'
-import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
-import { avatarRadius } from './spawnAvatarReceptor'
 
-const _vec = new Vector3()
 const _quat = new Quaternion()
-const _quat2 = new Quaternion()
 
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 
@@ -64,6 +48,8 @@ const cameraDirection = new Vector3()
 const forwardOrientation = new Quaternion()
 const targetWorldMovement = new Vector3()
 const desiredMovement = new Vector3()
+const viewerMovement = new Vector3()
+const finalAvatarMovement = new Vector3()
 
 export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const world = Engine.instance.currentWorld
@@ -81,16 +67,17 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     xrFrame && xrState.originReferenceSpace.value ? xrFrame.getViewerPose(xrState.originReferenceSpace.value) : null
   xrState.viewerPose.set(viewerPose)
 
-  const viewerMovement = viewerPose?.transform
-    ? new Vector3(
-        viewerPose.transform.position.x - rigidbody.targetKinematicPosition.x,
-        Math.max(viewerPose.transform.position.y - rigidbody.targetKinematicPosition.y - avatarHeight * 0.95, 0),
-        viewerPose.transform.position.z - rigidbody.targetKinematicPosition.z
-      )
-    : null
+  viewerMovement.copy(V_000)
 
-  desiredMovement.copy(viewerMovement ?? V_000)
-  additionalMovement && desiredMovement.add(additionalMovement)
+  if (viewerPose)
+    viewerMovement.set(
+      viewerPose.transform.position.x - rigidbody.targetKinematicPosition.x,
+      Math.max(viewerPose.transform.position.y - rigidbody.targetKinematicPosition.y - avatarHeight * 0.95, 0),
+      viewerPose.transform.position.z - rigidbody.targetKinematicPosition.z
+    )
+
+  desiredMovement.copy(viewerMovement)
+  if (controller.movementEnabled && additionalMovement) desiredMovement.add(additionalMovement)
 
   const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
 
@@ -127,12 +114,17 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
   if (!controller.isInAir) controller.verticalVelocity = 0
 
-  const attached = getControlMode() === 'attached'
-  if (attached && viewerPose && viewerMovement) {
-    originTransform.position.x += computedMovement.x - viewerMovement.x
-    originTransform.position.z += computedMovement.z - viewerMovement.z
-    originTransform.position.y += computedMovement.y - viewerMovement.y
+  finalAvatarMovement.subVectors(computedMovement, viewerMovement)
 
+  updateReferenceSpaceFromAvatarMovement(finalAvatarMovement)
+}
+
+export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
+  const attached = getControlMode() === 'attached'
+  if (attached) {
+    const world = Engine.instance.currentWorld
+    const originTransform = getComponent(world.originEntity, TransformComponent)
+    originTransform.position.add(movement)
     updateWorldOrigin()
     updateLocalAvatarPositionAttachedMode()
   }
@@ -181,7 +173,7 @@ export const applyGamepadInput = (entity: Entity) => {
   }
 
   // apply gamepad movement and gravity
-  controller.verticalVelocity -= 9.81 * fixedDeltaSeconds
+  if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * fixedDeltaSeconds
   const verticalMovement = controller.verticalVelocity * fixedDeltaSeconds
   _additionalMovement.set(controller.gamepadWorldMovement.x, verticalMovement, controller.gamepadWorldMovement.z)
   updateLocalAvatarPosition(_additionalMovement)
@@ -243,6 +235,10 @@ export const updateLocalAvatarPositionAttachedMode = () => {
   rigidbody.body.setTranslation(rigidbody.targetKinematicPosition, true)
 }
 
+const viewerQuat = new Quaternion()
+const avatarRotationAroundY = new Euler()
+const avatarRotation = new Quaternion()
+
 const _updateLocalAvatarRotationAttachedMode = () => {
   const entity = Engine.instance.currentWorld.localClientEntity
   const rigidbody = getComponent(entity, RigidBodyComponent)
@@ -252,10 +248,10 @@ const _updateLocalAvatarRotationAttachedMode = () => {
   if (!viewerPose) return
 
   const viewerOrientation = viewerPose.transform.orientation
-  const viewerQuat = new Quaternion(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
+  viewerQuat.set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
   // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
-  const avatarRotationAroundY = new Euler().setFromQuaternion(viewerQuat, 'YXZ').y
-  const avatarRotation = new Quaternion().setFromAxisAngle(V_010, avatarRotationAroundY)
+  avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
+  avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
 
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
@@ -295,9 +291,8 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   const { raycastHit } = checkPositionIsValid(raycastOrigin, false)
 
   if (raycastHit) {
-    const pos = new Vector3().copy(raycastHit.position as Vector3)
     const transform = getComponent(entity, TransformComponent)
-    teleportObject(entity, pos, transform.rotation)
+    updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(raycastHit.position as Vector3, transform.position))
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }
