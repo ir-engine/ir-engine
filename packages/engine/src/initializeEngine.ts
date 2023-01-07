@@ -82,23 +82,27 @@ export const initializeBrowser = () => {
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   ;(window as any).safariWebBrowser = browser?.name === 'safari'
 
-  setupInitialClickListener()
-
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
   EngineRenderer.instance.initialize()
+  setupInitialClickListener()
   Engine.instance.engineTimer.start()
 }
 
 const setupInitialClickListener = () => {
+  const canvas = EngineRenderer.instance.renderer.domElement
   const initialClickListener = () => {
     dispatchAction(EngineActions.setUserHasInteracted({}))
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
+    canvas.removeEventListener('click', initialClickListener)
+    canvas.removeEventListener('touchend', initialClickListener)
   }
   window.addEventListener('click', initialClickListener)
   window.addEventListener('touchend', initialClickListener)
+  canvas.addEventListener('click', initialClickListener)
+  canvas.addEventListener('touchend', initialClickListener)
 }
 
 /**

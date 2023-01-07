@@ -30,10 +30,10 @@ client:
     type: NodePort
 domain: <domain>
 sql:
-  database: <db_name>
-  password: <password>
-  user: <username>
-  host: <RDS hostname>
+  database: <SQL database name, e.g. etherealengine, not RDS ID>
+  password: <SQL admin user password>
+  user: <SQL admin username>
+  host: <RDS hostname, a.k.a. Endpoint>
   port: 3306
 rts:
   extraEnv:
@@ -335,9 +335,9 @@ builder:
   extraEnv:
     NODE_ENV: production
     RELEASE_NAME: <RELEASE_NAME>
-    AWS_ACCESS_KEY: <AWS_ACCESS_KEY>
-    AWS_SECRET: <AWS_SECRET>
-    AWS_REGION: <AWS_REGION
+    AWS_ACCESS_KEY: <GITHUB_ACTIONS_USER_AWS_ACCESS_KEY>
+    AWS_SECRET: <GITHUB_ACTIONS_USER_AWS_SECRET>
+    AWS_REGION: <EKS_CLUSTER_AWS_REGION>
     CLUSTER_NAME: <CLUSTER_NAME>
     ECR_URL: <ECR_URL>
     REPO_NAME: <REPO_NAME>

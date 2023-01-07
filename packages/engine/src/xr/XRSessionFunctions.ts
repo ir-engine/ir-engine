@@ -5,11 +5,11 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { V_000 } from '../common/constants/MathConstants'
 import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
+import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { matches } from './../common/functions/MatchesUtils'
@@ -86,7 +86,6 @@ export const requestXRSession = createHookableFunction(
       /** @todo move to camera system in a reactor */
       const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       removeComponent(world.cameraEntity, FollowCameraComponent)
-      removeComponent(world.cameraEntity, TargetCameraRotationComponent)
 
       const onSessionEnd = () => {
         xrSession.removeEventListener('end', onSessionEnd)
@@ -100,6 +99,7 @@ export const requestXRSession = createHookableFunction(
         addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
 
         EngineRenderer.instance.renderer.domElement.style.display = ''
+        setVisibleComponent(world.localClientEntity, true)
 
         const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
         worldOriginTransform.position.copy(V_000)

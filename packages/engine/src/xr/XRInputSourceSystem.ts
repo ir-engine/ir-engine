@@ -27,7 +27,8 @@ export default async function XRInputSourceSystem(world: World) {
   const execute = () => {
     if (Engine.instance.xrFrame) {
       const session = Engine.instance.xrFrame.session
-      world.inputSources = session.inputSources
+      // session.inputSources is undefined when the session is ending, we should probably use xrState.sessionActive instead of Engine.instance.xrFrame
+      world.inputSources = session.inputSources ?? []
     } else {
       world.inputSources = defaultInputSourceArray
       const now = Date.now()

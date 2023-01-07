@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
 
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
