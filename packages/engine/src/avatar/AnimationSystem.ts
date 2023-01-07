@@ -10,7 +10,6 @@ import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
-import AvatarAnimationSystem from './AvatarAnimationSystem'
 import { AnimationComponent } from './components/AnimationComponent'
 
 const euler1YXZ = new Euler()
@@ -66,6 +65,6 @@ export default async function AnimationSystem(world: World) {
   return {
     execute,
     cleanup,
-    subsystems: [() => Promise.resolve({ default: AvatarAnimationSystem })]
+    subsystems: []
   }
 }

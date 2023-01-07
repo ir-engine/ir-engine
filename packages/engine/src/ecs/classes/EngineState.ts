@@ -11,7 +11,7 @@ export const EngineState = defineState({
     deltaSeconds: 0,
     elapsedSeconds: 0,
     physicsSubsteps: 1,
-    fixedDeltaSeconds: 1 / 30,
+    fixedDeltaSeconds: 1 / 60,
     fixedElapsedSeconds: 0,
     fixedTick: 0,
     isEngineInitialized: false,

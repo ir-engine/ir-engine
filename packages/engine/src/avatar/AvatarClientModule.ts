@@ -2,6 +2,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { initSystems } from '../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import AnimationSystem from './AnimationSystem'
+import AvatarAnimationSystem from './AvatarAnimationSystem'
 import AvatarControllerSystem from './AvatarControllerSystem'
 import AvatarInputSystem from './AvatarInputSystem'
 import AvatarLoadingSystem from './AvatarLoadingSystem'
@@ -30,6 +31,12 @@ export function AvatarClientModule() {
       uuid: 'xre.engine.AvatarMovementSystem',
       type: SystemUpdateType.FIXED_EARLY,
       systemLoader: () => Promise.resolve({ default: AvatarMovementSystem })
+    },
+    {
+      uuid: 'xre.engine.AvatarAnimationSystem',
+      type: SystemUpdateType.UPDATE_LATE,
+      before: 'xre.engine.TransformSystem',
+      systemLoader: () => Promise.resolve({ default: AvatarAnimationSystem })
     },
     {
       uuid: 'xre.engine.FlyControlSystem',

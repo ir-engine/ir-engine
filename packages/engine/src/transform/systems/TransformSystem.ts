@@ -264,7 +264,12 @@ export default async function TransformSystem(world: World) {
     // Note: cyclic references will cause undefined behavior
 
     /**
-     * 1 - Sort transforms if needed
+     * 1 - Update XR camera positions based on world origin and viewer pose
+     */
+    updateXRCamera()
+
+    /**
+     * 2 - Sort transforms if needed
      */
     const { transformsNeedSorting } = getState(EngineState)
 
@@ -290,18 +295,7 @@ export default async function TransformSystem(world: World) {
     }
 
     /**
-     * 2 - Update local client movement
-     */
-    updateLocalAvatarPosition()
-    updateLocalAvatarRotation()
-
-    /**
-     * 3 - Update XR camera positions based on world origin and viewer pose
-     */
-    updateXRCamera()
-
-    /**
-     * 4 - Update entity transforms
+     * 3 - Update entity transforms
      */
     const allRigidbodyEntities = rigidbodyTransformQuery()
     const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)
@@ -377,7 +371,12 @@ export default async function TransformSystem(world: World) {
     }
 
     /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
+    /** @todo include in auto performance scaling metrics */
     if (isHMD) {
+      /**
+       * Update threejs skeleton manually
+       *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
+       */
       Skeleton.prototype.update = skeletonUpdate
       for (const entity of world.priorityAvatarEntities) {
         const group = getComponent(entity, GroupComponent)
