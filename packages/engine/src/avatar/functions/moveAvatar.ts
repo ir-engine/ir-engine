@@ -180,20 +180,29 @@ export const applyGamepadInput = (entity: Entity) => {
 }
 
 const _mat4 = new Matrix4()
+const vec3 = new Vector3()
 
 /**
- * Rotates a matrix around a point
+ * Rotates a matrix around it's own origin with a quaternion
+ * @param matrix
+ * @param point
+ * @param rotation
+ */
+export const spinMatrixWithQuaternion = (matrix: Matrix4, rotation: Quaternion) => {
+  rotateMatrixAboutPoint(matrix, vec3.set(matrix.elements[12], matrix.elements[13], matrix.elements[14]), rotation)
+}
+
+/**
+ * Rotates a matrix around a specific point
  * @param matrix
  * @param point
  * @param rotation
  */
 export const rotateMatrixAboutPoint = (matrix: Matrix4, point: Vector3, rotation: Quaternion) => {
-  matrix.multiply(_mat4.makeTranslation(-point.x, -point.y, -point.z))
-  matrix.multiply(_mat4.makeRotationFromQuaternion(rotation))
-  matrix.multiply(_mat4.makeTranslation(point.x, point.y, point.z))
+  matrix.premultiply(_mat4.makeTranslation(-point.x, -point.y, -point.z))
+  matrix.premultiply(_mat4.makeRotationFromQuaternion(rotation))
+  matrix.premultiply(_mat4.makeTranslation(point.x, point.y, point.z))
 }
-
-const vec3 = new Vector3()
 
 /**
  * Rotates the avatar's rigidbody around the Y axis by a given angle
@@ -208,11 +217,7 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
   if (getControlMode() === 'attached') {
     const world = Engine.instance.currentWorld
     const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    rotateMatrixAboutPoint(
-      worldOriginTransform.matrix,
-      vec3.copy(rigidBody.targetKinematicPosition).applyMatrix4(worldOriginTransform.matrixInverse),
-      _quat
-    )
+    spinMatrixWithQuaternion(worldOriginTransform.matrix, _quat)
     worldOriginTransform.matrix.decompose(
       worldOriginTransform.position,
       worldOriginTransform.rotation,

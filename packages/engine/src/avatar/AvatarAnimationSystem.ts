@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Bone, MathUtils, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Bone, MathUtils, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { defineState, getState, startReactor, useHookstate } from '@xrengine/hyperflux'
@@ -7,30 +7,18 @@ import { defineState, getState, startReactor, useHookstate } from '@xrengine/hyp
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { isHMD } from '../common/functions/isMobile'
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeQuery
-} from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { GroupComponent } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import {
   compareDistance,
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { computeTransformMatrix, updateGroupChildren } from '../transform/systems/TransformSystem'
-import { updateXRCamera } from '../xr/XRCameraSystem'
-import { getControlMode, XRState } from '../xr/XRState'
+import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
@@ -39,16 +27,10 @@ import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import {
-  AvatarIKTargetsComponent,
-  AvatarLeftHandIKComponent,
-  AvatarRightHandIKComponent
-} from './components/AvatarIKComponents'
+import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './components/AvatarIKComponents'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
-import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePoseToIKTargets'
-import { updateLocalAvatarPosition, updateLocalAvatarRotation } from './functions/moveAvatar'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',

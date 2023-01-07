@@ -168,19 +168,6 @@ export default async function TransformSystem(world: World) {
     serialize: serializeTransform
   })
 
-  const xrState = getState(XRState)
-
-  /** override Skeleton.update, as it is called inside  */
-  const skeletonUpdate = Skeleton.prototype.update
-
-  function noop() {}
-
-  function iterateSkeletons(skinnedMesh: SkinnedMesh) {
-    if (skinnedMesh.isSkinnedMesh) {
-      skinnedMesh.skeleton.update()
-    }
-  }
-
   const _frustum = new Frustum()
   const _projScreenMatrix = new Matrix4()
 
@@ -384,21 +371,6 @@ export default async function TransformSystem(world: World) {
           )
       }
     }
-
-    /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
-    /** @todo include in auto performance scaling metrics */
-    if (isHMD) {
-      /**
-       * Update threejs skeleton manually
-       *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
-       */
-      Skeleton.prototype.update = skeletonUpdate
-      for (const entity of world.priorityAvatarEntities) {
-        const group = getComponent(entity, GroupComponent)
-        for (const obj of group) obj.traverse(iterateSkeletons)
-      }
-      Skeleton.prototype.update = noop
-    }
   }
 
   const cleanup = async () => {
@@ -412,7 +384,6 @@ export default async function TransformSystem(world: World) {
     removeQuery(world, dynamicBoundingBoxQuery)
     removeQuery(world, distanceFromLocalClientQuery)
     removeQuery(world, distanceFromCameraQuery)
-    Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }
