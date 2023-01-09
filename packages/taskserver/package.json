@@ -54,6 +54,6 @@
   },
   "devDependencies": {
     "@types/compression": "1.7.2",
-    "@types/node": "16.11.26"
+    "@types/node": "18.11.18"
   }
 }
