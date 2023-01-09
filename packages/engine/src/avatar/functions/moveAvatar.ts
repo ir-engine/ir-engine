@@ -222,6 +222,7 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
       worldOriginTransform.rotation,
       worldOriginTransform.scale
     )
+    updateWorldOrigin()
   }
 }
 
