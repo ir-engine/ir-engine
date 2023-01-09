@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@hookstate/core": "4.0.0-rc21",
-    "@mui/icons-material": "5.8.4",
+    "@mui/icons-material": "5.11.0",
     "@mui/material": "5.11.0",
     "@mui/styled-engine-sc": "5.11.0",
     "@originjs/vite-plugin-commonjs": "^1.0.3",

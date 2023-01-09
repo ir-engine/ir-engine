@@ -68,7 +68,7 @@ export function setupObject(obj: Object3DWithEntity) {
         child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
         // todo: find out why leaving the envMap makes basic & lambert materials transparent here
         child.material.envMap = null
-        registerMaterial(child.material, prevMatEntry.src)
+        prevMatEntry && registerMaterial(child.material, prevMatEntry.src)
       }
       child.material.dithering = true
     }
