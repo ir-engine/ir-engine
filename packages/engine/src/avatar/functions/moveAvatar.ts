@@ -66,6 +66,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const viewerPose = xrFrame && ReferenceSpace.origin ? xrFrame.getViewerPose(ReferenceSpace.origin) : null
   xrState.viewerPose.set(viewerPose)
 
+  const attached = getControlMode() === 'attached'
   viewerMovement.copy(V_000)
 
   if (viewerPose)
@@ -105,10 +106,9 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
     rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
-    // hack for atached
-    computedMovement.y -= hit.position.y + controllerOffset
-    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
-    originTransform.position.y = hit.position.y
+    controller.isInAir = hit.distance > 1 + controllerOffset
+    if (attached) originTransform.position.y = hit.position.y
+    /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
   }
 
   if (!controller.isInAir) controller.verticalVelocity = 0

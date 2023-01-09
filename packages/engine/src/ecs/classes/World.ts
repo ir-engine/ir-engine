@@ -46,6 +46,7 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { FogType } from '../../scene/constants/FogType'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../../scene/constants/PostProcessing'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   setLocalTransformComponent,
   setTransformComponent,
@@ -92,7 +93,9 @@ export class World {
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
     this.origin.name = 'world-origin'
-    this.origin.add(new Mesh(new BoxGeometry(), new MeshNormalMaterial()))
+    const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
+    setObjectLayers(originHelperMesh, ObjectLayers.NodeHelper)
+    this.origin.add(originHelperMesh)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')
