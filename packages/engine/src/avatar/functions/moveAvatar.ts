@@ -106,7 +106,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
     rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
-    controller.isInAir = hit.distance > 1 + controllerOffset
+    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
     if (attached) originTransform.position.y = hit.position.y
     /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
   }
