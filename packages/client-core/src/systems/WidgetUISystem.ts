@@ -29,7 +29,7 @@ import {
   setLocalTransformComponent,
   TransformComponent
 } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { getPreferredInputSource, XRState } from '@xrengine/engine/src/xr/XRState'
+import { getPreferredInputSource, ReferenceSpace, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
@@ -153,7 +153,7 @@ export default async function WidgetSystem(world: World) {
     const preferredInputSource = getPreferredInputSource(world.inputSources, true)
 
     if (preferredInputSource) {
-      const referenceSpace = getState(XRState).originReferenceSpace.value!
+      const referenceSpace = ReferenceSpace.origin!
       const pose = Engine.instance.xrFrame!.getPose(
         preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
         referenceSpace

@@ -1,12 +1,10 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
-
 import { V_111 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { XRState } from '../xr/XRState'
+import { ReferenceSpace, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 import { computeTransformMatrix } from './systems/TransformSystem'
 
@@ -30,13 +28,11 @@ export const updateWorldOriginFromViewerHit = (
 
 export const updateWorldOrigin = () => {
   const world = Engine.instance.currentWorld
-  const xrState = getState(XRState)
-  if (xrState.localFloorReferenceSpace.value) {
+  if (ReferenceSpace.localFloor) {
     computeTransformMatrix(world.originEntity, world)
     const originTransform = getComponent(world.originEntity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
-    xrState.originReferenceSpace.set(
-      xrState.localFloorReferenceSpace.value.getOffsetReferenceSpace(xrRigidTransform.inverse)
-    )
+    ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform.inverse)
+    console.log('updateWorldOrigin')
   }
 }

@@ -23,7 +23,7 @@ import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, requestXRSession } from '../XRSessionFunctions'
-import { XRAction, XRState } from '../XRState'
+import { ReferenceSpace, XRAction, XRState } from '../XRState'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
 
@@ -382,8 +382,9 @@ export default async function XR8System(world: World) {
       xrState.is8thWallActive.set(false)
       xrState.session.set(null)
 
-      xrState.originReferenceSpace.set(null)
-      xrState.viewerReferenceSpace.set(null)
+      ReferenceSpace.origin = null
+      ReferenceSpace.localFloor = null
+      ReferenceSpace.viewer = null
 
       const engineContainer = document.getElementById('engine-container')!
       engineContainer.removeChild(cameraCanvas!)

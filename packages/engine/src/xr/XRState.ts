@@ -33,18 +33,6 @@ export const XRState = defineState({
      */
     avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
     avatarHeadLock: false as 'auto' | true | false,
-    /**
-     * The scene origin reference space describes where the origin of the tracking space is
-     */
-    originReferenceSpace: null as XRReferenceSpace | null,
-    /**
-     * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-local-floor
-     */
-    localFloorReferenceSpace: null as XRReferenceSpace | null,
-    /**
-     * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-viewer
-     */
-    viewerReferenceSpace: null as XRReferenceSpace | null,
     viewerHitTestSource: null as XRHitTestSource | null,
     viewerHitTestEntity: 0 as Entity,
     sceneRotationOffset: 0,
@@ -57,6 +45,21 @@ export const XRState = defineState({
     viewerPose: null as XRViewerPose | null | undefined
   })
 })
+
+export const ReferenceSpace = {
+  /**
+   * The scene origin reference space describes where the origin of the tracking space is
+   */
+  origin: null as XRReferenceSpace | null,
+  /**
+   * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-local-floor
+   */
+  localFloor: null as XRReferenceSpace | null,
+  /**
+   * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-viewer
+   */
+  viewer: null as XRReferenceSpace | null
+}
 
 export const XRReceptors = {
   scenePlacementMode: (action: ReturnType<typeof XRAction.changePlacementMode>) => {

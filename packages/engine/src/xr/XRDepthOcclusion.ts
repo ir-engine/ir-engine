@@ -17,7 +17,7 @@ import { SceneTagComponent } from '../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
-import { XRAction, XRState } from './XRState'
+import { ReferenceSpace, XRAction, XRState } from './XRState'
 import { XRCPUDepthInformation } from './XRTypes'
 
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
@@ -278,11 +278,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
     const xrFrame = Engine.instance.xrFrame as XRFrame & getDepthInformationType
     depthSupported = typeof xrFrame?.getDepthInformation === 'function'
     if (!depthSupported) return
-    XRDepthOcclusion.updateDepthMaterials(
-      Engine.instance.xrFrame as any,
-      xrState.viewerReferenceSpace.value!,
-      depthTexture
-    )
+    XRDepthOcclusion.updateDepthMaterials(Engine.instance.xrFrame as any, ReferenceSpace.origin!, depthTexture)
   }
 
   const cleanup = async () => {

@@ -16,7 +16,7 @@ import { teleportObject } from '../../physics/systems/PhysicsSystem'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { getControlMode, XRState } from '../../xr/XRState'
+import { getControlMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -63,8 +63,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const controller = getComponent(entity, AvatarControllerComponent)
   const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
 
-  const viewerPose =
-    xrFrame && xrState.originReferenceSpace.value ? xrFrame.getViewerPose(xrState.originReferenceSpace.value) : null
+  const viewerPose = xrFrame && ReferenceSpace.origin ? xrFrame.getViewerPose(ReferenceSpace.origin) : null
   xrState.viewerPose.set(viewerPose)
 
   viewerMovement.copy(V_000)

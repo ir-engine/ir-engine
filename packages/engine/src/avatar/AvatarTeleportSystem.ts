@@ -28,7 +28,7 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction, XRState } from '../xr/XRState'
+import { ReferenceSpace, XRAction, XRState } from '../xr/XRState'
 import { createTransitionState } from '../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
@@ -163,7 +163,7 @@ export default async function AvatarTeleportSystem(world: World) {
     }
     for (const entity of avatarTeleportQuery(world)) {
       const side = getComponent(world.localClientEntity, AvatarTeleportComponent).side
-      const referenceSpace = getState(XRState).originReferenceSpace.value!
+      const referenceSpace = ReferenceSpace.origin!
 
       for (const inputSource of world.inputSources) {
         if (inputSource.handedness === side) {

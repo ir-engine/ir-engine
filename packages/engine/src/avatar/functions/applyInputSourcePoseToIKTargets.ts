@@ -5,7 +5,7 @@ import { getState } from '@xrengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRHand } from '../../xr/XRComponents'
-import { getControlMode, XRState } from '../../xr/XRState'
+import { getControlMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import {
   AvatarHeadIKComponent,
   AvatarIKTargetsComponent,
@@ -24,7 +24,7 @@ export const applyInputSourcePoseToIKTargets = () => {
 
   const inAttachedControlMode = getControlMode() === 'attached'
 
-  const referenceSpace = getState(XRState).originReferenceSpace.value
+  const referenceSpace = ReferenceSpace.origin
 
   /** Update controller pose input sources from WebXR into the ECS */
   if (xrFrame && referenceSpace && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {

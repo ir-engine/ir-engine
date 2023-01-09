@@ -17,7 +17,7 @@ import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { getControlMode, XRAction, XRState } from './XRState'
+import { getControlMode, ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -67,9 +67,9 @@ export const requestXRSession = createHookableFunction(
         // @ts-ignore
         xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen' ? 0.5 : 1.2
 
-      xrSession.requestReferenceSpace('local-floor').then(xrState.originReferenceSpace.set)
-      xrSession.requestReferenceSpace('local-floor').then(xrState.localFloorReferenceSpace.set)
-      xrSession.requestReferenceSpace('viewer').then(xrState.viewerReferenceSpace.set)
+      xrSession.requestReferenceSpace('local-floor').then((space) => (ReferenceSpace.origin = space))
+      xrSession.requestReferenceSpace('local-floor').then((space) => (ReferenceSpace.localFloor = space))
+      xrSession.requestReferenceSpace('viewer').then((space) => (ReferenceSpace.viewer = space))
       xrState.sessionActive.set(true)
 
       const world = Engine.instance.currentWorld
@@ -105,9 +105,9 @@ export const requestXRSession = createHookableFunction(
         worldOriginTransform.position.copy(V_000)
         worldOriginTransform.rotation.identity()
 
-        xrState.originReferenceSpace.set(null)
-        xrState.localFloorReferenceSpace.set(null)
-        xrState.viewerReferenceSpace.set(null)
+        ReferenceSpace.origin = null
+        ReferenceSpace.localFloor = null
+        ReferenceSpace.viewer = null
 
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)

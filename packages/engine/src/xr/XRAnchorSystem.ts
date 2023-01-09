@@ -40,7 +40,7 @@ import {
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import { updateWorldOriginFromViewerHit } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
-import { getControlMode, XRAction, XRReceptors, XRState } from './XRState'
+import { getControlMode, ReferenceSpace, XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
 const _vecScale = new Vector3()
@@ -69,7 +69,7 @@ export const updateHitTest = (entity: Entity) => {
     const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource!)
     if (hitTestResults.length) {
       const hit = hitTestResults[0]
-      const hitPose = hit.getPose(xrState.localFloorReferenceSpace.value!)!
+      const hitPose = hit.getPose(ReferenceSpace.localFloor!)!
       localTransform.position.copy(hitPose.transform.position as any as Vector3)
       localTransform.rotation.copy(hitPose.transform.orientation as any as Quaternion)
       hitTestComponent.hitTestResult = hit
@@ -90,7 +90,7 @@ const orient = new Quaternion()
 
 /** AR placement for immersive session */
 export const getHitTestFromController = (world = Engine.instance.currentWorld) => {
-  const referenceSpace = getState(XRState).originReferenceSpace.value!
+  const referenceSpace = ReferenceSpace.origin!
   const pose = Engine.instance.xrFrame!.getPose(world.inputSources[0].targetRaySpace, referenceSpace)!
   const { position, orientation } = pose.transform
 
@@ -209,7 +209,7 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorld) => {
   const anchor = getComponent(entity, XRAnchorComponent).anchor
   const xrFrame = Engine.instance.xrFrame!
-  const localFloorReferenceSpace = getState(XRState).localFloorReferenceSpace.value
+  const localFloorReferenceSpace = ReferenceSpace.localFloor
   if (anchor && localFloorReferenceSpace) {
     const pose = xrFrame.getPose(anchor.anchorSpace, localFloorReferenceSpace)
     if (pose) {
@@ -261,9 +261,7 @@ export default async function XRAnchorSystem(world: World) {
         if (xrState.sessionMode.value === 'immersive-ar') {
           const session = xrState.session.value!
           if ('requestHitTestSource' in session) {
-            session.requestHitTestSource!({ space: xrState.viewerReferenceSpace.value! })?.then(
-              xrState.viewerHitTestSource.set
-            )
+            session.requestHitTestSource!({ space: ReferenceSpace.viewer! })?.then(xrState.viewerHitTestSource.set)
           }
         }
       } else {

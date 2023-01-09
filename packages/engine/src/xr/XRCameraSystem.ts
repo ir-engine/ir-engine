@@ -9,7 +9,7 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
-import { XRAction, XRState } from './XRState'
+import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 const cameraLPos = new Vector3()
 const cameraRPos = new Vector3()
@@ -90,13 +90,15 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
   camera.projectionMatrix.makePerspective(left2, right2, top2, bottom2, near2, far2)
 }
 
+let lastPose = null as any
+
 function updateCameraFromXRViewerPose() {
   const world = Engine.instance.currentWorld
   const camera = getComponent(world.cameraEntity, CameraComponent)
   const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
   const xrFrame = Engine.instance.xrFrame
   const renderer = EngineRenderer.instance.renderer
-  const referenceSpace = getState(XRState).originReferenceSpace.value
+  const referenceSpace = ReferenceSpace.origin
   const pose = referenceSpace && xrFrame!.getViewerPose(referenceSpace)
 
   if (pose) {
@@ -113,10 +115,16 @@ function updateCameraFromXRViewerPose() {
       renderer.setRenderTarget(newRenderTarget)
     }
 
+    if (lastPose) {
+      const val = pose.transform.position.x - lastPose.transform.position.x
+      console.log(val * 1000)
+    }
+
     cameraTransform.position.copy(pose.transform.position as any)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
     cameraTransform.matrix.fromArray(pose.transform.matrix)
     cameraTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
+    delete world.dirtyTransforms[world.cameraEntity]
 
     // check if it's necessary to rebuild camera list
     let cameraListNeedsUpdate = false
@@ -172,6 +180,7 @@ function updateCameraFromXRViewerPose() {
       }
     }
   }
+  lastPose = pose
 }
 
 let _currentDepthNear = null as number | null

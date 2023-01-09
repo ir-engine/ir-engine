@@ -5,7 +5,7 @@ import { getState } from '@xrengine/hyperflux'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { VPSSystem } from './VPSSystem'
-import { XRState } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 
 /**
  * XRPersistentAnchorSystem
@@ -28,7 +28,7 @@ type XRAnchorPersistentType = XRAnchor & {
 }
 
 const createAnchor = async (xrFrame: XRFramePersistentAnchorType, position: Vector3, rotation: Quaternion) => {
-  const referenceSpace = getState(XRState).originReferenceSpace.value
+  const referenceSpace = ReferenceSpace.origin
   if (xrFrame && referenceSpace) {
     const anchorPose = new XRRigidTransform(position, rotation)
     return await xrFrame.createAnchor?.(anchorPose, referenceSpace)
@@ -42,7 +42,7 @@ const createPersistentAnchor = async (
   position: Vector3,
   rotation: Quaternion
 ) => {
-  const referenceSpace = getState(XRState).originReferenceSpace.value
+  const referenceSpace = ReferenceSpace.origin
   if (xrFrame && referenceSpace) {
     const anchorPose = new XRRigidTransform(position, rotation)
     const anchor = await xrFrame.createAnchor(anchorPose, referenceSpace)!
@@ -91,7 +91,7 @@ export default async function XRPersistentAnchorSystem(world: World) {
     const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
     if (!frame) return
 
-    const xrSpace = getState(XRState).originReferenceSpace.value
+    const xrSpace = ReferenceSpace.origin
     if (!xrSpace) return
 
     if (frame.trackedAnchors) {
