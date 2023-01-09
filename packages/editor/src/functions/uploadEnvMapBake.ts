@@ -8,16 +8,19 @@ import {
   addComponent,
   defineQuery,
   getComponent,
-  hasComponent,
-  setComponent
+  hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
+import {
+  EnvMapBakeComponent,
+  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
+} from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { parseEnvMapBakeProperties } from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { accessEditorState } from '../services/EditorServices'
@@ -58,7 +61,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
-      setComponent(entity, EnvMapBakeComponent)
+      addComponent(entity, EnvMapBakeComponent, parseEnvMapBakeProperties(SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES))
     }
   }
 

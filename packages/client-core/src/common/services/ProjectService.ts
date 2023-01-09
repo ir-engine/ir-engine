@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 import { BuilderInfo } from '@xrengine/common/src/interfaces/BuilderInfo'
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { ProjectInterface, ProjectUpdateType } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { UpdateProjectInterface } from '@xrengine/common/src/interfaces/UpdateProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -79,13 +79,16 @@ export const ProjectService = {
   uploadProject: async (
     sourceURL: string,
     destinationURL: string,
-    name?: string,
-    reset?: boolean,
-    commitSHA?: string
+    name: string,
+    reset: boolean,
+    commitSHA: string,
+    sourceBranch: string,
+    updateType: ProjectUpdateType,
+    updateSchedule: string
   ) => {
     const result = await API.instance.client
       .service('project')
-      .update({ sourceURL, destinationURL, name, reset, commitSHA })
+      .update({ sourceURL, destinationURL, name, reset, commitSHA, sourceBranch, updateType, updateSchedule })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
     await API.instance.client.service('project-invalidate').patch({ projectName: name })

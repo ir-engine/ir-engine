@@ -179,7 +179,8 @@ const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {
         : 'Undefined',
       ready: item.ready,
       started: item.started,
-      restarts: item.restartCount
+      restarts: item.restartCount,
+      image: item.image
     } as ServerContainerInfo
   })
 }

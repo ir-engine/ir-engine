@@ -67,6 +67,8 @@ npm run record-build-error -- --service=taskserver --isDocker=true
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
+npm run updateCronjobImage -- --repoName=${REPO_NAME} --tag=${TAG} --ecrUrl=${ECR_URL} --startTime=${START_TIME}
+
 npm run clear-projects-rebuild
 npm run record-build-success
 DEPLOY_TIME=`date +"%d-%m-%yT%H-%M-%S"`

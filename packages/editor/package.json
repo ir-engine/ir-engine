@@ -9,7 +9,7 @@
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
-    "node": ">= 18.12.0"
+    "node": ">= 16.3.0"
   },
   "publishConfig": {
     "access": "public"
@@ -69,7 +69,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/node": "18.11.18",
+    "@types/node": "16.11.26",
     "@types/react": "18.0.19",
     "@types/react-dom": "18.0.0",
     "@types/react-router-dom": "5.3.3",
