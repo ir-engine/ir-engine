@@ -20,12 +20,13 @@ import {
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { updateAnimationGraph } from './animation/AnimationGraph'
-import { solveLookIK } from './animation/LookAtIKSolver'
+import { solveHipIK, solveLegIK, solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
+import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './components/AvatarIKComponents'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
@@ -212,10 +213,12 @@ export default async function AvatarAnimationSystem(world: World) {
      */
     for (const entity of headIKEntities) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
-      ik.target.updateMatrixWorld(true)
+      const avatar = getComponent(entity, AvatarComponent)
       const rig = getComponent(entity, AvatarRigComponent).rig
+      ik.target.updateMatrixWorld(true)
       ik.target.getWorldDirection(_vec).multiplyScalar(-1)
-      solveLookIK(rig.Head, _vec, ik.rotationClamp)
+      solveHipIK(rig.Hips, ik.target, rig.Head)
+      // solveLookIK(rig.Head, _vec, ik.rotationClamp)
     }
 
     /**

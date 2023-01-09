@@ -1,6 +1,7 @@
-import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
+import { Engine } from '../../ecs/classes/Engine'
 
 const toLocalQuat = new Quaternion(),
   rotation = new Quaternion(),
@@ -46,4 +47,23 @@ export function solveLookIK(bone: Bone, forward: Vector3, rotationClamp: number 
   }
 
   bone.quaternion.premultiply(rotation.setFromUnitVectors(boneFwd, targetDir))
+}
+
+/**
+ * Hip squat IK solver
+ * A function that uses the avatar's head Y position to move the hips up and down, keeping feet flat to the ground and solving leg IK using a three bone solver.
+ */
+
+export function solveHipIK(hips: Bone, headTarget: Object3D, head: Bone) {
+  const headY = head.getWorldPosition(new Vector3()).y
+  const hipsY = hips.getWorldPosition(new Vector3()).y
+  const headTargetY = Math.sin(Engine.instance.currentWorld.elapsedSeconds) * 0.25 + 0.75
+  // const headTargetY = headTarget.getWorldPosition(new Vector3()).y
+  const delta = headY - headTargetY - hipsY
+
+  console.log(headTargetY, headY, hipsY, delta)
+
+  hips.position.y += delta
+
+  /** create a simple pivot to simulate hips and  */
 }
