@@ -58,7 +58,7 @@ export function setupObject(obj: Object3DWithEntity) {
   const mesh = obj as any as Mesh<any, any>
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
-      if (!Engine.instance.isEditor && !isHMD && ExpensiveMaterials.has(child.material.constructor)) {
+      if (!Engine.instance.isEditor && isHMD && ExpensiveMaterials.has(child.material.constructor)) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
