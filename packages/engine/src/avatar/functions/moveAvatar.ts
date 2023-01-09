@@ -139,17 +139,17 @@ export const applyGamepadInput = (entity: Entity) => {
 
   const world = Engine.instance.currentWorld
   const camera = world.camera
-  const fixedDeltaSeconds = world.fixedDeltaSeconds
+  const deltaSeconds = world.deltaSeconds /** @todo put this back in the fixed pipeline */
   const controller = getComponent(entity, AvatarControllerComponent)
 
-  const lerpAlpha = 6 * fixedDeltaSeconds
+  const lerpAlpha = 6 * deltaSeconds
   const legSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   camera.getWorldDirection(cameraDirection).setY(0).normalize()
   forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
 
   targetWorldMovement
     .copy(controller.gamepadLocalInput)
-    .multiplyScalar(legSpeed * fixedDeltaSeconds)
+    .multiplyScalar(legSpeed * deltaSeconds)
     .applyQuaternion(forwardOrientation)
 
   /** compute smoothed movement in the world XZ plane */
@@ -172,8 +172,8 @@ export const applyGamepadInput = (entity: Entity) => {
   }
 
   // apply gamepad movement and gravity
-  if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * fixedDeltaSeconds
-  const verticalMovement = controller.verticalVelocity * fixedDeltaSeconds
+  if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * deltaSeconds
+  const verticalMovement = controller.verticalVelocity * deltaSeconds
   _additionalMovement.set(controller.gamepadWorldMovement.x, verticalMovement, controller.gamepadWorldMovement.z)
   updateLocalAvatarPosition(_additionalMovement)
 }

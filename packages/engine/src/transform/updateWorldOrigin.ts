@@ -33,6 +33,5 @@ export const updateWorldOrigin = () => {
     const originTransform = getComponent(world.originEntity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform.inverse)
-    console.log('updateWorldOrigin')
   }
 }

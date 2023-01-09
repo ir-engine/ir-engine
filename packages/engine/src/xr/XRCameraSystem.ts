@@ -90,8 +90,6 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
   camera.projectionMatrix.makePerspective(left2, right2, top2, bottom2, near2, far2)
 }
 
-let lastPose = null as any
-
 function updateCameraFromXRViewerPose() {
   const world = Engine.instance.currentWorld
   const camera = getComponent(world.cameraEntity, CameraComponent)
@@ -113,11 +111,6 @@ function updateCameraFromXRViewerPose() {
       // @ts-ignore setRenderTargetFramebuffer is not in the type definition
       renderer.setRenderTargetFramebuffer(newRenderTarget, glBaseLayer.framebuffer)
       renderer.setRenderTarget(newRenderTarget)
-    }
-
-    if (lastPose) {
-      const val = pose.transform.position.x - lastPose.transform.position.x
-      console.log(val * 1000)
     }
 
     cameraTransform.position.copy(pose.transform.position as any)
@@ -180,7 +173,6 @@ function updateCameraFromXRViewerPose() {
       }
     }
   }
-  lastPose = pose
 }
 
 let _currentDepthNear = null as number | null

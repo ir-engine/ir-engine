@@ -14,7 +14,7 @@ import { accessEngineRendererState, EngineRendererAction } from '../renderer/Eng
 import { getControlMode, XRState } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
-import { rotateAvatar } from './functions/moveAvatar'
+import { applyGamepadInput, rotateAvatar } from './functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 /**
@@ -126,7 +126,6 @@ export default async function AvatarInputSystem(world: World) {
     const { inputSources, localClientEntity } = world
     if (!localClientEntity) return
 
-    const xrCameraAttached = getControlMode() === 'attached'
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
     const buttons = world.buttons
 
@@ -159,6 +158,8 @@ export default async function AvatarInputSystem(world: World) {
           : avatarInputSettings.rightAxesControlScheme
       AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
     }
+
+    applyGamepadInput(world.localClientEntity)
   }
 
   const cleanup = async () => {}
