@@ -22,9 +22,9 @@ import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/ini
 
 import '@xrengine/engine/src/patchEngineNode'
 
-import { AssetComponent, AssetLoadedComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
+import { LoadState, PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
+import { loadPrefab, unloadPrefab } from '@xrengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
@@ -35,7 +35,7 @@ import { TransformModule } from '../../../transform/TransformModule'
 import { SceneClientModule } from '../../SceneClientModule'
 import { SceneCommonModule } from '../../SceneCommonModule'
 
-describe('AssetComponentFunctions', async () => {
+describe('PrefabComponentFunctions', async () => {
   let entity: Entity
   let node: EntityTreeNode
   let world: World
@@ -47,7 +47,7 @@ describe('AssetComponentFunctions', async () => {
     world = Engine.instance.currentWorld
     addEntityNodeChild(node, world.entityTree.rootNode)
   }
-  const testDir = 'packages/engine/tests/assets/'
+  const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {
     sandbox = Sinon.createSandbox()
     createEngine()
@@ -117,52 +117,44 @@ describe('AssetComponentFunctions', async () => {
     const scenePath = path.join(appRootPath.path, testDir, file)
     const xreLoader = new XRELoader()
     if (root) xreLoader.rootNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(root)!
-    const result = await xreLoader.parse(fs.readFileSync(scenePath, { encoding: 'utf-8' }))
+    const rawData = fs.readFileSync(scenePath, { encoding: 'utf-8' })
+    const result = await xreLoader.parse(rawData)
     return result
   }
 
   describe('loadAsset()', () => {
     it('Correctly handles loading empty asset', async () => {
       //load test empty scene
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
-        name: 'empty',
-        loaded: LoadState.UNLOADED
+      addComponent(entity, PrefabComponent, {
+        src: `${testDir}/empty.xre.gltf`
       })
       //load asset from example repo
-      const emptyScene = loadXRE('empty.xre.gltf')
-      await loadAsset(entity, setContent(emptyScene))
+      const emptyScene = await loadXRE('empty.xre.gltf')
+      await loadPrefab(entity, setContent(emptyScene))
 
       console.log('DEBUG EMPTY SCENE', entity, world.fixedTick)
 
       //wait one fixed frame for system to reparent
       await nextFixedStep
 
-      //check that AssetLoadedComponent is correctly configured
-      const loadedComp = getComponent(entity, AssetLoadedComponent)
-      assert(loadedComp, 'loaded asset')
-      //check that AssetComponent is correctly configured
-      const assetComp = getComponent(entity, AssetComponent)
+      //check that PrefabComponent is correctly configured
+      const assetComp = getComponent(entity, PrefabComponent)
       assert(assetComp, 'asset component exists')
       assert.equal(assetComp.loaded, LoadState.LOADED, 'asset is in a loaded state')
     })
 
     it('Correctly handles file not existing', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/nonexistent.xre.gltf`,
-        name: 'nonexistent',
-        loaded: LoadState.UNLOADED
+      addComponent(entity, PrefabComponent, {
+        src: `${testDir}/nonexistent.xre.gltf`
       })
       //load from asset path that does not exist
       try {
-        await loadAsset(entity, noFile())
+        await loadPrefab(entity, noFile())
         //wait one frame for system to reparent
         await nextFixedStep
       } catch (e) {
-        //check that AssetLoadedComponent does not exist
-        assert(!hasComponent(entity, AssetLoadedComponent), 'no AssetLoadedComponent')
-        //check that AssetComponent has identical state to pre-load attempt
-        const assetComp = getComponent(entity, AssetComponent)
+        //check that PrefabComponent has identical state to pre-load attempt
+        const assetComp = getComponent(entity, PrefabComponent)
         assert(assetComp, 'asset component exists')
         assert(assetComp.loaded === LoadState.UNLOADED, 'asset is in unloaded state')
       }
@@ -170,20 +162,16 @@ describe('AssetComponentFunctions', async () => {
 
     it('Correctly handles loading basic test asset file', async () => {
       const assetPath = `${testDir}/empty_model.xre.gltf`
-      addComponent(entity, AssetComponent, {
-        path: assetPath,
-        name: 'empty_model',
-        loaded: LoadState.UNLOADED
+      addComponent(entity, PrefabComponent, {
+        src: assetPath
       })
       //load asset from example repo
-      await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
+      await loadPrefab(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       //wait one frame for system to reparent
       await nextFixedStep
-      //check that AssetLoadedComponent and AssetComponent are correctly configured
-      const assetComp = getComponent(entity, AssetComponent)
-      const loadedComp = getComponent(entity, AssetLoadedComponent)
+      //check that AssetLoadedComponent and PrefabComponent are correctly configured
+      const assetComp = getComponent(entity, PrefabComponent)
       assert(assetComp, 'Asset component exists')
-      assert(loadedComp, 'Asset Loaded Component exists')
       //check that asset root contains correct children
 
       const eNode = world.entityTree.entityNodeMap.get(entity)
@@ -196,106 +184,95 @@ describe('AssetComponentFunctions', async () => {
     })
 
     it('Correctly handles multiple load calls in single frame', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
-        name: 'empty',
-        loaded: LoadState.UNLOADED
+      addComponent(entity, PrefabComponent, {
+        src: `${testDir}/empty.xre.gltf`
       })
       //repeated load asset call for empty asset
       const loader = setContent(loadXRE('empty.xre.gltf'))
-      await Promise.all([loadAsset(entity, loader), loadAsset(entity, loader)]) //one of these should return a warning saying Asset is not unloaded
+      await Promise.all([loadPrefab(entity, loader), loadPrefab(entity, loader)]) //one of these should give a warning saying Asset is not unloaded
 
       //wait one fixed frame for system to reparent
       await nextFixedStep
       //check that second call is ignored by...
       //make sure that loaded state is identical to single load call
-      const assetComp = getComponent(entity, AssetComponent)
-      const loadedComp = getComponent(entity, AssetLoadedComponent)
-      assert(assetComp && loadedComp, 'Asset and AssetLoaded components exist')
+      const assetComp = getComponent(entity, PrefabComponent)
+      assert(assetComp, 'PrefabComponent exists')
       assert.equal(assetComp.loaded, LoadState.LOADED, 'Asset state is set to loaded')
     })
 
     it('Calls load, then is deleted', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
-        name: 'empty',
-        loaded: LoadState.UNLOADED
+      addComponent(entity, PrefabComponent, {
+        src: `${testDir}/empty_model.xre.gltf`
       })
       //call load
-      await loadAsset(entity, setContent(loadXRE('empty.xre.gltf', entity)))
+      await loadPrefab(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       //delete entity
       removeEntityNodeFromParent(node, world.entityTree)
       removeEntity(entity)
       //wait one fixed frame
       await nextFixedStep
-      assert.equal(getAllComponentsOfType(AssetComponent, world).length, 0, 'no Asset components in scene')
-      assert.equal(getAllComponentsOfType(AssetLoadedComponent, world).length, 0, 'no AssetLoaded components in scene')
+      assert.equal(getAllComponentsOfType(PrefabComponent, world).length, 0, 'no Asset components in scene')
+      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
     })
   })
 
   describe('unloadAsset()', () => {
     it('Correctly handles unloading empty asset', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
-        name: 'empty',
-        loaded: LoadState.UNLOADED
+      addComponent(entity, PrefabComponent, {
+        src: `${testDir}/empty.xre.gltf`
       })
       //call load
-      await loadAsset(entity, setContent(loadXRE('empty.xre.gltf')))
+      await loadPrefab(entity, setContent(loadXRE('empty.xre.gltf')))
       //wait one fixed frame
       await nextFixedStep
       //unload asset
-      unloadAsset(entity)
+      unloadPrefab(entity)
       //execute frame
       await nextFixedStep
       //ensure that asset system does not try to load asset
-      assert(!hasComponent(entity, AssetLoadedComponent), 'AssetLoaded component does not exist')
-      const assetComp = getComponent(entity, AssetComponent)
+      const assetComp = getComponent(entity, PrefabComponent)
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
+      assert.equal(assetComp.roots.length, 0, 'Asset has no roots')
     })
 
     it('Correctly handles unloading basic asset file', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty_model.xre.gltf`,
-        name: 'empty',
-        loaded: LoadState.UNLOADED
+      addComponent(entity, PrefabComponent, {
+        src: `${testDir}/empty_model.xre.gltf`
       })
       //call load
-      await loadAsset(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
+      await loadPrefab(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       // wait for frame
       await nextFixedStep
       //unload asset
-      unloadAsset(entity)
+      unloadPrefab(entity)
       // wait for frame
       await nextFixedStep
       //ensure that asset system does not try to load asset
-      assert(!hasComponent(entity, AssetLoadedComponent), 'AssetLoaded component does not exist')
-      const assetComp = getComponent(entity, AssetComponent)
+      const assetComp = getComponent(entity, PrefabComponent)
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
       //check that asset child hierarchy is removed
-      assert(node.children == undefined || node.children.length === 0, 'child hierarchy is removed')
+      assert.equal(assetComp.roots.length, 0, 'Asset has no roots')
+      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
     })
 
     it('Correctly handles unloading empty asset', async () => {
-      addComponent(entity, AssetComponent, {
-        path: `${testDir}/empty.xre.gltf`,
-        name: 'empty',
-        loaded: LoadState.UNLOADED
+      addComponent(entity, PrefabComponent, {
+        src: `${testDir}/empty.xre.gltf`
       })
       //call load
-      await loadAsset(entity, setContent(loadXRE('empty.xre.gltf')))
+      await loadPrefab(entity, setContent(loadXRE('empty.xre.gltf')))
       // wait for frame
       await nextFixedStep
       //unload asset
-      unloadAsset(entity)
+      unloadPrefab(entity)
       //unload asset again
-      unloadAsset(entity)
+      unloadPrefab(entity)
       // wait for frame
       await nextFixedStep
       //ensure that asset system does not try to load asset
-      assert(!hasComponent(entity, AssetLoadedComponent), 'AssetLoaded component does not exist')
-      const assetComp = getComponent(entity, AssetComponent)
+      const assetComp = getComponent(entity, PrefabComponent)
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
+      assert.equal(assetComp.roots.length, 0, 'Asset has no roots')
     })
   })
 

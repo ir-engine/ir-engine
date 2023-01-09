@@ -26,6 +26,7 @@ import {
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { CallbackComponent } from '../components/CallbackComponent'
@@ -57,16 +58,17 @@ export function setupObject(obj: Object3DWithEntity) {
   const mesh = obj as any as Mesh<any, any>
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
-      if (isHMD && ExpensiveMaterials.has(child.material.constructor)) {
+      if (!Engine.instance.isEditor && !isHMD && ExpensiveMaterials.has(child.material.constructor)) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+        const prevMatEntry = unregisterMaterial(prevMaterial)
         prevMaterial.dispose()
         child.material = new MeshBasicMaterial().copy(prevMaterial)
         child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
         child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
-
         // todo: find out why leaving the envMap makes basic & lambert materials transparent here
         child.material.envMap = null
+        registerMaterial(child.material, prevMatEntry.src)
       }
       child.material.dithering = true
     }
