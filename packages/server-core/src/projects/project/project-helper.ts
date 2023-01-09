@@ -790,6 +790,7 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
     },
     spec: {
       schedule: project.updateSchedule,
+      concurrencyPolicy: 'Replace',
       successfulJobsHistoryLimit: 1,
       failedJobsHistoryLimit: 2,
       jobTemplate: {
