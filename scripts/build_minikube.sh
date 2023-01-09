@@ -94,7 +94,7 @@ else
 fi
 
 docker start xrengine_minikube_db
-# eval $(minikube docker-env)
+eval $(minikube docker-env)
 
 mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
