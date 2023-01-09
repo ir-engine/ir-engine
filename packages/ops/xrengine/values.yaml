@@ -4,6 +4,12 @@
 
 domain: xrengine.dev
 
+# This is used to define cluster environment type. Currently its used when deployed in local environment.
+# For Minikube set this as "minikube"
+# For Microk8s set this as "microk8s"
+# For other environments keeps this as empty
+clusterType: ""
+
 client:
   enabled: true
   name: xrengine-client
@@ -100,7 +106,16 @@ api:
   securityContext: {}
 
   fileServer:
-    hostUploadFolder: /hosthome/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload
+    # This is the path of file server upload folder in your host machine. Its is required when deployed 
+    # in local environment.
+    #
+    # For MicroK8s: it will be similar to '/home/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload' 
+    # or '<ENGINE_FULL_PATH>/packages/server/upload'
+    #
+    # For Minikube: it will be similar to '/hosthome/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload'
+    # The folder must be in home folder and make sure to use /hosthome/ instead of home in path. 
+    # Ref: https://stackoverflow.com/a/48535001/2077741
+    hostUploadFolder: ""
 
   # Extra Environment variables to configure xrsocial
   extraEnv:

@@ -1,0 +1,10 @@
+{{ if eq .Values.clusterType "microk8s" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: file-server-pvc
+spec:
+  storageClassName: file-server-sc
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 1Gi } }
+{{- end }}

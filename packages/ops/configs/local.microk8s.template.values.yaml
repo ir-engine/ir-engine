@@ -13,11 +13,11 @@ client:
     VITE_INSTANCESERVER_HOST: instanceserver-local.etherealengine.com
     VITE_INSTANCESERVER_PORT: "3031"
   image:
-    repository: xrengine
+    repository: localhost:32000/xrengine
     pullPolicy: IfNotPresent
   ingress:
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: public
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     hosts:
       - host: local.etherealengine.com
@@ -26,11 +26,12 @@ client:
   service:
     type: NodePort
 domain: etherealengine.com
+clusterType: microk8s
 sql:
   database: xrengine
   password: password
   user: server
-  host: host.minikube.internal
+  host: 10.0.1.1
   port: 3304
 rts:
   extraEnv:
@@ -57,7 +58,7 @@ api:
     APP_HOST: local.etherealengine.com
     APP_URL: https://local.etherealengine.com
     AUTH_SECRET: <AUTH_SECRET_UUID_OR_SIMILAR>
-    ELASTIC_HOST: "http://host.minikube.internal:9200"
+    ELASTIC_HOST: "http://10.0.1.1:9200"
     AWS_SMS_ACCESS_KEY_ID: <SNS_USER_ACCESS_KEY>
     AWS_SMS_REGION: <SNS_REGION>
     AWS_SMS_SECRET_ACCESS_KEY: <SNS_USER_SECRET_KEY>
@@ -106,11 +107,11 @@ api:
     VITE_INSTANCESERVER_PORT: "3031"
     USE_IPFS: "true"
   image:
-    repository: xrengine
+    repository: localhost:32000/xrengine
     pullPolicy: IfNotPresent
   ingress:
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: public
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/enable-cors: "false"
 #      nginx.ingress.kubernetes.io/cors-allow-origin: https://local.etherealengine.com
@@ -145,7 +146,10 @@ api:
           - /
 
   fileServer:
-    hostUploadFolder: /hosthome/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload
+    # This is the path of file server upload folder in your host machine.
+    # For microk8s it will be similar to '/home/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload' 
+    # or '<ENGINE_FULL_PATH>/packages/server/upload'
+    hostUploadFolder: ""
 
   service:
     type: NodePort
@@ -213,11 +217,11 @@ media:
     STORAGE_S3_REGION: <S3_REGION>
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_BUCKET_NAME>
   image:
-    repository: xrengine
+    repository: localhost:32000/xrengine
     pullPolicy: IfNotPresent
   ingress:
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: public
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/enable-cors: "true"
       nginx.ingress.kubernetes.io/cors-allow-origin: https://local.etherealengine.com
@@ -236,7 +240,7 @@ release:
 
 instanceserver:
   image:
-    repository: xrengine
+    repository: localhost:32000/xrengine
     pullPolicy: IfNotPresent
   extraEnv:
     APP_HOST: local.etherealengine.com
@@ -268,7 +272,7 @@ instanceserver:
     disabled: false
     host: instanceserver-local.etherealengine.com
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: public
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/enable-cors: "false"
       nginx.ingress.kubernetes.io/proxy-body-size: 256m
@@ -333,5 +337,5 @@ testbot:
   extraEnv:
     APP_HOST: local.etherealengine.com
   image:
-    repository: xrengine-testbot
+    repository: localhost:32000/xrengine-testbot
     pullPolicy: IfNotPresent
