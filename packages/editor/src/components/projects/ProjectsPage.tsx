@@ -44,7 +44,6 @@ import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
-import { GithubRepoDialog } from './GithubRepoDialog'
 import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ProjectsPage' })
@@ -160,7 +159,6 @@ const ProjectsPage = () => {
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [updatingProject, setUpdatingProject] = useState(false)
   const [uploadingProject, setUploadingProject] = useState(false)
-  const [repoLinkDialogOpen, setRepoLinkDialogOpen] = useState(false)
   const [editPermissionsDialogOpen, setPermissionsDialogOpen] = useState(false)
   const [projectDrawerOpen, setProjectDrawerOpen] = useState(false)
   const [changeDestination, setChangeDestination] = useState(false)
@@ -272,7 +270,6 @@ const ProjectsPage = () => {
   const closeDeleteConfirm = () => setDeleteDialogOpen(false)
   const openCreateDialog = () => setCreateDialogOpen(true)
   const closeCreateDialog = () => setCreateDialogOpen(false)
-  const closeRepoLinkDialog = () => setRepoLinkDialogOpen(false)
   const openEditPermissionsDialog = () => setPermissionsDialogOpen(true)
   const closeEditPermissionsDialog = () => setPermissionsDialogOpen(false)
 
@@ -568,9 +565,6 @@ const ProjectsPage = () => {
         </Menu>
       )}
       <CreateProjectDialog open={isCreateDialogOpen} onSuccess={onCreateProject} onClose={closeCreateDialog} />
-      {activeProject && (
-        <GithubRepoDialog open={repoLinkDialogOpen} onClose={closeRepoLinkDialog} project={activeProject} />
-      )}
       {activeProject && activeProject.project_permissions && (
         <EditPermissionsDialog
           open={editPermissionsDialogOpen}

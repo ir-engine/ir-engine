@@ -91,7 +91,9 @@
     "update-site-manifest": "cross-env ts-node --swc scripts/update-site-manifest.ts",
     "create-build-status": "cross-env ts-node --swc scripts/create-build-status.ts",
     "record-build-error": "cross-env ts-node --swc scripts/record-build-error.ts",
-    "record-build-success": "cross-env ts-node --swc scripts/record-build-success"
+    "record-build-success": "cross-env ts-node --swc scripts/record-build-success",
+    "updateProject": "cross-env ts-node --swc scripts/update-project.ts",
+    "updateCronjobImage": "cross-env ts-node --swc scripts/update-cronjob-image.ts"
   },
   "types": "lib/",
   "pre-commit": [
