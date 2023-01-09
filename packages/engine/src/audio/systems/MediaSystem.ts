@@ -4,7 +4,7 @@ import logger from '@xrengine/common/src/logger'
 import {
   addActionReceptor,
   createActionQueue,
-  getState,
+  getMutableState,
   hookstate,
   removeActionQueue,
   State
@@ -64,7 +64,7 @@ export class AudioEffectPlayer {
     }
   }
 
-  play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
+  play = async (sound: string, volumeMultiplier = getMutableState(AudioState).notificationVolume.value) => {
     await Promise.resolve()
 
     if (!this.#els.length) return
@@ -186,7 +186,7 @@ export default async function MediaSystem(world: World) {
     defaultData: {}
   })
 
-  const audioState = getState(AudioState)
+  const audioState = getMutableState(AudioState)
   const currentTime = Engine.instance.audioContext.currentTime
 
   Engine.instance.cameraGainNode.gain.setTargetAtTime(audioState.masterVolume.value, currentTime, 0.01)

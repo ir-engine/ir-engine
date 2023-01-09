@@ -7,7 +7,7 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Refresh as RefreshIcon } from '@mui/icons-material'
 
@@ -63,7 +63,7 @@ const WidgetButton = ({ Icon, toggle, label, disabled }: WidgetButtonProps) => {
 const WidgetButtons = () => {
   let activeChannel: Channel | null = null
   const chatState = useChatState()
-  const widgetState = useHookstate(getState(WidgetAppState))
+  const widgetState = useHookstate(getMutableState(WidgetAppState))
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')

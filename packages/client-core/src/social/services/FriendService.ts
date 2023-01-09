@@ -5,7 +5,7 @@ import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -30,7 +30,7 @@ const FriendState = defineState({
 })
 
 export const FriendServiceReceptor = (action) => {
-  const s = getState(FriendState)
+  const s = getMutableState(FriendState)
   matches(action)
     .when(FriendAction.fetchingFriendsAction.matches, () => {
       return s.isFetching.set(true)
@@ -49,7 +49,7 @@ export const FriendServiceReceptor = (action) => {
     })
 }
 
-export const accessFriendState = () => getState(FriendState)
+export const accessFriendState = () => getMutableState(FriendState)
 
 export const useFriendState = () => useState(accessFriendState())
 

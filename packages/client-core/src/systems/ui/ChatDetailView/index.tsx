@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -39,7 +39,7 @@ const ChatDetailView = () => {
 
   const user = useAuthState().user
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   return (
     <>

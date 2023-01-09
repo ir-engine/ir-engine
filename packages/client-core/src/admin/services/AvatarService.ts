@@ -5,7 +5,7 @@ import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -30,7 +30,7 @@ const AdminAvatarState = defineState({
 })
 
 const avatarsFetchedReceptor = (action: typeof AdminAvatarActions.avatarsFetched.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({
     avatars: action.avatars.data,
     skip: action.avatars.skip,
@@ -44,17 +44,17 @@ const avatarsFetchedReceptor = (action: typeof AdminAvatarActions.avatarsFetched
 }
 
 const avatarCreatedReceptor = (action: typeof AdminAvatarActions.avatarCreated.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
 const avatarRemovedReceptor = (action: typeof AdminAvatarActions.avatarRemoved.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
 const avatarUpdatedReceptor = (action: typeof AdminAvatarActions.avatarUpdated.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -65,7 +65,7 @@ export const AdminAvatarReceptors = {
   avatarUpdatedReceptor
 }
 
-export const accessAdminAvatarState = () => getState(AdminAvatarState)
+export const accessAdminAvatarState = () => getMutableState(AdminAvatarState)
 
 export const useAdminAvatarState = () => useState(accessAdminAvatarState())
 

@@ -33,7 +33,7 @@ import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyS
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent, XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
-import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
@@ -128,7 +128,7 @@ export default async function AvatarUISystem(world: World) {
     AvatarContextMenuUI.state.id.set('')
   }
 
-  const engineState = getState(EngineState)
+  const engineState = getMutableState(EngineState)
 
   const execute = () => {
     if (!engineState.isEngineInitialized.value) return

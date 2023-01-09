@@ -1,4 +1,4 @@
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@xrengine/hyperflux'
 
 import XR8 from './8thwall/XR8'
 import { World } from './../ecs/classes/World'
@@ -18,7 +18,7 @@ import { XRAction, XRState } from './XRState'
  * System for XR session and input handling
  */
 export default async function XRSystem(world: World) {
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
 
   const updateSessionSupportForMode = (mode: XRSessionMode) => {
     navigator.xr?.isSessionSupported(mode).then((supported) => xrState.supportedSessionModes[mode].set(supported))

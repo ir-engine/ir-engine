@@ -4,7 +4,7 @@ import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
@@ -52,7 +52,7 @@ describe('DataWriter', () => {
   it('should writeComponent', () => {
     const writeView = createViewCursor()
     const entity = 42 as Entity
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedTick.set(1)
 
     const [x, y, z] = [1.5, 2.5, 3.5]

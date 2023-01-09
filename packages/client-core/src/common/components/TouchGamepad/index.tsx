@@ -7,6 +7,7 @@ import { ButtonTypes } from '@xrengine/engine/src/input/InputState'
 import { InteractState } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
 import { useIsHeadset } from '@xrengine/engine/src/xr/XRState'
 import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import TouchAppIcon from '@mui/icons-material/TouchApp'
 
@@ -55,7 +56,7 @@ const buttonsConfig: Array<{ button: ButtonTypes; label: string }> = [
 ]
 
 export const TouchGamepad = () => {
-  const interactState = useHookstate(getState(InteractState))
+  const interactState = useHookstate(getMutableState(InteractState))
   const availableInteractable = interactState.available.value?.[0]
   const appState = useHookstate(getState(AppState))
   const isHeadset = useIsHeadset()

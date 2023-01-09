@@ -11,7 +11,7 @@ import Tabs from '@xrengine/client-core/src/common/components/Tabs'
 import Text from '@xrengine/client-core/src/common/components/Text'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import CheckIcon from '@mui/icons-material/Check'
@@ -41,7 +41,7 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
   const userState = useNetworkUserState()
   const selfUser = useAuthState().user
   const userId = selfUser.id.value
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   useEffect(() => {
     FriendService.getUserRelationship(userId)

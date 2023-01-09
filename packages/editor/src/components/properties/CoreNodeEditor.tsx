@@ -13,7 +13,7 @@ import { EntityTreeNode, getEntityNodeArrayFromEntities } from '@xrengine/engine
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import AddIcon from '@mui/icons-material/Add'
 
@@ -63,14 +63,14 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   useOptionalComponent(props.node.entity, PreventBakeTagComponent)
 
   const onChangeVisible = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n !== 'string'
     ) as EntityTreeNode[]
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
   const onChangeBakeStatic = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n === 'object'
     ) as EntityTreeNode[]
     EditorControlFunctions.addOrRemoveComponent(nodes, PreventBakeTagComponent, value)

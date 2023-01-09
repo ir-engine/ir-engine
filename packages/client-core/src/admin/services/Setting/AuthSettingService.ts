@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { AdminAuthSetting, PatchAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -22,7 +22,7 @@ const AuthSettingsState = defineState({
 })
 
 export const AuthSettingsServiceReceptor = (action) => {
-  const s = getState(AuthSettingsState)
+  const s = getMutableState(AuthSettingsState)
   matches(action)
     .when(AuthSettingsActions.authSettingRetrieved.matches, (action) => {
       return s.merge({
@@ -59,7 +59,7 @@ export const AuthSettingsServiceReceptor = (action) => {
 //   authSettingPatchedReceptor
 // }
 
-export const accessAuthSettingState = () => getState(AuthSettingsState)
+export const accessAuthSettingState = () => getMutableState(AuthSettingsState)
 
 export const useAuthSettingState = () => useState(accessAuthSettingState())
 

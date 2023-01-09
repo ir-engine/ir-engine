@@ -3,7 +3,7 @@ import assert from 'assert'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { applyIncomingActions, clearOutgoingActions, getState } from '@xrengine/hyperflux'
+import { applyIncomingActions, clearOutgoingActions, getMutableState } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
@@ -33,7 +33,7 @@ describe('NetworkPeerFunctions', () => {
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName, world)
 
-      const worldState = getState(WorldState)
+      const worldState = getMutableState(WorldState)
 
       assert(network.peers.get(peerID))
       assert.equal(network.peers.get(peerID)?.userId, userId)
@@ -60,7 +60,7 @@ describe('NetworkPeerFunctions', () => {
       const peerIndex2 = 4
       const network = world.worldNetwork
 
-      const worldState = getState(WorldState)
+      const worldState = getMutableState(WorldState)
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName, world)
       assert.equal(network.peers.get(peerID)!.userId, userId)

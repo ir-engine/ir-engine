@@ -5,7 +5,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -23,7 +23,7 @@ export const userPatched = (params) => {
 
   logger.info('Resolved patched user %o', patchedUser)
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[patchedUser.id].set(patchedUser.name)
 
   if (selfUser.id.value === patchedUser.id) {

@@ -14,7 +14,7 @@ import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/compone
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
@@ -46,7 +46,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   const onChangeDynamicLoad = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n !== 'string'
     ) as EntityTreeNode[]
     EditorControlFunctions.addOrRemoveComponent(nodes, SceneDynamicLoadTagComponent, value)
@@ -54,19 +54,19 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //function to handle the position properties
   const onChangePosition = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.positionObject(nodes, [value])
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value: Euler) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateObject(nodes, [value])
   }
 
   //function to handle changes in scale properties
   const onChangeScale = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.Local, true)
   }
 

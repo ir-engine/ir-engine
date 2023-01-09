@@ -1,7 +1,7 @@
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useHookstate } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { isMobile } from '../common/functions/isMobile'
@@ -100,7 +100,7 @@ export class XRAction {
 }
 
 export const getCameraMode = () => {
-  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState).value
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getMutableState(XRState).value
   if (!session || scenePlacementMode === 'placing') return 'detached'
   if (avatarCameraMode === 'auto') {
     if (session.interactionMode === 'screen-space') return 'detached'
@@ -117,7 +117,7 @@ export const getCameraMode = () => {
  * @returns {boolean} true if the user has movement controls
  */
 export const hasMovementControls = () => {
-  const { sessionActive, sceneScale, sessionMode, session } = getState(XRState).value
+  const { sessionActive, sceneScale, sessionMode, session } = getMutableState(XRState).value
   if (!sessionActive) return true
   if (session && session.interactionMode === 'screen-space') return true
   return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
@@ -129,9 +129,9 @@ export const hasMovementControls = () => {
  * @returns {Entity}
  */
 export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhand = false) => {
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   if (!xrState.sessionActive.value) return
-  const avatarInputSettings = getState(AvatarInputSettingsState)
+  const avatarInputSettings = getMutableState(AvatarInputSettingsState)
   for (const inputSource of inputSources) {
     if (inputSource.handedness === 'none') continue
     if (!offhand && avatarInputSettings.preferredHand.value == inputSource.handedness) return inputSource
@@ -143,7 +143,7 @@ export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhan
 export const isHeadset = () => {
   const supportedSessionModes = getState(XRState).supportedSessionModes
   if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
-  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
+  return supportedSessionModes['immersive-vr'] || supportedSessionModes['immersive-ar']
 }
 
 export const useIsHeadset = () => {

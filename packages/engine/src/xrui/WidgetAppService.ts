@@ -1,4 +1,4 @@
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 import { none } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { matches } from '../common/functions/MatchesUtils'
@@ -15,7 +15,7 @@ export const WidgetAppState = defineState({
 })
 
 export const WidgetAppServiceReceptor = (action) => {
-  const s = getState(WidgetAppState)
+  const s = getMutableState(WidgetAppState)
   matches(action)
     .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
       return s.widgetsMenuOpen.set(action.shown)
@@ -55,7 +55,7 @@ export const WidgetAppServiceReceptor = (action) => {
 
 export const WidgetAppService = {
   setWidgetVisibility: (widgetName: string, visibility: boolean) => {
-    const widgetState = getState(WidgetAppState)
+    const widgetState = getMutableState(WidgetAppState)
     const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
       id,
       ...widgetState,

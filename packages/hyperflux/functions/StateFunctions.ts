@@ -1,5 +1,6 @@
 import { createState, SetInitialStateAction, State } from '@hookstate/core'
 
+import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { isNode } from '@xrengine/engine/src/common/functions/getEnvironment'
 
@@ -23,7 +24,7 @@ export function defineState<S>(definition: StateDefinition<S>) {
 
 export function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
   logger.info(`registerState ${StateDefinition.name}`)
-  if (StateDefinition.name in store.state) {
+  if (StateDefinition.name in store.stateMap) {
     const err = new Error(`State ${StateDefinition.name} has already been registered in Store`)
     logger.error(err)
     throw err
@@ -32,14 +33,22 @@ export function registerState<S>(StateDefinition: StateDefinition<S>, store = Hy
     typeof StateDefinition.initial === 'function'
       ? (StateDefinition.initial as Function)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
-  store.state[StateDefinition.name] = createState(initial)
-  if (StateDefinition.onCreate) StateDefinition.onCreate(store, getState(StateDefinition, store))
+  store.valueMap[StateDefinition.name] = initial
+  store.stateMap[StateDefinition.name] = createState(initial)
+  if (StateDefinition.onCreate) StateDefinition.onCreate(store, getMutableState(StateDefinition, store))
+}
+
+export function getMutableState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
+  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
+  return store.stateMap[StateDefinition.name] as State<S>
 }
 
 export function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
-  if (!store.state[StateDefinition.name]) registerState(StateDefinition, store)
-  return store.state[StateDefinition.name] as State<S>
+  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
+  return store.valueMap[StateDefinition.name] as DeepReadonly<S>
 }
+
+export function useState<S>(StateDefinition: StateDefinition<S>, path?: string, store = HyperFlux.store) {}
 
 const stateNamespaceKey = 'ee.hyperflux'
 
@@ -56,8 +65,8 @@ const stateNamespaceKey = 'ee.hyperflux'
  */
 export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
   if (isNode) return
-  const state = getState(stateDefinition)
-
+  
+  const state = getMutableState(stateDefinition)
   for (const key of keys) {
     const storedValue = localStorage.getItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)
     if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))

@@ -21,7 +21,7 @@ import { PortalEffects } from '@xrengine/engine/src/scene/components/PortalCompo
 import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { addActionReceptor, dispatchAction, getState, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getMutableState, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
 import { NotificationService } from '../../common/services/NotificationService'

@@ -1,7 +1,7 @@
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { getState, NO_PROXY, none } from '@xrengine/hyperflux'
+import { getMutableState, NO_PROXY, none } from '@xrengine/hyperflux'
 
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
@@ -167,7 +167,7 @@ export function addEntityNodeChild(node: EntityTreeNode, parent: EntityTreeNode,
   computeTransformMatrix(node.entity)
   const parentTransform = getComponent(parent.entity, TransformComponent)
   const childTransform = getComponent(node.entity, TransformComponent)
-  getState(EngineState).transformsNeedSorting.set(true)
+  getMutableState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
     setLocalTransformComponent(node.entity, parent.entity)

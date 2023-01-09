@@ -1,4 +1,4 @@
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
@@ -17,7 +17,7 @@ export default async function XRLightProbeSystem(world: World) {
   xrLight.directionalLight.shadow.camera.far = 2000
   xrLight.directionalLight.castShadow = true
 
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   xrState.lightEstimator.set(xrLight)
 
   let previousEnvironment = Engine.instance.currentWorld.scene.environment

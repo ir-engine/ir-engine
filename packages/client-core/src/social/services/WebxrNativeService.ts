@@ -1,7 +1,14 @@
 import { createState } from '@hookstate/core'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  useState
+} from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -14,7 +21,7 @@ const WebxrState = defineState({
 })
 
 export const WebxrNativeServiceReceptor = (action) => {
-  const s = getState(WebxrState)
+  const s = getMutableState(WebxrState)
   matches(action)
     .when(WebxrNativeAction.setWebXrNative.matches, () => {
       return s.webxrnative.set(false)
@@ -24,7 +31,7 @@ export const WebxrNativeServiceReceptor = (action) => {
     })
 }
 
-export const accessWebxrNativeState = () => getState(WebxrState)
+export const accessWebxrNativeState = () => getMutableState(WebxrState)
 export const useWebxrNativeState = () => useState(accessWebxrNativeState())
 
 //Service

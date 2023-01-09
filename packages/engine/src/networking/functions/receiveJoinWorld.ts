@@ -3,7 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -34,7 +34,7 @@ export type SpawnInWorldProps = {
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const { avatarSpawnPose, avatarDetail, name } = props
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarDetail, name)
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[Engine.instance.userId].set(name)
   worldState.userAvatarDetails[Engine.instance.userId].set(avatarDetail)
   dispatchAction(WorldNetworkAction.spawnAvatar(avatarSpawnPose))

@@ -4,7 +4,7 @@ import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import {
   addActionReceptor,
   dispatchAction,
-  getState,
+  getMutableState,
   NO_PROXY,
   removeActionReceptor,
   useHookstate
@@ -47,7 +47,7 @@ export const EmoteIcon = () => (
 )
 
 export const UserMenu = (): any => {
-  const popupMenuState = useHookstate(getState(PopupMenuState))
+  const popupMenuState = useHookstate(getMutableState(PopupMenuState))
   const Panel = popupMenuState.openMenu.value ? popupMenuState.menus.get(NO_PROXY)[popupMenuState.openMenu.value] : null
   const hotbarItems = popupMenuState.hotbar
 
@@ -56,7 +56,7 @@ export const UserMenu = (): any => {
   }
 
   useEffect(() => {
-    getState(PopupMenuState).menus.merge({
+    getMutableState(PopupMenuState).menus.merge({
       [Views.Profile]: (props) => <ProfileMenu {...props} allowAvatarChange />,
       [Views.Settings]: SettingMenu,
       [Views.Share]: ShareMenu,
@@ -68,7 +68,7 @@ export const UserMenu = (): any => {
       [Views.Friends]: FriendsMenu,
       [Views.AvatarContext]: AvatarContextMenu
     })
-    getState(PopupMenuState).hotbar.merge({
+    getMutableState(PopupMenuState).hotbar.merge({
       [Views.Profile]: PersonIcon,
       [Views.Share]: GroupsIcon,
       [Views.Emote]: EmoteIcon

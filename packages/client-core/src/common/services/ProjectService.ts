@@ -6,7 +6,7 @@ import { ProjectInterface, ProjectUpdateType } from '@xrengine/common/src/interf
 import { UpdateProjectInterface } from '@xrengine/common/src/interfaces/UpdateProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -31,7 +31,7 @@ export const ProjectState = defineState({
 })
 
 export const ProjectServiceReceptor = (action) => {
-  const s = getState(ProjectState)
+  const s = getMutableState(ProjectState)
   matches(action)
     .when(ProjectAction.projectsFetched.matches, (action) => {
       s.projects.set(action.projectResult)
@@ -53,7 +53,7 @@ export const ProjectServiceReceptor = (action) => {
     })
 }
 
-export const accessProjectState = () => getState(ProjectState)
+export const accessProjectState = () => getMutableState(ProjectState)
 
 export const useProjectState = () => useState(accessProjectState())
 

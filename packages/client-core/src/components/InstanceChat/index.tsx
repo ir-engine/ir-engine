@@ -15,7 +15,7 @@ import { EngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/En
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import { IconButton } from '@mui/material'
@@ -282,7 +282,7 @@ export const InstanceChat = ({
     setIsInitRender(false)
   }
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   return (
     <>
@@ -444,7 +444,7 @@ export const InstanceChat = ({
 }
 
 export const InstanceChatWrapper = () => {
-  const engineState = useHookstate(getState(EngineState))
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
   return (

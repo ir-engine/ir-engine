@@ -17,7 +17,7 @@ import {
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getRendererSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, useHookstate } from '@xrengine/hyperflux'
 
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'

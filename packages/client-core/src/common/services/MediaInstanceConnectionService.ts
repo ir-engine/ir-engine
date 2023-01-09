@@ -7,7 +7,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { accessChatState } from '../../social/services/ChatService'
@@ -43,7 +43,7 @@ export const MediaInstanceState = defineState({
 
 export function useMediaInstance() {
   const [state, setState] = React.useState(null as null | State<InstanceState>)
-  const mediaInstanceState = useState(getState(MediaInstanceState).instances)
+  const mediaInstanceState = useState(getMutableState(MediaInstanceState).instances)
   const mediaHostId = useState(Engine.instance.currentWorld.hostIds.media)
   useEffect(() => {
     setState(mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null)
@@ -52,7 +52,7 @@ export function useMediaInstance() {
 }
 
 export const MediaInstanceConnectionServiceReceptor = (action) => {
-  const s = getState(MediaInstanceState)
+  const s = getMutableState(MediaInstanceState)
   matches(action)
     .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
       Engine.instance.currentWorld.hostIds.media.set(action.instanceId)
@@ -106,7 +106,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     })
 }
 
-export const accessMediaInstanceConnectionState = () => getState(MediaInstanceState)
+export const accessMediaInstanceConnectionState = () => getMutableState(MediaInstanceState)
 
 export const useMediaInstanceConnectionState = () => useState(accessMediaInstanceConnectionState())
 

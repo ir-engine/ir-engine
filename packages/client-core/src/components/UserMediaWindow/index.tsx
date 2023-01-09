@@ -32,7 +32,7 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import {
   Launch,
@@ -115,7 +115,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const currentChannelInstanceConnection = useMediaInstance()
 
-  const mediaSettingState = useHookstate(getState(MediaSettingsState))
+  const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
   const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
@@ -527,7 +527,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const username = getUsername()
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   const handleVisibilityChange = () => {
     if (document.hidden) {

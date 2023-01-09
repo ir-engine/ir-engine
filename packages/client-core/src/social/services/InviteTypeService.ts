@@ -2,7 +2,14 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  useState
+} from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -19,7 +26,7 @@ const InviteTypeState = defineState({
 })
 
 export const InviteTypeServiceReceptor = (action) => {
-  const s = getState(InviteTypeState)
+  const s = getMutableState(InviteTypeState)
   matches(action).when(InviteTypeAction.retrievedInvitesTypes.matches, (action) => {
     return s.merge({
       invitesType: action.invitesType.data,
@@ -30,7 +37,7 @@ export const InviteTypeServiceReceptor = (action) => {
   })
 }
 
-export const accessInviteTypeState = () => getState(InviteTypeState)
+export const accessInviteTypeState = () => getMutableState(InviteTypeState)
 
 export const useInviteTypeState = () => useState(accessInviteTypeState())
 

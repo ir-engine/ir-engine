@@ -42,7 +42,7 @@ import {
   addActionReceptor,
   createActionQueue,
   dispatchAction,
-  getState,
+  getMutableState,
   removeActionQueue,
   startReactor,
   useHookstate
@@ -86,7 +86,7 @@ export default async function WidgetUISystem(world: World) {
   setObjectLayers(helper, ObjectLayers.Gizmos)
   addObjectToGroup(widgetMenuUI.entity, helper)
 
-  const widgetState = getState(WidgetAppState)
+  const widgetState = getMutableState(WidgetAppState)
 
   // lazily create XRUI widgets to speed up initial page loading time
   let createdWidgets = false

@@ -2,7 +2,7 @@ import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 import {
   ActionRecipients,
   addActionReceptor,
@@ -31,7 +31,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       const world = Engine.instance.currentWorld
 
       // fixed tick in past
-      const engineState = getState(EngineState)
+      const engineState = getMutableState(EngineState)
       engineState.fixedTick.set(0)
 
       /* mock */

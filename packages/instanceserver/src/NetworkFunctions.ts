@@ -17,7 +17,7 @@ import { JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
@@ -250,7 +250,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
   worldState.userAvatarDetails[userId].set({
     avatarURL: avatarDetail.modelResource?.url || '',
@@ -404,7 +404,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (spark.id === disconnectedClient?.peerID) {
     const state = getState(WorldState)
-    const userName = state.userNames[userId].value
+    const userName = state.userNames[userId]
 
     network.app.service('message').create(
       {

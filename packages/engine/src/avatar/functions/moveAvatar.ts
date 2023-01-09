@@ -2,7 +2,7 @@ import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
-import { getState } from '@xrengine/hyperflux'
+import { getState, getMutableState } from '@xrengine/hyperflux'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_000, V_010 } from '../../common/constants/MathConstants'

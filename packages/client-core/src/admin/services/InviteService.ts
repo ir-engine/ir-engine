@@ -4,7 +4,7 @@ import { Invite as InviteInterface } from '@xrengine/common/src/interfaces/Invit
 import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -31,7 +31,7 @@ const AdminInviteState = defineState({
 })
 
 export const invitesRetrievedReceptor = (action: typeof AdminInviteActions.invitesRetrieved.matches._TYPE) => {
-  const state = getState(AdminInviteState)
+  const state = getMutableState(AdminInviteState)
   return state.merge({
     invites: action.invites.data,
     skip: action.invites.skip,
@@ -45,17 +45,17 @@ export const invitesRetrievedReceptor = (action: typeof AdminInviteActions.invit
 }
 
 export const inviteCreatedReceptor = (action: typeof AdminInviteActions.inviteCreated.matches._TYPE) => {
-  const state = getState(AdminInviteState)
+  const state = getMutableState(AdminInviteState)
   return state.merge({ updateNeeded: true, created: true })
 }
 
 export const invitePatchedReceptor = (action: typeof AdminInviteActions.invitePatched.matches._TYPE) => {
-  const state = getState(AdminInviteState)
+  const state = getMutableState(AdminInviteState)
   return state.merge({ updateNeeded: true })
 }
 
 export const inviteRemovedReceptor = (action: typeof AdminInviteActions.inviteRemoved.matches._TYPE) => {
-  const state = getState(AdminInviteState)
+  const state = getMutableState(AdminInviteState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -66,7 +66,7 @@ export const AdminInviteReceptors = {
   inviteRemovedReceptor
 }
 
-export const accessAdminInviteState = () => getState(AdminInviteState)
+export const accessAdminInviteState = () => getMutableState(AdminInviteState)
 
 export const useAdminInviteState = () => useState(accessAdminInviteState())
 

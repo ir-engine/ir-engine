@@ -10,7 +10,7 @@ import Text from '@xrengine/client-core/src/common/components/Text'
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { Box, Chip } from '@mui/material'
 
@@ -37,7 +37,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
   const authState = useAuthState()
   const selfId = authState.user.id?.value ?? ''
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
   const partyOwner = partyState.party?.partyUsers?.value
     ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
     : null

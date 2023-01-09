@@ -1,5 +1,5 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getMutableState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
 
 export const AppState = defineState({
   name: 'AppState',
@@ -14,7 +14,7 @@ export const AppState = defineState({
 })
 
 export const AppServiceReceptor = (action) => {
-  const s = getState(AppState)
+  const s = getMutableState(AppState)
   matches(action)
     .when(AppAction.showTopShelf.matches, (action) => {
       return s.showTopShelf.set(action.show)

@@ -24,7 +24,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 import { createState, hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
@@ -155,28 +155,28 @@ export class World {
    * The seconds since the last world execution
    */
   get deltaSeconds() {
-    return getState(EngineState).deltaSeconds.value
+    return getMutableState(EngineState).deltaSeconds.value
   }
 
   /**
    * The elapsed seconds since `startTime`
    */
   get elapsedSeconds() {
-    return getState(EngineState).elapsedSeconds.value
+    return getMutableState(EngineState).elapsedSeconds.value
   }
 
   /**
    * The elapsed seconds since `startTime`, in fixed time steps.
    */
   get fixedElapsedSeconds() {
-    return getState(EngineState).fixedElapsedSeconds.value
+    return getMutableState(EngineState).fixedElapsedSeconds.value
   }
 
   /**
    * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   get fixedTick() {
-    return getState(EngineState).fixedTick.value
+    return getMutableState(EngineState).fixedTick.value
   }
 
   get fixedDeltaSeconds() {
@@ -372,7 +372,7 @@ export class World {
     const incomingActions = [...Engine.instance.store.actions.incoming]
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.deltaSeconds.set(
       Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
     )

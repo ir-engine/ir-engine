@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
@@ -46,7 +46,7 @@ const InviteState = defineState({
 })
 
 export const InviteServiceReceptor = (action) => {
-  const s = getState(InviteState)
+  const s = getMutableState(InviteState)
   matches(action)
     .when(InviteAction.sentInvite.matches, () => {
       return s.sentUpdateNeeded.set(true)
@@ -107,7 +107,7 @@ export const InviteServiceReceptor = (action) => {
     })
 }
 
-export const accessInviteState = () => getState(InviteState)
+export const accessInviteState = () => getMutableState(InviteState)
 
 export const useInviteState = () => useState(accessInviteState())
 

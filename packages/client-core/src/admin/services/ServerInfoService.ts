@@ -1,6 +1,6 @@
 import { ServerInfoInterface, ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -20,7 +20,7 @@ const fetchServerInfoRequestedReceptor = (
   action: typeof AdminServerInfoActions.fetchServerInfoRequested.matches._TYPE
 ) => {
   try {
-    const state = getState(AdminServerInfoState)
+    const state = getMutableState(AdminServerInfoState)
     return state.merge({ retrieving: true })
   } catch (err) {
     NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -31,7 +31,7 @@ const fetchServerInfoRetrievedReceptor = (
   action: typeof AdminServerInfoActions.fetchServerInfoRetrieved.matches._TYPE
 ) => {
   try {
-    const state = getState(AdminServerInfoState)
+    const state = getMutableState(AdminServerInfoState)
     return state.merge({
       servers: action.data,
       retrieving: false,
@@ -44,7 +44,7 @@ const fetchServerInfoRetrievedReceptor = (
 }
 
 const serverInfoPodRemovedReceptor = (action: typeof AdminServerInfoActions.serverInfoPodRemoved.matches._TYPE) => {
-  const state = getState(AdminServerInfoState)
+  const state = getMutableState(AdminServerInfoState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -54,7 +54,7 @@ export const AdminServerInfoReceptors = {
   serverInfoPodRemovedReceptor
 }
 
-export const accessServerInfoState = () => getState(AdminServerInfoState)
+export const accessServerInfoState = () => getMutableState(AdminServerInfoState)
 
 export const useServerInfoState = () => useState(accessServerInfoState())
 

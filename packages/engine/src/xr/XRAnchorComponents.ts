@@ -3,7 +3,7 @@ import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Shadow
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { defineAction, getState, State, useHookstate } from '@xrengine/hyperflux'
+import { defineAction, getMutableState, State, useHookstate } from '@xrengine/hyperflux'
 
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
@@ -156,7 +156,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
 
   const anchor = useOptionalComponent(entity, PersistentAnchorComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
-  const xrState = useHookstate(getState(XRState))
+  const xrState = useHookstate(getMutableState(XRState))
 
   const group = groupComponent?.value as (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[] | undefined
 

@@ -2,7 +2,7 @@ import { clamp } from 'lodash'
 import { useEffect } from 'react'
 import { Vector2 } from 'three'
 
-import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
@@ -100,7 +100,7 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
 }
 
 export default async function CameraInputSystem(world: World) {
-  const cameraSettings = getState(CameraSettings)
+  const cameraSettings = getMutableState(CameraSettings)
 
   const inputQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
 

@@ -21,7 +21,7 @@ import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/ba
 import { batchSetMaterialProperty } from '@xrengine/engine/src/renderer/materials/functions/batchEditMaterials'
 import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, useHookstate } from '@xrengine/hyperflux'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { ToggleButton } from '@mui/material'

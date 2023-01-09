@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { DirectionalLight, Group, PerspectiveCamera } from 'three'
 
-import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { CSM } from '../../assets/csm/CSM'
 import CSMHelper from '../../assets/csm/CSMHelper'
@@ -27,8 +27,8 @@ export default async function ShadowSystem(world: World) {
 
   let lastActiveDirectionLight = null as DirectionalLight | null
 
-  const xrState = getState(XRState)
-  const renderState = getState(EngineRendererState)
+  const xrState = getMutableState(XRState)
+  const renderState = getMutableState(EngineRendererState)
   // let helper
 
   const csmGroup = new Group()

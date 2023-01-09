@@ -9,7 +9,7 @@ import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { AdminPanelSettings, Help, Refresh, Report, ScreenshotMonitor } from '@mui/icons-material'
 
@@ -28,7 +28,7 @@ function createLocationMenuState() {
 
 const LocationMenuView = () => {
   const { t } = useTranslation()
-  const xrState = useState(getState(XRState))
+  const xrState = useState(getMutableState(XRState))
 
   const isAdmin = useAuthState().user?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 

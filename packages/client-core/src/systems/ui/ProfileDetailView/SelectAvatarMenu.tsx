@@ -9,7 +9,7 @@ import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 
@@ -34,7 +34,7 @@ const SelectAvatarMenu = () => {
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
-  const avatarState = useHookstate(getState(AvatarState))
+  const avatarState = useHookstate(getMutableState(AvatarState))
 
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.total.value))

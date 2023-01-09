@@ -1,4 +1,4 @@
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { AvatarStates } from '../../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
@@ -33,7 +33,7 @@ export const revertAvatarToMovingStateFromTeleport = (world: World) => {
 }
 
 export const portalTriggerEnter = (triggerEntity: Entity) => {
-  if (!getState(EngineState).isTeleporting.value && getComponent(triggerEntity, PortalComponent)) {
+  if (!getMutableState(EngineState).isTeleporting.value && getComponent(triggerEntity, PortalComponent)) {
     const portalComponent = getComponent(triggerEntity, PortalComponent)
     Engine.instance.currentWorld.activePortal = portalComponent
     dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))

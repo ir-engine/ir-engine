@@ -8,7 +8,7 @@ import logger from '@xrengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -38,7 +38,7 @@ export const LocationInstanceState = defineState({
 
 export function useWorldInstance() {
   const [state, setState] = React.useState(null as null | State<InstanceState>)
-  const worldInstanceState = useState(getState(LocationInstanceState).instances)
+  const worldInstanceState = useState(getMutableState(LocationInstanceState).instances)
   const worldHostId = useState(Engine.instance.currentWorld.hostIds.world)
   useEffect(() => {
     setState(worldHostId.value ? worldInstanceState[worldHostId.value] : null)
@@ -47,7 +47,7 @@ export function useWorldInstance() {
 }
 
 export const LocationInstanceConnectionServiceReceptor = (action) => {
-  const s = getState(LocationInstanceState)
+  const s = getMutableState(LocationInstanceState)
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
       Engine.instance.currentWorld.hostIds.world.set(action.instanceId)
@@ -93,7 +93,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
     })
 }
 
-export const accessLocationInstanceConnectionState = () => getState(LocationInstanceState)
+export const accessLocationInstanceConnectionState = () => getMutableState(LocationInstanceState)
 
 export const useLocationInstanceConnectionState = () => useState(accessLocationInstanceConnectionState())
 

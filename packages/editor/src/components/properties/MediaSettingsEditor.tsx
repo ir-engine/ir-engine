@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
 import { getMediaSceneMetadataState } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, useHookstate } from '@xrengine/hyperflux'
 
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'

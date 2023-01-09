@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Material, Mesh } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, useHookstate } from '@xrengine/hyperflux'
 
 import { World } from '../ecs/classes/World'
 import { Object3DWithEntity, startGroupQueryReactor } from '../scene/components/GroupComponent'
@@ -51,7 +51,7 @@ const removeShaderFromObject = (object: Object3DWithEntity) => {
  * @returns
  */
 export default async function XRScenePlacementShader(world: World) {
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
 
   const xrScenePlacementReactor = startGroupQueryReactor(
     function ({ obj }) {

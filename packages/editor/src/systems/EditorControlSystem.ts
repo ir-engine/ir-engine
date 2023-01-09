@@ -47,7 +47,7 @@ import {
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
@@ -81,8 +81,8 @@ export const createTransformGizmo = async () => {
 export default async function EditorControlSystem(world: World) {
   const gizmoEntity = await createTransformGizmo()
 
-  const selectionState = getState(SelectionState)
-  const editorHelperState = getState(EditorHelperState)
+  const selectionState = getMutableState(SelectionState)
+  const editorHelperState = getMutableState(EditorHelperState)
 
   const raycaster = new Raycaster()
   const raycasterResults: Intersection<Object3D>[] = []
@@ -129,7 +129,7 @@ export default async function EditorControlSystem(world: World) {
   let dragging = false
 
   const onKeyQ = () => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateAround(
       nodes,
       V_010,
@@ -139,7 +139,7 @@ export default async function EditorControlSystem(world: World) {
   }
 
   const onKeyE = () => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateAround(
       nodes,
       V_010,
@@ -209,7 +209,9 @@ export default async function EditorControlSystem(world: World) {
   }
 
   const onDelete = () => {
-    EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value))
+    EditorControlFunctions.removeObject(
+      getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+    )
   }
 
   const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], excludeLayers?: Layers): void => {
@@ -438,7 +440,7 @@ export default async function EditorControlSystem(world: World) {
           )
         }
 
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
         EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
 
         // if (isGrabbing && transformMode === TransformMode.Grab) {
@@ -463,7 +465,7 @@ export default async function EditorControlSystem(world: World) {
         const relativeRotationAngle = rotationAngle - prevRotationAngle
         prevRotationAngle = rotationAngle
 
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
         EditorControlFunctions.rotateAround(nodes, planeNormal, relativeRotationAngle, gizmoObj.position)
 
         const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
@@ -540,7 +542,7 @@ export default async function EditorControlSystem(world: World) {
         scaleVector.copy(curScale).divide(prevScale)
         prevScale.copy(curScale)
 
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
         EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
       }
     }

@@ -49,7 +49,7 @@ import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@xrengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
@@ -547,7 +547,7 @@ const removeObject = (nodes: (EntityTreeNode | string)[], updateSelection = true
 
   if (updateSelection) {
     // TEMPORARY - this is to stop a crash
-    getState(SelectionState).set({
+    getMutableState(SelectionState).set({
       selectedEntities: [],
       selectedParentEntities: [],
       selectionCounter: 1,
@@ -589,7 +589,7 @@ const removeObject = (nodes: (EntityTreeNode | string)[], updateSelection = true
  * @returns
  */
 const replaceSelection = (nodes: (EntityTreeNode | string)[]) => {
-  const current = getState(SelectionState).selectedEntities.value
+  const current = getMutableState(SelectionState).selectedEntities.value
   const selectedEntities = nodes.map((n) => (typeof n === 'string' ? n : n.entity))
 
   if (selectedEntities.length === current.length) {
@@ -613,7 +613,7 @@ const replaceSelection = (nodes: (EntityTreeNode | string)[]) => {
  * @returns
  */
 const toggleSelection = (nodes: (EntityTreeNode | string)[]) => {
-  const selectedEntities = getState(SelectionState).selectedEntities.value.slice(0)
+  const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
@@ -630,7 +630,7 @@ const toggleSelection = (nodes: (EntityTreeNode | string)[]) => {
 }
 
 const addToSelection = (nodes: (EntityTreeNode | string)[]) => {
-  const selectedEntities = getState(SelectionState).selectedEntities.value.slice(0)
+  const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < nodes.length; i++) {
     const object = nodes[i]

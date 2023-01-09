@@ -11,7 +11,7 @@ import {
   defineAction,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   registerState,
   removeActionReceptor
 } from '..'
@@ -420,7 +420,7 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(HospitalityState, store)
-    assert(store.state.hospitality)
+    assert(store.mapState.hospitality)
   })
 
   it('should be able to optionally have an onCreate callback', () => {
@@ -436,7 +436,7 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(HospitalityState, store)
-    const hospitality = getState(HospitalityState, store).value
+    const hospitality = getMutableState(HospitalityState, store).value
     assert.equal(hospitality.create, true)
   })
 
@@ -450,8 +450,8 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(HospitalityState, store)
-    assert(store.state.hospitality)
-    const hospitality = getState(HospitalityState, store).value
+    assert(store.mapState.hospitality)
+    const hospitality = getMutableState(HospitalityState, store).value
     assert.equal(hospitality.greetingCount, 0)
   })
 
@@ -471,16 +471,16 @@ describe('Hyperflux Unit Tests', () => {
 
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(HospitalityState, store)
-    assert(store.state.hospitality)
+    assert(store.mapState.hospitality)
 
     addActionReceptor((action) => {
       matches(action).when(greet.matches, () => {})
-      const hospitality = getState(HospitalityState, store)
+      const hospitality = getMutableState(HospitalityState, store)
       hospitality.greetingCount.set(100)
     }, store)
 
     dispatchAction(greet({}), store)
     applyIncomingActions(store)
-    assert.equal(getState(HospitalityState, store).greetingCount.value, 100)
+    assert.equal(getMutableState(HospitalityState, store).greetingCount.value, 100)
   })
 })

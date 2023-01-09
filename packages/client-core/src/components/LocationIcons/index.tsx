@@ -5,7 +5,7 @@ import { UserMenu } from '@xrengine/client-core/src/user/components/UserMenu'
 import { iOS } from '@xrengine/engine/src/common/functions/isMobile'
 import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getCameraMode, XRState } from '@xrengine/engine/src/xr/XRState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import { ARPlacement } from '../ARPlacement'
@@ -18,11 +18,10 @@ import { XRLoading } from '../XRLoading'
 import styles from './index.module.scss'
 
 export const LocationIcons = () => {
-  const loadingSystemState = useHookstate(getState(LoadingSystemState))
-  const engineState = useHookstate(getState(EngineState))
+  const loadingSystemState = useHookstate(getMutableState(LoadingSystemState))
+  const engineState = useHookstate(getMutableState(EngineState))
   useHookstate(getState(XRState))
   const cameraMode = getCameraMode()
-
   if (!engineState.isEngineInitialized.value) return <></>
   return (
     <>

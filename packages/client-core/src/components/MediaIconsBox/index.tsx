@@ -19,7 +19,7 @@ import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSyste
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
@@ -61,7 +61,7 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
 
   const engineState = useEngineState()
-  const xrState = useHookstate(getState(XRState))
+  const xrState = useHookstate(getMutableState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value

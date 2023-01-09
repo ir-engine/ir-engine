@@ -1,24 +1,17 @@
 import { Color, MathUtils, Object3D } from 'three'
 
-import config from '@xrengine/common/src/config'
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import {
-  getAllComponents,
-  getComponent,
-  getComponentState,
-  serializeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getState } from '@xrengine/hyperflux'
+import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableState } from '@xrengine/hyperflux'
 
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
+import { AssetComponentType } from '../components/AssetComponent'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
-import { PrefabComponentType } from '../components/PrefabComponent'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
@@ -73,7 +66,11 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instance.currentWorld) => {
+const serializeECS = (
+  roots: Object3DWithEntity[],
+  asset?: AssetComponentType,
+  world: World = Engine.instance.currentWorld
+) => {
   const eTree = world.entityTree
   const nodeMap = eTree.entityNodeMap
   let rootEntities = new Array()
@@ -126,15 +123,13 @@ const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instanc
 }
 
 export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
-  const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
-  for (const root of roots) {
-    const node = eNodeMap.get(root.entity)!
+  roots.forEach((root) =>
     root.traverse((node: Object3DWithEntity) => {
       if (node.entity) {
         prepareObjectForGLTFExport(node)
       }
     })
-  }
+  )
 
   const gltf = serializeECS(roots)
   handleScenePaths(gltf, 'encode')
@@ -147,26 +142,25 @@ export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
  * @param mode 'encode' or 'decode'
  */
 export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
-  const cacheRe = new RegExp(`${config.client.fileServer}\/projects`)
+  const hostPath = Engine.instance.publicPath.replace(/:\d{4}$/, '')
+  const cacheRe = new RegExp(`${hostPath}:\\d{4}\/projects`)
   const symbolRe = /__\$project\$__/
   const pathSymbol = '__$project$__'
   const frontier = [...gltf.scenes, ...gltf.nodes]
   while (frontier.length > 0) {
     const elt = frontier.pop()
-    if (typeof elt === 'object' && elt !== null) {
-      for (const [k, v] of Object.entries(elt)) {
-        if (!!v && typeof v === 'object' && !(v as Object3D).isObject3D) {
-          frontier.push(v)
+    for (const [k, v] of Object.entries(elt)) {
+      if (typeof v === 'object') {
+        frontier.push(v)
+      }
+      if (mode === 'encode') {
+        if (typeof v === 'string' && cacheRe.test(v)) {
+          elt[k] = v.replace(cacheRe, pathSymbol)
         }
-        if (mode === 'encode') {
-          if (typeof v === 'string' && cacheRe.test(v)) {
-            elt[k] = v.replace(cacheRe, pathSymbol)
-          }
-        }
-        if (mode === 'decode') {
-          if (typeof v === 'string' && symbolRe.test(v)) {
-            elt[k] = v.replace(symbolRe, `${config.client.fileServer}/projects`)
-          }
+      }
+      if (mode === 'decode') {
+        if (typeof v === 'string' && symbolRe.test(v)) {
+          elt[k] = v.replace(symbolRe, `${hostPath}:8642/projects`)
         }
       }
     }
@@ -206,7 +200,7 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = En
       const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister) {
         const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
-        const data = serialize ? serialize(entity) : serializeComponent(entity, component)
+        const data = serialize ? serialize(entity) : getComponent(entity, component)
         if (data)
           addComponentDataToGLTFExtension(obj3d, {
             name: sceneComponentID,

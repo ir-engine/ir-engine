@@ -12,7 +12,13 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { defineAction, defineState, getState, startReactor, syncStateWithLocalStorage } from '@xrengine/hyperflux'
+import {
+  defineAction,
+  defineState,
+  getMutableState,
+  startReactor,
+  syncStateWithLocalStorage
+} from '@xrengine/hyperflux'
 
 import { SceneState } from '../functions/sceneRenderFunctions'
 
@@ -47,7 +53,7 @@ export const EditorHelperState = defineState({
 
     /** @todo move this to EditorHelperServiceSystem when the receptor is moved over */
     startReactor(() => {
-      const state = useHookstate(getState(EditorHelperState))
+      const state = useHookstate(getMutableState(EditorHelperState))
 
       useEffect(() => {
         SceneState.transformGizmo.setTransformMode(state.transformMode.value)
@@ -63,7 +69,7 @@ export const EditorHelperState = defineState({
 })
 
 export const EditorHelperServiceReceptor = (action): any => {
-  const s = getState(EditorHelperState)
+  const s = getMutableState(EditorHelperState)
   matches(action)
     .when(EditorHelperAction.changedPlayMode.matches, (action) => {
       s.isPlayModeEnabled.set(action.isPlayModeEnabled)
@@ -100,9 +106,10 @@ export const EditorHelperServiceReceptor = (action): any => {
     })
 }
 
-export const accessEditorHelperState = () => getState(EditorHelperState)
+export const accessEditorHelperState = () => getMutableState(EditorHelperState)
 
-export const useEditorHelperState = (() => useHookstate(getState(EditorHelperState))) as typeof accessEditorHelperState
+export const useEditorHelperState = (() =>
+  useHookstate(getMutableState(EditorHelperState))) as typeof accessEditorHelperState
 
 //Action
 export class EditorHelperAction {

@@ -8,7 +8,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { FriendService, useFriendState } from '../../../social/services/FriendService'
 import { InviteService } from '../../../social/services/InviteService'
@@ -46,7 +46,7 @@ const AvatarContextMenu = () => {
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
   const partyOwner = partyState.party?.partyUsers?.value
     ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
     : null

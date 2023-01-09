@@ -2,7 +2,7 @@ import { Validator } from 'ts-matches'
 
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 import { Action, ActionShape, ResolvedActionType } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { none } from '@xrengine/hyperflux/functions/StateFunctions'
 
@@ -38,7 +38,7 @@ function createPeer(
     userIndex
   })
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[userID].set(name)
 }
 

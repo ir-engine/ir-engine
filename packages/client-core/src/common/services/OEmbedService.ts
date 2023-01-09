@@ -1,7 +1,7 @@
 import { OEmbed } from '@xrengine/common/src/interfaces/OEmbed'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -17,7 +17,7 @@ const OEmbedState = defineState({
 })
 
 export const OEmbedServiceReceptor = (action) => {
-  const s = getState(OEmbedState)
+  const s = getMutableState(OEmbedState)
   matches(action)
     .when(OEmbedActions.fetchData.matches, (action) => {
       return s.merge({ oEmbed: undefined, pathname: action.pathname })
@@ -29,7 +29,7 @@ export const OEmbedServiceReceptor = (action) => {
     })
 }
 
-export const accessOEmbedState = () => getState(OEmbedState)
+export const accessOEmbedState = () => getMutableState(OEmbedState)
 
 export const useOEmbedState = () => useState(accessOEmbedState())
 

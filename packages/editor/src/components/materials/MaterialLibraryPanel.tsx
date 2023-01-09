@@ -15,7 +15,7 @@ import {
   registerMaterial
 } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { useMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, getState, removeActionQueue, useState } from '@xrengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue, useState } from '@xrengine/hyperflux'
 
 import { Divider, Grid, Stack } from '@mui/material'
 

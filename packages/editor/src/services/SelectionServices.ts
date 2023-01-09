@@ -7,7 +7,7 @@ import { hasComponent, removeComponent, setComponent } from '@xrengine/engine/sr
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, defineAction, defineState, getMutableState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
@@ -40,7 +40,7 @@ export const SelectionState = defineState({
 })
 
 export default function EditorSelectionReceptor(world: World): SystemDefintion {
-  const s = getState(SelectionState)
+  const s = getMutableState(SelectionState)
 
   const updateSelectionQueue = createActionQueue(SelectionAction.updateSelection.matches)
   const changedObjectQueue = createActionQueue(SelectionAction.changedObject.matches)
@@ -86,7 +86,7 @@ export default function EditorSelectionReceptor(world: World): SystemDefintion {
   return { execute, cleanup }
 }
 
-export const accessSelectionState = () => getState(SelectionState)
+export const accessSelectionState = () => getMutableState(SelectionState)
 
 export const useSelectionState = () => useState(accessSelectionState())
 

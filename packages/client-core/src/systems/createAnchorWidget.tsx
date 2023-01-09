@@ -6,7 +6,7 @@ import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
-import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@xrengine/hyperflux'
 
 import AnchorIcon from '@mui/icons-material/Anchor'
 
@@ -16,10 +16,9 @@ export function createAnchorWidget(world: World) {
   const ui = createXRUI(AnchorWidgetUI)
   removeComponent(ui.entity, VisibleComponent)
   setComponent(ui.entity, XRUIInteractableComponent)
-  const xrState = getState(XRState)
-  // const avatarInputSettings = getState(AvatarInputSettingsState)
+  const xrState = getMutableState(XRState)
 
-  const widgetState = getState(WidgetAppState)
+  const widgetState = getMutableState(WidgetAppState)
 
   const xrSessionQueue = createActionQueue(XRAction.sessionChanged.matches)
 

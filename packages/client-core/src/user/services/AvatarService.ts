@@ -7,7 +7,7 @@ import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -29,7 +29,7 @@ export const AvatarState = defineState({
 })
 
 export const AvatarServiceReceptor = (action) => {
-  const s = getState(AvatarState)
+  const s = getMutableState(AvatarState)
   matches(action)
     .when(AvatarActions.updateAvatarListAction.matches, (action) => {
       s.search.set(action.search ?? undefined)
@@ -43,7 +43,7 @@ export const AvatarServiceReceptor = (action) => {
     })
 }
 
-export const accessAvatarState = () => getState(AvatarState)
+export const accessAvatarState = () => getMutableState(AvatarState)
 
 export const useAvatarService = () => useState(accessAvatarState())
 

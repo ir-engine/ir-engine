@@ -23,7 +23,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
 import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
@@ -47,14 +47,14 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
   const audioState = useAudioState()
-  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
+  const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
   const selfUser = useAuthState().user
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const preferredHand = avatarInputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
-  const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
+  const xrSupportedModes = useHookstate(getMutableState(XRState).supportedSessionModes)
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
   const controlSchemes = Object.entries(AvatarAxesControlScheme)

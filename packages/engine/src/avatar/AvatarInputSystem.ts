@@ -1,7 +1,7 @@
 import { Quaternion } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -70,8 +70,8 @@ export const AvatarAxesControlSchemeBehavior = {
 }
 
 export default async function AvatarInputSystem(world: World) {
-  const interactState = getState(InteractState)
-  const avatarInputSettings = getState(AvatarInputSettingsState).value
+  const interactState = getMutableState(InteractState)
+  const avatarInputSettings = getMutableState(AvatarInputSettingsState).value
 
   const onShiftLeft = () => {
     const controller = getComponentState(world.localClientEntity, AvatarControllerComponent)

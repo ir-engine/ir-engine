@@ -1,6 +1,6 @@
 import { Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -35,7 +35,7 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
 
   if (!controller || !transform) return
 
-  const availableInteractable = getState(InteractState).available
+  const availableInteractable = getMutableState(InteractState).available
   const camera = getComponent(controller.cameraEntity, CameraComponent)
 
   mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)

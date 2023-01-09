@@ -5,7 +5,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
@@ -26,7 +26,7 @@ export const MediaState = defineState({
 })
 
 export const MediaServiceReceptor = (action) => {
-  const s = getState(MediaState)
+  const s = getMutableState(MediaState)
   matches(action)
     .when(MediaStreamAction.setCamVideoStateAction.matches, (action) => {
       return s.isCamVideoEnabled.set(action.isEnable)
@@ -51,7 +51,7 @@ export const MediaServiceReceptor = (action) => {
     })
 }
 
-export const accessMediaStreamState = () => getState(MediaState)
+export const accessMediaStreamState = () => getMutableState(MediaState)
 export const useMediaStreamState = () => useState(accessMediaStreamState())
 
 let updateConsumerTimeout
@@ -96,7 +96,7 @@ export const MediaStreamService = {
     }
   },
   updateNearbyLayerUsers: () => {
-    const mediaState = getState(MediaState)
+    const mediaState = getMutableState(MediaState)
     const UserState = accessNetworkUserState()
 
     const nonPartyUserIds = UserState.layerUsers

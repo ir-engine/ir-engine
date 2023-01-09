@@ -4,7 +4,7 @@ import config from '@xrengine/common/src/config'
 import { ClientSetting, PatchClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -21,7 +21,7 @@ export const AdminClientSettingsState = defineState({
 })
 
 export const ClientSettingsServiceReceptor = (action) => {
-  const s = getState(AdminClientSettingsState)
+  const s = getMutableState(AdminClientSettingsState)
   matches(action)
     .when(ClientSettingActions.fetchedClient.matches, (action) => {
       const [clientSetting] = action.clientSettings.data
@@ -51,7 +51,7 @@ export const ClientSettingsServiceReceptor = (action) => {
 //   clientSettingPatchedReceptor
 // }
 
-export const accessClientSettingState = () => getState(AdminClientSettingsState)
+export const accessClientSettingState = () => getMutableState(AdminClientSettingsState)
 
 export const useClientSettingState = () => useState(accessClientSettingState())
 

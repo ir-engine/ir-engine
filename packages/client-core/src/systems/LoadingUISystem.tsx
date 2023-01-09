@@ -24,7 +24,7 @@ import {
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
 import { SceneActions } from '../world/services/SceneService'
@@ -56,8 +56,8 @@ export default async function LoadingUISystem(world: World) {
   const avatarModelChangedQueue = createActionQueue(EngineActions.avatarModelChanged.matches)
   const spectateUserQueue = createActionQueue(EngineActions.spectateUser.matches)
 
-  const appLoadingState = getState(AppLoadingState)
-  const engineState = getState(EngineState)
+  const appLoadingState = getMutableState(AppLoadingState)
+  const engineState = getMutableState(EngineState)
 
   const reactor = startReactor(() => {
     const loadingState = useHookstate(appLoadingState)
@@ -123,7 +123,7 @@ export default async function LoadingUISystem(world: World) {
     //   // todo: figure out how to make this work properly for VR #7256
     // }
 
-    const loadingState = getState(LoadingSystemState).loadingScreenOpacity
+    const loadingState = getMutableState(LoadingSystemState).loadingScreenOpacity
 
     transition.update(world.deltaSeconds, (opacity) => {
       if (opacity !== loadingState.value) loadingState.set(opacity)

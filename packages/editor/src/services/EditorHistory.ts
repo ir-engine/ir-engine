@@ -7,7 +7,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, getState, NO_PROXY } from '@xrengine/hyperflux'
+import { defineAction, defineState, getMutableState, NO_PROXY } from '@xrengine/hyperflux'
 import {
   createActionQueue,
   dispatchAction,
@@ -34,9 +34,9 @@ export const EditorHistoryState = defineState({
 })
 
 export default function EditorHistoryReceptor(world: World): SystemDefintion {
-  const state = getState(EditorHistoryState)
+  const state = getMutableState(EditorHistoryState)
 
-  const selectedEntitiesState = getState(SelectionState)
+  const selectedEntitiesState = getMutableState(SelectionState)
 
   const applyCurrentSnapshot = () => {
     const snapshot = state.history[state.index.value].get(NO_PROXY)

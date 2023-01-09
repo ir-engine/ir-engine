@@ -2,11 +2,13 @@ import { useEffect } from 'react'
 import { Bone, MathUtils, Object3D, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
+
 import {
   createActionQueue,
   defineState,
   dispatchAction,
   getState,
+  getMutableState,
   startReactor,
   useHookstate
 } from '@xrengine/hyperflux'
@@ -193,7 +195,7 @@ export default async function AvatarAnimationSystem(world: World) {
   const avatarIKTargetsActionQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
 
   const reactor = startReactor(() => {
-    const state = useHookstate(getState(AvatarAnimationState))
+    const state = useHookstate(getMutableState(AvatarAnimationState))
     const isHeadset = useIsHeadset()
 
     useEffect(() => {
@@ -215,7 +217,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
   const priorityQueue = createPriorityQueue({
-    accumulationBudget: getState(AvatarAnimationState).accumulationBudget.value
+    accumulationBudget: getMutableState(AvatarAnimationState).accumulationBudget.value
   })
 
   world.priorityAvatarEntities = priorityQueue.priorityEntities

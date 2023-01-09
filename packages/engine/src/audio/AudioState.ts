@@ -1,5 +1,5 @@
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getMutableState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 
@@ -31,11 +31,11 @@ export const AudioState = defineState({
   }
 })
 
-export const accessAudioState = () => getState(AudioState)
+export const accessAudioState = () => getMutableState(AudioState)
 export const useAudioState = () => useState(accessAudioState())
 
 export function AudioSettingReceptor(action) {
-  const s = getState(AudioState)
+  const s = getMutableState(AudioState)
   matches(action)
     .when(AudioSettingAction.setMasterVolume.matches, (action) => {
       s.masterVolume.set(action.value)

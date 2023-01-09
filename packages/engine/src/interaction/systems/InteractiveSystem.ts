@@ -2,7 +2,7 @@ import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getMutableState } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -140,7 +140,7 @@ export default async function InteractiveSystem(world: World) {
 
       if (gatherAvailableInteractablesTimer === 0) {
         gatherAvailableInteractables(interactables)
-        const closestInteractable = getState(InteractState).available.value[0]
+        const closestInteractable = getMutableState(InteractState).available.value[0]
         for (const interactiveEntity of interactables) {
           if (interactiveEntity === closestInteractable) {
             if (!hasComponent(interactiveEntity, HighlightComponent)) {

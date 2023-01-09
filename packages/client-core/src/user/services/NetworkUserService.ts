@@ -4,7 +4,7 @@ import { none } from '@hookstate/core'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -22,7 +22,7 @@ export const NetworkUserState = defineState({
 })
 
 export const NetworkUserServiceReceptor = (action) => {
-  const s = getState(NetworkUserState)
+  const s = getMutableState(NetworkUserState)
   matches(action)
     .when(NetworkUserAction.clearLayerUsersAction.matches, () => {
       return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
@@ -79,7 +79,7 @@ export const NetworkUserServiceReceptor = (action) => {
     })
 }
 
-export const accessNetworkUserState = () => getState(NetworkUserState)
+export const accessNetworkUserState = () => getMutableState(NetworkUserState)
 export const useNetworkUserState = () => useState(accessNetworkUserState())
 
 //Service
@@ -95,7 +95,7 @@ export const NetworkUserService = {
       query: query
     })) as Paginated<UserInterface>
 
-    const state = getState(NetworkUserState)
+    const state = getMutableState(NetworkUserState)
 
     if (
       JSON.stringify(instance ? state.layerUsers.value : state.channelLayerUsers.value) !==

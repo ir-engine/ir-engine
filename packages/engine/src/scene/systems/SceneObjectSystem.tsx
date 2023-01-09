@@ -9,11 +9,12 @@ import {
   MeshStandardMaterial
 } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
+import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -25,11 +26,8 @@ import {
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
-import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { isHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -55,30 +53,20 @@ const applyBPCEM = (material) => {
   // }
 }
 
-export function setupObject(obj: Object3DWithEntity, force = false) {
-  const _isHeadset = isHeadset()
-
+export function setupObject(obj: Object3DWithEntity) {
   const mesh = obj as any as Mesh<any, any>
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
-      if (!child.userData) child.userData = {}
-      const shouldMakeSimple = (force || _isHeadset) && ExpensiveMaterials.has(child.material.constructor)
-      if (!force && !_isHeadset && child.userData.lastMaterial) {
-        child.material = child.userData.lastMaterial
-        delete child.userData.lastMaterial
-      } else if (shouldMakeSimple && !child.userData.lastMaterial) {
+      if (isHMD && ExpensiveMaterials.has(child.material.constructor)) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-        const prevMatEntry = unregisterMaterial(prevMaterial)
-        const nuMaterial = new MeshBasicMaterial().copy(prevMaterial)
-        child.material = nuMaterial
+        prevMaterial.dispose()
+        child.material = new MeshBasicMaterial().copy(prevMaterial)
         child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
         child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
         // todo: find out why leaving the envMap makes basic & lambert materials transparent here
         child.material.envMap = null
-        child.userData.lastMaterial = prevMaterial
-        prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
       child.material.dithering = true
     }
@@ -97,9 +85,9 @@ export default async function SceneObjectSystem(world: World) {
     const { entity, obj } = props
 
     const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-    const forceBasicMaterials = useHookstate(getState(EngineRendererState).forceBasicMaterials)
 
     useEffect(() => {
+      setupObject(obj)
       return () => {
         const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
         for (const layer of layers) {
@@ -109,17 +97,15 @@ export default async function SceneObjectSystem(world: World) {
     }, [])
 
     useEffect(() => {
-      setupObject(obj, forceBasicMaterials.value)
-    }, [forceBasicMaterials])
-
-    useEffect(() => {
       const shadow = shadowComponent?.value
       obj.traverse((child: Mesh<any, Material>) => {
-        child.castShadow = !!shadow?.cast
-        child.receiveShadow = !!shadow?.receive
-        if (child.material && child.receiveShadow) {
-          /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
-          EngineRenderer.instance.csm?.setupMaterial(child)
+        if (child.material) {
+          child.castShadow = !!shadow?.cast
+          child.receiveShadow = !!shadow?.receive
+          if (child.receiveShadow) {
+            /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
+            EngineRenderer.instance.csm?.setupMaterial(child)
+          }
         }
       })
     }, [shadowComponent])
@@ -135,7 +121,7 @@ export default async function SceneObjectSystem(world: World) {
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
   const execute = () => {
-    const delta = getState(EngineState).deltaSeconds.value
+    const delta = getMutableState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
       const callbacks = getComponent(entity, CallbackComponent)
       callbacks.get(UpdatableCallback)?.(delta)

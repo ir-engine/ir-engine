@@ -1,7 +1,8 @@
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
@@ -77,7 +78,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 export const loadAvatarForUser = async (
   entity: Entity,
   avatarURL: string,
-  loadingEffect = getState(EngineState).avatarLoadingEffect.value
+  loadingEffect = getMutableState(EngineState).avatarLoadingEffect.value
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     return

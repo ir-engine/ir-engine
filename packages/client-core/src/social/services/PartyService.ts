@@ -9,7 +9,7 @@ import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import {
@@ -37,27 +37,27 @@ const PartyState = defineState({
 })
 
 const loadedPartyReceptor = (action: typeof PartyActions.loadedPartyAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.merge({ party: action.party, isOwned: action.isOwned, updateNeeded: false })
 }
 
 const createdPartyReceptor = (action: typeof PartyActions.createdPartyAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.merge({ party: action.party, updateNeeded: true })
 }
 
 const removedPartyReceptor = (action: typeof PartyActions.removedPartyAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.merge({ party: null!, updateNeeded: true })
 }
 
 const invitedPartyUserReceptor = (action: typeof PartyActions.invitedPartyUserAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.updateNeeded.set(true)
 }
 
 const createdPartyUserReceptor = (action: typeof PartyActions.createdPartyUserAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
     const users = JSON.parse(JSON.stringify(state.party.partyUsers.value)) as PartyUser[]
     const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
@@ -71,12 +71,12 @@ const createdPartyUserReceptor = (action: typeof PartyActions.createdPartyUserAc
 }
 
 const changedPartyReceptor = (action: typeof PartyActions.changedPartyAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.updateNeeded.set(true)
 }
 
 const patchedPartyUserReceptor = (action: typeof PartyActions.patchedPartyUserAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
     const users = JSON.parse(JSON.stringify(state.party.partyUsers.value)) as PartyUser[]
     const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
@@ -92,12 +92,12 @@ const patchedPartyUserReceptor = (action: typeof PartyActions.patchedPartyUserAc
 }
 
 const resetUpdateNeededReceptor = (action: typeof PartyActions.resetUpdateNeededAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.updateNeeded.set(false)
 }
 
 const removedPartyUserReceptor = (action: typeof PartyActions.removedPartyUserAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
 
   if (action.partyUser.userId === accessAuthState().user.id.value) state.merge({ party: null!, isOwned: false })
 
@@ -123,7 +123,7 @@ export const PartyServiceReceptors = {
   resetUpdateNeededReceptor
 }
 
-export const accessPartyState = () => getState(PartyState)
+export const accessPartyState = () => getMutableState(PartyState)
 
 export const usePartyState = () => useState(accessPartyState())
 

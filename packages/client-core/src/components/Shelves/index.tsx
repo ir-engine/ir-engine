@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@xrengine/hyperflux'
 
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
@@ -10,7 +10,7 @@ import { AppAction, AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'
 
 export const Shelves = () => {
-  const appState = useHookstate(getState(AppState))
+  const appState = useHookstate(getMutableState(AppState))
   const showTopShelf = appState.showTopShelf.value
   const showBottomShelf = appState.showBottomShelf.value
 

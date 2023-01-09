@@ -6,7 +6,7 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { createActionQueue, getState, removeActionQueue, useHookstate } from '@xrengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue, useHookstate } from '@xrengine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
@@ -164,7 +164,7 @@ function updateDepthMaterials(
   depthTexture?: DepthCanvasTexture
 ) {
   if (!frame || !referenceSpace) return
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
   if (viewerPose) {
     for (const view of viewerPose.views) {
@@ -231,7 +231,7 @@ const _createDepthDebugCanvas = (enabled: boolean) => {
  */
 export default async function XRDepthOcclusionSystem(world: World) {
   const groupQuery = defineQuery([GroupComponent])
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   const useDepthTextureDebug = false

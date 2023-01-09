@@ -1,5 +1,5 @@
 import type { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore, getState } from '@xrengine/hyperflux'
+import { createHyperStore, getMutableState } from '@xrengine/hyperflux'
 import * as Hyperflux from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
@@ -46,7 +46,7 @@ export class Engine {
    * Current frame timestamp, relative to performance.timeOrigin
    */
   get frameTime() {
-    return getState(EngineState).frameTime.value
+    return getMutableState(EngineState).frameTime.value
   }
 
   engineTimer: { start: Function; stop: Function; clear: Function } = null!

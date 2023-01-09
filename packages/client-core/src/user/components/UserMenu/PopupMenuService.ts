@@ -1,6 +1,6 @@
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, none } from '@xrengine/hyperflux'
+import { defineAction, defineState, getMutableState, none } from '@xrengine/hyperflux'
 
 import { Views } from './util'
 
@@ -17,7 +17,7 @@ export const PopupMenuState = defineState({
 type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
 
 export const PopupMenuServiceReceptor = (action) => {
-  const s = getState(PopupMenuState)
+  const s = getMutableState(PopupMenuState)
   matches(action)
     .when(PopupMenuActions.showPopupMenu.matches, (action) => {
       s.openMenu.set(action.id)

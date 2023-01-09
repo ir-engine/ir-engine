@@ -10,7 +10,7 @@ import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldStat
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { Check, Create, GitHub, Refresh } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -65,7 +65,7 @@ const ProfileDetailView = () => {
   const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []

@@ -13,7 +13,7 @@ import {
   Vector3
 } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@xrengine/hyperflux'
 
 import { CameraActions } from '../camera/CameraState'
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
@@ -134,7 +134,7 @@ export default async function AvatarTeleportSystem(world: World) {
 
   let canTeleport = false
 
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const avatarTeleportQuery = defineQuery([AvatarTeleportComponent])
   let fadeBackInAccumulator = -1
 

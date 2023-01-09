@@ -2,7 +2,7 @@ import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -26,7 +26,7 @@ describe('moveAvatar function tests', () => {
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
     const world = Engine.instance.currentWorld
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
@@ -59,7 +59,7 @@ describe('moveAvatar function tests', () => {
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
     const world = Engine.instance.currentWorld
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
@@ -91,7 +91,7 @@ describe('moveAvatar function tests', () => {
     Engine.instance.userId = 'user' as UserId
 
     const world = Engine.instance.currentWorld
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     /* mock */
@@ -126,7 +126,7 @@ describe('moveAvatar function tests', () => {
     Engine.instance.userId = 'user' as UserId
 
     const world = Engine.instance.currentWorld
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({

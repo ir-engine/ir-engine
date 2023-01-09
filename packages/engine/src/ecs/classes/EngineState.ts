@@ -1,4 +1,4 @@
-import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getMutableState, useState } from '@xrengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
@@ -37,7 +37,7 @@ export const EngineState = defineState({
 })
 
 export function EngineEventReceptor(a) {
-  const s = getState(EngineState)
+  const s = getMutableState(EngineState)
   matches(a)
     .when(EngineActions.browserNotSupported.matches, (action) => {})
     .when(EngineActions.resetEngine.matches, (action) =>
@@ -59,7 +59,7 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
 
-export const getEngineState = () => getState(EngineState)
+export const getEngineState = () => getMutableState(EngineState)
 
 export const useEngineState = () => useState(getEngineState())
 

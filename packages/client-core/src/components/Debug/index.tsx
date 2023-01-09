@@ -25,7 +25,7 @@ import {
 } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@xrengine/hyperflux'
 
 import BlurOffIcon from '@mui/icons-material/BlurOff'
 import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
@@ -38,9 +38,9 @@ import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
-  useHookstate(getState(EngineState).frameTime).value
+  useHookstate(getMutableState(EngineState).frameTime).value
   const engineRendererState = useEngineRendererState()
-  const engineState = useHookstate(getState(EngineState))
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
     engineState.joinedWorld.value &&

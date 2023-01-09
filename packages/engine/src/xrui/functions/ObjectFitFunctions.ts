@@ -1,7 +1,7 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
 import { Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { getMutableState } from '@xrengine/hyperflux'
 
 import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
