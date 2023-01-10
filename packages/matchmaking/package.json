@@ -41,7 +41,7 @@
     "@types/mocha": "9.1.0",
     "create-ts-index": "1.14.0",
     "mocha": "9.2.2",
-    "nock": "13.2.6",
+    "nock": "13.3.0",
     "vite": "2.9.13"
   }
 }
