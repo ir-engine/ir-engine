@@ -127,9 +127,15 @@ spec:
       {{ if eq .Values.api.extraEnv.STORAGE_PROVIDER "local" }}
       volumes:
         - name: file-server
+        {{ if eq .Values.clusterType "microk8s" }}
+          persistentVolumeClaim:
+            claimName: file-server-pvc
+        {{- end }}
+        {{ if eq .Values.clusterType "minikube" }}
           hostPath:
             path: {{ .Values.api.fileServer.hostUploadFolder }}
             type: DirectoryOrCreate
+        {{- end }}
       {{- end }}
       initContainers:
         - name: init-redis
