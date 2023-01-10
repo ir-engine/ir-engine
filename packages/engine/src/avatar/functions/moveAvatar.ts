@@ -139,7 +139,7 @@ export const applyGamepadInput = (entity: Entity) => {
 
   const world = Engine.instance.currentWorld
   const camera = world.camera
-  const deltaSeconds = world.deltaSeconds /** @todo put this back in the fixed pipeline */
+  const deltaSeconds = world.fixedDeltaSeconds
   const controller = getComponent(entity, AvatarControllerComponent)
 
   const lerpAlpha = 6 * deltaSeconds

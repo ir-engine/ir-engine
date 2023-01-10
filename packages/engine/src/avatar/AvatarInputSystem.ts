@@ -38,10 +38,7 @@ export const AvatarAxesControlSchemeBehavior = {
     controller.gamepadLocalInput.z += z
   },
 
-  [AvatarAxesControlScheme.RotateAndTeleport]: (
-    inputSource: XRInputSource,
-    controller: AvatarControllerComponentType
-  ) => {
+  [AvatarAxesControlScheme.RotateAndTeleport]: (inputSource: XRInputSource) => {
     if (inputSource.gamepad?.mapping !== 'xr-standard') return
 
     const localClientEntity = Engine.instance.currentWorld.localClientEntity
@@ -69,14 +66,11 @@ export const AvatarAxesControlSchemeBehavior = {
 
 export default async function AvatarInputSystem(world: World) {
   const interactState = getState(InteractState)
-  const xrState = getState(XRState)
   const avatarInputSettings = getState(AvatarInputSettingsState).value
-  const _euler = new Euler()
-  const viewerRotationDifference = new Quaternion()
 
   const onShiftLeft = () => {
     const controller = getComponentState(world.localClientEntity, AvatarControllerComponent)
-    controller.isWalking.set(!controller.isWalking)
+    controller.isWalking.set(!controller.isWalking.value)
   }
 
   const onKeyE = () => {
@@ -158,8 +152,6 @@ export default async function AvatarInputSystem(world: World) {
           : avatarInputSettings.rightAxesControlScheme
       AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
     }
-
-    applyGamepadInput(world.localClientEntity)
   }
 
   const cleanup = async () => {}
