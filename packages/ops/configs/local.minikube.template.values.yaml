@@ -150,7 +150,7 @@ api:
     # For minikube it will be similar to '/hosthome/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload'
     # The folder must be in home folder and make sure to use /hosthome/ instead of home in path. 
     # Ref: https://stackoverflow.com/a/48535001/2077741
-    hostUploadFolder: ""
+    hostUploadFolder: <FILE_SERVER_FOLDER>
 
   service:
     type: NodePort

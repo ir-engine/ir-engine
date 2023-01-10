@@ -149,7 +149,7 @@ api:
     # This is the path of file server upload folder in your host machine.
     # For microk8s it will be similar to '/home/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload' 
     # or '<ENGINE_FULL_PATH>/packages/server/upload'
-    hostUploadFolder: ""
+    hostUploadFolder: <FILE_SERVER_FOLDER>
 
   service:
     type: NodePort
