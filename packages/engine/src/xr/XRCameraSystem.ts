@@ -8,6 +8,7 @@ import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
@@ -183,7 +184,8 @@ export function updateXRCamera() {
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) return
 
-  const camera = Engine.instance.currentWorld.camera
+  const world = Engine.instance.currentWorld
+  const camera = world.camera
   const xrState = getState(XRState)
   const session = xrState.session.value
 
@@ -195,6 +197,8 @@ export function updateXRCamera() {
     cameraL.viewport.y = 0
     cameraL.viewport.z = size.width
     cameraL.viewport.w = size.height
+    computeTransformMatrix(world.cameraEntity)
+    delete world.dirtyTransforms[world.cameraEntity]
     return
   }
 
