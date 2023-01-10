@@ -1,9 +1,11 @@
 import { Not } from 'bitecs'
-import { Camera, Frustum, Matrix4, Mesh, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Camera, Frustum, Material, Matrix4, Mesh, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { findSkinnedMeshes } from '../../avatar/AvatarBoneMatching'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '../../avatar/functions/applyInputSourcePoseToIKTargets'
 import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
@@ -254,9 +256,19 @@ export default async function TransformSystem(world: World) {
     /**
      * 1 - Update local client movement
      */
-
-    updateLocalAvatarPosition()
-    updateLocalAvatarRotation()
+    if (localClientEntity) {
+      updateLocalAvatarPosition()
+      updateLocalAvatarRotation()
+      computeTransformMatrix(localClientEntity)
+      const localClientGroup = getComponent(localClientEntity, GroupComponent)
+      const renderer = EngineRenderer.instance.renderer
+      for (const obj of localClientGroup) {
+        for (const skinnedMesh of findSkinnedMeshes(obj)) {
+          if (!skinnedMesh.skeleton.boneTexture) skinnedMesh.skeleton.computeBoneTexture()
+          renderer?.initTexture(skinnedMesh.skeleton.boneTexture!)
+        }
+      }
+    }
 
     /**
      * 2 - Update XR camera positions based on world origin and viewer pose
