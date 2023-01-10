@@ -265,6 +265,7 @@ export default async function TransformSystem(world: World) {
       for (const obj of localClientGroup) {
         for (const skinnedMesh of findSkinnedMeshes(obj)) {
           if (!skinnedMesh.skeleton.boneTexture) skinnedMesh.skeleton.computeBoneTexture()
+          skinnedMesh.skeleton.update()
           renderer?.initTexture(skinnedMesh.skeleton.boneTexture!)
         }
       }
