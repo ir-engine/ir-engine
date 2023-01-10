@@ -393,12 +393,12 @@ export default async function WebGLRendererSystem(world: World) {
        * Update threejs skeleton manually
        *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
        */
-      Skeleton.prototype.update = skeletonUpdate
-      for (const entity of world.priorityAvatarEntities) {
-        const group = getComponent(entity, GroupComponent)
-        for (const obj of group) obj.traverse(iterateSkeletons)
-      }
-      Skeleton.prototype.update = noop
+      // Skeleton.prototype.update = skeletonUpdate
+      // for (const entity of world.priorityAvatarEntities) {
+      //   const group = getComponent(entity, GroupComponent)
+      //   for (const obj of group) obj.traverse(iterateSkeletons)
+      // }
+      // Skeleton.prototype.update = noop
     }
 
     EngineRenderer.instance.execute(world.deltaSeconds)

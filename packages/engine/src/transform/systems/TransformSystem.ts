@@ -263,6 +263,7 @@ export default async function TransformSystem(world: World) {
       const localClientGroup = getComponent(localClientEntity, GroupComponent)
       const renderer = EngineRenderer.instance.renderer
       for (const obj of localClientGroup) {
+        obj.updateMatrixWorld(true)
         for (const skinnedMesh of findSkinnedMeshes(obj)) {
           if (!skinnedMesh.skeleton.boneTexture) skinnedMesh.skeleton.computeBoneTexture()
           skinnedMesh.skeleton.update()
