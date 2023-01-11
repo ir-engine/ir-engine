@@ -70,8 +70,9 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const attached = getControlMode() === 'attached'
   viewerMovement.copy(V_000)
 
+  /** move head position forward a bit to not be inside the avatar's body */
   avatarHeadPosition
-    .set(0, avatarHeight * 0.95, -0.1)
+    .set(0, avatarHeight * 0.95, 0.15)
     .applyQuaternion(rigidbody.targetKinematicRotation)
     .add(rigidbody.targetKinematicPosition)
 

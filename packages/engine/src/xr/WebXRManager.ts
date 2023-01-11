@@ -75,6 +75,7 @@ export function createWebXRManager() {
 
   scope.cameraAutoUpdate = false
   scope.enabled = false
+  scope.useMultiview = false
 
   scope.isPresenting = false
   scope.isMultiview = false
@@ -151,7 +152,7 @@ export function createWebXRManager() {
 
         // @ts-ignore
         const extensions = renderer.extensions
-        scope.isMultiview = extensions.has('OCULUS_multiview')
+        scope.isMultiview = scope.useMultiview && extensions.has('OCULUS_multiview')
 
         const projectionlayerInit = {
           colorFormat: gl.RGBA8,
