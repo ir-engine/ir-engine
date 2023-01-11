@@ -1,16 +1,17 @@
-import dotenv from 'dotenv-flow'
+import appRootPath from 'app-root-path'
 import cli from 'cli'
+import dotenv from 'dotenv-flow'
 import fs from 'fs'
 import path from 'path'
 import { DataTypes, Sequelize } from 'sequelize'
-import appRootPath from 'app-root-path'
-import config from "@xrengine/server-core/src/appconfig";
-import {getContentType} from "@xrengine/server-core/src/util/fileUtils";
+
+import config from '@xrengine/server-core/src/appconfig'
+import { getCacheDomain } from '@xrengine/server-core/src/media/storageprovider/getCacheDomain'
 import {
   createDefaultStorageProvider,
   getStorageProvider
 } from '@xrengine/server-core/src/media/storageprovider/storageprovider'
-import { getCacheDomain } from '@xrengine/server-core/src/media/storageprovider/getCacheDomain'
+import { getContentType } from '@xrengine/server-core/src/util/fileUtils'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 if (!kubernetesEnabled) {
@@ -137,37 +138,41 @@ cli.main(async () => {
   const manifestPath = path.join(appRootPath.path, 'packages/client/public/site.webmanifest')
   const manifest = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf-8' }))
 
-  const icon192px = /https:\/\//.test(clientSettings.icon192px) ? clientSettings.icon192px : path.join('client', clientSettings.icon192px)
-  const icon512px = /https:\/\//.test(clientSettings.icon512px) ? clientSettings.icon512px : path.join('client', clientSettings.icon512px)
+  const icon192px = /https:\/\//.test(clientSettings.icon192px)
+    ? clientSettings.icon192px
+    : path.join('client', clientSettings.icon192px)
+  const icon512px = /https:\/\//.test(clientSettings.icon512px)
+    ? clientSettings.icon512px
+    : path.join('client', clientSettings.icon512px)
   manifest.name = clientSettings.title
   manifest.short_name = clientSettings.shortTitle
   manifest.start_url =
-      config.client.url[config.client.url.length - 1] === '/' && clientSettings.startPath[0] === '/'
-          ? config.client.url + clientSettings.startPath.slice(1)
-          : config.client.url[config.client.url.length - 1] !== '/' && clientSettings.startPath[0] !== '/'
-              ? config.client.url + '/' + clientSettings.startPath
-              : config.client.url + clientSettings.startPath
+    config.client.url[config.client.url.length - 1] === '/' && clientSettings.startPath[0] === '/'
+      ? config.client.url + clientSettings.startPath.slice(1)
+      : config.client.url[config.client.url.length - 1] !== '/' && clientSettings.startPath[0] !== '/'
+      ? config.client.url + '/' + clientSettings.startPath
+      : config.client.url + clientSettings.startPath
   const cacheDomain = getCacheDomain(storageProvider)
   manifest.icons = [
     {
       src: /https:\/\//.test(icon192px)
-          ? icon192px
-          : cacheDomain[cacheDomain.length - 1] === '/' && icon192px[0] === '/'
-              ? `https://${cacheDomain}${icon192px.slice(1)}`
-              : cacheDomain[cacheDomain.length - 1] !== '/' && icon192px[0] !== '/'
-                  ? `https://${cacheDomain}/${icon192px}`
-                  : `https://${cacheDomain}${icon192px}`,
+        ? icon192px
+        : cacheDomain[cacheDomain.length - 1] === '/' && icon192px[0] === '/'
+        ? `https://${cacheDomain}${icon192px.slice(1)}`
+        : cacheDomain[cacheDomain.length - 1] !== '/' && icon192px[0] !== '/'
+        ? `https://${cacheDomain}/${icon192px}`
+        : `https://${cacheDomain}${icon192px}`,
       sizes: '192x192',
       type: getContentType(icon192px)
     },
     {
       src: /https:\/\//.test(icon512px)
-          ? icon512px
-          : cacheDomain[cacheDomain.length - 1] === '/' && icon512px[0] === '/'
-              ? `https://${cacheDomain}${icon512px.slice(1)}`
-              : cacheDomain[cacheDomain.length - 1] !== '/' && icon512px[0] !== '/'
-                  ? `https://${cacheDomain}/${icon512px}`
-                  : `https://${cacheDomain}${icon512px}`,
+        ? icon512px
+        : cacheDomain[cacheDomain.length - 1] === '/' && icon512px[0] === '/'
+        ? `https://${cacheDomain}${icon512px.slice(1)}`
+        : cacheDomain[cacheDomain.length - 1] !== '/' && icon512px[0] !== '/'
+        ? `https://${cacheDomain}/${icon512px}`
+        : `https://${cacheDomain}${icon512px}`,
       sizes: '512x512',
       type: getContentType(icon512px)
     }
