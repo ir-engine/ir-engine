@@ -182,7 +182,6 @@ const _vec = new Vector2()
 
 export function updateXRCamera() {
   const renderer = EngineRenderer.instance.renderer
-  if (!renderer) return
 
   const world = Engine.instance.currentWorld
   const camera = world.camera

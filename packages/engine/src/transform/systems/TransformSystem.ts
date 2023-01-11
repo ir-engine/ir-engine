@@ -1,11 +1,12 @@
 import { Not } from 'bitecs'
-import { Camera, Frustum, Matrix4, Mesh, MeshDepthMaterial, Scene, Vector3, WebGLRenderTarget } from 'three'
+import { noop } from 'lodash'
+import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { applyInputSourcePoseToIKTargets } from '../../avatar/functions/applyInputSourcePoseToIKTargets'
-import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
+import { V_000 } from '../../common/constants/MathConstants'
+import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -25,12 +26,10 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
-import { updateXRCamera } from '../../xr/XRCameraSystem'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -241,9 +240,16 @@ export default async function TransformSystem(world: World) {
 
   let sortedTransformEntities = [] as Entity[]
 
-  const skeletonForceUpdateScene = new Scene()
-  skeletonForceUpdateScene.overrideMaterial = new MeshDepthMaterial()
-  const dummyRenderTarget = new WebGLRenderTarget(1, 1)
+  /** override Skeleton.update, as it is called inside  */
+  const skeletonUpdate = Skeleton.prototype.update
+
+  function noop() {}
+
+  function iterateSkeletons(skinnedMesh: SkinnedMesh) {
+    if (skinnedMesh.isSkinnedMesh) {
+      skinnedMesh.skeleton.update()
+    }
+  }
 
   const execute = () => {
     const { localClientEntity } = world
@@ -253,37 +259,7 @@ export default async function TransformSystem(world: World) {
     // Note: cyclic references will cause undefined behavior
 
     /**
-     * 1 - Update local client movement
-     */
-    if (localClientEntity) {
-      updateLocalAvatarPosition()
-      updateLocalAvatarRotation()
-      computeTransformMatrix(localClientEntity)
-      // the following is a workaround for a bug in the multiview rendering implementation, described here:
-      // https://github.com/mrdoob/three.js/pull/24048
-      // essentially, we are forcing the skeleton of the local client to be uploaded to the GPU here
-      const localClientGroup = getComponent(localClientEntity, GroupComponent)
-      const renderer = EngineRenderer.instance.renderer
-      skeletonForceUpdateScene.children = localClientGroup
-      renderer?.setRenderTarget(dummyRenderTarget)
-      renderer?.render(skeletonForceUpdateScene, world.camera)
-      renderer?.setRenderTarget(null)
-    }
-
-    /**
-     * 2 - Update XR camera positions based on world origin and viewer pose
-     */
-    updateXRCamera()
-
-    /**
-     * @todo for whatever reason, this must run at the start of the transform system,
-     *   but IK must happen before the transform system.
-     * We likely need to break the transform system up into multiple systems.
-     */
-    applyInputSourcePoseToIKTargets()
-
-    /**
-     * 3 - Sort transforms if needed
+     * Sort transforms if needed
      */
     const { transformsNeedSorting } = getState(EngineState)
 
@@ -309,7 +285,7 @@ export default async function TransformSystem(world: World) {
     }
 
     /**
-     * 4 - Update entity transforms
+     * Update entity transforms
      */
     const allRigidbodyEntities = rigidbodyTransformQuery()
     const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)
@@ -383,6 +359,21 @@ export default async function TransformSystem(world: World) {
           )
       }
     }
+
+    /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
+    /** @todo include in auto performance scaling metrics */
+    // if (isHMD) {
+    //   /**
+    //    * Update threejs skeleton manually
+    //    *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
+    //    */
+    //   Skeleton.prototype.update = skeletonUpdate
+    //   for (const entity of world.priorityAvatarEntities) {
+    //     const group = getComponent(entity, GroupComponent)
+    //     for (const obj of group) obj.traverse(iterateSkeletons)
+    //   }
+    //   Skeleton.prototype.update = noop
+    // }
   }
 
   const cleanup = async () => {
@@ -396,6 +387,7 @@ export default async function TransformSystem(world: World) {
     removeQuery(world, dynamicBoundingBoxQuery)
     removeQuery(world, distanceFromLocalClientQuery)
     removeQuery(world, distanceFromCameraQuery)
+    Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }
