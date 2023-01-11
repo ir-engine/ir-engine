@@ -1,28 +1,11 @@
 import { Not } from 'bitecs'
-import {
-  Camera,
-  Frustum,
-  Material,
-  Matrix4,
-  Mesh,
-  MeshDepthMaterial,
-  Quaternion,
-  Scene,
-  Skeleton,
-  SkinnedMesh,
-  Vector3,
-  WebGLRenderTarget
-} from 'three'
+import { Camera, Frustum, Matrix4, Mesh, MeshDepthMaterial, Scene, Vector3, WebGLRenderTarget } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { findSkinnedMeshes } from '../../avatar/AvatarBoneMatching'
-import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '../../avatar/functions/applyInputSourcePoseToIKTargets'
 import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
-import { V_000 } from '../../common/constants/MathConstants'
-import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -48,7 +31,6 @@ import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { updateXRCamera } from '../../xr/XRCameraSystem'
-import { XRState } from '../../xr/XRState'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -277,22 +259,15 @@ export default async function TransformSystem(world: World) {
       updateLocalAvatarPosition()
       updateLocalAvatarRotation()
       computeTransformMatrix(localClientEntity)
+      // the following is a workaround for a bug in the multiview rendering implementation, described here:
+      // https://github.com/mrdoob/three.js/pull/24048
+      // essentially, we are forcing the skeleton of the local client to be uploaded to the GPU here
       const localClientGroup = getComponent(localClientEntity, GroupComponent)
       const renderer = EngineRenderer.instance.renderer
-      updateGroupChildren(localClientEntity)
       skeletonForceUpdateScene.children = localClientGroup
       renderer?.setRenderTarget(dummyRenderTarget)
       renderer?.render(skeletonForceUpdateScene, world.camera)
       renderer?.setRenderTarget(null)
-      // for (const obj of localClientGroup) {
-      //   obj.updateMatrixWorld(true)
-      //   for (const skinnedMesh of findSkinnedMeshes(obj)) {
-      //     if (!skinnedMesh.skeleton.boneTexture) skinnedMesh.skeleton.computeBoneTexture()
-      //     skinnedMesh.skeleton.update()
-      //     renderer.
-      //     renderer?.initTexture(skinnedMesh.skeleton.boneTexture!)
-      //   }
-      // }
     }
 
     /**
