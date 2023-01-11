@@ -75,7 +75,7 @@ export function createWebXRManager() {
 
   scope.cameraAutoUpdate = false
   scope.enabled = false
-  scope.useMultiview = false
+  scope.useMultiview = true
 
   scope.isPresenting = false
   scope.isMultiview = false
