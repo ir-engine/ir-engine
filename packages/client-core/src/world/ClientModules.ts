@@ -3,6 +3,8 @@ import { AvatarClientModule } from '@xrengine/engine/src/avatar/AvatarClientModu
 import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
 import { CameraModule } from '@xrengine/engine/src/camera/CameraModule'
 import { DebugModule } from '@xrengine/engine/src/debug/DebugModule'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { InputModule } from '@xrengine/engine/src/input/InputModule'
 import { InteractionModule } from '@xrengine/engine/src/interaction/InteractionModule'
 import { RealtimeNetworkingModule } from '@xrengine/engine/src/networking/RealtimeNetworkingModule'
@@ -14,20 +16,20 @@ import { XRModule } from '@xrengine/engine/src/xr/XRModule'
 import { XRUIModule } from '@xrengine/engine/src/xrui/XRUIModule'
 
 export function ClientModules() {
-  return Promise.all([
-    XRModule(),
-    TransformModule(),
-    RendererModule(),
-    MediaModule(),
-    InputModule(),
-    SceneCommonModule(),
-    SceneClientModule(),
-    AvatarCommonModule(),
-    AvatarClientModule(),
-    CameraModule(),
-    XRUIModule(),
-    InteractionModule(),
-    RealtimeNetworkingModule(),
-    DebugModule()
+  return initSystems(Engine.instance.currentWorld, [
+    ...XRModule(),
+    ...TransformModule(),
+    ...RendererModule(),
+    ...MediaModule(),
+    ...InputModule(),
+    ...SceneCommonModule(),
+    ...SceneClientModule(),
+    ...AvatarCommonModule(),
+    ...AvatarClientModule(),
+    ...CameraModule(),
+    ...XRUIModule(),
+    ...InteractionModule(),
+    ...RealtimeNetworkingModule(),
+    ...DebugModule()
   ])
 }

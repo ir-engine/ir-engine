@@ -5,7 +5,7 @@ import { getState } from '@xrengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRHand } from '../../xr/XRComponents'
-import { getControlMode, ReferenceSpace, XRState } from '../../xr/XRState'
+import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import {
   AvatarHeadIKComponent,
   AvatarIKTargetsComponent,
@@ -22,7 +22,7 @@ export const applyInputSourcePoseToIKTargets = () => {
 
   const xrFrame = Engine.instance.xrFrame!
 
-  const inAttachedControlMode = getControlMode() === 'attached'
+  const inAttachedControlMode = getCameraMode() === 'attached'
 
   const referenceSpace = ReferenceSpace.origin
 

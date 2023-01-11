@@ -1,7 +1,6 @@
 import { createGLTFLoader } from '../assets/functions/createGLTFLoader'
 import BehaveGraphSystem from '../behave-graph/systems/BehaveGraphSystem'
 import { Engine } from '../ecs/classes/Engine'
-import { initSystems } from '../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import AssetSystem from './systems/AssetSystem'
 import SceneLoadingSystem from './systems/SceneLoadingSystem'
@@ -10,7 +9,7 @@ import TriggerSystem from './systems/TriggerSystem'
 
 export function SceneCommonModule() {
   Engine.instance.gltfLoader = createGLTFLoader()
-  return initSystems(Engine.instance.currentWorld, [
+  return [
     {
       uuid: 'xre.engine.SceneObjectSystem',
       type: SystemUpdateType.UPDATE_LATE,
@@ -36,5 +35,5 @@ export function SceneCommonModule() {
       type: SystemUpdateType.FIXED_LATE,
       systemLoader: () => Promise.resolve({ default: BehaveGraphSystem })
     }
-  ])
+  ]
 }

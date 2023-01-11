@@ -4,7 +4,6 @@ import _ from 'lodash'
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { createGLTFLoader } from './assets/functions/createGLTFLoader'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'

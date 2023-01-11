@@ -28,19 +28,14 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup, GroupComponent, removeGroupComponent } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
-import {
-  LocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
-} from '../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import { updateWorldOriginFromViewerHit } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
-import { getControlMode, ReferenceSpace, XRAction, XRReceptors, XRState } from './XRState'
+import { ReferenceSpace, XRAction, XRReceptors, XRState } from './XRState'
 
 const _vecPosition = new Vector3()
 const _vecScale = new Vector3()
@@ -139,11 +134,12 @@ export const getHitTestFromViewier = (world = Engine.instance.currentWorld) => {
     lastSwipeValue = null
   }
 
-  return getComponent(viewerHitTestEntity, LocalTransformComponent)
+  return getComponent(viewerHitTestEntity, TransformComponent)
 }
 
 const _plane = new Plane()
 let lastSwipeValue = null! as null | number
+const cameraLocalPosition = new Vector3()
 
 /**
  * Updates the transform of the origin reference space to manipulate the
@@ -161,12 +157,12 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
       : getHitTestFromViewier(world)
   if (!hitLocalTransform) return
 
-  const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
+  cameraLocalPosition.copy(xrState.viewerPose.value?.transform.position as any as Vector3)
 
   const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
   const dist = _plane
     .setFromNormalAndCoplanarPoint(upDir, hitLocalTransform.position)
-    .distanceToPoint(cameraLocalTransform.position)
+    .distanceToPoint(cameraLocalPosition)
 
   /**
    * Lock lifesize to 1:1, whereas dollhouse mode uses
@@ -179,6 +175,8 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const lifeSize =
     placementInputSource.targetRayMode === 'tracked-pointer' ||
     (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+  xrState.dollhouseActive.set(lifeSize)
+
   const targetScale = lifeSize
     ? 1
     : 1 /

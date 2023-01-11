@@ -11,7 +11,7 @@ import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { getControlMode, XRState } from '../xr/XRState'
+import { getCameraMode, hasMovementControls, XRState } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { applyGamepadInput, rotateAvatar } from './functions/moveAvatar'
@@ -38,10 +38,7 @@ export const AvatarAxesControlSchemeBehavior = {
     controller.gamepadLocalInput.z += z
   },
 
-  [AvatarAxesControlScheme.RotateAndTeleport]: (
-    inputSource: XRInputSource,
-    controller: AvatarControllerComponentType
-  ) => {
+  [AvatarAxesControlScheme.RotateAndTeleport]: (inputSource: XRInputSource) => {
     if (inputSource.gamepad?.mapping !== 'xr-standard') return
 
     const localClientEntity = Engine.instance.currentWorld.localClientEntity
@@ -69,14 +66,11 @@ export const AvatarAxesControlSchemeBehavior = {
 
 export default async function AvatarInputSystem(world: World) {
   const interactState = getState(InteractState)
-  const xrState = getState(XRState)
   const avatarInputSettings = getState(AvatarInputSettingsState).value
-  const _euler = new Euler()
-  const viewerRotationDifference = new Quaternion()
 
   const onShiftLeft = () => {
     const controller = getComponentState(world.localClientEntity, AvatarControllerComponent)
-    controller.isWalking.set(!controller.isWalking)
+    controller.isWalking.set(!controller.isWalking.value)
   }
 
   const onKeyE = () => {
@@ -139,6 +133,8 @@ export default async function AvatarInputSystem(world: World) {
       if (buttons.KeyP?.down) onKeyP()
     }
 
+    if (!hasMovementControls()) return
+
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =
@@ -153,13 +149,13 @@ export default async function AvatarInputSystem(world: World) {
 
     for (const inputSource of inputSources) {
       const controlScheme =
-        inputSource.handedness === 'left'
+        inputSource.handedness === 'none'
+          ? AvatarAxesControlScheme.Move
+          : inputSource.handedness === 'left'
           ? avatarInputSettings.leftAxesControlScheme
           : avatarInputSettings.rightAxesControlScheme
       AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
     }
-
-    applyGamepadInput(world.localClientEntity)
   }
 
   const cleanup = async () => {}

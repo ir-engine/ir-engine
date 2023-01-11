@@ -175,8 +175,6 @@ export const createAvatarController = (entity: Entity) => {
   addComponent(entity, AvatarControllerComponent, {
     cameraEntity: Engine.instance.currentWorld.cameraEntity,
     bodyCollider: undefined!,
-    targetHeadPosition: new Vector3(),
-    targetHeadRotation: new Quaternion(),
     movementEnabled: true,
     isJumping: false,
     isWalking: false,

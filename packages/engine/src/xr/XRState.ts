@@ -26,12 +26,14 @@ export const XRState = defineState({
     session: null as XRSession | null,
     sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
     /**
-     * The `avatarControlMode` property can be 'auto', 'attached', or 'detached'.
-     * When `avatarControlMode` is 'attached' the avatar's head is attached to the XR display.
-     * When `avatarControlMode` is 'detached' the avatar can move freely via movement controls (e.g., joystick).
-     * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
+     * The `avatarCameraMode` property can be 'auto', 'attached', or 'detached'.
+     * When `avatarCameraMode` is 'attached' the avatar's head is attached to the XR display.
+     * When `avatarCameraMode` is 'detached' the avatar can move freely via movement controls (e.g., joystick).
+     * When `avatarCameraMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
-    avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
+    dollhouseMode: 'auto' as 'auto' | 'on' | 'off',
+    dollhouseActive: false,
+    avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
     avatarHeadLock: false as 'auto' | true | false,
     viewerHitTestSource: null as XRHitTestSource | null,
     viewerHitTestEntity: 0 as Entity,
@@ -97,13 +99,19 @@ export class XRAction {
   })
 }
 
-export const getControlMode = () => {
-  const { avatarControlMode, sessionMode, sessionActive } = getState(XRState).value
-  if (!sessionActive) return 'none'
-  if (avatarControlMode === 'auto') {
-    return sessionMode === 'immersive-vr' || sessionMode === 'inline' || isHMD ? 'attached' : 'detached'
+export const getCameraMode = () => {
+  const { avatarCameraMode, sessionActive, dollhouseActive, scenePlacementMode } = getState(XRState).value
+  if (!sessionActive) return 'detached'
+  if (avatarCameraMode === 'auto') {
+    return dollhouseActive || scenePlacementMode ? 'detached' : 'attached'
   }
-  return avatarControlMode
+  return avatarCameraMode
+}
+
+export const hasMovementControls = () => {
+  const { sessionActive, dollhouseActive, sessionMode } = getState(XRState).value
+  if (!sessionActive) return true
+  return sessionMode === 'immersive-ar' ? dollhouseActive : true
 }
 
 export const getAvatarHeadLock = () => {

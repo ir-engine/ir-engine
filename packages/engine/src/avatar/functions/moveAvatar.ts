@@ -16,15 +16,11 @@ import { teleportObject } from '../../physics/systems/PhysicsSystem'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { getControlMode, ReferenceSpace, XRState } from '../../xr/XRState'
+import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-
-const _quat = new Quaternion()
-
-export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 
 /**
  * raycast internals
@@ -37,19 +33,13 @@ const avatarGroundRaycast = {
   groups: 0
 }
 
-//   const avatarInputState = getState(AvatarInputSettingsState)
-//   /** teleport controls handled in AvatarInputSchema */
-//   if (getControlMode() === 'attached' && avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) return
-
-//   moveAvatar(entity)
-// }
-
 const cameraDirection = new Vector3()
 const forwardOrientation = new Quaternion()
 const targetWorldMovement = new Vector3()
 const desiredMovement = new Vector3()
 const viewerMovement = new Vector3()
 const finalAvatarMovement = new Vector3()
+const avatarHeadPosition = new Vector3()
 
 export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const world = Engine.instance.currentWorld
@@ -66,17 +56,24 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const viewerPose = xrFrame && ReferenceSpace.origin ? xrFrame.getViewerPose(ReferenceSpace.origin) : null
   xrState.viewerPose.set(viewerPose)
 
-  const attached = getControlMode() === 'attached'
-  viewerMovement.copy(V_000)
+  /** move head position forward a bit to not be inside the avatar's body */
+  avatarHeadPosition
+    .set(0, avatarHeight * 0.95, 0.15)
+    .applyQuaternion(rigidbody.targetKinematicRotation)
+    .add(rigidbody.targetKinematicPosition)
 
-  if (viewerPose)
-    viewerMovement.set(
-      viewerPose.transform.position.x - rigidbody.targetKinematicPosition.x,
-      Math.max(viewerPose.transform.position.y - rigidbody.targetKinematicPosition.y - avatarHeight * 0.95, 0),
-      viewerPose.transform.position.z - rigidbody.targetKinematicPosition.z
-    )
+  desiredMovement.copy(V_000)
 
-  desiredMovement.copy(viewerMovement)
+  const attached = getCameraMode() === 'attached'
+  if (attached) {
+    viewerMovement.copy(V_000)
+    viewerPose && viewerMovement.copy(viewerPose.transform.position as any).sub(avatarHeadPosition)
+    // vertical viewer movement should only apply updward movement to the rigidbody,
+    // when the viewerpose is moving up over the current avatar head position
+    viewerMovement.y = Math.max(viewerMovement.y, 0)
+    desiredMovement.copy(viewerMovement)
+  }
+
   if (controller.movementEnabled && additionalMovement) desiredMovement.add(additionalMovement)
 
   const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
@@ -106,27 +103,22 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
     rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
-    controller.isInAir = hit.distance > 1 + controllerOffset
+    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
     if (attached) originTransform.position.y = hit.position.y
     /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
   }
 
   if (!controller.isInAir) controller.verticalVelocity = 0
 
-  finalAvatarMovement.subVectors(computedMovement, viewerMovement)
-
-  updateReferenceSpaceFromAvatarMovement(finalAvatarMovement)
+  if (attached) updateReferenceSpaceFromAvatarMovement(finalAvatarMovement.subVectors(computedMovement, viewerMovement))
 }
 
 export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
-  const attached = getControlMode() === 'attached'
-  if (attached) {
-    const world = Engine.instance.currentWorld
-    const originTransform = getComponent(world.originEntity, TransformComponent)
-    originTransform.position.add(movement)
-    updateWorldOrigin()
-    updateLocalAvatarPositionAttachedMode()
-  }
+  const world = Engine.instance.currentWorld
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+  originTransform.position.add(movement)
+  updateWorldOrigin()
+  updateLocalAvatarPositionAttachedMode()
 }
 
 const _additionalMovement = new Vector3()
@@ -139,7 +131,7 @@ export const applyGamepadInput = (entity: Entity) => {
 
   const world = Engine.instance.currentWorld
   const camera = world.camera
-  const deltaSeconds = world.deltaSeconds /** @todo put this back in the fixed pipeline */
+  const deltaSeconds = world.fixedDeltaSeconds
   const controller = getComponent(entity, AvatarControllerComponent)
 
   const lerpAlpha = 6 * deltaSeconds
@@ -203,6 +195,8 @@ export const rotateMatrixAboutPoint = (matrix: Matrix4, point: Vector3, rotation
   matrix.premultiply(_mat4.makeTranslation(point.x, point.y, point.z))
 }
 
+const _quat = new Quaternion()
+
 /**
  * Rotates the avatar's rigidbody around the Y axis by a given angle
  * @param entity
@@ -213,7 +207,7 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
   const rigidBody = getComponent(entity, RigidBodyComponent)
   rigidBody.targetKinematicRotation.multiply(_quat)
 
-  if (getControlMode() === 'attached') {
+  if (getCameraMode() === 'attached') {
     const world = Engine.instance.currentWorld
     const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
     spinMatrixWithQuaternion(worldOriginTransform.matrix, _quat)
@@ -260,6 +254,7 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
+  rigidbody.targetKinematicRotation.copy(avatarRotation)
   rigidbody.previousRotation.copy(avatarRotation)
   rigidbody.rotation.copy(avatarRotation)
   transform.rotation.copy(avatarRotation)
@@ -268,7 +263,7 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 export const updateLocalAvatarRotation = () => {
   const world = Engine.instance.currentWorld
   const entity = world.localClientEntity
-  if (getControlMode() === 'attached') {
+  if (getCameraMode() === 'attached') {
     _updateLocalAvatarRotationAttachedMode()
   } else {
     const alpha = 1 - Math.exp(-3 * world.deltaSeconds)
@@ -297,7 +292,11 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
 
   if (raycastHit) {
     const transform = getComponent(entity, TransformComponent)
-    updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(raycastHit.position as Vector3, transform.position))
+    const attached = getCameraMode() === 'attached'
+    if (attached)
+      updateReferenceSpaceFromAvatarMovement(
+        new Vector3().subVectors(raycastHit.position as Vector3, transform.position)
+      )
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }

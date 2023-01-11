@@ -364,17 +364,6 @@ export default async function WebGLRendererSystem(world: World) {
     return null
   })
 
-  /** override Skeleton.update, as it is called inside  */
-  const skeletonUpdate = Skeleton.prototype.update
-
-  function noop() {}
-
-  function iterateSkeletons(skinnedMesh: SkinnedMesh) {
-    if (skinnedMesh.isSkinnedMesh) {
-      skinnedMesh.skeleton.update()
-    }
-  }
-
   const execute = () => {
     for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)
     for (const action of setAutomaticActions()) EngineRendererReceptor.setAutomatic(action)
@@ -385,21 +374,6 @@ export default async function WebGLRendererSystem(world: World) {
     for (const action of changeNodeHelperVisibilityActions()) EngineRendererReceptor.changeNodeHelperVisibility(action)
     for (const action of changeGridToolHeightActions()) EngineRendererReceptor.changeGridToolHeight(action)
     for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
-
-    /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
-    /** @todo include in auto performance scaling metrics */
-    if (isHMD) {
-      /**
-       * Update threejs skeleton manually
-       *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
-       */
-      Skeleton.prototype.update = skeletonUpdate
-      for (const entity of world.priorityAvatarEntities) {
-        const group = getComponent(entity, GroupComponent)
-        for (const obj of group) obj.traverse(iterateSkeletons)
-      }
-      Skeleton.prototype.update = noop
-    }
 
     EngineRenderer.instance.execute(world.deltaSeconds)
   }
@@ -415,7 +389,6 @@ export default async function WebGLRendererSystem(world: World) {
     removeActionQueue(changeGridToolHeightActions)
     removeActionQueue(changeGridToolVisibilityActions)
     reactor.stop()
-    Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }

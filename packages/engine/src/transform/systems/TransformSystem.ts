@@ -1,11 +1,10 @@
 import { Not } from 'bitecs'
-import { Camera, Frustum, Matrix4, Mesh, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { noop } from 'lodash'
+import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import { applyInputSourcePoseToIKTargets } from '../../avatar/functions/applyInputSourcePoseToIKTargets'
-import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
 import { V_000 } from '../../common/constants/MathConstants'
 import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
@@ -27,13 +26,10 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
-import { updateXRCamera } from '../../xr/XRCameraSystem'
-import { XRState } from '../../xr/XRState'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -244,6 +240,17 @@ export default async function TransformSystem(world: World) {
 
   let sortedTransformEntities = [] as Entity[]
 
+  /** override Skeleton.update, as it is called inside  */
+  const skeletonUpdate = Skeleton.prototype.update
+
+  function noop() {}
+
+  function iterateSkeletons(skinnedMesh: SkinnedMesh) {
+    if (skinnedMesh.isSkinnedMesh) {
+      skinnedMesh.skeleton.update()
+    }
+  }
+
   const execute = () => {
     const { localClientEntity } = world
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
@@ -252,26 +259,7 @@ export default async function TransformSystem(world: World) {
     // Note: cyclic references will cause undefined behavior
 
     /**
-     * 1 - Update local client movement
-     */
-
-    updateLocalAvatarPosition()
-    updateLocalAvatarRotation()
-
-    /**
-     * 2 - Update XR camera positions based on world origin and viewer pose
-     */
-    updateXRCamera()
-
-    /**
-     * @todo for whatever reason, this must run at the start of the transform system,
-     *   but IK must happen before the transform system.
-     * We likely need to break the transform system up into multiple systems.
-     */
-    applyInputSourcePoseToIKTargets()
-
-    /**
-     * 3 - Sort transforms if needed
+     * Sort transforms if needed
      */
     const { transformsNeedSorting } = getState(EngineState)
 
@@ -297,7 +285,7 @@ export default async function TransformSystem(world: World) {
     }
 
     /**
-     * 4 - Update entity transforms
+     * Update entity transforms
      */
     const allRigidbodyEntities = rigidbodyTransformQuery()
     const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)
@@ -371,6 +359,21 @@ export default async function TransformSystem(world: World) {
           )
       }
     }
+
+    /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
+    /** @todo include in auto performance scaling metrics */
+    // if (isHMD) {
+    //   /**
+    //    * Update threejs skeleton manually
+    //    *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
+    //    */
+    //   Skeleton.prototype.update = skeletonUpdate
+    //   for (const entity of world.priorityAvatarEntities) {
+    //     const group = getComponent(entity, GroupComponent)
+    //     for (const obj of group) obj.traverse(iterateSkeletons)
+    //   }
+    //   Skeleton.prototype.update = noop
+    // }
   }
 
   const cleanup = async () => {
@@ -384,6 +387,7 @@ export default async function TransformSystem(world: World) {
     removeQuery(world, dynamicBoundingBoxQuery)
     removeQuery(world, distanceFromLocalClientQuery)
     removeQuery(world, distanceFromCameraQuery)
+    Skeleton.prototype.update = skeletonUpdate
   }
 
   return { execute, cleanup }
