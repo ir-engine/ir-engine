@@ -39,16 +39,16 @@ export function AvatarClientModule() {
       systemLoader: () => Promise.resolve({ default: AvatarMovementSystem })
     },
     {
-      uuid: 'xre.engine.ReferenceSpaceTransformSystem',
-      type: SystemUpdateType.UPDATE_LATE,
-      before: 'xre.engine.TransformSystem',
-      systemLoader: () => Promise.resolve({ default: ReferenceSpaceTransformSystem })
-    },
-    {
       uuid: 'xre.engine.AvatarAnimationSystem',
       type: SystemUpdateType.UPDATE_LATE,
       before: 'xre.engine.TransformSystem',
       systemLoader: () => Promise.resolve({ default: AvatarAnimationSystem })
+    },
+    {
+      uuid: 'xre.engine.ReferenceSpaceTransformSystem',
+      type: SystemUpdateType.UPDATE_LATE,
+      before: 'xre.engine.TransformSystem',
+      systemLoader: () => Promise.resolve({ default: ReferenceSpaceTransformSystem })
     },
     {
       uuid: 'xre.engine.FlyControlSystem',
