@@ -55,22 +55,24 @@ const applyBPCEM = (material) => {
 }
 
 export function setupObject(obj: Object3DWithEntity) {
-  const mesh = obj as any as Mesh<any, any>
-  mesh.traverse((child: Mesh<any, any>) => {
+  const mesh = obj as any as Mesh
+  mesh.traverse((child: Mesh) => {
     if (child.material) {
-      if (!Engine.instance.isEditor && isHMD && ExpensiveMaterials.has(child.material.constructor)) {
-        const prevMaterial = child.material
+      const material = child.material as Material
+      if (!Engine.instance.isEditor && isHMD && ExpensiveMaterials.has(material.constructor as any)) {
+        const prevMaterial = material as Material & MeshBasicMaterial & MeshStandardMaterial
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
         prevMaterial.dispose()
-        child.material = new MeshBasicMaterial().copy(prevMaterial)
-        child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
-        child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
+        const nuMaterial = new MeshBasicMaterial().copy(prevMaterial)
+        nuMaterial.color = onlyEmmisive ? new Color('white') : prevMaterial.color
+        nuMaterial.map = prevMaterial.map ?? prevMaterial.emissiveMap
         // todo: find out why leaving the envMap makes basic & lambert materials transparent here
-        child.material.envMap = null
-        prevMatEntry && registerMaterial(child.material, prevMatEntry.src)
+        nuMaterial.envMap = null
+        child.material = nuMaterial
+        prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
-      child.material.dithering = true
+      material.dithering = true
     }
   })
 }
