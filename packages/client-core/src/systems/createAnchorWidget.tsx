@@ -2,7 +2,7 @@ import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/Avat
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { getControlMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
+import { getCameraMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'

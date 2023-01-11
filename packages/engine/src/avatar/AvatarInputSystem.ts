@@ -11,7 +11,7 @@ import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { getControlMode, XRState } from '../xr/XRState'
+import { getCameraMode, hasMovementControls, XRState } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { applyGamepadInput, rotateAvatar } from './functions/moveAvatar'
@@ -132,6 +132,8 @@ export default async function AvatarInputSystem(world: World) {
       if (buttons.KeyO?.down) onKeyO()
       if (buttons.KeyP?.down) onKeyP()
     }
+
+    if (!hasMovementControls()) return
 
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)

@@ -17,7 +17,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { getControlMode, XRState } from '../xr/XRState'
+import { getCameraMode, XRState } from '../xr/XRState'
 import { AvatarRigComponent } from './components/AvatarAnimationComponent'
 import {
   AvatarIKTargetsComponent,
@@ -157,7 +157,7 @@ export default async function AvatarSystem(world: World) {
     if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
       const sources = Array.from(inputSources.values())
-      const head = !!sources.find((s) => s.handedness === 'none') && getControlMode() === 'attached'
+      const head = !!sources.find((s) => s.handedness === 'none') && getCameraMode() === 'attached'
       const leftHand = !!sources.find((s) => s.handedness === 'left')
       const rightHand = !!sources.find((s) => s.handedness === 'right')
 

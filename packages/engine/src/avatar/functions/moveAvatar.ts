@@ -16,7 +16,7 @@ import { teleportObject } from '../../physics/systems/PhysicsSystem'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { getControlMode, ReferenceSpace, XRState } from '../../xr/XRState'
+import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -64,7 +64,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
   desiredMovement.copy(V_000)
 
-  const attached = getControlMode() === 'attached'
+  const attached = getCameraMode() === 'attached'
   if (attached) {
     viewerMovement.copy(V_000)
     viewerPose && viewerMovement.copy(viewerPose.transform.position as any).sub(avatarHeadPosition)
@@ -207,7 +207,7 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
   const rigidBody = getComponent(entity, RigidBodyComponent)
   rigidBody.targetKinematicRotation.multiply(_quat)
 
-  if (getControlMode() === 'attached') {
+  if (getCameraMode() === 'attached') {
     const world = Engine.instance.currentWorld
     const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
     spinMatrixWithQuaternion(worldOriginTransform.matrix, _quat)
@@ -254,6 +254,7 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
+  rigidbody.targetKinematicRotation.copy(avatarRotation)
   rigidbody.previousRotation.copy(avatarRotation)
   rigidbody.rotation.copy(avatarRotation)
   transform.rotation.copy(avatarRotation)
@@ -262,7 +263,7 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 export const updateLocalAvatarRotation = () => {
   const world = Engine.instance.currentWorld
   const entity = world.localClientEntity
-  if (getControlMode() === 'attached') {
+  if (getCameraMode() === 'attached') {
     _updateLocalAvatarRotationAttachedMode()
   } else {
     const alpha = 1 - Math.exp(-3 * world.deltaSeconds)
@@ -291,7 +292,7 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
 
   if (raycastHit) {
     const transform = getComponent(entity, TransformComponent)
-    const attached = getControlMode() === 'attached'
+    const attached = getCameraMode() === 'attached'
     if (attached)
       updateReferenceSpaceFromAvatarMovement(
         new Vector3().subVectors(raycastHit.position as Vector3, transform.position)

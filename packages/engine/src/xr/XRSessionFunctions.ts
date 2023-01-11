@@ -17,7 +17,7 @@ import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { getControlMode, ReferenceSpace, XRAction, XRState } from './XRState'
+import { getCameraMode, ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -151,7 +151,7 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   if (!entity) return
 
   if (action.active) {
-    if (getControlMode() === 'attached') {
+    if (getCameraMode() === 'attached') {
       if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
     }
   }

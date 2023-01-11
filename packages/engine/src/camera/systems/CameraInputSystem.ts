@@ -19,7 +19,7 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { getControlMode } from '../../xr/XRState'
+import { getCameraMode } from '../../xr/XRState'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
