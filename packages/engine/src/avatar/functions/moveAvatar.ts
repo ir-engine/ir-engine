@@ -50,6 +50,7 @@ const targetWorldMovement = new Vector3()
 const desiredMovement = new Vector3()
 const viewerMovement = new Vector3()
 const finalAvatarMovement = new Vector3()
+const avatarHeadPosition = new Vector3()
 
 export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const world = Engine.instance.currentWorld
@@ -69,12 +70,15 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const attached = getControlMode() === 'attached'
   viewerMovement.copy(V_000)
 
-  if (viewerPose)
-    viewerMovement.set(
-      viewerPose.transform.position.x - rigidbody.targetKinematicPosition.x,
-      Math.max(viewerPose.transform.position.y - rigidbody.targetKinematicPosition.y - avatarHeight * 0.95, 0),
-      viewerPose.transform.position.z - rigidbody.targetKinematicPosition.z
-    )
+  avatarHeadPosition
+    .set(0, avatarHeight * 0.95, -0.1)
+    .applyQuaternion(rigidbody.targetKinematicRotation)
+    .add(rigidbody.targetKinematicPosition)
+
+  viewerPose && viewerMovement.copy(viewerPose.transform.position as any).sub(avatarHeadPosition)
+  // vertical viewer movement should only apply updward movement to the rigidbody,
+  // when the viewerpose is moving up over the current avatar head position
+  viewerMovement.y = Math.max(viewerMovement.y, 0)
 
   desiredMovement.copy(viewerMovement)
   if (controller.movementEnabled && additionalMovement) desiredMovement.add(additionalMovement)
