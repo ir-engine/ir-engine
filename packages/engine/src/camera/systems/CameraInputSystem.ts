@@ -7,6 +7,7 @@ import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { throttle } from '../../common/functions/FunctionHelpers'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -155,10 +156,10 @@ export default async function CameraInputSystem(world: World) {
   const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
 
   const execute = () => {
+    if (Engine.instance.xrFrame) return
+
     const { localClientEntity, deltaSeconds } = world
     if (!localClientEntity) return
-
-    if (getControlMode() === 'attached') return
 
     const keys = world.buttons
     if (keys.KeyV?.down) onKeyV()

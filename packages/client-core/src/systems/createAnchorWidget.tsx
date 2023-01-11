@@ -43,8 +43,6 @@ export function createAnchorWidget(world: World) {
         if (widgetState.widgets[id].enabled.value !== widgetEnabled)
           dispatchAction(WidgetAppActions.enableWidget({ id, enabled: widgetEnabled }))
       }
-      const isImmersive = getControlMode() === 'attached'
-      if (!isImmersive) return
       if (!xrState.scenePlacementMode.value) return
       const buttonInput =
         avatarInputSettings.preferredHand.value === 'left' ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down

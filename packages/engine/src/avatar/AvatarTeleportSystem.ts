@@ -28,7 +28,7 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { ReferenceSpace, XRAction, XRState } from '../xr/XRState'
+import { getControlMode, ReferenceSpace, XRAction, XRState } from '../xr/XRState'
 import { createTransitionState } from '../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
@@ -139,6 +139,7 @@ export default async function AvatarTeleportSystem(world: World) {
   let fadeBackInAccumulator = -1
 
   const execute = () => {
+    if (getControlMode() !== 'attached') return
     if (fadeBackInAccumulator >= 0) {
       fadeBackInAccumulator += world.deltaSeconds
       if (fadeBackInAccumulator > 0.25) {

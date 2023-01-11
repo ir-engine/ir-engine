@@ -92,6 +92,8 @@ export const requestXRSession = createHookableFunction(
         xrState.sessionActive.set(false)
         xrState.sessionMode.set('none')
         xrState.session.set(null)
+        xrState.dollhouseActive.set(false)
+
         Engine.instance.xrFrame = null!
         const world = Engine.instance.currentWorld
 

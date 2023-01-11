@@ -22,10 +22,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 
-const _quat = new Quaternion()
-
-export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
-
 /**
  * raycast internals
  */
@@ -36,13 +32,6 @@ const avatarGroundRaycast = {
   maxDistance: 1.1,
   groups: 0
 }
-
-//   const avatarInputState = getState(AvatarInputSettingsState)
-//   /** teleport controls handled in AvatarInputSchema */
-//   if (getControlMode() === 'attached' && avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) return
-
-//   moveAvatar(entity)
-// }
 
 const cameraDirection = new Vector3()
 const forwardOrientation = new Quaternion()
@@ -67,21 +56,24 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const viewerPose = xrFrame && ReferenceSpace.origin ? xrFrame.getViewerPose(ReferenceSpace.origin) : null
   xrState.viewerPose.set(viewerPose)
 
-  const attached = getControlMode() === 'attached'
-  viewerMovement.copy(V_000)
-
   /** move head position forward a bit to not be inside the avatar's body */
   avatarHeadPosition
     .set(0, avatarHeight * 0.95, 0.15)
     .applyQuaternion(rigidbody.targetKinematicRotation)
     .add(rigidbody.targetKinematicPosition)
 
-  viewerPose && viewerMovement.copy(viewerPose.transform.position as any).sub(avatarHeadPosition)
-  // vertical viewer movement should only apply updward movement to the rigidbody,
-  // when the viewerpose is moving up over the current avatar head position
-  viewerMovement.y = Math.max(viewerMovement.y, 0)
+  desiredMovement.copy(V_000)
 
-  desiredMovement.copy(viewerMovement)
+  const attached = getControlMode() === 'attached'
+  if (attached) {
+    viewerMovement.copy(V_000)
+    viewerPose && viewerMovement.copy(viewerPose.transform.position as any).sub(avatarHeadPosition)
+    // vertical viewer movement should only apply updward movement to the rigidbody,
+    // when the viewerpose is moving up over the current avatar head position
+    viewerMovement.y = Math.max(viewerMovement.y, 0)
+    desiredMovement.copy(viewerMovement)
+  }
+
   if (controller.movementEnabled && additionalMovement) desiredMovement.add(additionalMovement)
 
   const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
@@ -118,20 +110,15 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
   if (!controller.isInAir) controller.verticalVelocity = 0
 
-  finalAvatarMovement.subVectors(computedMovement, viewerMovement)
-
-  updateReferenceSpaceFromAvatarMovement(finalAvatarMovement)
+  if (attached) updateReferenceSpaceFromAvatarMovement(finalAvatarMovement.subVectors(computedMovement, viewerMovement))
 }
 
 export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
-  const attached = getControlMode() === 'attached'
-  if (attached) {
-    const world = Engine.instance.currentWorld
-    const originTransform = getComponent(world.originEntity, TransformComponent)
-    originTransform.position.add(movement)
-    updateWorldOrigin()
-    updateLocalAvatarPositionAttachedMode()
-  }
+  const world = Engine.instance.currentWorld
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+  originTransform.position.add(movement)
+  updateWorldOrigin()
+  updateLocalAvatarPositionAttachedMode()
 }
 
 const _additionalMovement = new Vector3()
@@ -207,6 +194,8 @@ export const rotateMatrixAboutPoint = (matrix: Matrix4, point: Vector3, rotation
   matrix.premultiply(_mat4.makeRotationFromQuaternion(rotation))
   matrix.premultiply(_mat4.makeTranslation(point.x, point.y, point.z))
 }
+
+const _quat = new Quaternion()
 
 /**
  * Rotates the avatar's rigidbody around the Y axis by a given angle
@@ -302,7 +291,11 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
 
   if (raycastHit) {
     const transform = getComponent(entity, TransformComponent)
-    updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(raycastHit.position as Vector3, transform.position))
+    const attached = getControlMode() === 'attached'
+    if (attached)
+      updateReferenceSpaceFromAvatarMovement(
+        new Vector3().subVectors(raycastHit.position as Vector3, transform.position)
+      )
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }

@@ -31,6 +31,8 @@ export const XRState = defineState({
      * When `avatarControlMode` is 'detached' the avatar can move freely via movement controls (e.g., joystick).
      * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
+    dollhouseMode: 'auto' as 'auto' | 'on' | 'off',
+    dollhouseActive: false,
     avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
     avatarHeadLock: false as 'auto' | true | false,
     viewerHitTestSource: null as XRHitTestSource | null,
@@ -98,10 +100,10 @@ export class XRAction {
 }
 
 export const getControlMode = () => {
-  const { avatarControlMode, sessionMode, sessionActive } = getState(XRState).value
-  if (!sessionActive) return 'none'
+  const { avatarControlMode, sessionActive, dollhouseActive, scenePlacementMode } = getState(XRState).value
+  if (!sessionActive) return 'detached'
   if (avatarControlMode === 'auto') {
-    return sessionMode === 'immersive-vr' || sessionMode === 'inline' || isHMD ? 'attached' : 'detached'
+    return dollhouseActive || scenePlacementMode ? 'detached' : 'attached'
   }
   return avatarControlMode
 }
