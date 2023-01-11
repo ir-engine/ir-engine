@@ -1,5 +1,4 @@
-import { Engine } from '../ecs/classes/Engine'
-import { initSystems, SystemModuleType } from '../ecs/functions/SystemFunctions'
+import { SystemModuleType } from '../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import IncomingNetworkSystem from './systems/IncomingNetworkSystem'
 import MediaStreamSystem from './systems/MediaStreamSystem'
@@ -38,5 +37,5 @@ export function RealtimeNetworkingModule(media = true, pose = true) {
     )
   }
 
-  return initSystems(Engine.instance.currentWorld, systemsToLoad)
+  return systemsToLoad
 }

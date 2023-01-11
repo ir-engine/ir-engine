@@ -1,5 +1,3 @@
-import { Engine } from '../ecs/classes/Engine'
-import { initSystems } from '../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import ReferenceSpaceTransformSystem from '../transform/systems/ReferenceSpaceTransformSystem'
 import AnimationSystem from './AnimationSystem'
@@ -12,7 +10,7 @@ import AvatarTeleportSystem from './AvatarTeleportSystem'
 import FlyControlSystem from './FlyControlSystem'
 
 export function AvatarClientModule() {
-  return initSystems(Engine.instance.currentWorld, [
+  return [
     {
       uuid: 'xre.engine.AvatarInputSystem',
       type: SystemUpdateType.UPDATE_EARLY,
@@ -60,5 +58,5 @@ export function AvatarClientModule() {
       type: SystemUpdateType.PRE_RENDER,
       systemLoader: () => Promise.resolve({ default: AvatarLoadingSystem })
     }
-  ])
+  ]
 }
