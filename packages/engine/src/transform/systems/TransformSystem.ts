@@ -1,5 +1,18 @@
 import { Not } from 'bitecs'
-import { Camera, Frustum, Material, Matrix4, Mesh, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import {
+  Camera,
+  Frustum,
+  Material,
+  Matrix4,
+  Mesh,
+  MeshDepthMaterial,
+  Quaternion,
+  Scene,
+  Skeleton,
+  SkinnedMesh,
+  Vector3,
+  WebGLRenderTarget
+} from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
@@ -246,6 +259,10 @@ export default async function TransformSystem(world: World) {
 
   let sortedTransformEntities = [] as Entity[]
 
+  const skeletonForceUpdateScene = new Scene()
+  skeletonForceUpdateScene.overrideMaterial = new MeshDepthMaterial()
+  const dummyRenderTarget = new WebGLRenderTarget(1, 1)
+
   const execute = () => {
     const { localClientEntity } = world
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
@@ -262,14 +279,20 @@ export default async function TransformSystem(world: World) {
       computeTransformMatrix(localClientEntity)
       const localClientGroup = getComponent(localClientEntity, GroupComponent)
       const renderer = EngineRenderer.instance.renderer
-      for (const obj of localClientGroup) {
-        obj.updateMatrixWorld(true)
-        for (const skinnedMesh of findSkinnedMeshes(obj)) {
-          if (!skinnedMesh.skeleton.boneTexture) skinnedMesh.skeleton.computeBoneTexture()
-          skinnedMesh.skeleton.update()
-          renderer?.initTexture(skinnedMesh.skeleton.boneTexture!)
-        }
-      }
+      updateGroupChildren(localClientEntity)
+      skeletonForceUpdateScene.children = localClientGroup
+      renderer?.setRenderTarget(dummyRenderTarget)
+      renderer?.render(skeletonForceUpdateScene, world.camera)
+      renderer?.setRenderTarget(null)
+      // for (const obj of localClientGroup) {
+      //   obj.updateMatrixWorld(true)
+      //   for (const skinnedMesh of findSkinnedMeshes(obj)) {
+      //     if (!skinnedMesh.skeleton.boneTexture) skinnedMesh.skeleton.computeBoneTexture()
+      //     skinnedMesh.skeleton.update()
+      //     renderer.
+      //     renderer?.initTexture(skinnedMesh.skeleton.boneTexture!)
+      //   }
+      // }
     }
 
     /**
