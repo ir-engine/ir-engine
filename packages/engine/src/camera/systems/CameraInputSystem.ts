@@ -158,7 +158,7 @@ export default async function CameraInputSystem(world: World) {
     const { localClientEntity, deltaSeconds } = world
     if (!localClientEntity) return
 
-    if (getControlMode() !== 'detached') return
+    if (getControlMode() === 'attached') return
 
     const keys = world.buttons
     if (keys.KeyV?.down) onKeyV()
