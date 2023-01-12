@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import {
+  DefaultUpdateSchedule,
+  ProjectInterface,
+  ProjectUpdateType
+} from '@xrengine/common/src/interfaces/ProjectInterface'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -36,6 +40,8 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           thumbnail: '',
           repositoryPath: '',
           needsRebuild: false,
+          updateType: 'none' as ProjectUpdateType,
+          updateSchedule: DefaultUpdateSchedule,
           commitSHA: '',
           commitDate: new Date()
         }
@@ -54,7 +60,10 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           projectUpdateStatus.destinationURL,
           projectUpdateStatus.projectName,
           true,
-          projectUpdateStatus.selectedSHA
+          projectUpdateStatus.selectedSHA,
+          projectUpdateStatus.selectedBranch,
+          projectUpdateStatus.updateType,
+          projectUpdateStatus.updateSchedule
         )
         setProcessing(false)
         handleClose()
@@ -85,7 +94,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
         processing={processing}
       />
 
-      <Container maxWidth="sm" className={styles.mt20}>
+      <Container maxWidth="sm" className={styles.mt10}>
         <DialogActions>
           <>
             <Button className={styles.outlinedButton} onClick={handleClose}>

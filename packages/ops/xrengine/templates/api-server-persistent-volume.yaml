@@ -1,0 +1,13 @@
+{{ if eq .Values.clusterType "microk8s" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: file-server-pv
+spec:
+  storageClassName: file-server-sc
+  accessModes: [ReadWriteOnce]
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: {{ .Values.api.fileServer.hostUploadFolder }}
+{{- end }}

@@ -1,8 +1,8 @@
-import dotenv from 'dotenv-flow'
-import cli from 'cli'
-import { Sequelize } from 'sequelize'
-import { spawn } from 'child_process'
 import appRootPath from 'app-root-path'
+import { spawn } from 'child_process'
+import cli from 'cli'
+import dotenv from 'dotenv-flow'
+import { Sequelize } from 'sequelize'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 if (!kubernetesEnabled) {

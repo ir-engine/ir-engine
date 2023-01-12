@@ -1,0 +1,8 @@
+{{ if eq .Values.clusterType "microk8s" }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: file-server-sc        
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: Immediate
+{{- end }}

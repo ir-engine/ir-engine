@@ -23,4 +23,5 @@ export interface ServerContainerInfo {
   status: ServerContainerStatus
   ready: boolean
   started: boolean
+  image: string
 }
