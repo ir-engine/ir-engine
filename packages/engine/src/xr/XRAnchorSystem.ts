@@ -1,4 +1,5 @@
 import {
+  AxesHelper,
   ConeGeometry,
   Group,
   MathUtils,
@@ -28,7 +29,12 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { addObjectToGroup, GroupComponent, removeGroupComponent } from '../scene/components/GroupComponent'
+import {
+  addObjectToGroup,
+  GroupComponent,
+  removeGroupComponent,
+  removeObjectFromGroup
+} from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -89,8 +95,10 @@ export const getHitTestFromController = (world = Engine.instance.currentWorld) =
   const pose = Engine.instance.xrFrame!.getPose(world.inputSources[0].targetRaySpace, referenceSpace)!
   const { position, orientation } = pose.transform
 
-  pos.copy(position as any as Vector3)
-  orient.copy(orientation as any as Quaternion)
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+
+  pos.copy(position as any as Vector3).applyMatrix4(originTransform.matrix)
+  orient.copy(orientation as any as Quaternion).multiply(originTransform.rotation)
 
   // raycast controller to ground
   _ray.set(pos, _vec2.set(0, 0, -1).applyQuaternion(orient))
@@ -110,7 +118,7 @@ export const getHitTestFromController = (world = Engine.instance.currentWorld) =
 }
 
 /** AR placement for non immersive / mobile session */
-export const getHitTestFromViewier = (world = Engine.instance.currentWorld) => {
+export const getHitTestFromViewer = (world = Engine.instance.currentWorld) => {
   const xrState = getState(XRState)
 
   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
@@ -139,7 +147,7 @@ export const getHitTestFromViewier = (world = Engine.instance.currentWorld) => {
 
 const _plane = new Plane()
 let lastSwipeValue = null! as null | number
-const cameraLocalPosition = new Vector3()
+const scaledCameraPosition = new Vector3()
 
 /**
  * Updates the transform of the origin reference space to manipulate the
@@ -151,18 +159,18 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 
   const placementInputSource = xrState.scenePlacementMode.value!
 
-  const hitLocalTransform =
+  const hitTransform =
     placementInputSource.targetRayMode === 'tracked-pointer'
       ? getHitTestFromController(world)
-      : getHitTestFromViewier(world)
-  if (!hitLocalTransform) return
+      : getHitTestFromViewer(world)
+  if (!hitTransform) return
 
-  cameraLocalPosition.copy(xrState.viewerPose.value?.transform.position as any as Vector3)
+  const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+  scaledCameraPosition.copy(cameraTransform.position).multiplyScalar(1 / originTransform.scale.x)
 
-  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
-  const dist = _plane
-    .setFromNormalAndCoplanarPoint(upDir, hitLocalTransform.position)
-    .distanceToPoint(cameraLocalPosition)
+  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitTransform.rotation)
+  const dist = _plane.setFromNormalAndCoplanarPoint(upDir, hitTransform.position).distanceToPoint(scaledCameraPosition)
 
   /**
    * Lock lifesize to 1:1, whereas dollhouse mode uses
@@ -186,8 +194,8 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
         maxDollhouseScale
       )
   const targetScaleVector = _vecScale.setScalar(targetScale)
-  const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScaleVector.x)
-  const targetRotation = hitLocalTransform.rotation.multiply(
+  const targetPosition = _vecPosition.copy(hitTransform.position).multiplyScalar(targetScaleVector.x)
+  const targetRotation = hitTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
   )
 
@@ -207,12 +215,16 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
 export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorld) => {
   const anchor = getComponent(entity, XRAnchorComponent).anchor
   const xrFrame = Engine.instance.xrFrame!
-  const localFloorReferenceSpace = ReferenceSpace.localFloor
-  if (anchor && localFloorReferenceSpace) {
-    const pose = xrFrame.getPose(anchor.anchorSpace, localFloorReferenceSpace)
+  const originReferenceSpace = ReferenceSpace.origin
+  if (anchor && originReferenceSpace) {
+    const pose = xrFrame.getPose(anchor.anchorSpace, originReferenceSpace)
     if (pose) {
       const transform = getComponent(entity, TransformComponent)
-      transform.position.copy(pose.transform.position as any as Vector3)
+      const originTransform = getComponent(
+        world.originEntity,
+        TransformComponent
+      ) /** @todo store originTransform.scale.x in XRState  */
+      transform.position.copy(pose.transform.position as any as Vector3).multiplyScalar(1 / originTransform.scale.x)
       transform.rotation.copy(pose.transform.orientation as any as Quaternion)
     }
   }
@@ -236,7 +248,7 @@ export default async function XRAnchorSystem(world: World) {
 
   xrState.viewerHitTestEntity.set(scenePlacementEntity)
 
-  // addObjectToGroup(viewerHitTestEntity, new AxesHelper(10))
+  addObjectToGroup(scenePlacementEntity, new AxesHelper(10))
 
   const pinSphereMesh = new Mesh(new SphereGeometry(0.025, 16, 16), new MeshBasicMaterial({ color: 'white' }))
   pinSphereMesh.position.setY(0.1125)
@@ -319,11 +331,11 @@ export default async function XRAnchorSystem(world: World) {
      */
     for (const entity of xrHitTestQuery()) {
       const hasHit = getComponent(entity, XRHitTestComponent).hitTestResult
-      if (hasHit && !hasComponent(entity, GroupComponent)) {
+      if (hasHit && !getComponent(entity, GroupComponent)?.includes(xrViewerHitTestMesh as any)) {
         addObjectToGroup(entity, xrViewerHitTestMesh)
       }
-      if (!hasHit && hasComponent(entity, GroupComponent)) {
-        removeGroupComponent(entity)
+      if (!hasHit && getComponent(entity, GroupComponent)?.includes(xrViewerHitTestMesh as any)) {
+        removeObjectFromGroup(entity, xrViewerHitTestMesh)
       }
     }
 
