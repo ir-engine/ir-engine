@@ -58,6 +58,14 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
         app
       )
       serverInfo.push(taskPods)
+
+      const projectUpdatePods = await getPodsData(
+        `etherealengine/release=${config.server.releaseName},etherealengine/projectUpdater=true`,
+        'projectUpdate',
+        'Project Updater',
+        app
+      )
+      serverInfo.push(projectUpdatePods)
     }
 
     // if (app.k8AgonesClient) {
@@ -179,7 +187,8 @@ const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {
         : 'Undefined',
       ready: item.ready,
       started: item.started,
-      restarts: item.restartCount
+      restarts: item.restartCount,
+      image: item.image
     } as ServerContainerInfo
   })
 }

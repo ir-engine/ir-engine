@@ -331,28 +331,6 @@ testbot:
     annotations: {}
     name:
 
-editor:
-  enabled: false
-  extraEnv:
-    BASE_ASSETS_PATH: https://api-dev.<domain>/
-    GA_TRACKING_ID: ""
-    HUBS_SERVER: api-dev.<domain>
-    RETICULUM_SERVER: api-dev.<domain>
-    SENTRY_DSN: ""
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: eks.amazonaws.com/nodegroup
-                operator: In
-                values:
-                  - ng-1
-  ingress:
-    hosts:
-      - host: dev.<domain>
-        paths:
-          - /create
 redis:
   enabled: false
 

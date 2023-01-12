@@ -26,10 +26,6 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.instanceserver.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xrengine.editor.name" -}}
-{{- default .Chart.Name .Values.editor.nameOverride | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
 {{- define "xrengine.testbot.name" -}}
 {{- default .Chart.Name (.Values.testbot).nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

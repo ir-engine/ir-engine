@@ -2,7 +2,11 @@ import { none } from '@hookstate/core'
 
 import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
 import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import {
+  DefaultUpdateSchedule,
+  ProjectInterface,
+  ProjectUpdateType
+} from '@xrengine/common/src/interfaces/ProjectInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -40,7 +44,9 @@ const initializeProjectUpdateReceptor = (action: typeof ProjectUpdateActions.ini
     selectedSHA: '',
     projectName: '',
     submitDisabled: true,
-    triggerSetDestination: false
+    triggerSetDestination: false,
+    updateType: 'none' as ProjectUpdateType,
+    updateSchedule: DefaultUpdateSchedule
   })
 }
 
@@ -216,8 +222,19 @@ export const ProjectUpdateService = {
     )
   },
   setTriggerSetDestination: (project: ProjectInterface, trigger: string) => {
+    ProjectUpdateService.setUpdateType(project, project.updateType || 'none')
+    ProjectUpdateService.setUpdateSchedule(project, project.updateSchedule || DefaultUpdateSchedule)
+
     dispatchAction(
       ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'triggerSetDestination', value: trigger })
+    )
+  },
+  setUpdateType: (project: ProjectInterface, type: ProjectUpdateType) => {
+    dispatchAction(ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'updateType', value: type }))
+  },
+  setUpdateSchedule: (project: ProjectInterface, schedule: string) => {
+    dispatchAction(
+      ProjectUpdateActions.setProjectUpdateField({ project, fieldName: 'updateSchedule', value: schedule })
     )
   },
 
