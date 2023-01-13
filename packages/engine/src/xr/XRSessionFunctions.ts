@@ -12,6 +12,7 @@ import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { updateWorldOrigin } from '../transform/updateWorldOrigin'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
@@ -67,18 +68,22 @@ export const requestXRSession = createHookableFunction(
         // @ts-ignore
         xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen' ? 0.5 : 1.2
 
-      xrSession.requestReferenceSpace('local-floor').then((space) => (ReferenceSpace.origin = space))
-      xrSession.requestReferenceSpace('local-floor').then((space) => (ReferenceSpace.localFloor = space))
-      xrSession.requestReferenceSpace('viewer').then((space) => (ReferenceSpace.viewer = space))
-      xrState.sessionActive.set(true)
-
       const world = Engine.instance.currentWorld
-
+      const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
       const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
 
-      const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+      /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
       worldOriginTransform.position.copy(rigidBody.position)
       worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
+
+      /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
+      xrSession.requestReferenceSpace('local-floor').then((space) => {
+        ReferenceSpace.localFloor = space
+        updateWorldOrigin()
+      })
+
+      xrSession.requestReferenceSpace('viewer').then((space) => (ReferenceSpace.viewer = space))
+      xrState.sessionActive.set(true)
 
       xrManager.setFoveation(1)
       xrState.sessionMode.set(mode)

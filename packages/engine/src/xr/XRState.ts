@@ -34,7 +34,6 @@ export const XRState = defineState({
     dollhouseMode: 'auto' as 'auto' | 'on' | 'off',
     sceneScale: 1,
     avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
-    avatarHeadLock: false as 'auto' | true | false,
     viewerHitTestSource: null as XRHitTestSource | null,
     viewerHitTestEntity: 0 as Entity,
     sceneRotationOffset: 0,
@@ -112,11 +111,6 @@ export const hasMovementControls = () => {
   const { sessionActive, sceneScale, sessionMode } = getState(XRState).value
   if (!sessionActive) return true
   return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
-}
-
-export const getAvatarHeadLock = () => {
-  const { avatarHeadLock } = getState(XRState)
-  return avatarHeadLock.value === 'auto' ? false : avatarHeadLock.value
 }
 
 /**

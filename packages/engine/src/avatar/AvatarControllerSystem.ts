@@ -108,7 +108,7 @@ export default async function AvatarControllerSystem(world: World) {
       }
 
       const rigidbody = getComponent(controlledEntity, RigidBodyComponent)
-      if (rigidbody.body.translation().y < -10) respawnAvatar(controlledEntity)
+      if (rigidbody.position.y < -10) respawnAvatar(controlledEntity)
     }
   }
 
