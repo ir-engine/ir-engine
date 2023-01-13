@@ -7,8 +7,8 @@ let imageData
 const faceApiOptions = new TinyFaceDetectorOptions()
 
 Comlink.expose({
-  initialise: async () => {
-    const origin = import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL
+  initialise: async (BASE_URL) => {
+    const origin = BASE_URL === '/client/' ? location.origin : BASE_URL
     await nets.tinyFaceDetector.loadFromUri(origin + '/facetracking')
     await nets.faceExpressionNet.loadFromUri(origin + '/facetracking')
   },
