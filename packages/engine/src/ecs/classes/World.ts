@@ -276,10 +276,10 @@ export class World {
   pipelines = {
     [SystemUpdateType.UPDATE_EARLY]: [],
     [SystemUpdateType.UPDATE]: [],
-    [SystemUpdateType.UPDATE_LATE]: [],
     [SystemUpdateType.FIXED_EARLY]: [],
     [SystemUpdateType.FIXED]: [],
     [SystemUpdateType.FIXED_LATE]: [],
+    [SystemUpdateType.UPDATE_LATE]: [],
     [SystemUpdateType.PRE_RENDER]: [],
     [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []
