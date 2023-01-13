@@ -67,7 +67,7 @@ const widgetRotation = new Quaternion()
 export const WidgetInput = {
   TOGGLE_MENU_BUTTONS: 'WidgetInput_TOGGLE_MENU_BUTTONS' as const
 }
-export default async function WidgetSystem(world: World) {
+export default async function WidgetUISystem(world: World) {
   const widgetMenuUI = createWidgetButtonsView()
   setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
   removeComponent(widgetMenuUI.entity, VisibleComponent)
