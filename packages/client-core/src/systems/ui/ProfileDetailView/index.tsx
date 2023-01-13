@@ -32,7 +32,7 @@ import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
 import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRTextButton from '../../components/XRTextButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 const logger = multiLogger.child({ component: 'client-core:ProfileDetailView' })
 

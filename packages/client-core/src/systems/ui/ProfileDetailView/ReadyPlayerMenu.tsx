@@ -23,7 +23,7 @@ import { loadAvatarForPreview, resetAnimationLogic, validate } from '../../../us
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
 import { AvatarService } from '../../../user/services/AvatarService'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 const logger = multiLogger.child({ component: 'client-core:ReadyPlayerMenu' })
 

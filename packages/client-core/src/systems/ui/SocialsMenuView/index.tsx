@@ -9,7 +9,7 @@ import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 import { Group, Groups, Newspaper, QrCode2 } from '@mui/icons-material'
 
 import XRTextButton from '../../components/XRTextButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createSocialsMenuView() {
   return createXRUI(SocialsMenuView, createSocialsMenuState())

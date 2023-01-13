@@ -9,13 +9,15 @@
  *     Note: The sending/aggregation to Elastic only happens when APP_ENV !== 'development'.
  *
  */
-import { LruCache } from '@digitalcredentials/lru-memoize'
+
 import fetch from 'cross-fetch'
+import LruCache from 'lru-cache'
 
 import config from './config'
 
 const logRequestCache = new LruCache({
-  maxAge: 1000 * 5 // 5 seconds cache expiry
+  max: 1000,
+  ttl: 1000 * 5 // 5 seconds cache expiry
 })
 
 const baseComponent = 'client-core'
@@ -87,19 +89,17 @@ const multiLogger = {
           // Send an async rate-limited request to backend /api/log endpoint for aggregation
           // Also suppress logger.info() levels (the equivalent to console.log())
           if (config.client.serverHost && level !== 'info') {
-            logRequestCache.memoize({
-              key: logParams.msg,
-              fn: () =>
-                fetch(url, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    level,
-                    component: opts.component,
-                    ...logParams
-                  })
+            logRequestCache.set(logParams.msg, () =>
+              fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  level,
+                  component: opts.component,
+                  ...logParams
                 })
-            })
+              })
+            )
           }
         }
       }
