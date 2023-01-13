@@ -43,8 +43,7 @@ export const startFaceTracking = async () => {
     })
     worker.onerror = console.error
     faceWorker = Comlink.wrap(worker)
-    // @ts-ignore
-    await faceWorker.initialise(import.meta.env.BASE_URL)
+    await faceWorker.initialise(globalThis.process.env['BASE_URL'])
   }
 
   faceVideo = document.createElement('video')
