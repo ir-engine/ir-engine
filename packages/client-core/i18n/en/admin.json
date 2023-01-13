@@ -194,7 +194,8 @@
       "hours": "hours",
       "day": "day",
       "commitSHACopied": "Commit SHA copied",
-      "buildStatus": "Build Status"
+      "buildStatus": "Build Status",
+      "defaultProjectUpdateTooltip": "default-project is updated when engine is updated"
     },
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",
