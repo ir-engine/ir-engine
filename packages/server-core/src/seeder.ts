@@ -59,7 +59,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     }
     copyDefaultProject()
     await app.service('project')._seedProject('default-project')
-    await uploadLocalProjectToProvider('default-project')
+    await uploadLocalProjectToProvider(app, 'default-project')
     if (!config.kubernetes.enabled) await app.service('project')._fetchDevLocalProjects()
   }
 }

@@ -50,7 +50,7 @@ export class HubsComponentsExtension {
 
                 if (type === 'texture' && !parser.json.textures[value.index].extensions?.MOZ_texture_rgbe) {
                   // For now assume all non HDR textures linked in hubs components are sRGB.
-                  // We can allow this to be overriden later if needed
+                  // We can allow this to be overridden later if needed
                   loadedDep.encoding = sRGBEncoding
                 }
 

@@ -447,12 +447,12 @@ export type Query = ReturnType<typeof defineQuery>
 
 export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComponent' })
 
-globalThis.XRE_getComponent = getComponent
-globalThis.XRE_getAllComponents = getAllComponents
-globalThis.XRE_getAllComponentData = getAllComponentData
-globalThis.XRE_addComponent = addComponent
-globalThis.XRE_setComponent = setComponent
-globalThis.XRE_removeComponent = removeComponent
+globalThis.EE_getComponent = getComponent
+globalThis.EE_getAllComponents = getAllComponents
+globalThis.EE_getAllComponentData = getAllComponentData
+globalThis.EE_addComponent = addComponent
+globalThis.EE_setComponent = setComponent
+globalThis.EE_removeComponent = removeComponent
 
 /** Template **
 

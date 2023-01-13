@@ -27,7 +27,7 @@ export interface PositionalAudioInterface {
 }
 
 export const PositionalAudioComponent = defineComponent({
-  name: 'XRE_positionalAudio',
+  name: 'EE_positionalAudio',
 
   onInit: (entity) => {
     return {
