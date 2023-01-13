@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Check } from '@mui/icons-material'
 
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 type labelPositionVariant = 'start' | 'end' | 'none'
 

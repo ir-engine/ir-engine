@@ -18,7 +18,7 @@ import { getAvatarURLForUser, Views } from '../../../user/components/UserMenu/ut
 import { useAuthState } from '../../../user/services/AuthService'
 import { useNetworkUserState } from '../../../user/services/NetworkUserService'
 import XRTextButton from '../../components/XRTextButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createAvatarContextMenuView() {
   return createXRUI(

@@ -23,7 +23,7 @@ import {
 } from '../../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
 import XRIconButton from '../../components/XRIconButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createWidgetButtonsView() {
   return createXRUI(WidgetButtons, createWidgetButtonsState())

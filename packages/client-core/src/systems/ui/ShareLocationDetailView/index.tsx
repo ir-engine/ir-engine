@@ -13,7 +13,7 @@ import { useShareMenuHooks } from '../../../user/components/UserMenu/menus/Share
 import XRCheckboxButton from '../../components/XRCheckboxButton'
 import XRInput from '../../components/XRInput'
 import XRTextButton from '../../components/XRTextButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createShareLocationDetailView() {
   return createXRUI(ShareLocationDetailView, createShareLocationDetailState())

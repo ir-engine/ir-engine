@@ -12,7 +12,7 @@ import Avatar from '@mui/material/Avatar'
 import { useChatHooks } from '../../../components/InstanceChat'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import XRInput from '../../components/XRInput'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createChatDetailView() {
   return createXRUI(ChatDetailView, createChatDetailState())

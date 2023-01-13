@@ -26,7 +26,7 @@ import XRCheckboxButton from '../../components/XRCheckboxButton'
 import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRSlider from '../../components/XRSlider'
 import XRToggleButton from '../../components/XRToggleButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createSettingDetailView() {
   return createXRUI(SettingDetailView, createSettingDetailState())
