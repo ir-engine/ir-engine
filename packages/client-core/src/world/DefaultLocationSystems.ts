@@ -11,17 +11,17 @@ import UpdateNearbyUsersSystem from '../transports/UpdateNearbyUsersSystem'
 export const DefaultLocationSystems: SystemModuleType<any>[] = [
   {
     uuid: 'xre.client.core.LoadingUISystem',
-    type: 'PRE_RENDER',
+    type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: LoadingUISystem })
   },
   {
     uuid: 'xre.client.core.AvatarUISystem',
-    type: 'PRE_RENDER',
+    type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: AvatarUISystem })
   },
   {
     uuid: 'xre.client.core.WidgetUISystem',
-    type: 'PRE_RENDER',
+    type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: WidgetUISystem })
   },
   {

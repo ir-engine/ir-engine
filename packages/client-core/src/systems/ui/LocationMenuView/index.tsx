@@ -16,7 +16,7 @@ import { AdminPanelSettings, Help, Refresh, Report, ScreenshotMonitor } from '@m
 import { EmoteIcon } from '../../../user/components/UserMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import XRTextButton from '../../components/XRTextButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createLocationMenuView() {
   return createXRUI(LocationMenuView, createLocationMenuState())

@@ -69,10 +69,6 @@ export default defineConfig(async () => {
     path: appRootPath.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
-  process.env = {
-    ...process.env,
-    ...env
-  }
 
   const returned = {
     optimizeDeps: {

@@ -4,7 +4,7 @@ import { V_111 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { ReferenceSpace, XRState } from '../xr/XRState'
+import { ReferenceSpace } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 import { computeTransformMatrix } from './systems/TransformSystem'
 
@@ -15,17 +15,15 @@ export const updateWorldOriginFromViewerHit = (
   rotation: Quaternion,
   scale?: Vector3
 ) => {
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-  worldOriginTransform.matrix.compose(position, rotation, V_111)
-  worldOriginTransform.matrix.invert()
-  if (scale) worldOriginTransform.matrix.scale(scale)
-  worldOriginTransform.matrix.decompose(
-    worldOriginTransform.position,
-    worldOriginTransform.rotation,
-    worldOriginTransform.scale
-  )
-  worldOriginTransform.matrixInverse.copy(worldOriginTransform.matrix).invert()
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+  originTransform.position.copy(position)
+  originTransform.rotation.copy(rotation)
+  originTransform.scale.copy(scale ?? V_111)
+  originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale)
+  originTransform.matrixInverse.copy(originTransform.matrix).invert()
   delete world.dirtyTransforms[world.originEntity]
+  const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
+  ReferenceSpace.origin = ReferenceSpace.localFloor!.getOffsetReferenceSpace(xrRigidTransform)
 }
 
 export const updateWorldOrigin = () => {

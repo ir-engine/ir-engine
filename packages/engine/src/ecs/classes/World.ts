@@ -94,7 +94,8 @@ export class World {
     addObjectToGroup(this.originEntity, this.origin)
     this.origin.name = 'world-origin'
     const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
-    setObjectLayers(originHelperMesh, ObjectLayers.NodeHelper)
+    setObjectLayers(originHelperMesh, ObjectLayers.Scene)
+    originHelperMesh.frustumCulled = false
     this.origin.add(originHelperMesh)
 
     this.cameraEntity = createEntity()
@@ -276,10 +277,10 @@ export class World {
   pipelines = {
     [SystemUpdateType.UPDATE_EARLY]: [],
     [SystemUpdateType.UPDATE]: [],
-    [SystemUpdateType.UPDATE_LATE]: [],
     [SystemUpdateType.FIXED_EARLY]: [],
     [SystemUpdateType.FIXED]: [],
     [SystemUpdateType.FIXED_LATE]: [],
+    [SystemUpdateType.UPDATE_LATE]: [],
     [SystemUpdateType.PRE_RENDER]: [],
     [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []
