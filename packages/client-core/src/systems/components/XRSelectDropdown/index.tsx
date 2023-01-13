@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 const XRSelectDropdown = (props) => {
   const { value, options, onChange } = props

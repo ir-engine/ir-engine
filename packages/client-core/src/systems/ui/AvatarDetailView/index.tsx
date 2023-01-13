@@ -11,7 +11,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
 import { useNetworkUserState } from '../../../user/services/NetworkUserService'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createAvatarDetailView(id: string) {
   const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial())
