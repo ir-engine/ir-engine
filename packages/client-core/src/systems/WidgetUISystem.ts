@@ -4,7 +4,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { isDev } from '@xrengine/common/src/config'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { V_001, V_010 } from '@xrengine/engine/src/common/constants/MathConstants'
+import { V_001, V_010, V_111 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -44,6 +44,7 @@ import {
 } from '@xrengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
+import { createMediaWidget } from './createMediaWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'
 // import { createEmoteWidget } from './createEmoteWidget'
@@ -85,6 +86,7 @@ export default async function WidgetSystem(world: World) {
     if (!createdWidgets && (isHMD || isDev)) {
       createdWidgets = true
       createAnchorWidget(world)
+      createMediaWidget(world)
       // createProfileWidget(world)
       // createSettingsWidget(world)
       // createSocialsMenuWidget(world)
@@ -130,7 +132,7 @@ export default async function WidgetSystem(world: World) {
     const keys = world.buttons
     if (keys.ButtonX?.down) onEscape()
     /** @todo allow non HMDs to access the widget menu too */
-    if (isHMD && keys.Escape?.down) onEscape()
+    if ((isDev || isHMD) && keys.Escape?.down) onEscape()
 
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
@@ -158,8 +160,10 @@ export default async function WidgetSystem(world: World) {
         preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
         referenceSpace
       )
-      if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent))
+      if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
         removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
+        transform.scale.copy(V_111)
+      }
       if (pose) {
         transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
         transform.rotation.copy(pose.transform.orientation as any as Quaternion).multiply(widgetRotation)

@@ -85,3 +85,25 @@ export const UserMediaWindows = () => {
     </div>
   )
 }
+
+export const UserMediaWindowsWidget = () => {
+  const mediaState = useMediaStreamState()
+  const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+
+  const consumers = filterWindows(network, mediaState.consumers.get({ noproxy: true }))
+
+  return (
+    <div className={`${styles.userMediaWindowsContainer}`}>
+      <div className={styles.userMediaWindows}>
+        {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
+          <UserMediaWindow type={'screen'} peerID={network?.peerID} key={'screen_' + network?.peerID} />
+        )}
+        <UserMediaWindow type={'cam'} peerID={network?.peerID} key={'cam_' + network?.peerID} />
+        {consumers.map(({ peerID, mediaTag }) => {
+          const type = mediaTag === 'screen-video' ? 'screen' : 'cam'
+          return <UserMediaWindow type={type} peerID={peerID} key={type + '_' + peerID} />
+        })}
+      </div>
+    </div>
+  )
+}
