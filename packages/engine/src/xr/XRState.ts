@@ -32,7 +32,7 @@ export const XRState = defineState({
      * When `avatarCameraMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
     dollhouseMode: 'auto' as 'auto' | 'on' | 'off',
-    dollhouseActive: false,
+    sceneScale: 1,
     avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
     avatarHeadLock: false as 'auto' | true | false,
     viewerHitTestSource: null as XRHitTestSource | null,
@@ -100,18 +100,18 @@ export class XRAction {
 }
 
 export const getCameraMode = () => {
-  const { avatarCameraMode, sessionActive, dollhouseActive, scenePlacementMode } = getState(XRState).value
+  const { avatarCameraMode, sessionActive, sceneScale, scenePlacementMode } = getState(XRState).value
   if (!sessionActive) return 'detached'
   if (avatarCameraMode === 'auto') {
-    return dollhouseActive || scenePlacementMode ? 'detached' : 'attached'
+    return sceneScale !== 1 || scenePlacementMode ? 'detached' : 'attached'
   }
   return avatarCameraMode
 }
 
 export const hasMovementControls = () => {
-  const { sessionActive, dollhouseActive, sessionMode } = getState(XRState).value
+  const { sessionActive, sceneScale, sessionMode } = getState(XRState).value
   if (!sessionActive) return true
-  return sessionMode === 'immersive-ar' ? dollhouseActive : true
+  return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
 }
 
 export const getAvatarHeadLock = () => {

@@ -16,19 +16,14 @@ export const updateWorldOriginFromViewerHit = (
   scale?: Vector3
 ) => {
   const originTransform = getComponent(world.originEntity, TransformComponent)
-  originTransform.matrix.compose(position, rotation, scale ?? V_111)
-  // originTransform.matrix.invert()
-  // if (scale) originTransform.matrix.scale(scale)
-  // originTransform.matrix.decompose(
-  //   originTransform.position,
-  //   originTransform.rotation,
-  //   originTransform.scale
-  // )
+  originTransform.position.copy(position)
+  originTransform.rotation.copy(rotation)
+  originTransform.scale.copy(scale ?? V_111)
+  originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale)
   originTransform.matrixInverse.copy(originTransform.matrix).invert()
   delete world.dirtyTransforms[world.originEntity]
-
   const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
-  ReferenceSpace.origin = ReferenceSpace.localFloor!.getOffsetReferenceSpace(xrRigidTransform.inverse)
+  ReferenceSpace.origin = ReferenceSpace.localFloor!.getOffsetReferenceSpace(xrRigidTransform)
 }
 
 export const updateWorldOrigin = () => {
