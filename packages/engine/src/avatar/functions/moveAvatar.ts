@@ -292,6 +292,8 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
 
   if (raycastHit) {
     const transform = getComponent(entity, TransformComponent)
+    const rigidbody = getComponent(entity, RigidBodyComponent)
+    rigidbody.targetKinematicPosition.copy(raycastHit.position as Vector3)
     const attached = getCameraMode() === 'attached'
     if (attached)
       updateReferenceSpaceFromAvatarMovement(
