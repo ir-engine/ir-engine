@@ -26,7 +26,7 @@ db.url = process.env.MYSQL_URL ??
 
 async function installAllProjects() {
   try {
-      const app = createFeathersExpressApp(ServerMode.API)
+    const app = createFeathersExpressApp(ServerMode.API)
     createDefaultStorageProvider()
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
@@ -56,6 +56,7 @@ async function installAllProjects() {
     const projects = await Projects.findAll()
     logger.info('found projects', projects)
     await Promise.all(projects.map((project) => download(project.name)))
+    await app.service('project').update({ sourceURL: 'default-project' })
     const projectConfig = (await getProjectConfig('default-project')) ?? {}
     if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')
     process.exit(0)
