@@ -1,7 +1,7 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
 import { defineAction } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
@@ -45,7 +45,13 @@ export const XRState = defineState({
     viewerInputSourceEntity: 0 as Entity,
     viewerPose: null as XRViewerPose | null | undefined,
     userEyeLevel: 1.6
-  })
+  }),
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(XRState, [
+      /** @todo replace this wither user_settings table entry */
+      'userEyeLevel'
+    ])
+  }
 })
 
 export const ReferenceSpace = {
