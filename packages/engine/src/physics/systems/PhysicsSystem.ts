@@ -78,8 +78,14 @@ export const PhysicsPrefabs = {
 
 export function smoothPositionBasedKinematicBody(entity: Entity, alpha: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
-  rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  rigidbodyComponent.position.lerp(
+    rigidbodyComponent.targetKinematicPosition,
+    alpha * rigidbodyComponent.targetKinematicLerpMultiplier
+  )
+  rigidbodyComponent.rotation.slerp(
+    rigidbodyComponent.targetKinematicRotation,
+    alpha * rigidbodyComponent.targetKinematicLerpMultiplier
+  )
   // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
   // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
@@ -88,8 +94,14 @@ export function smoothPositionBasedKinematicBody(entity: Entity, alpha: number) 
 
 export function smoothVelocityBasedKinematicBody(entity: Entity, alpha: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
-  rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  rigidbodyComponent.position.lerp(
+    rigidbodyComponent.targetKinematicPosition,
+    alpha * rigidbodyComponent.targetKinematicLerpMultiplier
+  )
+  rigidbodyComponent.rotation.fastSlerp(
+    rigidbodyComponent.targetKinematicRotation,
+    alpha * rigidbodyComponent.targetKinematicLerpMultiplier
+  )
   /** @todo implement proper velocity based kinematic movement */
   // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
   // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)

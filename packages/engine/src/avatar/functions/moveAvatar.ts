@@ -136,18 +136,18 @@ export const applyGamepadInput = (entity: Entity) => {
   const deltaSeconds = world.fixedDeltaSeconds
   const controller = getComponent(entity, AvatarControllerComponent)
 
-  const lerpAlpha = 6 * deltaSeconds
   const legSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   camera.getWorldDirection(cameraDirection).setY(0).normalize()
   forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
 
   targetWorldMovement
     .copy(controller.gamepadLocalInput)
+    .normalize()
     .multiplyScalar(legSpeed * deltaSeconds)
     .applyQuaternion(forwardOrientation)
 
-  /** compute smoothed movement in the world XZ plane */
-  controller.gamepadWorldMovement.lerp(targetWorldMovement, lerpAlpha)
+  // movement in the world XZ plane
+  controller.gamepadWorldMovement.copy(targetWorldMovement)
 
   // set vertical velocity on ground
   if (!controller.isInAir) {

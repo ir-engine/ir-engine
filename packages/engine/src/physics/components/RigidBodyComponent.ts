@@ -43,7 +43,8 @@ export const RigidBodyComponent = defineComponent({
       targetKinematicRotation: proxifyQuaternion(this.targetKinematicRotation, entity),
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
       angularVelocity: proxifyVector3(this.angularVelocity, entity),
-      scale: proxifyVector3(this.scale, entity)
+      scale: proxifyVector3(this.scale, entity),
+      targetKinematicLerpMultiplier: 1
     }
   },
 
