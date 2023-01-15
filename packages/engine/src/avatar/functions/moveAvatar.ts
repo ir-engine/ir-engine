@@ -53,14 +53,14 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const xrState = getState(XRState)
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
-  const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
+  const userHeight = xrState.userEyeLevel.value
 
   const viewerPose = xrFrame && ReferenceSpace.origin ? xrFrame.getViewerPose(ReferenceSpace.origin) : null
   xrState.viewerPose.set(viewerPose)
 
   /** move head position forward a bit to not be inside the avatar's body */
   avatarHeadPosition
-    .set(0, avatarHeight * 0.95, 0.15)
+    .set(0, userHeight, 0.15)
     .applyQuaternion(rigidbody.targetKinematicRotation)
     .add(rigidbody.targetKinematicPosition)
 

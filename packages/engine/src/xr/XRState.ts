@@ -44,7 +44,7 @@ export const XRState = defineState({
     lightEstimator: null! as XREstimatedLight,
     viewerInputSourceEntity: 0 as Entity,
     viewerPose: null as XRViewerPose | null | undefined,
-    userEyeLevel: 1.6
+    userEyeLevel: 1.8
   }),
   onCreate: (store, state) => {
     syncStateWithLocalStorage(XRState, [
