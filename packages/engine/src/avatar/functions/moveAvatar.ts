@@ -12,7 +12,6 @@ import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctio
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { teleportObject } from '../../physics/systems/PhysicsSystem'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
@@ -22,6 +21,9 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 
+const avatarGroundRaycastDistanceIncrease = 0.1
+const avatarGroundRaycastDistanceOffset = 1
+
 /**
  * raycast internals
  */
@@ -29,7 +31,7 @@ const avatarGroundRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
   direction: ObjectDirection.Down,
-  maxDistance: 1.1,
+  maxDistance: avatarGroundRaycastDistanceOffset + avatarGroundRaycastDistanceIncrease,
   groups: 0
 }
 
@@ -92,7 +94,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
-  avatarGroundRaycast.origin.y += 1
+  avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
   const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
   // controller.isInAir = !controller.controller.computedGrounded()
   controller.isInAir = true

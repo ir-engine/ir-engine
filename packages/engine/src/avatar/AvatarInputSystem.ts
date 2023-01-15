@@ -151,9 +151,9 @@ export default async function AvatarInputSystem(world: World) {
       const controlScheme =
         inputSource.handedness === 'none'
           ? AvatarAxesControlScheme.Move
-          : inputSource.handedness === 'left'
-          ? avatarInputSettings.leftAxesControlScheme
-          : avatarInputSettings.rightAxesControlScheme
+          : inputSource.handedness === avatarInputSettings.preferredHand
+          ? avatarInputSettings.rightAxesControlScheme
+          : avatarInputSettings.leftAxesControlScheme
       AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
     }
   }
