@@ -76,32 +76,22 @@ export const PhysicsPrefabs = {
   collider: 'collider' as const
 }
 
-export function smoothPositionBasedKinematicBody(entity: Entity, alpha: number) {
+export function smoothPositionBasedKinematicBody(entity: Entity, dt: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  rigidbodyComponent.position.lerp(
-    rigidbodyComponent.targetKinematicPosition,
-    alpha * rigidbodyComponent.targetKinematicLerpMultiplier
-  )
-  rigidbodyComponent.rotation.slerp(
-    rigidbodyComponent.targetKinematicRotation,
-    alpha * rigidbodyComponent.targetKinematicLerpMultiplier
-  )
+  const alpha = rigidbodyComponent.targetKinematicLerpMultiplier * dt || 1
+  rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+  rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
   // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
   // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
   rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
 
-export function smoothVelocityBasedKinematicBody(entity: Entity, alpha: number) {
+export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  rigidbodyComponent.position.lerp(
-    rigidbodyComponent.targetKinematicPosition,
-    alpha * rigidbodyComponent.targetKinematicLerpMultiplier
-  )
-  rigidbodyComponent.rotation.fastSlerp(
-    rigidbodyComponent.targetKinematicRotation,
-    alpha * rigidbodyComponent.targetKinematicLerpMultiplier
-  )
+  const alpha = rigidbodyComponent.targetKinematicLerpMultiplier * dt || 1
+  rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+  rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
   /** @todo implement proper velocity based kinematic movement */
   // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
   // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
@@ -215,14 +205,14 @@ export default async function PhysicsSystem(world: World) {
     const substeps = engineState.physicsSubsteps.value
     const timestep = engineState.fixedDeltaSeconds.value / substeps
     world.physicsWorld.timestep = timestep
-    const smoothnessMultiplier = 50
-    const smoothAlpha = smoothnessMultiplier * timestep
+    // const smoothnessMultiplier = 50
+    // const smoothAlpha = smoothnessMultiplier * timestep
     const kinematicPositionEntities = kinematicPositionBodyQuery()
     const kinematicVelocityEntities = kinematicVelocityBodyQuery()
     for (let i = 0; i < substeps; i++) {
       // smooth kinematic pose changes
-      for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, smoothAlpha)
-      for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, smoothAlpha)
+      for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep)
+      for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep)
       world.physicsWorld.step(world.physicsCollisionEventQueue)
       world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
       world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)

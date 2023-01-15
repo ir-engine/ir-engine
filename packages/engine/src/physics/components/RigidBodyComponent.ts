@@ -44,7 +44,8 @@ export const RigidBodyComponent = defineComponent({
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
       angularVelocity: proxifyVector3(this.angularVelocity, entity),
       scale: proxifyVector3(this.scale, entity),
-      targetKinematicLerpMultiplier: 1
+      /** If multiplier is 0, ridigbody moves immediately to target pose */
+      targetKinematicLerpMultiplier: 0
     }
   },
 

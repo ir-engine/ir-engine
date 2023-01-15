@@ -171,7 +171,7 @@ export const createAvatarController = (entity: Entity) => {
   rigidbody.rotation.copy(transform.rotation)
   rigidbody.targetKinematicPosition.copy(transform.position)
   rigidbody.targetKinematicRotation.copy(transform.rotation)
-  rigidbody.targetKinematicLerpMultiplier = 0.1
+  rigidbody.targetKinematicLerpMultiplier = 15
 
   addComponent(entity, AvatarControllerComponent, {
     cameraEntity: Engine.instance.currentWorld.cameraEntity,
