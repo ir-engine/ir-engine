@@ -196,8 +196,6 @@ export function updateXRCamera() {
     cameraL.viewport.y = 0
     cameraL.viewport.z = size.width
     cameraL.viewport.w = size.height
-    computeTransformMatrix(world.cameraEntity)
-    delete world.dirtyTransforms[world.cameraEntity]
     return
   }
 

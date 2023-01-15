@@ -39,6 +39,8 @@ import {
 } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import { updateWorldOriginFromViewerHit } from '../transform/updateWorldOrigin'
@@ -253,7 +255,9 @@ export default async function XRAnchorSystem(world: World) {
 
   xrState.viewerHitTestEntity.set(scenePlacementEntity)
 
-  addObjectToGroup(scenePlacementEntity, new AxesHelper(10))
+  const originAxesHelper = new AxesHelper(10000)
+  setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
+  addObjectToGroup(scenePlacementEntity, originAxesHelper)
 
   const pinSphereMesh = new Mesh(new SphereGeometry(0.025, 16, 16), new MeshBasicMaterial({ color: 'white' }))
   pinSphereMesh.position.setY(0.1125)
