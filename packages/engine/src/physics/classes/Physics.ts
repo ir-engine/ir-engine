@@ -274,7 +274,7 @@ function createCharacterController(
     offset = 0.01,
     maxSlopeClimbAngle = (45 * Math.PI) / 180,
     minSlopeSlideAngle = (30 * Math.PI) / 180,
-    autoStep = { maxHeight: 0.5, minWidth: 0.2, stepOverDynamic: true },
+    autoStep = { maxHeight: 0.5, minWidth: 0.05, stepOverDynamic: true },
     enableSnapToGround = false as number | false
   }
 ) {
