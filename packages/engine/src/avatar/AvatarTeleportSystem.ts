@@ -141,14 +141,15 @@ export default async function AvatarTeleportSystem(world: World) {
   const execute = () => {
     if (getCameraMode() !== 'attached') return
     if (fadeBackInAccumulator >= 0) {
-      fadeBackInAccumulator += world.deltaSeconds
-      if (fadeBackInAccumulator > 0.25) {
-        fadeBackInAccumulator = -1
-        teleportAvatar(world.localClientEntity, guideCursor.position)
-        dispatchAction(CameraActions.fadeToBlack({ in: false }))
-        dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
-        dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
-      }
+      /** @todo fix camera fade transition shader - for now just teleport instantly */
+      // fadeBackInAccumulator += world.deltaSeconds
+      // if (fadeBackInAccumulator > 0.25) {
+      fadeBackInAccumulator = -1
+      teleportAvatar(world.localClientEntity, guideCursor.position)
+      dispatchAction(CameraActions.fadeToBlack({ in: false }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
+      // }
     }
     for (const entity of avatarTeleportQuery.exit(world)) {
       visibleSegments = 1

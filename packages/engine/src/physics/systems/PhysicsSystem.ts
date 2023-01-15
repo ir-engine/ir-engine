@@ -79,7 +79,7 @@ export const PhysicsPrefabs = {
 export function smoothPositionBasedKinematicBody(entity: Entity, alpha: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
   rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
-  rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
   // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
   // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
