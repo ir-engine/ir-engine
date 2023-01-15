@@ -5,8 +5,9 @@ import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleC
 import { ReferenceSpace, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import AccessibilityIcon from '@mui/icons-material/Accessibility'
 
@@ -22,6 +23,7 @@ export function createHeightAdjustmentWidget(world: World) {
     label: 'Height Adjustment',
     icon: AccessibilityIcon,
     onOpen: () => {
+      dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
       const xrFrame = Engine.instance.xrFrame
       if (!xrFrame) return
       // set user height from viewer pose relative to local floor
