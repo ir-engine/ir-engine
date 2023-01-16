@@ -2,6 +2,8 @@ import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
 import * as Comlink from 'comlink'
 import { SkinnedMesh } from 'three'
 
+import { isDev } from '@xrengine/common/src/config'
+import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -11,6 +13,8 @@ import { WebcamInputComponent } from '@xrengine/engine/src/input/components/Webc
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 
 import { MediaStreams } from '../../transports/MediaStreams'
+// @ts-ignore
+import inputWorkerURL from './WebcamInputWorker.js?worker&url'
 
 const EXPRESSION_THRESHOLD = 0.1
 
@@ -36,14 +40,13 @@ export const stopLipsyncTracking = () => {
 
 export const startFaceTracking = async () => {
   if (!faceWorker) {
-    // @ts-ignore
-    const worker = new Worker(new URL('./WebcamInputWorker.js', import.meta.url), {
-      type: 'module',
-      name: 'Face API Worker'
-    })
+    //@ts-ignore   -- for vite dev environments use import.meta.url & built environments use ./worker.js?worker&url
+    const workerPath = isDev ? new URL('./WebcamInputWorker.js', import.meta.url).href : inputWorkerURL
+    const worker = createWorkerFromCrossOriginURL(workerPath)
     worker.onerror = console.error
     faceWorker = Comlink.wrap(worker)
-    await faceWorker.initialise(globalThis.process.env['BASE_URL'])
+    // @ts-ignore
+    await faceWorker.initialise(import.meta.env.BASE_URL)
   }
 
   faceVideo = document.createElement('video')
