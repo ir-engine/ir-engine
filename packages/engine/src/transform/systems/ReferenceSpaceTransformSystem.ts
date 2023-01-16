@@ -31,7 +31,6 @@ export default async function ReferenceSpaceTransformSystem(world: World) {
       updateLocalAvatarPosition()
       updateLocalAvatarRotation()
       computeTransformMatrix(localClientEntity)
-      delete world.dirtyTransforms[localClientEntity]
 
       // the following is a workaround for a bug in the multiview rendering implementation, described here:
       // https://github.com/mrdoob/three.js/pull/24048
@@ -56,9 +55,7 @@ export default async function ReferenceSpaceTransformSystem(world: World) {
     updateXRCamera()
 
     /**
-     * @todo for whatever reason, this must run at the start of the transform system,
-     *   but IK must happen before the transform system.
-     * We likely need to break the transform system up into multiple systems.
+     * For whatever reason, this must run at the start of the transform system, before the transform system.
      */
     applyInputSourcePoseToIKTargets()
   }

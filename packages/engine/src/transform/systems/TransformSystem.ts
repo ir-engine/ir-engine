@@ -233,10 +233,9 @@ export default async function TransformSystem(world: World) {
     !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
     !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
-  const filterCleanNonSleepingRigidbodies = (entity: Entity) =>
-    !world.dirtyTransforms[entity] && !getComponent(entity, RigidBodyComponent).body.isSleeping()
+  const filterAwakeRigidbodies = (entity: Entity) => !getComponent(entity, RigidBodyComponent).body.isSleeping()
 
-  const invFilterCleanNonSleepingRigidbodies = (entity: Entity) => !filterCleanNonSleepingRigidbodies(entity)
+  const filterSleepingRigidbodies = (entity: Entity) => getComponent(entity, RigidBodyComponent).body.isSleeping()
 
   let sortedTransformEntities = [] as Entity[]
 
@@ -288,13 +287,12 @@ export default async function TransformSystem(world: World) {
      * Update entity transforms
      */
     const allRigidbodyEntities = rigidbodyTransformQuery()
-    const cleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(filterCleanNonSleepingRigidbodies)
-    const invCleanDynamicRigidbodyEntities = allRigidbodyEntities.filter(invFilterCleanNonSleepingRigidbodies)
+    const awakeRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeRigidbodies)
 
-    // lerp clean dynamic rigidbody entities (make them dirty)
+    // lerp awake rigidbody entities (and make their transforms dirty)
     const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
     const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
-    for (const entity of cleanDynamicRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
+    for (const entity of awakeRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
     for (const entity of transformQuery()) {
@@ -306,7 +304,6 @@ export default async function TransformSystem(world: World) {
       if (makeDirty) world.dirtyTransforms[entity] = true
     }
 
-    const dirtyRigidbodyEntities = invCleanDynamicRigidbodyEntities.filter(isDirtyNonKinematic)
     const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
     const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
@@ -314,9 +311,9 @@ export default async function TransformSystem(world: World) {
     for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
     for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity, world)
 
-    // exclude teleporting kinematic bodies, which are updated in the Physics System
-    for (const entity of dirtyRigidbodyEntities) teleportRigidbody(entity)
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
+
+    for (const camera of Engine.instance.currentWorld.camera.cameras) camera.updateMatrixWorld()
 
     for (const entity in world.dirtyTransforms) delete world.dirtyTransforms[entity]
 
