@@ -26,10 +26,12 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
+import { XRState } from '../../xr/XRState'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -261,6 +263,7 @@ export default async function TransformSystem(world: World) {
      * Sort transforms if needed
      */
     const { transformsNeedSorting } = getState(EngineState)
+    const xrFrame = Engine.instance.xrFrame
 
     let needsSorting = transformsNeedSorting.value
 
@@ -313,7 +316,14 @@ export default async function TransformSystem(world: World) {
 
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
-    for (const camera of Engine.instance.currentWorld.camera.cameras) camera.updateMatrixWorld()
+    if (!xrFrame) {
+      const camera = Engine.instance.currentWorld.camera
+      const viewCamera = camera.cameras[0]
+      viewCamera.matrixWorld.copy(camera.matrixWorld)
+      viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
+      viewCamera.projectionMatrix.copy(camera.projectionMatrix)
+      viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+    }
 
     for (const entity in world.dirtyTransforms) delete world.dirtyTransforms[entity]
 
