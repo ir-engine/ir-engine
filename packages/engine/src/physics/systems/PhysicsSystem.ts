@@ -76,25 +76,49 @@ export const PhysicsPrefabs = {
   collider: 'collider' as const
 }
 
-export function smoothPositionBasedKinematicBody(entity: Entity, dt: number) {
+export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, substep: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  const alpha = rigidbodyComponent.targetKinematicLerpMultiplier * dt || 1
-  rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
-  rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
-  // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
-  // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
+  if (rigidbodyComponent.targetKinematicLerpMultiplier === 0) {
+    /** deterministic linear interpolation between substeps */
+    rigidbodyComponent.position.lerpVectors(
+      rigidbodyComponent.previousPosition,
+      rigidbodyComponent.targetKinematicPosition,
+      substep
+    )
+    rigidbodyComponent.rotation.slerpQuaternions(
+      rigidbodyComponent.previousRotation,
+      rigidbodyComponent.targetKinematicRotation,
+      substep
+    )
+  } else {
+    /** gradual smoothing between substeps */
+    const alpha = rigidbodyComponent.targetKinematicLerpMultiplier * dt
+    rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+    rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  }
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
   rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
 
-export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number) {
+export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, substep: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  const alpha = rigidbodyComponent.targetKinematicLerpMultiplier * dt || 1
-  rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
-  rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  if (rigidbodyComponent.targetKinematicLerpMultiplier === 0) {
+    rigidbodyComponent.position.lerpVectors(
+      rigidbodyComponent.previousPosition,
+      rigidbodyComponent.targetKinematicPosition,
+      substep
+    )
+    rigidbodyComponent.rotation.slerpQuaternions(
+      rigidbodyComponent.previousRotation,
+      rigidbodyComponent.targetKinematicRotation,
+      substep
+    )
+  } else {
+    const alpha = rigidbodyComponent.targetKinematicLerpMultiplier * dt
+    rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+    rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  }
   /** @todo implement proper velocity based kinematic movement */
-  // rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
-  // rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
   rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
@@ -211,8 +235,9 @@ export default async function PhysicsSystem(world: World) {
     const kinematicVelocityEntities = kinematicVelocityBodyQuery()
     for (let i = 0; i < substeps; i++) {
       // smooth kinematic pose changes
-      for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep)
-      for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep)
+      const substep = (i + 1) / substeps
+      for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep, substep)
+      for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep, substep)
       world.physicsWorld.step(world.physicsCollisionEventQueue)
       world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
       world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
