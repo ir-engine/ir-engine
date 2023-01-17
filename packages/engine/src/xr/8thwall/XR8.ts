@@ -22,10 +22,11 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
-import { endXRSession, requestXRSession } from '../XRSessionFunctions'
+import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
+import { XRFrameProxy, XRPose, XRSessionProxy, XRSpace } from './XR8WebXRProxy'
 
 type XR8Assets = {
   xr8Script: HTMLScriptElement
@@ -169,109 +170,6 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
   })
 }
 
-class XRHitTestResultProxy {
-  #mat4: Matrix4
-  constructor(position: Vector3, rotation: Quaternion) {
-    this.#mat4 = new Matrix4().compose(
-      new Vector3().copy(position),
-      new Quaternion().copy(rotation).normalize(),
-      new Vector3(1, 1, 1)
-    )
-  }
-
-  /** for now, assume it is always relative to the absolute world origin (0, 0, 0) */
-  getPose(baseSpace: XRSpace) {
-    const scope = this
-    return {
-      get transform() {
-        return {
-          get matrix() {
-            return scope.#mat4.toArray()
-          },
-          get inverse() {
-            throw new Error("[XR8]: 'XRHitTestResult.getViewerPose.transform.inverse' not implemented")
-          },
-          get position() {
-            const _vec = new Vector3()
-            scope.#mat4.decompose(_vec, new Quaternion(), new Vector3())
-            return _vec
-          },
-          get orientation() {
-            const _quat = new Quaternion()
-            scope.#mat4.decompose(new Vector3(), _quat, new Vector3())
-            return _quat
-          }
-        }
-      }
-    } as unknown as Partial<XRPose>
-  }
-
-  // not supported
-  createAnchor = undefined
-}
-
-class XRReferenceSpace {}
-
-class XRHitTestSource {}
-
-class XRSessionProxy extends EventDispatcher {
-  readonly inputSources: XRInputSource[]
-
-  constructor(inputSources: XRInputSource[]) {
-    super()
-    this.inputSources = inputSources
-  }
-  async requestReferenceSpace(type: 'local' | 'viewer') {
-    const space = new XRReferenceSpace()
-    return space
-  }
-
-  async requestHitTestSource(args: { space: XRReferenceSpace }) {
-    const source = new XRHitTestSource()
-    return source as XRHitTestSource
-  }
-}
-
-/**
- * currently, the hit test proxy only supports viewer space
- */
-class XRFrameProxy {
-  getHitTestResults(source: XRHitTestSource) {
-    const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position as Vector3, rotation as Quaternion))
-  }
-
-  get session() {
-    return getState(XRState).session.value
-  }
-
-  /**
-   * XRFrame.getPose is only currently used for anchors and controllers, which are not implemented in 8thwall
-   */
-  getPose = undefined
-
-  getViewerPose(space: XRReferenceSpace) {
-    return {
-      get transform() {
-        return {
-          get matrix() {
-            return Engine.instance.currentWorld.camera.matrix.toArray()
-          },
-          get inverse() {
-            throw new Error("[XR8]: 'XRFrame.getViewerPose.transform.inverse' not implemented")
-          },
-          get position() {
-            return Engine.instance.currentWorld.camera.position
-          },
-          get orientation() {
-            return Engine.instance.currentWorld.camera.quaternion
-          }
-        }
-      }
-    }
-  }
-}
-
 const skyboxQuery = defineQuery([SkyboxComponent])
 const vpsQuery = defineQuery([PersistentAnchorComponent])
 
@@ -292,7 +190,10 @@ export default async function XR8System(world: World) {
     handedness: 'none',
     targetRayMode: 'screen',
     get targetRaySpace() {
-      return new Error("[XR8]: 'viewerInputSource.targetRaySpace' not currently implemented ") as any
+      return new XRSpace(
+        Engine.instance.currentWorld.camera.position,
+        Engine.instance.currentWorld.camera.quaternion
+      ) as any
     },
     gamepad: {
       axes: [0, 0],
@@ -363,6 +264,8 @@ export default async function XR8System(world: World) {
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
       xrState.is8thWallActive.set(true)
+
+      getReferenceSpaces(xrState.session.value!)
 
       document.body.addEventListener('touchstart', onTouchStart)
       document.body.addEventListener('touchmove', onTouchMove)
