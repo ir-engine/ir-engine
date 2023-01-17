@@ -10,8 +10,10 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyKinematicPositionBasedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -50,7 +52,7 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, LocalInputTagComponent))
     assert(hasComponent(entity, RigidBodyComponent))
-    assert(hasComponent(entity, RigidBodyDynamicTagComponent))
+    assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
     strictEqual(Engine.instance.currentWorld.physicsWorld.colliders.len(), 1)
   })
 })

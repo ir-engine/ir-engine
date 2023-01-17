@@ -2,14 +2,20 @@ import { EventQueue } from '@dimforge/rapier3d-compat'
 import { State } from '@hookstate/core'
 import * as bitecs from 'bitecs'
 import {
+  AxesHelper,
+  BoxGeometry,
   Group,
   LinearToneMapping,
+  Mesh,
+  MeshNormalMaterial,
+  MeshStandardMaterial,
   Object3D,
   PCFSoftShadowMap,
   Raycaster,
   Scene,
   Shader,
   ShadowMapType,
+  SphereGeometry,
   ToneMapping,
   Vector2
 } from 'three'
@@ -40,7 +46,12 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { FogType } from '../../scene/constants/FogType'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../../scene/constants/PostProcessing'
-import { setLocalTransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -82,12 +93,15 @@ export class World {
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
     this.origin.name = 'world-origin'
+    const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
+    setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
+    originHelperMesh.frustumCulled = false
+    this.origin.add(originHelperMesh)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, 'camera')
     addComponent(this.cameraEntity, CameraComponent)
     addComponent(this.cameraEntity, VisibleComponent, true)
-    setLocalTransformComponent(this.cameraEntity, this.originEntity)
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
@@ -165,6 +179,10 @@ export class World {
     return getState(EngineState).fixedTick.value
   }
 
+  get fixedDeltaSeconds() {
+    return getState(EngineState).fixedDeltaSeconds.value
+  }
+
   physicsWorld: PhysicsWorld
   physicsCollisionEventQueue: EventQueue
 
@@ -215,7 +233,7 @@ export class World {
    * Reference to the three.js camera object.
    */
   get camera() {
-    return getComponent(this.cameraEntity, CameraComponent).camera
+    return getComponent(this.cameraEntity, CameraComponent)
   }
 
   /**
@@ -259,10 +277,10 @@ export class World {
   pipelines = {
     [SystemUpdateType.UPDATE_EARLY]: [],
     [SystemUpdateType.UPDATE]: [],
-    [SystemUpdateType.UPDATE_LATE]: [],
     [SystemUpdateType.FIXED_EARLY]: [],
     [SystemUpdateType.FIXED]: [],
     [SystemUpdateType.FIXED_LATE]: [],
+    [SystemUpdateType.UPDATE_LATE]: [],
     [SystemUpdateType.PRE_RENDER]: [],
     [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []

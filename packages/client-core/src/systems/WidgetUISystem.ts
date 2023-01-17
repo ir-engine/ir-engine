@@ -4,7 +4,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { isDev } from '@xrengine/common/src/config'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { V_001, V_010 } from '@xrengine/engine/src/common/constants/MathConstants'
+import { V_001, V_010, V_111 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -29,7 +29,7 @@ import {
   setLocalTransformComponent,
   TransformComponent
 } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { getPreferredInputSource } from '@xrengine/engine/src/xr/XRState'
+import { getPreferredInputSource, ReferenceSpace, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
@@ -44,6 +44,7 @@ import {
 } from '@xrengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
+import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'
 // import { createEmoteWidget } from './createEmoteWidget'
@@ -67,7 +68,7 @@ const widgetRotation = new Quaternion()
 export const WidgetInput = {
   TOGGLE_MENU_BUTTONS: 'WidgetInput_TOGGLE_MENU_BUTTONS' as const
 }
-export default async function WidgetSystem(world: World) {
+export default async function WidgetUISystem(world: World) {
   const widgetMenuUI = createWidgetButtonsView()
   setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
   removeComponent(widgetMenuUI.entity, VisibleComponent)
@@ -85,6 +86,7 @@ export default async function WidgetSystem(world: World) {
     if (!createdWidgets && (isHMD || isDev)) {
       createdWidgets = true
       createAnchorWidget(world)
+      createHeightAdjustmentWidget(world)
       // createProfileWidget(world)
       // createSettingsWidget(world)
       // createSocialsMenuWidget(world)
@@ -126,9 +128,12 @@ export default async function WidgetSystem(world: World) {
   const registerWidgetQueue = createActionQueue(WidgetAppActions.registerWidget.matches)
   const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
 
+  const preferredHand = getState(AvatarInputSettingsState).preferredHand
+
   const execute = () => {
     const keys = world.buttons
-    if (keys.ButtonX?.down) onEscape()
+    const flipped = preferredHand.value === 'left'
+    if (flipped ? keys.ButtonA?.down : keys.ButtonX?.down) onEscape()
     /** @todo allow non HMDs to access the widget menu too */
     if (isHMD && keys.Escape?.down) onEscape()
 
@@ -153,13 +158,15 @@ export default async function WidgetSystem(world: World) {
     const preferredInputSource = getPreferredInputSource(world.inputSources, true)
 
     if (preferredInputSource) {
-      const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+      const referenceSpace = ReferenceSpace.origin!
       const pose = Engine.instance.xrFrame!.getPose(
         preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
         referenceSpace
       )
-      if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent))
+      if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
         removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
+        transform.scale.copy(V_111)
+      }
       if (pose) {
         transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
         transform.rotation.copy(pose.transform.orientation as any as Quaternion).multiply(widgetRotation)

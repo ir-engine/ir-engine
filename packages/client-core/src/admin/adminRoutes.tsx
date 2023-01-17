@@ -63,13 +63,13 @@ const ProtectedRoutes = () => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    Promise.all([
-      TransformModule(),
-      SceneCommonModule(),
-      SceneClientModule(),
-      AvatarCommonModule(),
-      AvatarClientModule(),
-      initSystems(Engine.instance.currentWorld, [AdminSystemInjection])
+    initSystems(Engine.instance.currentWorld, [
+      ...TransformModule(),
+      ...SceneCommonModule(),
+      ...SceneClientModule(),
+      ...AvatarCommonModule(),
+      ...AvatarClientModule(),
+      AdminSystemInjection
     ]).then(async () => {
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })

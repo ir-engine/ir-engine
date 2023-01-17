@@ -13,7 +13,7 @@ import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetw
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { moveAvatarWithVelocity } from './moveAvatar'
+import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 describe('moveAvatar function tests', () => {
@@ -45,14 +45,14 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
     const avatar = getComponent(entity, AvatarControllerComponent)
 
-    avatar.localMovementDirection.setZ(-1)
+    avatar.gamepadWorldMovement.setZ(-1)
 
     // velocity starts at 0
     strictEqual(velocity.x, 0)
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
 
     /* assert */
   })
@@ -82,7 +82,7 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
 
     /* assert */
   })
@@ -117,7 +117,7 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
 
     /* assert */
   })
@@ -149,17 +149,17 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.z, 0)
 
     /* run */
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatarWithVelocity(entity)
+    applyGamepadInput(entity)
 
     /* assert */
   })

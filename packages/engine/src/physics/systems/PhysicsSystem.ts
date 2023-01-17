@@ -1,13 +1,23 @@
 import { Not } from 'bitecs'
+import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
+import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeQuery,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
@@ -37,35 +47,81 @@ import {
 } from '../components/RigidBodyComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
+export function teleportObject(entity: Entity, position: Vector3, rotation: Quaternion) {
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const transform = getComponent(entity, TransformComponent)
+  transform.position.copy(position)
+  transform.rotation.copy(rotation)
+  if (rigidbody) {
+    rigidbody.position.copy(transform.position)
+    rigidbody.rotation.copy(transform.rotation)
+    rigidbody.targetKinematicPosition.copy(transform.position)
+    rigidbody.targetKinematicRotation.copy(transform.rotation)
+    rigidbody.body.setTranslation(rigidbody.position, true)
+    rigidbody.body.setRotation(rigidbody.rotation, true)
+    rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+    rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
+  }
+}
+
 // Receptor
 export function teleportObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.teleportObject>,
   world = Engine.instance.currentWorld
 ) {
   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  const body = getComponent(entity, RigidBodyComponent).body
-  if (body) {
-    body.setTranslation(action.position, true)
-    body.setRotation(action.rotation, true)
-    body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-    body.setAngvel({ x: 0, y: 0, z: 0 }, true)
-  }
-  const transform = getComponent(entity, TransformComponent)
-  transform.position.copy(action.position)
-  transform.rotation.copy(action.rotation)
+  teleportObject(entity, action.position, action.rotation)
 }
 
 export const PhysicsPrefabs = {
   collider: 'collider' as const
 }
 
-export function smoothKinematicBody(entity: Entity, alpha: number) {
+export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, substep: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-  const transformComponent = getComponent(entity, TransformComponent)
-  rigidbodyComponent.position.lerp(transformComponent.position, alpha)
-  rigidbodyComponent.rotation.fastSlerp(transformComponent.rotation, alpha)
-  rigidbodyComponent.body.setTranslation(rigidbodyComponent.position, true)
-  rigidbodyComponent.body.setRotation(rigidbodyComponent.rotation, true)
+  if (rigidbodyComponent.targetKinematicLerpMultiplier === 0) {
+    /** deterministic linear interpolation between substeps */
+    rigidbodyComponent.position.lerpVectors(
+      rigidbodyComponent.previousPosition,
+      rigidbodyComponent.targetKinematicPosition,
+      substep
+    )
+    rigidbodyComponent.rotation.slerpQuaternions(
+      rigidbodyComponent.previousRotation,
+      rigidbodyComponent.targetKinematicRotation,
+      substep
+    )
+  } else {
+    /** gradual smoothing between substeps */
+    const alpha = smootheLerpAlpha(rigidbodyComponent.targetKinematicLerpMultiplier, dt)
+    rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+    rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  }
+  rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
+  rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
+}
+
+export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, substep: number) {
+  const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+  if (rigidbodyComponent.targetKinematicLerpMultiplier === 0) {
+    rigidbodyComponent.position.lerpVectors(
+      rigidbodyComponent.previousPosition,
+      rigidbodyComponent.targetKinematicPosition,
+      substep
+    )
+    rigidbodyComponent.rotation.slerpQuaternions(
+      rigidbodyComponent.previousRotation,
+      rigidbodyComponent.targetKinematicRotation,
+      substep
+    )
+  } else {
+    const alpha = smootheLerpAlpha(rigidbodyComponent.targetKinematicLerpMultiplier, dt)
+    rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
+    rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
+  }
+  /** @todo implement proper velocity based kinematic movement */
+  rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
+  rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
 
 export default async function PhysicsSystem(world: World) {
@@ -84,8 +140,26 @@ export default async function PhysicsSystem(world: World) {
 
   const engineState = getState(EngineState)
 
-  const colliderQuery = defineQuery([ColliderComponent, Not(GLTFLoadedComponent)])
-  const groupColliderQuery = defineQuery([ColliderComponent, GLTFLoadedComponent])
+  const modelColliderReactor = startQueryReactor(
+    [TransformComponent, ColliderComponent],
+    function ModelColliderReactor(props) {
+      const { entity } = props.root
+
+      if (!hasComponent(entity, TransformComponent) || !hasComponent(entity, ColliderComponent)) throw props.root.stop()
+
+      const transformComponent = useComponent(entity, TransformComponent)
+      const colliderComponent = useComponent(entity, ColliderComponent)
+      const gltfLoadedComponent = useOptionalComponent(entity, GLTFLoadedComponent)
+
+      useEffect(() => {
+        if (hasComponent(entity, GLTFLoadedComponent)) updateModelColliders(entity)
+        else updateCollider(entity)
+      }, [transformComponent, colliderComponent, gltfLoadedComponent])
+
+      return null
+    }
+  )
+
   const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
   const collisionQuery = defineQuery([CollisionComponent])
 
@@ -122,8 +196,6 @@ export default async function PhysicsSystem(world: World) {
         }
       }
     }
-    for (const action of colliderQuery.enter()) updateCollider(action)
-    for (const action of groupColliderQuery.enter()) updateModelColliders(action)
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
@@ -158,14 +230,15 @@ export default async function PhysicsSystem(world: World) {
     const substeps = engineState.physicsSubsteps.value
     const timestep = engineState.fixedDeltaSeconds.value / substeps
     world.physicsWorld.timestep = timestep
-    const smoothnessMultiplier = 50
-    const smoothAlpha = smoothnessMultiplier * timestep
+    // const smoothnessMultiplier = 50
+    // const smoothAlpha = smoothnessMultiplier * timestep
     const kinematicPositionEntities = kinematicPositionBodyQuery()
     const kinematicVelocityEntities = kinematicVelocityBodyQuery()
     for (let i = 0; i < substeps; i++) {
       // smooth kinematic pose changes
-      for (const entity of kinematicPositionEntities) smoothKinematicBody(entity, smoothAlpha)
-      for (const entity of kinematicVelocityEntities) smoothKinematicBody(entity, smoothAlpha)
+      const substep = (i + 1) / substeps
+      for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep, substep)
+      for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep, substep)
       world.physicsWorld.step(world.physicsCollisionEventQueue)
       world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
       world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
@@ -219,8 +292,7 @@ export default async function PhysicsSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
     world.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
 
-    removeQuery(world, colliderQuery)
-    removeQuery(world, groupColliderQuery)
+    modelColliderReactor.stop()
     removeQuery(world, allRigidBodyQuery)
     removeQuery(world, collisionQuery)
 
