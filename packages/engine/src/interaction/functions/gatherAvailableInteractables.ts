@@ -36,7 +36,7 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
   if (!controller || !transform) return
 
   const availableInteractable = getState(InteractState).available
-  const camera = getComponent(controller.cameraEntity, CameraComponent).camera
+  const camera = getComponent(controller.cameraEntity, CameraComponent)
 
   mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
   frustum.setFromProjectionMatrix(mat4)

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validatePath } from '@xrengine/common/src/utils/validatePath'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemComponent'
 
@@ -73,7 +73,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
     }
   }
 
-  const systemComponent = getComponent(props.node.entity, SystemComponent)
+  const systemComponent = useComponent(props.node.entity, SystemComponent).value
 
   return (
     <NodeEditor

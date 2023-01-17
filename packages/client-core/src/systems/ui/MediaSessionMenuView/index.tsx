@@ -43,7 +43,7 @@ import {
 } from '../../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
 import XRTextButton from '../../components/XRTextButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createMediaSessionMenuView() {
   return createXRUI(MediaSessionMenuView, createMediaSessionMenuState())

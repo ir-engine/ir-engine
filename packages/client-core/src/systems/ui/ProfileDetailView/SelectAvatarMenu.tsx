@@ -16,7 +16,7 @@ import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService, AvatarState } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createSelectAvatarMenu() {
   return createXRUI(SelectAvatarMenu, createSelectAvatarMenuState())

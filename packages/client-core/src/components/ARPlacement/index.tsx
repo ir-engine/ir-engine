@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
@@ -20,13 +21,13 @@ export const ARPlacement = () => {
   const xrState = useHookstate(getState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrSessionActive = xrState.sessionActive.value
-  const inPlacementMode = xrState.scenePlacementMode.value
+  const inPlacementMode = !!xrState.scenePlacementMode.value
   if (!supportsAR || !engineState.sceneLoaded.value || !xrSessionActive) return <></>
 
   const place = () => {
     dispatchAction(
       XRAction.changePlacementMode({
-        active: !inPlacementMode
+        inputSource: inPlacementMode ? null : Engine.instance.currentWorld.inputSources[0]
       })
     )
     dispatchAction(AppAction.showTopShelf({ show: false }))

@@ -2,6 +2,7 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarStates } from '../../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
+import { teleportAvatar } from '../../../avatar/functions/moveAvatar'
 import { switchCameraMode } from '../../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -10,7 +11,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { PortalComponent } from '../../components/PortalComponent'
 
 export const setAvatarToLocationTeleportingState = (world: World) => {
@@ -24,9 +24,7 @@ export const revertAvatarToMovingStateFromTeleport = (world: World) => {
   controller.movementEnabled = true
 
   // teleport player to where the portal spawn position is
-  const transform = getComponent(world.localClientEntity, TransformComponent)
-  transform.position.copy(world.activePortal!.remoteSpawnPosition)
-  transform.rotation.copy(world.activePortal!.remoteSpawnRotation)
+  teleportAvatar(world.localClientEntity, world.activePortal!.remoteSpawnPosition)
 
   world.activePortal = null
   dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))

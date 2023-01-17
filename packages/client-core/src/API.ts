@@ -33,6 +33,8 @@ export class API {
       })
     )
 
+    primus.on('reconnected', () => API.instance.client.reAuthenticate(true))
+
     API.instance = new API()
     API.instance.client = feathersClient as any
   }

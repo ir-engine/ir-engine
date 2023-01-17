@@ -1,4 +1,4 @@
-import { OrthographicCamera, PerspectiveCamera } from 'three'
+import { ArrayCamera, PerspectiveCamera } from 'three'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
@@ -6,19 +6,21 @@ import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/
 export const CameraComponent = defineComponent({
   name: 'CameraComponent',
   onInit: (entity) => {
-    return {
-      camera: new PerspectiveCamera(60, 1, 0.001, 10000) as PerspectiveCamera | OrthographicCamera
-    }
+    const camera = new ArrayCamera()
+    camera.fov = 60
+    camera.aspect = 1
+    camera.near = 0.001
+    camera.far = 10000
+    camera.cameras = [new PerspectiveCamera().copy(camera, false)]
+    return camera
   },
   onSet: (entity, component, json: undefined) => {
-    addObjectToGroup(entity, component.camera.value)
+    addObjectToGroup(entity, component.value)
   },
   onRemove: (entity, component) => {
-    removeObjectFromGroup(entity, component.camera.value)
+    removeObjectFromGroup(entity, component.value)
   },
   toJSON: () => {
-    return null! as {
-      camera: PerspectiveCamera | OrthographicCamera
-    }
+    return null
   }
 })

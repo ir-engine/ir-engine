@@ -132,7 +132,7 @@ export const setupAvatarModel = (entity: Entity) =>
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
 
-  const groupComponent = getComponent(entity, GroupComponent)
+  const groupComponent = getOptionalComponent(entity, GroupComponent)
 
   if (assetType == AssetType.FBX) {
     // TODO: Should probably be applied to vertexes in the modeling tool

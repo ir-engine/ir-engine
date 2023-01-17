@@ -1,5 +1,5 @@
 import type VolumetricPlayer from '@xrfoundation/volumetric/player'
-import { Box3, Group, Material, Mesh, MeshStandardMaterial, Object3D } from 'three'
+import { Box3, Material, Mesh, Object3D } from 'three'
 
 import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
@@ -7,7 +7,6 @@ import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
 import { getState } from '@xrengine/hyperflux'
 
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { iOS } from '../../../common/functions/isMobile'
 import { EngineState } from '../../../ecs/classes/EngineState'
@@ -18,9 +17,7 @@ import {
   getComponentState,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
-  serializeComponent,
-  SerializedComponentType
+  removeComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists } from '../../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'

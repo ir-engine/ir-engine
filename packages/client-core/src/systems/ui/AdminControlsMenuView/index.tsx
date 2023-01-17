@@ -7,7 +7,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { Block, ContactMail, Help, People } from '@mui/icons-material'
 
 import XRTextButton from '../../components/XRTextButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createAdminControlsMenuView() {
   return createXRUI(AdminControlsMenuView, createAdminControlsMenuState())

@@ -44,6 +44,8 @@ export interface SystemInstance extends SystemInstanceData {
   name: string
   uuid: string
   type: SystemUpdateType
+  before?: string
+  after?: string
   sceneSystem: boolean
   enabled: boolean
   subsystems: SystemInstance[]
@@ -62,6 +64,9 @@ export type SystemModuleType<A> = {
   uuid: string
   type: SystemUpdateType
   sceneSystem?: boolean
+  /** @todo replace this with a more robust identifier */
+  before?: string
+  after?: string
   args?: A
 }
 
@@ -69,6 +74,8 @@ export type SystemFactoryType<A> = {
   uuid: string
   systemModule: SystemModule<A>
   type: SystemUpdateType
+  before?: string
+  after?: string
   sceneSystem?: boolean
   args?: A
 }
@@ -151,9 +158,11 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         uuid: s.uuid,
         args: s.args,
         type: s.type,
+        before: s.before,
+        after: s.after,
         sceneSystem: s.sceneSystem,
         systemModule: await s.systemLoader()
-      }
+      } as SystemFactoryType<any>
     })
   )
   const systems = await Promise.all(
@@ -162,16 +171,28 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         uuid: s.uuid,
         name: s.systemModule.default.name,
         type: s.type,
+        before: s.before,
+        after: s.after,
         sceneSystem: s.sceneSystem,
         enabled: true,
         ...(await loadSystemInjection(world, s))
-      }
+      } as SystemInstance
     })
   )
   systems.forEach((s) => {
     if (s) {
       world.systemsByUUID[s.uuid] = s
-      world.pipelines[s.type].push(s)
+      if (s.before) {
+        const index = world.pipelines[s.type].findIndex((system) => system.uuid === s.before)
+        if (index === -1) throw new Error(`System with id ${s.before} could not be found in pipeline ${s.type}`)
+        world.pipelines[s.type].splice(index, 0, s)
+      } else if (s.after) {
+        const index = world.pipelines[s.type].findIndex((system) => system.uuid === s.after)
+        if (index === -1) throw new Error(`System with id ${s.after} could not be found in pipeline ${s.type}`)
+        world.pipelines[s.type].splice(index + 1, 0, s)
+      } else {
+        world.pipelines[s.type].push(s)
+      }
     }
   })
 }

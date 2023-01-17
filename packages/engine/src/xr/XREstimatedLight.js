@@ -157,6 +157,7 @@ export class XREstimatedLight extends Group {
 
 		let sessionLightProbe = null;
 		let estimationStarted = false;
+		
 		renderer.xr.addEventListener('sessionstart', () => {
 
 			const session = renderer.xr.getSession();

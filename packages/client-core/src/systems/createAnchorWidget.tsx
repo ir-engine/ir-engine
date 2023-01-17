@@ -2,7 +2,7 @@ import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/Avat
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { getControlMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
+import { getCameraMode, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
@@ -31,7 +31,9 @@ export function createAnchorWidget(world: World) {
     onOpen: () => {
       dispatchAction(
         XRAction.changePlacementMode({
-          active: true
+          inputSource: Array.from(world.inputSources.values()).find(
+            (inputSource) => inputSource.handedness === avatarInputSettings.preferredHand.value
+          )
         })
       )
     },
@@ -41,15 +43,13 @@ export function createAnchorWidget(world: World) {
         if (widgetState.widgets[id].enabled.value !== widgetEnabled)
           dispatchAction(WidgetAppActions.enableWidget({ id, enabled: widgetEnabled }))
       }
-      const isImmersive = getControlMode() === 'attached'
-      if (!isImmersive) return
       if (!xrState.scenePlacementMode.value) return
-      const buttonInput =
-        avatarInputSettings.preferredHand.value === 'left' ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
+      const flipped = avatarInputSettings.preferredHand.value === 'left'
+      const buttonInput = flipped ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
       if (buttonInput) {
         dispatchAction(
           XRAction.changePlacementMode({
-            active: false
+            inputSource: null
           })
         )
       }

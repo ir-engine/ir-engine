@@ -10,7 +10,7 @@ import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material'
 import { Button } from '@mui/material'
 
 import XRIconButton from '../../components/XRIconButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createEmoteDetailView() {
   return createXRUI(EmoteDetailView, createEmoteDetailState())
