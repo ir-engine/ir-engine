@@ -15,6 +15,7 @@ import {
   Vector3
 } from 'three'
 
+import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
@@ -222,7 +223,7 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
   )
 
-  const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
+  const lerpAlpha = smootheLerpAlpha(5, world.deltaSeconds)
   smoothedViewerHitResultPose.position.lerp(targetPosition, lerpAlpha)
   smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
   smoothedSceneScale.lerp(targetScaleVector, lerpAlpha)

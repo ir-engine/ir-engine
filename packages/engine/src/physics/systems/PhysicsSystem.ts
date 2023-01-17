@@ -2,6 +2,7 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
+import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -92,7 +93,7 @@ export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, sub
     )
   } else {
     /** gradual smoothing between substeps */
-    const alpha = rigidbodyComponent.targetKinematicLerpMultiplier * dt
+    const alpha = smootheLerpAlpha(rigidbodyComponent.targetKinematicLerpMultiplier, dt)
     rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
     rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
   }
@@ -114,7 +115,7 @@ export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, sub
       substep
     )
   } else {
-    const alpha = rigidbodyComponent.targetKinematicLerpMultiplier * dt
+    const alpha = smootheLerpAlpha(rigidbodyComponent.targetKinematicLerpMultiplier, dt)
     rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
     rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
   }

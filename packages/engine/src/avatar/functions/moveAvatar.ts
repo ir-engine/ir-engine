@@ -1,6 +1,7 @@
 import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
+import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@xrengine/hyperflux'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
@@ -54,6 +55,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
   const userHeight = xrState.userEyeLevel.value
+  const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
 
   const viewerPose = xrFrame && ReferenceSpace.origin ? xrFrame.getViewerPose(ReferenceSpace.origin) : null
   xrState.viewerPose.set(viewerPose)
@@ -64,15 +66,17 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   if (attached) {
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
-      .set(0, userHeight, 0.15)
+      .set(0, avatarHeight * 0.95, 0.15)
       .applyQuaternion(rigidbody.targetKinematicRotation)
       .add(rigidbody.targetKinematicPosition)
-    viewerMovement.copy(V_000)
     viewerPose && viewerMovement.copy(viewerPose.transform.position as any).sub(avatarHeadPosition)
     // vertical viewer movement should only apply updward movement to the rigidbody,
     // when the viewerpose is moving up over the current avatar head position
-    viewerMovement.y = Math.max(viewerMovement.y, 0)
+    viewerMovement.y = 0 // Math.max(viewerMovement.y, 0)
     desiredMovement.copy(viewerMovement)
+    // desiredMovement.y = 0 // Math.max(desiredMovement.y, 0)
+  } else {
+    viewerMovement.copy(V_000)
   }
 
   if (controller.movementEnabled && additionalMovement) desiredMovement.add(additionalMovement)
@@ -267,7 +271,7 @@ export const updateLocalAvatarRotation = () => {
   if (getCameraMode() === 'attached') {
     _updateLocalAvatarRotationAttachedMode()
   } else {
-    const alpha = 1 - Math.exp(-3 * world.deltaSeconds)
+    const alpha = smootheLerpAlpha(3, world.deltaSeconds)
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       _slerpBodyTowardsCameraDirection(entity, alpha)
     } else {
