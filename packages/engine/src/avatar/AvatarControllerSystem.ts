@@ -1,6 +1,6 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_000, V_010 } from '../common/constants/MathConstants'
@@ -25,6 +25,7 @@ import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { XRAction } from '../xr/XRState'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
@@ -33,11 +34,26 @@ import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 export default async function AvatarControllerSystem(world: World) {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
-  const controllerQuery = defineQuery([AvatarControllerComponent])
+  const controllerQuery = defineQuery([AvatarControllerComponent, FollowCameraComponent])
+  const sessionChangedActions = createActionQueue(XRAction.sessionChanged.matches)
 
   addActionReceptor(AvatarInputSettingsReceptor)
 
   const execute = () => {
+    for (const action of sessionChangedActions()) {
+      if (action.active) {
+        for (const avatarEntity of localControllerQuery()) {
+          const controller = getComponent(avatarEntity, AvatarControllerComponent)
+          removeComponent(controller.cameraEntity, FollowCameraComponent)
+        }
+      } else {
+        for (const avatarEntity of localControllerQuery()) {
+          const controller = getComponent(avatarEntity, AvatarControllerComponent)
+          setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity: avatarEntity })
+        }
+      }
+    }
+
     for (const avatarEntity of localControllerQuery.enter()) {
       const controller = getComponent(avatarEntity, AvatarControllerComponent)
 

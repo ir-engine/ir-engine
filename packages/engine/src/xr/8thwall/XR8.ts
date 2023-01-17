@@ -184,7 +184,6 @@ export default async function XR8System(world: World) {
   let originalRequestXRSessionImplementation = requestXRSession.implementation
   let originalEndXRSessionImplementation = endXRSession.implementation
 
-  let prevFollowCamera
   const inputSources = [] as XRInputSource[]
   const viewerInputSource = {
     handedness: 'none',
@@ -271,9 +270,6 @@ export default async function XR8System(world: World) {
       document.body.addEventListener('touchmove', onTouchMove)
       document.body.addEventListener('touchend', onTouchEnd)
 
-      prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-      removeComponent(world.cameraEntity, FollowCameraComponent)
-
       xrState.requestingSession.set(false)
       dispatchAction(XRAction.sessionChanged({ active: true }))
     }
@@ -296,7 +292,6 @@ export default async function XR8System(world: World) {
       document.body.removeEventListener('touchmove', onTouchMove)
       document.body.removeEventListener('touchend', onTouchEnd)
 
-      addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
       const skybox = skyboxQuery()[0]
       if (skybox) updateSkybox(skybox)
       dispatchAction(XRAction.sessionChanged({ active: false }))

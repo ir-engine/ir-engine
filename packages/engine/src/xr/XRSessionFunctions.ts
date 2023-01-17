@@ -24,40 +24,35 @@ const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI
 
 const skyboxQuery = defineQuery([SkyboxComponent])
 
-export const onSessionEnd = (prevFollowCamera) => {
-  const _onSessionEnd = () => {
-    const xrState = getState(XRState)
-    xrState.session.value!.removeEventListener('end', _onSessionEnd)
-    xrState.sessionActive.set(false)
-    xrState.sessionMode.set('none')
-    xrState.session.set(null)
-    xrState.sceneScale.set(1)
+export const onSessionEnd = () => {
+  const xrState = getState(XRState)
+  xrState.session.value!.removeEventListener('end', onSessionEnd)
+  xrState.sessionActive.set(false)
+  xrState.sessionMode.set('none')
+  xrState.session.set(null)
+  xrState.sceneScale.set(1)
 
-    Engine.instance.xrFrame = null!
-    const world = Engine.instance.currentWorld
+  Engine.instance.xrFrame = null
+  const world = Engine.instance.currentWorld
 
-    /** @todo move to camera system in a reactor */
-    addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+  EngineRenderer.instance.renderer.domElement.style.display = ''
+  setVisibleComponent(world.localClientEntity, true)
 
-    EngineRenderer.instance.renderer.domElement.style.display = ''
-    setVisibleComponent(world.localClientEntity, true)
+  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+  worldOriginTransform.position.copy(V_000)
+  worldOriginTransform.rotation.identity()
 
-    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    worldOriginTransform.position.copy(V_000)
-    worldOriginTransform.rotation.identity()
+  ReferenceSpace.origin = null
+  ReferenceSpace.localFloor = null
+  ReferenceSpace.viewer = null
 
-    ReferenceSpace.origin = null
-    ReferenceSpace.localFloor = null
-    ReferenceSpace.viewer = null
+  const skybox = skyboxQuery()[0]
+  if (skybox) updateSkybox(skybox)
+  dispatchAction(XRAction.sessionChanged({ active: false }))
 
-    const skybox = skyboxQuery()[0]
-    if (skybox) updateSkybox(skybox)
-    dispatchAction(XRAction.sessionChanged({ active: false }))
-
-    xrState.session.set(null)
-  }
-  return _onSessionEnd
+  xrState.session.set(null)
 }
+
 export const setupXRSession = async (requestedMode) => {
   const xrState = getState(XRState)
   const xrManager = EngineRenderer.instance.xrManager
@@ -147,10 +142,6 @@ export const requestXRSession = createHookableFunction(
       const xrSession = await setupXRSession(action.mode)
       const world = Engine.instance.currentWorld
 
-      /** @todo move to camera system in a reactor */
-      const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-      removeComponent(world.cameraEntity, FollowCameraComponent)
-
       getReferenceSpaces(xrSession)
 
       const mode = xrState.sessionMode.value
@@ -159,7 +150,7 @@ export const requestXRSession = createHookableFunction(
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
 
-      xrSession.addEventListener('end', onSessionEnd(prevFollowCamera))
+      xrSession.addEventListener('end', onSessionEnd)
     } catch (e) {
       console.error('Failed to create XR Session', e)
     }
