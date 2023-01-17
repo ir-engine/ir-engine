@@ -128,9 +128,12 @@ export default async function WidgetUISystem(world: World) {
   const registerWidgetQueue = createActionQueue(WidgetAppActions.registerWidget.matches)
   const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
 
+  const preferredHand = getState(AvatarInputSettingsState).preferredHand
+
   const execute = () => {
     const keys = world.buttons
-    if (keys.ButtonX?.down) onEscape()
+    const flipped = preferredHand.value === 'left'
+    if (flipped ? keys.ButtonA?.down : keys.ButtonX?.down) onEscape()
     /** @todo allow non HMDs to access the widget menu too */
     if (isHMD && keys.Escape?.down) onEscape()
 

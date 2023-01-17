@@ -44,8 +44,8 @@ export function createAnchorWidget(world: World) {
           dispatchAction(WidgetAppActions.enableWidget({ id, enabled: widgetEnabled }))
       }
       if (!xrState.scenePlacementMode.value) return
-      const buttonInput =
-        avatarInputSettings.preferredHand.value === 'left' ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
+      const flipped = avatarInputSettings.preferredHand.value === 'left'
+      const buttonInput = flipped ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
       if (buttonInput) {
         dispatchAction(
           XRAction.changePlacementMode({

@@ -53,6 +53,8 @@ export const onSessionEnd = (prevFollowCamera) => {
     const skybox = skyboxQuery()[0]
     if (skybox) updateSkybox(skybox)
     dispatchAction(XRAction.sessionChanged({ active: false }))
+
+    xrState.session.set(null)
   }
   return _onSessionEnd
 }

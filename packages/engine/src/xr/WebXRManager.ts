@@ -91,7 +91,6 @@ export function createWebXRManager() {
     xrRendererState.glProjLayer.set(null)
     xrRendererState.glBinding.set(null)
     xrRendererState.newRenderTarget.set(null)
-    xrState.session.set(null)
 
     EngineRenderer.instance.renderer.animation.start()
     animation.stop()
