@@ -1,12 +1,10 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
-
 import { V_111 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { ReferenceSpace, XRState } from '../xr/XRState'
+import { ReferenceSpace } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 import { computeTransformMatrix } from './systems/TransformSystem'
 
@@ -36,15 +34,5 @@ export const updateWorldOrigin = () => {
     const originTransform = getComponent(world.originEntity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform.inverse)
-  }
-}
-
-export const updateEyeHeight = () => {
-  const xrFrame = Engine.instance.xrFrame
-  if (!xrFrame) return
-  const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
-  if (viewerPose) {
-    const xrState = getState(XRState)
-    xrState.userEyeLevel.set(viewerPose.transform.position.y)
   }
 }

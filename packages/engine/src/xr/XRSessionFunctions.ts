@@ -12,7 +12,7 @@ import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { updateEyeHeight, updateWorldOrigin } from '../transform/updateWorldOrigin'
+import { updateWorldOrigin } from '../transform/updateWorldOrigin'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
@@ -121,11 +121,6 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
 
   /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
   xrSession.requestReferenceSpace('local-floor').then((space) => {
-    // WebXR Emulator does not support XRReferenceSpace events
-    if ('addEventListener' in space)
-      space.addEventListener('reset', (ev) => {
-        updateEyeHeight()
-      })
     ReferenceSpace.localFloor = space
     updateWorldOrigin()
   })

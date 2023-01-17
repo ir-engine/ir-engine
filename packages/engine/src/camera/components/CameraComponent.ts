@@ -10,7 +10,7 @@ export const CameraComponent = defineComponent({
     camera.fov = 60
     camera.aspect = 1
     camera.near = 0.001
-    camera.far = 100000
+    camera.far = 10000
     camera.cameras = [new PerspectiveCamera().copy(camera, false)]
     return camera
   },

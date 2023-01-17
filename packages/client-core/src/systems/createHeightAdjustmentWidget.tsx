@@ -35,6 +35,4 @@ export function createHeightAdjustmentWidget(world: World) {
   }
 
   const id = Widgets.registerWidget(world, ui.entity, widget)
-  /** @todo better API to disable */
-  dispatchAction(WidgetAppActions.enableWidget({ id, enabled: false }))
 }

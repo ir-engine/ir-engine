@@ -215,40 +215,12 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
   if (getCameraMode() === 'attached') {
     const world = Engine.instance.currentWorld
     const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    /** @todo update rotation about viewer position */
     spinMatrixWithQuaternion(worldOriginTransform.matrix, _quat)
     worldOriginTransform.matrix.decompose(
       worldOriginTransform.position,
       worldOriginTransform.rotation,
       worldOriginTransform.scale
     )
-    updateWorldOrigin()
-  }
-}
-
-/**
- * Translates and rotates the avatar and reference space
- * @param entity
- * @param translation
- * @param rotation
- */
-export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, rotation: Quaternion) => {
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  rigidBody.targetKinematicPosition.add(translation)
-  rigidBody.targetKinematicRotation.multiply(rotation)
-
-  if (getCameraMode() === 'attached') {
-    const world = Engine.instance.currentWorld
-    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    worldOriginTransform.position.add(translation)
-    worldOriginTransform.rotation.multiply(rotation)
-    /** @todo update rotation about viewer position */
-    // spinMatrixWithQuaternion(worldOriginTransform.matrix, _quat)
-    // worldOriginTransform.matrix.decompose(
-    //   worldOriginTransform.position,
-    //   worldOriginTransform.rotation,
-    //   worldOriginTransform.scale
-    // )
     updateWorldOrigin()
   }
 }

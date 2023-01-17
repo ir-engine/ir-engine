@@ -3,10 +3,7 @@ import { AxesHelper, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import {
-  AvatarInputSettingsAction,
-  AvatarInputSettingsState
-} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { AvatarInputSettingsAction, AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { V_001, V_010, V_111 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -50,7 +47,7 @@ import {
 } from '@xrengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
-// import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
+import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'
 // import { createEmoteWidget } from './createEmoteWidget'
@@ -77,6 +74,9 @@ const widgetRightRotation = new Quaternion()
   .setFromAxisAngle(V_010, Math.PI * 0.5)
   .multiply(new Quaternion().setFromAxisAngle(V_001, -Math.PI * 0.5))
 
+export const WidgetInput = {
+  TOGGLE_MENU_BUTTONS: 'WidgetInput_TOGGLE_MENU_BUTTONS' as const
+}
 export default async function WidgetUISystem(world: World) {
   const widgetMenuUI = createWidgetButtonsView()
   setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
@@ -96,7 +96,7 @@ export default async function WidgetUISystem(world: World) {
     if (!createdWidgets && (isHMD || isDev)) {
       createdWidgets = true
       createAnchorWidget(world)
-      // createHeightAdjustmentWidget(world)
+      createHeightAdjustmentWidget(world)
       // createProfileWidget(world)
       // createSettingsWidget(world)
       // createSocialsMenuWidget(world)
