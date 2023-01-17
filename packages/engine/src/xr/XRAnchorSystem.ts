@@ -190,9 +190,9 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   if (!hitTransform) return
 
   const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-  const originTransform = getComponent(world.originEntity, TransformComponent)
-  scaledCameraPosition.copy(cameraTransform.position).multiplyScalar(originTransform.scale.x)
-  scaledHitPosition.copy(hitTransform.position).multiplyScalar(originTransform.scale.x)
+  const sceneScale = xrState.sceneScale.value
+  scaledCameraPosition.copy(cameraTransform.position).multiplyScalar(sceneScale)
+  scaledHitPosition.copy(hitTransform.position).multiplyScalar(sceneScale)
   // console.log(scaledCameraPosition, scaledHitPosition)
   const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitTransform.rotation)
   const dist = _plane.setFromNormalAndCoplanarPoint(upDir, scaledHitPosition).distanceToPoint(scaledCameraPosition)
@@ -205,9 +205,9 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const maxDollhouseScale = 0.2
   const minDollhouseDist = 0.01
   const maxDollhouseDist = 0.6
-  const lifeSize =
-    placementInputSource.targetRayMode === 'tracked-pointer' ||
-    (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+  const lifeSize = true
+  // placementInputSource.targetRayMode === 'tracked-pointer' ||
+  // (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
   const targetScale = lifeSize
     ? 1
     : 1 /
@@ -257,7 +257,8 @@ export default async function XRAnchorSystem(world: World) {
   xrState.viewerHitTestEntity.set(scenePlacementEntity)
 
   const originAxesHelper = new AxesHelper(10000)
-  setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
+  // setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
+  setObjectLayers(originAxesHelper, ObjectLayers.Scene)
   addObjectToGroup(scenePlacementEntity, originAxesHelper)
 
   const pinSphereMesh = new Mesh(new SphereGeometry(0.025, 16, 16), new MeshBasicMaterial({ color: 'white' }))

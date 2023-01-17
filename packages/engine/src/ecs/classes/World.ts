@@ -94,7 +94,8 @@ export class World {
     addObjectToGroup(this.originEntity, this.origin)
     this.origin.name = 'world-origin'
     const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
-    setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
+    setObjectLayers(originHelperMesh, ObjectLayers.Scene)
+    // setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
     originHelperMesh.frustumCulled = false
     this.origin.add(originHelperMesh)
 
