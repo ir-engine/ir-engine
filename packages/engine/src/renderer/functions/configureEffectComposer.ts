@@ -1,5 +1,5 @@
 import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
-import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
+import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
 
 import { NO_PROXY } from '@xrengine/hyperflux'
 
@@ -9,7 +9,10 @@ import { accessEngineRendererState } from '../EngineRendererState'
 import { EngineRenderer, getPostProcessingSceneMetadataState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
+export const configureEffectComposer = (
+  remove?: boolean,
+  camera: PerspectiveCamera = Engine.instance.currentWorld.camera
+): void => {
   if (!EngineRenderer.instance) return
 
   if (!EngineRenderer.instance.renderPass) {

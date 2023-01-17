@@ -1,37 +1,39 @@
-import matches from 'ts-matches'
+import { Matrix4, Quaternion, Vector3 } from 'three'
+import matches, { Validator } from 'ts-matches'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
 import { defineAction } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
+import { PoseMetrics } from '../common/classes/PoseMetrics'
 import { isHMD } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XREstimatedLight } from './XREstimatedLight'
 
+// TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
   name: 'XRState',
   initial: () => ({
     sessionActive: false,
     requestingSession: false,
-    scenePlacementMode: false,
+    scenePlacementMode: null as XRInputSource | null,
     supportedSessionModes: {
       inline: false,
       'immersive-ar': false,
       'immersive-vr': false
     },
+    session: null as XRSession | null,
     sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
     /**
-     * The `avatarControlMode` property can be 'auto', 'attached', or 'detached'.
-     * When `avatarControlMode` is 'attached' the avatar's head is attached to the XR display.
-     * When `avatarControlMode` is 'detached' the avatar can move freely via movement controls (e.g., joystick).
-     * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
+     * The `avatarCameraMode` property can be 'auto', 'attached', or 'detached'.
+     * When `avatarCameraMode` is 'attached' the avatar's head is attached to the XR display.
+     * When `avatarCameraMode` is 'detached' the avatar can move freely via movement controls (e.g., joystick).
+     * When `avatarCameraMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
-    avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
-    avatarHeadLock: 'auto' as 'auto' | true | false,
-    /** origin is always 0,0,0 */
-    originReferenceSpace: null as XRReferenceSpace | null,
-    viewerReferenceSpace: null as XRReferenceSpace | null,
+    dollhouseMode: 'auto' as 'auto' | 'on' | 'off',
+    sceneScale: 1,
+    avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
     viewerHitTestSource: null as XRHitTestSource | null,
     viewerHitTestEntity: 0 as Entity,
     sceneRotationOffset: 0,
@@ -40,13 +42,36 @@ export const XRState = defineState({
     is8thWallActive: false,
     isEstimatingLight: false,
     lightEstimator: null! as XREstimatedLight,
-    viewerInputSourceEntity: 0 as Entity
-  })
+    viewerInputSourceEntity: 0 as Entity,
+    viewerPose: null as XRViewerPose | null | undefined,
+    userEyeLevel: 1.8
+  }),
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(XRState, [
+      /** @todo replace this wither user_settings table entry */
+      'userEyeLevel'
+    ])
+  }
 })
+
+export const ReferenceSpace = {
+  /**
+   * The scene origin reference space describes where the origin of the tracking space is
+   */
+  origin: null as XRReferenceSpace | null,
+  /**
+   * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-local-floor
+   */
+  localFloor: null as XRReferenceSpace | null,
+  /**
+   * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-viewer
+   */
+  viewer: null as XRReferenceSpace | null
+}
 
 export const XRReceptors = {
   scenePlacementMode: (action: ReturnType<typeof XRAction.changePlacementMode>) => {
-    getState(XRState).scenePlacementMode.set(action.active)
+    getState(XRState).scenePlacementMode.set(action.inputSource)
   }
 }
 
@@ -68,7 +93,7 @@ export class XRAction {
 
   static changePlacementMode = defineAction({
     type: 'xre.xr.changePlacementMode',
-    active: matches.boolean
+    inputSource: matches.object.optional() as Validator<unknown, XRInputSource | null>
   })
 
   // todo, support more haptic formats other than just vibrating controllers
@@ -80,18 +105,19 @@ export class XRAction {
   })
 }
 
-export const getControlMode = () => {
-  const { avatarControlMode, sessionMode, sessionActive } = getState(XRState).value
-  if (!sessionActive) return 'none'
-  if (avatarControlMode === 'auto') {
-    return sessionMode === 'immersive-vr' || sessionMode === 'inline' || isHMD ? 'attached' : 'detached'
+export const getCameraMode = () => {
+  const { avatarCameraMode, sessionActive, sceneScale, scenePlacementMode } = getState(XRState).value
+  if (!sessionActive) return 'detached'
+  if (avatarCameraMode === 'auto') {
+    return sceneScale !== 1 || scenePlacementMode ? 'detached' : 'attached'
   }
-  return avatarControlMode
+  return avatarCameraMode
 }
 
-export const getAvatarHeadLock = () => {
-  const { avatarHeadLock } = getState(XRState)
-  return avatarHeadLock.value === 'auto' ? false : avatarHeadLock.value
+export const hasMovementControls = () => {
+  const { sessionActive, sceneScale, sessionMode } = getState(XRState).value
+  if (!sessionActive) return true
+  return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
 }
 
 /**

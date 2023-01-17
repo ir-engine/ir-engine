@@ -144,7 +144,7 @@
     "dotenv": "14.3.2",
     "fix-esm": "^1.0.1",
     "lerna": "4.0.0",
-    "patch-package": "^6.5.0",
+    "patch-package": "^6.5.1",
     "pino": "^7.10.0",
     "pino-pretty": "^7.6.1",
     "postcss": "^8.4.16",

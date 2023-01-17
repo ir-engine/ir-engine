@@ -12,6 +12,7 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
+import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import {
   ColliderComponent,
@@ -83,7 +84,8 @@ export const updateCollider = (entity: Entity) => {
     {
       shapeType: colliderComponent.shapeType,
       isTrigger: colliderComponent.isTrigger,
-      collisionLayer: colliderComponent.collisionLayer,
+      /** @todo for whatever reason, the character controller will still collide with triggers if they have a collision layer other than trigger  */
+      collisionLayer: colliderComponent.isTrigger ? CollisionGroups.Trigger : colliderComponent.collisionLayer,
       collisionMask: colliderComponent.collisionMask,
       restitution: colliderComponent.restitution,
       removeMesh: colliderComponent.removeMesh
