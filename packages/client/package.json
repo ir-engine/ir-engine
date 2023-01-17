@@ -76,7 +76,7 @@
     "@types/react": "17.0.49",
     "@types/react-dom": "18.0.6",
     "@types/yuka": "0.7.1",
-    "config": "3.3.7",
+    "config": "3.3.9",
     "trace-unhandled": "2.0.1",
     "vite": "2.9.13",
     "vite-plugin-html": "2.1.2",
