@@ -1,20 +1,132 @@
+import { Quaternion, Vector3 } from 'three'
+
 import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
-import { dispatchAction, getState, none } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { V_000 } from '../common/constants/MathConstants'
 import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
+import { TransformComponent } from '../transform/components/TransformComponent'
+import { updateWorldOrigin } from '../transform/updateWorldOrigin'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { getControlMode, XRAction, XRState } from './XRState'
+import { getCameraMode, ReferenceSpace, XRAction, XRState } from './XRState'
+
+const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 const skyboxQuery = defineQuery([SkyboxComponent])
+
+export const onSessionEnd = (prevFollowCamera) => {
+  const _onSessionEnd = () => {
+    const xrState = getState(XRState)
+    xrState.session.value!.removeEventListener('end', _onSessionEnd)
+    xrState.sessionActive.set(false)
+    xrState.sessionMode.set('none')
+    xrState.session.set(null)
+    xrState.sceneScale.set(1)
+
+    Engine.instance.xrFrame = null!
+    const world = Engine.instance.currentWorld
+
+    /** @todo move to camera system in a reactor */
+    addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+
+    EngineRenderer.instance.renderer.domElement.style.display = ''
+    setVisibleComponent(world.localClientEntity, true)
+
+    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+    worldOriginTransform.position.copy(V_000)
+    worldOriginTransform.rotation.identity()
+
+    ReferenceSpace.origin = null
+    ReferenceSpace.localFloor = null
+    ReferenceSpace.viewer = null
+
+    const skybox = skyboxQuery()[0]
+    if (skybox) updateSkybox(skybox)
+    dispatchAction(XRAction.sessionChanged({ active: false }))
+
+    xrState.session.set(null)
+  }
+  return _onSessionEnd
+}
+export const setupXRSession = async (requestedMode) => {
+  const xrState = getState(XRState)
+  const xrManager = EngineRenderer.instance.xrManager
+
+  const sessionInit = {
+    optionalFeatures: [
+      'local-floor',
+      'hand-tracking',
+      'layers',
+      'dom-overlay',
+      'hit-test',
+      'light-estimation',
+      'depth-sensing',
+      'anchors',
+      'plane-detection'
+    ],
+    depthSensing: {
+      usagePreference: ['cpu-optimized', 'gpu-optimized'],
+      dataFormatPreference: ['luminance-alpha', 'float32']
+    },
+    domOverlay: { root: document.body }
+  } as XRSessionInit
+  const mode =
+    requestedMode ||
+    (xrState.supportedSessionModes['immersive-ar'].value
+      ? 'immersive-ar'
+      : xrState.supportedSessionModes['immersive-vr'].value
+      ? 'immersive-vr'
+      : 'inline')
+
+  xrState.requestingSession.set(true)
+
+  const xrSession = await navigator.xr!.requestSession(mode, sessionInit)
+
+  const framebufferScaleFactor =
+    // @ts-ignore
+    xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen' ? 0.5 : 1.2
+
+  xrState.sessionActive.set(true)
+
+  xrManager.setFoveation(1)
+  xrState.sessionMode.set(mode)
+
+  await xrManager.setSession(xrSession, framebufferScaleFactor)
+
+  xrState.session.set(xrSession)
+
+  xrState.requestingSession.set(false)
+
+  return xrSession
+}
+
+export const getReferenceSpaces = (xrSession: XRSession) => {
+  const world = Engine.instance.currentWorld
+  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+  const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
+
+  /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
+  worldOriginTransform.position.copy(rigidBody.position)
+  worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
+
+  /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
+  xrSession.requestReferenceSpace('local-floor').then((space) => {
+    ReferenceSpace.localFloor = space
+    updateWorldOrigin()
+  })
+
+  xrSession.requestReferenceSpace('viewer').then((space) => (ReferenceSpace.viewer = space))
+}
 
 /**
  * A hookable function that is fired when the XR Session is requested
@@ -24,90 +136,28 @@ export const requestXRSession = createHookableFunction(
   async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
     const xrState = getState(XRState)
     const xrManager = EngineRenderer.instance.xrManager
-
     if (xrState.requestingSession.value || xrState.sessionActive.value) return
+
     try {
-      const sessionInit = {
-        optionalFeatures: [
-          'local-floor',
-          'hand-tracking',
-          'layers',
-          'dom-overlay',
-          'hit-test',
-          'light-estimation',
-          'depth-sensing',
-          'anchors',
-          'plane-detection'
-        ],
-        depthSensing: {
-          usagePreference: ['cpu-optimized', 'gpu-optimized'],
-          dataFormatPreference: ['luminance-alpha', 'float32']
-        },
-        domOverlay: { root: document.body }
-      } as XRSessionInit
-      const mode =
-        action.mode ||
-        (xrState.supportedSessionModes['immersive-ar'].value
-          ? 'immersive-ar'
-          : xrState.supportedSessionModes['immersive-vr'].value
-          ? 'immersive-vr'
-          : 'inline')
-
-      xrState.requestingSession.set(true)
-      const xrSession = (EngineRenderer.instance.xrSession = await navigator.xr!.requestSession(mode, sessionInit))
-
-      // @ts-ignore
-      if (xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen') {
-        xrManager.setFramebufferScaleFactor(0.5)
-      } else {
-        xrManager.setFramebufferScaleFactor(1.2)
-      }
-
-      await xrManager.setSession(xrSession)
-
-      xrState.sessionActive.set(true)
-
-      const referenceSpace = xrManager.getReferenceSpace()
-      xrState.originReferenceSpace.set(referenceSpace)
-
-      xrManager.setFoveation(1)
-      xrState.sessionMode.set(mode)
-
+      const xrSession = await setupXRSession(action.mode)
       const world = Engine.instance.currentWorld
 
+      /** @todo move to camera system in a reactor */
+      const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
+      removeComponent(world.cameraEntity, FollowCameraComponent)
+
+      getReferenceSpaces(xrSession)
+
+      const mode = xrState.sessionMode.value
       if (mode === 'immersive-ar') setupARSession(world)
       if (mode === 'immersive-vr') setupVRSession(world)
 
-      const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-      removeComponent(world.cameraEntity, FollowCameraComponent)
-      if (mode === 'immersive-ar') setVisibleComponent(world.localClientEntity, false)
-
-      const onSessionEnd = () => {
-        xrState.sessionActive.set(false)
-        xrState.sessionMode.set('none')
-        xrManager.removeEventListener('sessionend', onSessionEnd)
-        xrManager.setSession(null!)
-        EngineRenderer.instance.xrSession = null!
-        const world = Engine.instance.currentWorld
-        addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
-        EngineRenderer.instance.renderer.domElement.style.display = ''
-        setVisibleComponent(world.localClientEntity, true)
-
-        xrState.originReferenceSpace.set(null)
-        xrState.viewerReferenceSpace.set(null)
-
-        const skybox = skyboxQuery()[0]
-        if (skybox) updateSkybox(skybox)
-        dispatchAction(XRAction.sessionChanged({ active: false }))
-      }
-      xrManager.addEventListener('sessionend', onSessionEnd)
-
       dispatchAction(XRAction.sessionChanged({ active: true }))
+
+      xrSession.addEventListener('end', onSessionEnd(prevFollowCamera))
     } catch (e) {
       console.error('Failed to create XR Session', e)
     }
-
-    xrState.requestingSession.set(false)
   }
 )
 
@@ -116,7 +166,7 @@ export const requestXRSession = createHookableFunction(
  * @returns
  */
 export const endXRSession = createHookableFunction(async () => {
-  await EngineRenderer.instance.xrSession?.end()
+  await getState(XRState).session.value?.end()
 })
 
 /**
@@ -128,7 +178,7 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   if (!entity) return
 
   if (action.active) {
-    if (getControlMode() === 'attached') {
+    if (getCameraMode() === 'attached') {
       if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
     }
   }
@@ -139,14 +189,16 @@ export const setupVRSession = (world = Engine.instance.currentWorld) => {}
 export const setupARSession = (world = Engine.instance.currentWorld) => {
   EngineRenderer.instance.renderer.domElement.style.display = 'none'
 
+  const session = getState(XRState).session.value!
+
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
    * This gets piped into the input system as a TouchInput.Touch
    */
-  EngineRenderer.instance.xrSession.addEventListener('selectstart', () => {
+  session.addEventListener('selectstart', () => {
     ;(world.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
-  EngineRenderer.instance.xrSession.addEventListener('selectend', (inputSource) => {
+  session.addEventListener('selectend', (inputSource) => {
     ;(world.buttons as ButtonInputStateType).PrimaryClick!.up = true
   })
 

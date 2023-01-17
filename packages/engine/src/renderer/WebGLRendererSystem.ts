@@ -15,17 +15,17 @@ import {
 } from 'postprocessing'
 import { useEffect } from 'react'
 import {
-  Light,
   LinearToneMapping,
   PCFSoftShadowMap,
   PerspectiveCamera,
   ShadowMapType,
+  Skeleton,
+  SkinnedMesh,
   sRGBEncoding,
   ToneMapping,
   WebGL1Renderer,
   WebGLRenderer,
-  WebGLRendererParameters,
-  WebXRManager
+  WebGLRendererParameters
 } from 'three'
 
 import {
@@ -39,7 +39,6 @@ import {
   useHookstate
 } from '@xrengine/hyperflux'
 
-import { DEFAULT_LOD_DISTANCES } from '../assets/constants/LoaderConstants'
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { isHMD } from '../common/functions/isMobile'
@@ -47,9 +46,11 @@ import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { GroupComponent } from '../scene/components/GroupComponent'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
+import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
@@ -107,8 +108,6 @@ export class EngineRenderer {
   effectComposer: EffectComposerWithSchema = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
-  /** @deprecated use Engine.instance.xrFrame.session instead */
-  xrSession: XRSession = null!
   csm: CSM = null!
   webGLLostContext: any = null
 
@@ -166,8 +165,9 @@ export class EngineRenderer {
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
     this.renderer.debug.checkShaderErrors = false //isDev
 
-    this.xrManager = renderer.xr
-    renderer.xr.cameraAutoUpdate = false
+    // @ts-ignore
+    this.xrManager = renderer.xr = createWebXRManager()
+    this.xrManager.cameraAutoUpdate = false
     this.xrManager.enabled = true
 
     window.addEventListener('resize', this.onResize, false)
@@ -220,10 +220,16 @@ export class EngineRenderer {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    const activeSession = getState(XRState).sessionActive.value
+    const xrCamera = EngineRenderer.instance.xrManager.getCamera()
+    const xrFrame = Engine.instance.xrFrame
 
     /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
-    if ((isHMD && activeSession) || EngineRenderer.instance.xrSession) {
+    if (xrFrame && xrCamera.cameras.length > 1) {
+      // Assume world.camera.layers is source of truth for all xr cameras
+      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+      xrCamera.layers.mask = camera.layers.mask
+      for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
+
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
       const state = accessEngineRendererState()

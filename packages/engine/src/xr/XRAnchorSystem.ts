@@ -1,9 +1,12 @@
 import {
+  AxesHelper,
   ConeGeometry,
   Group,
   MathUtils,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
+  MeshNormalMaterial,
   Plane,
   Quaternion,
   Ray,
@@ -12,6 +15,7 @@ import {
   Vector3
 } from 'three'
 
+import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
@@ -28,19 +32,68 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { addObjectToGroup, GroupComponent, removeGroupComponent } from '../scene/components/GroupComponent'
+import {
+  addObjectToGroup,
+  GroupComponent,
+  removeGroupComponent,
+  removeObjectFromGroup
+} from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
-} from '../transform/components/TransformComponent'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../transform/systems/TransformSystem'
+import { updateWorldOriginFromViewerHit } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
-import { getControlMode, XRAction, XRReceptors, XRState } from './XRState'
+import { ReferenceSpace, XRAction, XRReceptors, XRState } from './XRState'
+
+const _mat4 = new Matrix4()
+const emptyVec3 = new Vector3()
+
+/**
+ * Sets the origin reference space entity's transform to the results of
+ * a hit test performed from the viewer's reference space.
+ * @param entity
+ */
+export const updateHitTest = (entity: Entity, world = Engine.instance.currentWorld) => {
+  const xrFrame = Engine.instance.xrFrame!
+
+  const hitTestComponent = getComponent(entity, XRHitTestComponent)
+
+  if (hitTestComponent.hitTestSource) {
+    const transform = getComponent(entity, TransformComponent)
+    const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource!)
+    if (hitTestResults.length) {
+      const hit = hitTestResults[0]
+      const hitPose = hit.getPose(ReferenceSpace.localFloor!)!
+      const originTransform = getComponent(world.originEntity, TransformComponent)
+      /** convert from local floor space to world space */
+      transform.matrix.multiplyMatrices(originTransform.matrixInverse, _mat4.fromArray(hitPose.transform.matrix))
+      transform.matrix.decompose(transform.position, transform.rotation, emptyVec3)
+      hitTestComponent.hitTestResult = hit
+      return hit
+    }
+  }
+
+  hitTestComponent.hitTestResult = null
+}
+
+export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorld) => {
+  const anchor = getComponent(entity, XRAnchorComponent).anchor
+  const xrFrame = Engine.instance.xrFrame!
+  const localFloorReferenceSpace = ReferenceSpace.localFloor
+  if (anchor && localFloorReferenceSpace) {
+    const pose = xrFrame.getPose(anchor.anchorSpace, localFloorReferenceSpace)
+    if (pose) {
+      const transform = getComponent(entity, TransformComponent)
+      const originTransform = getComponent(world.originEntity, TransformComponent)
+      /** convert from local floor space to world space */
+      transform.matrix.multiplyMatrices(originTransform.matrixInverse, _mat4.fromArray(pose.transform.matrix))
+      transform.matrix.decompose(transform.position, transform.rotation, emptyVec3)
+    }
+  }
+}
 
 const _vecPosition = new Vector3()
 const _vecScale = new Vector3()
@@ -53,33 +106,6 @@ const smoothedViewerHitResultPose = {
 }
 const smoothedSceneScale = new Vector3()
 
-/**
- * Sets the origin reference space entity's transform to the results of
- * a hit test performed from the viewer's reference space.
- * @param entity
- */
-export const updateHitTest = (entity: Entity) => {
-  const xrState = getState(XRState)
-  const xrFrame = Engine.instance.xrFrame!
-
-  const hitTestComponent = getComponent(entity, XRHitTestComponent)
-
-  if (hitTestComponent.hitTestSource) {
-    const localTransform = getComponent(entity, LocalTransformComponent)
-    const hitTestResults = xrFrame.getHitTestResults(hitTestComponent.hitTestSource!)
-    if (hitTestResults.length) {
-      const hit = hitTestResults[0]
-      const hitPose = hit.getPose(xrState.originReferenceSpace.value!)!
-      localTransform.position.copy(hitPose.transform.position as any as Vector3)
-      localTransform.rotation.copy(hitPose.transform.orientation as any as Quaternion)
-      hitTestComponent.hitTestResult = hit
-      return hit
-    }
-  }
-
-  hitTestComponent.hitTestResult = null
-}
-
 const _vec = new Vector3()
 const _vec2 = new Vector3()
 const _quat2 = new Quaternion()
@@ -89,8 +115,8 @@ const pos = new Vector3()
 const orient = new Quaternion()
 
 /** AR placement for immersive session */
-export const getNonImmersiveHitTestTransform = (world = Engine.instance.currentWorld) => {
-  const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+export const getHitTestFromController = (world = Engine.instance.currentWorld) => {
+  const referenceSpace = ReferenceSpace.origin!
   const pose = Engine.instance.xrFrame!.getPose(world.inputSources[0].targetRaySpace, referenceSpace)!
   const { position, orientation } = pose.transform
 
@@ -115,18 +141,19 @@ export const getNonImmersiveHitTestTransform = (world = Engine.instance.currentW
 }
 
 /** AR placement for non immersive / mobile session */
-export const getImmersiveHitTestTransform = (world = Engine.instance.currentWorld) => {
+export const getHitTestFromViewer = (world = Engine.instance.currentWorld) => {
   const xrState = getState(XRState)
 
   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
 
   computeTransformMatrix(viewerHitTestEntity)
 
+  const hitTestComponent = getComponent(viewerHitTestEntity, XRHitTestComponent)
+
   /** Swipe to rotate */
-  const viewerInputSourceEntity = xrState.viewerInputSourceEntity.value
-  if (viewerInputSourceEntity) {
-    const inputSource = world.inputSources[0]
-    const swipe = inputSource.gamepad?.axes ?? []
+  if (hitTestComponent?.hitTestResult) {
+    const placementInputSource = xrState.scenePlacementMode.value!
+    const swipe = placementInputSource.gamepad?.axes ?? []
     if (swipe.length) {
       const delta = swipe[0] - (lastSwipeValue ?? 0)
       if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (world.deltaSeconds * 20)))
@@ -138,11 +165,13 @@ export const getImmersiveHitTestTransform = (world = Engine.instance.currentWorl
     lastSwipeValue = null
   }
 
-  return getComponent(viewerHitTestEntity, LocalTransformComponent)
+  return getComponent(viewerHitTestEntity, TransformComponent)
 }
 
 const _plane = new Plane()
 let lastSwipeValue = null! as null | number
+const scaledCameraPosition = new Vector3()
+const scaledHitPosition = new Vector3()
 
 /**
  * Updates the transform of the origin reference space to manipulate the
@@ -152,18 +181,21 @@ let lastSwipeValue = null! as null | number
 export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const xrState = getState(XRState)
 
-  const controlMode = getControlMode()
+  const placementInputSource = xrState.scenePlacementMode.value!
 
-  const hitLocalTransform =
-    controlMode === 'attached' ? getNonImmersiveHitTestTransform(world) : getImmersiveHitTestTransform(world)
-  if (!hitLocalTransform) return
+  const hitTransform =
+    placementInputSource.targetRayMode === 'tracked-pointer'
+      ? getHitTestFromController(world)
+      : getHitTestFromViewer(world)
+  if (!hitTransform) return
 
-  const cameraLocalTransform = getComponent(world.cameraEntity, LocalTransformComponent)
-
-  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitLocalTransform.rotation)
-  const dist = _plane
-    .setFromNormalAndCoplanarPoint(upDir, hitLocalTransform.position)
-    .distanceToPoint(cameraLocalTransform.position)
+  const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+  const originTransform = getComponent(world.originEntity, TransformComponent)
+  scaledCameraPosition.copy(cameraTransform.position).multiplyScalar(originTransform.scale.x)
+  scaledHitPosition.copy(hitTransform.position).multiplyScalar(originTransform.scale.x)
+  // console.log(scaledCameraPosition, scaledHitPosition)
+  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(hitTransform.rotation)
+  const dist = _plane.setFromNormalAndCoplanarPoint(upDir, scaledHitPosition).distanceToPoint(scaledCameraPosition)
 
   /**
    * Lock lifesize to 1:1, whereas dollhouse mode uses
@@ -173,7 +205,9 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
   const maxDollhouseScale = 0.2
   const minDollhouseDist = 0.01
   const maxDollhouseDist = 0.6
-  const lifeSize = controlMode === 'attached' || (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+  const lifeSize =
+    placementInputSource.targetRayMode === 'tracked-pointer' ||
+    (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
   const targetScale = lifeSize
     ? 1
     : 1 /
@@ -182,52 +216,26 @@ export const updatePlacementMode = (world = Engine.instance.currentWorld) => {
         minDollhouseScale,
         maxDollhouseScale
       )
+
   const targetScaleVector = _vecScale.setScalar(targetScale)
-  const targetPosition = _vecPosition.copy(hitLocalTransform.position).multiplyScalar(targetScaleVector.x)
-  const targetRotation = hitLocalTransform.rotation.multiply(
+  const targetPosition = _vecPosition.copy(hitTransform.position).multiplyScalar(targetScaleVector.x)
+  const targetRotation = hitTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
   )
 
-  const lerpAlpha = 1 - Math.exp(-5 * world.deltaSeconds)
+  const lerpAlpha = smootheLerpAlpha(5, world.deltaSeconds)
   smoothedViewerHitResultPose.position.lerp(targetPosition, lerpAlpha)
   smoothedViewerHitResultPose.rotation.slerp(targetRotation, lerpAlpha)
   smoothedSceneScale.lerp(targetScaleVector, lerpAlpha)
 
-  updateWorldOrigin(
+  xrState.sceneScale.set(smoothedSceneScale.x)
+
+  updateWorldOriginFromViewerHit(
     world,
     smoothedViewerHitResultPose.position,
     smoothedViewerHitResultPose.rotation,
     smoothedSceneScale
   )
-}
-
-/*
-    Set the world origin
-  */
-export const updateWorldOrigin = (world: World, position: Vector3, rotation: Quaternion, scale?: Vector3) => {
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-  worldOriginTransform.matrix.compose(position, rotation, _vecScale.setScalar(1))
-  worldOriginTransform.matrix.invert()
-  if (scale) worldOriginTransform.matrix.scale(scale)
-  worldOriginTransform.matrix.decompose(
-    worldOriginTransform.position,
-    worldOriginTransform.rotation,
-    worldOriginTransform.scale
-  )
-}
-
-export const updateAnchor = (entity: Entity, world = Engine.instance.currentWorld) => {
-  const xrState = getState(XRState)
-  const anchor = getComponent(entity, XRAnchorComponent).anchor
-  const xrFrame = Engine.instance.xrFrame!
-  if (anchor) {
-    const pose = xrFrame.getPose(anchor.anchorSpace, xrState.originReferenceSpace.value!)
-    if (pose) {
-      const localTransform = getComponent(entity, LocalTransformComponent)
-      localTransform.position.copy(pose.transform.position as any as Vector3)
-      localTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
-    }
-  }
 }
 
 /**
@@ -240,7 +248,7 @@ export default async function XRAnchorSystem(world: World) {
 
   const scenePlacementEntity = createEntity()
   setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-  setLocalTransformComponent(scenePlacementEntity, world.originEntity)
+  setTransformComponent(scenePlacementEntity)
   setComponent(scenePlacementEntity, VisibleComponent, true)
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
@@ -248,7 +256,9 @@ export default async function XRAnchorSystem(world: World) {
 
   xrState.viewerHitTestEntity.set(scenePlacementEntity)
 
-  // addObjectToGroup(viewerHitTestEntity, new AxesHelper(10))
+  const originAxesHelper = new AxesHelper(10000)
+  setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
+  addObjectToGroup(scenePlacementEntity, originAxesHelper)
 
   const pinSphereMesh = new Mesh(new SphereGeometry(0.025, 16, 16), new MeshBasicMaterial({ color: 'white' }))
   pinSphereMesh.position.setY(0.1125)
@@ -269,25 +279,14 @@ export default async function XRAnchorSystem(world: World) {
     for (const action of xrSessionChangedQueue()) {
       if (action.active) {
         if (xrState.sessionMode.value === 'immersive-ar') {
-          const session = EngineRenderer.instance.xrSession
-          session.requestReferenceSpace('viewer').then((viewerReferenceSpace) => {
-            const xrState = getState(XRState)
-            xrState.viewerReferenceSpace.set(viewerReferenceSpace)
-            if ('requestHitTestSource' in session) {
-              session.requestHitTestSource!({ space: viewerReferenceSpace })!
-                .then((source) => {
-                  xrState.viewerHitTestSource.set(source)
-                })
-                .catch((err) => {
-                  console.warn('Failed to requestHitTestSource', err)
-                })
-            }
-          })
+          const session = xrState.session.value!
+          if ('requestHitTestSource' in session) {
+            session.requestHitTestSource!({ space: ReferenceSpace.viewer! })?.then(xrState.viewerHitTestSource.set)
+          }
         }
       } else {
         setTransformComponent(world.originEntity) // reset world origin
-        xrState.viewerReferenceSpace.set(null)
-        xrState.scenePlacementMode.set(false)
+        xrState.scenePlacementMode.set(null)
         hasComponent(world.originEntity, XRAnchorComponent) && removeComponent(world.originEntity, XRAnchorComponent)
 
         for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
@@ -300,7 +299,7 @@ export default async function XRAnchorSystem(world: World) {
     const changePlacementModeActions = changePlacementModeQueue()
     for (const action of changePlacementModeActions) {
       XRReceptors.scenePlacementMode(action)
-      if (action.active) {
+      if (action.inputSource) {
         // adding it to the group component will render it transparent - we don't want that
         Engine.instance.currentWorld.scene.add(worldOriginPinpointAnchor)
       } else {
@@ -308,16 +307,17 @@ export default async function XRAnchorSystem(world: World) {
       }
     }
 
-    if (!!Engine.instance.xrFrame?.getHitTestResults && xrState.viewerHitTestSource.value) {
-      if (changePlacementModeActions.length && changePlacementModeActions[0].active) {
-        setComponent(scenePlacementEntity, XRHitTestComponent, {
-          hitTestSource: xrState.viewerHitTestSource.value
-        })
-      }
+    if (!!Engine.instance.xrFrame?.getHitTestResults) {
+      if (xrState.viewerHitTestSource.value)
+        if (changePlacementModeActions.length && changePlacementModeActions[0].inputSource) {
+          setComponent(scenePlacementEntity, XRHitTestComponent, {
+            hitTestSource: xrState.viewerHitTestSource.value
+          })
+        }
       for (const entity of xrHitTestQuery()) {
         const hit = updateHitTest(entity)
         if (entity === scenePlacementEntity && hit && changePlacementModeActions.length) {
-          if (changePlacementModeActions[0].active) {
+          if (changePlacementModeActions[0].inputSource) {
             hasComponent(entity, XRAnchorComponent) && removeComponent(entity, XRAnchorComponent)
           } else {
             // detect support for anchors
@@ -335,23 +335,33 @@ export default async function XRAnchorSystem(world: World) {
 
     if (xrState.scenePlacementMode.value) updatePlacementMode(world)
 
-    for (const entity of xrAnchorQuery()) updateAnchor(entity, world)
+    // for (const entity of xrAnchorQuery()) updateAnchor(entity, world)
 
     /**
      * Hit Test Helper
      */
     for (const entity of xrHitTestQuery()) {
       const hasHit = getComponent(entity, XRHitTestComponent).hitTestResult
-      if (hasHit && !hasComponent(entity, GroupComponent)) {
+      if (hasHit && !getComponent(entity, GroupComponent)?.includes(xrViewerHitTestMesh as any)) {
         addObjectToGroup(entity, xrViewerHitTestMesh)
       }
-      if (!hasHit && hasComponent(entity, GroupComponent)) {
-        removeGroupComponent(entity)
+      if (!hasHit && getComponent(entity, GroupComponent)?.includes(xrViewerHitTestMesh as any)) {
+        removeObjectFromGroup(entity, xrViewerHitTestMesh)
       }
     }
 
     for (const entity of xrHitTestQuery.exit()) {
-      removeGroupComponent(entity)
+      if (getComponent(entity, GroupComponent)?.includes(xrViewerHitTestMesh as any))
+        removeObjectFromGroup(entity, xrViewerHitTestMesh)
+    }
+
+    /** update transform from origin manually and update matrix */
+    if (worldOriginPinpointAnchor.parent === Engine.instance.currentWorld.scene) {
+      const origin = getComponent(world.originEntity, TransformComponent)
+      worldOriginPinpointAnchor.position.copy(origin.position)
+      worldOriginPinpointAnchor.quaternion.copy(origin.rotation)
+      worldOriginPinpointAnchor.scale.copy(origin.scale)
+      worldOriginPinpointAnchor.updateMatrixWorld(true)
     }
   }
 

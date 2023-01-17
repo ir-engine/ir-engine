@@ -6,7 +6,7 @@ import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs
 import { getState } from '@xrengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
-import { LocalTransformComponent } from '../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { FlyControlComponent } from './components/FlyControlComponent'
 
 const EPSILON = 10e-5
@@ -84,9 +84,9 @@ export default async function FlyControlSystem(world: World) {
 
       camera.position.y += upwardMovement * world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
-      const localTransform = getComponent(world.cameraEntity, LocalTransformComponent)
-      localTransform.position.copy(camera.position)
-      localTransform.rotation.copy(camera.quaternion)
+      const transform = getComponent(world.cameraEntity, TransformComponent)
+      transform.position.copy(camera.position)
+      transform.rotation.copy(camera.quaternion)
     }
   }
 

@@ -180,10 +180,10 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const cameraTransform = getComponent(cameraEntity, LocalTransformComponent)
+  const cameraTransform = getComponent(cameraEntity, TransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
-  if (!targetTransform) return
+  if (!targetTransform || !followCamera) return
 
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
