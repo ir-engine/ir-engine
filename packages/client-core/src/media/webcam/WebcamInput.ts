@@ -8,12 +8,7 @@ import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/Avata
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { WebcamInputComponent } from '@xrengine/engine/src/input/components/WebcamInputComponent'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 
@@ -50,7 +45,8 @@ export const startFaceTracking = async () => {
     const worker = createWorkerFromCrossOriginURL(workerPath)
     worker.onerror = console.error
     faceWorker = Comlink.wrap(worker)
-    await faceWorker.initialise()
+    // @ts-ignore
+    await faceWorker.initialise(import.meta.env.BASE_URL)
   }
 
   faceVideo = document.createElement('video')

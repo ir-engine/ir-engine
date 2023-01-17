@@ -7,7 +7,11 @@ import path from 'path'
 import Sequelize, { Op } from 'sequelize'
 
 import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import {
+  DefaultUpdateSchedule,
+  ProjectInterface,
+  ProjectUpdateType
+} from '@xrengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import templateProjectJson from '@xrengine/projects/template-project/package.json'
@@ -23,7 +27,7 @@ import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
-import { getGitData } from '../../util/getGitData'
+import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import {
   checkAppOrgStatus,
@@ -33,7 +37,15 @@ import {
   getRepo,
   getUserRepos
 } from './github-helper'
-import { getEnginePackageJson, getProjectConfig, getProjectPackageJson, onProjectEvent } from './project-helper'
+import {
+  createProjectUpdateJob,
+  getEnginePackageJson,
+  getProjectConfig,
+  getProjectPackageJson,
+  onProjectEvent,
+  removeProjectUpdateJob,
+  updateProjectUpdateJob
+} from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -59,10 +71,34 @@ export const copyDefaultProject = () => {
   copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
 }
 
-const getRemoteURLFromGitData = (project) => {
-  const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
-  if (!data?.remote) return null
-  return data.remote.origin.url
+const getGitProjectData = (project) => {
+  const response = {
+    repositoryPath: '',
+    sourceRepo: '',
+    sourceBranch: '',
+    commitSHA: ''
+  }
+
+  //TODO: We can use simpleGit instead of manually accessing files.
+  const projectGitDir = path.resolve(__dirname, `../../../../projects/projects/${project}/.git`)
+
+  const config = getGitConfigData(projectGitDir)
+  if (config?.remote?.origin?.url) {
+    response.repositoryPath = config?.remote?.origin?.url
+    response.sourceRepo = config?.remote?.origin?.url
+  }
+
+  const branch = getGitHeadData(projectGitDir)
+  if (branch) {
+    response.sourceBranch = branch
+  }
+
+  const sha = getGitOrigHeadData(projectGitDir, branch)
+  if (sha) {
+    response.commitSHA = sha
+  }
+
+  return response
 }
 
 export const deleteProjectFilesInStorageProvider = async (projectName: string, storageProviderName?: string) => {
@@ -173,14 +209,19 @@ export class Project extends Service {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
     const projectConfig = (await getProjectConfig(projectName)) ?? {}
 
+    const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
     await super.create({
       thumbnail: projectConfig.thumbnail,
       name: projectName,
-      repositoryPath: getRemoteURLFromGitData(projectName),
+      repositoryPath: gitData.repositoryPath,
+      sourceRepo: gitData.sourceRepo,
+      sourceBranch: gitData.sourceBranch,
       commitSHA,
       commitDate,
-      needsRebuild: true
+      needsRebuild: true,
+      updateType: 'none' as ProjectUpdateType,
+      updateSchedule: DefaultUpdateSchedule
     })
     // run project install script
     if (projectConfig.onEvent) {
@@ -300,6 +341,9 @@ export class Project extends Service {
       needsRebuild?: boolean
       reset?: boolean
       commitSHA?: string
+      sourceBranch: string
+      updateType: ProjectUpdateType
+      updateSchedule: string
     },
     placeholder?: null,
     params?: UserParams
@@ -326,10 +370,17 @@ export class Project extends Service {
       deleteFolderRecursive(projectDirectory)
     }
 
-    const user = params!.user!
+    const project = await this.app.service('project').Model.findOne({
+      where: {
+        name: projectName
+      }
+    })
+
+    const userId = params!.user?.id || project.updateUserId
+
     const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
       where: {
-        userId: user.id,
+        userId: userId,
         type: 'github'
       }
     })
@@ -343,7 +394,7 @@ export class Project extends Service {
     const branchName = `${config.server.releaseName}-deployment`
     try {
       const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
-      if (data.commitSHA) git.checkout(data.commitSHA)
+      if (data.commitSHA) await git.checkout(data.commitSHA)
       if (branchExists.length === 0 || data.reset) {
         try {
           await git.deleteLocalBranch(branchName)
@@ -383,19 +434,32 @@ export class Project extends Service {
             name: projectName,
             repositoryPath,
             needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+            sourceRepo: data.sourceURL,
+            sourceBranch: data.sourceBranch,
+            updateType: data.updateType,
+            updateSchedule: data.updateSchedule,
+            updateUserId: userId,
             commitSHA,
             commitDate
           },
           params || {}
         )
-      : existingProjectResult
+      : await super.patch(existingProjectResult.id, {
+          commitSHA,
+          commitDate,
+          sourceRepo: data.sourceURL,
+          sourceBranch: data.sourceBranch,
+          updateType: data.updateType,
+          updateSchedule: data.updateSchedule,
+          updateUserId: userId
+        })
 
     returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
     if (!existingProjectResult) {
       await this.app.service('project-permission').create({
         projectId: returned.id,
-        userId: params!.user!.id
+        userId
       })
     }
 
@@ -424,6 +488,12 @@ export class Project extends Service {
         existingProjectResult ? 'onUpdate' : 'onInstall'
       )
     }
+
+    if (this.app.k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
+      if (!existingProjectResult) await createProjectUpdateJob(this.app, projectName)
+      else await updateProjectUpdateJob(this.app, projectName)
+    } else if (this.app.k8BatchClient && (data.updateType === 'none' || data.updateType == null))
+      await removeProjectUpdateJob(this.app, projectName)
 
     return returned
   }
@@ -530,6 +600,8 @@ export class Project extends Service {
         await this.app.service('static-resource').remove(staticResource.dataValues.id)
       })
 
+    await removeProjectUpdateJob(this.app, name)
+
     return super.remove(id, params)
   }
 
@@ -634,6 +706,10 @@ export class Project extends Service {
           'thumbnail',
           'repositoryPath',
           'needsRebuild',
+          'sourceRepo',
+          'sourceBranch',
+          'updateType',
+          'updateSchedule',
           'commitSHA',
           'commitDate'
         ]
