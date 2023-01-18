@@ -829,7 +829,7 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
   }
 }
 
-export const createProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
+export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
   const project = await app.service('project').Model.findOne({
     where: {
       name: projectName
@@ -845,31 +845,8 @@ export const createProjectUpdateJob = async (app: Application, projectName: stri
 
   const image = apiPods.pods[0].containers.find((container) => container.name === 'xrengine')!.image
 
-  try {
-    if (app.k8BatchClient) await app.k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
-  } catch (err) {
-    logger.error('Failed to create project update cronjob %o', err)
-  }
-}
-
-export const updateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
-  const project = await app.service('project').Model.findOne({
-    where: {
-      name: projectName
-    }
-  })
-
-  const apiPods = await getPodsData(
-    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
-    'api',
-    'Api',
-    app
-  )
-
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'xrengine')!.image
-
-  try {
-    if (app.k8BatchClient)
+  if (app.k8BatchClient) {
+    try {
       await app.k8BatchClient.patchNamespacedCronJob(
         `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
         'default',
@@ -884,8 +861,10 @@ export const updateProjectUpdateJob = async (app: Application, projectName: stri
           }
         }
       )
-  } catch (err) {
-    logger.error('Failed to patch project update cronjob %o', err)
+    } catch (err) {
+      logger.error('Could not find cronjob %o', err)
+      await app.k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
+    }
   }
 }
 

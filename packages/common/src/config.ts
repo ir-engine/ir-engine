@@ -60,7 +60,7 @@ const client = {
 /**
  * Full config
  */
-const config = {
+export const config = {
   client
 }
 

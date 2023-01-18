@@ -38,13 +38,12 @@ import {
   getUserRepos
 } from './github-helper'
 import {
-  createProjectUpdateJob,
+  createOrUpdateProjectUpdateJob,
   getEnginePackageJson,
   getProjectConfig,
   getProjectPackageJson,
   onProjectEvent,
-  removeProjectUpdateJob,
-  updateProjectUpdateJob
+  removeProjectUpdateJob
 } from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
@@ -490,8 +489,7 @@ export class Project extends Service {
     }
 
     if (this.app.k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
-      if (!existingProjectResult) await createProjectUpdateJob(this.app, projectName)
-      else await updateProjectUpdateJob(this.app, projectName)
+      await createOrUpdateProjectUpdateJob(this.app, projectName)
     } else if (this.app.k8BatchClient && (data.updateType === 'none' || data.updateType == null))
       await removeProjectUpdateJob(this.app, projectName)
 
