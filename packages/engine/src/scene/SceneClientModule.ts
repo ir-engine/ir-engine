@@ -6,7 +6,6 @@ import LightSystem from './systems/LightSystem'
 import ParticleSystem from './systems/ParticleSystem'
 import PortalSystem from './systems/PortalSystem'
 import SceneObjectDynamicLoadSystem from './systems/SceneObjectDynamicLoadSystem'
-import SceneObjectUpdateSystem from './systems/SceneObjectUpdateSystem'
 
 export function SceneClientModule() {
   return [
