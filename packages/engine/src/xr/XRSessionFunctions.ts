@@ -8,21 +8,17 @@ import { FollowCameraComponent } from '../camera/components/FollowCameraComponen
 import { V_000 } from '../common/constants/MathConstants'
 import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
-import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../transform/updateWorldOrigin'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
-import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { getCameraMode, ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
-
-const skyboxQuery = defineQuery([SkyboxComponent])
 
 export const onSessionEnd = (prevFollowCamera) => {
   const _onSessionEnd = () => {
@@ -50,8 +46,6 @@ export const onSessionEnd = (prevFollowCamera) => {
     ReferenceSpace.localFloor = null
     ReferenceSpace.viewer = null
 
-    const skybox = skyboxQuery()[0]
-    if (skybox) updateSkybox(skybox)
     dispatchAction(XRAction.sessionChanged({ active: false }))
 
     xrState.session.set(null)
@@ -201,6 +195,4 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
   session.addEventListener('selectend', (inputSource) => {
     ;(world.buttons as ButtonInputStateType).PrimaryClick!.up = true
   })
-
-  world.scene.background = null
 }

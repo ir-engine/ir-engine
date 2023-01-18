@@ -1,12 +1,9 @@
 import { useEffect } from 'react'
-import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import config from '@xrengine/common/src/config'
 import { dispatchAction, getState, startReactor } from '@xrengine/hyperflux'
 
-import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
@@ -18,9 +15,6 @@ import {
   removeQuery,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
-import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
@@ -170,7 +164,6 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
   })
 }
 
-const skyboxQuery = defineQuery([SkyboxComponent])
 const vpsQuery = defineQuery([PersistentAnchorComponent])
 
 export default async function XR8System(world: World) {
@@ -297,8 +290,6 @@ export default async function XR8System(world: World) {
       document.body.removeEventListener('touchend', onTouchEnd)
 
       addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
-      const skybox = skyboxQuery()[0]
-      if (skybox) updateSkybox(skybox)
       dispatchAction(XRAction.sessionChanged({ active: false }))
     }
   }
@@ -337,8 +328,6 @@ export default async function XR8System(world: World) {
     return null
   })
 
-  let lastSeenBackground = world.scene.background
-
   const execute = () => {
     if (!XR8) return
 
@@ -349,8 +338,6 @@ export default async function XR8System(world: World) {
     const sessionActive = xrState.sessionActive.value
     const xr8scene = XR8.Threejs.xrScene()
     if (sessionActive && xr8scene) {
-      if (world.scene.background) lastSeenBackground = world.scene.background
-      world.scene.background = null
       const { camera } = xr8scene
       /** update the camera in world space as updateXRInput will update it to local space */
       world.camera.position.copy(camera.position)
@@ -358,8 +345,6 @@ export default async function XR8System(world: World) {
       /** 8thwall always expects the camera to be unscaled */
       world.camera.scale.set(1, 1, 1)
     } else {
-      if (!world.scene.background && lastSeenBackground) world.scene.background = lastSeenBackground
-      lastSeenBackground = null
       return
     }
 

@@ -76,7 +76,6 @@ export default async function HyperspacePortalSystem(world: World) {
           /**
            * hide scene, render just the hyperspace effect and avatar
            */
-          Engine.instance.currentWorld.scene.background = new Color('black')
           Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Portal)
           Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Scene)
           sceneVisible = false
