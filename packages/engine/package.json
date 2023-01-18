@@ -68,7 +68,7 @@
     "@types/offscreencanvas": "2019.6.4",
     "@types/proxyquire": "^1.3.28",
     "@types/sinon": "10.0.11",
-    "@types/three": "0.144.0",
+    "@types/three": "0.148.0",
     "jsdom": "19.0.0",
     "jsdom-global": "3.0.2",
     "mocha": "10.0.0",
