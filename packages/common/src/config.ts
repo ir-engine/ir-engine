@@ -1,5 +1,5 @@
 // @ts-ignore
-export const env = (import.meta as any).env
+export const env = import.meta.env
 globalThis.env = env
 
 /**
