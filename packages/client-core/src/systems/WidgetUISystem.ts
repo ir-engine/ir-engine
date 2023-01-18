@@ -1,9 +1,12 @@
 import { useEffect } from 'react'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { AvatarInputSettingsState } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
+import {
+  AvatarInputSettingsAction,
+  AvatarInputSettingsState
+} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { V_001, V_010, V_111 } from '@xrengine/engine/src/common/constants/MathConstants'
 import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -18,8 +21,11 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -59,23 +65,27 @@ import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createUploadAvatarWidget } from './createUploadAvatarWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
-const widgetMenuGripOffset = new Vector3(0.05, 0, -0.02)
+const widgetLeftMenuGripOffset = new Vector3(-0.05, 0, -0.05)
+const widgetRightMenuGripOffset = new Vector3(0.05, 0, -0.05)
+const vec3 = new Vector3()
 
-const widgetRotation = new Quaternion()
+const widgetLeftRotation = new Quaternion()
+  .setFromAxisAngle(V_010, -Math.PI * 0.5)
+  .multiply(new Quaternion().setFromAxisAngle(V_001, Math.PI * 0.5))
+
+const widgetRightRotation = new Quaternion()
   .setFromAxisAngle(V_010, Math.PI * 0.5)
   .multiply(new Quaternion().setFromAxisAngle(V_001, -Math.PI * 0.5))
 
-export const WidgetInput = {
-  TOGGLE_MENU_BUTTONS: 'WidgetInput_TOGGLE_MENU_BUTTONS' as const
-}
 export default async function WidgetUISystem(world: World) {
   const widgetMenuUI = createWidgetButtonsView()
   setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
   removeComponent(widgetMenuUI.entity, VisibleComponent)
 
   addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
-
-  const avatarInputSettings = getState(AvatarInputSettingsState)
+  const helper = new AxesHelper(0.1)
+  setObjectLayers(helper, ObjectLayers.Gizmos)
+  addObjectToGroup(widgetMenuUI.entity, helper)
 
   const widgetState = getState(WidgetAppState)
 
@@ -135,7 +145,10 @@ export default async function WidgetUISystem(world: World) {
     const flipped = preferredHand.value === 'left'
     if (flipped ? keys.ButtonA?.down : keys.ButtonX?.down) onEscape()
     /** @todo allow non HMDs to access the widget menu too */
-    if (isHMD && keys.Escape?.down) onEscape()
+    if ((isDev || isHMD) && keys.Escape?.down) onEscape()
+    /** for dev testing */
+    if (isDev && keys.KeyO?.down)
+      dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: flipped ? 'right' : 'left' }))
 
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
@@ -168,8 +181,12 @@ export default async function WidgetUISystem(world: World) {
         transform.scale.copy(V_111)
       }
       if (pose) {
-        transform.position.copy(pose.transform.position as any as Vector3).add(widgetMenuGripOffset)
-        transform.rotation.copy(pose.transform.orientation as any as Quaternion).multiply(widgetRotation)
+        const rot = flipped ? widgetLeftRotation : widgetRightRotation
+        const offset = flipped ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
+        const orientation = pose.transform.orientation as any as Quaternion
+        transform.rotation.copy(orientation).multiply(rot)
+        vec3.copy(offset).applyQuaternion(orientation)
+        transform.position.copy(pose.transform.position as any as Vector3).add(vec3)
       }
     } else {
       if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent))

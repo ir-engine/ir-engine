@@ -117,7 +117,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     return {
       objName: obj3d.name,
       position: obj3d.position.clone(),
-      rotation: new Vector3(...obj3d.rotation.toArray()),
+      rotation: new Vector3(...(obj3d.rotation.toArray() as number[])),
       scale: obj3d.scale.clone()
     }
   }

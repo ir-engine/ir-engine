@@ -1,9 +1,10 @@
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
-import {createFeathersExpressApp} from "@xrengine/server-core/src/createApp";
-import {ServerMode} from "@xrengine/server-core/declarations";
-import {getCronJobBody} from "@xrengine/server-core/src/projects/project/project-helper";
+
+import { ServerMode } from '@xrengine/server-core/declarations'
+import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
+import { getCronJobBody } from '@xrengine/server-core/src/projects/project/project-helper'
 
 dotenv.config({
   path: appRootPath.path,
@@ -49,11 +50,24 @@ cli.main(async () => {
     })
     if (app.k8BatchClient)
       for (const project of autoUpdateProjects.data) {
-        await app.k8BatchClient.patchNamespacedCronJob(`${process.env.RELEASE_NAME}-${project.name}-auto-update`, 'default', getCronJobBody(project, `${options.ecrUrl}/${options.repoName}-api:${options.tag}__${options.startTime}`), undefined, undefined, undefined, undefined, {
-          headers: {
-            'content-type': "application/merge-patch+json"
-          }
-        })
+        try {
+          await app.k8BatchClient.patchNamespacedCronJob(
+            `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+            'default',
+            getCronJobBody(project, `${options.ecrUrl}/${options.repoName}-api:${options.tag}__${options.startTime}`),
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            {
+              headers: {
+                'content-type': 'application/merge-patch+json'
+              }
+            }
+          )
+        } catch (err) {
+          console.log('Missing cronjob', `${process.env.RELEASE_NAME}-${project.name}-auto-update`)
+        }
       }
     cli.exit(0)
   } catch (err) {
