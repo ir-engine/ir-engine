@@ -201,6 +201,8 @@ export const rotateMatrixAboutPoint = (matrix: Matrix4, point: Vector3, rotation
 }
 
 const _quat = new Quaternion()
+const desiredAvatarMatrix = new Matrix4()
+const originRelativeToAvatarMatrix = new Matrix4()
 
 /**
  * Rotates the avatar's rigidbody around the Y axis by a given angle
@@ -214,13 +216,15 @@ export const rotateAvatar = (entity: Entity, angle: number) => {
 
   if (getCameraMode() === 'attached') {
     const world = Engine.instance.currentWorld
-    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    spinMatrixWithQuaternion(worldOriginTransform.matrix, _quat)
-    worldOriginTransform.matrix.decompose(
-      worldOriginTransform.position,
-      worldOriginTransform.rotation,
-      worldOriginTransform.scale
-    )
+    const avatarTransform = getComponent(entity, TransformComponent)
+    const originTransform = getComponent(world.originEntity, TransformComponent)
+    originRelativeToAvatarMatrix.multiplyMatrices(avatarTransform.matrixInverse, originTransform.matrix)
+    desiredAvatarMatrix.compose(avatarTransform.position, rigidBody.targetKinematicRotation, avatarTransform.scale)
+
+    originTransform.matrix.multiplyMatrices(desiredAvatarMatrix, originRelativeToAvatarMatrix)
+    originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
+    originTransform.matrixInverse.copy(originTransform.matrix).invert()
+
     updateWorldOrigin()
   }
 }
