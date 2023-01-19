@@ -316,6 +316,11 @@ export default async function AvatarAnimationSystem(world: World) {
      * we need to manually do it for Loop Animation Entities
      */
     for (const entity of loopAnimationEntities) updateGroupChildren(entity)
+
+    for (const entity of world.priorityAvatarEntities) {
+      const avatarRig = getComponent(entity, AvatarRigComponent)
+      avatarRig?.helper?.updateMatrixWorld(true)
+    }
   }
 
   const cleanup = async () => {

@@ -119,7 +119,6 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   setupAvatarModel(entity)(model)
-  setupAvatarHeight(entity, model)
 
   addObjectToGroup(entity, model)
   setObjectLayers(model, ObjectLayers.Avatar)
@@ -172,6 +171,8 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   syncModelSkeletons(model, targetSkeleton)
 
   setComponent(entity, AvatarRigComponent, { rig, bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)) })
+
+  setupAvatarHeight(entity, model)
 
   const sourceHips = sourceSkeleton.bones[0]
   avatarAnimationComponent.rootYRatio = rig.Hips.position.y / sourceHips.position.y
