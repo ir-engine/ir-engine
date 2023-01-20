@@ -6,7 +6,6 @@ import { defineState, getState, startReactor, useHookstate } from '@xrengine/hyp
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
-import { isHMD } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
@@ -19,6 +18,7 @@ import {
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
+import { useImmersiveSupport } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
@@ -35,7 +35,7 @@ import { LoopAnimationComponent } from './components/LoopAnimationComponent'
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
   initial: {
-    accumulationBudget: isHMD ? 2 : 5
+    accumulationBudget: 5
   }
 })
 
@@ -66,10 +66,21 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const reactor = startReactor(() => {
     const state = useHookstate(getState(AvatarAnimationState))
+    const immersiveSupport = useImmersiveSupport()
 
     useEffect(() => {
       priorityQueue.accumulationBudget = state.accumulationBudget.value
     }, [state.accumulationBudget])
+
+    useEffect(() => {
+      /**
+       * Defaults for immersive devices are 2, defaults for non immersive devices is 5.
+       * If these have been changed, do not override.
+       */
+      if (immersiveSupport && state.accumulationBudget.value !== 5) return
+      if (!immersiveSupport && state.accumulationBudget.value !== 1) return
+      state.accumulationBudget.set(immersiveSupport ? 1 : 5)
+    }, [])
 
     return null
   })

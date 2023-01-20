@@ -20,11 +20,4 @@ export const iOS =
 export const isSafari =
   typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent.toLowerCase())
 
-/** Detect HMDs via the presence of the XR module in the navigator and not the WebXR Emulator */
-export const isHMD =
-  !mobileOrTablet && typeof navigator?.xr !== 'undefined' && typeof globalThis.CustomWebXRPolyfill === 'undefined'
-//typeof navigator?.userAgent === 'string' && /Oculus/i.test(navigator.userAgent)
-
 export const isMobile = mobileOrTablet
-
-export const isMobileOrHMD = isHMD || isMobile

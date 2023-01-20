@@ -3,10 +3,10 @@ import { Color, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, PointLig
 
 import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
-import { isHMD } from '../../common/functions/isMobile'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { immersiveSupport } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -16,7 +16,7 @@ export const PointLightComponent = defineComponent({
 
   onInit: (entity, world) => {
     const light = new PointLight()
-    if (!isHMD) addObjectToGroup(entity, light)
+    if (!immersiveSupport()) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,
@@ -58,7 +58,7 @@ export const PointLightComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    if (!isHMD) removeObjectFromGroup(entity, component.light.value)
+    if (component.light.value) removeObjectFromGroup(entity, component.light.value)
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 

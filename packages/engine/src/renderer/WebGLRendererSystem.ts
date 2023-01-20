@@ -41,7 +41,6 @@ import {
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
-import { isHMD } from '../common/functions/isMobile'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
@@ -51,7 +50,7 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
-import { XRState } from '../xr/XRState'
+import { immersiveSupport, useImmersiveSupport, XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
@@ -144,7 +143,7 @@ export class EngineRenderer {
       logarithmicDepthBuffer: true,
       canvas,
       context,
-      preserveDrawingBuffer: !isHMD,
+      preserveDrawingBuffer: false,
       //@ts-ignore
       multiviewStereo: true
     }
@@ -159,7 +158,6 @@ export class EngineRenderer {
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
     this.renderer = renderer
-    this.renderer.physicallyCorrectLights = !isHMD
     this.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
@@ -344,6 +342,11 @@ export default async function WebGLRendererSystem(world: World) {
   const reactor = startReactor(() => {
     const renderSettings = useHookstate(getRendererSceneMetadataState(world))
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))
+    const immersiveSupport = useImmersiveSupport()
+
+    useEffect(() => {
+      EngineRenderer.instance.renderer.physicallyCorrectLights = immersiveSupport
+    }, [immersiveSupport])
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value

@@ -1,8 +1,9 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
 
-import { isHMD, isMobile, isMobileOrHMD } from '../common/functions/isMobile'
+import { isMobile } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
+import { immersiveSupport } from '../xr/XRState'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
@@ -13,10 +14,10 @@ export const EngineRendererState = defineState({
   name: 'EngineRendererState',
   initial: () => ({
     qualityLevel: isMobile ? 2 : 5, // range from 0 to 5
-    automatic: isMobileOrHMD ? false : true,
+    automatic: true,
     // usePBR: true,
-    usePostProcessing: isMobileOrHMD ? false : true,
-    useShadows: isMobileOrHMD ? false : true,
+    usePostProcessing: true,
+    useShadows: true,
     debugEnable: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
@@ -72,14 +73,14 @@ export class EngineRendererReceptor {
   }
 
   static setPostProcessing(action: typeof EngineRendererAction.setPostProcessing.matches._TYPE) {
-    if (action.usePostProcessing && isHMD) return
+    if (action.usePostProcessing && immersiveSupport()) return
     setUsePostProcessing(action.usePostProcessing)
     const s = getState(EngineRendererState)
     s.merge({ usePostProcessing: action.usePostProcessing })
   }
 
   static setShadows(action: typeof EngineRendererAction.setShadows.matches._TYPE) {
-    if (action.useShadows && isHMD) return
+    if (action.useShadows && immersiveSupport()) return
     const s = getState(EngineRendererState)
     s.merge({ useShadows: action.useShadows })
     setUseShadows()

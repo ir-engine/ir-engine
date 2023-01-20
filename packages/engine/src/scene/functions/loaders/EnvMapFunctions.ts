@@ -17,10 +17,10 @@ import {
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { isHMD } from '../../../common/functions/isMobile'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, getOptionalComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { immersiveSupport } from '../../../xr/XRState'
 import { EnvMapBakeComponent } from '../../components/EnvMapBakeComponent'
 import { EnvmapComponent } from '../../components/EnvmapComponent'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -164,7 +164,7 @@ function applyEnvMap(obj3d: Object3D, envmap: Texture | null) {
   if (obj3d instanceof Scene) {
     obj3d.environment = envmap
   } else {
-    if (isHMD) return
+    if (immersiveSupport()) return
     obj3d.traverse((child: Mesh<any, MeshStandardMaterial>) => {
       if (child.material instanceof MeshMatcapMaterial) return
       if (child.material) child.material.envMap = envmap

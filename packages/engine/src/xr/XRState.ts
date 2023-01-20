@@ -1,12 +1,8 @@
-import { Matrix4, Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineState, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
-import { defineAction } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState, syncStateWithLocalStorage, useHookstate } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { PoseMetrics } from '../common/classes/PoseMetrics'
-import { isHMD } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XREstimatedLight } from './XREstimatedLight'
@@ -134,4 +130,14 @@ export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhan
     if (!offhand && avatarInputSettings.preferredHand.value == inputSource.handedness) return inputSource
     if (offhand && avatarInputSettings.preferredHand.value !== inputSource.handedness) return inputSource
   }
+}
+
+export const immersiveSupport = () => {
+  const supportedSessionModes = getState(XRState).supportedSessionModes
+  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
+}
+
+export const useImmersiveSupport = () => {
+  const supportedSessionModes = useHookstate(getState(XRState).supportedSessionModes)
+  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
 }

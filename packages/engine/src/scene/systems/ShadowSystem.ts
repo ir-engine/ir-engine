@@ -5,7 +5,6 @@ import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { CSM } from '../../assets/csm/CSM'
 import CSMHelper from '../../assets/csm/CSMHelper'
-import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -19,7 +18,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
-import { XRState } from '../../xr/XRState'
+import { immersiveSupport, XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 
@@ -55,7 +54,7 @@ export default async function ShadowSystem(world: World) {
         }
 
       const useCSM =
-        !isHMD &&
+        !immersiveSupport() &&
         EngineRenderer.instance.renderer.shadowMap.enabled &&
         getRendererSceneMetadataState(Engine.instance.currentWorld).csm.value
 

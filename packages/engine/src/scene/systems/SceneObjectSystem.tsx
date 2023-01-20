@@ -14,7 +14,6 @@ import { getState } from '@xrengine/hyperflux'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
-import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -28,6 +27,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { immersiveSupport } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -54,10 +54,11 @@ const applyBPCEM = (material) => {
 }
 
 export function setupObject(obj: Object3DWithEntity) {
+  const _immersiveSupport = immersiveSupport()
   const mesh = obj as any as Mesh<any, any>
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
-      if (isHMD && ExpensiveMaterials.has(child.material.constructor)) {
+      if (_immersiveSupport && ExpensiveMaterials.has(child.material.constructor)) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         prevMaterial.dispose()
