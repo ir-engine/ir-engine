@@ -50,7 +50,7 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
-import { immersiveSupport, useImmersiveSupport, XRState } from '../xr/XRState'
+import { isHeadset, useIsHeadset, XRState } from '../xr/XRState'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
 import { configureEffectComposer } from './functions/configureEffectComposer'
@@ -342,11 +342,11 @@ export default async function WebGLRendererSystem(world: World) {
   const reactor = startReactor(() => {
     const renderSettings = useHookstate(getRendererSceneMetadataState(world))
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))
-    const immersiveSupport = useImmersiveSupport()
+    const isHeadset = useIsHeadset()
 
     useEffect(() => {
-      EngineRenderer.instance.renderer.physicallyCorrectLights = immersiveSupport
-    }, [immersiveSupport])
+      EngineRenderer.instance.renderer.physicallyCorrectLights = isHeadset
+    }, [isHeadset])
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value

@@ -6,7 +6,7 @@ import { getState, none, useHookstate } from '@xrengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
-import { immersiveSupport } from '../../xr/XRState'
+import { isHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -16,7 +16,7 @@ export const PointLightComponent = defineComponent({
 
   onInit: (entity, world) => {
     const light = new PointLight()
-    if (!immersiveSupport()) addObjectToGroup(entity, light)
+    if (!isHeadset()) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,

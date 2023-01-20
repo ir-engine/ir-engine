@@ -27,7 +27,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { immersiveSupport } from '../../xr/XRState'
+import { isHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -54,11 +54,11 @@ const applyBPCEM = (material) => {
 }
 
 export function setupObject(obj: Object3DWithEntity) {
-  const _immersiveSupport = immersiveSupport()
+  const _isHeadset = isHeadset()
   const mesh = obj as any as Mesh<any, any>
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
-      if (_immersiveSupport && ExpensiveMaterials.has(child.material.constructor)) {
+      if (_isHeadset && ExpensiveMaterials.has(child.material.constructor)) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         prevMaterial.dispose()

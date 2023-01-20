@@ -18,7 +18,7 @@ import {
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
-import { useImmersiveSupport } from '../xr/XRState'
+import { useIsHeadset } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
@@ -66,7 +66,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const reactor = startReactor(() => {
     const state = useHookstate(getState(AvatarAnimationState))
-    const immersiveSupport = useImmersiveSupport()
+    const isHeadset = useIsHeadset()
 
     useEffect(() => {
       priorityQueue.accumulationBudget = state.accumulationBudget.value
@@ -77,9 +77,9 @@ export default async function AvatarAnimationSystem(world: World) {
        * Defaults for immersive devices are 2, defaults for non immersive devices is 5.
        * If these have been changed, do not override.
        */
-      if (immersiveSupport && state.accumulationBudget.value !== 5) return
-      if (!immersiveSupport && state.accumulationBudget.value !== 1) return
-      state.accumulationBudget.set(immersiveSupport ? 1 : 5)
+      if (isHeadset && state.accumulationBudget.value !== 5) return
+      if (!isHeadset && state.accumulationBudget.value !== 1) return
+      state.accumulationBudget.set(isHeadset ? 1 : 5)
     }, [])
 
     return null

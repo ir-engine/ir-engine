@@ -3,7 +3,7 @@ import { defineAction, defineState, getState, syncStateWithLocalStorage, useStat
 
 import { isMobile } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
-import { immersiveSupport } from '../xr/XRState'
+import { isHeadset } from '../xr/XRState'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
@@ -73,14 +73,14 @@ export class EngineRendererReceptor {
   }
 
   static setPostProcessing(action: typeof EngineRendererAction.setPostProcessing.matches._TYPE) {
-    if (action.usePostProcessing && immersiveSupport()) return
+    if (action.usePostProcessing && isHeadset()) return
     setUsePostProcessing(action.usePostProcessing)
     const s = getState(EngineRendererState)
     s.merge({ usePostProcessing: action.usePostProcessing })
   }
 
   static setShadows(action: typeof EngineRendererAction.setShadows.matches._TYPE) {
-    if (action.useShadows && immersiveSupport()) return
+    if (action.useShadows && isHeadset()) return
     const s = getState(EngineRendererState)
     s.merge({ useShadows: action.useShadows })
     setUseShadows()

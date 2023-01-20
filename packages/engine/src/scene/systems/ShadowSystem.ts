@@ -18,7 +18,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
-import { immersiveSupport, XRState } from '../../xr/XRState'
+import { isHeadset, XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 
@@ -54,7 +54,7 @@ export default async function ShadowSystem(world: World) {
         }
 
       const useCSM =
-        !immersiveSupport() &&
+        !isHeadset() &&
         EngineRenderer.instance.renderer.shadowMap.enabled &&
         getRendererSceneMetadataState(Engine.instance.currentWorld).csm.value
 

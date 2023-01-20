@@ -3,6 +3,7 @@ import matches, { Validator } from 'ts-matches'
 import { defineAction, defineState, getState, syncStateWithLocalStorage, useHookstate } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
+import { isMobile } from '../common/functions/isMobile'
 import { Entity } from '../ecs/classes/Entity'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XREstimatedLight } from './XREstimatedLight'
@@ -132,12 +133,14 @@ export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhan
   }
 }
 
-export const immersiveSupport = () => {
+export const isHeadset = () => {
   const supportedSessionModes = getState(XRState).supportedSessionModes
+  if (isMobile) return false
   return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
 }
 
-export const useImmersiveSupport = () => {
+export const useIsHeadset = () => {
   const supportedSessionModes = useHookstate(getState(XRState).supportedSessionModes)
+  if (isMobile) return false
   return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
 }
