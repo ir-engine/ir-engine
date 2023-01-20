@@ -133,14 +133,15 @@ export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhan
   }
 }
 
+/** Detect HMDs via the presence of the XR module in the navigator and not the WebXR Emulator */
 export const isHeadset = () => {
   const supportedSessionModes = getState(XRState).supportedSessionModes
-  if (isMobile) return false
+  if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
   return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
 }
 
 export const useIsHeadset = () => {
   const supportedSessionModes = useHookstate(getState(XRState).supportedSessionModes)
-  if (isMobile) return false
+  if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
   return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
 }

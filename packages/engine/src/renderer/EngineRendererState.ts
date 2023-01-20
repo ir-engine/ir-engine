@@ -22,7 +22,8 @@ export const EngineRendererState = defineState({
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
     gridVisibility: false,
-    gridHeight: 0
+    gridHeight: 0,
+    forceBasicMaterials: false
   }),
   onCreate: (store, state) => {
     syncStateWithLocalStorage(EngineRendererState, [

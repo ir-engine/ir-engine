@@ -9,7 +9,7 @@ import {
   MeshStandardMaterial
 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
@@ -25,6 +25,7 @@ import {
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { EngineRendererState } from '../../renderer/EngineRendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isHeadset } from '../../xr/XRState'
@@ -53,21 +54,27 @@ const applyBPCEM = (material) => {
   // }
 }
 
-export function setupObject(obj: Object3DWithEntity) {
+export function setupObject(obj: Object3DWithEntity, force = false) {
   const _isHeadset = isHeadset()
+
   const mesh = obj as any as Mesh<any, any>
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
-      if (_isHeadset && ExpensiveMaterials.has(child.material.constructor)) {
+      if (!child.userData) child.userData = {}
+      const shouldMakeSimple = (force || _isHeadset) && ExpensiveMaterials.has(child.material.constructor)
+      if (!force && !_isHeadset && child.userData.lastMaterial) {
+        child.material = child.userData.lastMaterial
+        delete child.userData.lastMaterial
+      } else if (shouldMakeSimple && !child.userData.lastMaterial) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-        prevMaterial.dispose()
         child.material = new MeshBasicMaterial().copy(prevMaterial)
         child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
         child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
         // todo: find out why leaving the envMap makes basic & lambert materials transparent here
         child.material.envMap = null
+        child.userData.lastMaterial = prevMaterial
       }
       child.material.dithering = true
     }
@@ -86,9 +93,9 @@ export default async function SceneObjectSystem(world: World) {
     const { entity, obj } = props
 
     const shadowComponent = useOptionalComponent(entity, ShadowComponent)
+    const forceBasicMaterials = useHookstate(getState(EngineRendererState).forceBasicMaterials)
 
     useEffect(() => {
-      setupObject(obj)
       return () => {
         const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
         for (const layer of layers) {
@@ -96,6 +103,10 @@ export default async function SceneObjectSystem(world: World) {
         }
       }
     }, [])
+
+    useEffect(() => {
+      setupObject(obj, forceBasicMaterials.value)
+    }, [forceBasicMaterials])
 
     useEffect(() => {
       const shadow = shadowComponent?.value
