@@ -8,8 +8,8 @@ import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctio
 import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AnimationManager } from '../AnimationManager'
-import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarMovementSettingsState } from '../state/AvatarSettings'
 import { AnimationGraph, changeState } from './AnimationGraph'
 import { enterAnimationState } from './AnimationState'
 import {
@@ -68,15 +68,17 @@ export function createAvatarAnimationGraph(
     walkRightAction = getDistanceAction(AvatarAnimations.WALK_STRAFE_RIGHT_ROOT, mixer),
     runRightAction = getDistanceAction(AvatarAnimations.RUN_STRAFE_RIGHT_ROOT, mixer)
 
+  const avatarMovementSettings = getState(AvatarMovementSettingsState).value
+
   const verticalBlendSpace: BlendSpace1D = {
-    minValue: -AvatarSettings.instance.runSpeed,
-    maxValue: AvatarSettings.instance.runSpeed,
+    minValue: -avatarMovementSettings.runSpeed,
+    maxValue: avatarMovementSettings.runSpeed,
     nodes: []
   }
 
   const horizontalBlendSpace: BlendSpace1D = {
-    minValue: -AvatarSettings.instance.runSpeed,
-    maxValue: AvatarSettings.instance.runSpeed,
+    minValue: -avatarMovementSettings.runSpeed,
+    maxValue: avatarMovementSettings.runSpeed,
     nodes: []
   }
 
@@ -94,32 +96,22 @@ export function createAvatarAnimationGraph(
   }
 
   addBlendSpace1DNode(verticalBlendSpace, locomotionState.idleAction, 0)
-  addBlendSpace1DNode(
-    verticalBlendSpace,
-    walkForwardAction.action,
-    AvatarSettings.instance.walkSpeed,
-    walkForwardAction
-  )
-  addBlendSpace1DNode(verticalBlendSpace, runForwardAction.action, AvatarSettings.instance.runSpeed, runForwardAction)
+  addBlendSpace1DNode(verticalBlendSpace, walkForwardAction.action, avatarMovementSettings.walkSpeed, walkForwardAction)
+  addBlendSpace1DNode(verticalBlendSpace, runForwardAction.action, avatarMovementSettings.runSpeed, runForwardAction)
   // TODO: Set the actual root animation speeds for backward movements
   addBlendSpace1DNode(
     verticalBlendSpace,
     walkBackwardAction.action,
-    -AvatarSettings.instance.walkSpeed,
+    -avatarMovementSettings.walkSpeed,
     walkBackwardAction
   )
-  addBlendSpace1DNode(
-    verticalBlendSpace,
-    runBackwardAction.action,
-    -AvatarSettings.instance.runSpeed,
-    runBackwardAction
-  )
+  addBlendSpace1DNode(verticalBlendSpace, runBackwardAction.action, -avatarMovementSettings.runSpeed, runBackwardAction)
 
   addBlendSpace1DNode(horizontalBlendSpace, locomotionState.idleAction, 0)
-  addBlendSpace1DNode(horizontalBlendSpace, runLeftAction.action, -AvatarSettings.instance.runSpeed, runLeftAction)
-  addBlendSpace1DNode(horizontalBlendSpace, walkLeftAction.action, -AvatarSettings.instance.walkSpeed, walkLeftAction)
-  addBlendSpace1DNode(horizontalBlendSpace, walkRightAction.action, AvatarSettings.instance.walkSpeed, walkRightAction)
-  addBlendSpace1DNode(horizontalBlendSpace, runRightAction.action, AvatarSettings.instance.runSpeed, runRightAction)
+  addBlendSpace1DNode(horizontalBlendSpace, runLeftAction.action, -avatarMovementSettings.runSpeed, runLeftAction)
+  addBlendSpace1DNode(horizontalBlendSpace, walkLeftAction.action, -avatarMovementSettings.walkSpeed, walkLeftAction)
+  addBlendSpace1DNode(horizontalBlendSpace, walkRightAction.action, avatarMovementSettings.walkSpeed, walkRightAction)
+  addBlendSpace1DNode(horizontalBlendSpace, runRightAction.action, avatarMovementSettings.runSpeed, runRightAction)
 
   // Jump
 
