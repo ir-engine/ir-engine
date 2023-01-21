@@ -2,6 +2,13 @@
 set -e
 set -x
 
+if [ -z "$REGISTRY_HOST" ]
+then
+  REGISTRY_HOST=localhost
+else
+  REGISTRY_HOST=$REGISTRY_HOST
+fi
+
 if [ -z "$MYSQL_HOST" ]
 then
   MYSQL_HOST=localhost
@@ -99,11 +106,11 @@ mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-DOCKER_BUILDKIT=1 docker build -t localhost:32000/root-builder -f dockerfiles/package-root/Dockerfile-root .
+DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/root-builder -f dockerfiles/package-root/Dockerfile-root .
 
-docker push localhost:32000/root-builder
+docker push $REGISTRY_HOST:32000/root-builder
 
-DOCKER_BUILDKIT=1 docker build --network=host -t localhost:32000/xrengine \
+DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/xrengine \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
@@ -120,8 +127,8 @@ DOCKER_BUILDKIT=1 docker build --network=host -t localhost:32000/xrengine \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
-docker push localhost:32000/xrengine
+docker push $REGISTRY_HOST:32000/xrengine
 
-#DOCKER_BUILDKIT=1 docker build -t localhost:32000/xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+#DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
 
-# docker push localhost:32000/xrengine-testbot
+# docker push $REGISTRY_HOST:32000/xrengine-testbot
