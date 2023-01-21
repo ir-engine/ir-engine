@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
-import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 
@@ -11,27 +12,18 @@ import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
   const engineRendererState = useEngineRendererState().value
-  const [isGridVisible, setGridVisible] = useState(engineRendererState.gridVisibility)
   const [gridHeight, setGridHeight] = useState(engineRendererState.gridHeight)
 
   useEffect(() => {
     updateGridHeight(engineRendererState.gridHeight)
   }, [engineRendererState.gridHeight])
 
-  useEffect(() => {
-    updateGridVisibility(engineRendererState.gridVisibility)
-  }, [engineRendererState.gridVisibility])
-
-  const updateGridVisibility = (val) => {
-    setGridVisible(val)
-  }
-
   const updateGridHeight = (val) => {
     setGridHeight(val)
   }
 
   const onToggleGridVisible = () => {
-    InfiniteGridHelper.instance.toggleGridVisible()
+    dispatchAction(EngineRendererAction.changeGridToolVisibility({ visibility: !engineRendererState.gridVisibility }))
   }
 
   const onChangeGridHeight = (value) => {
@@ -43,7 +35,7 @@ const GridTool = () => {
       <InfoTooltip title="Toggle Grid Visibility">
         <button
           onClick={onToggleGridVisible}
-          className={styles.toolButton + ' ' + (isGridVisible ? styles.selected : '')}
+          className={styles.toolButton + ' ' + (engineRendererState.gridVisibility ? styles.selected : '')}
         >
           <GridOnIcon fontSize="small" />
         </button>
