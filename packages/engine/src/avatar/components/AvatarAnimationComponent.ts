@@ -48,7 +48,8 @@ export const AvatarRigComponent = defineComponent({
       helper: null as SkeletonHelper | null,
       torsoLength: 0,
       upperLegLength: 0,
-      lowerLegLength: 0
+      lowerLegLength: 0,
+      footHeight: 0
     }
   },
 
@@ -59,6 +60,7 @@ export const AvatarRigComponent = defineComponent({
     if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
+    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
   },
 
   onRemove: (entity, component) => {

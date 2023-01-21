@@ -23,7 +23,8 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
   rigComponent.torsoLength = rig.Head.getWorldPosition(vec3).y - rig.Hips.getWorldPosition(vec3).y
   rigComponent.upperLegLength = rig.Hips.getWorldPosition(vec3).y - rig.LeftLeg.getWorldPosition(vec3).y
-  rigComponent.lowerLegLength = rig.LeftLeg.getWorldPosition(vec3).y - transform.position.y
+  rigComponent.lowerLegLength = rig.LeftLeg.getWorldPosition(vec3).y - rig.LeftFoot.getWorldPosition(vec3).y
+  rigComponent.footHeight = rig.LeftFoot.getWorldPosition(vec3).y - transform.position.y
 
   if (!hasComponent(entity, RigidBodyComponent)) return
 
