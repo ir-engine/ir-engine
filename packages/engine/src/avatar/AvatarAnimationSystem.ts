@@ -20,6 +20,7 @@ import {
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { updateAnimationGraph } from './animation/AnimationGraph'
+import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
@@ -215,6 +216,7 @@ export default async function AvatarAnimationSystem(world: World) {
       ik.target.updateMatrixWorld(true)
       const rig = getComponent(entity, AvatarRigComponent).rig
       ik.target.getWorldDirection(_vec).multiplyScalar(-1)
+      solveHipHeight(entity, ik.target)
       solveLookIK(rig.Head, _vec, ik.rotationClamp)
     }
 
