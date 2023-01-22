@@ -4,14 +4,17 @@ import {
 	ClampToEdgeWrapping,
 	FileLoader,
 	Group,
+	InstancedMesh,
 	Loader,
 	Matrix4,
 	Mesh,
 	MeshStandardMaterial,
 	MirroredRepeatWrapping,
+	Quaternion,
 	RepeatWrapping,
 	sRGBEncoding,
 	TextureLoader,
+	Vector3,
 } from 'three';
 
 import * as fflate from 'fflate';
@@ -34,6 +37,7 @@ class USDAParser {
 		// debugger;
 
 		function parseNextLine() {
+			let inList = -1
 			while (current < length) {
 				const line = lines[ current ];
 
@@ -41,18 +45,22 @@ class USDAParser {
 	
 				if ( line.includes( '=' ) ) {
 	
-					const assignment = line.split( '=' );
+					const assignment = line.split( '=' )
 	
-					const lhs = assignment[ 0 ].trim();
-					const rhs = assignment[ 1 ].trim();
+					const lhs = assignment[ 0 ].trim()
+					const rhs = assignment[ 1 ].trim()
 	
-					if ( rhs.endsWith( '{' ) ) {
+					if ( rhs.endsWith( '{' ) || rhs.endsWith( '[' ) ) {
 	
-						const group = {};
-						stack.push( group );
+						const group = {}
+						stack.push( group )
 	
-						target[ lhs ] = group;
-						target = group;
+						target[ lhs ] = group
+						target = group
+
+						if ( rhs.endsWith( '[' )) {
+							inList = 0
+						}
 	
 					} else {
 	
@@ -61,6 +69,10 @@ class USDAParser {
 													const meta = {}
 													stack.push (meta)
 													target=meta
+											} else if ( line.endsWith( '[' )) {
+												const meta = {}
+												stack.push(meta)
+												target=meta
 											}
 					}
 	
@@ -101,10 +113,21 @@ class USDAParser {
 	
 					target = stack[ stack.length - 1 ];
 	
+				} else if ( line.endsWith( ']' ) ) {
+
+					stack.pop()
+					target = stack[ stack.length - 1 ]
+					inList = -1
+
 				} else {
-	
+
 					string = line.trim();
-	
+					if ( inList >= 0 ) {
+						string = /^[<>,]*(.*?)[<>,]*$/.exec(string)[1]
+						target[inList] = string
+						inList++
+					}
+
 				}
 				current ++;
 			}
@@ -245,6 +268,22 @@ class USDZLoader extends Loader {
 		const plugins = this.plugins
 		// Build scene
         const registryRegex = /def (?:Scope )?"([^"]*)"/
+
+		function findContext( path, context = root ) {
+			const pathSplit = /([^/]+)\/(.*$)/
+			
+			if (pathSplit.test(path)) {
+				const [head, tail] = pathSplit.exec(path).slice(1)
+				const ctxSearch = new RegExp(`def[^"]+"${head}"`)
+				const ctxKey = Object.keys(context).find(x => ctxSearch.test(x))
+				return findContext(tail, context[ctxKey])
+			} else {
+				const ctxSearch = new RegExp(`def[^"]+"${path}"`)
+				const ctxKey = Object.keys(context).find(x => ctxSearch.test(x))
+				return context[ctxKey]
+			}
+		}
+
 		function findMeshGeometry( data ) {
 
 			if ( 'prepend references' in data ) {
@@ -341,7 +380,7 @@ class USDZLoader extends Loader {
 		function buildGeometry( data ) {
 
 			let geometry = new BufferGeometry();
-
+			
 			if ( 'int[] faceVertexIndices' in data && typeof data['int[] faceVertexIndices'] === 'string' ) {
 
 				const indices = JSON.parse( data[ 'int[] faceVertexIndices' ] );
@@ -494,7 +533,7 @@ class USDZLoader extends Loader {
 			const material = new MeshStandardMaterial();
 
 			if ( data !== undefined ) {
-                const surfaceRegexp = /def Shader "(PreviewSurface|surfaceShader|Principled_BSDF)"/
+                const surfaceRegexp = /def Shader "(PreviewSurface|surfaceShader|Principled_BSDF|[^"]+_preview)"/
 				if ( Object.keys(data).some(key => surfaceRegexp.test(key)) ) {
                     const key = Object.keys(data).find(key => surfaceRegexp.test(key))
 					const surface = data[key];
@@ -517,26 +556,26 @@ class USDZLoader extends Loader {
                     }
 					
 
-					if ( 'normal3f inputs:normal.connect' in surface ) {
+										if ( 'normal3f inputs:normal.connect' in surface ) {
 
-						const path = surface[ 'normal3f inputs:normal.connect' ];
-						const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
+											const path = surface[ 'normal3f inputs:normal.connect' ];
+											const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
 
-						material.normalMap = buildTexture( sampler );
+											material.normalMap = buildTexture( sampler );
 
-					}
+										}
 
-					if ( 'float inputs:roughness' in surface ) {
+										if ( 'float inputs:roughness' in surface ) {
 
-						material.roughness = parseFloat( surface[ 'float inputs:roughness' ] );
+											material.roughness = parseFloat( surface[ 'float inputs:roughness' ] );
 
-					}
+										}
 
-					if ( 'float inputs:metallic' in surface ) {
+										if ( 'float inputs:metallic' in surface ) {
 
-						material.metalness = parseFloat( surface[ 'float inputs:metallic' ] );
+											material.metalness = parseFloat( surface[ 'float inputs:metallic' ] );
 
-					}
+										}
 
 				}
 
@@ -628,6 +667,7 @@ class USDZLoader extends Loader {
 		function buildMesh( data ) {
 
 			const geometry = buildGeometry( 'point3f[] points' in data ? data : findMeshGeometry( data ) );
+			geometry.rotateX(Math.PI)
 			const foundMaterial = findMeshMaterial( data )
 			const material = foundMaterial ? buildMaterial( foundMaterial ) : undefined
 
@@ -643,10 +683,102 @@ class USDZLoader extends Loader {
 			return mesh;
 		}
         
+		function buildPointInstancer( registry, frontier, [path, context, name] ) {
+			const domain = /def PointInstancer "([^"]*)"/.exec(name)[1]
+			//const registryPath = `${path}/${domain}`
+			const nameContext = context[name]
+			const instanceTable = {}
 
-		// console.log( data );
-        
-        const fieldRegex = /def (?:(?:Scope|Mesh|Material|Xform) )?"([^"]*)"/
+			if ( 'rel prototypes' in nameContext && typeof nameContext['rel prototypes'] === 'object' ) {
+				const prototypePaths = Object.entries(nameContext['rel prototypes'])
+				for ( const [i, prototypePath] of prototypePaths ) {
+					const baseMesh = buildMesh(findMeshGeometry(findContext(prototypePath)))
+					baseMesh.geometry.scale( 1, 1, -1 )
+					//baseMesh.rotateY( Math.PI )
+					//baseMesh.rotateZ( Math.PI )
+					instanceTable[i] = {
+						matrices: [],
+						baseMesh
+					}
+				}
+			}
+
+			if ( typeof nameContext['int[] protoIndices'] === 'string' ) {
+				const protoIndices = JSON.parse( nameContext['int[] protoIndices'].replace( /[()]*/g, '' ))
+				const instanceCount = protoIndices.length
+				let positions, orients, scales
+				if ( typeof nameContext['point3f[] positions'] === 'string' ) {
+					positions = new Array(instanceCount)
+					const positionArr = JSON.parse( nameContext[ 'point3f[] positions' ].replace( /[()]*/g, '' ) );
+					for (let i = 0; i < instanceCount; i++) {
+						const idx = i * 3
+						const posVec = new Vector3(
+							positionArr[idx],
+							positionArr[idx + 1],
+							positionArr[idx + 2]
+						)
+						positions[i] = posVec
+					}
+				}
+	
+				if ( typeof nameContext["quath[] orientations"] === 'string') {
+					orients = new Array(instanceCount)
+					const quatArr = JSON.parse( nameContext[ "quath[] orientations" ].replace( /[()]*/g, '' ) )
+					for (let i = 0; i < instanceCount; i++) {
+						const idx = i * 4
+						const quat = new Quaternion(
+							quatArr[idx], 
+							quatArr[idx + 1], 
+							quatArr[idx + 2], 
+							quatArr[idx + 3]
+						)
+						const rhsQuat = new Quaternion(
+							quat.z, quat.y, quat.x, -quat.w
+						)
+						/*const rhsQuat = new Quaternion(
+							-quat.x, -quat.z, -quat.y, quat.w 
+						)*/
+						orients[i] = rhsQuat
+					}
+				}
+	
+				if ( typeof nameContext['float3[] scales'] === 'string') {
+					scales = new Array(instanceCount)
+					const scaleArr = JSON.parse( nameContext[ 'float3[] scales' ].replace( /[()]*/g, '' ) )
+					for (let i = 0; i < instanceCount; i++) {
+						const idx = i * 3
+						const scaleVec = new Vector3(
+							scaleArr[idx],
+							scaleArr[idx + 1],
+							scaleArr[idx + 2]
+						)
+						scales[i] = scaleVec
+					}
+				}
+
+				if (positions && orients && scales) {
+					for (let i = 0; i < instanceCount; i++) {
+						const matrix = new Matrix4().compose(positions[i], orients[i], scales[i])
+						instanceTable[protoIndices[i]].matrices.push(matrix)
+					}
+				}
+
+				const instancedMeshes = Object.entries(instanceTable).map(([index, { matrices, baseMesh }]) => {
+					const instancedMesh = new InstancedMesh(baseMesh.geometry, baseMesh.material, matrices.length)
+					instancedMesh.instanceMatrix.set(matrices.flatMap(mat => mat.toArray()))
+					return instancedMesh
+				})
+
+				const result = new Group()
+				result.name = domain
+				result.add(...instancedMeshes)
+
+				return result
+			}
+			return null
+		}
+
+        const fieldRegex = /def (?:(?:Scope|Mesh|Material|Xform|PointInstancer) )?"([^"]*)"/
 		const group = new Group();
         const registry = {"": group}
         const frontier = Object.keys(root).map(field => ["", root, field])
@@ -659,31 +791,37 @@ class USDZLoader extends Loader {
                 frontier.push(...Object.keys(nameContext).map(field => [registryPath, nameContext, field]))
                 registry[registryPath] = registry[path]
             }
+						if ( name.startsWith( 'def PointInstancer' ) ) {
+							const pointInstancer = buildPointInstancer(registry, frontier, [path, context, name])
+							const registryPath = `${path}/${pointInstancer.name}`
+							registry[registryPath] = pointInstancer
+							registry[path]?.add(pointInstancer)
+						}
             if ( name.startsWith( 'def Material' ) ) {
                 const material = buildMaterial( nameContext)
-                if ( /def Material "(\w+)"/.test( name ) ) {
-					material.name = /def Material "(\w+)"/.exec( name )[ 1 ];
-				}
+                if ( /def Material "([^"]+)"/.test( name ) ) {
+									material.name = /def Material "([^"]+)"/.exec( name )[ 1 ];
+								}
                 const registryPath = `${path}/${material.name}`
                 registry[registryPath] = material
             }
             if (name.startsWith( 'def Mesh' ) ) {
             		let mesh = buildMesh( nameContext);
                 if ( /def Mesh "([^"]+)"/.test( name ) ) {
-                    mesh.name = /def Mesh "([^"]+)"/.exec( name )[ 1 ]
+									mesh.name = /def Mesh "([^"]+)"/.exec( name )[ 1 ]
                 }
                 const registryPath = `${path}/${mesh.name}`
                 registry[registryPath] = mesh
                 registry[path]?.add( mesh )
             }
             if ( name.startsWith( 'def Xform' ) ) {
-                let xform = new Group()
-                if ( /def Xform "([^"]+)"/.test( name ) ) {
-                    xform.name = /def Xform "([^"]+)"/.exec( name )[ 1 ]
-                }
-                const registryPath = `${path}/${xform.name}`
-                registry[registryPath] = xform
-                registry[path]?.add( xform )
+								let xform = new Group()
+								if ( /def Xform "([^"]+)"/.test( name ) ) {
+										xform.name = /def Xform "([^"]+)"/.exec( name )[ 1 ]
+								}
+								const registryPath = `${path}/${xform.name}`
+								registry[registryPath] = xform
+								registry[path]?.add( xform )
 								if (buildTransform(xform.matrix, nameContext)) {
 									xform.matrix.decompose(xform.position, xform.quaternion, xform.scale)
 								}
@@ -692,8 +830,8 @@ class USDZLoader extends Loader {
 								for (const plugin of xformPlugins) {
 									xform = plugin.buildXform(xform, nameContext)
 								}
-                const keys = Object.keys(nameContext)
-                keys.map(key => {
+								const keys = Object.keys(nameContext)
+								keys.map(key => {
                     if (fieldRegex.test(key)) {
                         const keyPath = `${registryPath}/${fieldRegex.exec(key)[1]}`
                         registry[keyPath] = xform
@@ -705,11 +843,8 @@ class USDZLoader extends Loader {
                         }
                     }
                 })
-			}
+							}
 		}
-
-		// console.log( group );
-
 		return group;
 
 	}
