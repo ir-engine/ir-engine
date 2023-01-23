@@ -26,6 +26,9 @@ export default (app: Application) => {
       },
       dateEnded: {
         type: DataTypes.DATE
+      },
+      commitSHA: {
+        type: DataTypes.STRING
       }
     },
     {
