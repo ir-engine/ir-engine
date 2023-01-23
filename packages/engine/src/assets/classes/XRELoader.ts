@@ -6,6 +6,8 @@ import { loadECSData } from '@xrengine/engine/src/scene/systems/SceneLoadingSyst
 
 import { AssetLoader } from './AssetLoader'
 
+export type OnLoadType = (response: EntityTreeNode[]) => EntityTreeNode[] | void
+
 export class XRELoader {
   fileLoader: FileLoader
   isXRELoader: true
@@ -20,14 +22,14 @@ export class XRELoader {
     }
   }
 
-  parse(data: string, onLoad = (response: EntityTreeNode[]) => {}) {
+  parse(data: string, onLoad: OnLoadType = (response) => response) {
     const result = gltfToSceneJson(JSON.parse(data))
     return loadECSData(result, this.rootNode).then(onLoad)
   }
 
   load(
     _url: string,
-    onLoad = (response: EntityTreeNode[]) => {},
+    onLoad: OnLoadType = (response: EntityTreeNode[]) => {},
     onProgress = (request: ProgressEvent) => {},
     onError = (event: ErrorEvent | Error) => {}
   ) {
