@@ -10,7 +10,7 @@ import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { solveTwoBoneIK } from './TwoBoneIKSolver'
 
 let hasAdded = false
-const debug = true
+const debug = false
 
 const quatXforward0 = new Quaternion().setFromAxisAngle(V_100, 0)
 
