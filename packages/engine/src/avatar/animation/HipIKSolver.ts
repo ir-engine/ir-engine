@@ -11,7 +11,7 @@ import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { solveTwoBoneIK } from './TwoBoneIKSolver'
 
 let hasAdded = false
-const debug = true
+const debug = false
 
 const quatXforward0 = new Quaternion().setFromAxisAngle(V_100, 0)
 
@@ -145,10 +145,8 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const footKneeFlareRatio = 0.2
 
   /** copy foot world pose into target */
-  rig.LeftFoot.getWorldPosition(leftFootTarget.position)
-  rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
-  rig.RightFoot.getWorldPosition(rightFootTarget.position)
-  rig.RightFoot.getWorldQuaternion(rightFootTarget.quaternion)
+  rig.LeftFoot.getWorldPosition(leftFootTarget.position) //.sub(body.position)
+  rig.RightFoot.getWorldPosition(rightFootTarget.position) //.sub(body.position)
 
   /** get original knee position in avatar local space */
   rig.LeftLeg.getWorldPosition(originalLeftKneeOffset).sub(body.position)
@@ -160,42 +158,44 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const originalRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
 
   /** calculate how much the knees should flare out based on the distance the knees move forward, adding to the original position (to preserve animations) */
-  const leftKneeFlare = kneeFlareSeparation + originalLeftKneeOffset.x + kneeX * kneeFlareMultiplier
+  const leftKneeFlare = kneeFlareSeparation + kneeX * kneeFlareMultiplier
 
   /** add knee flare to foot position */
   _vec3.set(
     kneeFlareSeparation + leftKneeFlare * footKneeFlareRatio,
-    leftFootTarget.position.y - body.position.y + hipDifference,
+    hipDifference + leftFootTarget.position.y - body.position.y, // TODO replace this line with `hipDifference,` once the idle animation is better
     0
   )
   _vec3.applyQuaternion(body.rotation)
-  leftFootTarget.position.copy(_vec3)
-  leftFootTarget.position.add(body.position)
+  leftFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
+  leftFootTarget.position.add(_vec3)
   leftFootTarget.updateMatrixWorld(true)
 
   /** hint is where the knees aim */
-  leftFootTargetHint.position.set(leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
+  leftFootTargetHint.position.set(kneeFlareSeparation + leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   leftFootTargetHint.position.applyQuaternion(body.rotation)
-  leftFootTargetHint.position.add(body.position)
+  leftFootTargetHint.position.add(leftFootTarget.position)
+  rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
   leftFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(rig.LeftUpLeg, rig.LeftLeg, rig.LeftFoot, leftFootTarget, leftFootTargetHint, leftFootTargetOffset)
 
   /** Right Foot */
-  const kneeFlare = -kneeFlareSeparation + originalRightKneeOffset.x - kneeX * kneeFlareMultiplier
+  const rightKneeFlare = -kneeFlareSeparation - kneeX * kneeFlareMultiplier
   _vec3.set(
-    -kneeFlareSeparation + kneeFlare * footKneeFlareRatio,
-    rightFootTarget.position.y - body.position.y + hipDifference,
+    -kneeFlareSeparation + rightKneeFlare * footKneeFlareRatio,
+    hipDifference + rightFootTarget.position.y - body.position.y, // TODO replace this line with `hipDifference,` once the idle animation is better
     0
   )
   _vec3.applyQuaternion(body.rotation)
-  rightFootTarget.position.copy(_vec3)
-  rightFootTarget.position.add(body.position)
+  rightFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
+  rightFootTarget.position.add(_vec3)
   rightFootTarget.updateMatrixWorld(true)
 
-  rightFootTargetHint.position.set(kneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
+  rightFootTargetHint.position.set(kneeFlareSeparation + rightKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   rightFootTargetHint.position.applyQuaternion(body.rotation)
-  rightFootTargetHint.position.add(body.position)
+  rightFootTargetHint.position.add(rightFootTarget.position)
+  rig.RightFoot.getWorldQuaternion(rightFootTarget.quaternion)
   rightFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(
