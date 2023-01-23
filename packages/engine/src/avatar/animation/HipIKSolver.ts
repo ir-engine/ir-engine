@@ -119,6 +119,16 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
 
   /** Solve IK */
   const rig = rigComponent.rig
+
+  // console.log(rig.Hips.name, rig.Hips.parent!.name, rig.Hips.parent!.parent!.name, rig.Hips.parent!.parent!.parent!.name)
+  // console.log('before', rig.Hips.getWorldPosition(_vec3).y, rig.Hips.parent!.getWorldPosition(_vec3).y, rig.Hips.parent!.parent!.getWorldPosition(_vec3).y, rig.Hips.parent!.parent!.parent!.getWorldPosition(_vec3).y)
+
+  /** move hips to the new position */
+  const hipDifference = fullLegLength - (footToKneeY + kneeToHipsY)
+  rig.Hips.position.y -= hipDifference
+  rig.Hips.position.z -= hipX
+
+  /** Update matrices */
   rig.Hips.updateWorldMatrix(true, true)
 
   /**
@@ -134,10 +144,6 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   /** determins how far apart the feet are as a mulitplier of how far apart the knees are*/
   const footKneeFlareRatio = 0.2
 
-  /** update leg matrices after animation has been applied */
-  rig.LeftUpLeg.updateWorldMatrix(false, true)
-  rig.RightUpLeg.updateWorldMatrix(false, true)
-
   /** copy foot world pose into target */
   rig.LeftFoot.getWorldPosition(leftFootTarget.position)
   rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
@@ -152,11 +158,6 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   rig.RightLeg.getWorldPosition(originalRightKneeOffset).sub(body.position)
   originalRightKneeOffset.applyQuaternion(_quat.copy(body.rotation).invert())
   const originalRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
-
-  /** move hips to the new position */
-  const hipDifference = fullLegLength - (footToKneeY + kneeToHipsY)
-  rig.Hips.position.y -= hipDifference
-  rig.Hips.position.z -= hipX
 
   /** calculate how much the knees should flare out based on the distance the knees move forward, adding to the original position (to preserve animations) */
   const leftKneeFlare = kneeFlareSeparation + originalLeftKneeOffset.x + kneeX * kneeFlareMultiplier

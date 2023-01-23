@@ -46,9 +46,13 @@ export const AvatarRigComponent = defineComponent({
       /** Read-only bones in bind pose */
       bindRig: null! as BoneStructure,
       helper: null as SkeletonHelper | null,
+      /** The length of the torso in a t-pose, from the hip join to the head joint */
       torsoLength: 0,
+      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
       upperLegLength: 0,
+      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
       lowerLegLength: 0,
+      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
       footHeight: 0
     }
   },

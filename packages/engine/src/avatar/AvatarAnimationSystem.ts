@@ -208,9 +208,6 @@ export default async function AvatarAnimationSystem(world: World) {
       // TODO: Find a more elegant way to handle root motion
       const rootPos = AnimationManager.instance._defaultRootBone.position
       rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
-
-      /** must update whole rig matrices here to ensure they are up to date for IK to by frame synced */
-      // rig.Hips.updateWorldMatrix(true, true)
     }
 
     /**
@@ -249,6 +246,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
       if (!ik.target.position.equals(V_000)) {
         rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+        /** @todo see if this is still necessary */
         rig.LeftForeArm.updateWorldMatrix(false, true)
         solveTwoBoneIK(
           rig.LeftArm,
@@ -275,6 +273,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
       if (!ik.target.position.equals(V_000)) {
         rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+        /** @todo see if this is still necessary */
         rig.RightForeArm.updateWorldMatrix(false, true)
         solveTwoBoneIK(
           rig.RightArm,
