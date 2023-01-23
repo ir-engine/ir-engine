@@ -1,5 +1,6 @@
 import { Group, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 
+import { V_001, V_100 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -9,7 +10,9 @@ import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { solveTwoBoneIK } from './TwoBoneIKSolver'
 
 let hasAdded = false
-const debug = false
+const debug = true
+
+const quatXforward0 = new Quaternion().setFromAxisAngle(V_100, 0)
 
 const knee = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 'red' }))
 const hips = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 'green' }))
@@ -22,6 +25,7 @@ const sin90 = Math.sin(degtoRad90)
 
 const _vec3 = new Vector3()
 const _quat = new Quaternion()
+const _quat2 = new Quaternion()
 const leftFootTarget = new Object3D().add(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial({ color: 'pink' })))
 const leftFootTargetOffset = new Object3D().add(
   new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial({ color: 'yellow' }))
@@ -80,7 +84,7 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const pivotToFootLength = (headToFeetLength - pivotHalfLength - rigComponent.torsoLength) * targetToRealRatio // h2
 
   /** calculate internal angle of head to hip using cosine rule */
-  const headToHipInternalAngle = Math.acos(
+  const hipToheadInternalAngle = Math.acos(
     (rigComponent.torsoLength * rigComponent.torsoLength +
       pivotToHeadLength * pivotToHeadLength -
       pivotHalfLengthSquare) /
@@ -88,22 +92,22 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   )
 
   /** calculate internal angle of feet to knee using cosine rule */
-  const footToKneeInternalAngle = Math.acos(
+  const kneeToFootInternalAngle = Math.acos(
     (rigComponent.lowerLegLength * rigComponent.lowerLegLength +
       pivotToFootLength * pivotToFootLength -
       pivotHalfLengthSquare) /
       (2 * rigComponent.lowerLegLength * pivotToFootLength)
   )
 
-  const headToHipAngle = degtoRad90 - headToHipInternalAngle
-  const footToKneeAngle = degtoRad90 - footToKneeInternalAngle
+  const hipToHeadAngle = degtoRad90 - hipToheadInternalAngle
+  const kneeToFootAngle = degtoRad90 - kneeToFootInternalAngle
   /** get the x and y offsets of this calculation */
-  const headToHipY = (Math.sin(headToHipAngle) * rigComponent.torsoLength) / sin90
-  const footToKneeY = (Math.sin(footToKneeAngle) * rigComponent.lowerLegLength) / sin90
+  const headToHipY = (Math.sin(hipToHeadAngle) * rigComponent.torsoLength) / sin90
+  const footToKneeY = (Math.sin(kneeToFootAngle) * rigComponent.lowerLegLength) / sin90
   const kneeToHipsY = clampedHeadTargetY - headToHipY - footToKneeY
 
-  const hipX = (Math.sin(headToHipInternalAngle) * rigComponent.torsoLength) / sin90
-  const kneeX = (Math.sin(footToKneeInternalAngle) * rigComponent.lowerLegLength) / sin90
+  const hipX = (Math.sin(hipToheadInternalAngle) * rigComponent.torsoLength) / sin90
+  const kneeX = (Math.sin(kneeToFootInternalAngle) * rigComponent.lowerLegLength) / sin90
 
   /** update four bar joint mechanism helpers with result data */
   if (debug) {
@@ -116,16 +120,30 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
 
   /** Solve IK */
   const rig = rigComponent.rig
+  /**
+   * @todo
+   * instead of flaring the knees based on how far the knees are forward,
+   * and deriving foot position from that, we should instead derive knee flare based on the angle the feet have to the hips
+   * (biomechanically, the most efficient movement pattern is knees following the plane that bisects the toes, ankle and hips)
+   */
+  /** minimum distance the knees are to be apart */
+  const kneeFlareSeparation = 0.1
+  /** multiplier of how far the knees are forward to flare the knees outward */
+  const kneeFlareMultiplier = 0.4
+  /** determins how far apart the feet are as a mulitplier of how far apart the knees are*/
+  const footKneeFlareRatio = 0.2
 
   /** update matrices after animation has been applied */
   rig.LeftUpLeg.updateWorldMatrix(false, true)
   const originalLeftKneeX = rig.LeftLeg.getWorldPosition(_vec3).x
+  const originalLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
   /** copy foot world pose into target */
   rig.LeftFoot.getWorldPosition(leftFootTarget.position)
   rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
 
   rig.RightUpLeg.updateWorldMatrix(false, true)
   const originalRightKneeX = rig.RightLeg.getWorldPosition(_vec3).x
+  const originalRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
   rig.RightFoot.getWorldPosition(rightFootTarget.position)
   rig.RightFoot.getWorldQuaternion(rightFootTarget.quaternion)
 
@@ -135,10 +153,10 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   rig.Hips.position.z -= hipX
 
   /** calculate how much the knees should flare out based on the distance the knees move forward, adding to the original position (to preserve animations) */
-  const leftKneeFlare = originalLeftKneeX + kneeX * 0.8
+  const leftKneeFlare = kneeFlareSeparation + originalLeftKneeX + kneeX * kneeFlareMultiplier
 
   /** add knee flare to foot position */
-  _vec3.set(leftKneeFlare * 0.5, leftFootTarget.position.y + hipDifference, 0)
+  _vec3.set(kneeFlareSeparation + leftKneeFlare * footKneeFlareRatio, leftFootTarget.position.y + hipDifference, 0)
   _vec3.applyQuaternion(transformComponent.rotation)
   leftFootTarget.position.copy(_vec3)
   leftFootTarget.position.z = transformComponent.position.z
@@ -154,8 +172,8 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   solveTwoBoneIK(rig.LeftUpLeg, rig.LeftLeg, rig.LeftFoot, leftFootTarget, leftFootTargetHint, leftFootTargetOffset)
 
   /** Right Foot */
-  const kneeFlare = originalRightKneeX - kneeX * 0.8
-  _vec3.set(kneeFlare * 0.5, rightFootTarget.position.y + hipDifference, 0)
+  const kneeFlare = -kneeFlareSeparation + originalRightKneeX - kneeX * kneeFlareMultiplier
+  _vec3.set(-kneeFlareSeparation + kneeFlare * footKneeFlareRatio, rightFootTarget.position.y + hipDifference, 0)
   _vec3.applyQuaternion(transformComponent.rotation)
   rightFootTarget.position.copy(_vec3)
   rightFootTarget.position.z = transformComponent.position.z
@@ -177,8 +195,24 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   )
 
   /** Torso */
-  rig.Spine.applyQuaternion(_quat.setFromAxisAngle(_vec3.set(1, 0, 0), degtoRad90 - headToHipAngle))
+  /** Apply the hip internal angle we calculated previously */
+  rig.Spine.applyQuaternion(_quat.setFromAxisAngle(V_100, degtoRad90 - hipToHeadAngle))
 
   /** Angle feet */
-  // todo
+
+  /** left foot */
+  /** get the current angle of the foot in world space */
+  /** get the difference between the two angles */
+  /** apply the difference to the foot */
+  const currentLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const leftFootAngleDifference = originalLeftFootAngle - currentLeftFootAngle
+  rig.LeftFoot.applyQuaternion(_quat.setFromAxisAngle(V_100, leftFootAngleDifference))
+
+  /** right foot */
+  const currentRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const rightFootAngleDifference = originalRightFootAngle - currentRightFootAngle
+  rig.RightFoot.applyQuaternion(_quat.setFromAxisAngle(V_100, rightFootAngleDifference))
+
+  // debug
+  rig.Hips.updateMatrixWorld(true)
 }
