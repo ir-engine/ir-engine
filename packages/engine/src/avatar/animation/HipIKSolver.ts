@@ -4,13 +4,14 @@ import { V_001, V_100 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { solveTwoBoneIK } from './TwoBoneIKSolver'
 
 let hasAdded = false
-const debug = false
+const debug = true
 
 const quatXforward0 = new Quaternion().setFromAxisAngle(V_100, 0)
 
@@ -27,7 +28,7 @@ const originalLeftKneeOffset = new Vector3()
 const originalRightKneeOffset = new Vector3()
 const _vec3 = new Vector3()
 const _quat = new Quaternion()
-const _quat2 = new Quaternion()
+
 const leftFootTarget = new Object3D().add(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial({ color: 'pink' })))
 const leftFootTargetOffset = new Object3D().add(
   new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial({ color: 'yellow' }))
@@ -52,7 +53,7 @@ const rightFootTargetHint = new Object3D().add(
  */
 export function solveHipHeight(entity: Entity, target: Object3D) {
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  const transform = getComponent(entity, TransformComponent)
+  const body = getComponent(entity, RigidBodyComponent)
 
   if (debug && !hasAdded) {
     hasAdded = true
@@ -118,6 +119,8 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
 
   /** Solve IK */
   const rig = rigComponent.rig
+  rig.Hips.updateWorldMatrix(true, true)
+
   /**
    * @todo
    * instead of flaring the knees based on how far the knees are forward,
@@ -142,12 +145,12 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   rig.RightFoot.getWorldQuaternion(rightFootTarget.quaternion)
 
   /** get original knee position in avatar local space */
-  rig.LeftLeg.getWorldPosition(originalLeftKneeOffset).sub(transform.position)
-  originalLeftKneeOffset.applyQuaternion(_quat.copy(transform.rotation).invert())
+  rig.LeftLeg.getWorldPosition(originalLeftKneeOffset).sub(body.position)
+  originalLeftKneeOffset.applyQuaternion(_quat.copy(body.rotation).invert())
   const originalLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
 
-  rig.RightLeg.getWorldPosition(originalRightKneeOffset).sub(transform.position)
-  originalRightKneeOffset.applyQuaternion(_quat.copy(transform.rotation).invert())
+  rig.RightLeg.getWorldPosition(originalRightKneeOffset).sub(body.position)
+  originalRightKneeOffset.applyQuaternion(_quat.copy(body.rotation).invert())
   const originalRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
 
   /** move hips to the new position */
@@ -161,18 +164,18 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   /** add knee flare to foot position */
   _vec3.set(
     kneeFlareSeparation + leftKneeFlare * footKneeFlareRatio,
-    leftFootTarget.position.y - transform.position.y + hipDifference,
+    leftFootTarget.position.y - body.position.y + hipDifference,
     0
   )
-  _vec3.applyQuaternion(transform.rotation)
+  _vec3.applyQuaternion(body.rotation)
   leftFootTarget.position.copy(_vec3)
-  leftFootTarget.position.add(transform.position)
+  leftFootTarget.position.add(body.position)
   leftFootTarget.updateMatrixWorld(true)
 
   /** hint is where the knees aim */
   leftFootTargetHint.position.set(leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
-  leftFootTargetHint.position.applyQuaternion(transform.rotation)
-  leftFootTargetHint.position.add(transform.position)
+  leftFootTargetHint.position.applyQuaternion(body.rotation)
+  leftFootTargetHint.position.add(body.position)
   leftFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(rig.LeftUpLeg, rig.LeftLeg, rig.LeftFoot, leftFootTarget, leftFootTargetHint, leftFootTargetOffset)
@@ -181,17 +184,17 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const kneeFlare = -kneeFlareSeparation + originalRightKneeOffset.x - kneeX * kneeFlareMultiplier
   _vec3.set(
     -kneeFlareSeparation + kneeFlare * footKneeFlareRatio,
-    rightFootTarget.position.y - transform.position.y + hipDifference,
+    rightFootTarget.position.y - body.position.y + hipDifference,
     0
   )
-  _vec3.applyQuaternion(transform.rotation)
+  _vec3.applyQuaternion(body.rotation)
   rightFootTarget.position.copy(_vec3)
-  rightFootTarget.position.add(transform.position)
+  rightFootTarget.position.add(body.position)
   rightFootTarget.updateMatrixWorld(true)
 
   rightFootTargetHint.position.set(kneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
-  rightFootTargetHint.position.applyQuaternion(transform.rotation)
-  rightFootTargetHint.position.add(transform.position)
+  rightFootTargetHint.position.applyQuaternion(body.rotation)
+  rightFootTargetHint.position.add(body.position)
   rightFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(
@@ -221,7 +224,4 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const currentRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
   const rightFootAngleDifference = originalRightFootAngle - currentRightFootAngle
   rig.RightFoot.applyQuaternion(_quat.setFromAxisAngle(V_100, rightFootAngleDifference))
-
-  // debug
-  rig.Hips.updateMatrixWorld(true)
 }

@@ -7,6 +7,7 @@ import { defineState, getState, startReactor, useHookstate } from '@xrengine/hyp
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { isHMD } from '../common/functions/isMobile'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
@@ -32,6 +33,7 @@ import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from './compone
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
+import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePoseToIKTargets'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -74,6 +76,8 @@ export default async function AvatarAnimationSystem(world: World) {
 
     return null
   })
+
+  const engineState = getState(EngineState)
 
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
   const priorityQueue = createPriorityQueue({
@@ -144,6 +148,8 @@ export default async function AvatarAnimationSystem(world: World) {
     const rightHandEntities = rightHandQuery(world).filter(filterPriorityEntities)
     const loopAnimationEntities = loopAnimationQuery(world).filter(filterPriorityEntities)
 
+    applyInputSourcePoseToIKTargets()
+
     for (const entity of avatarAnimationEntities) {
       /**
        * Apply motion to velocity controlled animations
@@ -202,6 +208,9 @@ export default async function AvatarAnimationSystem(world: World) {
       // TODO: Find a more elegant way to handle root motion
       const rootPos = AnimationManager.instance._defaultRootBone.position
       rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+
+      /** must update whole rig matrices here to ensure they are up to date for IK to by frame synced */
+      // rig.Hips.updateWorldMatrix(true, true)
     }
 
     /**
@@ -321,6 +330,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
     for (const entity of world.priorityAvatarEntities) {
       const avatarRig = getComponent(entity, AvatarRigComponent)
+      avatarRig?.rig.Hips.updateWorldMatrix(true, true)
       avatarRig?.helper?.updateMatrixWorld(true)
     }
   }
