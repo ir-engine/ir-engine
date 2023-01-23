@@ -157,7 +157,7 @@ export default async function AvatarSystem(world: World) {
     if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
       const sources = Array.from(inputSources.values())
-      const head = !!sources.find((s) => s.handedness === 'none') && getCameraMode() === 'attached'
+      const head = getCameraMode() === 'attached'
       const leftHand = !!sources.find((s) => s.handedness === 'left')
       const rightHand = !!sources.find((s) => s.handedness === 'right')
 

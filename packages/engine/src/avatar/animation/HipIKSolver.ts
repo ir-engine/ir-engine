@@ -73,7 +73,7 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const pivotHalfLengthSquare = pivotHalfLength * pivotHalfLength
   const minHeadHeight = pivotHalfLength + rigComponent.lowerLegLength + rigComponent.footHeight
   const headTargetY = target.getWorldPosition(_vec3).y
-  const clampedHeadTargetY = Math.max(minHeadHeight, headTargetY)
+  const clampedHeadTargetY = Math.min(Math.max(minHeadHeight, headTargetY), headToFeetLength)
 
   const targetToRealRatio = clampedHeadTargetY / headToFeetLength
 
@@ -159,16 +159,19 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const leftKneeFlare = kneeFlareSeparation + originalLeftKneeOffset.x + kneeX * kneeFlareMultiplier
 
   /** add knee flare to foot position */
-  _vec3.set(kneeFlareSeparation + leftKneeFlare * footKneeFlareRatio, leftFootTarget.position.y + hipDifference, 0)
+  _vec3.set(
+    kneeFlareSeparation + leftKneeFlare * footKneeFlareRatio,
+    leftFootTarget.position.y - transform.position.y + hipDifference,
+    0
+  )
   _vec3.applyQuaternion(transform.rotation)
   leftFootTarget.position.copy(_vec3)
   leftFootTarget.position.add(transform.position)
   leftFootTarget.updateMatrixWorld(true)
 
   /** hint is where the knees aim */
-  leftFootTargetHint.position.set(leftKneeFlare, 0, 0.1 + kneeX * 0.9)
+  leftFootTargetHint.position.set(leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   leftFootTargetHint.position.applyQuaternion(transform.rotation)
-  leftFootTargetHint.position.y = footToKneeY
   leftFootTargetHint.position.add(transform.position)
   leftFootTargetHint.updateMatrixWorld(true)
 
@@ -176,15 +179,18 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
 
   /** Right Foot */
   const kneeFlare = -kneeFlareSeparation + originalRightKneeOffset.x - kneeX * kneeFlareMultiplier
-  _vec3.set(-kneeFlareSeparation + kneeFlare * footKneeFlareRatio, rightFootTarget.position.y + hipDifference, 0)
+  _vec3.set(
+    -kneeFlareSeparation + kneeFlare * footKneeFlareRatio,
+    rightFootTarget.position.y - transform.position.y + hipDifference,
+    0
+  )
   _vec3.applyQuaternion(transform.rotation)
   rightFootTarget.position.copy(_vec3)
   rightFootTarget.position.add(transform.position)
   rightFootTarget.updateMatrixWorld(true)
 
-  rightFootTargetHint.position.set(kneeFlare, 0, 0.1 + kneeX * 0.9)
+  rightFootTargetHint.position.set(kneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   rightFootTargetHint.position.applyQuaternion(transform.rotation)
-  rightFootTargetHint.position.y = footToKneeY
   rightFootTargetHint.position.add(transform.position)
   rightFootTargetHint.updateMatrixWorld(true)
 
