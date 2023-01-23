@@ -13,6 +13,7 @@ import {
 	Quaternion,
 	RepeatWrapping,
 	sRGBEncoding,
+	Texture,
 	TextureLoader,
 	Vector3,
 } from 'three';
@@ -166,11 +167,10 @@ class USDZLoader extends Loader {
 		loader.setResponseType( 'arraybuffer' );
 		loader.setRequestHeader( scope.requestHeader );
 		loader.setWithCredentials( scope.withCredentials );
-		loader.load( url, function ( text ) {
-
+		loader.load( url, text => {
 			try {
 
-				onLoad( scope.parse( text ) );
+				scope.parse( text, onLoad )
 
 			} catch ( e ) {
 
@@ -187,15 +187,15 @@ class USDZLoader extends Loader {
 				scope.manager.itemError( url );
 
 			}
-
 		}, onProgress, onError );
 
 	}
 
-	parse( buffer ) {
+	parse( buffer, onLoad ) {
 
 		const parser = new USDAParser();
-
+		const pending = []
+		const textureCache = {}
 		function parseAssets( zip ) {
 
 			const data = {};
@@ -380,10 +380,10 @@ class USDZLoader extends Loader {
 		function buildGeometry( data ) {
 
 			let geometry = new BufferGeometry();
-			
+			let indices = []
 			if ( 'int[] faceVertexIndices' in data && typeof data['int[] faceVertexIndices'] === 'string' ) {
 
-				const indices = JSON.parse( data[ 'int[] faceVertexIndices' ] );
+				indices = JSON.parse( data[ 'int[] faceVertexIndices' ] )//.reverse();
 				geometry.setIndex( new BufferAttribute( new Uint16Array( indices ), 1 ) );
 
 			}
@@ -394,8 +394,7 @@ class USDZLoader extends Loader {
                 const positionArr = new Float32Array( positions )
 				const attribute = new BufferAttribute(positionArr , 3 );
 				geometry.setAttribute( 'position', attribute );
-                geometry = geometry.toNonIndexed()
-
+				geometry = geometry.toNonIndexed()
 			}
 
 			if ( 'normal3f[] normals' in data 
@@ -427,23 +426,12 @@ class USDZLoader extends Loader {
 			&& typeof data['texCoord2f[] primvars:st'] === 'string'
 			&& data['texCoord2f[] primvars:st'] !== 'None') {
 
-				const uvs = JSON.parse( data[ 'texCoord2f[] primvars:st' ].replace( /[()]*/g, '' ) );
+				let uvs = JSON.parse( data[ 'texCoord2f[] primvars:st' ].replace( /[()]*/g, '' ) );
 				const attribute = new BufferAttribute( new Float32Array( uvs ), 2 );
 
-				if ( 'int[] primvars:st:indices' in data
-				 && typeof data['int[] primvars:st:indices'] === 'string'
-				 && data['int[] primvars:st:indices'] !== 'None' ) {
+				geometry.setAttribute( 'uv', attribute );
 
-					geometry = geometry.toNonIndexed();
-
-					const indices = JSON.parse( data[ 'int[] primvars:st:indices' ] );
-					geometry.setAttribute( 'uv', toFlatBufferAttribute( attribute, indices ) );
-
-				} else {
-
-					geometry.setAttribute( 'uv', attribute );
-
-				}
+				
 
 			}
 			
@@ -453,31 +441,6 @@ class USDZLoader extends Loader {
 			}
 
 			return geometry;
-
-		}
-
-		function toFlatBufferAttribute( attribute, indices ) {
-
-			const array = attribute.array;
-			const itemSize = attribute.itemSize;
-
-			const array2 = new array.constructor( indices.length * itemSize );
-
-			let index = 0, index2 = 0;
-
-			for ( let i = 0, l = indices.length; i < l; i ++ ) {
-
-				index = indices[ i ] * itemSize;
-
-				for ( let j = 0; j < itemSize; j ++ ) {
-
-					array2[ index2 ++ ] = array[ index ++ ];
-
-				}
-
-			}
-
-			return new BufferAttribute( array2, itemSize );
 
 		}
 
@@ -531,7 +494,7 @@ class USDZLoader extends Loader {
             const scopes = Object.keys(data).filter(key => registryRegex.test(key))
             if (scopes.length > 0) return buildMaterial(data[scopes[0]])
 			const material = new MeshStandardMaterial();
-
+			material.side = THREE.DoubleSide
 			if ( data !== undefined ) {
                 const surfaceRegexp = /def Shader "(PreviewSurface|surfaceShader|Principled_BSDF|[^"]+_preview)"/
 				if ( Object.keys(data).some(key => surfaceRegexp.test(key)) ) {
@@ -633,11 +596,29 @@ class USDZLoader extends Loader {
 				const path = data[ 'asset inputs:file' ].replace( /@*/g, '' )
                     .replace(/(\.)?[\\\/]+/g, '/')
                     .replace(/^\//, '')
-
-				const loader = new TextureLoader();
-
-				const texture = loader.load( assets[ path ] );
-
+				if (!(path in assets)) {
+					return new Texture()
+				}
+				const loader = new TextureLoader()
+				const texture = new Texture()
+				if ( textureCache[ path ]) {
+					pending.push(new Promise(resolve => textureCache[ path ].then((_texture) => {
+						if (!texture) resolve()
+						texture.image = _texture.image
+						texture.needsUpdate = true
+						resolve()
+					})))
+				} else {
+					const loadPromise = new Promise((resolve, reject) => { 
+						loader.load( assets[ path ], (_texture) => {
+							texture.image = _texture.image
+							texture.needsUpdate = true
+							resolve(_texture)
+						}, () => {}, reject)
+					})
+					pending.push(loadPromise)
+					textureCache[ path ] = loadPromise
+				}
 				const map = {
 					'"clamp"': ClampToEdgeWrapping,
 					'"mirror"': MirroredRepeatWrapping,
@@ -667,7 +648,6 @@ class USDZLoader extends Loader {
 		function buildMesh( data ) {
 
 			const geometry = buildGeometry( 'point3f[] points' in data ? data : findMeshGeometry( data ) );
-			geometry.rotateX(Math.PI)
 			const foundMaterial = findMeshMaterial( data )
 			const material = foundMaterial ? buildMaterial( foundMaterial ) : undefined
 
@@ -685,17 +665,16 @@ class USDZLoader extends Loader {
         
 		function buildPointInstancer( registry, frontier, [path, context, name] ) {
 			const domain = /def PointInstancer "([^"]*)"/.exec(name)[1]
-			//const registryPath = `${path}/${domain}`
 			const nameContext = context[name]
 			const instanceTable = {}
 
-			if ( 'rel prototypes' in nameContext && typeof nameContext['rel prototypes'] === 'object' ) {
-				const prototypePaths = Object.entries(nameContext['rel prototypes'])
+			if ( 'rel prototypes' in nameContext && ['object', 'string'].includes(typeof nameContext['rel prototypes']) ) {
+				const prototypePaths = typeof nameContext['rel prototypes'] === 'object' 
+					? Object.entries(nameContext['rel prototypes'])
+					: [[0, /[\s<>,]*(.*?)[\s<>,]*$/.exec(nameContext['rel prototypes'])[1]]]
 				for ( const [i, prototypePath] of prototypePaths ) {
 					const baseMesh = buildMesh(findMeshGeometry(findContext(prototypePath)))
-					baseMesh.geometry.scale( 1, 1, -1 )
-					//baseMesh.rotateY( Math.PI )
-					//baseMesh.rotateZ( Math.PI )
+					baseMesh.geometry.scale( 1, 1, 1 )
 					instanceTable[i] = {
 						matrices: [],
 						baseMesh
@@ -727,18 +706,12 @@ class USDZLoader extends Loader {
 					for (let i = 0; i < instanceCount; i++) {
 						const idx = i * 4
 						const quat = new Quaternion(
-							quatArr[idx], 
 							quatArr[idx + 1], 
-							quatArr[idx + 2], 
-							quatArr[idx + 3]
+							quatArr[idx + 2],
+							quatArr[idx + 3], 
+							quatArr[idx]
 						)
-						const rhsQuat = new Quaternion(
-							quat.z, quat.y, quat.x, -quat.w
-						)
-						/*const rhsQuat = new Quaternion(
-							-quat.x, -quat.z, -quat.y, quat.w 
-						)*/
-						orients[i] = rhsQuat
+						orients[i] = quat
 					}
 				}
 	
@@ -845,7 +818,7 @@ class USDZLoader extends Loader {
                 })
 							}
 		}
-		return group;
+		Promise.all( pending ).then(() => onLoad(group) )
 
 	}
 
