@@ -77,8 +77,6 @@ export default async function AvatarAnimationSystem(world: World) {
     return null
   })
 
-  const engineState = getState(EngineState)
-
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
   const priorityQueue = createPriorityQueue({
     accumulationBudget: getState(AvatarAnimationState).accumulationBudget.value

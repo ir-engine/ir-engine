@@ -213,10 +213,10 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
 
   /** Angle feet */
 
-  /** left foot */
   /** get the current angle of the foot in world space */
   /** get the difference between the two angles */
   /** apply the difference to the foot */
+  /** left foot */
   const currentLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
   const leftFootAngleDifference = originalLeftFootAngle - currentLeftFootAngle
   rig.LeftFoot.applyQuaternion(_quat.setFromAxisAngle(V_100, leftFootAngleDifference))
