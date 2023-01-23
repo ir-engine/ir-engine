@@ -56,9 +56,11 @@ describe('PrefabComponentFunctions', async () => {
     Engine.instance.engineTimer.start()
 
     Engine.instance.publicPath = ''
-    await Promise.all([TransformModule(), SceneCommonModule(), SceneClientModule()])
 
     await initSystems(world, [
+      ...TransformModule(),
+      ...SceneCommonModule(),
+      ...SceneClientModule(),
       {
         uuid: 'Asset',
         type: 'FIXED_LATE',

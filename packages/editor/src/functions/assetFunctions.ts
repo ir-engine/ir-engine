@@ -39,7 +39,9 @@ export const exportPrefab = async (node: EntityTreeNode) => {
   const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   const dudObjs = new Array<Object3DWithEntity>()
   const obj3ds = new Array<Object3DWithEntity>()
-  const frontier = new Array<EntityTreeNode>(node)
+  const frontier = new Array<EntityTreeNode>(
+    ...node.children.filter((child) => eNodeMap.has(child)).map((child) => eNodeMap.get(child)!)
+  )
   do {
     const prefabNode = frontier.pop()!
     const entity = prefabNode.entity
