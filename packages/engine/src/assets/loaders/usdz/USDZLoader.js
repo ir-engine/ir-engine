@@ -383,7 +383,7 @@ class USDZLoader extends Loader {
 			let indices = []
 			if ( 'int[] faceVertexIndices' in data && typeof data['int[] faceVertexIndices'] === 'string' ) {
 
-				indices = JSON.parse( data[ 'int[] faceVertexIndices' ] )//.reverse();
+				indices = JSON.parse( data[ 'int[] faceVertexIndices' ] )
 				geometry.setIndex( new BufferAttribute( new Uint16Array( indices ), 1 ) );
 
 			}
