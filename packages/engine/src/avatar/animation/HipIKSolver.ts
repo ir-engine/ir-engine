@@ -23,6 +23,8 @@ group.add(hips, knee, head)
 const degtoRad90 = Math.PI * 0.5
 const sin90 = Math.sin(degtoRad90)
 
+const originalLeftKneeOffset = new Vector3()
+const originalRightKneeOffset = new Vector3()
 const _vec3 = new Vector3()
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
@@ -50,7 +52,7 @@ const rightFootTargetHint = new Object3D().add(
  */
 export function solveHipHeight(entity: Entity, target: Object3D) {
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  const transformComponent = getComponent(entity, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
 
   if (debug && !hasAdded) {
     hasAdded = true
@@ -70,11 +72,7 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const pivotHalfLength = rigComponent.upperLegLength * 0.5
   const pivotHalfLengthSquare = pivotHalfLength * pivotHalfLength
   const minHeadHeight = pivotHalfLength + rigComponent.lowerLegLength + rigComponent.footHeight
-  // const headTargetY = target.getWorldPosition(_vec3).y
-  /** @DEBUG */
-  const headTargetY =
-    (Math.sin(Engine.instance.currentWorld.elapsedSeconds * 2) + 1) * 0.5 * (headToFeetLength - minHeadHeight) +
-    minHeadHeight
+  const headTargetY = target.getWorldPosition(_vec3).y
   const clampedHeadTargetY = Math.max(minHeadHeight, headTargetY)
 
   const targetToRealRatio = clampedHeadTargetY / headToFeetLength
@@ -133,19 +131,24 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   /** determins how far apart the feet are as a mulitplier of how far apart the knees are*/
   const footKneeFlareRatio = 0.2
 
-  /** update matrices after animation has been applied */
+  /** update leg matrices after animation has been applied */
   rig.LeftUpLeg.updateWorldMatrix(false, true)
-  const originalLeftKneeX = rig.LeftLeg.getWorldPosition(_vec3).x
-  const originalLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  rig.RightUpLeg.updateWorldMatrix(false, true)
+
   /** copy foot world pose into target */
   rig.LeftFoot.getWorldPosition(leftFootTarget.position)
   rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
-
-  rig.RightUpLeg.updateWorldMatrix(false, true)
-  const originalRightKneeX = rig.RightLeg.getWorldPosition(_vec3).x
-  const originalRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
   rig.RightFoot.getWorldPosition(rightFootTarget.position)
   rig.RightFoot.getWorldQuaternion(rightFootTarget.quaternion)
+
+  /** get original knee position in avatar local space */
+  rig.LeftLeg.getWorldPosition(originalLeftKneeOffset).sub(transform.position)
+  originalLeftKneeOffset.applyQuaternion(_quat.copy(transform.rotation).invert())
+  const originalLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
+
+  rig.RightLeg.getWorldPosition(originalRightKneeOffset).sub(transform.position)
+  originalRightKneeOffset.applyQuaternion(_quat.copy(transform.rotation).invert())
+  const originalRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
 
   /** move hips to the new position */
   const hipDifference = fullLegLength - (footToKneeY + kneeToHipsY)
@@ -153,36 +156,36 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   rig.Hips.position.z -= hipX
 
   /** calculate how much the knees should flare out based on the distance the knees move forward, adding to the original position (to preserve animations) */
-  const leftKneeFlare = kneeFlareSeparation + originalLeftKneeX + kneeX * kneeFlareMultiplier
+  const leftKneeFlare = kneeFlareSeparation + originalLeftKneeOffset.x + kneeX * kneeFlareMultiplier
 
   /** add knee flare to foot position */
   _vec3.set(kneeFlareSeparation + leftKneeFlare * footKneeFlareRatio, leftFootTarget.position.y + hipDifference, 0)
-  _vec3.applyQuaternion(transformComponent.rotation)
+  _vec3.applyQuaternion(transform.rotation)
   leftFootTarget.position.copy(_vec3)
-  leftFootTarget.position.z = transformComponent.position.z
+  leftFootTarget.position.add(transform.position)
   leftFootTarget.updateMatrixWorld(true)
 
   /** hint is where the knees aim */
   leftFootTargetHint.position.set(leftKneeFlare, 0, 0.1 + kneeX * 0.9)
-  leftFootTargetHint.position.applyQuaternion(transformComponent.rotation)
+  leftFootTargetHint.position.applyQuaternion(transform.rotation)
   leftFootTargetHint.position.y = footToKneeY
-  leftFootTargetHint.position.add(transformComponent.position)
+  leftFootTargetHint.position.add(transform.position)
   leftFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(rig.LeftUpLeg, rig.LeftLeg, rig.LeftFoot, leftFootTarget, leftFootTargetHint, leftFootTargetOffset)
 
   /** Right Foot */
-  const kneeFlare = -kneeFlareSeparation + originalRightKneeX - kneeX * kneeFlareMultiplier
+  const kneeFlare = -kneeFlareSeparation + originalRightKneeOffset.x - kneeX * kneeFlareMultiplier
   _vec3.set(-kneeFlareSeparation + kneeFlare * footKneeFlareRatio, rightFootTarget.position.y + hipDifference, 0)
-  _vec3.applyQuaternion(transformComponent.rotation)
+  _vec3.applyQuaternion(transform.rotation)
   rightFootTarget.position.copy(_vec3)
-  rightFootTarget.position.z = transformComponent.position.z
+  rightFootTarget.position.add(transform.position)
   rightFootTarget.updateMatrixWorld(true)
 
   rightFootTargetHint.position.set(kneeFlare, 0, 0.1 + kneeX * 0.9)
-  rightFootTargetHint.position.applyQuaternion(transformComponent.rotation)
+  rightFootTargetHint.position.applyQuaternion(transform.rotation)
   rightFootTargetHint.position.y = footToKneeY
-  rightFootTargetHint.position.add(transformComponent.position)
+  rightFootTargetHint.position.add(transform.position)
   rightFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(

@@ -33,9 +33,9 @@ export function solveTwoBoneIK(
   root: Bone,
   mid: Bone,
   tip: Bone,
-  target: Object3D,
-  hint: Object3D | null,
-  targetOffset: Object3D,
+  target: Object3D, // convert to matrix or dual quat
+  hint: Object3D | null, // in local space, should be in world space, convert to matrix or dual quat
+  targetOffset: Object3D, // convert to matrix or dual quat
   targetPosWeight: number = 1,
   targetRotWeight: number = 0,
   hintWeight: number = 1
