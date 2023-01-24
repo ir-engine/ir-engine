@@ -100,16 +100,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     animationSpeed: 1
   })
 
-  addComponent(entity, AvatarAnimationComponent, {
-    animationGraph: {
-      states: {},
-      transitionRules: {},
-      currentState: null!,
-      stateChanged: null!
-    },
-    rootYRatio: 1,
-    locomotion: new Vector3()
-  })
+  addComponent(entity, AvatarAnimationComponent)
   setComponent(entity, AvatarIKTargetsComponent, {
     head: false,
     leftHand: false,

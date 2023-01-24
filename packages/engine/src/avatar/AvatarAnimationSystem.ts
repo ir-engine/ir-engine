@@ -147,6 +147,7 @@ export default async function AvatarAnimationSystem(world: World) {
     const loopAnimationEntities = loopAnimationQuery(world).filter(filterPriorityEntities)
 
     applyInputSourcePoseToIKTargets()
+    const inverseDeltaSeconds = 1 / deltaSeconds
 
     for (const entity of avatarAnimationEntities) {
       /**
@@ -161,13 +162,17 @@ export default async function AvatarAnimationSystem(world: World) {
       avatarAnimationComponent.deltaAccumulator = elapsedSeconds
 
       if (rigidbodyComponent) {
+        _vector3
+          .subVectors(rigidbodyComponent.position, avatarAnimationComponent.lastPosition)
+          .multiplyScalar(inverseDeltaSeconds)
+        avatarAnimationComponent.lastPosition.copy(rigidbodyComponent.position)
         // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
         avatarAnimationComponent.locomotion.x = 0
-        avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
+        avatarAnimationComponent.locomotion.y = _vector3.y
         // lerp animated forward animation to smoothly animate to a stop
         avatarAnimationComponent.locomotion.z = MathUtils.lerp(
           avatarAnimationComponent.locomotion.z || 0,
-          _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+          _vector3.setComponent(1, 0).length(),
           10 * deltaTime
         )
       } else {

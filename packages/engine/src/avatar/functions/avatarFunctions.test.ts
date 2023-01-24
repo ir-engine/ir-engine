@@ -41,7 +41,7 @@ describe('avatarFunctions Unit', async () => {
   // describe('boneMatchAvatarModel', () => {
   //   it('should set up bone matching', async () => {
   //     const entity = createEntity()
-  //     addComponent(entity, AvatarAnimationComponent, {} as any)
+  //     addComponent(entity, AvatarAnimationComponent)
   //     const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
   //     rigAvatarModel(entity)(model)
   //     const avatarRigComponent = getComponent(entity, AvatarRigComponent)
@@ -64,7 +64,7 @@ describe('avatarFunctions Unit', async () => {
     it('should add rig to skeleton', async () => {
       const entity = createEntity()
       addComponent(entity, GroupComponent)
-      addComponent(entity, AvatarAnimationComponent, {} as any)
+      addComponent(entity, AvatarAnimationComponent)
       const animationComponent = getComponent(entity, AvatarAnimationComponent)
       const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
       setComponent(entity, AvatarComponent, { model })
@@ -87,16 +87,7 @@ describe('avatarFunctions Unit', async () => {
 
       addComponent(entity, AnimationComponent, animationComponentData)
 
-      addComponent(entity, AvatarAnimationComponent, {
-        animationGraph: {
-          states: {},
-          transitionRules: {},
-          currentState: null!,
-          stateChanged: null!
-        },
-        rootYRatio: 1,
-        locomotion: new Vector3()
-      })
+      addComponent(entity, AvatarAnimationComponent)
       const animationGLTF = await AssetLoader.loadAsync(animGLB)
       AnimationManager.instance.getAnimations(animationGLTF)
 

@@ -116,7 +116,7 @@ describe('LoopAnimationFunctions', () => {
     //   })
 
     //   it('Will remove other components if value is false', () => {
-    //     addComponent(entity, AvatarAnimationComponent, {} as any)
+    //     addComponent(entity, AvatarAnimationComponent)
     //     loopAnimation.hasAvatarAnimations = false
     //     loopAnimationFunctions.updateLoopAnimation(entity)
 

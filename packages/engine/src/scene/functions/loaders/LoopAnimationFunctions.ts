@@ -60,16 +60,7 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
 
   if (changedToAvatarAnimation) {
     if (!hasComponent(entity, AvatarAnimationComponent)) {
-      addComponent(entity, AvatarAnimationComponent, {
-        animationGraph: {
-          states: {},
-          transitionRules: {},
-          currentState: null!,
-          stateChanged: null!
-        },
-        rootYRatio: 1,
-        locomotion: new Vector3()
-      })
+      addComponent(entity, AvatarAnimationComponent)
       const setupLoopableAvatarModel = setupAvatarModel(entity)
       setupLoopableAvatarModel(scene)
     }

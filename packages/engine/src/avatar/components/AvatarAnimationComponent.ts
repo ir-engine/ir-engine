@@ -20,21 +20,38 @@ import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
-export type AvatarAnimationComponentType = {
-  /** Animaiton graph of this entity */
-  animationGraph: AnimationGraph
+export const AvatarAnimationComponent = defineComponent({
+  name: 'AvatarAnimationComponent',
 
-  /** ratio between original and target skeleton's root.position.y */
-  rootYRatio: number
+  onInit: (entity) => {
+    return {
+      /** Animaiton graph of this entity */
+      animationGraph: {
+        states: {},
+        transitionRules: {},
+        currentState: null!,
+        stateChanged: null!
+      },
+      /** ratio between original and target skeleton's root.position.y */
+      rootYRatio: 1,
+      /** The input vector for 2D locomotion blending space */
+      locomotion: new Vector3(),
+      /** Animation frame (non physics) velocity */
+      lastPosition: new Vector3(),
+      /** Time since the last update */
+      deltaAccumulator: 0
+    }
+  },
 
-  /** The input vector for 2D locomotion blending space */
-  locomotion: Vector3
-
-  /** Time since the last update */
-  deltaAccumulator: number
-}
-
-export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.animationGraph)) component.animationGraph.set(json.animationGraph)
+    if (matches.number.test(json.rootYRatio)) component.rootYRatio.set(json.rootYRatio)
+    if (matches.object.test(json.locomotion)) component.locomotion.value.copy(json.locomotion)
+    if (matches.object.test(json.lastPosition)) component.lastPosition.value.copy(json.lastPosition)
+    if (matches.number.test(json.deltaAccumulator)) component.deltaAccumulator.set(json.deltaAccumulator)
+  }
+})
 
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',

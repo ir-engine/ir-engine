@@ -43,16 +43,7 @@ export const resetAnimationLogic = (entity: Entity) => {
     animations: [],
     animationSpeed: 1
   })
-  setComponent(entity, AvatarAnimationComponent, {
-    animationGraph: {
-      states: {},
-      transitionRules: {},
-      currentState: null!,
-      stateChanged: null!
-    },
-    rootYRatio: 1,
-    locomotion: new Vector3()
-  })
+  setComponent(entity, AvatarAnimationComponent)
   setComponent(entity, VisibleComponent, true)
 }
 
