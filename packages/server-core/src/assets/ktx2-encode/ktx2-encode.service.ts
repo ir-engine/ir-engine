@@ -12,12 +12,12 @@ import { Application } from '../../../declarations'
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'ktx2-encode': {
-      create: any
+      create: (data: KTX2EncodeArguments) => Promise<string>
     }
   }
 }
 
-async function createKtx2(data: KTX2EncodeArguments): Promise<any> {
+async function createKtx2(data: KTX2EncodeArguments): Promise<string> {
   const promiseExec = util.promisify(exec)
   const serverDir = path.join(appRootPath.path, 'packages/server')
   const projectDir = path.join(appRootPath.path, 'packages/projects')
