@@ -50,7 +50,7 @@ import {
 } from '@xrengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
-import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
+// import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'
 // import { createEmoteWidget } from './createEmoteWidget'
@@ -96,7 +96,7 @@ export default async function WidgetUISystem(world: World) {
     if (!createdWidgets && (isHMD || isDev)) {
       createdWidgets = true
       createAnchorWidget(world)
-      createHeightAdjustmentWidget(world)
+      // createHeightAdjustmentWidget(world)
       // createProfileWidget(world)
       // createSettingsWidget(world)
       // createSocialsMenuWidget(world)

@@ -23,6 +23,7 @@ interface Props {
 
 const defaultBuildStatus = {
   id: 0,
+  commitSHA: '',
   status: '',
   dateStarted: '',
   dateEnded: '',
@@ -63,6 +64,11 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
           <span>{el.id}</span>
         </Box>
       ),
+      commitSHA: (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <span>{el.commitSHA.slice(0, 8)}</span>
+        </Box>
+      ),
       status: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <span>{el.status}</span>
@@ -84,13 +90,15 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
       dateEnded: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <span>
-            {new Date(el.dateEnded).toLocaleString('en-us', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            })}
+            {el.dateEnded &&
+              new Date(el.dateEnded).toLocaleString('en-us', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+              })}
+            {!el.dateEnded && 'Running'}
           </span>
         </Box>
       ),
