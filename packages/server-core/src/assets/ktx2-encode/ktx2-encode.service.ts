@@ -1,14 +1,13 @@
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
-import express from 'express'
-import multer from 'multer'
+import fs from 'fs'
 import path from 'path'
-import sharp from 'sharp'
+import { MathUtils } from 'three'
 import util from 'util'
 
-import { Application } from '../../../declarations'
+import { KTX2EncodeArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
 
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
+import { Application } from '../../../declarations'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
@@ -18,40 +17,34 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
-export type KTX2EncodeArguments = {
-  src: string
-  mode: 'ETC1S' | 'UASTC'
-  quality: number
-  mipmaps: boolean
-  powerOfTwo: boolean
-  resize: boolean
-  resizeWidth: number
-  resizeHeight: number
-  resizeMethod: 'stretch' | 'aspect'
-}
-
-export function toValidFilename(str: string) {
-  return str.replace(/[\s]/gi, '-').toLowerCase()
-}
-
-export async function createKtx2(data: KTX2EncodeArguments, params: any): Promise<any> {
+async function createKtx2(data: KTX2EncodeArguments): Promise<any> {
   const promiseExec = util.promisify(exec)
   const serverDir = path.join(appRootPath.path, 'packages/server')
-  const projectDir = path.join(appRootPath.path, 'packages/projects/projects')
-  const tmpDir = path.join(serverDir, 'tmp')
+  const projectDir = path.join(appRootPath.path, 'packages/projects')
+  const tmpDir = path.join(serverDir, `tmp-${MathUtils.generateUUID()}`)
   const BASIS_U = path.join(appRootPath.path, 'packages/server/public/loader_decoders/basisu')
-  const inPath = path.join(projectDir, /.*projects\/(.*)$/.exec(data.src)![1])
+  const inURI = /.*(projects\/.*)$/.exec(data.src)![1]
+  const inPath = path.join(projectDir, inURI)
   const outPath = inPath.replace(/\.[^\.]+$/, '.ktx2')
-  const command = `${BASIS_U} -ktx2${data.mode === 'UASTC' ? ' -uastc' : ''}${data.mipmaps ? ' -mipmap' : ''} -q ${
-    data.quality
-  } ${inPath}`
-  await promiseExec(command)
-
-  return outPath
+  const outURIDir = path.dirname(inURI)
+  const fileName = /[^\\/]*$/.exec(outPath)![0]
+  const command = `${BASIS_U} -ktx2${data.mode === 'UASTC' ? ' -uastc' : ''}${
+    data.mipmaps ? ' -mipmap' : ''
+  } -y_flip -linear -q ${data.quality} ${inPath}`
+  console.log(command)
+  console.log(await promiseExec(command))
+  console.log(await promiseExec(`mv ${fileName} ${outPath}`))
+  const result = await this.app.service('file-browser').patch(null, {
+    fileName,
+    path: outURIDir,
+    body: fs.readFileSync(outPath),
+    contentType: 'image/ktx2'
+  })
+  return result
 }
 
 export default (app: Application): any => {
   app.use('ktx2-encode', {
-    create: createKtx2
+    create: createKtx2.bind({ app })
   })
 }
